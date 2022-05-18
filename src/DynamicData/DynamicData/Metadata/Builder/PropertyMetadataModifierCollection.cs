@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
-namespace DotVVM.Framework.Controls.DynamicData.Metadata.Builder
+namespace DotVVM.AutoUI.Metadata.Builder
 {
     public class PropertyMetadataModifierCollection
     {

@@ -1,8 +1,8 @@
-﻿using System.Reflection;
-using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
+﻿using DotVVM.AutoUI.Controls;
+using DotVVM.AutoUI.Metadata;
+using DotVVM.Framework.Controls;
 
-namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
+namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
 {
     public abstract class FormEditorProviderBase : DynamicDataPropertyHandlerBase, IFormEditorProvider
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using DotVVM.Framework.Controls.DynamicData.Annotations;
+using DotVVM.AutoUI.Annotations;
 
-namespace DotVVM.Framework.Controls.DynamicData.Metadata.Builder;
+namespace DotVVM.AutoUI.Metadata.Builder;
 
 public class PropertyDisplayMetadataModifier
 {

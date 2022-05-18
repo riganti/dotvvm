@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotVVM.Framework.Controls.DynamicData.Annotations;
+namespace DotVVM.AutoUI.Annotations;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class SelectorAttribute : System.Attribute

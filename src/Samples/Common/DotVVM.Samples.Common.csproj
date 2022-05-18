@@ -78,8 +78,8 @@
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\CompositeControls\ControlPropertyNamingConflict.dothtml" />
     <None Remove="Views\FeatureSamples\CommandActionFilter\CommandActionFilter.dothtml" />
-    <None Remove="Views\FeatureSamples\DynamicData\DynamicEditor.dothtml" />
-    <None Remove="Views\FeatureSamples\DynamicData\DynamicEntity.dothtml" />
+    <None Remove="Views\FeatureSamples\AutoUI\DynamicEditor.dothtml" />
+    <None Remove="Views\FeatureSamples\AutoUI\DynamicEntity.dothtml" />
     <None Remove="Views\FeatureSamples\HotReload\ViewChanges.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\ArrayTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\DateTimeTranslations.dothtml" />
@@ -170,7 +170,7 @@
     <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" />
     <ProjectReference Include="../Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj" />
     <ProjectReference Include="../EmbeddedResourceControls/EmbeddedResourceControls.csproj" />
-    <ProjectReference Include="..\..\DynamicData\DynamicData\DotVVM.Framework.Controls.DynamicData.csproj" />
+    <ProjectReference Include="..\..\DynamicData\DynamicData\DotVVM.AutoUI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">

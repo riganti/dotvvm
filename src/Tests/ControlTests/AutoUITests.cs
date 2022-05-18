@@ -14,21 +14,21 @@ using DotVVM.Framework.Testing;
 using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DotVVM.Framework.Controls.DynamicData;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using DotVVM.Framework.Controls.DynamicData.Annotations;
+using DotVVM.AutoUI;
+using DotVVM.AutoUI.Annotations;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
     [TestClass]
-    public class DynamicDataTests
+    public class AutoUITests
     {
         static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
             _ = Repeater.RenderAsNamedTemplateProperty;
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
         }, services: s => {
-            s.AddDynamicData();
+            s.AddAutoUI();
         });
         OutputChecker check = new OutputChecker("testoutputs");
 
@@ -36,12 +36,12 @@ namespace DotVVM.Framework.Tests.ControlTests
         public async Task BasicDynamicEntity()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-                    <dd:DynamicEntity DataContext={value: Entity} ExcludeProperties='Id'
+                    <au:DynamicEntity DataContext={value: Entity} ExcludeProperties='Id'
                             Changed-Name={command: 0}>
                         <EditorTemplate-Sometime>
                             Nah, I'm lazy and we don't support date times
                         </EditorTemplate-Sometime>
-                    </dd:DynamicEntity>
+                    </au:DynamicEntity>
                 "
             );
 
@@ -54,8 +54,8 @@ namespace DotVVM.Framework.Tests.ControlTests
         public async Task BasicDynamicEditor()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-                    <dd:DynamicEditor Property={value: Integer} />
-                    <dd:DynamicEditor Property={value: Boolean} />
+                    <au:DynamicEditor Property={value: Integer} />
+                    <au:DynamicEditor Property={value: Boolean} />
                 "
             );
 
@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
                     <dot:GridView DataSource={value: List}>
-                        <dd:DynamicGridColumn Property={value: Name} />
+                        <au:DynamicGridColumn Property={value: Name} />
                     </dot:GridView>
                 "
             );
@@ -95,7 +95,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             }
 
             var r = await cth.RunPage(typeof(VisibleEnabledTestViewModel), $@"
-                    <dd:DynamicEntity ViewName={viewName} />
+                    <au:DynamicEntity ViewName={viewName} />
                 ",
                 user: new ClaimsPrincipal(user),
                 fileName: $"{nameof(DynamicEntityWithVisibleEnabledFields)}-{viewName}-{userRoleName}-{isAuthenticated}");
@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
                     <dot:GridView DataSource={value: List} InlineEditing>
-                        <dd:DynamicColumns />
+                        <au:DynamicColumns />
                     </dot:GridView>
                 "
             );
@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
                     <dot:Repeater DataSource={value: List}>
-                        <dd:DynamicEntity IncludeProperties='Email, Name' />
+                        <au:DynamicEntity IncludeProperties='Email, Name' />
                     </dot:Repeater>
                 "
             );

@@ -2,14 +2,15 @@ using System;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
-using DotVVM.Framework.Compilation.Styles;
-using DotVVM.Framework.Binding.Properties;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI.Controls
 {
-    public class DynamicGridColumn: GridViewColumn
+    public class DynamicGridColumn : GridViewColumn
     {
         [MarkupOptions(AllowHardCodedValue = false, Required = true)]
         public IValueBinding? Property
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         {
             var context = new DynamicDataContext(col.Control.DataContextTypeStack, col.Configuration.ServiceProvider);
 
-            var props = col.PropertyValue<Props>(DynamicGridColumn.PropsProperty).NotNull();
+            var props = col.PropertyValue<Props>(PropsProperty).NotNull();
             if (props.Property is null)
                 throw new DotvvmControlException($"DynamicGridColumn.Property is not set.");
 
@@ -71,7 +72,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         private static GridViewColumn CreateColumn(DynamicDataContext context, Props props, Metadata.PropertyDisplayMetadata property)
         {
-            if (props.ContentTemplate is {})
+            if (props.ContentTemplate is { })
                 return new GridViewTemplateColumn { ContentTemplate = props.ContentTemplate };
 
             var provider =

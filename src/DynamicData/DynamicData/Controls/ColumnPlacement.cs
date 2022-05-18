@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Framework.Controls.DynamicData
+﻿namespace DotVVM.AutoUI.Controls
 {
     public enum ColumnPlacement
     {

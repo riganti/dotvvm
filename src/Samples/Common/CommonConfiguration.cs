@@ -1,10 +1,9 @@
 using System.Net.Http;
+using DotVVM.AutoUI;
+using DotVVM.AutoUI.Annotations;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Controls.DynamicData;
-using DotVVM.Framework.Controls.DynamicData.Annotations;
-using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
@@ -17,7 +16,7 @@ using DotVVM.Samples.Common.Resources;
 using DotVVM.Samples.Common.Utilities;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
-using DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBack;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand;
@@ -70,7 +69,7 @@ namespace DotVVM.Samples.Common
 
             services.AddSingleton<ViewModels.ControlSamples.NamedCommand.TestService>();
 
-            dotvvmServices.AddDynamicData(config => {
+            dotvvmServices.AddAutoUI(config => {
                 config.PropertyDisplayNamesResourceFile = typeof(DynamicDataTexts);
                 config.PropertyMetadataRules
                     .For("IsCompany", r => r.SetDisplayName("Hello"))

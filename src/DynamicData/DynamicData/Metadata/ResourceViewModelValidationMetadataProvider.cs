@@ -5,10 +5,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
-using System.Threading;
 using DotVVM.Framework.ViewModel.Validation;
 
-namespace DotVVM.Framework.Controls.DynamicData.Metadata
+namespace DotVVM.AutoUI.Metadata
 {
     /// <summary>
     /// Validation attribmetadata provider which loads missing error messages from the RESX file.

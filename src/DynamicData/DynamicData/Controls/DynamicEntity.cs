@@ -1,10 +1,9 @@
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using DotVVM.AutoUI.Metadata;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
+using DotVVM.Framework.Controls;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI.Controls
 {
     [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public class DynamicEntity : DynamicEntityBase
@@ -31,25 +30,25 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         public DotvvmControl GetContents(FieldProps props)
         {
-            var context = this.CreateDynamicDataContext();
+            var context = CreateDynamicDataContext();
 
             // create the table
             var table = InitializeTable(context);
-            
+
             // create the rows
             foreach (var property in GetPropertiesToDisplay(context, props.FieldSelector))
             {
-                if (this.TryGetFieldTemplate(property, props) is {} field)
+                if (TryGetFieldTemplate(property, props) is { } field)
                 {
                     table.AppendChildren(field);
                     continue;
                 }
                 // create the row
                 var row = InitializeTableRow(property, context, out var labelCell, out var editorCell);
-                
+
                 // create the label
                 labelCell.AppendChildren(InitializeControlLabel(property, context, props));
-                
+
                 // create the editorProvider
                 editorCell.AppendChildren(CreateEditor(property, context, props));
 
@@ -80,7 +79,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
             editorCell = new HtmlGenericControl("td")
                 .AddCssClasses("dynamicdata-editor", EditorCellCssClass, property.Styles?.FormControlContainerCssClass);
-            
+
             return new HtmlGenericControl("tr")
                 .AddCssClass(property.Styles?.FormRowCssClass)
                 .AppendChildren(labelCell, editorCell);

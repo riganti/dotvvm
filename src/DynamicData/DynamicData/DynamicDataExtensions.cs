@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using DotVVM.AutoUI.Configuration;
+using DotVVM.AutoUI.Controls;
+using DotVVM.AutoUI.Metadata;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Controls.DynamicData.Configuration;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI
 {
     public static class DynamicDataExtensions
     {
         /// <summary>
         /// Registers all services required by DotVVM Dynamic Data.
         /// </summary>
-        public static IDotvvmServiceCollection AddDynamicData(this IDotvvmServiceCollection services, Action<DynamicDataConfiguration>? configure = null)
+        public static IDotvvmServiceCollection AddAutoUI(this IDotvvmServiceCollection services, Action<DynamicDataConfiguration>? configure = null)
         {
             var dynamicDataConfiguration = new DynamicDataConfiguration();
             configure?.Invoke(dynamicDataConfiguration);
@@ -70,7 +69,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// </summary>
         private static void AddDynamicDataConfiguration(DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControls("dd", typeof(DynamicDataExtensions).Namespace!, typeof(DynamicDataExtensions).Assembly!.GetName().Name!);
+            config.Markup.AddCodeControls("au", typeof(DynamicDataExtensions).Namespace! + ".Controls", typeof(DynamicDataExtensions).Assembly!.GetName().Name!);
 
             RegisterDynamicDataStyles(config);
         }

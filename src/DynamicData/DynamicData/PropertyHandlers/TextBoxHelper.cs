@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers
+namespace DotVVM.AutoUI.PropertyHandlers
 {
     public static class TextBoxHelper
     {

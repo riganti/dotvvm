@@ -1,10 +1,9 @@
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using DotVVM.AutoUI.Metadata;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
+using DotVVM.Framework.Controls;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI.Controls
 {
     [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public class BootstrapDynamicEntity : DynamicEntityBase
@@ -31,14 +30,14 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         public DotvvmControl GetContents(FieldProps props)
         {
-            var context = this.CreateDynamicDataContext();
+            var context = CreateDynamicDataContext();
 
             var resultPlaceholder = new PlaceHolder();
 
             // create the rows
             foreach (var property in GetPropertiesToDisplay(context, props.FieldSelector))
             {
-                if (this.TryGetFieldTemplate(property, props) is {} field)
+                if (TryGetFieldTemplate(property, props) is { } field)
                 {
                     resultPlaceholder.AppendChildren(field);
                     continue;
@@ -52,7 +51,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
                 // create the editorProvider
                 controlElement.AppendChildren(
-                    this.CreateEditor(property, context, props)
+                    CreateEditor(property, context, props)
                         .AddCssClass("form-control")
                 );
 

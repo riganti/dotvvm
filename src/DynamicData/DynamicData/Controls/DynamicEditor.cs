@@ -1,29 +1,25 @@
-﻿using DotVVM.Framework.Binding;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
-using DotVVM.Framework.Utils;
-using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI.Controls
 {
     /// <summary>
     /// Creates the editor for the specified property using the metadata information.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false, Precompile = ControlPrecompilationMode.InServerSideStyles)]
-    public sealed class DynamicEditor: CompositeControl, IObjectWithCapability<HtmlCapability>, IControlWithHtmlAttributes
+    public sealed class DynamicEditor : CompositeControl, IObjectWithCapability<HtmlCapability>, IControlWithHtmlAttributes
     {
         /// <summary>
         /// Gets or sets the property that should be edited.
         /// </summary>
-        [BindingCompilationRequirements(required: new [] { typeof(ReferencedViewModelPropertiesBindingProperty) })]
+        [BindingCompilationRequirements(required: new[] { typeof(ReferencedViewModelPropertiesBindingProperty) })]
         [MarkupOptions(AllowHardCodedValue = false, Required = true)]
         public IValueBinding? Property
         {
@@ -35,7 +31,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             new(this, AttributesGroupDescriptor);
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
         public static DotvvmPropertyGroup AttributesGroupDescriptor =
-            DotvvmPropertyGroup.Register<object, DynamicEditor>(new [] { "", "html:" }, nameof(Attributes));
+            DotvvmPropertyGroup.Register<object, DynamicEditor>(new[] { "", "html:" }, nameof(Attributes));
 
         public static readonly DotvvmProperty PropertyProperty
             = DotvvmProperty.Register<IValueBinding, DynamicEditor>(c => c.Property, null);
@@ -67,13 +63,12 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         public DotvvmControl GetContents(Props props)
         {
-            if (props.OverrideTemplate is {})
+            if (props.OverrideTemplate is { })
             {
                 return new TemplateHost(props.OverrideTemplate);
             }
 
-            var context = new DynamicDataContext(this.GetDataContextType().NotNull(), this.services)
-            {
+            var context = new DynamicDataContext(this.GetDataContextType().NotNull(), services) {
                 ViewName = null,
                 GroupName = null
             };
@@ -97,7 +92,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
             var control = editorProvider.CreateControl(propertyMetadata, props, context);
             if (props.Tags.Length > 0)
-                control.SetValue(DynamicEditor.TagsProperty, props.Tags);
+                control.SetValue(TagsProperty, props.Tags);
             return control;
         }
 

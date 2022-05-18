@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
+﻿using DotVVM.AutoUI.Controls;
+using DotVVM.AutoUI.Metadata;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
+namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
 {
     public class SelectorComboBoxFormEditorProvider : FormEditorProviderBase
     {

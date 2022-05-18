@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Controls;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI
 {
     public static class ControlHelpers
     {

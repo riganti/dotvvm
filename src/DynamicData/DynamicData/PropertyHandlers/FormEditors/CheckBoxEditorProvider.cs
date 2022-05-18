@@ -1,9 +1,9 @@
-﻿using System;
-using System.Reflection;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
+﻿using DotVVM.AutoUI.Controls;
+using DotVVM.AutoUI.Metadata;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
+namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
 {
     /// <summary>
     /// Renders a CheckBox control for properties of boolean type.

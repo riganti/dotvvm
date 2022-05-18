@@ -5,7 +5,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 
-namespace DotVVM.Framework.Controls.DynamicData.Metadata
+namespace DotVVM.AutoUI.Metadata
 {
     public class LocalizableString
     {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Principal;
-using System.Text;
-
-namespace DotVVM.Framework.Controls.DynamicData.Annotations
+﻿namespace DotVVM.AutoUI.Annotations
 {
     /// <summary>
     /// Provides information about the context in which the field is being rendered.

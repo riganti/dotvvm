@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI
 {
     public static class DataContextStackHelper
     {

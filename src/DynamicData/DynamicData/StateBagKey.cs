@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI
 {
     public struct StateBagKey : IEquatable<StateBagKey>
     {

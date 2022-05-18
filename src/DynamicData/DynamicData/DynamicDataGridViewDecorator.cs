@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
+using DotVVM.AutoUI.Controls;
+using DotVVM.AutoUI.Metadata;
+using DotVVM.AutoUI.PropertyHandlers.GridColumns;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
-using DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI
 {
     public class DynamicDataGridViewDecorator : Decorator
     {

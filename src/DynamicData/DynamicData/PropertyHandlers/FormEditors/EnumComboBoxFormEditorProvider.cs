@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using System.Text;
+using DotVVM.AutoUI.Controls;
+using DotVVM.AutoUI.Metadata;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using Humanizer;
 
-namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
+namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
 {
     public class EnumComboBoxFormEditorProvider : FormEditorProviderBase
     {

@@ -1,26 +1,19 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+using System.Linq.Expressions;
 using System.Text;
+using DotVVM.AutoUI.Annotations;
+using DotVVM.AutoUI.Configuration;
+using DotVVM.AutoUI.Metadata;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Compilation;
-using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Controls.DynamicData.Annotations;
-using DotVVM.Framework.Controls.DynamicData.Configuration;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
-using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.Extensions.DependencyInjection;
-using DotVVM.Framework.Binding;
-using DotVVM.Framework.Utils;
-using DotVVM.Framework.Binding.Properties;
-using System.Collections.Concurrent;
-using System.Linq.Expressions;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI
 {
     public class DynamicDataContext
     {

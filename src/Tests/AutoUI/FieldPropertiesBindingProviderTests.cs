@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Binding;
+using DotVVM.AutoUI.Metadata;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DotVVM.Framework.Tests.DynamicData
+namespace DotVVM.Framework.Tests.AutoUI
 {
     [TestClass]
     public class FieldPropertiesBindingProviderTests

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotVVM.Framework.Controls.DynamicData.Annotations
+namespace DotVVM.AutoUI.Annotations
 {
     /// <summary>
     /// Defines the CSS classes applied to the field.

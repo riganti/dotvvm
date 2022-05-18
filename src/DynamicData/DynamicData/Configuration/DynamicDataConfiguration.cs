@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Controls.DynamicData.Metadata.Builder;
-using DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors;
-using DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns;
+using DotVVM.AutoUI.Metadata.Builder;
+using DotVVM.AutoUI.PropertyHandlers.FormEditors;
+using DotVVM.AutoUI.PropertyHandlers.GridColumns;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Controls.DynamicData.Configuration
+namespace DotVVM.AutoUI.Configuration
 {
     /// <summary>
     /// Represents the configuration of DotVVM Dynamic Data library.

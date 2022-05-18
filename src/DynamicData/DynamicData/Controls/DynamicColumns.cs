@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.AutoUI.Metadata;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Styles;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI.Controls
 {
     // TODO: replace this with something else
     public class DummyColumnThatDoesNothing : GridViewColumn
@@ -21,7 +22,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container) { }
         public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container) { }
     }
-    public class DynamicColumns: GridViewColumn
+    public class DynamicColumns : GridViewColumn
     {
         public static DotvvmCapabilityProperty PropsProperty =
             DotvvmCapabilityProperty.RegisterCapability<Props, DynamicColumns>();
@@ -33,8 +34,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
             var props = col.PropertyValue<Props>(PropsProperty).NotNull();
 
-            var context = new DynamicDataContext(col.Control.DataContextTypeStack, col.Configuration.ServiceProvider)
-            {
+            var context = new DynamicDataContext(col.Control.DataContextTypeStack, col.Configuration.ServiceProvider) {
                 ViewName = props.FieldSelector.ViewName,
                 GroupName = props.FieldSelector.GroupName
             };
@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             /// <summary> Calls the command when the user makes changes to the specified field. For example `Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}"` will reload the list of states whenever CountryId is changed. </summary>
             [PropertyGroup("Changed-")]
             public IReadOnlyDictionary<string, ICommandBinding> Changed { get; init; } = new Dictionary<string, ICommandBinding>();
-        
+
             /// <summary> Controls if the specified property is editable. </summary>
             [PropertyGroup("IsEditable-")]
             public IReadOnlyDictionary<string, ValueOrBinding<bool>> IsEditable { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();

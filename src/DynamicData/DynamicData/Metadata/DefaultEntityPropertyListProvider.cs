@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace DotVVM.Framework.Controls.DynamicData.Metadata
+namespace DotVVM.AutoUI.Metadata
 {
     /// <summary>
     /// Provides a list of properties for the specified entity.

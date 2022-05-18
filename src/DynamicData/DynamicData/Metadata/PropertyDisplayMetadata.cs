@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using DotVVM.AutoUI.Annotations;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Controls.DynamicData.Annotations;
 using Humanizer;
 
-namespace DotVVM.Framework.Controls.DynamicData.Metadata
+namespace DotVVM.AutoUI.Metadata
 {
     public record PropertyDisplayMetadata
     {

@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
+using DotVVM.AutoUI.ViewModel;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Controls.DynamicData.ViewModel;
+using DotVVM.Framework.Controls;
 
-namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers
+namespace DotVVM.AutoUI.PropertyHandlers
 {
     public class SelectorHelper
     {

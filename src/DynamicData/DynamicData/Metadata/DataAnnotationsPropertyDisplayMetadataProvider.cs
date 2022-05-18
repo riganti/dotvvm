@@ -1,14 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
-using DotVVM.Framework.Controls.DynamicData.Annotations;
-using DotVVM.Framework.Controls.DynamicData.Configuration;
+using DotVVM.AutoUI.Annotations;
+using DotVVM.AutoUI.Configuration;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Controls.DynamicData.Metadata
+namespace DotVVM.AutoUI.Metadata
 {
     /// <summary>
     /// Provides information about how the property is displayed in the user interface.

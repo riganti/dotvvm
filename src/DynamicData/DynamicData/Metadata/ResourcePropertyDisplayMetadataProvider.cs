@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Concurrent;
-using System.Globalization;
 using System.Reflection;
 using System.Resources;
-using System.Threading;
 
-namespace DotVVM.Framework.Controls.DynamicData.Metadata
+namespace DotVVM.AutoUI.Metadata
 {
     /// <summary>
     /// Property display metadata provider which loads missing property names from the RESX file.

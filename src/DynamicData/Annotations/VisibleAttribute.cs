@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotVVM.Framework.Controls.DynamicData.Annotations;
+namespace DotVVM.AutoUI.Annotations;
 
 /// <summary>
 /// Indicates under which conditions the auto-generated field should be visible to the user.

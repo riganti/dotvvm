@@ -23,7 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" />
-    <ProjectReference Include="../Annotations/DotVVM.Framework.Controls.DynamicData.Annotations.csproj" />
+    <ProjectReference Include="..\Annotations\DotVVM.AutoUI.Annotations.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />

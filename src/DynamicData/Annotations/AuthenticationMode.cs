@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Framework.Controls.DynamicData.Annotations;
+﻿namespace DotVVM.AutoUI.Annotations;
 
 public enum AuthenticationMode
 {

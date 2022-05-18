@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DotVVM.Framework.Controls.DynamicData.Annotations;
+using DotVVM.AutoUI.Annotations;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Framework.Controls.DynamicData.ViewModel;
+namespace DotVVM.AutoUI.ViewModel;
 
 public class SelectorViewModel<TItem> : DotvvmViewModelBase, ISelectorViewModel<TItem>
     where TItem : Annotations.SelectorItem

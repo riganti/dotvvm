@@ -1,7 +1,6 @@
-﻿using DotVVM.Framework.Controls.DynamicData.Annotations;
-using System.Security.Principal;
+﻿using DotVVM.AutoUI.Annotations;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI
 {
     public class ViewContext : IViewContext
     {

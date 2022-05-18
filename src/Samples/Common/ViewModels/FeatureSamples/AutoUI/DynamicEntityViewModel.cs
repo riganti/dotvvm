@@ -4,12 +4,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Controls.DynamicData.Annotations;
-using DotVVM.Framework.Controls.DynamicData.ViewModel;
+using DotVVM.AutoUI.Annotations;
+using DotVVM.AutoUI.ViewModel;
 using DotVVM.Framework.ViewModel;
-using DotVVM.Samples.Common.Resources;
 
-namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
+namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
 {
     public class DynamicEntityViewModel : DotvvmViewModelBase
     {

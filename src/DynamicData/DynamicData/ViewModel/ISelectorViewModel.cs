@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DotVVM.Framework.Controls.DynamicData.ViewModel;
+namespace DotVVM.AutoUI.ViewModel;
 
 public interface ISelectorViewModel<TItem>
     where TItem : Annotations.SelectorItem

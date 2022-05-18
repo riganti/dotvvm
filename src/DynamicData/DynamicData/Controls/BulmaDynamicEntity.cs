@@ -1,10 +1,9 @@
 using System;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using DotVVM.Framework.Binding;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
+using DotVVM.Framework.Controls;
+using Validator = DotVVM.Framework.Controls.Validator;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI.Controls
 {
     /// <summary> Renders a bulma table-like form: https://bulma.io/documentation/form/general/#horizontal-form </summary>
     [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
@@ -16,14 +15,14 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         public DotvvmControl GetContents(FieldProps props)
         {
-            var context = this.CreateDynamicDataContext();
+            var context = CreateDynamicDataContext();
 
             var resultPlaceholder = new PlaceHolder();
 
             // create the rows
             foreach (var property in GetPropertiesToDisplay(context, props.FieldSelector))
             {
-                if (this.TryGetFieldTemplate(property, props) is {} template)
+                if (TryGetFieldTemplate(property, props) is { } template)
                 {
                     resultPlaceholder.AppendChildren(template);
                     continue;
@@ -45,13 +44,13 @@ namespace DotVVM.Framework.Controls.DynamicData
                         .AppendChildren(input);
                 }
 
-                var help = property.Description is {} description
+                var help = property.Description is { } description
                     ? new HtmlGenericControl("div").AddCssClass("help").SetProperty(c => c.InnerText, description.ToBinding(context)!)
                     : null;
                 var validator = new Validator()
                     .AddCssClass("help is-danger")
                     .SetProperty(Validator.ShowErrorMessageTextProperty, true);
-                
+
                 var field = new HtmlGenericControl("div")
                     .AddCssClass("field")
                     .AppendChildren(control, validator, help);
@@ -60,7 +59,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                     .AppendChildren(field);
 
 
-                var label = this.InitializeControlLabel(property, context, props)
+                var label = InitializeControlLabel(property, context, props)
                     ?.AddCssClass("label");
                 var fieldLabel = new HtmlGenericControl("div")
                     .AddCssClass("field-label is-normal")

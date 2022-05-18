@@ -4,7 +4,7 @@ using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI
 {
     // Many thanks to https://gist.github.com/khellang/c9d39444f713eab04c26dc09d5687196
 

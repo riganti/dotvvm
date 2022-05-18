@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace DotVVM.Framework.Controls.DynamicData.Annotations
+namespace DotVVM.AutoUI.Annotations
 {
     /// <summary>
     /// Defines the settings for the ComboBox form editor provider.

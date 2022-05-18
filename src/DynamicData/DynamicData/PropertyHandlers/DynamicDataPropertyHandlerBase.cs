@@ -1,8 +1,6 @@
-﻿using System;
-using System.Reflection;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
+﻿using DotVVM.AutoUI.Metadata;
 
-namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers
+namespace DotVVM.AutoUI.PropertyHandlers
 {
     public abstract class DynamicDataPropertyHandlerBase : IDynamicDataPropertyHandler
     {

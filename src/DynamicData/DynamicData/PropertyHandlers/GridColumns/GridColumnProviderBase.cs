@@ -1,6 +1,8 @@
-using DotVVM.Framework.Controls.DynamicData.Metadata;
+using DotVVM.AutoUI.Controls;
+using DotVVM.AutoUI.Metadata;
+using DotVVM.Framework.Controls;
 
-namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
+namespace DotVVM.AutoUI.PropertyHandlers.GridColumns
 {
     public abstract class GridColumnProviderBase : DynamicDataPropertyHandlerBase, IGridColumnProvider
     {

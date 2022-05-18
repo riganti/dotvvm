@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Framework.Controls.DynamicData.Annotations;
+namespace DotVVM.AutoUI.Annotations;
 
 public interface ISelectorDataProvider<TItem>
 {

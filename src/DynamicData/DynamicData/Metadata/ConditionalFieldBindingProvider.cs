@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Security.Claims;
-using System.Text;
 using System.Text.RegularExpressions;
+using DotVVM.AutoUI.Annotations;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Controls.DynamicData.Annotations;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Controls.DynamicData.Metadata
+namespace DotVVM.AutoUI.Metadata
 {
     public static class ConditionalFieldBindingProvider
     {

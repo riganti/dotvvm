@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using DotVVM.AutoUI.Metadata;
+using DotVVM.AutoUI.PropertyHandlers;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Controls.DynamicData.Configuration;
-using DotVVM.Framework.Controls.DynamicData.Metadata;
-using DotVVM.Framework.Controls.DynamicData.PropertyHandlers;
-using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Validator = DotVVM.Framework.Controls.Validator;
 
-namespace DotVVM.Framework.Controls.DynamicData
+namespace DotVVM.AutoUI.Controls
 {
     [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public abstract class DynamicEntityBase : CompositeControl
@@ -52,8 +52,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         protected DynamicDataContext CreateDynamicDataContext()
         {
-            return new DynamicDataContext(this.GetDataContextType().NotNull(), this.services)
-            {
+            return new DynamicDataContext(this.GetDataContextType().NotNull(), services) {
                 ViewName = ViewName,
                 GroupName = GroupName
             };
@@ -68,7 +67,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             var viewContext = context.CreateViewContext();
             var properties = entityPropertyListProvider.GetProperties(context.EntityType);
 
-            if (props.ExcludeProperties is {})
+            if (props.ExcludeProperties is { })
             {
                 properties = properties.Where(p => !props.ExcludeProperties.Contains(p.Name)).ToArray();
             }
@@ -88,9 +87,9 @@ namespace DotVVM.Framework.Controls.DynamicData
             ).ToArray();
 
 
-            if (props.IncludeProperties is { Length: > 0})
+            if (props.IncludeProperties is { Length: > 0 })
             {
-                if (props.ExcludeProperties is { Length: > 0})
+                if (props.ExcludeProperties is { Length: > 0 })
                     throw new NotSupportedException("Only one of IncludeProperties and ExcludeProperties can be specified.");
 
                 return props.IncludeProperties.Select(prop =>
@@ -146,7 +145,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl labelElement, PropertyDisplayMetadata property, DynamicDataContext context)
         {
-            if (property.PropertyInfo is {} &&
+            if (property.PropertyInfo is { } &&
                 context.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {
                 labelElement.AddCssClass("dynamicdata-required");
@@ -159,10 +158,10 @@ namespace DotVVM.Framework.Controls.DynamicData
         {
             if (!props.Property.TryGetValue(name, out var binding))
                 return null;
-            
+
             var property = binding.GetProperty<ReferencedViewModelPropertiesBindingProperty>()?.MainProperty;
 
-            var isEditable = binding.GetProperty<BindingUpdateDelegate>(ErrorHandlingMode.ReturnNull) is {};
+            var isEditable = binding.GetProperty<BindingUpdateDelegate>(ErrorHandlingMode.ReturnNull) is { };
 
             var metadata =
                 property is not null ? context.PropertyDisplayMetadataProvider.GetPropertyMetadata(property)
@@ -193,7 +192,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                     visibleResourceBinding = visibleResourceBinding.And(visible);
                 }
             }
-            else if (property.SelectorConfiguration is {} selector)
+            else if (property.SelectorConfiguration is { } selector)
             {
                 try
                 {
@@ -241,7 +240,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             /// <summary> Calls the command when the user makes changes to the specified field. For example `Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}"` will reload the list of states whenever CountryId is changed. </summary>
             [PropertyGroup("Changed-")]
             public IReadOnlyDictionary<string, ICommandBinding> Changed { get; init; } = new Dictionary<string, ICommandBinding>();
-        
+
             /// <summary> Controls if the specified property is editable. </summary>
             [PropertyGroup("Enabled-")]
             public IReadOnlyDictionary<string, ValueOrBinding<bool>> Enabled { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
@@ -249,7 +248,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             /// <summary> Controls if the specified field is visible </summary>
             [PropertyGroup("Visible-")]
             public IReadOnlyDictionary<string, ValueOrBinding<bool>> Visible { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
-            
+
 
             /// <summary> Overrides which text is used as a field label. </summary>
             [PropertyGroup("Label-")]
