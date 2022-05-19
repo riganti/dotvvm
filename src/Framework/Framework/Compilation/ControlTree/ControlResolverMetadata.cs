@@ -46,11 +46,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
             DotvvmPropertyGroup.CheckAllPropertiesAreRegistered(controlType.Type);
             foreach (var property in DotvvmProperty.ResolveProperties(controlType.Type))
             {
-                if (!result.TryAdd(property.Name, property))
+                if (result.TryGetValue(property.Name, out var existingProperty))
                 {
-                    var existingProperty = result[property.Name];
                     throw new DotvvmCompilationException($"The property with name {property.Name} (declared in {property.DeclaringType}) was already registered for control {controlType.Type.FullName}. Conflicting property: {existingProperty.Name} (declared in {existingProperty.DeclaringType}).");
                 }
+                result.Add(property.Name, property);
             }
         }
 
