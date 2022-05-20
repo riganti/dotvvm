@@ -239,14 +239,6 @@
         "type": "System.String"
       }
     },
-    "DotVVM.AutoUI.DynamicDataGridViewDecorator": {
-      "ColumnPlacement": {
-        "type": "DotVVM.AutoUI.Controls.ColumnPlacement, DotVVM.AutoUI"
-      },
-      "ViewName": {
-        "type": "System.String"
-      }
-    },
     "DotVVM.Framework.Compilation.ControlTree.LifecycleRequirementsAssigningVisitor": {
       "CompileTimeLifecycleRequirements": {
         "type": "DotVVM.Framework.Controls.ControlLifecycleRequirements, DotVVM.Framework",

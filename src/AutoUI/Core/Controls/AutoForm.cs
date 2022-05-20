@@ -30,7 +30,7 @@ namespace DotVVM.AutoUI.Controls
 
         public DotvvmControl GetContents(FieldProps props)
         {
-            var context = CreateDynamicDataContext();
+            var context = CreateAutoUiContext();
 
             // create the table
             var table = InitializeTable(context);
@@ -64,7 +64,7 @@ namespace DotVVM.AutoUI.Controls
         /// <summary>
         /// Creates the table element for the form.
         /// </summary>
-        protected virtual HtmlGenericControl InitializeTable(DynamicDataContext dynamicDataContext) =>
+        protected virtual HtmlGenericControl InitializeTable(AutoUIContext autoUiContext) =>
             new HtmlGenericControl("table")
                 .AddCssClass("dotvvm-dynamicdata-form-table");
 
@@ -72,7 +72,7 @@ namespace DotVVM.AutoUI.Controls
         /// <summary>
         /// Creates the table row for the specified property.
         /// </summary>
-        protected virtual HtmlGenericControl InitializeTableRow(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, out HtmlGenericControl labelCell, out HtmlGenericControl editorCell)
+        protected virtual HtmlGenericControl InitializeTableRow(PropertyDisplayMetadata property, AutoUIContext autoUiContext, out HtmlGenericControl labelCell, out HtmlGenericControl editorCell)
         {
             labelCell = new HtmlGenericControl("td")
                 .AddCssClasses("dynamicdata-label", LabelCellCssClass);

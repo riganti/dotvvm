@@ -35,7 +35,7 @@ namespace DotVVM.AutoUI.Metadata
             }
         }
 
-        public ValueOrBinding<string> ToBinding(DynamicDataContext context)
+        public ValueOrBinding<string> ToBinding(AutoUIContext context)
         {
             if (IsLocalized)
             {

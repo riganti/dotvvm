@@ -15,7 +15,7 @@ using Validator = DotVVM.Framework.Controls.Validator;
 namespace DotVVM.AutoUI.Controls
 {
     [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
-    public abstract class AutoFormBase : CompositeControl
+    public abstract class AutoFormBase : CompositeControl 
     {
         protected readonly IServiceProvider services;
         public AutoFormBase(IServiceProvider services)
@@ -50,9 +50,9 @@ namespace DotVVM.AutoUI.Controls
         public static readonly DotvvmCapabilityProperty FieldPropsProperty =
             DotvvmCapabilityProperty.RegisterCapability<FieldProps, AutoFormBase>();
 
-        protected DynamicDataContext CreateDynamicDataContext()
+        protected AutoUIContext CreateAutoUiContext()
         {
-            return new DynamicDataContext(this.GetDataContextType().NotNull(), services) {
+            return new AutoUIContext(this.GetDataContextType().NotNull(), services) {
                 ViewName = ViewName,
                 GroupName = GroupName
             };
@@ -61,11 +61,10 @@ namespace DotVVM.AutoUI.Controls
         /// <summary>
         /// Gets the list of properties that should be displayed.
         /// </summary>
-        internal static PropertyDisplayMetadata[] GetPropertiesToDisplay(DynamicDataContext context, FieldSelectorProps props)
+        internal static PropertyDisplayMetadata[] GetPropertiesToDisplay(AutoUIContext context, FieldSelectorProps props)
         {
             var entityPropertyListProvider = context.Services.GetRequiredService<IEntityPropertyListProvider>();
-            var viewContext = context.CreateViewContext();
-            var properties = entityPropertyListProvider.GetProperties(context.EntityType);
+            var properties = entityPropertyListProvider.GetProperties(context.EntityType, context.CreateViewContext());
 
             if (props.ExcludeProperties is { })
             {
@@ -110,7 +109,7 @@ namespace DotVVM.AutoUI.Controls
         /// <summary>
         /// Creates the contents of the label cell for the specified property.
         /// </summary>
-        protected virtual Label? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, FieldProps props)
+        protected virtual Label? InitializeControlLabel(PropertyDisplayMetadata property, AutoUIContext autoUiContext, FieldProps props)
         {
             var id = GetEditorId(property);
             if (props.Label.ContainsKey(property.Name))
@@ -120,7 +119,7 @@ namespace DotVVM.AutoUI.Controls
 
             if (property.IsDefaultLabelAllowed)
             {
-                return new Label(id).AppendChildren(new Literal(property.GetDisplayName().ToBinding(dynamicDataContext)));
+                return new Label(id).AppendChildren(new Literal(property.GetDisplayName().ToBinding(autoUiContext)));
             }
             return null;
         }
@@ -129,7 +128,7 @@ namespace DotVVM.AutoUI.Controls
             props.FieldTemplate.TryGetValue(property.Name, out var template) ?
                 new TemplateHost(template) : null;
 
-        protected virtual AutoEditor CreateEditor(PropertyDisplayMetadata property, DynamicDataContext ddContext, FieldProps props)
+        protected virtual AutoEditor CreateEditor(PropertyDisplayMetadata property, AutoUIContext ddContext, FieldProps props)
         {
             var name = property.Name;
             return
@@ -143,7 +142,7 @@ namespace DotVVM.AutoUI.Controls
                             GetEnabledResourceBinding(property, ddContext)));
         }
 
-        protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl labelElement, PropertyDisplayMetadata property, DynamicDataContext context)
+        protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl labelElement, PropertyDisplayMetadata property, AutoUIContext context)
         {
             if (property.PropertyInfo is { } &&
                 context.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
@@ -154,7 +153,7 @@ namespace DotVVM.AutoUI.Controls
             validatedElement.SetValue(Validator.ValueProperty, context.CreateValueBinding(property));
         }
 
-        protected static PropertyDisplayMetadata? MapLocalProperty(string name, FieldSelectorProps props, DynamicDataContext context)
+        protected static PropertyDisplayMetadata? MapLocalProperty(string name, FieldSelectorProps props, AutoUIContext context)
         {
             if (!props.Property.TryGetValue(name, out var binding))
                 return null;
@@ -169,15 +168,15 @@ namespace DotVVM.AutoUI.Controls
             return metadata with { Name = name, ValueBinding = binding };
         }
 
-        protected virtual ValueOrBinding<bool> GetVisibleResourceBinding(PropertyDisplayMetadata metadata, DynamicDataContext context)
+        protected virtual ValueOrBinding<bool> GetVisibleResourceBinding(PropertyDisplayMetadata metadata, AutoUIContext context)
         {
             return ConditionalFieldBindingProvider.GetPropertyBinding(metadata.VisibleAttributes, context);
         }
 
-        protected virtual ValueOrBinding<bool> GetEnabledResourceBinding(PropertyDisplayMetadata metadata, DynamicDataContext context) =>
+        protected virtual ValueOrBinding<bool> GetEnabledResourceBinding(PropertyDisplayMetadata metadata, AutoUIContext context) =>
             metadata.IsEnabledBinding(context);
 
-        protected virtual void SetFieldVisibility(HtmlGenericControl field, PropertyDisplayMetadata property, FieldProps props, DynamicDataContext context)
+        protected virtual void SetFieldVisibility(HtmlGenericControl field, PropertyDisplayMetadata property, FieldProps props, AutoUIContext context)
         {
             var visibleResourceBinding = GetVisibleResourceBinding(property, context);
             if (props.Visible.TryGetValue(property.Name, out var visible))

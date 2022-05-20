@@ -28,7 +28,7 @@ namespace DotVVM.AutoUI.Controls
 
         public static GridViewColumn Replace(IStyleMatchContext<AutoGridViewColumn> col)
         {
-            var context = new DynamicDataContext(col.Control.DataContextTypeStack, col.Configuration.ServiceProvider);
+            var context = new AutoUIContext(col.Control.DataContextTypeStack, col.Configuration.ServiceProvider);
 
             var props = col.PropertyValue<Props>(PropsProperty).NotNull();
             if (props.Property is null)
@@ -71,13 +71,13 @@ namespace DotVVM.AutoUI.Controls
 
         }
 
-        private static GridViewColumn CreateColumn(DynamicDataContext context, Props props, Metadata.PropertyDisplayMetadata property)
+        private static GridViewColumn CreateColumn(AutoUIContext context, Props props, Metadata.PropertyDisplayMetadata property)
         {
             if (props.ContentTemplate is { })
                 return new GridViewTemplateColumn { ContentTemplate = props.ContentTemplate };
 
             var provider =
-                context.DynamicDataConfiguration.GridColumnProviders
+                context.AutoUiConfiguration.GridColumnProviders
                     .FirstOrDefault(e => e.CanHandleProperty(property, context));
             if (provider is null)
                 throw new DotvvmControlException($"GridViewColumn provider for property {property.Name} or type {property.Type} could not be found.");

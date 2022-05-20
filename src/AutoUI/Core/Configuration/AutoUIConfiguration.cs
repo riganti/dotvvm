@@ -12,7 +12,7 @@ namespace DotVVM.AutoUI.Configuration
     /// <summary>
     /// Represents the configuration of DotVVM Dynamic Data library.
     /// </summary>
-    public class DynamicDataConfiguration
+    public class AutoUIConfiguration
     {
         public Dictionary<Type, object> Properties { get; } = new Dictionary<Type, object>();
 
@@ -41,7 +41,7 @@ namespace DotVVM.AutoUI.Configuration
         /// </summary>
         public PropertyMetadataModifierCollection PropertyMetadataRules { get; set; }
 
-        public DynamicDataConfiguration()
+        public AutoUIConfiguration()
         {
             FormEditorProviders.Add(new MultiSelectorCheckBoxFormEditorProvider());
             FormEditorProviders.Add(new SelectorComboBoxFormEditorProvider());

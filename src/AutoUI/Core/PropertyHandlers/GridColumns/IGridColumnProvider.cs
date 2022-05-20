@@ -4,10 +4,10 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.AutoUI.PropertyHandlers.GridColumns
 {
-    public interface IGridColumnProvider : IDynamicDataPropertyHandler
+    public interface IGridColumnProvider : IAutoUIPropertyHandler
     {
 
-        GridViewColumn CreateColumn(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, DynamicDataContext context);
+        GridViewColumn CreateColumn(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, AutoUIContext context);
 
     }
 }

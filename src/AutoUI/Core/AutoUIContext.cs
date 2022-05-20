@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.AutoUI
 {
-    public class DynamicDataContext
+    public class AutoUIContext
     {
         private static ConcurrentDictionary<BindingDescriptor, IBinding> bindingCache = new ConcurrentDictionary<BindingDescriptor, IBinding>();
 
@@ -25,7 +25,7 @@ namespace DotVVM.AutoUI
         public IViewModelValidationMetadataProvider ValidationMetadataProvider { get; }
 
         public IPropertyDisplayMetadataProvider PropertyDisplayMetadataProvider { get; }
-        public DynamicDataConfiguration DynamicDataConfiguration { get; }
+        public AutoUIConfiguration AutoUiConfiguration { get; }
 
         public Type EntityType => DataContextStack.DataContextType;
 
@@ -36,14 +36,14 @@ namespace DotVVM.AutoUI
         public Dictionary<StateBagKey, object> StateBag { get; } = new Dictionary<StateBagKey, object>();
         public BindingCompilationService BindingService { get; }
 
-        public DynamicDataContext(DataContextStack dataContextStack, IServiceProvider services)
+        public AutoUIContext(DataContextStack dataContextStack, IServiceProvider services)
         {
             DataContextStack = dataContextStack;
             Services = services;
 
             ValidationMetadataProvider = services.GetRequiredService<IViewModelValidationMetadataProvider>();
             PropertyDisplayMetadataProvider = services.GetRequiredService<IPropertyDisplayMetadataProvider>();
-            DynamicDataConfiguration = services.GetRequiredService<DynamicDataConfiguration>();
+            AutoUiConfiguration = services.GetRequiredService<AutoUIConfiguration>();
             BindingService = services.GetRequiredService<BindingCompilationService>();
         }
 

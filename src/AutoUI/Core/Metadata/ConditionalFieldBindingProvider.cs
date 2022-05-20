@@ -15,11 +15,11 @@ namespace DotVVM.AutoUI.Metadata
 {
     public static class ConditionalFieldBindingProvider
     {
-        public static ValueOrBinding<bool> IsEnabledBinding(this PropertyDisplayMetadata property, DynamicDataContext context) =>
+        public static ValueOrBinding<bool> IsEnabledBinding(this PropertyDisplayMetadata property, AutoUIContext context) =>
             ConditionalFieldBindingProvider.GetPropertyBinding(property.EnabledAttributes, context)
                 .And(new ValueOrBinding<bool>(property.IsEditable));
 
-        public static ValueOrBinding<bool> GetPropertyBinding(IEnumerable<IConditionalFieldAttribute> attributes, DynamicDataContext context)
+        public static ValueOrBinding<bool> GetPropertyBinding(IEnumerable<IConditionalFieldAttribute> attributes, AutoUIContext context)
         {
             var result = new ValueOrBinding<bool>(true);
 
@@ -35,17 +35,11 @@ namespace DotVVM.AutoUI.Metadata
         }
         
 
-        private static ValueOrBinding<bool> BuildExpression(DynamicDataContext context, Expression currentUserParam, IConditionalFieldAttribute attribute)
+        private static ValueOrBinding<bool> BuildExpression(AutoUIContext context, Expression currentUserParam, IConditionalFieldAttribute attribute)
         {
             var value = new ValueOrBinding<bool>(true);
 
-            if (!string.IsNullOrEmpty(attribute.ViewNames))
-            {
-                value = value.And(
-                    ProcessExpression(attribute.ViewNames, i => new ValueOrBinding<bool>(
-                        string.Equals(context.ViewName, i, StringComparison.OrdinalIgnoreCase)))
-                    );
-            }
+            // view names doesn't need to be filtered here
 
             if (!string.IsNullOrEmpty(attribute.Roles))
             {
@@ -132,6 +126,11 @@ namespace DotVVM.AutoUI.Metadata
             }
 
             return result;
+        }
+
+        internal static bool ProcessExpression(string viewName, Func<string, bool> processor)
+        {
+            return (bool)ProcessExpression(viewName, s => new ValueOrBinding<bool>(processor(s))).BoxedValue!;
         }
     }
 }

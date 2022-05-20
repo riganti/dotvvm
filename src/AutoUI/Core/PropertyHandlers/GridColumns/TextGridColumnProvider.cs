@@ -6,12 +6,12 @@ namespace DotVVM.AutoUI.PropertyHandlers.GridColumns
 {
     public class TextGridColumnProvider : GridColumnProviderBase
     {
-        public override bool CanHandleProperty(PropertyDisplayMetadata property, DynamicDataContext context)
+        public override bool CanHandleProperty(PropertyDisplayMetadata property, AutoUIContext context)
         {
             return TextBoxHelper.CanHandleProperty(property.Type);
         }
 
-        protected override GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, DynamicDataContext context)
+        protected override GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, AutoUIContext context)
         {
             var column = new GridViewTextColumn();
             column.FormatString = property.FormatString;

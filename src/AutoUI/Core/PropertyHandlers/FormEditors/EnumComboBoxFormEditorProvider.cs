@@ -13,12 +13,12 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
 {
     public class EnumComboBoxFormEditorProvider : FormEditorProviderBase
     {
-        public override bool CanHandleProperty(PropertyDisplayMetadata property, DynamicDataContext context)
+        public override bool CanHandleProperty(PropertyDisplayMetadata property, AutoUIContext context)
         {
             return property.Type.UnwrapNullableType().IsEnum;
         }
 
-        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, AutoUIContext context)
         {
             var enumType = property.Type.UnwrapNullableType();
             var isNullable = property.Type.IsNullable();

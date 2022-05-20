@@ -13,11 +13,11 @@ namespace DotVVM.AutoUI.PropertyHandlers
     public class SelectorHelper
     {
 
-        public static IValueBinding DiscoverSelectorDataSourceBinding(DynamicDataContext dynamicDataContext, Type propertyType)
+        public static IValueBinding DiscoverSelectorDataSourceBinding(AutoUIContext autoUiContext, Type propertyType)
         {
             var viewModelType = typeof(ISelectorViewModel<>).MakeGenericType(propertyType);
 
-            var dataContextStack = dynamicDataContext.DataContextStack.Parent;
+            var dataContextStack = autoUiContext.DataContextStack.Parent;
             while (dataContextStack != null)
             {
                 var param = Expression.Parameter(dataContextStack.DataContextType, "p").AddParameterAnnotation(new BindingParameterAnnotation(dataContextStack));
@@ -34,7 +34,7 @@ namespace DotVVM.AutoUI.PropertyHandlers
                             matchingProperties[0],
                             nameof(ISelectorViewModel<Annotations.Selection>.Items)
                         );
-                    return (IValueBinding)dynamicDataContext.BindingService.CreateBinding(
+                    return (IValueBinding)autoUiContext.BindingService.CreateBinding(
                         typeof(ValueBindingExpression<>),
                         new object[]
                         {
@@ -46,7 +46,7 @@ namespace DotVVM.AutoUI.PropertyHandlers
                 dataContextStack = dataContextStack.Parent;
             }
 
-            throw new DotvvmControlException($"No property of type {viewModelType.FullName} was found in the viewmodel {dynamicDataContext.DataContextStack}!");
+            throw new DotvvmControlException($"No property of type {viewModelType.FullName} was found in the viewmodel {autoUiContext.DataContextStack}!");
         }
 
         private static Expression[] FindSelectorProperties(Expression parent, Type selectorViewModelType)

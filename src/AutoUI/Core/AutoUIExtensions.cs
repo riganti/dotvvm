@@ -15,9 +15,9 @@ namespace DotVVM.AutoUI
         /// <summary>
         /// Registers all services required by DotVVM Dynamic Data.
         /// </summary>
-        public static IDotvvmServiceCollection AddAutoUI(this IDotvvmServiceCollection services, Action<DynamicDataConfiguration>? configure = null)
+        public static IDotvvmServiceCollection AddAutoUI(this IDotvvmServiceCollection services, Action<AutoUIConfiguration>? configure = null)
         {
-            var autoUiConfiguration = new DynamicDataConfiguration();
+            var autoUiConfiguration = new AutoUIConfiguration();
             configure?.Invoke(autoUiConfiguration);
             
             // add the configuration of Dynamic Data to the service collection
@@ -31,10 +31,10 @@ namespace DotVVM.AutoUI
             return services;
         }
 
-        private static void RegisterDefaultProviders(IServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration)
+        private static void RegisterDefaultProviders(IServiceCollection services, AutoUIConfiguration autoUiConfiguration)
         {
             services.AddSingleton<IPropertyDisplayMetadataProvider>(
-                serviceProvider => new DataAnnotationsPropertyDisplayMetadataProvider(dynamicDataConfiguration)
+                serviceProvider => new DataAnnotationsPropertyDisplayMetadataProvider(autoUiConfiguration)
             );
 
             services.AddSingleton<IEntityPropertyListProvider>(
@@ -42,21 +42,21 @@ namespace DotVVM.AutoUI
             );
         }
 
-        private static void RegisterResourceFileProviders(IServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration)
+        private static void RegisterResourceFileProviders(IServiceCollection services, AutoUIConfiguration autoUiConfiguration)
         {
-            if (dynamicDataConfiguration.PropertyDisplayNamesResourceFile != null)
+            if (autoUiConfiguration.PropertyDisplayNamesResourceFile != null)
             {
                 services.Decorate<IPropertyDisplayMetadataProvider>(
                     baseService => new ResourcePropertyDisplayMetadataProvider(
-                        dynamicDataConfiguration.PropertyDisplayNamesResourceFile, baseService)
+                        autoUiConfiguration.PropertyDisplayNamesResourceFile, baseService)
                 );
             }
 
-            if (dynamicDataConfiguration.ErrorMessagesResourceFile != null)
+            if (autoUiConfiguration.ErrorMessagesResourceFile != null)
             {
                 services.Decorate<IViewModelValidationMetadataProvider>(
                     (baseService, serviceProvider) => new ResourceViewModelValidationMetadataProvider(
-                        dynamicDataConfiguration.ErrorMessagesResourceFile,
+                        autoUiConfiguration.ErrorMessagesResourceFile,
                         serviceProvider.GetService<IPropertyDisplayMetadataProvider>(),
                         baseService)
                 );
@@ -71,11 +71,11 @@ namespace DotVVM.AutoUI
         {
             config.Markup.AddCodeControls("auto", typeof(AutoUIExtensions).Namespace! + ".Controls", typeof(AutoUIExtensions).Assembly.FullName!);
 
-            RegisterDynamicDataStyles(config);
+            RegisterAutoUIStyles(config);
         }
 
 
-        private static void RegisterDynamicDataStyles(DotvvmConfiguration config)
+        private static void RegisterAutoUIStyles(DotvvmConfiguration config)
         {
             var s = config.Styles;
             s.Register<AutoGridViewColumns>()

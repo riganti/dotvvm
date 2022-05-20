@@ -13,12 +13,12 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
     /// </summary>
     public class TextBoxEditorProvider : FormEditorProviderBase
     {
-        public override bool CanHandleProperty(PropertyDisplayMetadata property, DynamicDataContext context)
+        public override bool CanHandleProperty(PropertyDisplayMetadata property, AutoUIContext context)
         {
             return TextBoxHelper.CanHandleProperty(property.Type);
         }
 
-        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, AutoUIContext context)
         {
             if (!property.IsEditable)
             {

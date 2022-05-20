@@ -13,13 +13,13 @@ namespace DotVVM.AutoUI.Metadata
     /// </summary>
     public class DataAnnotationsPropertyDisplayMetadataProvider : IPropertyDisplayMetadataProvider
     {
-        private readonly DynamicDataConfiguration dynamicDataConfiguration;
+        private readonly AutoUIConfiguration autoUiConfiguration;
 
         private readonly ConcurrentDictionary<PropertyInfo, PropertyDisplayMetadata> cache = new();
 
-        public DataAnnotationsPropertyDisplayMetadataProvider(DynamicDataConfiguration dynamicDataConfiguration)
+        public DataAnnotationsPropertyDisplayMetadataProvider(AutoUIConfiguration autoUiConfiguration)
         {
-            this.dynamicDataConfiguration = dynamicDataConfiguration;
+            this.autoUiConfiguration = autoUiConfiguration;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace DotVVM.AutoUI.Metadata
         {
             return cache.GetOrAdd(
                 property,
-                p => dynamicDataConfiguration.PropertyMetadataRules.ApplyRules(GetPropertyMetadataCore(p)));
+                p => autoUiConfiguration.PropertyMetadataRules.ApplyRules(GetPropertyMetadataCore(p)));
         }
 
         private PropertyDisplayMetadata GetPropertyMetadataCore(PropertyInfo p)

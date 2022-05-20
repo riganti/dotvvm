@@ -10,12 +10,12 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
     /// </summary>
     public class CheckBoxEditorProvider : FormEditorProviderBase
     {
-        public override bool CanHandleProperty(PropertyDisplayMetadata property, DynamicDataContext context)
+        public override bool CanHandleProperty(PropertyDisplayMetadata property, AutoUIContext context)
         {
             return ReflectionUtils.UnwrapNullableType(property.Type) == typeof(bool);
         }
         
-        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, AutoUIContext context)
         {
             var checkBox = new CheckBox()
                 .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)

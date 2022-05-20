@@ -68,7 +68,7 @@ namespace DotVVM.AutoUI.Controls
                 return new TemplateHost(props.OverrideTemplate);
             }
 
-            var context = new DynamicDataContext(this.GetDataContextType().NotNull(), services) {
+            var context = new AutoUIContext(this.GetDataContextType().NotNull(), services) {
                 ViewName = null,
                 GroupName = null
             };
@@ -84,7 +84,7 @@ namespace DotVVM.AutoUI.Controls
             var propertyMetadata = context.PropertyDisplayMetadataProvider.GetPropertyMetadata(prop.MainProperty);
 
             var editorProvider =
-                context.DynamicDataConfiguration.FormEditorProviders
+                context.AutoUiConfiguration.FormEditorProviders
                     .FirstOrDefault(e => e.CanHandleProperty(propertyMetadata, context));
 
             if (editorProvider is null)

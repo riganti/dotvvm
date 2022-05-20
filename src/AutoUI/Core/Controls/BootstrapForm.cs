@@ -30,7 +30,7 @@ namespace DotVVM.AutoUI.Controls
 
         public DotvvmControl GetContents(FieldProps props)
         {
-            var context = CreateDynamicDataContext();
+            var context = CreateAutoUiContext();
 
             var resultPlaceholder = new PlaceHolder();
 
@@ -64,7 +64,7 @@ namespace DotVVM.AutoUI.Controls
             return resultPlaceholder;
         }
 
-        protected virtual HtmlGenericControl InitializeFormGroup(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, out HtmlGenericControl labelElement, out HtmlGenericControl controlElement)
+        protected virtual HtmlGenericControl InitializeFormGroup(PropertyDisplayMetadata property, AutoUIContext autoUiContext, out HtmlGenericControl labelElement, out HtmlGenericControl controlElement)
         {
 
             labelElement = new HtmlGenericControl("label")

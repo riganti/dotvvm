@@ -36,7 +36,7 @@ namespace DotVVM.AutoUI.Controls
 
             var props = col.PropertyValue<Props>(PropsProperty).NotNull();
 
-            var context = new DynamicDataContext(col.Control.DataContextTypeStack, col.Configuration.ServiceProvider) {
+            var context = new AutoUIContext(col.Control.DataContextTypeStack, col.Configuration.ServiceProvider) {
                 ViewName = props.FieldSelector.ViewName,
                 GroupName = props.FieldSelector.GroupName
             };
@@ -47,7 +47,7 @@ namespace DotVVM.AutoUI.Controls
             return columns;
         }
 
-        protected static AutoGridViewColumn CreateColumn(PropertyDisplayMetadata property, DynamicDataContext context, Props props)
+        protected static AutoGridViewColumn CreateColumn(PropertyDisplayMetadata property, AutoUIContext context, Props props)
         {
             var name = property.Name;
             return

@@ -4,9 +4,9 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.AutoUI.PropertyHandlers.GridColumns
 {
-    public abstract class GridColumnProviderBase : DynamicDataPropertyHandlerBase, IGridColumnProvider
+    public abstract class GridColumnProviderBase : AutoUIPropertyHandlerBase, IGridColumnProvider
     {
-        public GridViewColumn CreateColumn(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, DynamicDataContext context)
+        public GridViewColumn CreateColumn(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, AutoUIContext context)
         {
             var column = CreateColumnCore(property, props, context);
 
@@ -16,6 +16,6 @@ namespace DotVVM.AutoUI.PropertyHandlers.GridColumns
             return column;
         }
 
-        protected abstract GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, DynamicDataContext context);
+        protected abstract GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, AutoUIContext context);
     }
 }

@@ -15,7 +15,7 @@ namespace DotVVM.AutoUI.Controls
 
         public DotvvmControl GetContents(FieldProps props)
         {
-            var context = CreateDynamicDataContext();
+            var context = CreateAutoUiContext();
 
             var resultPlaceholder = new PlaceHolder();
 

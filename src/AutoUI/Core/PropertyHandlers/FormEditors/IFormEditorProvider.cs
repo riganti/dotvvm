@@ -4,8 +4,8 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
 {
-    public interface IFormEditorProvider : IDynamicDataPropertyHandler
+    public interface IFormEditorProvider : IAutoUIPropertyHandler
     {
-        DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, DynamicDataContext context);
+        DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, AutoUIContext context);
     }
 }
