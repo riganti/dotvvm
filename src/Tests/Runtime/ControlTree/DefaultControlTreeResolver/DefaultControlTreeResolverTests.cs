@@ -722,5 +722,33 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual("HTML attribute name 'TestProperty' should not contain uppercase letters. Did you intent to use a DotVVM property instead?", attribute1.AttributeNameNode.NodeWarnings.Single());
             Assert.AreEqual("HTML attribute name 'Visble' should not contain uppercase letters. Did you mean Visible, or another DotVVM property?", attribute3.AttributeNameNode.NodeWarnings.Single());
         }
+
+        [TestMethod]
+        public void DefaultViewCompiler_DifferentControlPrimaryName()
+        {
+            var root = ParseSource(@"@viewModel System.String
+<cc:PrimaryNameControl />
+<cc:ControlWithPrimaryName />");
+            var nonLiterals = root.Content.Where(c => !c.IsOnlyWhitespace()).ToList();
+            Assert.AreEqual(2, nonLiterals.Count);
+            Assert.AreEqual(typeof(ControlWithPrimaryName), nonLiterals[0].Metadata.Type);
+            Assert.AreEqual(typeof(ControlWithPrimaryName), nonLiterals[1].Metadata.Type);
+            Assert.AreEqual("PrimaryNameControl", nonLiterals[0].Metadata.PrimaryName);
+        }
+
+        [TestMethod]
+        public void DefaultViewCompiler_DifferentControlAlternativeNames()
+        {
+            var root = ParseSource(@"@viewModel System.String
+<cc:ControlWithAlternativeNames />
+<cc:AlternativeNameControl />
+<cc:AlternativeNameControl2 />");
+            var nonLiterals = root.Content.Where(c => !c.IsOnlyWhitespace()).ToList();
+            Assert.AreEqual(3, nonLiterals.Count);
+            Assert.AreEqual(typeof(ControlWithAlternativeNames), nonLiterals[0].Metadata.Type);
+            Assert.AreEqual(typeof(ControlWithAlternativeNames), nonLiterals[1].Metadata.Type);
+            Assert.AreEqual(typeof(ControlWithAlternativeNames), nonLiterals[2].Metadata.Type);
+            Assert.AreEqual(2, nonLiterals[0].Metadata.AlternativeNames!.Count);
+        }
     }
 }

@@ -28,6 +28,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private static object dotvvmLocker = new object();
         private static bool isDotvvmInitialized = false;
 
+        private static readonly Dictionary<string, string> controlNameMappings = new(StringComparer.OrdinalIgnoreCase);
 
         public DefaultControlResolver(DotvvmConfiguration configuration, IControlBuilderFactory controlBuilderFactory, CompiledAssemblyCache compiledAssemblyCache) : base(configuration.Markup)
         {
@@ -46,6 +47,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         startupTracer?.TraceEvent(StartupTracingConstants.InvokeAllStaticConstructorsStarted);
                         InvokeStaticConstructorsOnAllControls();
                         ResolveAllPropertyAliases();
+                        ResolveAllControlAliases();
                         startupTracer?.TraceEvent(StartupTracingConstants.InvokeAllStaticConstructorsFinished);
 
                         isInitialized = true;
@@ -192,6 +194,52 @@ namespace DotVVM.Framework.Compilation.ControlTree
         }
 
         /// <summary>
+        /// After all DotvvmControls have been discovered, build a map of alternative names.
+        /// </summary>
+        private void ResolveAllControlAliases()
+        {
+            foreach (var assembly in compiledAssemblyCache.GetAllAssemblies())
+            {
+                // find all control types
+                var controlTypes = assembly.GetLoadableTypes()
+                    .Where(t => t.IsClass && t.IsPublic && !t.IsAbstract)
+                    .Where(t => typeof(DotvvmControl).IsAssignableFrom(t));
+
+                // add mappings for primary names and aliases
+                foreach (var controlType in controlTypes)
+                {
+                    if (controlType.GetCustomAttribute<ControlMarkupOptionsAttribute>() is { } markupOptions)
+                    {
+
+                        if (markupOptions.PrimaryName is {} primaryName)
+                        {
+                            AddMapping(controlType, primaryName);
+                        }
+                        if (markupOptions.AlternativeNames?.Any() == true)
+                        {
+                            foreach (var alternativeName in markupOptions.AlternativeNames)
+                            {
+                                AddMapping(controlType, alternativeName);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void AddMapping(Type controlType, string source)
+            {
+                var mappingSource = $"{controlType.Namespace}.{source}, {controlType.Assembly.FullName}";
+                if (controlNameMappings.TryGetValue(source, out var existingTarget))
+                {
+                    throw new DotvvmCompilationException($"A conflicting primary name or alternative name {source} found at control {controlType.FullName} - it is already pointing to {existingTarget}.");
+                }
+
+                var mappingTarget = $"{controlType.Namespace}.{controlType.Name}, {controlType.Assembly.FullName}";
+                controlNameMappings.Add(mappingSource, mappingTarget);
+            }
+        }
+
+        /// <summary>
         /// Resolves the control metadata for specified type.
         /// </summary>
         public override IControlResolverMetadata ResolveControl(ITypeDescriptor controlType)
@@ -206,7 +254,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         protected override IControlType? FindCompiledControl(string tagName, string namespaceName, string assemblyName)
         {
-            var type = compiledAssemblyCache.FindType(namespaceName + "." + tagName + ", " + assemblyName, ignoreCase: true);
+            var lookupName = $"{namespaceName}.{tagName}, {assemblyName}";
+            if (controlNameMappings.TryGetValue(lookupName, out var redirectedName))
+            {
+                lookupName = redirectedName;
+            }
+
+            var type = compiledAssemblyCache.FindType(lookupName, ignoreCase: true);
             if (type == null)
             {
                 // the control was not found
