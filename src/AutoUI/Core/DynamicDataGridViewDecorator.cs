@@ -72,7 +72,7 @@ namespace DotVVM.AutoUI
                 if (columnProvider == null) continue;
 
                 // create the column
-                var column = columnProvider.CreateColumn(property, null, dynamicDataContext);
+                var column = columnProvider.CreateColumn(property, null!, dynamicDataContext);
                 SetColumnCommonProperties(grid, property, column, dynamicDataContext);
 
                 // add the column to the GridView

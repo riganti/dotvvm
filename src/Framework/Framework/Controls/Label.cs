@@ -41,14 +41,14 @@ namespace DotVVM.Framework.Controls
             this.Children.Add(dummyControl);
             var id = dummyControl.CreateClientId();
             this.Children.RemoveAt(dummyIndex);
-            if (id is string idStr)
+            if (id?.HasValue == true)
             {
-                writer.AddAttribute("for", idStr);
+                writer.AddAttribute("for", id?.ValueOrDefault);
             }
             else if (id is {})
             {
                 // let the html generic control evaluate the binding
-                this.Attributes.Add("for", id);
+                this.Attributes.Add("for", id.UnwrapToObject());
             }
 
             base.AddAttributesToRender(writer, context);

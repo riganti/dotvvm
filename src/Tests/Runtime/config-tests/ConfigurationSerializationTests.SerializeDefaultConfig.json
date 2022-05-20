@@ -1390,8 +1390,7 @@
           "",
           "html:"
         ],
-        "type": "System.Object",
-        "fromCapability": "HtmlCapability"
+        "type": "System.Object"
       },
       "CssClasses": {
         "prefix": "Class-",

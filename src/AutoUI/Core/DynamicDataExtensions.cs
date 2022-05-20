@@ -86,10 +86,10 @@ namespace DotVVM.AutoUI
 
 
             // bulma styles
-            s.Register<CheckBox>(c => c.PropertyValue<string[]>(DynamicEditor.TagsProperty).Contains("bulma"))
+            s.Register<CheckBox>(c => c.PropertyValue<string[]>(DynamicEditor.TagsProperty)!.Contains("bulma"))
                 .AddClass("checkbox");
 
-            s.Register<SelectorBase>(c => c.PropertyValue<string[]>(DynamicEditor.TagsProperty).Contains("bulma"))
+            s.Register<SelectorBase>(c => c.PropertyValue<string[]>(DynamicEditor.TagsProperty)!.Contains("bulma"))
                 .SetAttribute("class", "")
                 .WrapWith(new HtmlGenericControl("div").AddCssClass("select"));
 

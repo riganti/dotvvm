@@ -60,7 +60,7 @@ namespace DotVVM.AutoUI.PropertyHandlers
             var tupleProperties = parent.Type
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .Where(p => p.CanRead)
-                .Where(p => p.PropertyType.FullName.StartsWith("System.Tuple`"))
+                .Where(p => p.PropertyType.FullName!.StartsWith("System.Tuple`"))
                 .SelectMany(p => p.PropertyType
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(i => selectorViewModelType.IsAssignableFrom(i.PropertyType))
