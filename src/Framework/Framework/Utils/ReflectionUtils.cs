@@ -472,10 +472,14 @@ namespace DotVVM.Framework.Utils
             member is TypeInfo type ? type.AsType() :
             throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
 
-        public static string ToEnumString<T>(this T instance) where T : Enum
+        public static string ToEnumString<T>(this T instance) where T : struct, Enum
         {
-            return ToEnumString(instance.GetType(), instance.ToString());
+            var name = instance.ToString();
+            if (!EnumInfo<T>.HasEnumMemberField)
+                return name;
+            return ToEnumString(typeof(T), name);
         }
+
         public static string ToEnumString(Type enumType, string name)
         {
             var field = enumType.GetField(name);
@@ -490,6 +494,23 @@ namespace DotVVM.Framework.Utils
             return name;
         }
 
+        internal static class EnumInfo<T> where T: struct, Enum
+        {
+            internal static readonly bool HasEnumMemberField;
+
+            static EnumInfo()
+            {
+                foreach (var field in typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static))
+                {
+                    if (field.IsDefined(typeof(EnumMemberAttribute), false))
+                    {
+                        HasEnumMemberField = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
         public static Type GetDelegateType(MethodInfo methodInfo)
         {
             return Expression.GetDelegateType(methodInfo.GetParameters().Select(a => a.ParameterType).Append(methodInfo.ReturnType).ToArray());
