@@ -340,7 +340,7 @@ namespace DotVVM.Framework.Controls
         {
             container.DataContext = null;
             container.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-            container.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
+            container.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexClientIdFragment(context));
         }
 
         private void SetUpServerItem(IDotvvmRequestContext context, object item, int index, DataItemContainer container)

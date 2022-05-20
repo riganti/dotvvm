@@ -90,35 +90,30 @@ namespace DotVVM.Framework.Controls
 
             control.SetProperty(new ResolvedPropertyBinding(Internal.CurrentIndexBindingProperty,
                 new ResolvedBinding(bindingService, new Compilation.BindingParserOptions(typeof(ValueBindingExpression)), dataContext,
-                parsedExpression: Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(
-                    new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter())))));
+                parsedExpression: CreateIndexBindingExpression(dataContext))));
         }
 
-        protected IBinding GetIndexBinding(IDotvvmRequestContext context)
+        private static ParameterExpression CreateIndexBindingExpression(DataContextStack dataContext) =>
+            Expression.Parameter(typeof(int), "_index")
+                .AddParameterAnnotation(new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter()));
+
         {
-            var result = GetValueRaw(Internal.CurrentIndexBindingProperty) as IBinding;
-            if (result is {})
+            var binding = GetValueRaw(Internal.CurrentIndexBindingProperty) as IBinding;
+            if (binding == null)
             {
-                return result;
-            }
-            else
-            {
-                // slower path: create the _index binding at runtime
+                // slower path: create the _index binding at runtime and cache it
                 var bindingService = context.Services.GetRequiredService<BindingCompilationService>();
                 var dataContext = GetDataSourceBinding().GetProperty<CollectionElementDataContextBindingProperty>().DataContext;
-                return bindingService.Cache.CreateCachedBinding("_index", new object[] { dataContext }, () =>
-                    new ValueBindingExpression<string>(bindingService, new object?[] {
+                binding = bindingService.Cache.CreateCachedBinding(
+                    "_index", new object[] { dataContext },
+                    () => new ValueBindingExpression<string>(bindingService, new object?[] {
                         dataContext,
-                        new ParsedExpressionBindingProperty(
-                            Expression.Call(
-                                IndexToStringNoGlobalizeMethod,
-                                Expression.Parameter(typeof(int), "_index")
-                                    .AddParameterAnnotation(new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter()))
-                            )
-                        )
-                    }
-                ));
+                        new ParsedExpressionBindingProperty(CreateIndexBindingExpression(dataContext))
+                    }));
             }
+
+            return new ValueOrBinding<int>(binding).Select(i => IndexToStringNoGlobalize(i));
+
         }
     }
 }
