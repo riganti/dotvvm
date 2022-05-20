@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace DotVVM.AutoUI.ViewModel;
 
 public class SelectorViewModel<TItem> : DotvvmViewModelBase, ISelectorViewModel<TItem>
-    where TItem : Annotations.SelectorItem
+    where TItem : Annotations.Selection
 {
 
     public List<TItem>? Items { get; set; }
@@ -25,20 +25,20 @@ public class SelectorViewModel<TItem> : DotvvmViewModelBase, ISelectorViewModel<
 
     protected virtual async Task LoadItems()
     {
-        var selectorDataProvider = Context.Services.GetService<ISelectorDataProvider<TItem>>();
+        var selectorDataProvider = Context.Services.GetService<ISelectionProvider<TItem>>();
         if (selectorDataProvider != null)
         {
             Items = await selectorDataProvider.GetSelectorItems();
         }
         else
         {
-            throw new DotvvmControlException($"Cannot resolve ISelectorDataProvider<{typeof(TItem).FullName}> service! Either load data into {GetType()}.Items collection manually, or register a service which can provide the selector items.");
+            throw new DotvvmControlException($"Cannot resolve ISelectionProvider<{typeof(TItem).FullName}> service! Either load data into {GetType()}.Items collection manually, or register a service which can provide the selector items.");
         }
     }
 }
 
 public class SelectorViewModel<TItem, TParam> : SelectorViewModel<TItem>
-    where TItem : Annotations.SelectorItem
+    where TItem : Annotations.Selection
 {
     private readonly Func<TParam> parameterProvider;
 
@@ -49,7 +49,7 @@ public class SelectorViewModel<TItem, TParam> : SelectorViewModel<TItem>
 
     protected override async Task LoadItems()
     {
-        var selectorDataProvider = ServiceProviderServiceExtensions.GetService<ISelectorDataProvider<TItem, TParam>>(Context.Services);
+        var selectorDataProvider = Context.Services.GetService<ISelectorDataProvider<TItem, TParam>>();
         if (selectorDataProvider != null)
         {
             var parameter = parameterProvider();
@@ -57,7 +57,7 @@ public class SelectorViewModel<TItem, TParam> : SelectorViewModel<TItem>
         }
         else
         {
-            throw new DotvvmControlException($"Cannot resolve ISelectorDataProvider<{typeof(TItem).FullName}> service! Either load data into {GetType()}.Items collection manually, or register a service which can provide the selector items.");
+            throw new DotvvmControlException($"Cannot resolve ISelectionProvider<{typeof(TItem).FullName}> service! Either load data into {GetType()}.Items collection manually, or register a service which can provide the selector items.");
         }
     }
 }

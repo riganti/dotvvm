@@ -16,7 +16,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
 
         public CustomerData Customer { get; set; } = new();
 
-        public SelectorViewModel<ProductSelectorItem> Products { get; set; } = new();
+        public SelectorViewModel<ProductSelection> Products { get; set; } = new();
     }
 
     public class CustomerData
@@ -38,16 +38,16 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
 
     }
 
-    public record ProductSelectorItem : SelectorItem<Guid>;
+    public record ProductSelection : Selection<Guid>;
 
-    public class ProductSelectorDataProvider : ISelectorDataProvider<ProductSelectorItem>
+    public class ProductSelectionProvider : ISelectionProvider<ProductSelection>
     {
-        public Task<List<ProductSelectorItem>> GetSelectorItems() =>
-            Task.FromResult(new List<ProductSelectorItem>()
+        public Task<List<ProductSelection>> GetSelectorItems() =>
+            Task.FromResult(new List<ProductSelection>()
             {
-                new ProductSelectorItem() { Value = new Guid("00000000-0000-0000-0000-000000000001"), DisplayName = "First product" },
-                new ProductSelectorItem() { Value = new Guid("00000000-0000-0000-0000-000000000002"), DisplayName = "Second product" },
-                new ProductSelectorItem() { Value = new Guid("00000000-0000-0000-0000-000000000003"), DisplayName = "Third product" }
+                new ProductSelection() { Value = new Guid("00000000-0000-0000-0000-000000000001"), DisplayName = "First product" },
+                new ProductSelection() { Value = new Guid("00000000-0000-0000-0000-000000000002"), DisplayName = "Second product" },
+                new ProductSelection() { Value = new Guid("00000000-0000-0000-0000-000000000003"), DisplayName = "Third product" }
             });
     }
 

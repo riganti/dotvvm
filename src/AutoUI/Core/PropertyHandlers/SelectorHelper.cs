@@ -32,7 +32,7 @@ namespace DotVVM.AutoUI.PropertyHandlers
                     var body =
                         Expression.Property(
                             matchingProperties[0],
-                            nameof(ISelectorViewModel<Annotations.SelectorItem>.Items)
+                            nameof(ISelectorViewModel<Annotations.Selection>.Items)
                         );
                     return (IValueBinding)dynamicDataContext.BindingService.CreateBinding(
                         typeof(ValueBindingExpression<>),

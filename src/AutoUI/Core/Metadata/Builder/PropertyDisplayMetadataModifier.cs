@@ -9,7 +9,7 @@ public class PropertyDisplayMetadataModifier
 {
     private List<Action<PropertyDisplayMetadata>> actions = new();
 
-    public PropertyDisplayMetadataModifier UseSelector<T>() where T : Annotations.SelectorItem
+    public PropertyDisplayMetadataModifier UseSelector<T>() where T : Annotations.Selection
     {
         actions.Add(m => m.SelectorConfiguration = new SelectorAttribute(typeof(T)));
         return this;

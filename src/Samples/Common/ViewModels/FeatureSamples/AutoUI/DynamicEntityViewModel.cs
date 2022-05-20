@@ -15,9 +15,9 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
 
         public AddressDTO Address { get; set; } = new() { CountryId = 1 };
 
-        public SelectorViewModel<StateSelectorItem, AddressDTO> States { get; set; }
+        public SelectorViewModel<StateSelection, AddressDTO> States { get; set; }
 
-        public SelectorViewModel<CountrySelectorItem> Countries { get; set; }
+        public SelectorViewModel<CountrySelection> Countries { get; set; }
 
         [Display(Name = "Some additional field.")]
         [MaxLength(10)]
@@ -47,11 +47,11 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
 
 
         [Display(GroupName = "BasicInfo")]
-        [Selector(typeof(CountrySelectorItem))]
+        [Selector(typeof(CountrySelection))]
         public int CountryId { get; set; }
         
         [Display(GroupName = "BasicInfo")]
-        [Selector(typeof(StateSelectorItem))]
+        [Selector(typeof(StateSelection))]
         public string State { get; set; }
 
         [Display(GroupName = "ContactInfo")]
@@ -74,59 +74,59 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
         Phone
     }
 
-    public record CountrySelectorItem : SelectorItem<int>;
-    public record StateSelectorItem : SelectorItem<string>;
+    public record CountrySelection : Selection<int>;
+    public record StateSelection : Selection<string>;
 
-    public class CountrySelectorDataProvider : ISelectorDataProvider<CountrySelectorItem>
+    public class CountrySelectionProvider : ISelectionProvider<CountrySelection>
     {
-        public Task<List<CountrySelectorItem>> GetSelectorItems() => Task.FromResult(new List<CountrySelectorItem>()
+        public Task<List<CountrySelection>> GetSelectorItems() => Task.FromResult(new List<CountrySelection>()
         {
-            new CountrySelectorItem() { Value = 1, DisplayName = "USA" },
-            new CountrySelectorItem() { Value = 2, DisplayName = "Czech Republic" }
+            new CountrySelection() { Value = 1, DisplayName = "USA" },
+            new CountrySelection() { Value = 2, DisplayName = "Czech Republic" }
         });
     }
 
-    public class StateSelectorDataProvider : ISelectorDataProvider<StateSelectorItem, AddressDTO>
+    public class StateSelectorDataProvider : ISelectorDataProvider<StateSelection, AddressDTO>
     {
-        public Task<List<StateSelectorItem>> GetSelectorItems(AddressDTO parameter)
+        public Task<List<StateSelection>> GetSelectorItems(AddressDTO parameter)
         {
             if (parameter.CountryId == 1)
             {
-                return Task.FromResult(new List<StateSelectorItem>() {
-                    new StateSelectorItem() { Value = "AL", DisplayName = "Alabama" },
-                    new StateSelectorItem() { Value = "AK", DisplayName = "Alaska" },
-                    new StateSelectorItem() { Value = "AZ", DisplayName = "Arizona" },
-                    new StateSelectorItem() { Value = "AZ", DisplayName = "Arkansas" },
-                    new StateSelectorItem() { Value = "CA", DisplayName = "California" },
-                    new StateSelectorItem() { Value = "CO", DisplayName = "Colorado" },
-                    new StateSelectorItem() { Value = "CT", DisplayName = "Connecticut" },
-                    new StateSelectorItem() { Value = "DE", DisplayName = "Delaware" },
-                    new StateSelectorItem() { Value = "FL", DisplayName = "Florida" },
-                    new StateSelectorItem() { Value = "GA", DisplayName = "Georgia" },
-                    new StateSelectorItem() { Value = "HI", DisplayName = "Hawaii" },
-                    new StateSelectorItem() { Value = "ID", DisplayName = "Idaho" },
-                    new StateSelectorItem() { Value = "IL", DisplayName = "Illinois" },
-                    new StateSelectorItem() { Value = "IN", DisplayName = "Indiana" },
-                    new StateSelectorItem() { Value = "IA", DisplayName = "Iowa" },
-                    new StateSelectorItem() { Value = "KS", DisplayName = "Kansas" },
-                    new StateSelectorItem() { Value = "KY", DisplayName = "Kentucky" },
-                    new StateSelectorItem() { Value = "LA", DisplayName = "Louisiana" },
-                    new StateSelectorItem() { Value = "ME", DisplayName = "Maine" },
-                    new StateSelectorItem() { Value = "MD", DisplayName = "Maryland" },
-                    new StateSelectorItem() { Value = "MA", DisplayName = "Massachusetts" },
-                    new StateSelectorItem() { Value = "MI", DisplayName = "Michigan" },
-                    new StateSelectorItem() { Value = "MN", DisplayName = "Minnesota" },
-                    new StateSelectorItem() { Value = "MS", DisplayName = "Mississippi" },
-                    new StateSelectorItem() { Value = "MO", DisplayName = "Missouri" },
-                    new StateSelectorItem() { Value = "MT", DisplayName = "Montana" },
-                    new StateSelectorItem() { Value = "NE", DisplayName = "Nebraska" },
-                    new StateSelectorItem() { Value = "NV", DisplayName = "Nevada" },
-                    new StateSelectorItem() { Value = "NH", DisplayName = "New Hampshire" }
+                return Task.FromResult(new List<StateSelection>() {
+                    new StateSelection() { Value = "AL", DisplayName = "Alabama" },
+                    new StateSelection() { Value = "AK", DisplayName = "Alaska" },
+                    new StateSelection() { Value = "AZ", DisplayName = "Arizona" },
+                    new StateSelection() { Value = "AZ", DisplayName = "Arkansas" },
+                    new StateSelection() { Value = "CA", DisplayName = "California" },
+                    new StateSelection() { Value = "CO", DisplayName = "Colorado" },
+                    new StateSelection() { Value = "CT", DisplayName = "Connecticut" },
+                    new StateSelection() { Value = "DE", DisplayName = "Delaware" },
+                    new StateSelection() { Value = "FL", DisplayName = "Florida" },
+                    new StateSelection() { Value = "GA", DisplayName = "Georgia" },
+                    new StateSelection() { Value = "HI", DisplayName = "Hawaii" },
+                    new StateSelection() { Value = "ID", DisplayName = "Idaho" },
+                    new StateSelection() { Value = "IL", DisplayName = "Illinois" },
+                    new StateSelection() { Value = "IN", DisplayName = "Indiana" },
+                    new StateSelection() { Value = "IA", DisplayName = "Iowa" },
+                    new StateSelection() { Value = "KS", DisplayName = "Kansas" },
+                    new StateSelection() { Value = "KY", DisplayName = "Kentucky" },
+                    new StateSelection() { Value = "LA", DisplayName = "Louisiana" },
+                    new StateSelection() { Value = "ME", DisplayName = "Maine" },
+                    new StateSelection() { Value = "MD", DisplayName = "Maryland" },
+                    new StateSelection() { Value = "MA", DisplayName = "Massachusetts" },
+                    new StateSelection() { Value = "MI", DisplayName = "Michigan" },
+                    new StateSelection() { Value = "MN", DisplayName = "Minnesota" },
+                    new StateSelection() { Value = "MS", DisplayName = "Mississippi" },
+                    new StateSelection() { Value = "MO", DisplayName = "Missouri" },
+                    new StateSelection() { Value = "MT", DisplayName = "Montana" },
+                    new StateSelection() { Value = "NE", DisplayName = "Nebraska" },
+                    new StateSelection() { Value = "NV", DisplayName = "Nevada" },
+                    new StateSelection() { Value = "NH", DisplayName = "New Hampshire" }
                 });
             }
             else
             {
-                return Task.FromResult(new List<StateSelectorItem>());
+                return Task.FromResult(new List<StateSelection>());
             }
         }
     }

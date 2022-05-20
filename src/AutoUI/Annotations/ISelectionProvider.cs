@@ -4,7 +4,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.AutoUI.Annotations;
 
-public interface ISelectorDataProvider<TItem>
+public interface ISelectionProvider<TItem>
 {
     [AllowStaticCommand]
     Task<List<TItem>> GetSelectorItems();

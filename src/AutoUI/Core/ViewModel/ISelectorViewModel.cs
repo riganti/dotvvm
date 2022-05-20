@@ -3,7 +3,7 @@
 namespace DotVVM.AutoUI.ViewModel;
 
 public interface ISelectorViewModel<TItem>
-    where TItem : Annotations.SelectorItem
+    where TItem : Annotations.Selection
 {
     List<TItem>? Items { get; }
 }
