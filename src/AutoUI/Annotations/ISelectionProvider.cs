@@ -10,7 +10,7 @@ public interface ISelectionProvider<TItem>
     Task<List<TItem>> GetSelectorItems();
 }
 
-public interface ISelectorDataProvider<TItem, TParam>
+public interface ISelectionProvider<TItem, TParam>
 {
     [AllowStaticCommand]
     Task<List<TItem>> GetSelectorItems(TParam parameter);
