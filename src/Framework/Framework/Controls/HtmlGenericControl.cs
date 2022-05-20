@@ -370,19 +370,22 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddAttribute(name, ReflectionUtils.ToEnumString(enumValue.GetType(), enumValue.ToString()));
             }
-            else if (value is Guid)
-            {
-                writer.AddAttribute(name, value.ToString());
-            }
-            else if (ReflectionUtils.IsNumericType(value.GetType()))
-            {
-                writer.AddAttribute(name, Convert.ToString(value, CultureInfo.InvariantCulture));
-            }
-            else
-            {
-                // DateTime and related are not supported here intentionally.
-                // It is not clear in which format it should be rendered - on some places, the HTML specs requires just yyyy-MM-dd,
-                // but in case of Web Components, the users may want to pass the whole date, or use a specific format
+        }
+
+        private static string AttributeValueToString(object? value) =>
+            value switch {
+                null => "",
+                string str => str,
+                Enum enumValue => ReflectionUtils.ToEnumString(enumValue.GetType(), enumValue.ToString()),
+                Guid guid => guid.ToString(),
+                _ when ReflectionUtils.IsNumericType(value.GetType()) => Convert.ToString(value, CultureInfo.InvariantCulture) ?? "",
+                System.Collections.IEnumerable =>
+                    throw new NotSupportedException($"Attribute value of type '{value.GetType().ToCode(stripNamespace: true)}' is not supported. Consider concatenating the values into a string or use the HtmlGenericControl.AttributeList if you need to pass multiple values."),
+                _ =>
+
+                    // DateTime and related are not supported here intentionally.
+                    // It is not clear in which format it should be rendered - on some places, the HTML specs requires just yyyy-MM-dd,
+                    // but in case of Web Components, the users may want to pass the whole date, or use a specific format
 
                 throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported. Please convert the value to string, e. g. by using ToString()");
             }
