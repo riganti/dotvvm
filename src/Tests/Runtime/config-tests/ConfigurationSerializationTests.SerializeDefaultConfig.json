@@ -1255,6 +1255,11 @@
         ]
       }
     },
+    "DotVVM.Framework.Tests.ControlTests.RepeaterWrapper": {
+      "HtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
+      }
+    },
     "DotVVM.Framework.Tests.ControlTests.WrappedHtmlControl": {
       "HtmlCapability": {
         "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
@@ -1484,6 +1489,26 @@
           }
         ],
         "fromCapability": "button:HtmlCapability"
+      },
+      "CssClasses": {
+        "prefix": "Class-",
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      },
+      "CssStyles": {
+        "prefix": "Style-",
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.RepeaterWrapper": {
+      "Attributes": {
+        "prefixes": [
+          "",
+          "html:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
       },
       "CssClasses": {
         "prefix": "Class-",
