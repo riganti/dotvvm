@@ -381,7 +381,7 @@ namespace DotVVM.Framework.Controls
             value switch {
                 null => "",
                 string str => str,
-                Enum enumValue => enumValue.ToEnumString(),
+                Enum enumValue => ReflectionUtils.ToEnumString(enumValue.GetType(), enumValue.ToString()),
                 Guid guid => guid.ToString(),
                 _ when ReflectionUtils.IsNumericType(value.GetType()) => Convert.ToString(value, CultureInfo.InvariantCulture) ?? "",
                 System.Collections.IEnumerable =>
