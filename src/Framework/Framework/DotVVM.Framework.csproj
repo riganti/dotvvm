@@ -131,11 +131,9 @@
     <Exec Command="yarnpkg install --immutable" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
     <Exec Command="npm ci" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
 
-    <Exec Command="yarnpkg build-production" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
-    <Exec Command="yarnpkg build-development" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="yarnpkg build-stats" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
 
-    <Exec Command="npm run build-production" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
-    <Exec Command="npm run build-development" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="npm run build-stats" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
   </Target>
 
 </Project>
