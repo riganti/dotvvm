@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Configuration;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Serialization
@@ -18,7 +19,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public EncryptedValuesWriter(JsonWriter jsonWriter)
         {
             this.writer = jsonWriter;
-            serializer = new JsonSerializer();
+            serializer = JsonSerializer.Create(DefaultSerializerSettingsProvider.Instance.Settings);
         }
 
         public void Nest() => Nest(lastPropertyIndex + 1);

@@ -10,7 +10,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class EncryptedValuesReader
     {
-        JsonSerializer serializer;
         Stack<(int prop, JObject? obj)> stack = new();
         int virtualNests = 0;
         int lastPropertyIndex = -1;
@@ -19,7 +18,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public EncryptedValuesReader(JObject json)
         {
             stack.Push((0, json));
-            this.serializer = new JsonSerializer();
         }
 
         private JObject? json => stack.Peek().obj;
