@@ -258,6 +258,10 @@ namespace DotVVM.Framework.Binding
         /// <summary> Returns DotvvmProperty, DotvvmCapabilityProperty or DotvvmPRopertyGroup </summary>
         internal static object InitializeArgument(ICustomAttributeProvider attributeProvider, string propertyName, Type propertyType, Type declaringType, DotvvmCapabilityProperty? declaringCapability, ValueOrBinding<object>? defaultValue)
         {
+            // we need to make sure that base type is initialized, otherwise we might miss that some properties are already defined in base type
+            // and we'd redefine them for the second time here (HtmlGenericControl.Id vs DotvvmControl.Id, see https://github.com/riganti/dotvvm/issues/1387)
+            DefaultControlResolver.InitType(declaringType.BaseType.NotNull("declaringType.BaseType is null"));
+            
             var capabilityType = declaringCapability?.PropertyType;
             propertyName = ToPascalCase(propertyName).DotvvmInternString(trySystemIntern: true);
 

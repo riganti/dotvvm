@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 = DotvvmProperty.Register<object, MoqComponent>(t => t.Property);
         }
 
-        DotvvmConfiguration config = DotvvmTestHelper.DefaultConfig;
+        DotvvmConfiguration config => DotvvmTestHelper.DefaultConfig;
         BindingCompilationService bindingService => config.ServiceProvider.GetRequiredService<BindingCompilationService>();
 
         [TestMethod]
@@ -44,6 +44,20 @@ namespace DotVVM.Framework.Tests.Runtime
                 _ = MoqComponent.PropertyProperty; // calls the static ctor
                 DotvvmProperty.Register<bool, MoqComponent>(t => t.Property);
             });
+        }
+
+        [TestMethod]
+        public void HtmlGenericControl_DoesNotContainIdProperty()
+        {
+            // call the HtmlGenericControl..cctor
+            var capability = HtmlGenericControl.HtmlCapabilityProperty;
+            var prop = capability.PropertyMapping!.Value.First(x => x.dotvvmProperty.Name == "ID");
+            var prop2 = DotvvmProperty.ResolveProperty(typeof(HtmlGenericControl), "ID");
+
+            Assert.IsNotNull(prop2);
+            Assert.AreEqual("ID", prop2.Name);
+            Assert.AreEqual(typeof(DotvvmControl), prop2.DeclaringType);
+            Assert.AreEqual(prop.dotvvmProperty, prop2);
         }
 
         public class TestObject : DotvvmBindableObject
