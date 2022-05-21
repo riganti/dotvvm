@@ -272,7 +272,6 @@ namespace DotVVM.Framework.Binding
             // we need to make sure that base type is initialized, otherwise we might miss that some properties are already defined in base type
             // and we'd redefine them for the second time here (HtmlGenericControl.Id vs DotvvmControl.Id, see https://github.com/riganti/dotvvm/issues/1387)
             DefaultControlResolver.InitType(declaringType.BaseType.NotNull("declaringType.BaseType is null"));
-            // if (propertyName == "ValueOrBindingNullable") throw new Exception("xx " + declaringType);
             
             var capabilityType = declaringCapability?.PropertyType;
             propertyName = ToPascalCase(propertyName).DotvvmInternString(trySystemIntern: true);
