@@ -9,13 +9,13 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
     {
         public override bool CanHandleProperty(PropertyDisplayMetadata property, AutoUIContext context)
         {
-            return property.SelectorConfiguration != null
+            return property.SelectionConfiguration != null
                 && ReflectionUtils.IsPrimitiveType(property.Type);
         }
 
         public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, AutoUIContext context)
         {
-            var selectorConfiguration = property.SelectorConfiguration!;
+            var selectorConfiguration = property.SelectionConfiguration!;
             var selectorDataSourceBinding = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selectorConfiguration.PropertyType);
 
             return new ComboBox()

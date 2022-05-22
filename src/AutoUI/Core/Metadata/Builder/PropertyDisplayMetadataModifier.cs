@@ -9,9 +9,9 @@ public class PropertyDisplayMetadataModifier
 {
     private List<Action<PropertyDisplayMetadata>> actions = new();
 
-    public PropertyDisplayMetadataModifier UseSelector<T>() where T : Annotations.Selection
+    public PropertyDisplayMetadataModifier UseSelection<T>() where T : Annotations.Selection
     {
-        actions.Add(m => m.SelectorConfiguration = new SelectorAttribute(typeof(T)));
+        actions.Add(m => m.SelectionConfiguration = new SelectionAttribute(typeof(T)));
         return this;
     }
 

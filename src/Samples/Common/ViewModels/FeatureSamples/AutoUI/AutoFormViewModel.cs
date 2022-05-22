@@ -10,20 +10,20 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
 {
-    public class DynamicEntityViewModel : DotvvmViewModelBase
+    public class AutoFormViewModel : DotvvmViewModelBase
     {
 
         public AddressDTO Address { get; set; } = new() { CountryId = 1 };
 
-        public SelectorViewModel<StateSelection, AddressDTO> States { get; set; }
+        public SelectionViewModel<StateSelection, AddressDTO> States { get; set; }
 
-        public SelectorViewModel<CountrySelection> Countries { get; set; }
+        public SelectionViewModel<CountrySelection> Countries { get; set; }
 
         [Display(Name = "Some additional field.")]
         [MaxLength(10)]
         public string Something { get; set; } = "test";
 
-        public DynamicEntityViewModel()
+        public AutoFormViewModel()
         {
             States = new(() => Address);
             Countries = new();
@@ -47,11 +47,11 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
 
 
         [Display(GroupName = "BasicInfo")]
-        [Selector(typeof(CountrySelection))]
+        [Selection(typeof(CountrySelection))]
         public int CountryId { get; set; }
         
         [Display(GroupName = "BasicInfo")]
-        [Selector(typeof(StateSelection))]
+        [Selection(typeof(StateSelection))]
         public string State { get; set; }
 
         [Display(GroupName = "ContactInfo")]
@@ -86,7 +86,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
         });
     }
 
-    public class StateSelectorDataProvider : ISelectorDataProvider<StateSelection, AddressDTO>
+    public class StateSelectorDataProvider : ISelectionProvider<StateSelection, AddressDTO>
     {
         public Task<List<StateSelection>> GetSelectorItems(AddressDTO parameter)
         {

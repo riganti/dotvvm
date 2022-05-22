@@ -1,6 +1,5 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.DynamicEntityViewModel, DotVVM.Samples.Common
-@service statesDataProvider = DotVVM.AutoUI.Annotations.ISelectorDataProvider<DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.StateSelectorItem, DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.AddressDTO>
-    
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.AutoFormViewModel, DotVVM.Samples.Common
+@service statesDataProvider = DotVVM.AutoUI.Annotations.ISelectionProvider<DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.StateSelectorItem, DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.AddressDTO>
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -15,16 +14,16 @@
 
     <div class="columns">
         <div class="column">
-            <au:BulmaDynamicEntity
-                              DataContext="{value: Address}"
-                              GroupName="BasicInfo"
-                              Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}" >
+            <auto:BulmaForm
+                DataContext="{value: Address}"
+                GroupName="BasicInfo"
+                Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}">
                 <%--<Template-CountryId>
                     pre-text
                     <dd:DynamicEditor />
                     post-text
                 </Template-CountryId>--%>
-            </au:BulmaDynamicEntity>
+            </auto:BulmaForm>
         </div>
         <div class="column">
             <au:BulmaDynamicEntity DataContext="{value: Address}"

@@ -3,11 +3,11 @@
 namespace DotVVM.AutoUI.Annotations;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-public class SelectorAttribute : System.Attribute
+public class SelectionAttribute : System.Attribute
 {
     public Type PropertyType { get; }
 
-    public SelectorAttribute(Type propertyType)
+    public SelectionAttribute(Type propertyType)
     {
         PropertyType = propertyType;
     }

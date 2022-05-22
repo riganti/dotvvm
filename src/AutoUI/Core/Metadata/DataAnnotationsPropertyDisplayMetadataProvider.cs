@@ -40,7 +40,7 @@ namespace DotVVM.AutoUI.Metadata
             var dataTypeAttribute = p.GetCustomAttribute<DataTypeAttribute>();
             var styleAttribute = p.GetCustomAttribute<StyleAttribute>();
             var editableFilter = p.GetCustomAttribute<EditableAttribute>();
-            var selectorAttribute = p.GetCustomAttribute<SelectorAttribute>();
+            var selectorAttribute = p.GetCustomAttribute<SelectionAttribute>();
             var uiHintAttributes = p.GetCustomAttributes<UIHintAttribute>();
 
             return new PropertyDisplayMetadata(p)
@@ -58,7 +58,7 @@ namespace DotVVM.AutoUI.Metadata
                 Styles = styleAttribute,
                 IsEditable = editableFilter?.AllowEdit != false,
                 EnabledAttributes = p.GetCustomAttributes<EnabledAttribute>(),
-                SelectorConfiguration = selectorAttribute,
+                SelectionConfiguration = selectorAttribute,
                 UIHints = uiHintAttributes.Select(a => a.UIHint).ToArray(),
                 IsDefaultLabelAllowed = p.PropertyType.UnwrapNullableType() != typeof(bool) // TODO: make this configurable, maybe?
             };

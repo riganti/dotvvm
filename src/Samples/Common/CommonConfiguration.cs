@@ -73,11 +73,11 @@ namespace DotVVM.Samples.Common
                 config.PropertyDisplayNamesResourceFile = typeof(DynamicDataTexts);
                 config.PropertyMetadataRules
                     .For("IsCompany", r => r.SetDisplayName("Hello"))
-                    .For("ProductId", r => r.UseSelector<ProductSelection>());
+                    .For("ProductId", r => r.UseSelection<ProductSelection>());
             });
             services.AddTransient<ISelectionProvider<ProductSelection>, ProductSelectionProvider>();
             services.AddTransient<ISelectionProvider<CountrySelection>, CountrySelectionProvider>();
-            services.AddTransient<ISelectorDataProvider<StateSelection, AddressDTO>, StateSelectorDataProvider>();
+            services.AddTransient<ISelectionProvider<StateSelection, AddressDTO>, StateSelectorDataProvider>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)

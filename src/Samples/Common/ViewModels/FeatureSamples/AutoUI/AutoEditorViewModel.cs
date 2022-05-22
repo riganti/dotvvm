@@ -11,12 +11,12 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
 {
-    public class DynamicEditorViewModel : DotvvmViewModelBase
+    public class AutoEditorViewModel : DotvvmViewModelBase
     {
 
         public CustomerData Customer { get; set; } = new();
 
-        public SelectorViewModel<ProductSelection> Products { get; set; } = new();
+        public SelectionViewModel<ProductSelection> Products { get; set; } = new();
     }
 
     public class CustomerData
@@ -35,6 +35,9 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
         public Guid ProductId { get; set; }
 
         public ServiceType ServiceType { get; set; }
+
+        [Selection(typeof(ProductSelection))]
+        public List<Guid> FavoriteProductIds { get; set; } = new();
 
     }
 

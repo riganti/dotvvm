@@ -1,0 +1,42 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.AutoEditorViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h2>AutoEditor</h2>
+
+    <div DataContext="{value: Customer}">
+        <h3>String</h3>
+        <auto:Editor Property="{value: StringProp}" data-ui="string" />
+
+        <h3>Int</h3>
+        <auto:Editor Property="{value: IntProp}" data-ui="int" />
+
+        <h3>Int with range</h3>
+        <auto:Editor Property="{value: IntRangeProp}" data-ui="int-range" />
+
+        <h3>Bool</h3>
+        <auto:Editor Property="{value: BoolProp}" data-ui="bool" />
+
+        <h3>DateTime</h3>
+        <auto:Editor Property="{value: DateTimeProp}" data-ui="datetime" />
+
+        <h3>Selector ProductId</h3>
+        <auto:Editor Property="{value: ProductId}" data-ui="product-id" />
+
+        <h3>Selector ServiceType</h3>
+        <auto:Editor Property="{value: ServiceType}" data-ui="product-id" />
+
+        <h3>MultiSelector ProductId</h3>
+        <auto:Editor Property="{value: FavoriteProductIds}" data-ui="favorite-product-ids" />
+    </div>
+</body>
+</html>
+
+

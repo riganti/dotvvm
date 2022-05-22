@@ -191,7 +191,7 @@ namespace DotVVM.AutoUI.Controls
                     visibleResourceBinding = visibleResourceBinding.And(visible);
                 }
             }
-            else if (property.SelectorConfiguration is { } selector)
+            else if (property.SelectionConfiguration is { } selector)
             {
                 try
                 {

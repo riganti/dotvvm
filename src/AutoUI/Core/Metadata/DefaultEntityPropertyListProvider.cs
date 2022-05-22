@@ -30,8 +30,8 @@ namespace DotVVM.AutoUI.Metadata
                 .Where(p => string.IsNullOrEmpty(viewContext.GroupName)
                             || viewContext.GroupName.Equals(p.GroupName, StringComparison.OrdinalIgnoreCase))
                 .Where(p => string.IsNullOrEmpty(viewContext.ViewName)
-                        || p.VisibleAttributes.All(a =>
-                            ConditionalFieldBindingProvider.ProcessExpression(a.ViewNames,
+                        || p.VisibleAttributes.Where(a => !string.IsNullOrEmpty(a.ViewNames))
+                            .All(a => ConditionalFieldBindingProvider.ProcessExpression(a.ViewNames,
                                 v => v.Equals(viewContext.ViewName, StringComparison.OrdinalIgnoreCase))))
                 .ToList();
             

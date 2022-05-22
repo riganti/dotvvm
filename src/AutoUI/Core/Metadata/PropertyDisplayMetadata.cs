@@ -44,7 +44,7 @@ namespace DotVVM.AutoUI.Metadata
 
         public StyleAttribute? Styles { get; set; }
 
-        public SelectorAttribute? SelectorConfiguration { get; set; }
+        public SelectionAttribute? SelectionConfiguration { get; set; }
 
 
         public bool IsDefaultLabelAllowed { get; set; }
