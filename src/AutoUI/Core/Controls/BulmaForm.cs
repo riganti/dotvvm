@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using DotVVM.AutoUI.Metadata;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using Validator = DotVVM.Framework.Controls.Validator;
 
@@ -33,15 +35,7 @@ namespace DotVVM.AutoUI.Controls
                     control = new TemplateHost(editorTemplate);
                 else
                 {
-                    var input = CreateEditor(property, context, props)
-                        .AddCssClass("input")
-                        .SetProperty(Validator.InvalidCssClassProperty, "is-danger")
-                        .SetProperty(Validator.SetToolTipTextProperty, true)
-                        .SetProperty(Validator.ValueProperty, context.CreateValueBinding(property));
-                    input.Tags = input.Tags.Append("bulma").ToArray();
-                    control = new HtmlGenericControl("div")
-                        .AddCssClass("control")
-                        .AppendChildren(input);
+                    control = InitializeEditor(props, property, context);
                 }
 
                 var help = property.Description is { } description
@@ -57,7 +51,6 @@ namespace DotVVM.AutoUI.Controls
                 var fieldBody = new HtmlGenericControl("div")
                     .AddCssClass("field-body")
                     .AppendChildren(field);
-
 
                 var label = InitializeControlLabel(property, context, props)
                     ?.AddCssClass("label");
@@ -77,6 +70,54 @@ namespace DotVVM.AutoUI.Controls
             }
             return resultPlaceholder;
         }
+
+        private HtmlGenericControl InitializeEditor(FieldProps props, PropertyDisplayMetadata property, AutoUIContext context)
+        {
+            var editor = CreateEditor(property, context, props)
+                .SetProperty(Validator.InvalidCssClassProperty, "is-danger")
+                .SetProperty(Validator.SetToolTipTextProperty, true)
+                .SetProperty(Validator.ValueProperty, context.CreateValueBinding(property));
+
+            return new HtmlGenericControl("div")
+                .AddCssClass("control")
+                .AppendChildren(editor);
+        }
+
+
+        /// <summary>
+        /// Indicates that when the AutoEditor control is used inside BulmaForm, it should be wrapped in a div with a 'select' CSS class. This attached property is intended to be used when implementing custom FormEditorProviders.
+        /// </summary>
+        [AttachedProperty(typeof(bool))]
+        public static readonly DotvvmProperty WrapWithSelectClassProperty =
+            DotvvmProperty.Register<bool, BulmaForm>(() => WrapWithSelectClassProperty, isValueInherited: false, defaultValue: false);
+
+        /// <summary>
+        /// Indicates that when the AutoEditor control is used inside BulmaForm, it should be wrapped in a div with a 'checkbox' CSS class. This attached property is intended to be used when implementing custom FormEditorProviders.
+        /// </summary>
+        [AttachedProperty(typeof(bool))]
+        public static readonly DotvvmProperty WrapWithCheckboxClassProperty =
+            DotvvmProperty.Register<bool, BulmaForm>(() => WrapWithCheckboxClassProperty, isValueInherited: false, defaultValue: false);
+
+        /// <summary>
+        /// Indicates that when the AutoEditor control is used inside BulmaForm, it should be wrapped in a div with a 'radio' CSS class. This attached property is intended to be used when implementing custom FormEditorProviders.
+        /// </summary>
+        [AttachedProperty(typeof(bool))]
+        public static readonly DotvvmProperty WrapWithRadioClassProperty =
+            DotvvmProperty.Register<bool, BulmaForm>(() => WrapWithRadioClassProperty, isValueInherited: false, defaultValue: false);
+
+        /// <summary>
+        /// Indicates that when the AutoEditor control is used inside BulmaForm, it should be wrapped in a div with a 'textarea' CSS class. This attached property is intended to be used when implementing custom FormEditorProviders.
+        /// </summary>
+        [AttachedProperty(typeof(bool))]
+        public static readonly DotvvmProperty WrapWithTextareaClassProperty =
+            DotvvmProperty.Register<bool, BulmaForm>(() => WrapWithTextareaClassProperty, isValueInherited: false, defaultValue: false);
+
+        /// <summary>
+        /// Indicates that when the AutoEditor control is used inside BulmaForm, it should be wrapped in a div with an 'input' CSS class. This attached property is intended to be used when implementing custom FormEditorProviders.
+        /// </summary>
+        [AttachedProperty(typeof(bool))]
+        public static readonly DotvvmProperty WrapWithInputClassProperty =
+            DotvvmProperty.Register<bool, BulmaForm>(() => WrapWithInputClassProperty, isValueInherited: false, defaultValue: false);
 
     }
 }

@@ -59,10 +59,12 @@ namespace DotVVM.AutoUI.Controls
             if (props.EditTemplate is null)
             {
                 control.EditTemplate = new CloneTemplate(
-                    new AutoEditor(context.Services)
-                        .SetProperty(p => p.Property, props.Property)
-                        .SetProperty("Changed", props.Changed)
-                        .SetProperty("Enabled", props.IsEditable)
+                    AutoEditor.Build(new AutoEditor.Props()
+                    {
+                        Property = props.Property,
+                        Changed = props.Changed,
+                        Enabled = props.IsEditable
+                    }, context)
                 );
             }
             else

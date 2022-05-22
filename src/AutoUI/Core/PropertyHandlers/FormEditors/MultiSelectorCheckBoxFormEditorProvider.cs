@@ -20,16 +20,22 @@ public class MultiSelectorCheckBoxFormEditorProvider : FormEditorProviderBase
 
         return new Repeater()
             .SetCapability(props.Html)
+            .SetProperty(c => c.WrapperTagName, "ul")
             .SetProperty(c => c.DataSource, selectorDataSourceBinding)
             .SetProperty(c => c.ItemTemplate, new CloneTemplate(
-                new CheckBox()
-                    .SetProperty(c => c.Text, context.CreateValueBinding("DisplayName", selectorConfiguration.PropertyType))
-                    .SetProperty(c => c.CheckedValue, context.CreateValueBinding("Value", selectorConfiguration.PropertyType))
-                    .SetProperty(c => c.CheckedItems, props.Property)
-                    .SetProperty(c => c.Enabled, props.Enabled)
-                    .SetProperty(c => c.Changed, props.Changed)
+                new HtmlGenericControl("li")
                     .SetProperty(Internal.DataContextTypeProperty, context.DataContextStack.CreateChildStack(selectorConfiguration.PropertyType))
-                ));
+                    .AppendChildren(
+                        new CheckBox()
+                            .SetProperty(c => c.Text, context.CreateValueBinding("DisplayName", selectorConfiguration.PropertyType))
+                            .SetProperty(c => c.CheckedValue, context.CreateValueBinding("Value", selectorConfiguration.PropertyType))
+                            .SetProperty(c => c.CheckedItems, props.Property)
+                            .SetProperty(c => c.Enabled, props.Enabled)
+                            .SetProperty(c => c.Changed, props.Changed)
+                    )
+                )
+            )
+            .SetProperty(BootstrapForm.RequiresFormCheckCssClassProperty, true);
     }
 
 }

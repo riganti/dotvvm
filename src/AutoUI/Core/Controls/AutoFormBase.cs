@@ -128,18 +128,23 @@ namespace DotVVM.AutoUI.Controls
             props.FieldTemplate.TryGetValue(property.Name, out var template) ?
                 new TemplateHost(template) : null;
 
-        protected virtual AutoEditor CreateEditor(PropertyDisplayMetadata property, AutoUIContext ddContext, FieldProps props)
+        protected virtual DotvvmControl CreateEditor(PropertyDisplayMetadata property, AutoUIContext autoUiContext, FieldProps props)
         {
             var name = property.Name;
-            return
-                new AutoEditor(ddContext.Services)
-                .SetProperty(p => p.ID, GetEditorId(property))
-                .SetProperty(p => p.Property, ddContext.CreateValueBinding(property))
-                .SetProperty("OverrideTemplate", props.EditorTemplate.GetValueOrDefault(name))
-                .SetProperty("Changed", props.Changed.GetValueOrDefault(name))
-                .SetProperty("Enabled",
-                    props.Enabled.GetValueOrDefault(name,
-                            GetEnabledResourceBinding(property, ddContext)));
+
+            return AutoEditor.Build(new AutoEditor.Props()
+                {
+                    Changed = props.Changed.GetValueOrDefault(name),
+                    Enabled = props.Enabled.GetValueOrDefault(name,
+                        GetEnabledResourceBinding(property, autoUiContext)),
+                    OverrideTemplate = props.EditorTemplate.GetValueOrDefault(name),
+                    Property = autoUiContext.CreateValueBinding(property),
+                    Html = new HtmlCapability()
+                    {
+                        ID = ValueOrBinding<string?>.FromBoxedValue(GetEditorId(property))
+                    }
+                },
+                autoUiContext);
         }
 
         protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl labelElement, PropertyDisplayMetadata property, AutoUIContext context)

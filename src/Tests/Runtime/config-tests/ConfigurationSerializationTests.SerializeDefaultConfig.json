@@ -160,14 +160,13 @@
         "fromCapability": "Props"
       },
       "OverrideTemplate": {
-        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework"
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "Both",
+        "fromCapability": "Props"
       },
       "Property": {
         "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
-        "required": true
-      },
-      "Tags": {
-        "type": "System.String[]"
+        "fromCapability": "Props"
       },
       "Visible": {
         "type": "System.Boolean",
@@ -232,11 +231,52 @@
       }
     },
     "DotVVM.AutoUI.Controls.BootstrapForm": {
+      "FormCheckCssClass": {
+        "type": "System.String"
+      },
+      "FormCheckInputCssClass": {
+        "type": "System.String"
+      },
+      "FormCheckLabelCssClass": {
+        "type": "System.String"
+      },
+      "FormControlCssClass": {
+        "type": "System.String"
+      },
       "FormGroupCssClass": {
+        "type": "System.String"
+      },
+      "FormSelectCssClass": {
         "type": "System.String"
       },
       "LabelCssClass": {
         "type": "System.String"
+      },
+      "RequiresFormCheckCssClass": {
+        "type": "System.Boolean"
+      },
+      "RequiresFormControlCssClass": {
+        "type": "System.Boolean"
+      },
+      "RequiresFormSelectCssClass": {
+        "type": "System.Boolean"
+      }
+    },
+    "DotVVM.AutoUI.Controls.BulmaForm": {
+      "WrapWithCheckboxClass": {
+        "type": "System.Boolean"
+      },
+      "WrapWithInputClass": {
+        "type": "System.Boolean"
+      },
+      "WrapWithRadioClass": {
+        "type": "System.Boolean"
+      },
+      "WrapWithSelectClass": {
+        "type": "System.Boolean"
+      },
+      "WrapWithTextareaClass": {
+        "type": "System.Boolean"
       }
     },
     "DotVVM.Framework.Compilation.ControlTree.LifecycleRequirementsAssigningVisitor": {
@@ -284,6 +324,9 @@
       "Enabled": {
         "type": "System.Boolean"
       },
+      "InputCssClass": {
+        "type": "System.String"
+      },
       "ItemKeyBinding": {
         "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
         "dataContextChange": [
@@ -296,6 +339,9 @@
             "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
           }
         ]
+      },
+      "LabelCssClass": {
+        "type": "System.String"
       },
       "Text": {
         "type": "System.String"

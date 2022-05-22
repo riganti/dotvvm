@@ -1,5 +1,6 @@
 @viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.AutoFormViewModel, DotVVM.Samples.Common
-@service statesDataProvider = DotVVM.AutoUI.Annotations.ISelectionProvider<DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.StateSelectorItem, DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.AddressDTO>
+@service statesDataProvider = DotVVM.AutoUI.Annotations.ISelectionProvider<DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.StateSelection, DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.AddressDTO>
+
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -26,9 +27,9 @@
             </auto:BulmaForm>
         </div>
         <div class="column">
-            <au:BulmaDynamicEntity DataContext="{value: Address}"
-                              GroupName="ContactInfo" 
-                              Property-Something={value: _root.Something} />
+            <auto:BulmaForm DataContext="{value: Address}"
+                            GroupName="ContactInfo" 
+                            Property-Something={value: _root.Something} />
         </div>
     </div>
 </body>

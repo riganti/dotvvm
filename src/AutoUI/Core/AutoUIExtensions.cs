@@ -84,14 +84,57 @@ namespace DotVVM.AutoUI
             s.Register<AutoGridViewColumn>()
                 .ReplaceWith(c => AutoGridViewColumn.Replace(c));
 
+            // bootstrap styles
+            s.Register<ComboBox>(c => c.HasAncestor<BootstrapForm>())
+                .AddClass(c => c.AncestorsOfType<BootstrapForm>().First().Property(p => p.FormSelectCssClass)!);
+            s.Register<HtmlGenericControl>(c => c.HasAncestor<BootstrapForm>()
+                                                && c.PropertyValue<bool>(BootstrapForm.RequiresFormSelectCssClassProperty))
+                .AddClass(c => c.AncestorsOfType<BootstrapForm>().First().Property(p => p.FormSelectCssClass)!);
+            s.Register<TextBox>(c => c.HasAncestor<BootstrapForm>())
+                .AddClass(c => c.AncestorsOfType<BootstrapForm>().First().Property(p => p.FormControlCssClass)!);
+            s.Register<HtmlGenericControl>(c => c.HasAncestor<BootstrapForm>()
+                                                && c.PropertyValue<bool>(BootstrapForm.RequiresFormControlCssClassProperty))
+                .AddClass(c => c.AncestorsOfType<BootstrapForm>().First().Property(p => p.FormControlCssClass)!);
+
+            s.Register<CheckBox>(c => c.HasAncestor<BootstrapForm>())
+                .SetProperty(c => c.LabelCssClass, c => c.AncestorsOfType<BootstrapForm>().First().Property(p => p.FormCheckLabelCssClass)!)
+                .SetProperty(c => c.InputCssClass, c => c.AncestorsOfType<BootstrapForm>().First().Property(p => p.FormCheckInputCssClass)!);
+            s.Register<RadioButton>(c => c.HasAncestor<BootstrapForm>())
+                .SetProperty(c => c.LabelCssClass, c => c.AncestorsOfType<BootstrapForm>().First().Property(p => p.FormCheckLabelCssClass)!)
+                .SetProperty(c => c.InputCssClass, c => c.AncestorsOfType<BootstrapForm>().First().Property(p => p.FormCheckInputCssClass)!);
+
             // bulma styles
-            s.Register<CheckBox>(c => c.PropertyValue<string[]>(AutoEditor.TagsProperty)!.Contains("bulma"))
+            s.Register<CheckBox>(c => c.HasAncestor<BulmaForm>())
+                .AddClass("checkbox");
+            s.Register<HtmlGenericControl>(c => c.HasAncestor<BulmaForm>()
+                                      && c.PropertyValue<bool>(BulmaForm.WrapWithCheckboxClassProperty))
                 .AddClass("checkbox");
 
-            s.Register<SelectorBase>(c => c.PropertyValue<string[]>(AutoEditor.TagsProperty)!.Contains("bulma"))
-                .SetAttribute("class", "")
-                .WrapWith(new HtmlGenericControl("div").AddCssClass("select"));
+            s.Register<RadioButton>(c => c.HasAncestor<BulmaForm>())
+                .AddClass("radio");
+            s.Register<HtmlGenericControl>(c => c.HasAncestor<BulmaForm>()
+                                                && c.PropertyValue<bool>(BulmaForm.WrapWithRadioClassProperty))
+                .AddClass("radio");
 
+            s.Register<TextBox>(c => c.HasAncestor<BulmaForm>()
+                                     && c.PropertyValue<TextBoxType>(TextBox.TypeProperty) == TextBoxType.MultiLine)
+                .AddClass("textarea");
+            s.Register<HtmlGenericControl>(c => c.HasAncestor<BulmaForm>()
+                                                && c.PropertyValue<bool>(BulmaForm.WrapWithTextareaClassProperty))
+                .AddClass("textarea");
+
+            s.Register<TextBox>(c => c.HasAncestor<BulmaForm>()
+                                     && c.PropertyValue<TextBoxType>(TextBox.TypeProperty) != TextBoxType.MultiLine)
+                .AddClass("input");
+            s.Register<HtmlGenericControl>(c => c.HasAncestor<BulmaForm>()
+                                                && c.PropertyValue<bool>(BulmaForm.WrapWithInputClassProperty))
+                .AddClass("input");
+
+            s.Register<ComboBox>(c => c.HasAncestor<BulmaForm>())
+                .WrapWith(new HtmlGenericControl("div").AddCssClass("select"));
+            s.Register<HtmlGenericControl>(c => c.HasAncestor<BulmaForm>()
+                                                && c.PropertyValue<bool>(BulmaForm.WrapWithSelectClassProperty))
+                .WrapWith(new HtmlGenericControl("div").AddCssClass("select"));
         }
         
     }

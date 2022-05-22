@@ -23,7 +23,7 @@ $packages = @(
     [pscustomobject]@{ Package = "DotVVM.HotReload.Owin"; Directory = "Tools/HotReload/Owin"; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.DynamicData"; Directory = "DynamicData/DynamicData"; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.DynamicData.Annotations"; Directory = "DynamicData/Annotations"; Type = "standard" },
-	[pscustomobject]@{ Package = "DotVVM.AutoUI"; Directory = "AutoUI/Core"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.AutoUI"; Directory = "AutoUI/Core"; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.AutoUI.Annotations"; Directory = "AutoUI/Annotations"; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights"; Directory = "Tracing/ApplicationInsights"; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.AspNetCore"; Directory = "Tracing/ApplicationInsights.AspNetCore"; Type = "standard" },
