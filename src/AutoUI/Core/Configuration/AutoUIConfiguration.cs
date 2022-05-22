@@ -83,7 +83,7 @@ namespace DotVVM.AutoUI.Configuration
                 try
                 {
                     var instance = Activator.CreateInstance(type).NotNull();
-                    targetCollection.Insert(0, (T)instance);
+                    targetCollection.Add((T)instance);
                 }
                 catch (TargetInvocationException ex)
                 {

@@ -49,6 +49,8 @@ namespace DotVVM.AutoUI.Metadata
 
         public bool IsDefaultLabelAllowed { get; set; }
 
+        public string[] UIHints { get; set; } = { };
+
 
         public PropertyDisplayMetadata(PropertyInfo propertyInfo)
         {

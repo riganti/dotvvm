@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using DotVVM.AutoUI.PropertyHandlers;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
@@ -76,9 +77,7 @@ namespace DotVVM.AutoUI.Controls
             if (props.ContentTemplate is { })
                 return new GridViewTemplateColumn { ContentTemplate = props.ContentTemplate };
 
-            var provider =
-                context.AutoUiConfiguration.GridColumnProviders
-                    .FirstOrDefault(e => e.CanHandleProperty(property, context));
+            var provider = context.AutoUiConfiguration.GridColumnProviders.FindBestProvider(property, context);
             if (provider is null)
                 throw new DotvvmControlException($"GridViewColumn provider for property {property.Name} or type {property.Type} could not be found.");
 

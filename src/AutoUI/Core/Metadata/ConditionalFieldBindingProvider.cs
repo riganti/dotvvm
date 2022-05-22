@@ -128,9 +128,11 @@ namespace DotVVM.AutoUI.Metadata
             return result;
         }
 
-        internal static bool ProcessExpression(string viewName, Func<string, bool> processor)
+        internal static bool ProcessExpression(string? viewName, Func<string, bool> processor)
         {
-            return (bool)ProcessExpression(viewName, s => new ValueOrBinding<bool>(processor(s))).BoxedValue!;
+            if (string.IsNullOrEmpty(viewName))
+                return true;
+            return ProcessExpression(viewName, s => new ValueOrBinding<bool>(processor(s))).GetValue();
         }
     }
 }

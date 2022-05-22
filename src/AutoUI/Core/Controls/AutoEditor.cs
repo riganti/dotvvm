@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using DotVVM.AutoUI.PropertyHandlers;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
@@ -84,8 +85,7 @@ namespace DotVVM.AutoUI.Controls
             var propertyMetadata = context.PropertyDisplayMetadataProvider.GetPropertyMetadata(prop.MainProperty);
 
             var editorProvider =
-                context.AutoUiConfiguration.FormEditorProviders
-                    .FirstOrDefault(e => e.CanHandleProperty(propertyMetadata, context));
+                context.AutoUiConfiguration.FormEditorProviders.FindBestProvider(propertyMetadata, context);
 
             if (editorProvider is null)
                 throw new DotvvmControlException(this, $"Editor provider for property {prop.MainProperty} could not be found.");

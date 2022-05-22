@@ -194,6 +194,12 @@ public class PropertyDisplayMetadataModifier
         return this;
     }
 
+    public PropertyDisplayMetadataModifier SetUIHint(params string[] hints)
+    {
+        actions.Add(m => m.UIHints = hints);
+        return this;
+    }
+
     public PropertyDisplayMetadataModifier Configure(Action<PropertyDisplayMetadata> configurationAction)
     {
         actions.Add(configurationAction);
