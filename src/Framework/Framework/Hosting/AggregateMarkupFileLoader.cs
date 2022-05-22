@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DotVVM.Framework.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Hosting
@@ -14,7 +15,7 @@ namespace DotVVM.Framework.Hosting
         public AggregateMarkupFileLoader(IOptions<AggregateMarkupFileLoaderOptions> options, IServiceProvider serviceProvider)
         {
             loaders = options.Value.LoaderTypes
-                .Select(p => (IMarkupFileLoader)serviceProvider.GetService(p))
+                .Select(p => (IMarkupFileLoader)serviceProvider.GetRequiredService(p))
                 .ToList();
         }
 
