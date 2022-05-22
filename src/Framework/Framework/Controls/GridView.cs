@@ -440,7 +440,7 @@ namespace DotVVM.Framework.Controls
             head?.Render(writer, context);
 
             // render body
-            var foreachBinding = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
+            var foreachBinding = TryGetKnockoutForeachingExpression().NotNull("GridView does not support DataSource={resource: ...} at this moment.");
             if (RenderOnServer)
             {
                 writer.AddKnockoutDataBind("dotvvm-SSR-foreach", "{data:" + foreachBinding + "}");
@@ -526,7 +526,8 @@ namespace DotVVM.Framework.Controls
             var mapping = userColumnMappingService.GetMapping(itemType!);
             var mappingJson = JsonConvert.SerializeObject(mapping);
 
-            writer.AddKnockoutDataBind("dotvvm-gridviewdataset", $"{{'mapping':{mappingJson},'dataSet':{GetDataSourceBinding().GetKnockoutBindingExpression(this, unwrapped: true)}}}");
+            var dataBinding = (GetDataSourceBinding() as IValueBinding).NotNull("GridView does not support DataSource={resource: ...} at this moment.");
+            writer.AddKnockoutDataBind("dotvvm-gridviewdataset", $"{{'mapping':{mappingJson},'dataSet':{dataBinding.GetKnockoutBindingExpression(this, unwrapped: true)}}}");
             base.AddAttributesToRender(writer, context);
         }
 
