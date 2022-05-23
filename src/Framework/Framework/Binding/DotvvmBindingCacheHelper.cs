@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Runtime.Caching;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Binding
 {
@@ -30,6 +34,50 @@ namespace DotVVM.Framework.Binding
         public T CreateCachedBinding<T>(string identifier, object[] keys, object[] properties) where T: IBinding
         {
             return CreateCachedBinding<T>(identifier, keys, () => (T)BindingFactory.CreateBinding(this.compilationService, typeof(T), properties));
+        }
+
+        /// <summary> Compiles a new `{value: ...code...}` binding which can be evaluated server-side and also client-side. The result is cached. </summary>
+        public ValueBindingExpression CreateValueBinding(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+        {
+            return CreateCachedBinding("ValueBinding:" + code, new object?[] { dataContext, parserOptions }, () =>
+                new ValueBindingExpression(compilationService, new object?[] {
+                    dataContext,
+                    new OriginalStringBindingProperty(code),
+                    parserOptions
+                }));
+        }
+
+        /// <summary> Compiles a new `{value: ...code...}` binding which can be evaluated server-side and also client-side. The result is implicitly converted to <typeparamref name="TResult" />. The result is cached. </summary>
+        public ValueBindingExpression<TResult> CreateValueBinding<TResult>(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+        {
+            return CreateCachedBinding($"ValueBinding<{typeof(TResult).ToCode()}>:{code}", new object?[] { dataContext, parserOptions }, () =>
+                new ValueBindingExpression<TResult>(compilationService, new object?[] {
+                    dataContext,
+                    new OriginalStringBindingProperty(code),
+                    parserOptions
+                }));
+        }
+
+        /// <summary> Compiles a new `{staticCommand: ...code...}` binding which can be evaluated server-side and also client-side. The result is cached. </summary>
+        public StaticCommandBindingExpression CreateStaticCommand(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+        {
+            return CreateCachedBinding($"StaticCommand:{code}", new object?[] { dataContext, parserOptions }, () =>
+                new StaticCommandBindingExpression(compilationService, new object?[] {
+                    dataContext,
+                    new OriginalStringBindingProperty(code),
+                    parserOptions
+                }));
+        }
+
+        /// <summary> Compiles a new `{staticCommand: ...code...}` binding which can be evaluated server-side and also client-side. The result is implicitly converted to <typeparamref name="TResult" />. The result is cached. </summary>
+        public StaticCommandBindingExpression<TResult> CreateStaticCommand<TResult>(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+        {
+            return CreateCachedBinding($"StaticCommand<{typeof(TResult).ToCode()}>:{code}", new object?[] { dataContext, parserOptions }, () =>
+                new StaticCommandBindingExpression<TResult>(compilationService, new object?[] {
+                    dataContext,
+                    new OriginalStringBindingProperty(code),
+                    parserOptions
+                }));
         }
 
         internal static void CheckEqualsImplementation(object? k)
