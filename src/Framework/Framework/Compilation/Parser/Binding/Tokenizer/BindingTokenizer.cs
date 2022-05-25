@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                     case '^':
                         FinishIncompleteIdentifier();
                         Read();
-                        EnsureUnsupportedOperator(BindingTokenType.UnsupportedOperator);
+                        EnsureUnsupportedOperator(BindingTokenType.ExclusiveOrOperator);
                         break;
 
                     case ':':
@@ -213,6 +213,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         {
                             EnsureUnsupportedOperator(BindingTokenType.NotOperator);
                         }
+                        break;
+
+                    case '~':
+                        FinishIncompleteIdentifier();
+                        Read();
+                        CreateToken(BindingTokenType.OnesComplementOperator);
                         break;
 
                     case '$':

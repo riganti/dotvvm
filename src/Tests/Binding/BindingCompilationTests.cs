@@ -1009,9 +1009,23 @@ namespace DotVVM.Framework.Tests.Binding
             var ex = aggEx.GetBaseException();
             StringAssert.Contains(ex.Message, "cannot be assigned into");
         }
+
+        [TestMethod]
+        public void BindingCompiler_ExclusiveOrOperator()
+        {
+            Assert.AreEqual(true, ExecuteBinding("var boolVariable = BoolProp ^ true; boolVariable", new TestViewModel { BoolProp = false }));
+            Assert.AreEqual(false, ExecuteBinding("var boolVariable = BoolProp ^ true; boolVariable", new TestViewModel { BoolProp = true }));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_OnesComplementOperator()
+        {
+            Assert.AreEqual(-1025, ExecuteBinding("var intVariable = ~IntProp; intVariable", new TestViewModel { IntProp = 1024 }));
+        }
     }
     class TestViewModel
     {
+        public bool BoolProp { get; set; }
         public string StringProp { get; set; }
         public int IntProp { get; set; }
         public int? NullableIntProp { get; set; }
