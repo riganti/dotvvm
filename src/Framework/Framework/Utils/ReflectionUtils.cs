@@ -479,6 +479,8 @@ namespace DotVVM.Framework.Utils
                 return name;
             return ToEnumString(typeof(T), name);
         }
+        public static string? ToEnumString<T>(T? instance) where T : struct, Enum =>
+            instance?.ToEnumString();
 
         public static string ToEnumString(Type enumType, string name)
         {

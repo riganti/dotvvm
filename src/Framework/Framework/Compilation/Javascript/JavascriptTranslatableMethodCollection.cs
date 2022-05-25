@@ -205,7 +205,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Convert), "ToString", new PrimitiveToStringTranslator(), 1, true);
             AddMethodTranslator(typeof(ReflectionUtils), "ToEnumString", parameterCount: 1, translator: new GenericMethodCompiler(
                 args => args[1]
-            ));
+            ), allowMultipleMethods: true);
 
             AddMethodTranslator(typeof(DateTime).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
