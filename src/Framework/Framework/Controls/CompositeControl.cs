@@ -67,6 +67,8 @@ namespace DotVVM.Framework.Controls
             {
                 if (controlInfoCache.ContainsKey(controlType)) return;
 
+                DefaultControlResolver.InitType(controlType.BaseType.NotNull());
+
                 var method = controlType.GetMethod("GetContents", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 if (method == null)
                     throw new Exception($"Could not initialize control {controlType.FullName}, could not find (single) GetContents method");

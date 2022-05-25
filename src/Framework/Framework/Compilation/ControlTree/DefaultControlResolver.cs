@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -102,14 +103,23 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 if (!c.IsClass || c.ContainsGenericParameters)
                     continue;
 
-                if (c.IsDefined(typeof(ContainsDotvvmPropertiesAttribute), true))
-                    InitType(c);
+                
+                InitType(c);
             }
         }
-        
 
-        private static void InitType(Type type)
+        private static ConcurrentDictionary<Type, bool> typeInitSet = new();
+        /// <summary> Ensures that the type is initialized - run .cctor and registers all properties/capabilities. </summary>
+        internal static void InitType(Type type)
         {
+            if (!type.IsDefined(typeof(ContainsDotvvmPropertiesAttribute), true))
+                return;
+
+            // just avoid mapping the type twice.
+            // All actions following are idempotent, so it does not matter if we accidentally do it twice, but it's unnecessary waste of resources.
+            if (typeInitSet.ContainsKey(type))
+                return;
+
             if (type.BaseType != null)
                 InitType(type.BaseType);
 
@@ -117,6 +127,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             RegisterCompositeControlProperties(type);
             RegisterCapabilitiesFromInterfaces(type);
+
+            typeInitSet.TryAdd(type, true);
         }
 
         private static void RegisterCompositeControlProperties(Type type)
