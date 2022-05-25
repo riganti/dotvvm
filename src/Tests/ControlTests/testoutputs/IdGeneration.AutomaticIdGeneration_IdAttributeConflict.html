@@ -1,0 +1,21 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- we shouldn't generated the Dotvvm unique id when html:id is set explicitly -->
+		<div data-bind="dotvvm-SSR-foreach: { data: Nested()?.Nested }">
+			<!-- ko dotvvm-SSR-item: 0 -->
+			<span id="hardcoded_id"></span>
+			
+			<!-- /ko -->
+			<!-- ko dotvvm-SSR-item: 1 -->
+			<span id="hardcoded_id"></span>
+			
+			<!-- /ko -->
+			<!-- ko dotvvm-SSR-item: 2 -->
+			<span id="hardcoded_id"></span>
+			
+			<!-- /ko -->
+		</div>
+	</body>
+</html>
