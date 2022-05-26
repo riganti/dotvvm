@@ -9,6 +9,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace DotVVM.Framework.Controls
 {
@@ -231,7 +232,7 @@ namespace DotVVM.Framework.Controls
             emptyDataContainer?.Render(writer, context);
         }
 
-        private DotvvmControl GetEmptyItem(IDotvvmRequestContext context)
+        private DotvvmControl CreateEmptyItem(IDotvvmRequestContext context)
         {
             if (emptyDataContainer == null)
             {
@@ -241,23 +242,26 @@ namespace DotVVM.Framework.Controls
                 emptyDataContainer.SetValue(EmptyData.WrapperTagNameProperty, GetValueRaw(WrapperTagNameProperty));
                 emptyDataContainer.SetValue(EmptyData.VisibleProperty, GetValueRaw(VisibleProperty));
                 emptyDataContainer.SetBinding(DataSourceProperty, dataSourceBinding);
+                Children.Add(emptyDataContainer);
                 EmptyDataTemplate!.BuildContent(context, emptyDataContainer);
             }
             return emptyDataContainer;
         }
 
         private ConditionalWeakTable<object, DataItemContainer> childrenCache = new ConditionalWeakTable<object, DataItemContainer>();
-        private DotvvmControl GetItem(IDotvvmRequestContext context, object? item = null, int? index = null, bool allowMemoizationRetrieve = false, bool allowMemoizationStore = false)
+        private DotvvmControl AddItem(IList<DotvvmControl> c, IDotvvmRequestContext context, object? item = null, int? index = null, bool allowMemoizationRetrieve = false, bool allowMemoizationStore = false)
         {
             if (allowMemoizationRetrieve && item != null && childrenCache.TryGetValue(item, out var container2) && container2.Parent == null)
             {
                 Debug.Assert(item == container2.GetValueRaw(DataContextProperty));
+                c.Add(container2);
                 SetUpServerItem(context, item, (int)index!, container2);
                 return container2;
             }
 
             var container = new DataItemContainer();
             container.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty)!);
+            c.Add(container);
             if (item == null && index == null)
             {
                 SetUpClientItem(context, container);
@@ -279,10 +283,12 @@ namespace DotVVM.Framework.Controls
             return container;
         }
 
-        private DotvvmControl GetSeparator(IDotvvmRequestContext context)
+        private DotvvmControl AddSeparator(IList<DotvvmControl> c, IDotvvmRequestContext context)
         {
             var placeholder = new PlaceHolder();
             placeholder.SetDataContextType(this.GetDataContextType());
+            c.Add(placeholder);
+
             SeparatorTemplate!.BuildContent(context, placeholder);
             return placeholder;
         }
@@ -304,12 +310,12 @@ namespace DotVVM.Framework.Controls
                 {
                     if (SeparatorTemplate != null && index > 0)
                     {
-                        Children.Add(GetSeparator(context));
+                        AddSeparator(Children, context);
                     }
-                    Children.Add(GetItem(context, item, index,
+                    AddItem(Children, context, item, index,
                         allowMemoizationRetrieve: context.IsPostBack && !memoizeReferences, // on GET request we are not initializing the Repeater twice
                         allowMemoizationStore: memoizeReferences
-                    ));
+                    );
                     index++;
                 }
             }
@@ -318,15 +324,15 @@ namespace DotVVM.Framework.Controls
             {
                 if (SeparatorTemplate != null)
                 {
-                    Children.Add(clientSeparator = GetSeparator(context));
+                    clientSeparator = AddSeparator(Children, context);
                 }
 
-                Children.Add(clientSideTemplate = GetItem(context));
+                clientSideTemplate = AddItem(Children, context);
             }
 
             if (EmptyDataTemplate != null)
             {
-                Children.Add(GetEmptyItem(context));
+                CreateEmptyItem(context);
             }
         }
 

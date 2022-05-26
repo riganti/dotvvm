@@ -79,6 +79,20 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task WrappedRepeaterControlWithGeneratedIds()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- SSR -->
+                <cc:ControlWhichUsesUniqueIds DataSource={value: List} RenderSettings.Mode=Server />
+                <!-- CSR -->
+                <cc:ControlWhichUsesUniqueIds DataSource={value: List} RenderSettings.Mode=Client />
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
         public async Task BindingMapping()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
@@ -348,6 +362,34 @@ namespace DotVVM.Framework.Tests.ControlTests
             return new HtmlGenericControl("div")
                 .AddAttribute("class", type1)
                 .AddAttribute("class", type2);
+        }
+    }
+
+    public class ControlWhichUsesUniqueIds: CompositeControl
+    {
+        private readonly BindingCompilationService bindingService;
+
+        public ControlWhichUsesUniqueIds(BindingCompilationService bindingService)
+        {
+            this.bindingService = bindingService;
+        }
+        public DotvvmControl GetContents(
+            IValueBinding<IEnumerable<string>> dataSource
+        )       {
+            return new Repeater() {
+                WrapperTagName = "ul",
+                RenderAsNamedTemplate = false // for testing
+            }
+                .SetProperty(Repeater.DataSourceProperty, dataSource)
+                .SetProperty(Repeater.ItemTemplateProperty, new DelegateTemplate((_, container) => {
+                    var li = new HtmlGenericControl("li");
+                    container.Children.Add(li);
+                    // this won't work unless the <li> is rooted
+                    var id = li.GetDotvvmUniqueId();
+                    li.AddAttribute("data-id", id);
+
+                    li.SetProperty(c => c.InnerText, ValueBindingExpression.CreateThisBinding<string>(bindingService, li.GetDataContextType()));
+                }));
         }
     }
 
