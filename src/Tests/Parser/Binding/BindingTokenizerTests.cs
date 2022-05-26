@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingTokenizer_AllOperators_Valid()
         {
-            var tokens = Tokenize("+ - * / % < > <= >= == != ! & && | || ? : ?? . , =>");
+            var tokens = Tokenize("+ - * / % < > <= >= == != ! & && | || ? : ?? . , => ^ ~");
 
             var index = 0;
             Assert.AreEqual(BindingTokenType.AddOperator, tokens[index++].Type);
@@ -125,6 +125,10 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(BindingTokenType.Comma, tokens[index++].Type);
             Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
             Assert.AreEqual(BindingTokenType.LambdaOperator, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.ExclusiveOrOperator, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.OnesComplementOperator, tokens[index++].Type);
             Assert.AreEqual(index, tokens.Count);
         }
 
@@ -204,17 +208,6 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         public void BindingTokenizer_UnsupportedOperator_CarretEquals()
         {
             var tokens = Tokenize("Test^=3");
-
-            Assert.AreEqual(3, tokens.Count);
-            Assert.AreEqual(BindingTokenType.Identifier, tokens[0].Type);
-            Assert.AreEqual(BindingTokenType.UnsupportedOperator, tokens[1].Type);
-            Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
-        }
-
-        [TestMethod]
-        public void BindingTokenizer_UnsupportedOperator_Carret()
-        {
-            var tokens = Tokenize("Test^3");
 
             Assert.AreEqual(3, tokens.Count);
             Assert.AreEqual(BindingTokenType.Identifier, tokens[0].Type);

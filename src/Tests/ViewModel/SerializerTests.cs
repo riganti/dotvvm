@@ -341,6 +341,23 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual(obj.Property1, (string)json["Property1"]);
             Assert.IsFalse(json.ContainsKey("Service"));
         }
+
+        [TestMethod]
+        public void SupportsSignedDictionary()
+        {
+            var obj = new TestViewModelWithSignedDictionary() {
+                SignedDictionary = {
+                    ["a"] = "x",
+                    ["b"] = "y"
+                }
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            CollectionAssert.Contains(obj2.SignedDictionary, new KeyValuePair<string, string>("a", "x"));
+            CollectionAssert.Contains(obj2.SignedDictionary, new KeyValuePair<string, string>("b", "y"));
+            Assert.AreEqual(obj.SignedDictionary.Count, obj2.SignedDictionary.Count);
+            Assert.IsFalse(!json.ContainsKey("SignedDictionary"));
+        }
         public class ViewModelWithService
         {
             public string Property1 { get; }
@@ -466,5 +483,11 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         public record WithDataset(GridViewDataSet<string> Dataset);
+    }
+
+    public class TestViewModelWithSignedDictionary
+    {
+        [Protect(ProtectMode.SignData)]
+        public Dictionary<string, string> SignedDictionary { get; set; } = new();
     }
 }

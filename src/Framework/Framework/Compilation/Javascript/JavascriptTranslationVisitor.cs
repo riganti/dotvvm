@@ -309,6 +309,12 @@ namespace DotVVM.Framework.Compilation.Javascript
                 ReplaceNullValue(result.Left, expression.Left, new JsLiteral(""));
                 ReplaceNullValue(result.Right, expression.Right, new JsLiteral(""));
             }
+            if (expression.NodeType == ExpressionType.ExclusiveOr && expression.Left.Type == typeof(bool) && expression.Right.Type == typeof(bool))
+            {
+                // Whenever operator ^ is applied on two booleans in .NET, the result is also boolean
+
+                return new JsBinaryExpression(left.Clone(), BinaryOperatorType.NotEqual, right.Clone());
+            }
             
             return result;
         }
@@ -371,6 +377,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                         op = UnaryOperatorType.LogicalNot;
                     else op = UnaryOperatorType.BitwiseNot;
                     break;
+
+                case ExpressionType.OnesComplement:
+                    op = UnaryOperatorType.BitwiseNot;
+                    break;
+
                 case ExpressionType.Convert:
                 case ExpressionType.TypeAs:
                     // convert does not make sense in Javascript

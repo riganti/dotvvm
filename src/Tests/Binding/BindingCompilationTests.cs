@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Testing;
 using System.Collections.ObjectModel;
+using System.Runtime.Serialization;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -525,6 +526,18 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(ExecuteBinding("StringProp == 'abc' ? TestEnum.A : TestEnum.Underscore_hhh", viewModel), TestEnum.A);
             Assert.AreEqual(ExecuteBinding("StringProp == 'abcd' ? TestEnum.A : TestEnum.Underscore_hhh", viewModel), TestEnum.Underscore_hhh);
         }
+        [TestMethod]
+        public void BindingCompiler_EnumToStringConversion()
+        {
+            var result1 = ExecuteBinding("DotVVM.Framework.Tests.Binding.TestEnum.Underscore_hhh", new object[0], null, expectedType: typeof(string));
+            Assert.AreEqual("Underscore_hhh", result1);
+            var result2 = ExecuteBinding("DotVVM.Framework.Tests.Binding.TestEnum.SpecialField", new object[0], null, expectedType: typeof(string));
+            Assert.AreEqual("xxx", result2);
+            var result3 = ExecuteBinding("EnumProperty", new object[] { new TestViewModel { EnumProperty = TestEnum.A } }, null, expectedType: typeof(string));
+            Assert.AreEqual("A", result3);
+            var result4 = ExecuteBinding("EnumProperty", new object[] { new TestViewModel { EnumProperty = TestEnum.SpecialField } }, null, expectedType: typeof(string));
+            Assert.AreEqual("xxx", result4);
+        }
 
         [TestMethod]
         public void BindingCompiler_Invalid_EnumStringComparison()
@@ -996,9 +1009,23 @@ namespace DotVVM.Framework.Tests.Binding
             var ex = aggEx.GetBaseException();
             StringAssert.Contains(ex.Message, "cannot be assigned into");
         }
+
+        [TestMethod]
+        public void BindingCompiler_ExclusiveOrOperator()
+        {
+            Assert.AreEqual(true, ExecuteBinding("var boolVariable = BoolProp ^ true; boolVariable", new TestViewModel { BoolProp = false }));
+            Assert.AreEqual(false, ExecuteBinding("var boolVariable = BoolProp ^ true; boolVariable", new TestViewModel { BoolProp = true }));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_OnesComplementOperator()
+        {
+            Assert.AreEqual(-1025, ExecuteBinding("var intVariable = ~IntProp; intVariable", new TestViewModel { IntProp = 1024 }));
+        }
     }
     class TestViewModel
     {
+        public bool BoolProp { get; set; }
         public string StringProp { get; set; }
         public int IntProp { get; set; }
         public int? NullableIntProp { get; set; }
@@ -1169,7 +1196,9 @@ namespace DotVVM.Framework.Tests.Binding
         B,
         C,
         D,
-        Underscore_hhh
+        Underscore_hhh,
+        [EnumMember(Value = "xxx")]
+        SpecialField
     }
 
 

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
@@ -30,7 +31,8 @@ namespace DotVVM.Framework.Compilation
             ValidateControlClass(type);
             Type = type;
             VirtualPath = virtualPath;
-            DataContextRequirement = dataContextRequirement;
+            if (dataContextRequirement != typeof(Binding.UnknownTypeSentinel))
+                DataContextRequirement = dataContextRequirement;
         }
 
 

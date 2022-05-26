@@ -193,6 +193,10 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public static Expression? ToStringConversion(Expression src)
         {
+            if (src.Type.UnwrapNullableType().IsEnum)
+            {
+                return Expression.Call(typeof(ReflectionUtils), "ToEnumString", new [] { src.Type.UnwrapNullableType() }, src);
+            }
             var toStringMethod = src.Type.GetMethod("ToString", Type.EmptyTypes);
             if (toStringMethod?.DeclaringType == typeof(object))
                 toStringMethod = null;
