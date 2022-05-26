@@ -218,7 +218,7 @@ namespace DotVVM.Framework.Controls
             if (parentPath.Length > 0)
             {
                 dataContextLevelWrapper.SetValue(Internal.IsNamingContainerProperty, true);
-                dataContextLevelWrapper.SetValue(Internal.UniqueIDProperty, parentPath[^1].ToString());
+                dataContextLevelWrapper.SetValue(Internal.UniqueIDProperty, parentPath[parentPath.Length - 1].ToString());
             }
             c.Add(dataContextLevelWrapper);
             var levelWrapper = LevelWrapperCapability.GetWrapper();
