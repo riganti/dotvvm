@@ -323,10 +323,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 </dot:GridView>
 ");
             var gridView = root.Content.First(r => r.Metadata.Name == "GridView");
-            IAbstractPropertySetter colsProp;
-            Assert.IsTrue(gridView.TryGetProperty(GridView.ColumnsProperty, out colsProp));
-            var cols = ((ResolvedPropertyControlCollection)colsProp).Controls;
-            Assert.AreEqual(0, cols.Count); // span should not be added
+            // span should not be added
+            Assert.IsFalse(gridView.Properties.ContainsKey(GridView.ColumnsProperty));
             Assert.IsTrue(gridView.DothtmlNode.EnumerateNodes().Any(n => n.HasNodeErrors));
         }
 

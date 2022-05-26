@@ -113,4 +113,11 @@ public static partial class StyleBuilderExtensionMethods
         Func<IStyleMatchContext<T>, DotvvmBindableObject> handler,
         StyleOverrideOptions options = StyleOverrideOptions.Append) =>
         sb.SetDotvvmProperty(Styles.PrependProperty, handler, options);
+
+    /// <summary> The control will be removed from the control tree. Note that all appended, prepended and wrapper controls will be preserved. </summary>
+    public static IStyleBuilder<T> Remove<T>(
+        this IStyleBuilder<T> sb,
+        bool really = true,
+        StyleOverrideOptions options = StyleOverrideOptions.Append) =>
+        sb.SetDotvvmProperty(Styles.RemoveProperty, really, options);
 }
