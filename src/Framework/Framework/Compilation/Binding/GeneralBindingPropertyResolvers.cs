@@ -430,7 +430,7 @@ namespace DotVVM.Framework.Compilation.Binding
             ));
         }
 
-        public static ReferencedViewModelPropertiesBindingProperty GetReferencedViewModelProperties(ParsedExpressionBindingProperty expression)
+        public static ReferencedViewModelPropertiesBindingProperty GetReferencedViewModelProperties(IValueBinding binding, ParsedExpressionBindingProperty expression)
         {
             var allProperties = new List<PropertyInfo>();
             var expr = expression.Expression;
@@ -461,11 +461,12 @@ namespace DotVVM.Framework.Compilation.Binding
                     break;
             }
             var mainProperty = (expr as MemberExpression)?.Member as PropertyInfo;
+            var unwrappedBinding = binding.DeriveBinding(expr);
 
             return new(
                 mainProperty,
                 allProperties.ToArray(),
-                expr
+                unwrappedBinding
             );
         }
     }
