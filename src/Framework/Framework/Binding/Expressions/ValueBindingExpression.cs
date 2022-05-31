@@ -13,6 +13,7 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -36,11 +37,14 @@ namespace DotVVM.Framework.Binding.Expressions
         }
 
         private protected MaybePropValue<KnockoutExpressionBindingProperty> knockoutExpressions;
+        private protected MaybePropValue<ReferencedViewModelPropertiesBindingProperty> referencedPropertyExpressions;
 
         private protected override void StoreProperty(object p)
         {
             if (p is KnockoutExpressionBindingProperty knockoutExpressions)
                 this.knockoutExpressions.SetValue(new(knockoutExpressions));
+            if (p is ReferencedViewModelPropertiesBindingProperty referencedPropertyExpressions)
+                this.referencedPropertyExpressions.SetValue(new(referencedPropertyExpressions));
             else
                 base.StoreProperty(p);
         }
@@ -49,6 +53,8 @@ namespace DotVVM.Framework.Binding.Expressions
         {
             if (type == typeof(KnockoutExpressionBindingProperty))
                 return knockoutExpressions.GetValue(this).GetValue(errorMode, this, type);
+            if (type == typeof(ReferencedViewModelPropertiesBindingProperty))
+                return referencedPropertyExpressions.GetValue(this).GetValue(errorMode, this, type);
             return base.GetProperty(type, errorMode);
         }
 
@@ -95,7 +101,11 @@ namespace DotVVM.Framework.Binding.Expressions
                         return new GlobalizeResourceBindingProperty();
                     }
                     return null;
-                })
+                }),
+                new Func<ValueBindingExpression, ParsedExpressionBindingProperty, ReferencedViewModelPropertiesBindingProperty>((binding, expr) =>
+                {
+                    return BindingPropertyResolvers.GetReferencedViewModelProperties(binding, expr);
+                }),
             };
         }
 

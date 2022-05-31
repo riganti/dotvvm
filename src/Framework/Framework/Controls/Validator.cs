@@ -87,11 +87,15 @@ namespace DotVVM.Framework.Controls
         private static void AddValidatedValue(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmProperty prop, DotvvmControl control)
         {
             const string validationDataBindName = "dotvvm-validation";
-            var validationValueBinding = TryUnwrapValidationValue(control);
-            if (validationValueBinding is not null)
+
+            var binding = control.GetValueBinding(ValueProperty);
+            if (binding is not null)
             {
+                var referencedPropertyExpressions = binding.GetProperty<ReferencedViewModelPropertiesBindingProperty>();
+                var unwrappedPropertyExpression = referencedPropertyExpressions.UnwrappedBindingExpression;
+
                 // We were able to unwrap the the provided expression
-                writer.AddKnockoutDataBind(validationDataBindName, control, validationValueBinding, renderEvenInServerRenderingMode: true);
+                writer.AddKnockoutDataBind(validationDataBindName, control, unwrappedPropertyExpression, renderEvenInServerRenderingMode: true);
             }
             else
             {
@@ -112,24 +116,6 @@ namespace DotVVM.Framework.Controls
                 }
             }
             writer.AddKnockoutDataBind("dotvvm-validationOptions", bindingGroup);
-        }
-
-        private static IValueBinding? TryUnwrapValidationValue(DotvvmControl control)
-        {
-            var binding = control.GetValueBinding(ValueProperty);
-            if (binding == null)
-                return null;
-
-            var parsedExpression = binding.GetProperty<ParsedExpressionBindingProperty>();
-            var bindingInfo = BindingPropertyResolvers.GetReferencedViewModelProperties(parsedExpression);
-            if (bindingInfo.UnwrappedExpression is Expression unwrappedExpression && unwrappedExpression != parsedExpression.Expression)
-            {
-                // Derive binding that leads to the main property
-                var unwrappedBinding = binding.DeriveBinding(bindingInfo.UnwrappedExpression);
-                binding = unwrappedBinding;
-            }
-
-            return binding;
         }
 
         /// <summary>
