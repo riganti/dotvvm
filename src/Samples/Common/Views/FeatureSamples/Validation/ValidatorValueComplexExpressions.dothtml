@@ -14,12 +14,25 @@
 </head>
 <body>
 
-    <dot:TextBox ID="textbox"
+    <dot:TextBox data-ui="textbox"
                  Validator.InvalidCssClass="error"
                  Validator.Value="{value: DateTime.ToBrowserLocalTime().ToString()}"
                  Text="{value: DateTime.ToBrowserLocalTime().ToString()}" />
 
-    <dot:Button Text="Postback" Click="{command: ;}" />
+    <dot:GridView data-ui="grid" DataSource="{value: Collection}" Validator.InvalidCssClass="error">
+        <RowDecorators>
+            <dot:Decorator Validator.ShowErrorMessageText="true" />
+        </RowDecorators>
+        <Columns>
+            <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" />
+            <dot:GridViewTextColumn HeaderText="Description" ValueBinding="{value: Description}" />
+            <dot:GridViewTextColumn HeaderText="DateTime" ValidatorPlacement="Standalone" ValueBinding="{value: DateTime.ToBrowserLocalTime()}" />
+        </Columns>
+    </dot:GridView>
+
+    <dot:Button data-ui="button" Text="Postback" Click="{command: ;}" />
+
+    <dot:ValidationSummary data-ui="summary" IncludeErrorsFromTarget="true" IncludeErrorsFromChildren="true" />
 
 </body>
 </html>
