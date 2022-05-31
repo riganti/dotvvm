@@ -19,6 +19,7 @@ using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Collections.Concurrent;
+using DotVVM.Framework.Binding.HelperNamespace;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -450,8 +451,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 // unwrap some method invocations
                 else if (expr is MethodCallExpression boxCall && boxCall.Method.DeclaringType == typeof(BoxingUtils))
                     expr = boxCall.Arguments.First();
-                else if (expr is MethodCallExpression { Method.Name: "ToBrowserLocalTime" or "ToString" } methodCall)
-                    expr = methodCall.Object ?? methodCall.Arguments.First();
+                else if (expr is MethodCallExpression { Method.Name: nameof(DateTimeExtensions.ToBrowserLocalTime) } dtMethodCall && dtMethodCall.Method.DeclaringType == typeof(DateTimeExtensions))
+                    expr = dtMethodCall.Object ?? dtMethodCall.Arguments.First();
+                else if (expr is MethodCallExpression { Method.Name: nameof(object.ToString) } toStringMethodCall)
+                    expr = toStringMethodCall.Object ?? toStringMethodCall.Arguments.First();
                 // unwrap binary operation with a constant
                 else if (expr is BinaryExpression { Right.NodeType: ExpressionType.Constant } binaryLeft)
                     expr = binaryLeft.Left;
