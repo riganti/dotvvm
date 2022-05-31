@@ -5,6 +5,7 @@ using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
@@ -795,8 +796,10 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidatorValueComplexExpressions);
-                var textbox = browser.First("input[type=text]");
-                var button = browser.First("input[type=button]");
+                var textbox = browser.Single("textbox", SelectByDataUi);
+                var grid = browser.Single("grid", SelectByDataUi);
+                var button = browser.Single("button", SelectByDataUi);
+                var validationSummary = browser.Single("summary", SelectByDataUi);
 
                 // Clear DateTime which is marked as [Required]
                 textbox.Clear();
@@ -804,6 +807,7 @@ namespace DotVVM.Samples.Tests.Feature
                 button.Click();
 
                 AssertUI.HasClass(textbox, "error");
+                Assert.Equal(2, validationSummary.Children.Count);
             });
         }
 
