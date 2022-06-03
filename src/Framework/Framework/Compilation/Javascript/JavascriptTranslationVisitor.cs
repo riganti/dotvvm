@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -385,12 +385,50 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case ExpressionType.Convert:
                 case ExpressionType.TypeAs:
                     // convert does not make sense in Javascript
-                    return operand;
+                    return TranslateConvert(expression.Operand, operand, expression.Type);
 
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }
             return new JsUnaryExpression(op, operand);
+        }
+
+        public JsExpression TranslateConvert(Expression originalOperand, JsExpression operand, Type target)
+        {
+            // float -> integer: we just apply x | 0
+            if (originalOperand.Type.IsRealNumericType() && target.IsIntegerNumericType())
+                return new JsBinaryExpression(operand, BinaryOperatorType.BitwiseOr, new JsLiteral(0));
+
+            // int -> enum: use dotvvm.translations.enums.fromInt
+            if (originalOperand.Type.IsIntegerNumericType() && target.IsEnum)
+            {
+                // shortcut for constant integers (it's used by C# compiler when inserting constant enums)
+                if (originalOperand.NodeType == ExpressionType.Constant)
+                {
+                    // TODO: this won't work with flags
+                    return new JsLiteral(ReflectionUtils.ToEnumString(target, Enum.GetName(target, ((ConstantExpression)originalOperand).Value)));
+                }
+
+                return new JsIdentifierExpression("dotvvm")
+                    .Member("translations").Member("enums").Member("fromInt")
+                    .Invoke(operand, new JsLiteral(target.GetTypeHash()));
+            }
+
+            // enum -> int: use dotvvm.translations.enums.toInt
+            if (originalOperand.Type.IsEnum && target.IsIntegerNumericType())
+            {
+                // shortcut for constant integers (it's used by the TranslateBinary method)
+                if (operand is JsLiteral { Value: Enum value })
+                {
+                    return new JsLiteral(Convert.ToInt32(value));
+                }
+                return new JsIdentifierExpression("dotvvm")
+                    .Member("translations").Member("enums").Member("toInt")
+                    .Invoke(operand, new JsLiteral(target.GetTypeHash()));
+            }
+
+            // by default, just allow any conversion
+            return operand;
         }
 
         public JsExpression TranslateMemberAccess(MemberExpression expression)

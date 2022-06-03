@@ -273,6 +273,24 @@ namespace DotVVM.Framework.Utils
             typeof (double),
             typeof (decimal)
         };
+        public static readonly HashSet<Type> IntegerNumericTypes = new HashSet<Type>()
+        {
+            typeof (sbyte),
+            typeof (byte),
+            typeof (short),
+            typeof (ushort),
+            typeof (int),
+            typeof (uint),
+            typeof (long),
+            typeof (ulong),
+            typeof (char),
+        };
+        public static readonly HashSet<Type> RealNumericTypes = new HashSet<Type>()
+        {
+            typeof (float),
+            typeof (double),
+            typeof (decimal)
+        };
 
         public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
             typeof(string), typeof(char),
@@ -283,15 +301,10 @@ namespace DotVVM.Framework.Utils
             typeof(float), typeof(double), typeof(decimal)
         };
 
-        public static bool IsNumericType(this Type type)
-        {
-            return NumericTypes.Contains(type);
-        }
-
-        public static bool IsDateOrTimeType(this Type type)
-        {
-            return DateTimeTypes.Contains(type);
-        }
+        public static bool IsNumericType(this Type type) => NumericTypes.Contains(type);
+        public static bool IsDateOrTimeType(this Type type) => DateTimeTypes.Contains(type);
+        public static bool IsIntegerNumericType(this Type type) => IntegerNumericTypes.Contains(type);
+        public static bool IsRealNumericType(this Type type) => RealNumericTypes.Contains(type);
 
         /// <summary> Return true for Tuple, ValueTuple, KeyValuePair </summary>
         public static bool IsTupleLike(Type type) =>

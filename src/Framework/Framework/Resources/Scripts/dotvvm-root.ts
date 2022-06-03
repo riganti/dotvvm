@@ -24,12 +24,9 @@ import * as viewModuleManager from './viewModules/viewModuleManager'
 import { notifyModuleLoaded } from './postback/resourceLoader'
 import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
 import * as metadataHelper from './metadata/metadataHelper'
-import * as array from './collections/arrayHelper'
-import * as dictionary from './collections/dictionaryHelper'
-import * as string from './utils/stringHelper'
 import { StateManager } from "./state-manager"
 import { DotvvmEvent } from "./events"
-import * as dateTime from './utils/dateTimeHelper'
+import translations from './translations/translations'
 
 if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')
@@ -102,8 +99,7 @@ const dotvvmExports = {
     metadata: {
         getTypeId: metadataHelper.getTypeId,
         getTypeMetadata: metadataHelper.getTypeMetadata,
-        getEnumMetadata: metadataHelper.getEnumMetadata,
-        getEnumValue: metadataHelper.getEnumValue
+        getEnumMetadata: metadataHelper.getEnumMetadata
     },
     viewModules: {
         registerOne: viewModuleManager.registerViewModule,
@@ -122,12 +118,7 @@ const dotvvmExports = {
         logPostBackScriptError,
         level
     },
-    translations: {
-        array,
-        dictionary,
-        string,
-        dateTime
-    } as any,
+    translations: translations as any,
     StateManager,
     DotvvmEvent,
 }

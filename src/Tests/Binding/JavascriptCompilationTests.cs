@@ -351,6 +351,17 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("EnumProperty", result);
         }
 
+        [DataTestMethod]
+        [DataRow("EnumProperty = IntProp", "EnumProperty(dotvvm.translations.enums.fromInt(IntProp(),\"nEayAzHQ5xyCfSP6\")).EnumProperty", DisplayName = "EnumProperty = IntProp")]
+        [DataRow("EnumProperty & TestEnum.B", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"04DbAklKZFDZLCQg\")&1,\"nEayAzHQ5xyCfSP6\")", DisplayName = "EnumProperty & TestEnum.B")]
+        [DataRow("EnumProperty + 1", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"04DbAklKZFDZLCQg\")+1,\"nEayAzHQ5xyCfSP6\")", DisplayName = "EnumProperty + 1")]
+        public void JavascriptCompilation_EnumOperations(string expr, string expectedJs)
+        {
+            var js = CompileBinding(expr, new [] { typeof(TestViewModel) });
+            Assert.AreEqual(expectedJs, js);
+        }
+
+
         [TestMethod]
         public void JsTranslator_DataContextShift()
         {
