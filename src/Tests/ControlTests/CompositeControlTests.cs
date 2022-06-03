@@ -79,6 +79,41 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task WrappedRepeaterControlWithGeneratedIds()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- SSR -->
+                <cc:ControlWhichUsesUniqueIds DataSource={value: List} RenderSettings.Mode=Server />
+                <!-- CSR -->
+                <cc:ControlWhichUsesUniqueIds DataSource={value: List} RenderSettings.Mode=Client />
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task WrappedHierarchyRepeaterControlWithGeneratedIds()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- SSR -->
+                <cc:HierarchyControlWhichUsesUniqueIds DataSource={value: Hierarchy} ItemChildrenBinding={value: Children} RenderSettings.Mode=Server />
+                <!-- CSR -->
+                <cc:HierarchyControlWhichUsesUniqueIds DataSource={value: Hierarchy} ItemChildrenBinding={value: Children} RenderSettings.Mode=Client />
+                ",
+                renderResources: true
+            );
+
+            foreach (var junkElement in r.Html.QuerySelectorAll("#__dot_viewmodel_root, script, head"))
+            {
+                junkElement.Remove();
+            }
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+
+        [TestMethod]
         public async Task BindingMapping()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
@@ -183,6 +218,11 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             public List<string> List { get; set; } = new List<string> { "list-item1", "list-item2" };
 
+            public List<HierarchyVM> Hierarchy { get; set; } = new() {
+                new("A", new()),
+                new("B", new() { new("C", new() { new("D", new()) }) })
+            };
+
             public bool TrueBool { get; set; } = true;
 
             public EnumForCssClasses EnumForCssClasses { get; set; } = EnumForCssClasses.C;
@@ -192,6 +232,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                 AfterPreRender = true;
                 return base.PreRender();
             }
+
+            public record HierarchyVM(string Label, List<HierarchyVM> Children);
         }
     }
 
@@ -350,6 +392,68 @@ namespace DotVVM.Framework.Tests.ControlTests
                 .AddAttribute("class", type2);
         }
     }
+
+    public class ControlWhichUsesUniqueIds: CompositeControl
+    {
+        private readonly BindingCompilationService bindingService;
+
+        public ControlWhichUsesUniqueIds(BindingCompilationService bindingService)
+        {
+            this.bindingService = bindingService;
+        }
+        public DotvvmControl GetContents(
+            IValueBinding<IEnumerable<string>> dataSource
+        )
+        {
+            return new Repeater() {
+                WrapperTagName = "ul",
+                RenderAsNamedTemplate = false // for testing
+            }
+                .SetProperty(Repeater.DataSourceProperty, dataSource)
+                .SetProperty(Repeater.ItemTemplateProperty, new DelegateTemplate((_, container) => {
+                    var li = new HtmlGenericControl("li");
+                    container.Children.Add(li);
+                    // this won't work unless the <li> is rooted
+                    var id = li.GetDotvvmUniqueId();
+                    li.AddAttribute("data-id", id);
+
+                    li.SetProperty(c => c.InnerText, ValueBindingExpression.CreateThisBinding<string>(bindingService, li.GetDataContextType()));
+                }));
+        }
+    }
+
+    public class HierarchyControlWhichUsesUniqueIds: CompositeControl
+    {
+        private readonly BindingCompilationService bindingService;
+
+        public HierarchyControlWhichUsesUniqueIds(BindingCompilationService bindingService)
+        {
+            this.bindingService = bindingService;
+        }
+        public DotvvmControl GetContents(
+            IValueBinding<System.Collections.IEnumerable> dataSource,
+            [CollectionElementDataContextChange(1)]
+            [ControlPropertyBindingDataContextChange("DataSource")]
+            IValueBinding<IEnumerable<object>> itemChildrenBinding
+        )
+        {
+            return new HierarchyRepeater() {
+                WrapperTagName = "ul"
+            }
+                .SetProperty(HierarchyRepeater.DataSourceProperty, dataSource)
+                .SetProperty(HierarchyRepeater.ItemChildrenBindingProperty, itemChildrenBinding)
+                .SetProperty(HierarchyRepeater.ItemTemplateProperty, new DelegateTemplate((_, container) => {
+                    var li = new HtmlGenericControl("li");
+                    container.Children.Add(li);
+                    // this won't work unless the <li> is rooted
+                    var id = li.GetDotvvmUniqueId();
+                    li.AddAttribute("data-id", id);
+
+                    li.SetProperty(c => c.InnerText, bindingService.Cache.CreateValueBinding<string>("_this.Label", li.GetDataContextType()));
+                }));
+        }
+    }
+
 
     public enum EnumForCssClasses
     {

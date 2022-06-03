@@ -272,6 +272,14 @@ namespace DotVVM.Framework.Controls
             Debug.Assert(parent.properties.Contains(Internal.UniqueIDProperty));
             Debug.Assert(!item.properties.Contains(Internal.UniqueIDProperty));
             Debug.Assert(parentId is string);
+
+            // if the parent is a naming container, we don't need to duplicate it's unique id into the control
+            // when we don't do this Repeater generates different ids in server-side and client-side mode, because the
+            // UniqueIDProperty of the parent DataItemContainer is different, but the ClientIdFragment is the same
+            if (item.Parent!.properties.Contains(Internal.IsNamingContainerProperty))
+            {
+                parentId = "";
+            }
             
             var id = parentId.ToString() + "a" + uniqueIdCounter.ToString();
             uniqueIdCounter++;

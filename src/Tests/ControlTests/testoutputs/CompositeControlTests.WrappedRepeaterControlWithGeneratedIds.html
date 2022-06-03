@@ -1,0 +1,20 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- SSR -->
+		<ul data-bind="dotvvm-SSR-foreach: { data: List }">
+			<!-- ko dotvvm-SSR-item: 0 -->
+			<li data-bind="text: $rawData" data-id="c9a0_0_a0">list-item1</li>
+			<!-- /ko -->
+			<!-- ko dotvvm-SSR-item: 1 -->
+			<li data-bind="text: $rawData" data-id="c9a0_1_a0">list-item2</li>
+			<!-- /ko -->
+		</ul>
+		
+		<!-- CSR -->
+		<ul data-bind="foreach: { data: List }">
+			<li data-bind="text: $rawData, attr: { &quot;data-id&quot;: &quot;c13a0&quot;+'_'+$index()+'_'+&quot;a0&quot; }"></li>
+		</ul>
+	</body>
+</html>
