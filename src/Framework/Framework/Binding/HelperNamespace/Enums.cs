@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Binding.HelperNamespace
 
         public static string ToEnumString<T>(this T instance) where T : struct, Enum
         {
-            return ReflectionUtils.ToEnumString(instance);
+            return ReflectionUtils.ToEnumString<T>(instance);
         }
     }
 }
