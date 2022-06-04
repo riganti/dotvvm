@@ -47,7 +47,14 @@ namespace DotVVM.Framework.Tests.Binding
                 NumberToPass = 16
             };
             var viewRoot = new DotvvmView() { DataContext = testObject };
-            viewRoot.SetBinding(Controls.Validation.TargetProperty, ValueBindingExpression.CreateBinding(bindingService, vm => vm.Last(), new ParametrizedCode("$root")));
+            viewRoot.SetBinding(Controls.Validation.TargetProperty, ValueBindingExpression.CreateBinding(
+                bindingService,
+                vm => vm.Last(),
+                new ParametrizedCode("$root"),
+                additionalProperties: new [] {
+                    new OriginalStringBindingProperty("_root")
+                }
+            ));
 
             var placeholder = new HtmlGenericControl("div");
             placeholder.SetBinding(DotvvmBindableObject.DataContextProperty, path[0]);
