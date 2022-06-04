@@ -17,7 +17,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Configuration;
 using FastExpressionCompiler;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using RecordExceptions;
 
 namespace DotVVM.Framework.Utils
@@ -474,17 +477,21 @@ namespace DotVVM.Framework.Utils
 
         public static string ToEnumString<T>(this T instance) where T : struct, Enum
         {
-            if (typeof(T).GetCustomAttribute<FlagsAttribute>() != null)
+            if (instance == null)
+                return null;
+
+            if (!EnumInfo<T>.HasEnumMemberField)
             {
-                var values = Enum.GetValues(typeof(T));
-                return string.Join(", ",
-                    values.OfType<T>()
-                    .Where(v => instance.HasFlag(v))
-                    .Select(v => ToEnumString(typeof(T), v.ToString())));
+                return instance.ToString()!;
+            }
+            else if (typeof(T).GetCustomAttribute<FlagsAttribute>() != null)
+            {
+                return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value));
             }
             else
             {
-                return ToEnumString(instance.GetType(), instance.ToString());
+                var name = instance.ToString()!;
+                return ToEnumString(typeof(T), name);
             }
         }
         public static string ToEnumString(Type enumType, string name)
