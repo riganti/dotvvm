@@ -11,18 +11,6 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.AutoUI.Controls
 {
-    // TODO: replace this with something else
-    public class DummyColumnThatDoesNothing : GridViewColumn
-    {
-        public DummyColumnThatDoesNothing()
-        {
-            Visible = false;
-        }
-
-        public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container) { }
-        public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container) { }
-    }
-
     [ControlMarkupOptions(PrimaryName = "GridViewColumns")]
     public class AutoGridViewColumns : GridViewColumn
     {

@@ -23,9 +23,10 @@ namespace DotVVM.AutoUI.Metadata
         /// </summary>
         public IEnumerable<PropertyDisplayMetadata> GetProperties(Type entityType, IViewContext viewContext)
         {
-            var metadata = entityType.GetTypeInfo().GetProperties()
+            var metadata = entityType.GetProperties()
                 .Select(propertyDisplayMetadataProvider.GetPropertyMetadata)
                 .OrderBy(p => p.Order)
+                .ThenBy(p => p.PropertyInfo?.MetadataToken)
                 .Where(p => p.AutoGenerateField)
                 .Where(p => string.IsNullOrEmpty(viewContext.GroupName)
                             || viewContext.GroupName.Equals(p.GroupName, StringComparison.OrdinalIgnoreCase))

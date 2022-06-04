@@ -1,0 +1,43 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- ko with: Entity -->
+		<table class="autoui-form-table">
+			<tbody>
+				<tr data-bind="dotvvm-validation: ProductId, dotvvm-validationOptions: {}, visible: $parent.Products()?.Items()?.length > 0">
+					<td class="autoui-label">
+						<label for="ProductId.input">Product id</label>
+					</td>
+					<td class="autoui-editor">
+						<select data-bind="options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: ProductId, valueAllowUnset: true" id="ProductId.input"></select>
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: OptionalProductId, dotvvm-validationOptions: {}, visible: $parent.Products()?.Items()?.length > 0">
+					<td class="autoui-label">
+						<label for="OptionalProductId.input">Optional product id</label>
+					</td>
+					<td class="autoui-editor">
+						<select data-bind="options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: OptionalProductId, valueAllowUnset: true" id="OptionalProductId.input"></select>
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: CountryId, dotvvm-validationOptions: {}, visible: $parent.Countries()?.Items()?.length > 0">
+					<td class="autoui-label">
+						<label for="CountryId.input">Country id</label>
+					</td>
+					<td class="autoui-editor">
+						<ul data-bind="foreach: { data: $parent.Countries()?.Items }" id="CountryId.input">
+							<li>
+								<label>
+									<input data-bind="dotvvm-checkedItems: $parent.CountryId, checkedArrayContainsObservables: true, dotvvm-checkbox-updateAfterPostback: true, dotvvm-checked-pointer: 'dotvvm-checkedItems', checkedValue: Value" type="checkbox">
+									<span data-bind="text: DisplayName"></span>
+								</label>
+							</li>
+						</ul>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- /ko -->
+	</body>
+</html>

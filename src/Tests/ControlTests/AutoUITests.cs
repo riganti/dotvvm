@@ -18,17 +18,21 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using DotVVM.AutoUI;
 using DotVVM.AutoUI.Annotations;
+using DotVVM.AutoUI.ViewModel;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
     [TestClass]
     public class AutoUITests
     {
-        static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
+        private static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
             _ = Repeater.RenderAsNamedTemplateProperty;
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
         }, services: s => {
             s.AddAutoUI();
+            s.Services.AddSingleton<ISelectionProvider<ProductSelection>, ProductSelectionProvider>();
+            s.Services.AddSingleton<ISelectionProvider<CountrySelection>, CountrySelectionProvider>();
         });
         OutputChecker check = new OutputChecker("testoutputs");
 
@@ -140,6 +144,17 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task Selections()
+        {
+            var r = await cth.RunPage(typeof(TestSelectionsViewModel), @"
+                <auto:Form DataContext={value: Entity} />
+            "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class SimpleEntity
         {
             [Editable(false)]
@@ -206,6 +221,48 @@ namespace DotVVM.Framework.Tests.ControlTests
             Case2,
             [Display(Name = "Third Case")]
             Case3
+        }
+
+        public class EntityWithSelections
+        {
+            [Selection(typeof(ProductSelection))]
+            public int ProductId { get; set; }
+
+            [Selection(typeof(ProductSelection))]
+            public int? OptionalProductId { get; set; }
+
+            [Selection(typeof(CountrySelection))]
+            public List<Guid> CountryId { get; set; } = new();
+        }
+
+        public class TestSelectionsViewModel
+        {
+            public SelectionViewModel<ProductSelection> Products { get; set; } = new();
+
+            public SelectionViewModel<CountrySelection> Countries { get; set; } = new();
+
+            public EntityWithSelections Entity { get; set; } = new();
+        }
+
+        public record ProductSelection : Selection<int>;
+
+        public record CountrySelection : Selection<Guid>;
+
+        public class ProductSelectionProvider : ISelectionProvider<ProductSelection>
+        {
+            public Task<List<ProductSelection>> GetSelectorItems() => Task.FromResult(new List<ProductSelection>()
+            {
+                new() { DisplayName = "One", Value = 1 },
+                new() { DisplayName = "Two", Value = 2 }
+            });
+        }
+        public class CountrySelectionProvider : ISelectionProvider<CountrySelection>
+        {
+            public Task<List<CountrySelection>> GetSelectorItems() => Task.FromResult(new List<CountrySelection>()
+            {
+                new() { DisplayName = "One", Value = new Guid("000000000000-0000-0000-0000-0001") },
+                new() { DisplayName = "Two", Value = new Guid("000000000000-0000-0000-0000-0002") }
+            });
         }
     }
 
