@@ -33,6 +33,8 @@ public static class DotvvmPropertyUtils
                 // ignore conversions
                 return ParsePropReference(((UnaryExpression)expression).Operand);
             case ExpressionType.Parameter:
+                // initialize the type, before we attempt to find properties on it
+                DefaultControlResolver.InitType(expression.Type);
                 return (This, null);
             case ExpressionType.MemberAccess: {
                 var me = (MemberExpression)expression;

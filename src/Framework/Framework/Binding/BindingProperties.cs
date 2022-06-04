@@ -11,6 +11,7 @@ using System.Collections.Concurrent;
 using Microsoft.CodeAnalysis;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using System.Reflection;
 
 namespace DotVVM.Framework.Binding.Properties
 {
@@ -232,4 +233,6 @@ namespace DotVVM.Framework.Binding.Properties
     public sealed record IsNullOrEmptyBindingExpression(IBinding Binding);
     /// <summary> Contains the same binding as this binding but converted to a string. </summary>
     public sealed record ExpectedAsStringBindingExpression(IBinding Binding);
+    /// <summary> Contains references to the .NET properties referenced in the binding. MainProperty is the property on the root node (modulo conversions and simple expressions). </summary>
+    public sealed record ReferencedViewModelPropertiesBindingProperty(PropertyInfo? MainProperty, PropertyInfo[] OtherProperties, IValueBinding UnwrappedBindingExpression);
 }

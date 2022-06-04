@@ -381,7 +381,7 @@ namespace DotVVM.Framework.Controls
             value switch {
                 null => "",
                 string str => str,
-                Enum enumValue => enumValue.ToEnumString(),
+                Enum enumValue => ReflectionUtils.ToEnumString(enumValue.GetType(), enumValue.ToString()),
                 Guid guid => guid.ToString(),
                 _ when ReflectionUtils.IsNumericType(value.GetType()) => Convert.ToString(value, CultureInfo.InvariantCulture) ?? "",
                 System.Collections.IEnumerable =>
@@ -404,6 +404,7 @@ namespace DotVVM.Framework.Controls
                 if (prop is not GroupedDotvvmProperty gprop || gprop.PropertyGroup != AttributesGroupDescriptor)
                     continue;
 
+                var attributeName = gprop.GroupMemberName;
                 var knockoutExpression = valueRaw switch {
                     AttributeList list => list.GetKnockoutBindingExpression(this, HtmlWriter.GetSeparatorForAttribute(gprop.GroupMemberName)),
                     IValueBinding binding => binding.GetKnockoutBindingExpression(this),
@@ -412,19 +413,25 @@ namespace DotVVM.Framework.Controls
 
                 if (knockoutExpression is {})
                 {
-                    if (gprop.GroupMemberName == "class")
+                    if (attributeName == "class")
                     {
                         writer.AddKnockoutDataBind("class", knockoutExpression);
                     }
                     else
                     {
                         attributeBindingGroup ??= new KnockoutBindingGroup();
-                        attributeBindingGroup.Add(gprop.GroupMemberName, knockoutExpression);
+                        attributeBindingGroup.Add(attributeName, knockoutExpression);
                     }
                     if (!r.RenderOnServer(this))
                         continue;
                 }
-                AddHtmlAttribute(writer, gprop.GroupMemberName, valueRaw);
+                AddHtmlAttribute(writer, attributeName, valueRaw);
+
+                if (attributeName.Equals("id", StringComparison.OrdinalIgnoreCase))
+                {
+                    // to avoid rendering the ID twice we set the HasId property to false, to ensure that the following block does not render the ID
+                    r.HasId = false;
+                }
             }
 
             if (r.HasId)

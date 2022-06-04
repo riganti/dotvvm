@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Compilation.Styles;
 using AngleSharp;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -24,6 +25,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             config.Markup.AddMarkupControl("cc", "CustomControl", "CustomControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithCommand", "CustomControlWithCommand.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithProperty", "CustomControlWithProperty.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "CustomControlWithInvalidVM", "CustomControlWithInvalidVM.dotcontrol");
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
         }, services: s => {
             s.AddSingleton<TestService>();
@@ -131,6 +133,26 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.Html.QuerySelector(".static-command-button").ToHtml(), fileExtension: "html");
             check.CheckString(r.Html.QuerySelector(".r1 .static-command-button").ToHtml(), fileExtension: "html");
         }
+
+        [TestMethod]
+        public async Task ShouldFailReasonablyWhenControlHasInvalidViewModel()
+        {
+            var e = await Assert.ThrowsExceptionAsync<DotvvmCompilationException>(() => cth.RunPage(typeof(BasicTestViewModel), @"
+                <cc:CustomControlWithInvalidVM />
+                ",
+                directives: $"@service s = {typeof(TestService)}",
+                markupFiles: new Dictionary<string, string> {
+                    ["CustomControlWithInvalidVM.dotcontrol"] = @"
+                        @viewModel ClassThatDoesNotExist
+                        @wrapperTag div
+
+                        Test"
+                }
+            ));
+
+            Assert.AreEqual("Could not resolve type 'ClassThatDoesNotExist'.", e.Message);
+        }
+
 
         public class BasicTestViewModel : DotvvmViewModelBase
         {

@@ -25,16 +25,24 @@ namespace DotVVM.Framework.Controls
             var expression = control.GetValueBinding(property);
             if (expression != null && (!control.RenderOnServer || renderEvenInServerRenderingMode))
             {
-                writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
-                if (valueUpdate != null)
-                {
-                    writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
-                }
+                writer.AddKnockoutDataBind(name, control, expression, valueUpdate);
             }
             else
             {
                 nullBindingAction?.Invoke();
                 if (setValueBack && expression != null) control.SetValue(property, expression.Evaluate(control));
+            }
+        }
+
+        /// <summary>
+        /// Adds the data-bind attribute to the next HTML element that is being rendered.
+        /// </summary>
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableObject control, IValueBinding expression, string? valueUpdate = null)
+        {
+            writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
+            if (valueUpdate != null)
+            {
+                writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
             }
         }
 

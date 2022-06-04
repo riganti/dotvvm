@@ -35,5 +35,9 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
         public static CompileTimeOnlyDotvvmProperty RequiredResourcesProperty =
             CompileTimeOnlyDotvvmProperty.Register<string[], Styles>("RequiredResources");
+
+        /// <summary> If true, the control will be removed from the control tree. Note that all appended, prepended and wrapper controls will be preserved. </summary>
+        public static CompileTimeOnlyDotvvmProperty RemoveProperty =
+            CompileTimeOnlyDotvvmProperty.Register<bool, Styles>("Remove");
     }
 }

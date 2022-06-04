@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Binding.Expressions
     [Options]
     public class StaticCommandBindingExpression : BindingExpression, IStaticCommandBinding
     {
-        public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+        public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) : base(service, properties) { }
 
         private protected MaybePropValue<StaticCommandOptionsLambdaJavascriptProperty> staticCommandLambdaJs;
         private protected MaybePropValue<ActionFiltersBindingProperty> actionFilters;
@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
     public class StaticCommandBindingExpression<T>: StaticCommandBindingExpression, IStaticCommandBinding<T>
     {
-        public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+        public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) : base(service, properties) { }
         public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
     }
 }
