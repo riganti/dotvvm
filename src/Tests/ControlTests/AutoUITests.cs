@@ -63,6 +63,19 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
+
+        [TestMethod]
+        public async Task EnumEditor()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                    <auto:Editor Property={value: Enum} />
+                "
+            );
+
+            CollectionAssert.AreEqual(new WrappedHtmlControl2[0], r.View.GetAllDescendants().OfType<WrappedHtmlControl2>().ToArray());
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
         
         [TestMethod]
         public async Task BasicColumn()
@@ -148,6 +161,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             public bool Boolean { get; set; }
             public SimpleEntity Entity { get; set; }
             public bool AfterPreRender { get; set; }
+            public TestEnum Enum { get; set; } = TestEnum.Case2;
 
             public GridViewDataSet<SimpleEntity> List { get; set; } = new GridViewDataSet<SimpleEntity> {
                 RowEditOptions = { PrimaryKeyPropertyName = "Id" },
@@ -182,7 +196,16 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             [Enabled(IsAuthenticated = AuthenticationMode.NonAuthenticated)]
             public bool AnonymousOnly { get; set; }
+        }
 
+        public enum TestEnum
+        {
+            [Display(Name = "First Case")]
+            Case1,
+            [Display(Name = "Second Case")]
+            Case2,
+            [Display(Name = "Third Case")]
+            Case3
         }
     }
 

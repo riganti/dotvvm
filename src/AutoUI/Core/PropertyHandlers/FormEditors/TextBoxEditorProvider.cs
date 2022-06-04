@@ -24,13 +24,12 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
             {
                 var literal = new Literal();
                 literal.SetBinding(Literal.TextProperty, props.Property);
-
                 return literal;
             }
 
 
             var propertyType = property.Type;
-            var hasFormatstring = !string.IsNullOrEmpty(property.FormatString);
+            var hasFormatString = !string.IsNullOrEmpty(property.FormatString);
             var textBox = new TextBox()
                 .SetCapability(props.Html)
                 .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)
@@ -51,8 +50,8 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
                 DataType.PhoneNumber => TextBoxType.Telephone,
                 DataType.Url => TextBoxType.Url,
                 DataType.ImageUrl => TextBoxType.Url,
-                _ => propertyType.UnwrapNullableType() == typeof(DateTime) && !hasFormatstring ? TextBoxType.DateTimeLocal :
-                     ReflectionUtils.IsNumericType(propertyType.UnwrapNullableType()) && !hasFormatstring ? TextBoxType.Number :
+                _ => propertyType.UnwrapNullableType() == typeof(DateTime) && !hasFormatString ? TextBoxType.DateTimeLocal :
+                     ReflectionUtils.IsNumericType(propertyType.UnwrapNullableType()) && !hasFormatString ? TextBoxType.Number :
                      TextBoxType.Normal
             };
 

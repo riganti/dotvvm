@@ -21,8 +21,8 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
             return new ComboBox()
                 .SetCapability(props.Html)
                 .SetProperty(c => c.DataSource, selectorDataSourceBinding)
-                .SetProperty(c => c.ItemTextBinding, context.CreateValueBinding("DisplayName", selectorConfiguration.PropertyType))
-                .SetProperty(c => c.ItemValueBinding, context.CreateValueBinding("Value", selectorConfiguration.PropertyType))
+                .SetProperty(c => c.ItemTextBinding, context.CreateValueBinding("_this.DisplayName", selectorConfiguration.PropertyType))
+                .SetProperty(c => c.ItemValueBinding, context.CreateValueBinding("_this.Value", selectorConfiguration.PropertyType))
                 .SetProperty(c => c.SelectedValue, props.Property)
                 .SetProperty(c => c.Enabled, props.Enabled)
                 .SetProperty(c => c.SelectionChanged, props.Changed);
