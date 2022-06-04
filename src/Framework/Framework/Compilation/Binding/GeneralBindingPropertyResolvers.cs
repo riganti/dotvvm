@@ -455,6 +455,8 @@ namespace DotVVM.Framework.Compilation.Binding
                     expr = dtMethodCall.Object ?? dtMethodCall.Arguments.First();
                 else if (expr is MethodCallExpression { Method.Name: nameof(object.ToString) } toStringMethodCall)
                     expr = toStringMethodCall.Object ?? toStringMethodCall.Arguments.First();
+                else if (expr is MethodCallExpression { Method.Name: nameof(Enums.ToEnumString) } toEnumStringMethodCall && toEnumStringMethodCall.Method.DeclaringType == typeof(Enums))
+                    expr = toEnumStringMethodCall.Object ?? toEnumStringMethodCall.Arguments.First();
                 // unwrap binary operation with a constant
                 else if (expr is BinaryExpression { Right.NodeType: ExpressionType.Constant } binaryLeft)
                     expr = binaryLeft.Left;

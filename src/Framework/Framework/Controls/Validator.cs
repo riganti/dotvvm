@@ -95,7 +95,7 @@ namespace DotVVM.Framework.Controls
                 var unwrappedPropertyExpression = referencedPropertyExpressions.UnwrappedBindingExpression;
 
                 // We were able to unwrap the the provided expression
-                writer.AddKnockoutDataBind(validationDataBindName, control, unwrappedPropertyExpression, renderEvenInServerRenderingMode: true);
+                writer.AddKnockoutDataBind(validationDataBindName, control, unwrappedPropertyExpression);
             }
             else
             {
