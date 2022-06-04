@@ -481,6 +481,7 @@ namespace DotVVM.Framework.Utils
             if (instance == null)
                 return null;
 
+            var name = instance.ToString()!;
             if (!EnumInfo<T>.HasEnumMemberField)
                 return name;
             return ToEnumString(typeof(T), name);
