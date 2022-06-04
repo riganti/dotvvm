@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Adds the data-bind attribute to the next HTML element that is being rendered. If in server rendering mode, the binding is also not rendered.
+        /// Adds the data-bind attribute to the next HTML element that is being rendered.
         /// </summary>
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableObject control, IValueBinding expression, string? valueUpdate = null)
         {
