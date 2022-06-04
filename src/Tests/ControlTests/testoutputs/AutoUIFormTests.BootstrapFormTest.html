@@ -5,24 +5,24 @@
 		<!-- ko with: Entity -->
 		<div class="mb-4">
 			<label class="control-label">
-				<label for="StringProp.input">String prop</label>
+				<label for="StringProp__input">String prop</label>
 			</label>
 			<div data-bind="dotvvm-validation: StringProp, dotvvm-validationOptions: {}">
-				<input class="form-control" data-bind="dotvvm-textbox-text: StringProp" id="StringProp.input" type="text">
+				<input class="form-control" data-bind="dotvvm-textbox-text: StringProp" id="StringProp__input" type="text">
 			</div>
 		</div>
 		<div class="mb-4">
 			<label class="control-label">
-				<label for="MultiLineStringProp.input">Multi line string prop</label>
+				<label for="MultiLineStringProp__input">Multi line string prop</label>
 			</label>
 			<div data-bind="dotvvm-validation: MultiLineStringProp, dotvvm-validationOptions: {}">
-				<textarea class="form-control" data-bind="dotvvm-textbox-text: MultiLineStringProp" id="MultiLineStringProp.input"></textarea>
+				<textarea class="form-control" data-bind="dotvvm-textbox-text: MultiLineStringProp" id="MultiLineStringProp__input"></textarea>
 			</div>
 		</div>
 		<div class="mb-4">
 			<label class="control-label"></label>
 			<div class="form-check" data-bind="dotvvm-validation: BoolProp, dotvvm-validationOptions: {}">
-				<label class="form-check-label">
+				<label class="form-check-label" id="BoolProp__input">
 					<input class="form-check-input" data-bind="dotvvm-CheckState: BoolProp" type="checkbox">
 					<span>Bool prop</span>
 				</label>
@@ -30,10 +30,10 @@
 		</div>
 		<div class="mb-4">
 			<label class="control-label">
-				<label for="EnumProp.input">Enum prop</label>
+				<label for="EnumProp__input">Enum prop</label>
 			</label>
 			<div data-bind="dotvvm-validation: EnumProp, dotvvm-validationOptions: {}">
-				<select class="form-select" data-bind="value: EnumProp, valueAllowUnset: true" id="EnumProp.input">
+				<select class="form-select" data-bind="value: EnumProp, valueAllowUnset: true" id="EnumProp__input">
 					<option value="One">One</option>
 					<option value="Two">Two</option>
 				</select>
@@ -41,18 +41,18 @@
 		</div>
 		<div class="mb-4" data-bind="visible: $parent.Products()?.Items()?.length > 0">
 			<label class="control-label">
-				<label for="ProductId.input">Product id</label>
+				<label for="ProductId__input">Product id</label>
 			</label>
 			<div data-bind="dotvvm-validation: ProductId, dotvvm-validationOptions: {}">
-				<select class="form-select" data-bind="options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: ProductId, valueAllowUnset: true" id="ProductId.input"></select>
+				<select class="form-select" data-bind="options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: ProductId, valueAllowUnset: true" id="ProductId__input"></select>
 			</div>
 		</div>
 		<div class="mb-4" data-bind="visible: $parent.Products()?.Items()?.length > 0">
 			<label class="control-label">
-				<label for="Products.input">Products</label>
+				<label for="Products__input">Products</label>
 			</label>
 			<div class="form-check" data-bind="dotvvm-validation: Products, dotvvm-validationOptions: {}">
-				<ul data-bind="foreach: { data: $parent.Products()?.Items }" id="Products.input">
+				<ul data-bind="foreach: { data: $parent.Products()?.Items }" id="Products__input">
 					<li>
 						<label class="form-check-label">
 							<input class="form-check-input" data-bind="dotvvm-checkedItems: $parent.Products, checkedArrayContainsObservables: true, dotvvm-checkbox-updateAfterPostback: true, dotvvm-checked-pointer: 'dotvvm-checkedItems', checkedValue: Value" type="checkbox">

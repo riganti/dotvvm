@@ -31,7 +31,7 @@
         <auto:Editor Property="{value: ProductId}" data-ui="product-id" />
 
         <h3>Selector ServiceType</h3>
-        <auto:Editor Property="{value: ServiceType}" data-ui="product-id" />
+        <auto:Editor Property="{value: ServiceType}" data-ui="service-type" />
 
         <h3>MultiSelector ProductId</h3>
         <auto:Editor Property="{value: FavoriteProductIds}" data-ui="favorite-product-ids" />

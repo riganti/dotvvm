@@ -19,17 +19,16 @@
                 DataContext="{value: Address}"
                 GroupName="BasicInfo"
                 Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}">
-                <%--<Template-CountryId>
-                    pre-text
-                    <dd:DynamicEditor />
-                    post-text
-                </Template-CountryId>--%>
             </auto:BulmaForm>
         </div>
         <div class="column">
             <auto:BulmaForm DataContext="{value: Address}"
                             GroupName="ContactInfo" 
                             Property-Something={value: _root.Something} />
+
+            <p>
+                <dot:Button Text="Validate" Click="{command: null}" />
+            </p>
         </div>
     </div>
 </body>

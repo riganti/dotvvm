@@ -104,7 +104,7 @@ namespace DotVVM.AutoUI.Controls
             return properties.ToArray();
         }
 
-        protected virtual string GetEditorId(PropertyDisplayMetadata property) => property.Name + ".input";
+        protected virtual string GetEditorId(PropertyDisplayMetadata property) => property.Name + "__input";
 
         /// <summary>
         /// Creates the contents of the label cell for the specified property.

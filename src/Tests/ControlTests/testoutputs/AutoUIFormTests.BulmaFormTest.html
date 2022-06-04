@@ -5,12 +5,12 @@
 		<!-- ko with: Entity -->
 		<div class="field is-horizontal">
 			<div class="field-label is-normal">
-				<label class="label" for="StringProp.input">String prop</label>
+				<label class="label" for="StringProp__input">String prop</label>
 			</div>
 			<div class="field-body">
 				<div class="field">
 					<div class="control">
-						<input class="input" data-bind="dotvvm-validation: StringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, dotvvm-textbox-text: StringProp" id="StringProp.input" type="text">
+						<input class="input" data-bind="dotvvm-validation: StringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, dotvvm-textbox-text: StringProp" id="StringProp__input" type="text">
 					</div>
 					<span class="help is-danger" data-bind="dotvvm-validation: StringProp, dotvvm-validationOptions: { hideWhenValid: true, showErrorMessageText: true }"></span>
 				</div>
@@ -18,12 +18,12 @@
 		</div>
 		<div class="field is-horizontal">
 			<div class="field-label is-normal">
-				<label class="label" for="MultiLineStringProp.input">Multi line string prop</label>
+				<label class="label" for="MultiLineStringProp__input">Multi line string prop</label>
 			</div>
 			<div class="field-body">
 				<div class="field">
 					<div class="control">
-						<textarea class="textarea" data-bind="dotvvm-validation: MultiLineStringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, dotvvm-textbox-text: MultiLineStringProp" id="MultiLineStringProp.input"></textarea>
+						<textarea class="textarea" data-bind="dotvvm-validation: MultiLineStringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, dotvvm-textbox-text: MultiLineStringProp" id="MultiLineStringProp__input"></textarea>
 					</div>
 					<span class="help is-danger" data-bind="dotvvm-validation: MultiLineStringProp, dotvvm-validationOptions: { hideWhenValid: true, showErrorMessageText: true }"></span>
 				</div>
@@ -34,7 +34,7 @@
 			<div class="field-body">
 				<div class="field">
 					<div class="control">
-						<label class="checkbox" data-bind="dotvvm-validation: BoolProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }">
+						<label class="checkbox" data-bind="dotvvm-validation: BoolProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }" id="BoolProp__input">
 							<input data-bind="dotvvm-CheckState: BoolProp" type="checkbox">
 							<span>Bool prop</span>
 						</label>
@@ -45,13 +45,13 @@
 		</div>
 		<div class="field is-horizontal">
 			<div class="field-label is-normal">
-				<label class="label" for="EnumProp.input">Enum prop</label>
+				<label class="label" for="EnumProp__input">Enum prop</label>
 			</div>
 			<div class="field-body">
 				<div class="field">
 					<div class="control">
 						<div class="select">
-							<select data-bind="dotvvm-validation: EnumProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, value: EnumProp, valueAllowUnset: true" id="EnumProp.input">
+							<select data-bind="dotvvm-validation: EnumProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, value: EnumProp, valueAllowUnset: true" id="EnumProp__input">
 								<option value="One">One</option>
 								<option value="Two">Two</option>
 							</select>
@@ -63,13 +63,13 @@
 		</div>
 		<div class="field is-horizontal" data-bind="visible: $parent.Products()?.Items()?.length > 0">
 			<div class="field-label is-normal">
-				<label class="label" for="ProductId.input">Product id</label>
+				<label class="label" for="ProductId__input">Product id</label>
 			</div>
 			<div class="field-body">
 				<div class="field">
 					<div class="control">
 						<div class="select">
-							<select data-bind="dotvvm-validation: ProductId, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: ProductId, valueAllowUnset: true" id="ProductId.input"></select>
+							<select data-bind="dotvvm-validation: ProductId, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: ProductId, valueAllowUnset: true" id="ProductId__input"></select>
 						</div>
 					</div>
 					<span class="help is-danger" data-bind="dotvvm-validation: ProductId, dotvvm-validationOptions: { hideWhenValid: true, showErrorMessageText: true }"></span>
@@ -78,12 +78,12 @@
 		</div>
 		<div class="field is-horizontal" data-bind="visible: $parent.Products()?.Items()?.length > 0">
 			<div class="field-label is-normal">
-				<label class="label" for="Products.input">Products</label>
+				<label class="label" for="Products__input">Products</label>
 			</div>
 			<div class="field-body">
 				<div class="field">
 					<div class="control">
-						<ul data-bind="dotvvm-validation: Products, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, foreach: { data: $parent.Products()?.Items }" id="Products.input">
+						<ul data-bind="dotvvm-validation: Products, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, foreach: { data: $parent.Products()?.Items }" id="Products__input">
 							<li>
 								<label class="checkbox">
 									<input data-bind="dotvvm-checkedItems: $parent.Products, checkedArrayContainsObservables: true, dotvvm-checkbox-updateAfterPostback: true, dotvvm-checked-pointer: 'dotvvm-checkedItems', checkedValue: Value" type="checkbox">

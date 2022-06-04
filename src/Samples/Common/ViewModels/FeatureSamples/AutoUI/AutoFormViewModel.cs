@@ -21,6 +21,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
 
         [Display(Name = "Some additional field.")]
         [MaxLength(10)]
+        [DataType(DataType.MultilineText)]
         public string Something { get; set; } = "test";
 
         public AutoFormViewModel()
@@ -33,12 +34,14 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
     public class AddressDTO
     {
 
+        [Required]
         [Display(GroupName = "BasicInfo")]
         public string Name { get; set; }
 
         [Display(GroupName = "BasicInfo")]
         public bool IsCompany { get; set; }
 
+        [Required]
         [Display(GroupName = "BasicInfo")]
         public string Street { get; set; }
 

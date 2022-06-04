@@ -18,6 +18,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
         public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, AutoUIContext context)
         {
             var checkBox = new CheckBox()
+                .SetCapability(props.Html)
                 .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)
                 .SetProperty(c => c.Changed, props.Changed)
                 .SetProperty(c => c.Checked, props.Property)
