@@ -10,6 +10,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.HelperNamespace;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -191,7 +192,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (src.Type.UnwrapNullableType().IsEnum)
             {
-                return Expression.Call(typeof(ReflectionUtils), "ToEnumString", new [] { src.Type.UnwrapNullableType() }, src);
+                return Expression.Call(typeof(Enums), "ToEnumString", new [] { src.Type.UnwrapNullableType() }, src);
             }
             var toStringMethod = src.Type.GetMethod("ToString", Type.EmptyTypes);
             if (toStringMethod?.DeclaringType == typeof(object))
