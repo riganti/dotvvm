@@ -475,7 +475,10 @@ namespace DotVVM.Framework.Utils
         [return: NotNullIfNotNull("instance")]
         public static string? ToEnumString<T>(T? instance) where T : struct, Enum
         {
-            var name = instance.ToString();
+            if (instance == null)
+                return null;
+
+            var name = instance.ToString()!;
             if (!EnumInfo<T>.HasEnumMemberField)
                 return name;
             return ToEnumString(typeof(T), name);
