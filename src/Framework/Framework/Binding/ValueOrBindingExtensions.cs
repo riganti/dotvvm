@@ -147,7 +147,7 @@ public static class ValueOrBindingExtensions
     public static bool ValueIsNull<T>(this ValueOrBinding<T> v) => v.HasValue && v.ValueOrDefault is null;
 
     /// <summary> Returns true if the ValueOrBinding contains value, but the value is null or an empty string. </summary>
-    public static bool ValueIsNullOrEmpty(this ValueOrBinding<string> v) => v.HasValue && string.IsNullOrEmpty(v.ValueOrDefault);
+    public static bool ValueIsNullOrEmpty(this ValueOrBinding<string?> v) => v.HasValue && string.IsNullOrEmpty(v.ValueOrDefault);
 
     /// <summary> Returns ValueOrBinding with the value of `a &amp;&amp; b`. If both a and b contain a binding, they are combined together. The result is cached, so it's safe to use this method at runtime. </summary>
     public static ValueOrBinding<bool> And(this ValueOrBinding<bool> a, ValueOrBinding<bool> b)

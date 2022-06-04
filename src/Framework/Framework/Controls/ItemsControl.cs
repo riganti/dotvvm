@@ -97,6 +97,7 @@ namespace DotVVM.Framework.Controls
             Expression.Parameter(typeof(int), "_index")
                 .AddParameterAnnotation(new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter()));
 
+        protected IBinding GetIndexClientIdFragment(IDotvvmRequestContext context)
         {
             var binding = GetValueRaw(Internal.CurrentIndexBindingProperty) as IBinding;
             if (binding == null)
@@ -112,7 +113,7 @@ namespace DotVVM.Framework.Controls
                     }));
             }
 
-            return new ValueOrBinding<int>(binding).Select(i => IndexToStringNoGlobalize(i));
+            return binding;
 
         }
     }

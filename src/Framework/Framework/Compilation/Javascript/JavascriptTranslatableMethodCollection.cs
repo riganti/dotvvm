@@ -247,9 +247,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
                 ));
             }
-
-            AddMethodTranslator(ItemsControl.IndexToStringNoGlobalizeMethod, new GenericMethodCompiler(
-                args => args[1]));
         }
 
         private void AddDefaultStringTranslations()

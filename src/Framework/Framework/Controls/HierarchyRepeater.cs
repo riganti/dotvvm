@@ -176,7 +176,7 @@ namespace DotVVM.Framework.Controls
                 // whenever possible, we use the dotvvm deterministic ids, but if we are in a client-side template,
                 // we'd get a binding... so we just generate a random Guid, not ideal but it will work.
                 var uniqueIdValueOrBinding = GetDotvvmUniqueId();
-                var uniqueId = uniqueIdValueOrBinding.BindingOrDefault == null ? uniqueIdValueOrBinding.ValueOrDefault : Guid.NewGuid().ToString();
+                var uniqueId = uniqueIdValueOrBinding.HasValue ? uniqueIdValueOrBinding.ValueOrDefault : Guid.NewGuid().ToString();
                 clientItemTemplateId = $"{uniqueId}-item";
                 clientItemTemplate = AddClientItemTemplate(Children, context);
                 context.ResourceManager.AddTemplateResource(context, clientItemTemplate, clientItemTemplateId);
