@@ -2,21 +2,21 @@
 	<head></head>
 	<body>
 		<div data-bind="foreach: { data: List()?.Items }">
-			<table class="dotvvm-dynamicdata-form-table">
+			<table class="autoui-form-table">
 				<tbody>
 					<tr data-bind="dotvvm-validation: Email, dotvvm-validationOptions: {}">
-						<td class="dynamicdata-label dynamicdata-required">
+						<td class="autoui-label autoui-required">
 							<label data-bind="attr: { for: &quot;c7&quot;+'_'+$index()+'_'+&quot;Email.input&quot; }">Email</label>
 						</td>
-						<td class="dynamicdata-editor">
+						<td class="autoui-editor">
 							<input data-bind="attr: { id: &quot;c7&quot;+'_'+$index()+'_'+&quot;Email.input&quot; }, dotvvm-textbox-text: Email" required="required" type="email">
 						</td>
 					</tr>
 					<tr data-bind="dotvvm-validation: Name, dotvvm-validationOptions: {}">
-						<td class="dynamicdata-label">
+						<td class="autoui-label">
 							<label data-bind="attr: { for: &quot;c7&quot;+'_'+$index()+'_'+&quot;Name.input&quot; }">Name</label>
 						</td>
-						<td class="dynamicdata-editor">
+						<td class="autoui-editor">
 							<input data-bind="attr: { id: &quot;c7&quot;+'_'+$index()+'_'+&quot;Name.input&quot; }, dotvvm-textbox-text: Name" type="text">
 						</td>
 					</tr>

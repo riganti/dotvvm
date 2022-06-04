@@ -152,7 +152,7 @@ namespace DotVVM.AutoUI.Controls
             if (property.PropertyInfo is { } &&
                 context.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {
-                labelElement.AddCssClass("dynamicdata-required");
+                labelElement.AddCssClass("autoui-required");
             }
 
             validatedElement.SetValue(Validator.ValueProperty, context.CreateValueBinding(property));

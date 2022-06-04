@@ -3,37 +3,37 @@
 	<body>
 		
 		<!-- ko with: Entity -->
-		<table class="dotvvm-dynamicdata-form-table">
+		<table class="autoui-form-table">
 			<tbody>
 				<tr data-bind="dotvvm-validation: Name, dotvvm-validationOptions: {}">
-					<td class="dynamicdata-label">
+					<td class="autoui-label">
 						<label for="Name.input">Name</label>
 					</td>
-					<td class="dynamicdata-editor">
+					<td class="autoui-editor">
 						<input data-bind="dotvvm-textbox-text: Name" id="Name.input" onchange="dotvvm.postBack(this,[&quot;$parent.Entity&quot;],&quot;AjiQtOSjw+ymqfXh&quot;,&quot;&quot;,null,[&quot;timeout&quot;,&quot;suppressOnUpdating&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="text">
 					</td>
 				</tr>
 				<tr data-bind="dotvvm-validation: Email, dotvvm-validationOptions: {}">
-					<td class="dynamicdata-label dynamicdata-required">
+					<td class="autoui-label autoui-required">
 						<label for="Email.input">Email</label>
 					</td>
-					<td class="dynamicdata-editor">
+					<td class="autoui-editor">
 						<input data-bind="dotvvm-textbox-text: Email" id="Email.input" required="required" type="email">
 					</td>
 				</tr>
 				<tr data-bind="dotvvm-validation: Sometime, dotvvm-validationOptions: {}">
-					<td class="dynamicdata-label">
+					<td class="autoui-label">
 						<label for="Sometime.input">Sometime</label>
 					</td>
-					<td class="dynamicdata-editor">
+					<td class="autoui-editor">
 						Nah, I'm lazy and we don't support date times
 					</td>
 				</tr>
 				<tr data-bind="dotvvm-validation: Age, dotvvm-validationOptions: {}">
-					<td class="dynamicdata-label">
+					<td class="autoui-label">
 						<label for="Age.input">Age</label>
 					</td>
-					<td class="dynamicdata-editor">
+					<td class="autoui-editor">
 						<input data-bind="dotvvm-textbox-text: Age" id="Age.input" max="150" min="0" type="number">
 					</td>
 				</tr>

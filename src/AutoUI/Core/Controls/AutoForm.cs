@@ -66,7 +66,7 @@ namespace DotVVM.AutoUI.Controls
         /// </summary>
         protected virtual HtmlGenericControl InitializeTable(AutoUIContext autoUiContext) =>
             new HtmlGenericControl("table")
-                .AddCssClass("dotvvm-dynamicdata-form-table");
+                .AddCssClass("autoui-form-table");
 
 
         /// <summary>
@@ -75,10 +75,10 @@ namespace DotVVM.AutoUI.Controls
         protected virtual HtmlGenericControl InitializeTableRow(PropertyDisplayMetadata property, AutoUIContext autoUiContext, out HtmlGenericControl labelCell, out HtmlGenericControl editorCell)
         {
             labelCell = new HtmlGenericControl("td")
-                .AddCssClasses("dynamicdata-label", LabelCellCssClass);
+                .AddCssClasses("autoui-label", LabelCellCssClass);
 
             editorCell = new HtmlGenericControl("td")
-                .AddCssClasses("dynamicdata-editor", EditorCellCssClass, property.Styles?.FormControlContainerCssClass);
+                .AddCssClasses("autoui-editor", EditorCellCssClass, property.Styles?.FormControlContainerCssClass);
 
             return new HtmlGenericControl("tr")
                 .AddCssClass(property.Styles?.FormRowCssClass)
