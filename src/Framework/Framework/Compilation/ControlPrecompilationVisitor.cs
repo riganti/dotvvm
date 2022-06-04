@@ -17,10 +17,11 @@ using System.Diagnostics;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
 using RecordExceptions;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation
 {
-    /// <summary> Evalues GetContents method on controls with <see cref="ControlMarkupOptionsAttribute.Precompile" /> set to true. </summary>
+    /// <summary> Evaluates GetContents method on composite controls with <see cref="ControlMarkupOptionsAttribute.Precompile" /> set. </summary>
     sealed class ControlPrecompilationVisitor : ResolvedControlTreeVisitor
     {
         private readonly Lazy<IControlResolverMetadata> placeholderMetadata;
@@ -32,7 +33,7 @@ namespace DotVVM.Framework.Compilation
         {
             this.services = services;
             var controlResolver = services.GetRequiredService<IControlResolver>();
-            placeholderMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(PrecompiledControlPlaceholder))));
+            placeholderMetadata = new(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(PrecompiledControlPlaceholder))));
             this.config = services.GetRequiredService<DotvvmConfiguration>();
         }
 
@@ -40,58 +41,69 @@ namespace DotVVM.Framework.Compilation
         public override void VisitControl(ResolvedControl control)
         {
             var mode = control.Metadata.PrecompilationMode;
-            if (typeof(CompositeControl).IsAssignableFrom(control.Metadata.Type) && mode != ControlPrecompilationMode.Never)
+            if (mode == ControlPrecompilationMode.Never)
             {
-                Debug.Assert(control.Metadata.PrecompilationMode != ControlPrecompilationMode.InServerSideStyles);
-                var name = control.Metadata.Type.Name;
-                try
+                base.VisitControl(control);
+                return;
+            }
+
+            var type = control.Metadata.Type;
+
+            if (!typeof(CompositeControl).IsAssignableFrom(type))
+            {
+                throw new DotvvmCompilationException($"Control {type.ToCode(stripNamespace: true)} cannot be precompiled, because it does not extend CompositeControl. Set ControlMarkupOptionsAttribute.Precompile to None.", control.DothtmlNode?.Tokens);
+            }
+
+            Debug.Assert(control.Metadata.PrecompilationMode != ControlPrecompilationMode.InServerSideStyles, "A control PrecompilationMode.InServerSideStyles should not appear here, it's supposed to be evaluated and removed in style evaluation.");
+            try
+            {
+                var replacement = Precompile(control, mode, services);
+
+                if (replacement is not null)
                 {
-                    var type = control.Metadata.Type;
-                    var replacement = Precompile(control, mode, services);
+                    // Replace the control with PrecompiledControlPlaceholder, all properties are left as-is.
+                    control.Metadata = (ControlResolverMetadata)placeholderMetadata.Value;
+                    control.ConstructorParameters = new object[] { type };
+                    control.Content.Clear();
+                    control.Content.AddRange(replacement);
 
-                    if (replacement is not null)
-                    {
-
-                        control.Metadata = (ControlResolverMetadata)placeholderMetadata.Value;
-                        control.ConstructorParameters = new object[] { type };
-                        control.Content.Clear();
-                        control.Content.AddRange(replacement);
-
-                        foreach (var c in replacement)
-                            c.Parent = control;
-                    }
+                    foreach (var c in replacement)
+                        c.Parent = control;
                 }
-                catch (SkipPrecompilationException ex)
+            }
+            catch (SkipPrecompilationException ex)
+            {
+                if (mode is ControlPrecompilationMode.Always or ControlPrecompilationMode.InServerSideStyles)
                 {
-                    if (mode is ControlPrecompilationMode.Always or ControlPrecompilationMode.InServerSideStyles)
-                    {
-                        var error = $"Failed to precompile control {name}, precompilation is mandatory but it was skipped: {ex.Message}";
-                        control.DothtmlNode?.AddError(error);
-                        throw new DotvvmCompilationException(error, ex, control.DothtmlNode?.Tokens);
-                    }
-                    else
-                    {
-                        // exception is ignored
-                    }
+                    var error = $"Failed to precompile control {type.ToCode(stripNamespace: true)}, precompilation is mandatory but the control has attempted to skip it: {ex.Message}";
+                    control.DothtmlNode?.AddError(error);
+                    throw new DotvvmCompilationException(error, ex, control.DothtmlNode?.Tokens);
                 }
-                catch (Exception ex)
+                else
                 {
-                    if (mode == ControlPrecompilationMode.IfPossibleAndIgnoreExceptions)
-                    {
-                        // exception is ignored
-                    }
-                    else
-                    {
-                        var error = $"Failed to precompile control '{name}': {ex.Message}";
-                        control.DothtmlNode?.AddError(error);
-                        throw new DotvvmCompilationException(error, ex, control.DothtmlNode?.Tokens);
-                    }
+                    // exception is ignored
+                }
+            }
+            catch (Exception ex)
+            {
+                if (mode == ControlPrecompilationMode.IfPossibleAndIgnoreExceptions)
+                {
+                    // exception is ignored, but placing a warning won't hurt
+                    var error = $"Control precompilation of '{type.ToCode(stripNamespace: true)}' failed, but it's in the IfPossibleAndIgnoreExceptions mode: {ex.Message}";
+                    control.DothtmlNode?.AddWarning(error);
+                }
+                else
+                {
+                    var error = $"Failed to precompile control '{type.ToCode(stripNamespace: true)}': {ex.Message}";
+                    control.DothtmlNode?.AddError(error);
+                    throw new DotvvmCompilationException(error, ex, control.DothtmlNode?.Tokens);
                 }
             }
 
             base.VisitControl(control);
         }
 
+        /// <summary> Tries to precompile the specified control. Null is returned only in "IfPossible" precompilation mode when there is a binding which cannot be passed into the control. </summary>
         internal static ResolvedControl[]? Precompile(
             ResolvedControl control,
             ControlPrecompilationMode mode,
@@ -101,10 +113,7 @@ namespace DotVVM.Framework.Compilation
 
             if (controlInfo.Properties.Contains(Internal.RequestContextProperty))
             {
-                if (mode is ControlPrecompilationMode.Always or ControlPrecompilationMode.InServerSideStyles)
-                    throw new Exception($"The GetContents references IDotvvmRequestContext, which is not allowed during precompilation.");
-                else
-                    return null;
+                throw new Exception($"The GetContents references IDotvvmRequestContext, which is not allowed during precompilation.");
             }
 
 
@@ -139,6 +148,11 @@ namespace DotVVM.Framework.Compilation
                         if (field is {})
                             checkProperty(binding.Property, field.PropertyType);
                     }
+                    else
+                    {
+                        // properties which aren't used in the constructor, or in capabilities without a mapping are not checked
+                        // it does not matter too much, if the control tries to evaluate the binding, it will crash anyway
+                    }
                 }
             }
 
@@ -153,6 +167,8 @@ namespace DotVVM.Framework.Compilation
             return content.Select(c => ResolvedControlHelper.FromRuntimeControl(c, control.DataContextTypeStack, config)).ToArray();
         }
 
+        /// Returns true if we can send binding into the property without evaluating it
+        /// -> true for ValueOrBinding, IBinding, or IReadOnlyDictionary{_, T}, IDictionary{_, T} where T allows bindings
         static bool AllowsBindings(Type t) =>
             t.IsValueOrBinding(out _) ||
                 typeof(IBinding).IsAssignableFrom(t) ||

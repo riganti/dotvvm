@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Compilation.ControlTree;
+﻿using System.Collections.Generic;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
@@ -29,9 +30,10 @@ namespace DotVVM.Framework.Compilation.Styles
 
             if (typeof(CompositeControl).IsAssignableFrom(control.Metadata.Type) &&
                 control.Metadata.PrecompilationMode == ControlPrecompilationMode.InServerSideStyles &&
-                !control.Properties.ContainsKey(Controls.Styles.ReplaceWithProperty))
+                !control.Properties.ContainsKey(Controls.Styles.ReplaceWithProperty) &&
+                control.Properties.GetValueOrDefault(Controls.Styles.RemoveProperty).As<ResolvedPropertyValue>()?.Value is not true)
             {
-                var replacement = ControlPrecompilationVisitor.Precompile(control, control.Metadata.PrecompilationMode, configuration.ServiceProvider);
+                var replacement = ControlPrecompilationVisitor.Precompile(control, control.Metadata.PrecompilationMode, configuration.ServiceProvider).NotNull();
 
                 var wrapper = new ResolvedControl(
                     (ControlResolverMetadata)configuration.ServiceProvider

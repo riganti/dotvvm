@@ -16,11 +16,13 @@ using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Immutable;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Compilation.ViewCompiler;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
     public static class ResolvedControlHelper
     {
+        /// <summary> Creates a ResolvedControl from a DotvvmBindableObject. Used in control precompilation and server-side styles. If <paramref name="config" /> isn't specified, it won't be able to translate <see cref="MarkupControlContainer" />.  </summary>
         public static ResolvedControl FromRuntimeControl(
             DotvvmBindableObject obj,
             DataContextStack dataContext,
@@ -248,10 +250,6 @@ namespace DotVVM.Framework.Compilation.Styles
             if (setter is ResolvedPropertyBinding bindingSetter)
                 return bindingSetter.Binding.Binding;
 
-                // ResolvedPropertyTemplate value => value.Content,
-                // ResolvedPropertyControl value => value.Control,
-                // ResolvedPropertyControlCollection value => value.Controls,
-                // ResolvedPropertyCapability value => value.ToCapabilityObject(throwExceptions: false),
             var expectedType = setter.Property.PropertyType;
 
             if (setter is ResolvedPropertyControl controlSetter)
@@ -269,7 +267,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 throw new NotSupportedException($"Property setter {setter.GetType().Name} is not supported.");
         }
 
-
+        /// <summary> Creates a new instance of the dotvvm object represented by this ResolvedControl. This is a lightweight alternative to compiling the control using the <see cref="ViewCompilingVisitor" />. Children are not initialized immediately, all child components are replaced by <see cref="LazyRuntimeControl" /> </summary>
         public static DotvvmBindableObject ToRuntimeControl(this ResolvedControl c, IServiceProvider services)
         {
             if (services is null)
@@ -297,6 +295,7 @@ namespace DotVVM.Framework.Compilation.Styles
             return control;
         }
 
+        /// <summary> Lazily creates children from the ResolvedControl when OnInit or GetLogicalChildren is invoked. </summary>
         public sealed class LazyRuntimeControl: DotvvmControl
         {
             public ResolvedControl ResolvedControl { get; set; }
@@ -311,18 +310,22 @@ namespace DotVVM.Framework.Compilation.Styles
             void InitializeChildren(IDotvvmRequestContext? context)
             {
                 if (initialized) return;
-                // lock just to be safe. Someone could quite reasonably expect that reading control in parallel is safe
+                // lock just to be safe. Someone could quite reasonably expect that reading control contents in parallel is safe
                 lock (this)
                 {
                     if (initialized) return;
-                    Children.Add((DotvvmControl)ResolvedControl.ToRuntimeControl(context?.Services));
+
+                    if (context is null)
+                        throw new InvalidOperationException("Internal.RequestContextProperty property is not set.");
+
+                    Children.Add((DotvvmControl)ResolvedControl.ToRuntimeControl(context.Services));
                     initialized = true;
                 }
             }
 
             public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
             {
-                InitializeChildren(this.GetValue(Internal.RequestContextProperty) as IDotvvmRequestContext);
+                InitializeChildren((IDotvvmRequestContext?)this.GetValue(Internal.RequestContextProperty));
                 return base.GetLogicalChildren();
             }
 
