@@ -461,7 +461,7 @@ namespace DotVVM.Framework.Controls
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholder.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexClientIdFragment(context));
+                    placeholder.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
                     writer.WriteKnockoutDataBindComment("if", "!$gridViewDataSetHelper.isInEditMode($context)");
                     CreateTemplates(context, placeholder);
                     Children.Add(placeholder);
@@ -471,7 +471,7 @@ namespace DotVVM.Framework.Controls
                     var placeholderEdit = new DataItemContainer { DataContext = null };
                     placeholderEdit.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
                     placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexClientIdFragment(context));
+                    placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
                     writer.WriteKnockoutDataBindComment("if", "$gridViewDataSetHelper.isInEditMode($context)");
                     CreateTemplates(context, placeholderEdit, true);
                     Children.Add(placeholderEdit);
@@ -483,7 +483,7 @@ namespace DotVVM.Framework.Controls
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholder.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexClientIdFragment(context));
+                    placeholder.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
                     Children.Add(placeholder);
                     CreateRowWithCells(context, placeholder);
                     placeholder.Render(writer, context);
