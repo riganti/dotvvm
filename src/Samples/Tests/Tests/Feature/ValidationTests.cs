@@ -5,6 +5,7 @@ using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
@@ -787,6 +788,26 @@ namespace DotVVM.Samples.Tests.Feature
 
                 bool hasCorrectValidationPath = validationPaths.Any(t => t == validationPath);
                 Assert.True(hasCorrectValidationPath,"None of the errors has expected validation path.");
+            });
+        }
+
+        [Fact]
+        public void Feature_Validation_ComplexExpressionInValidatorValue()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidatorValueComplexExpressions);
+                var textbox = browser.Single("textbox", SelectByDataUi);
+                var grid = browser.Single("grid", SelectByDataUi);
+                var button = browser.Single("button", SelectByDataUi);
+                var validationSummary = browser.Single("summary", SelectByDataUi);
+
+                // Clear DateTime which is marked as [Required]
+                textbox.Clear();
+                // Perform postback to trigger validation
+                button.Click();
+
+                AssertUI.HasClass(textbox, "error");
+                Assert.Equal(2, validationSummary.Children.Count);
             });
         }
 

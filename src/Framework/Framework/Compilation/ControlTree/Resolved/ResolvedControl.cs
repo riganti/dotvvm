@@ -5,6 +5,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Styles;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -145,6 +146,27 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             if (!Properties.TryGetValue((DotvvmProperty)property, out var result)) return false;
             value = result;
             return true;
+        }
+
+        public override string ToString()
+        {
+            var type = this.Metadata.Type;
+            if (type == typeof(Controls.Infrastructure.RawLiteral))
+            {
+                return $"RawLiteral({this.ConstructorParameters?[0]})";
+            }
+            var tagName =
+                type == typeof(Controls.HtmlGenericControl) ? this.ConstructorParameters?[0] :
+                type == typeof(Controls.JsComponent) ? "js:" + this.ConstructorParameters?[0] :
+                type.ToCode();
+
+            var hasContent = Content.Count > 0;
+            var properties = string.Join(" ", Properties.Values.Select(p => p.ToString()));
+
+            if (hasContent)
+                return $"<{tagName} {properties}> ... {Content.Count} child nodes </{tagName}>";
+            else
+                return $"<{tagName} {properties} />";
         }
     }
 }

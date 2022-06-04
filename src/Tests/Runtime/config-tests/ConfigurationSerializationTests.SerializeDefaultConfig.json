@@ -1038,6 +1038,10 @@
         "mappingMode": "InnerElement",
         "isCompileTimeOnly": true
       },
+      "Remove": {
+        "type": "System.Boolean",
+        "isCompileTimeOnly": true
+      },
       "ReplaceWith": {
         "type": "DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework",
         "mappingMode": "InnerElement",

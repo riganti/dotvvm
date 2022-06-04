@@ -9,6 +9,9 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Binding.Expressions;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.Binding;
+using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -83,7 +86,21 @@ namespace DotVVM.Framework.Controls
 
         private static void AddValidatedValue(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmProperty prop, DotvvmControl control)
         {
-            writer.AddKnockoutDataBind("dotvvm-validation", control, ValueProperty, renderEvenInServerRenderingMode: true);
+            const string validationDataBindName = "dotvvm-validation";
+
+            var binding = control.GetValueBinding(ValueProperty);
+            if (binding is not null)
+            {
+                var referencedPropertyExpressions = binding.GetProperty<ReferencedViewModelPropertiesBindingProperty>();
+                var unwrappedPropertyExpression = referencedPropertyExpressions.UnwrappedBindingExpression;
+
+                // We were able to unwrap the the provided expression
+                writer.AddKnockoutDataBind(validationDataBindName, control, unwrappedPropertyExpression);
+            }
+            else
+            {
+                throw new DotvvmControlException($"Could not resolve {nameof(ValueProperty)} to a valid value binding.");
+            }
 
             // render options
             var bindingGroup = new KnockoutBindingGroup();

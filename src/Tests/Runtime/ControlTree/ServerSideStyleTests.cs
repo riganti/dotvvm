@@ -39,9 +39,9 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 .AppendControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler("4"));
         }
 
-        ResolvedTreeRoot Parse(string markup, string fileName = "default.dothtml") =>
+        ResolvedTreeRoot Parse(string markup, string fileName = "default.dothtml", bool checkErrors = true) =>
             DotvvmTestHelper.ParseResolvedTree(
-                "@viewModel System.Collections.Generic.List<System.String>\n" + markup, fileName, config);
+                "@viewModel System.Collections.Generic.List<System.String>\n" + markup, fileName, config, checkErrors);
 
 
         [TestMethod]
@@ -466,7 +466,32 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var e = Assert.ThrowsException<Exception>(() =>
                 Parse("<infinite-wrap />"));
 
-            Assert.IsTrue(e.Message.Contains("there is probably an infinite cycle in server-side styles"));
+            StringAssert.Contains(e.Message, "there is probably an infinite cycle in server-side styles");
+        }
+
+        [TestMethod]
+        public void StylesRemove()
+        {
+            config.Styles.RegisterAnyControl(c => c.HasTag("remove"))
+                .Remove();
+            config.Styles.RegisterAnyControl(c => c.HasTag("append-div"))
+                .Append(new HtmlGenericControl("div"));
+
+
+            var e = Parse("<span Styles.Tag=remove />");
+            Assert.AreEqual(0, e.Content.Count);
+
+            e = Parse("<span Styles.Tag=remove,append-div />");
+
+            Assert.AreEqual(1, e.Content.Count);
+            Assert.AreEqual(typeof(HtmlGenericControl), e.Content[0].Metadata.Type);
+            Assert.AreEqual("div", e.Content[0].ConstructorParameters[0]);
+
+            e = Parse("<dot:Repeater DataSource={value: 'abcd'}><span Styles.Tag=remove /></dot:Repeater>", checkErrors: false);
+            Assert.AreEqual(1, e.Content.Count);
+            Assert.AreEqual(typeof(Repeater), e.Content[0].Metadata.Type);
+            var repeater = e.Content[0];
+            Assert.IsFalse(repeater.Properties.ContainsKey(Repeater.ItemTemplateProperty), "ItemTemplate should not be set");
         }
     }
 }
