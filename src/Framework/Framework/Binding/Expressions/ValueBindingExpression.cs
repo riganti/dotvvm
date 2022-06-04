@@ -36,11 +36,14 @@ namespace DotVVM.Framework.Binding.Expressions
         }
 
         private protected MaybePropValue<KnockoutExpressionBindingProperty> knockoutExpressions;
+        private protected MaybePropValue<ReferencedViewModelPropertiesBindingProperty> referencedPropertyExpressions;
 
         private protected override void StoreProperty(object p)
         {
             if (p is KnockoutExpressionBindingProperty knockoutExpressions)
                 this.knockoutExpressions.SetValue(new(knockoutExpressions));
+            if (p is ReferencedViewModelPropertiesBindingProperty referencedPropertyExpressions)
+                this.referencedPropertyExpressions.SetValue(new(referencedPropertyExpressions));
             else
                 base.StoreProperty(p);
         }
@@ -49,6 +52,8 @@ namespace DotVVM.Framework.Binding.Expressions
         {
             if (type == typeof(KnockoutExpressionBindingProperty))
                 return knockoutExpressions.GetValue(this).GetValue(errorMode, this, type);
+            if (type == typeof(ReferencedViewModelPropertiesBindingProperty))
+                return referencedPropertyExpressions.GetValue(this).GetValue(errorMode, this, type);
             return base.GetProperty(type, errorMode);
         }
 
