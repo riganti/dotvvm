@@ -13,7 +13,6 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -101,11 +100,7 @@ namespace DotVVM.Framework.Binding.Expressions
                         return new GlobalizeResourceBindingProperty();
                     }
                     return null;
-                }),
-                new Func<ValueBindingExpression, ParsedExpressionBindingProperty, ReferencedViewModelPropertiesBindingProperty>((binding, expr) =>
-                {
-                    return BindingPropertyResolvers.GetReferencedViewModelProperties(binding, expr);
-                }),
+                })
             };
         }
 

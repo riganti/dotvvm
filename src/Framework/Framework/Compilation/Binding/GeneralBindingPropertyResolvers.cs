@@ -431,7 +431,7 @@ namespace DotVVM.Framework.Compilation.Binding
             ));
         }
 
-        public static ReferencedViewModelPropertiesBindingProperty GetReferencedViewModelProperties(IValueBinding binding, ParsedExpressionBindingProperty expression)
+        public ReferencedViewModelPropertiesBindingProperty GetReferencedViewModelProperties(IValueBinding binding, ParsedExpressionBindingProperty expression)
         {
             var allProperties = new List<PropertyInfo>();
             var expr = expression.Expression;
