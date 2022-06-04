@@ -81,6 +81,8 @@ namespace DotVVM.AutoUI
             s.Register<AutoGridViewColumns>()
                 .SetDotvvmProperty(Styles.AppendProperty, c => AutoGridViewColumns.Replace(c))
                 .ReplaceWith(new DummyColumnThatDoesNothing());
+            s.Register<DummyColumnThatDoesNothing>()
+                .Remove();
             s.Register<AutoGridViewColumn>()
                 .ReplaceWith(c => AutoGridViewColumn.Replace(c));
 

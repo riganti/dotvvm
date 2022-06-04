@@ -6,9 +6,6 @@
 		<table data-bind="dotvvm-gridviewdataset: {'mapping':{},'dataSet':List()}">
 			<thead>
 				<tr>
-					<th>
-						<span></span>
-					</th>
 					<th class="">
 						<span>Id</span>
 					</th>
@@ -29,7 +26,6 @@
 			<tbody data-bind="foreach: List()?.Items">
 				<!-- ko if: !$gridViewDataSetHelper.isInEditMode($context) -->
 				<tr>
-					<td></td>
 					<td>
 						<span data-bind="text: Id"></span>
 					</td>
@@ -49,7 +45,6 @@
 				<!-- /ko -->
 				<!-- ko if: $gridViewDataSetHelper.isInEditMode($context) -->
 				<tr>
-					<td></td>
 					<td>
 						<span data-bind="text: Id"></span>
 					</td>
