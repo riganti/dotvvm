@@ -1394,7 +1394,8 @@
           "",
           "html:"
         ],
-        "type": "System.Object"
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
       },
       "CssClasses": {
         "prefix": "Class-",

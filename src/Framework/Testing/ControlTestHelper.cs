@@ -69,9 +69,13 @@ namespace DotVVM.Framework.Testing
         private TestDotvvmRequestContext PrepareRequest(
             string fileName,
             PostbackRequestModel? postback = null,
-            ClaimsPrincipal? user = null
+            ClaimsPrincipal? user = null,
+            CultureInfo? culture = null
         )
         {
+            CultureInfo.CurrentCulture = culture ?? new CultureInfo("en-US");
+            CultureInfo.CurrentUICulture = culture ?? new CultureInfo("en-US");
+
             var context = DotvvmTestHelper.CreateContext(
                 Configuration,
                 route: new Framework.Routing.DotvvmRoute("testpage", fileName, null, _ => throw new Exception(), Configuration));
@@ -99,11 +103,12 @@ namespace DotVVM.Framework.Testing
             string markup,
             Dictionary<string, string>? markupFiles,
             string? fileName,
-            ClaimsPrincipal? user = null
+            ClaimsPrincipal? user = null,
+            CultureInfo? culture = null
         )
         {
-            CultureInfo.CurrentCulture = new CultureInfo("en-US");
-            CultureInfo.CurrentUICulture = new CultureInfo("en-US");
+            CultureInfo.CurrentCulture = culture ?? new CultureInfo("en-US");
+            CultureInfo.CurrentUICulture = culture ?? new CultureInfo("en-US");
 
             Configuration.Freeze();
             fileName = (fileName ?? "testpage") + ".dothtml";
@@ -118,7 +123,8 @@ namespace DotVVM.Framework.Testing
             string directives = "",
             bool renderResources = false,
             [CallerMemberName] string? fileName = null,
-            ClaimsPrincipal? user = null)
+            ClaimsPrincipal? user = null,
+            CultureInfo? culture = null)
         {
             if (!markup.Contains("<body"))
             {
@@ -137,25 +143,30 @@ namespace DotVVM.Framework.Testing
                 markup = "<tc:FakeHeadResourceLink />" + markup;
             }
             markup = $"@viewModel {viewModel.ToString().Replace("+", ".")}\n{directives}\n\n{markup}";
-            var request = PreparePage(markup, markupFiles, fileName, user);
+            var request = PreparePage(markup, markupFiles, fileName, user, culture);
             await presenter.ProcessRequest(request);
             return CreatePageResult(request);
         }
 
         public async Task<CommandRunResult> RunCommand(
             string filePath,
-            PostbackRequestModel model)
+            PostbackRequestModel model,
+            CultureInfo? culture = null)
         {
-            var request = PrepareRequest(filePath, model);
-            await presenter.ProcessRequest(request);
+            var request = PrepareRequest(filePath, model, culture: culture);
+            try
+            {
+                await presenter.ProcessRequest(request);
+            }
+            catch (DotvvmInterruptRequestExecutionException)
+            {
+            }
             return CreateCommandResult(request);
         }
 
         private CommandRunResult CreateCommandResult(TestDotvvmRequestContext request)
         {
-            return new CommandRunResult(
-                request.ViewModelJson
-            );
+            return new CommandRunResult(request);
         }
 
         private IEnumerable<(DotvvmControl, DotvvmProperty, ICommandBinding)> FindCommands(DotvvmControl view) =>
@@ -198,13 +209,22 @@ namespace DotVVM.Framework.Testing
 
     public class CommandRunResult
     {
-        public CommandRunResult(JObject resultJson)
+        public CommandRunResult(IDotvvmRequestContext context)
         {
-            this.ResultJson = resultJson;
+            this.ResultJson = context.ViewModelJson;
 
+            context.HttpContext.Response.Body.Position = 0;
+            using var sr = new StreamReader(context.HttpContext.Response.Body);
+            this.ResultText = sr.ReadToEnd();
+            if (context.ViewModelJson == null && context.HttpContext.Response.ContentType == "application/json")
+            {
+                this.ResultJson = JObject.Parse(ResultText);
+            }
         }
-        public JObject ResultJson { get; }
-        public JObject? ViewModelJson => ResultJson["viewModel"] as JObject ?? ResultJson["viewModelDiff"] as JObject;
+
+        public string ResultText { get; }
+        public JObject? ResultJson { get; }
+        public JObject? ViewModelJson => ResultJson?["viewModel"] as JObject ?? ResultJson?["viewModelDiff"] as JObject;
     }
 
     public class PostbackRequestModel
@@ -303,7 +323,7 @@ namespace DotVVM.Framework.Testing
             return filtered.Single();
         }
 
-        public async Task<CommandRunResult> RunCommand(string text, Func<object?, bool>? viewModel = null, bool applyChanges = true, object[]? args = null)
+        public async Task<CommandRunResult> RunCommand(string text, Func<object?, bool>? viewModel = null, bool applyChanges = true, object[]? args = null, CultureInfo? culture = null)
         {
             var (control, property, binding) = FindCommand(text, viewModel);
             if (binding is CommandBindingExpression command)
@@ -322,7 +342,7 @@ namespace DotVVM.Framework.Testing
                     null,
                     args ?? new object[0],
                     KnockoutHelper.GetValidationTargetExpression(control)?.identificationExpression
-                ));
+                ), culture: culture);
 
                 if (applyChanges)
                 {

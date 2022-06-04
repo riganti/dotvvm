@@ -5,20 +5,20 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Validation;
 
 namespace DotVVM.AutoUI.Metadata
 {
     /// <summary>
-    /// Validation attribmetadata provider which loads missing error messages from the RESX file.
+    /// Validation metadata provider which loads missing error messages from the RESX file.
     /// </summary>
     public class ResourceViewModelValidationMetadataProvider : IViewModelValidationMetadataProvider
     {
-        private readonly IPropertyDisplayMetadataProvider propertyDisplayMetadataProvider;
         private readonly IViewModelValidationMetadataProvider baseValidationMetadataProvider;
-        private ConcurrentDictionary<PropertyInfoCulturePair, List<ValidationAttribute>> cache = new ConcurrentDictionary<PropertyInfoCulturePair, List<ValidationAttribute>>();
-
-        private ResourceManager errorMessages;
+        private readonly ConcurrentDictionary<PropertyInfo, List<ValidationAttribute>> cache = new();
+        private readonly ResourceManager errorMessages;
+        private static readonly FieldInfo internalErrorMessageField;
 
         /// <summary>
         /// Gets the type of the resource file that contains the default error message patterns.
@@ -27,13 +27,17 @@ namespace DotVVM.AutoUI.Metadata
         public Type ErrorMessagesResourceFileType { get; }
 
 
-        public ResourceViewModelValidationMetadataProvider(Type errorMessagesResourceFileType, IPropertyDisplayMetadataProvider propertyDisplayMetadataProvider, IViewModelValidationMetadataProvider baseValidationMetadataProvider)
+        public ResourceViewModelValidationMetadataProvider(Type errorMessagesResourceFileType, IViewModelValidationMetadataProvider baseValidationMetadataProvider)
         {
             ErrorMessagesResourceFileType = errorMessagesResourceFileType;
             errorMessages = new ResourceManager(errorMessagesResourceFileType);
 
-            this.propertyDisplayMetadataProvider = propertyDisplayMetadataProvider;
             this.baseValidationMetadataProvider = baseValidationMetadataProvider;
+        }
+
+        static ResourceViewModelValidationMetadataProvider()
+        {
+            internalErrorMessageField = typeof(ValidationAttribute).GetField("_errorMessage", BindingFlags.Instance | BindingFlags.NonPublic).NotNull();
         }
 
         /// <summary>
@@ -41,31 +45,26 @@ namespace DotVVM.AutoUI.Metadata
         /// </summary>
         public IEnumerable<ValidationAttribute> GetAttributesForProperty(PropertyInfo property)
         {
-            return cache.GetOrAdd(new PropertyInfoCulturePair(CultureInfo.CurrentUICulture, property), GetAttributesForPropertyCore);
+            return cache.GetOrAdd(property, GetAttributesForPropertyCore);
         }
 
         /// <summary>
         /// Determines validation attributes for the specified property and loads missing error messages from the resource file.
         /// </summary>
-        private List<ValidationAttribute> GetAttributesForPropertyCore(PropertyInfoCulturePair pair)
+        private List<ValidationAttribute> GetAttributesForPropertyCore(PropertyInfo property)
         {
-            // determine property name
-            var propertyDisplayName = propertyDisplayMetadataProvider.GetPropertyMetadata(pair.PropertyInfo).GetDisplayName().Localize();
-
             // process all validation attributes
             var results = new List<ValidationAttribute>();
-            foreach (var attribute in baseValidationMetadataProvider.GetAttributesForProperty(pair.PropertyInfo))
+            foreach (var attribute in baseValidationMetadataProvider.GetAttributesForProperty(property))
             {
-                if (string.IsNullOrEmpty(attribute.ErrorMessage) && string.IsNullOrEmpty(attribute.ErrorMessageResourceName))
+                if (HasDefaultErrorMessage(attribute) && GetErrorMessageKey(attribute) is {} errorMessageKey)
                 {
-                    // the error message has not been set, determine new error message
                     var clone = CloneAttribute(attribute);
 
-                    // determine error message
-                    var errorMessage = GetErrorMessage(attribute, propertyDisplayName);
+                    // update the attribute
+                    clone.ErrorMessageResourceType = ErrorMessagesResourceFileType;
+                    clone.ErrorMessageResourceName = errorMessageKey;
 
-                    // add the clone to the list
-                    clone.ErrorMessage = errorMessage;
                     results.Add(clone);
                 }
                 else
@@ -75,6 +74,13 @@ namespace DotVVM.AutoUI.Metadata
             }
 
             return results;
+        }
+
+        private bool HasDefaultErrorMessage(ValidationAttribute attribute)
+        {
+            return string.IsNullOrEmpty((string)internalErrorMessageField.GetValue(attribute))
+                && attribute.ErrorMessageResourceType == null
+                && string.IsNullOrEmpty(attribute.ErrorMessageResourceName);
         }
 
         /// <summary>
@@ -90,7 +96,7 @@ namespace DotVVM.AutoUI.Metadata
         /// <summary>
         /// Gets the error message for the specified attribute.
         /// </summary>
-        public virtual string GetErrorMessage(ValidationAttribute attribute, string propertyDisplayName)
+        public virtual string? GetErrorMessageKey(ValidationAttribute attribute)
         {
             var attributeName = attribute.GetType().Name;
             if (attributeName.EndsWith("Attribute", StringComparison.OrdinalIgnoreCase))
@@ -98,28 +104,9 @@ namespace DotVVM.AutoUI.Metadata
                 attributeName = attributeName.Substring(0, attributeName.Length - "Attribute".Length);
             }
 
-            return string.Format(GetDefaultErrorMessagePattern(attributeName), propertyDisplayName);
-        }
-
-        /// <summary>
-        /// Gets the default error message pattern for the specified attribute.
-        /// </summary>
-        protected virtual string GetDefaultErrorMessagePattern(string attributeName)
-        {
-            return errorMessages.GetString(attributeName) ?? errorMessages.GetString("Unknown") ?? "Error";
-        }
-        
-
-        private struct PropertyInfoCulturePair
-        {
-            public readonly CultureInfo Culture;
-            public readonly PropertyInfo PropertyInfo;
-
-            public PropertyInfoCulturePair(CultureInfo culture, PropertyInfo propertyInfo)
-            {
-                Culture = culture;
-                PropertyInfo = propertyInfo;
-            }
+            return errorMessages.GetString(attributeName) != null ? attributeName :
+                    errorMessages.GetString("Unknown") != null ? "Unknown" :
+                    null;
         }
     }
 }

@@ -1,0 +1,21 @@
+{
+  "modelState": [
+    {
+      "errorMessage": "Pole Email není ve správném formátu.",
+      "propertyPath": "/Entity1/Email"
+    },
+    {
+      "errorMessage": "Custom overriden error message",
+      "propertyPath": "/Entity1/Email"
+    },
+    {
+      "errorMessage": "Vlastní chyba",
+      "propertyPath": "/Entity1/FirstName"
+    },
+    {
+      "errorMessage": "Pole LastName je povinné.",
+      "propertyPath": "/Entity1/LastName"
+    }
+  ],
+  "action": "validationErrors"
+}

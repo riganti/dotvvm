@@ -57,7 +57,6 @@ namespace DotVVM.AutoUI
                 services.Decorate<IViewModelValidationMetadataProvider>(
                     (baseService, serviceProvider) => new ResourceViewModelValidationMetadataProvider(
                         autoUiConfiguration.ErrorMessagesResourceFile,
-                        serviceProvider.GetService<IPropertyDisplayMetadataProvider>(),
                         baseService)
                 );
             }
