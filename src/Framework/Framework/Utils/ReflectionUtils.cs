@@ -17,7 +17,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Configuration;
 using FastExpressionCompiler;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using RecordExceptions;
 
 namespace DotVVM.Framework.Utils
@@ -478,19 +481,17 @@ namespace DotVVM.Framework.Utils
             if (instance == null)
                 return null;
 
-            if (typeof(T).GetCustomAttribute<FlagsAttribute>() != null)
+            if (!EnumInfo<T>.HasEnumMemberField)
             {
-                var values = Enum.GetValues(typeof(T));
-                return string.Join(", ",
-                    values.OfType<T>()
-                    .Where(v => instance.Value.HasFlag(v))
-                    .Select(v => ToEnumString(typeof(T), v.ToString())));
+                return instance.ToString()!;
+            }
+            else if (typeof(T).GetCustomAttribute<FlagsAttribute>() != null)
+            {
+                return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value));
             }
             else
             {
                 var name = instance.ToString()!;
-                if (!EnumInfo<T>.HasEnumMemberField)
-                    return name;
                 return ToEnumString(typeof(T), name);
             }
         }
