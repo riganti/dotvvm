@@ -1,8 +1,10 @@
 import { CoerceError } from "../shared-classes"
+import { isNumber } from "../utils/isNumber"
 import { keys } from "../utils/objects"
 
 export function enumStringToInt(value: number | string, type: EnumTypeMetadata): number | null {
-    if (!isNaN(+value)) {
+    // if it's number already, just return it
+    if (isNumber(value)) {
         return +value
     }
 
@@ -67,11 +69,9 @@ export function tryCoerceEnum(value: any, type: EnumTypeMetadata): CoerceResult 
 
     const intValue = enumStringToInt(value, type)
     if (intValue != null) {
-        const stringValue = enumIntToString(intValue, type)
-        if (stringValue != null) {
-            const wasCoerced = stringValue != value
-            return { value: stringValue, wasCoerced }
-        }
+        const coercedValue = enumIntToString(intValue, type) ?? intValue
+        const wasCoerced = coercedValue != value
+        return { value: coercedValue, wasCoerced }
     }
 
     return new CoerceError(`Cannot cast '${value}' to type 'Enum(${keys(type.values).join(",")})'.`)

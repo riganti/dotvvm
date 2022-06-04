@@ -2,7 +2,7 @@ import * as array from './arrayHelper'
 import * as dictionary from './dictionaryHelper'
 import * as string from './stringHelper'
 import * as dateTime from './dateTimeHelper'
-import { enumStringToInt, enumIntToString, tryCoerceEnum } from '../metadata/enums'
+import { enumStringToInt, tryCoerceEnum } from '../metadata/enums'
 import { getEnumMetadata } from '../metadata/metadataHelper'
 
 
