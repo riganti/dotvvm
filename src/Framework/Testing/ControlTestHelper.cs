@@ -317,7 +317,7 @@ namespace DotVVM.Framework.Testing
                     command.BindingId,
                     null,
                     args ?? new object[0],
-                    KnockoutHelper.GetValidationTargetExpression(control)
+                    KnockoutHelper.GetValidationTargetExpression(control)?.identificationExpression
                 ));
 
                 if (applyChanges)

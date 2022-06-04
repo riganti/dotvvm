@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Tests.Binding
 
             var resolver = new CommandResolver();
             var context = new TestDotvvmRequestContext() { ViewModel = testObject, ModelState = new ModelState() };
-            context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button);
+            context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button)?.identificationExpression;
 
             resolver.GetFunction(viewRoot, context, path.Select(v => v.GetProperty<SimplePathExpressionBindingProperty>().Code.FormatKnockoutScript(button, v)).ToArray(), commandId, new Func<Type, object>[0]).Action();
 
