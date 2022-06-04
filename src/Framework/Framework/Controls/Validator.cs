@@ -99,8 +99,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                // We are passing the binding "as-is"
-                writer.AddKnockoutDataBind(validationDataBindName, control, ValueProperty, renderEvenInServerRenderingMode: true);
+                throw new DotvvmControlException($"Could not resolve {nameof(ValueProperty)} to a valid value binding.");
             }
 
             // render options
