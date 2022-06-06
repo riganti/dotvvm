@@ -16,6 +16,11 @@
 			<!-- ko text: dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
 			<!-- /ko -->
 		</div>
+		Markup control with property, but not prerendered, because it has a resource binding
+		<div data-bind="dotvvm-with-control-properties: { SomeProperty: &quot;test&quot; }">
+			<!-- ko text: dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
+			<!-- /ko -->
+		</div>
 		
 		<!-- /ko -->
 	</body>

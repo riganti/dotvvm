@@ -11,7 +11,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
-    public class ResolvedTypeDescriptor : ITypeDescriptor
+    public sealed class ResolvedTypeDescriptor : ITypeDescriptor
     {
         private static ConcurrentDictionary<(Type, string), ResolvedTypeDescriptor?> cache = new ConcurrentDictionary<(Type, string), ResolvedTypeDescriptor?>();
         public Type Type { get; }

@@ -112,6 +112,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<StylingVisitor>(s));
                 var requiredResourceControl = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
                 o.TreeVisitors.Add(() => new StyleTreeShufflingVisitor(controlResolver));
+                o.TreeVisitors.Add(() => new ControlPrecompilationVisitor(s));
                 o.TreeVisitors.Add(() => new LiteralOptimizationVisitor());
                 o.TreeVisitors.Add(() => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl));
                 var requiredGlobalizeControl = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(GlobalizeResource)));
