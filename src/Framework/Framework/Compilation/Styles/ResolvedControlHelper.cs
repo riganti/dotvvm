@@ -332,6 +332,7 @@ namespace DotVVM.Framework.Compilation.Styles
             protected internal override void OnInit(IDotvvmRequestContext context)
             {
                 InitializeChildren(context);
+                base.OnInit(context);
             }
         }
 
