@@ -15,10 +15,10 @@ using Validator = DotVVM.Framework.Controls.Validator;
 namespace DotVVM.AutoUI.Controls
 {
     [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
-    public abstract class DynamicEntityBase : CompositeControl
+    public abstract class AutoFormBase : CompositeControl
     {
         protected readonly IServiceProvider services;
-        public DynamicEntityBase(IServiceProvider services)
+        public AutoFormBase(IServiceProvider services)
         {
             this.services = services;
         }
@@ -33,7 +33,7 @@ namespace DotVVM.AutoUI.Controls
             set { SetValue(ViewNameProperty, value); }
         }
         public static readonly DotvvmProperty ViewNameProperty
-            = DotvvmProperty.Register<string, DynamicEntityBase>(c => c.ViewName, null);
+            = DotvvmProperty.Register<string, AutoFormBase>(c => c.ViewName, null);
 
 
         /// <summary>
@@ -45,10 +45,10 @@ namespace DotVVM.AutoUI.Controls
             set { SetValue(GroupNameProperty, value); }
         }
         public static readonly DotvvmProperty GroupNameProperty
-            = DotvvmProperty.Register<string, DynamicEntityBase>(c => c.GroupName, null);
+            = DotvvmProperty.Register<string, AutoFormBase>(c => c.GroupName, null);
 
         public static readonly DotvvmCapabilityProperty FieldPropsProperty =
-            DotvvmCapabilityProperty.RegisterCapability<FieldProps, DynamicEntityBase>();
+            DotvvmCapabilityProperty.RegisterCapability<FieldProps, AutoFormBase>();
 
         protected DynamicDataContext CreateDynamicDataContext()
         {
@@ -129,11 +129,11 @@ namespace DotVVM.AutoUI.Controls
             props.FieldTemplate.TryGetValue(property.Name, out var template) ?
                 new TemplateHost(template) : null;
 
-        protected virtual DynamicEditor CreateEditor(PropertyDisplayMetadata property, DynamicDataContext ddContext, FieldProps props)
+        protected virtual AutoEditor CreateEditor(PropertyDisplayMetadata property, DynamicDataContext ddContext, FieldProps props)
         {
             var name = property.Name;
             return
-                new DynamicEditor(ddContext.Services)
+                new AutoEditor(ddContext.Services)
                 .SetProperty(p => p.ID, GetEditorId(property))
                 .SetProperty(p => p.Property, ddContext.CreateValueBinding(property))
                 .SetProperty("OverrideTemplate", props.EditorTemplate.GetValueOrDefault(name))
@@ -203,7 +203,7 @@ namespace DotVVM.AutoUI.Controls
                 }
                 catch
                 {
-                    // nvm, we just tried it. It will fail properly later in DynamicEditor which should be easier to understand.
+                    // nvm, we just tried it. It will fail properly later in AutoForm which should be easier to understand.
                 }
             }
 

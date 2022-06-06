@@ -13,8 +13,8 @@ namespace DotVVM.AutoUI.Controls
     /// <summary>
     /// Creates the editor for the specified property using the metadata information.
     /// </summary>
-    [ControlMarkupOptions(AllowContent = false, Precompile = ControlPrecompilationMode.InServerSideStyles)]
-    public sealed class DynamicEditor : CompositeControl, IObjectWithCapability<HtmlCapability>, IControlWithHtmlAttributes
+    [ControlMarkupOptions(PrimaryName = "Editor", AllowContent = false, Precompile = ControlPrecompilationMode.InServerSideStyles)]
+    public sealed class AutoEditor : CompositeControl, IObjectWithCapability<HtmlCapability>, IControlWithHtmlAttributes
     {
         /// <summary>
         /// Gets or sets the property that should be edited.
@@ -31,10 +31,10 @@ namespace DotVVM.AutoUI.Controls
             new(this, AttributesGroupDescriptor);
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
         public static DotvvmPropertyGroup AttributesGroupDescriptor =
-            DotvvmPropertyGroup.Register<object, DynamicEditor>(new[] { "", "html:" }, nameof(Attributes));
+            DotvvmPropertyGroup.Register<object, AutoEditor>(new[] { "", "html:" }, nameof(Attributes));
 
         public static readonly DotvvmProperty PropertyProperty
-            = DotvvmProperty.Register<IValueBinding, DynamicEditor>(c => c.Property, null);
+            = DotvvmProperty.Register<IValueBinding, AutoEditor>(c => c.Property, null);
 
 
         public ITemplate? OverrideTemplate
@@ -43,7 +43,7 @@ namespace DotVVM.AutoUI.Controls
             set { SetValue(OverrideTemplateProperty, value); }
         }
         public static readonly DotvvmProperty OverrideTemplateProperty =
-            DotvvmProperty.Register<ITemplate, DynamicEditor>(c => c.OverrideTemplate, null);
+            DotvvmProperty.Register<ITemplate, AutoEditor>(c => c.OverrideTemplate, null);
 
         public string[] Tags
         {
@@ -52,11 +52,11 @@ namespace DotVVM.AutoUI.Controls
         }
 
         public static readonly DotvvmProperty TagsProperty =
-            DotvvmProperty.Register<string[], DynamicEditor>("Tags", Array.Empty<string>());
+            DotvvmProperty.Register<string[], AutoEditor>("Tags", Array.Empty<string>());
 
         private readonly IServiceProvider services;
 
-        public DynamicEditor(IServiceProvider services)
+        public AutoEditor(IServiceProvider services)
         {
             this.services = services;
         }

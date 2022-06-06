@@ -10,23 +10,23 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.AutoUI
 {
-    public static class DynamicDataExtensions
+    public static class AutoUIExtensions
     {
         /// <summary>
         /// Registers all services required by DotVVM Dynamic Data.
         /// </summary>
         public static IDotvvmServiceCollection AddAutoUI(this IDotvvmServiceCollection services, Action<DynamicDataConfiguration>? configure = null)
         {
-            var dynamicDataConfiguration = new DynamicDataConfiguration();
-            configure?.Invoke(dynamicDataConfiguration);
+            var autoUiConfiguration = new DynamicDataConfiguration();
+            configure?.Invoke(autoUiConfiguration);
             
             // add the configuration of Dynamic Data to the service collection
-            services.Services.AddSingleton(serviceProvider => dynamicDataConfiguration);
+            services.Services.AddSingleton(serviceProvider => autoUiConfiguration);
 
-            RegisterDefaultProviders(services.Services, dynamicDataConfiguration);
-            RegisterResourceFileProviders(services.Services, dynamicDataConfiguration);
+            RegisterDefaultProviders(services.Services, autoUiConfiguration);
+            RegisterResourceFileProviders(services.Services, autoUiConfiguration);
 
-            services.Services.Configure<DotvvmConfiguration>(AddDynamicDataConfiguration);
+            services.Services.Configure<DotvvmConfiguration>(AddAutoUIConfiguration);
 
             return services;
         }
@@ -67,9 +67,9 @@ namespace DotVVM.AutoUI
         /// <summary>
         /// Registers the Dynamic Data controls and return the Dynamic Data configuration.
         /// </summary>
-        private static void AddDynamicDataConfiguration(DotvvmConfiguration config)
+        private static void AddAutoUIConfiguration(DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControls("au", typeof(DynamicDataExtensions).Namespace! + ".Controls", typeof(DynamicDataExtensions).Assembly!.GetName().Name!);
+            config.Markup.AddCodeControls("auto", typeof(AutoUIExtensions).Namespace! + ".Controls", typeof(AutoUIExtensions).Assembly.FullName!);
 
             RegisterDynamicDataStyles(config);
         }
@@ -78,18 +78,17 @@ namespace DotVVM.AutoUI
         private static void RegisterDynamicDataStyles(DotvvmConfiguration config)
         {
             var s = config.Styles;
-            s.Register<DynamicColumns>()
-                .SetDotvvmProperty(Styles.AppendProperty, c => DynamicColumns.Replace(c))
+            s.Register<AutoGridViewColumns>()
+                .SetDotvvmProperty(Styles.AppendProperty, c => AutoGridViewColumns.Replace(c))
                 .ReplaceWith(new DummyColumnThatDoesNothing());
-            s.Register<DynamicGridColumn>()
-                .ReplaceWith(c => DynamicGridColumn.Replace(c));
-
+            s.Register<AutoGridViewColumn>()
+                .ReplaceWith(c => AutoGridViewColumn.Replace(c));
 
             // bulma styles
-            s.Register<CheckBox>(c => c.PropertyValue<string[]>(DynamicEditor.TagsProperty)!.Contains("bulma"))
+            s.Register<CheckBox>(c => c.PropertyValue<string[]>(AutoEditor.TagsProperty)!.Contains("bulma"))
                 .AddClass("checkbox");
 
-            s.Register<SelectorBase>(c => c.PropertyValue<string[]>(DynamicEditor.TagsProperty)!.Contains("bulma"))
+            s.Register<SelectorBase>(c => c.PropertyValue<string[]>(AutoEditor.TagsProperty)!.Contains("bulma"))
                 .SetAttribute("class", "")
                 .WrapWith(new HtmlGenericControl("div").AddCssClass("select"));
 

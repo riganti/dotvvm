@@ -6,7 +6,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.GridColumns
 {
     public abstract class GridColumnProviderBase : DynamicDataPropertyHandlerBase, IGridColumnProvider
     {
-        public GridViewColumn CreateColumn(PropertyDisplayMetadata property, DynamicGridColumn.Props props, DynamicDataContext context)
+        public GridViewColumn CreateColumn(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, DynamicDataContext context)
         {
             var column = CreateColumnCore(property, props, context);
 
@@ -16,6 +16,6 @@ namespace DotVVM.AutoUI.PropertyHandlers.GridColumns
             return column;
         }
 
-        protected abstract GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, DynamicGridColumn.Props props, DynamicDataContext context);
+        protected abstract GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, DynamicDataContext context);
     }
 }

@@ -10,7 +10,8 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.AutoUI.Controls
 {
-    public class DynamicGridColumn : GridViewColumn
+    [ControlMarkupOptions(PrimaryName = "GridViewColumn")]
+    public class AutoGridViewColumn : GridViewColumn
     {
         [MarkupOptions(AllowHardCodedValue = false, Required = true)]
         public IValueBinding? Property
@@ -19,19 +20,19 @@ namespace DotVVM.AutoUI.Controls
             set { SetValue(PropertyProperty, value); }
         }
         public static readonly DotvvmProperty PropertyProperty =
-            DotvvmProperty.Register<IValueBinding, DynamicGridColumn>(nameof(Property));
+            DotvvmProperty.Register<IValueBinding, AutoGridViewColumn>(nameof(Property));
 
 
         public static DotvvmCapabilityProperty PropsProperty =
-            DotvvmCapabilityProperty.RegisterCapability<Props, DynamicGridColumn>();
+            DotvvmCapabilityProperty.RegisterCapability<Props, AutoGridViewColumn>();
 
-        public static GridViewColumn Replace(IStyleMatchContext<DynamicGridColumn> col)
+        public static GridViewColumn Replace(IStyleMatchContext<AutoGridViewColumn> col)
         {
             var context = new DynamicDataContext(col.Control.DataContextTypeStack, col.Configuration.ServiceProvider);
 
             var props = col.PropertyValue<Props>(PropsProperty).NotNull();
             if (props.Property is null)
-                throw new DotvvmControlException($"DynamicGridColumn.Property is not set.");
+                throw new DotvvmControlException($"AutoGridViewColumn.Property is not set.");
 
 
             var prop = props.Property.GetProperty<ReferencedViewModelPropertiesBindingProperty>();
@@ -57,7 +58,7 @@ namespace DotVVM.AutoUI.Controls
             if (props.EditTemplate is null)
             {
                 control.EditTemplate = new CloneTemplate(
-                    new DynamicEditor(context.Services)
+                    new AutoEditor(context.Services)
                         .SetProperty(p => p.Property, props.Property)
                         .SetProperty("Changed", props.Changed)
                         .SetProperty("Enabled", props.IsEditable)
@@ -85,8 +86,8 @@ namespace DotVVM.AutoUI.Controls
             return control;
         }
 
-        public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container) => throw new NotImplementedException("DynamicGridColumn must be replaced using server-side styles. It cannot be used at runtime");
-        public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container) => throw new NotImplementedException("DynamicGridColumn must be replaced using server-side styles. It cannot be used at runtime");
+        public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container) => throw new NotImplementedException("AutoGridViewColumn must be replaced using server-side styles. It cannot be used at runtime");
+        public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container) => throw new NotImplementedException("AutoGridViewColumn must be replaced using server-side styles. It cannot be used at runtime");
 
         [DotvvmControlCapability]
         public sealed record Props

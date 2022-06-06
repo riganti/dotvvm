@@ -15,7 +15,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
             return ReflectionUtils.UnwrapNullableType(property.Type) == typeof(bool);
         }
         
-        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, DynamicDataContext context)
         {
             var checkBox = new CheckBox()
                 .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)

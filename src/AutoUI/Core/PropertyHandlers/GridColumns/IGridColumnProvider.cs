@@ -7,7 +7,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.GridColumns
     public interface IGridColumnProvider : IDynamicDataPropertyHandler
     {
 
-        GridViewColumn CreateColumn(PropertyDisplayMetadata property, DynamicGridColumn.Props props, DynamicDataContext context);
+        GridViewColumn CreateColumn(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, DynamicDataContext context);
 
     }
 }

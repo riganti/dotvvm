@@ -13,7 +13,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
                 && ReflectionUtils.IsPrimitiveType(property.Type);
         }
 
-        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, DynamicDataContext context)
         {
             var selectorConfiguration = property.SelectorConfiguration!;
             var selectorDataSourceBinding = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selectorConfiguration.PropertyType);

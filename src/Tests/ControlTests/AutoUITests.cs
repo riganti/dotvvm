@@ -33,15 +33,15 @@ namespace DotVVM.Framework.Tests.ControlTests
         OutputChecker check = new OutputChecker("testoutputs");
 
         [TestMethod]
-        public async Task BasicDynamicEntity()
+        public async Task BasicForm()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-                    <au:DynamicEntity DataContext={value: Entity} ExcludeProperties='Id'
+                    <auto:Form DataContext={value: Entity} ExcludeProperties='Id'
                             Changed-Name={command: 0}>
                         <EditorTemplate-Sometime>
                             Nah, I'm lazy and we don't support date times
                         </EditorTemplate-Sometime>
-                    </au:DynamicEntity>
+                    </auto:Form>
                 "
             );
 
@@ -51,11 +51,11 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
-        public async Task BasicDynamicEditor()
+        public async Task BasicEditor()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-                    <au:DynamicEditor Property={value: Integer} />
-                    <au:DynamicEditor Property={value: Boolean} />
+                    <auto:Editor Property={value: Integer} />
+                    <auto:Editor Property={value: Boolean} />
                 "
             );
 
@@ -65,11 +65,11 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
         
         [TestMethod]
-        public async Task BasicDynamicGridColumn()
+        public async Task BasicColumn()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
                     <dot:GridView DataSource={value: List}>
-                        <au:DynamicGridColumn Property={value: Name} />
+                        <auto:GridViewColumn Property={value: Name} />
                     </dot:GridView>
                 "
             );
@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         [DataRow("Insert", "", false)]
         [DataRow("Insert", "Admin", true)]
         [DataRow("Edit", "Admin", true)]
-        public async Task DynamicEntityWithVisibleEnabledFields(string viewName, string userRoleName, bool isAuthenticated)
+        public async Task FormWithVisibleEnabledFields(string viewName, string userRoleName, bool isAuthenticated)
         {
             var user = isAuthenticated
                 ? new ClaimsIdentity("myAuth")
@@ -95,18 +95,18 @@ namespace DotVVM.Framework.Tests.ControlTests
             }
 
             var r = await cth.RunPage(typeof(VisibleEnabledTestViewModel), $@"
-                    <au:DynamicEntity ViewName={viewName} />
+                    <auto:Form ViewName={viewName} />
                 ",
                 user: new ClaimsPrincipal(user),
-                fileName: $"{nameof(DynamicEntityWithVisibleEnabledFields)}-{viewName}-{userRoleName}-{isAuthenticated}");
+                fileName: $"{nameof(FormWithVisibleEnabledFields)}-{viewName}-{userRoleName}-{isAuthenticated}");
             check.CheckString(r.FormattedHtml, $"{viewName}-{userRoleName}-{isAuthenticated}", fileExtension: "html");
         }
         [TestMethod]
-        public async Task BasicDynamicGrid()
+        public async Task BasicGrid()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
                     <dot:GridView DataSource={value: List} InlineEditing>
-                        <au:DynamicColumns />
+                        <auto:GridViewColumns />
                     </dot:GridView>
                 "
             );
@@ -115,11 +115,11 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
-        public async Task RepeateredEditor()
+        public async Task FormInRepeater()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
                     <dot:Repeater DataSource={value: List}>
-                        <au:DynamicEntity IncludeProperties='Email, Name' />
+                        <auto:Form IncludeProperties='Email, Name' />
                     </dot:Repeater>
                 "
             );

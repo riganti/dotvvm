@@ -11,7 +11,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.GridColumns
             return TextBoxHelper.CanHandleProperty(property.Type);
         }
 
-        protected override GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, DynamicGridColumn.Props props, DynamicDataContext context)
+        protected override GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, DynamicDataContext context)
         {
             var column = new GridViewTextColumn();
             column.FormatString = property.FormatString;

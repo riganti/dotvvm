@@ -18,7 +18,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
             return TextBoxHelper.CanHandleProperty(property.Type);
         }
 
-        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, DynamicDataContext context)
         {
             if (!property.IsEditable)
             {

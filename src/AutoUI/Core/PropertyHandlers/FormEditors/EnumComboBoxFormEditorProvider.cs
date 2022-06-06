@@ -18,7 +18,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
             return property.Type.UnwrapNullableType().IsEnum;
         }
 
-        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, DynamicDataContext context)
         {
             var enumType = property.Type.UnwrapNullableType();
             var isNullable = property.Type.IsNullable();

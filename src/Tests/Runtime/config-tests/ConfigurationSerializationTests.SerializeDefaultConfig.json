@@ -150,33 +150,7 @@
     }
   },
   "properties": {
-    "DotVVM.AutoUI.Controls.BootstrapDynamicEntity": {
-      "FormGroupCssClass": {
-        "type": "System.String"
-      },
-      "LabelCssClass": {
-        "type": "System.String"
-      }
-    },
-    "DotVVM.AutoUI.Controls.DynamicColumns": {
-      "ExcludeProperties": {
-        "type": "System.String[]",
-        "fromCapability": "FieldSelectorProps"
-      },
-      "GroupName": {
-        "type": "System.String",
-        "fromCapability": "FieldSelectorProps"
-      },
-      "IncludeProperties": {
-        "type": "System.String[]",
-        "fromCapability": "FieldSelectorProps"
-      },
-      "ViewName": {
-        "type": "System.String",
-        "fromCapability": "FieldSelectorProps"
-      }
-    },
-    "DotVVM.AutoUI.Controls.DynamicEditor": {
+    "DotVVM.AutoUI.Controls.AutoEditor": {
       "Changed": {
         "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
         "fromCapability": "Props"
@@ -200,7 +174,7 @@
         "fromCapability": "HtmlCapability"
       }
     },
-    "DotVVM.AutoUI.Controls.DynamicEntity": {
+    "DotVVM.AutoUI.Controls.AutoForm": {
       "EditorCellCssClass": {
         "type": "System.String"
       },
@@ -208,7 +182,7 @@
         "type": "System.String"
       }
     },
-    "DotVVM.AutoUI.Controls.DynamicEntityBase": {
+    "DotVVM.AutoUI.Controls.AutoFormBase": {
       "ExcludeProperties": {
         "type": "System.String[]",
         "fromCapability": "FieldSelectorProps"
@@ -224,7 +198,7 @@
         "type": "System.String"
       }
     },
-    "DotVVM.AutoUI.Controls.DynamicGridColumn": {
+    "DotVVM.AutoUI.Controls.AutoGridViewColumn": {
       "Changed": {
         "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
         "fromCapability": "Props"
@@ -237,6 +211,32 @@
       "Property": {
         "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
         "required": true
+      }
+    },
+    "DotVVM.AutoUI.Controls.AutoGridViewColumns": {
+      "ExcludeProperties": {
+        "type": "System.String[]",
+        "fromCapability": "FieldSelectorProps"
+      },
+      "GroupName": {
+        "type": "System.String",
+        "fromCapability": "FieldSelectorProps"
+      },
+      "IncludeProperties": {
+        "type": "System.String[]",
+        "fromCapability": "FieldSelectorProps"
+      },
+      "ViewName": {
+        "type": "System.String",
+        "fromCapability": "FieldSelectorProps"
+      }
+    },
+    "DotVVM.AutoUI.Controls.BootstrapForm": {
+      "FormGroupCssClass": {
+        "type": "System.String"
+      },
+      "LabelCssClass": {
+        "type": "System.String"
       }
     },
     "DotVVM.AutoUI.DynamicDataGridViewDecorator": {
@@ -1276,36 +1276,36 @@
     }
   },
   "capabilities": {
-    "DotVVM.AutoUI.Controls.DynamicColumns": {
-      "FieldSelectorProps": {
-        "type": "DotVVM.AutoUI.Controls.DynamicEntityBase+FieldSelectorProps, DotVVM.AutoUI",
-        "fromCapability": "Props"
-      },
-      "Props": {
-        "type": "DotVVM.AutoUI.Controls.DynamicColumns+Props, DotVVM.AutoUI"
-      }
-    },
-    "DotVVM.AutoUI.Controls.DynamicEditor": {
+    "DotVVM.AutoUI.Controls.AutoEditor": {
       "HtmlCapability": {
         "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
         "fromCapability": "Props"
       },
       "Props": {
-        "type": "DotVVM.AutoUI.Controls.DynamicEditor+Props, DotVVM.AutoUI"
+        "type": "DotVVM.AutoUI.Controls.AutoEditor+Props, DotVVM.AutoUI"
       }
     },
-    "DotVVM.AutoUI.Controls.DynamicEntityBase": {
+    "DotVVM.AutoUI.Controls.AutoFormBase": {
       "FieldProps": {
-        "type": "DotVVM.AutoUI.Controls.DynamicEntityBase+FieldProps, DotVVM.AutoUI"
+        "type": "DotVVM.AutoUI.Controls.AutoFormBase+FieldProps, DotVVM.AutoUI"
       },
       "FieldSelectorProps": {
-        "type": "DotVVM.AutoUI.Controls.DynamicEntityBase+FieldSelectorProps, DotVVM.AutoUI",
+        "type": "DotVVM.AutoUI.Controls.AutoFormBase+FieldSelectorProps, DotVVM.AutoUI",
         "fromCapability": "FieldProps"
       }
     },
-    "DotVVM.AutoUI.Controls.DynamicGridColumn": {
+    "DotVVM.AutoUI.Controls.AutoGridViewColumn": {
       "Props": {
-        "type": "DotVVM.AutoUI.Controls.DynamicGridColumn+Props, DotVVM.AutoUI"
+        "type": "DotVVM.AutoUI.Controls.AutoGridViewColumn+Props, DotVVM.AutoUI"
+      }
+    },
+    "DotVVM.AutoUI.Controls.AutoGridViewColumns": {
+      "FieldSelectorProps": {
+        "type": "DotVVM.AutoUI.Controls.AutoFormBase+FieldSelectorProps, DotVVM.AutoUI",
+        "fromCapability": "Props"
+      },
+      "Props": {
+        "type": "DotVVM.AutoUI.Controls.AutoGridViewColumns+Props, DotVVM.AutoUI"
       }
     },
     "DotVVM.Framework.Controls.ButtonBase": {
@@ -1350,41 +1350,7 @@
     }
   },
   "propertyGroups": {
-    "DotVVM.AutoUI.Controls.DynamicColumns": {
-      "Changed": {
-        "prefix": "Changed-",
-        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
-        "fromCapability": "Props"
-      },
-      "ContentTemplate": {
-        "prefix": "ContentTemplate-",
-        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
-        "mappingMode": "InnerElement",
-        "fromCapability": "Props"
-      },
-      "EditorTemplate": {
-        "prefix": "EditorTemplate-",
-        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
-        "mappingMode": "InnerElement",
-        "fromCapability": "Props"
-      },
-      "Header": {
-        "prefix": "Label-",
-        "type": "System.String",
-        "fromCapability": "Props"
-      },
-      "IsEditable": {
-        "prefix": "IsEditable-",
-        "type": "System.Boolean",
-        "fromCapability": "Props"
-      },
-      "Property": {
-        "prefix": "Property-",
-        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
-        "fromCapability": "FieldSelectorProps"
-      }
-    },
-    "DotVVM.AutoUI.Controls.DynamicEditor": {
+    "DotVVM.AutoUI.Controls.AutoEditor": {
       "Attributes": {
         "prefixes": [
           "",
@@ -1403,7 +1369,7 @@
         "fromCapability": "HtmlCapability"
       }
     },
-    "DotVVM.AutoUI.Controls.DynamicEntityBase": {
+    "DotVVM.AutoUI.Controls.AutoFormBase": {
       "Changed": {
         "prefix": "Changed-",
         "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
@@ -1440,6 +1406,40 @@
         "prefix": "Visible-",
         "type": "System.Boolean",
         "fromCapability": "FieldProps"
+      }
+    },
+    "DotVVM.AutoUI.Controls.AutoGridViewColumns": {
+      "Changed": {
+        "prefix": "Changed-",
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
+        "fromCapability": "Props"
+      },
+      "ContentTemplate": {
+        "prefix": "ContentTemplate-",
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement",
+        "fromCapability": "Props"
+      },
+      "EditorTemplate": {
+        "prefix": "EditorTemplate-",
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement",
+        "fromCapability": "Props"
+      },
+      "Header": {
+        "prefix": "Label-",
+        "type": "System.String",
+        "fromCapability": "Props"
+      },
+      "IsEditable": {
+        "prefix": "IsEditable-",
+        "type": "System.Boolean",
+        "fromCapability": "Props"
+      },
+      "Property": {
+        "prefix": "Property-",
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
+        "fromCapability": "FieldSelectorProps"
       }
     },
     "DotVVM.Framework.Controls.HierarchyRepeater": {

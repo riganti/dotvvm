@@ -12,7 +12,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.GridColumns
             return property.Type.UnwrapNullableType() == typeof(bool);
         }
 
-        protected override GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, DynamicGridColumn.Props props, DynamicDataContext context)
+        protected override GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, AutoGridViewColumn.Props props, DynamicDataContext context)
         {
             var column = new GridViewCheckBoxColumn();
             column.SetBinding(GridViewCheckBoxColumn.ValueBindingProperty, context.CreateValueBinding(property));

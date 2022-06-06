@@ -22,12 +22,14 @@ namespace DotVVM.AutoUI.Controls
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container) { }
         public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container) { }
     }
-    public class DynamicColumns : GridViewColumn
+
+    [ControlMarkupOptions(PrimaryName = "GridViewColumns")]
+    public class AutoGridViewColumns : GridViewColumn
     {
         public static DotvvmCapabilityProperty PropsProperty =
-            DotvvmCapabilityProperty.RegisterCapability<Props, DynamicColumns>();
+            DotvvmCapabilityProperty.RegisterCapability<Props, AutoGridViewColumns>();
 
-        public static GridViewColumn[] Replace(IStyleMatchContext<DynamicColumns> col)
+        public static GridViewColumn[] Replace(IStyleMatchContext<AutoGridViewColumns> col)
         {
             if (col.HasProperty(c => c.EditTemplate))
                 throw new NotSupportedException("EditTemplate is not supported in DynamicGridColumnGroup.");
@@ -39,17 +41,17 @@ namespace DotVVM.AutoUI.Controls
                 GroupName = props.FieldSelector.GroupName
             };
 
-            var properties = DynamicEntityBase.GetPropertiesToDisplay(context, props.FieldSelector);
+            var properties = AutoFormBase.GetPropertiesToDisplay(context, props.FieldSelector);
 
             var columns = properties.Select(p => CreateColumn(p, context, props)).ToArray();
             return columns;
         }
 
-        protected static DynamicGridColumn CreateColumn(PropertyDisplayMetadata property, DynamicDataContext context, Props props)
+        protected static AutoGridViewColumn CreateColumn(PropertyDisplayMetadata property, DynamicDataContext context, Props props)
         {
             var name = property.Name;
             return
-                new DynamicGridColumn()
+                new AutoGridViewColumn()
                     .SetProperty(p => p.HeaderText, props.Header.GetValueOrDefault(name)!)
                     .SetProperty(p => p.Property, context.CreateValueBinding(property))
                     .SetProperty("EditTemplate", props.EditorTemplate.GetValueOrDefault(name))
@@ -58,8 +60,8 @@ namespace DotVVM.AutoUI.Controls
                     .SetProperty("IsEditable", props.IsEditable.GetValueOrDefault(name, property.IsEnabledBinding(context)));
         }
 
-        public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container) => throw new NotImplementedException("DynamicGridColumn must be replaced using server-side styles. It cannot be used at runtime");
-        public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container) => throw new NotImplementedException("DynamicGridColumn must be replaced using server-side styles. It cannot be used at runtime");
+        public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container) => throw new NotImplementedException("AutoGridViewColumn must be replaced using server-side styles. It cannot be used at runtime");
+        public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container) => throw new NotImplementedException("AutoGridViewColumn must be replaced using server-side styles. It cannot be used at runtime");
 
         [DotvvmControlCapability]
         public sealed record Props
@@ -87,7 +89,7 @@ namespace DotVVM.AutoUI.Controls
             [MarkupOptions(MappingMode = MappingMode.InnerElement)]
             public IReadOnlyDictionary<string, ITemplate> EditorTemplate { get; init; } = new Dictionary<string, ITemplate>();
 
-            public DynamicEntityBase.FieldSelectorProps FieldSelector { get; init; } = new();
+            public AutoFormBase.FieldSelectorProps FieldSelector { get; init; } = new();
         }
     }
 }

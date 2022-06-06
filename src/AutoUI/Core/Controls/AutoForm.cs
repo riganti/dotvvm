@@ -5,10 +5,10 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.AutoUI.Controls
 {
-    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
-    public class DynamicEntity : DynamicEntityBase
+    [ControlMarkupOptions(PrimaryName = "Form", Precompile = ControlPrecompilationMode.InServerSideStyles)]
+    public class AutoForm : AutoFormBase
     {
-        public DynamicEntity(IServiceProvider services) : base(services)
+        public AutoForm(IServiceProvider services) : base(services)
         {
         }
 
@@ -18,7 +18,7 @@ namespace DotVVM.AutoUI.Controls
             set { SetValue(LabelCellCssClassProperty, value); }
         }
         public static readonly DotvvmProperty LabelCellCssClassProperty =
-            DotvvmProperty.Register<string, DynamicEntity>(nameof(LabelCellCssClass));
+            DotvvmProperty.Register<string, AutoForm>(nameof(LabelCellCssClass));
 
         public string? EditorCellCssClass
         {
@@ -26,7 +26,7 @@ namespace DotVVM.AutoUI.Controls
             set { SetValue(EditorCellCssClassProperty, value); }
         }
         public static readonly DotvvmProperty EditorCellCssClassProperty =
-            DotvvmProperty.Register<string, DynamicEntity>(nameof(EditorCellCssClass));
+            DotvvmProperty.Register<string, AutoForm>(nameof(EditorCellCssClass));
 
         public DotvvmControl GetContents(FieldProps props)
         {

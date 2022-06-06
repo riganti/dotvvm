@@ -6,9 +6,9 @@ using DotVVM.Framework.Controls;
 namespace DotVVM.AutoUI.Controls
 {
     [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
-    public class BootstrapDynamicEntity : DynamicEntityBase
+    public class BootstrapForm : AutoFormBase
     {
-        public BootstrapDynamicEntity(IServiceProvider services) : base(services)
+        public BootstrapForm(IServiceProvider services) : base(services)
         {
         }
 
@@ -18,7 +18,7 @@ namespace DotVVM.AutoUI.Controls
             set { SetValue(LabelCssClassProperty, value); }
         }
         public static readonly DotvvmProperty LabelCssClassProperty =
-            DotvvmProperty.Register<string, BootstrapDynamicEntity>(nameof(LabelCssClass), "control-label");
+            DotvvmProperty.Register<string, BootstrapForm>(nameof(LabelCssClass), "control-label");
 
         public string? FormGroupCssClass
         {
@@ -26,7 +26,7 @@ namespace DotVVM.AutoUI.Controls
             set { SetValue(FormGroupCssClassProperty, value); }
         }
         public static readonly DotvvmProperty FormGroupCssClassProperty =
-            DotvvmProperty.Register<string, BootstrapDynamicEntity>(nameof(FormGroupCssClass), "form-group");
+            DotvvmProperty.Register<string, BootstrapForm>(nameof(FormGroupCssClass), "form-group");
 
         public DotvvmControl GetContents(FieldProps props)
         {

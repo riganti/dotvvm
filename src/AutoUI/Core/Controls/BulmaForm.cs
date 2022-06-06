@@ -7,9 +7,9 @@ namespace DotVVM.AutoUI.Controls
 {
     /// <summary> Renders a bulma table-like form: https://bulma.io/documentation/form/general/#horizontal-form </summary>
     [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
-    public class BulmaDynamicEntity : DynamicEntityBase
+    public class BulmaForm : AutoFormBase
     {
-        public BulmaDynamicEntity(IServiceProvider services) : base(services)
+        public BulmaForm(IServiceProvider services) : base(services)
         {
         }
 
