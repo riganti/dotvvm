@@ -184,7 +184,7 @@ namespace DotVVM.AutoUI.Controls
             {
                 if (visible.BindingOrDefault is IValueBinding)
                 {
-                    field.SetValueRaw(HtmlGenericControl.VisibleProperty, visible.BindingOrDefault);
+                    field.SetValueRaw(DotvvmControl.IncludeInPageProperty, visible.BindingOrDefault);
                 }
                 else
                 {
@@ -199,7 +199,7 @@ namespace DotVVM.AutoUI.Controls
                     var dataSource = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selector.PropertyType);
                     var nonEmptyBinding =
                         dataSource.GetProperty<DataSourceLengthBinding>().Binding.GetProperty<IsMoreThanZeroBindingProperty>().Binding;
-                    field.SetValueRaw(HtmlGenericControl.VisibleProperty, nonEmptyBinding);
+                    field.SetValueRaw(DotvvmControl.IncludeInPageProperty, nonEmptyBinding);
                 }
                 catch
                 {
@@ -209,7 +209,7 @@ namespace DotVVM.AutoUI.Controls
 
             if (visibleResourceBinding.HasBinding || visibleResourceBinding.ValueOrDefault is not true)
             {
-                field.SetValue(HtmlGenericControl.VisibleProperty, visibleResourceBinding);
+                field.SetValue(DotvvmControl.IncludeInPageProperty, visibleResourceBinding);
             }
 
         }
