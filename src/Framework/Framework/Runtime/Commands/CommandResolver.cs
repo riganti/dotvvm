@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Runtime.Commands
 
             if (context.ModelState.ValidationTarget == null && validationEnabled)
             {
-                if (context.ModelState.ValidationTargetPath != KnockoutHelper.RootValidationTargetExpression)
+                if (context.ModelState.ValidationTargetPath != "/")
                 {
                     var property = context.ModelState.ValidationTargetPath;
                     throw new ArgumentException($"Validation target points to a property ({property}) that was evaluated to null");
