@@ -4,6 +4,8 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <OverwriteAppConfigWithBindingRedirects>true</OverwriteAppConfigWithBindingRedirects>
     <LangVersion>latest</LangVersion>
+    <RunCommand>$(MSBuildExtensionsPath64)\..\IIS Express\iisexpress</RunCommand>
+    <RunArguments>/path:&quot;$(MSBuildProjectDirectory)&quot; /port:65481</RunArguments>
   </PropertyGroup>
 
   <ItemGroup>
