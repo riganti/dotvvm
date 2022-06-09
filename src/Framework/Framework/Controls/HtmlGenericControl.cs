@@ -413,7 +413,7 @@ namespace DotVVM.Framework.Controls
 
                 if (knockoutExpression is {})
                 {
-                    if (attributeName == "class")
+                    if (attributeName.Equals("class", StringComparison.OrdinalIgnoreCase))
                     {
                         writer.AddKnockoutDataBind("class", knockoutExpression);
                     }

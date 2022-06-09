@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         ITypeDescriptor IControlAttributeDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
         public IAttributeValueMerger? ValueMerger { get; }
 
-        private ConcurrentDictionary<string, GroupedDotvvmProperty> generatedProperties = new();
+        private ConcurrentDictionary<string, GroupedDotvvmProperty> generatedProperties = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary> The capability which declared this property. When the property is declared by an capability, it can only be used by this capability. </summary>
         public DotvvmCapabilityProperty? OwningCapability { get; internal set; }
