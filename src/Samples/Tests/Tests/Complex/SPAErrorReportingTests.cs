@@ -24,6 +24,7 @@ namespace DotVVM.Samples.Tests.Complex
         [SkipBrowser("firefox:dev", "Cannot simulate offline mode.")]
         [SkipBrowser("firefox:fast", "Cannot simulate offline mode.")]
         [SkipBrowser("firefox:fast", "Cannot simulate offline mode.")]
+        [Trait("Category", "dev-only")] // error page
         public void Complex_SPAErrorReporting_NavigationAndPostbacks()
         {
             RunInAllBrowsers(browser => {

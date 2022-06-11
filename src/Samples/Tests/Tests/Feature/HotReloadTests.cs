@@ -13,6 +13,7 @@ using Xunit;
 
 namespace DotVVM.Samples.Tests.Feature
 {
+    [Trait("Category", "dev-only")]
     public class HotReloadTests : AppSeleniumTest
     {
         public HotReloadTests(Xunit.Abstractions.ITestOutputHelper output) : base(output)

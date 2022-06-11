@@ -36,6 +36,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
+        [Trait("Category", "dev-only")]// tests error page
         public void Control_Button_InputTypeButton_HtmlContentInside()
         {
             RunInAllBrowsers(browser =>

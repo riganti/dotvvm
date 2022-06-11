@@ -16,6 +16,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
+        [Trait("Category", "dev-only")] // relies on error page
         public void Feature_ViewModelCache_ViewModelCacheMiss()
         {
             RunInAllBrowsers(browser => {
