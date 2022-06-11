@@ -33,13 +33,13 @@ namespace DotVVM.Samples.Common.Views.ControlSamples.TemplateHost
             = DotvvmProperty.Register<ITemplate, TemplatedListControl>(c => c.ItemTemplate, null);
 
         [MarkupOptions(AllowHardCodedValue = false, Required = true)]
-        public ICommandBinding<object> OnCreateItem
+        public ICommandBinding OnCreateItem
         {
-            get { return (ICommandBinding<object>)GetValue(OnCreateItemProperty); }
+            get { return (ICommandBinding)GetValue(OnCreateItemProperty); }
             set { SetValue(OnCreateItemProperty, value); }
         }
         public static readonly DotvvmProperty OnCreateItemProperty
-            = DotvvmProperty.Register<ICommandBinding<object>, TemplatedListControl>(c => c.OnCreateItem, null);
+            = DotvvmProperty.Register<ICommandBinding, TemplatedListControl>(c => c.OnCreateItem, null);
 
 
         public void AddItem()

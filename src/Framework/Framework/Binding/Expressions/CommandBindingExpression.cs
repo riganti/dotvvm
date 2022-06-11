@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
                     // replace object with Command, we can't produce anything else than a delegate from a command binding
                     if (type is null || type == typeof(object))
-                        type = typeof(Command);
+                        type = typeof(Delegate);
                     
                     if (!type.IsDelegate())
                     {

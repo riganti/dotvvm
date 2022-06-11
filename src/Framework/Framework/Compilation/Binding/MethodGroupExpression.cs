@@ -36,9 +36,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public Expression? CreateDelegateExpression(Type delegateType, bool throwException = true)
         {
-            if (delegateType == null || delegateType == typeof(object)) return CreateDelegateExpression();
-            if (!typeof(Delegate).IsAssignableFrom(delegateType)) if (throwException) throw new Exception("Could not convert method group expression to a non delegate type."); else return null;
-            var invokeMethod = delegateType.GetMethod("Invoke")!;
+            if (delegateType == null || delegateType == typeof(object) || delegateType == typeof(Delegate)) return CreateDelegateExpression();
+            if (!delegateType.IsDelegate(out var invokeMethod))
+                if (throwException) throw new Exception("Could not convert method group expression to a non delegate type."); else return null;
             var parameters = invokeMethod.GetParameters().Select(p => p.ParameterType).ToArray();
             var method = Target.Type.GetMethods(BindingFlags.Public | (IsStatic ? BindingFlags.Static : BindingFlags.Instance))
                 .FirstOrDefault(m => m.Name == MethodName && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameters) && m.ReturnType == invokeMethod.ReturnType);

@@ -349,7 +349,7 @@ namespace DotVVM.Framework.Utils
             typeof(Delegate).IsAssignableFrom(type);
         public static bool IsDelegate(this Type type, [NotNullWhen(true)] out MethodInfo? invokeMethod)
         {
-            if (type.IsDelegate())
+            if (type.IsDelegate() && typeof(Delegate) != type)
             {
                 invokeMethod = type.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance).NotNull("Could not find delegate Invoke method");
                 return true;

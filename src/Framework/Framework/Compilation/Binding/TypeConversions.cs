@@ -338,10 +338,10 @@ namespace DotVVM.Framework.Compilation.Binding
         /// It also replaces special ExtensionParameters attached to the expression for lambda parameters
         public static Expression? MagicLambdaConversion(Expression expr, Type expectedType)
         {
+            if (expr.Type.IsDelegate())
+                return expr;
             if (expectedType.IsDelegate(out var invokeMethod))
             {
-                if (expr.Type.IsDelegate())
-                    return expr;
                 var resultType = invokeMethod.ReturnType;
                 var delegateArgs = invokeMethod
                                       .GetParameters()
@@ -367,6 +367,14 @@ namespace DotVVM.Framework.Compilation.Binding
                         delegateArgs
                     );
                 }
+            }
+            else if (expectedType == typeof(Delegate))
+            {
+                // convert to any delegate, we just wrap it to `() => { return expr; }`
+                return Expression.Lambda(
+                    body: expr,
+                    parameters: Array.Empty<ParameterExpression>()
+                );
             }
             else
                 return null;
