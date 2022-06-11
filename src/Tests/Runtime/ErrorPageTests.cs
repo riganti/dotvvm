@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.IsTrue(tt.Contains(binding.GetType().FullName));
 
             // the exception contains the property name
-            Assert.IsTrue(tt.Contains("DotVVM.Framework.Binding.Properties.KnockoutExpressionBindingProperty"));
+            StringAssert.Contains(tt, "DotVVM.Framework.Binding.Properties.KnockoutExpressionBindingProperty");
         }
     }
 }
