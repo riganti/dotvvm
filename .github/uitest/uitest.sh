@@ -218,10 +218,17 @@ end_group
 
 ps
 
+if test $ASPNETCORE_ENV == "Development"; then
+    test_env_filter="Category!=prod-only"
+else
+    test_env_filter="Category!=dev-only"
+fi
+
+
 start_group "Run UI tests"
 {
     dotnet test "$SAMPLES_DIR" \
-        --filter Category!=owin-only \
+        --filter "Category!=owin-only&$test_env_filter" \
         --no-restore \
         --configuration $CONFIGURATION \
         --logger "trx;LogFileName=$TRX_NAME" \
