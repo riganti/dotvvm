@@ -2,7 +2,7 @@
 
 PROGRAM='uitest.sh'
 SHORTOPTS="h"
-LONGOPTS="help,root:,config:,samples-profile:,samples-port:,samples-port-api:,trx-name:"
+LONGOPTS="help,root:,config:,environment:,samples-profile:,samples-port:,samples-port-api:,trx-name:"
 TEMP=$(getopt -o "$SHORTOPTS" -l "$LONGOPTS" -n "$PROGRAM" -- "$@")
 if [ $? -ne 0 ]; then
         exit 1
@@ -20,6 +20,7 @@ Options:
     -h, --help          Show this help.
     --root ROOT         Path to the repo root (default = \$DOTVVM_ROOT:-\$PWD).
     --config CONFIG     The build configuration (default = \$BUILD_CONFIGURATION:-Release).
+    --environment ENV   The runtime ASP.NET Core configuration (default = Development).
     --samples-profile   (default = \$SAMPLES_PROFILE:-seleniumconfig.aspnetcorelatest.chrome.json).
     --samples-port      (default = 16019).
     --samples-port-api  (default = 5001).
@@ -35,6 +36,11 @@ EOF
         ;;
         '--config')
             BUILD_CONFIGURATION="$2"
+            shift 2
+            continue
+        ;;
+        '--environment')
+            ASPNETCORE_ENV="$2"
             shift 2
             continue
         ;;
@@ -83,6 +89,7 @@ ROOT=${DOTVVM_ROOT:-$(pwd)}
 export DOTVVM_ROOT=$ROOT
 
 CONFIGURATION="${BUILD_CONFIGURATION:-Release}"
+ASPNETCORE_ENV="${ASPNETCORE_ENV:-Production}"
 DISPLAY="${DISPLAY:-":42"}"
 SLN="$ROOT/ci/linux/Linux.sln"
 export DISPLAY
@@ -96,6 +103,7 @@ TRX_NAME="${TRX_NAME:-ui-test-results.trx}"
 echo "ROOT=$ROOT"
 echo "SLN=$SLN"
 echo "CONFIGURATION=$CONFIGURATION"
+echo "ASPNETCORE_ENV=$ASPNETCORE_ENV"
 echo "DISPLAY=$DISPLAY"
 echo "TEST_RESULTS_DIR=$TEST_RESULTS_DIR"
 echo "SAMPLES_DIR=$SAMPLES_DIR"
@@ -162,7 +170,9 @@ function start_samples {
     dotnet run --project "$ROOT/${PROJECT}" \
         --no-restore \
         --configuration "$CONFIGURATION" \
-        --urls "http://localhost:${PORT}/" >/dev/null &
+        -- \
+        --urls "http://localhost:${PORT}/" \
+        --environment "$ASPNETCORE_ENV" >/dev/null &
 
     PID=$!
     eval "$PID_VAR=$PID"
@@ -208,10 +218,17 @@ end_group
 
 ps
 
+if test $ASPNETCORE_ENV == "Development"; then
+    test_env_filter="Category!=prod-only"
+else
+    test_env_filter="Category!=dev-only"
+fi
+
+
 start_group "Run UI tests"
 {
     dotnet test "$SAMPLES_DIR" \
-        --filter Category!=owin-only \
+        --filter "Category!=owin-only&$test_env_filter" \
         --no-restore \
         --configuration $CONFIGURATION \
         --logger "trx;LogFileName=$TRX_NAME" \

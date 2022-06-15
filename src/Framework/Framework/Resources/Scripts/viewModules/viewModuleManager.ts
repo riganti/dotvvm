@@ -92,6 +92,10 @@ export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, com
     if (compileConstants.debug && foundModules.length > 1) {
         throw new Error(`Conflict: There were multiple commands named ${commandName} the in imported modules in view ${viewIdOrElement}. Check modules: ${foundModules.map(m => m.moduleName).join(', ')}.`);
     }
+    if (foundModules.length != 1) {
+        // production short check
+        throw new Error("unique command not found")
+    }
 
     try {
         var result = foundModules[0].module[commandName](...args.map(v => serialize(v)));

@@ -11,6 +11,7 @@ using OpenQA.Selenium;
 
 namespace DotVVM.Samples.Tests
 {
+    [Trait("Category", "dev-only")]
     public class ErrorsTests : AppSeleniumTest
     {
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
@@ -831,7 +832,18 @@ namespace DotVVM.Samples.Tests.Feature
 
             return content;
         }
-        public List<string> GetColumnContent(IElementWrapperCollection<IElementWrapper, IBrowserWrapper> rows, int column)
-            => rows.Select(row => row.FindElements("td").ElementAt(column).GetInnerText()).ToList();
+        public List<string> GetColumnContent(IElementWrapperCollection<IElementWrapper, IBrowserWrapper> rows, int column, int retries = 10)
+        {
+            // stale element are way too common here :/
+            try
+            {
+                return rows.Select(row => row.FindElements("td").ElementAt(column).GetInnerText()).ToList();
+            }
+            catch (StaleElementReferenceException) when (retries > 0)
+            {
+                Thread.Sleep(100);
+                return GetColumnContent(rows, column, retries - 1);
+            }
+        }
     }
 }

@@ -139,12 +139,20 @@ jobs:
     strategy:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
-        browser: [firefox, chrome]
-        os: [windows-2022, ubuntu-latest]
-        exclude:
-          - browser: firefox
+        # specify only one config, all other configurations are included explicitly
+        browser: [chrome]
+        os: [ubuntu-latest]
+        environment: [Production]
+        include:
+          - browser: chrome
             os: windows-2022
-
+            environment: Development
+          - browser: firefox
+            os: ubuntu-latest
+            environment: Development
+          - browser: firefox
+            os: ubuntu-latest
+            environment: Production
     env:
       SLN: "${{ matrix.os == 'windows-2022' && 'src/DotVVM.sln' || 'src/DotVVM.Crossplatform.slnf' }}"
     steps:
@@ -158,3 +166,5 @@ jobs:
       with:
         browser: ${{ matrix.browser }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        build-configuration: "${{ matrix.environment == 'Production' && 'Release' || 'Debug' }}"
+        runtime-environment: "${{ matrix.environment }}"

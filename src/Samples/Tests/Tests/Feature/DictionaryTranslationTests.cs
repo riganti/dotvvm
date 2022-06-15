@@ -24,10 +24,9 @@ namespace DotVVM.Samples.Tests.Feature
                 inputs.ElementAt(4).Click();
 
                 WaitForExecutor.WaitFor(() => {
-                    var spans = browser.FindElements("span");
-                    AssertUI.Text(spans.FirstOrDefault(), s => !s.Contains("KEY: "), waitForOptions: WaitForOptions.Disabled);
-                    AssertUI.Text(spans.ElementAt(1), s => !s.Contains("VAL: "), waitForOptions: WaitForOptions.Disabled);
-                });
+                    AssertUI.Text(browser.ElementAt("span", 0), s => !s.Contains("KEY: "), waitForOptions: WaitForOptions.Disabled);
+                    AssertUI.Text(browser.ElementAt("span", 1), s => !s.Contains("VAL: "), waitForOptions: WaitForOptions.Disabled);
+                }, options: WaitForOptions.LongerTimeout);
 
             });
         }

@@ -75,8 +75,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Wait(3000);
 
                 // dismiss the error window
-                AssertUI.IsDisplayed(browser.Single("#debugWindow"));
-                browser.Single("#debugWindow button").Click();
+                browser.SingleOrDefault("#closeDebugWindow")?.Click();
 
                 // now the buttons should work
                 buttons[0].Click();
