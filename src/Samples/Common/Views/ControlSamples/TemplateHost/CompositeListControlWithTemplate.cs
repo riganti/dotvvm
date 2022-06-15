@@ -25,7 +25,7 @@ namespace DotVVM.Samples.Common.Views.ControlSamples.TemplateHost
             [CollectionElementDataContextChange(order: 1)]
             ITemplate itemTemplate,
 
-            ICommandBinding<object> onCreateItem
+            ICommandBinding onCreateItem
         )
         {
             yield return new Framework.Controls.Repeater() {

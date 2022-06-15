@@ -1,6 +1,7 @@
 ﻿import Chart from './Chart.svelte'
 import Incrementer from './Incrementer2.svelte'
 import TemplateSelector from './TemplateSelector.svelte'
+import Button from './Button.svelte'
 
 // copy pasted from generated svelte code,
 // they don't currently have a public API for two way data bindings
@@ -60,6 +61,7 @@ export default (context) => ({
     $controls: {
         chart: registerSvelteControl(Chart, { context, onMouse() { /* default empty method */ } }),
         incrementer: registerSvelteControl(Incrementer),
-        TemplateSelector: registerSvelteControl(TemplateSelector)
+        TemplateSelector: registerSvelteControl(TemplateSelector),
+        Button: registerSvelteControl(Button),
     }
 })

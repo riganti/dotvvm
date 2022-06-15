@@ -13,6 +13,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding.Expressions
@@ -93,9 +94,22 @@ namespace DotVVM.Framework.Binding.Expressions
                 public ExpectedTypeBindingProperty GetExpectedType(AssignedPropertyBindingProperty? property = null)
                 {
                     var prop = property?.DotvvmProperty;
-                    if (prop == null) return new ExpectedTypeBindingProperty(typeof(Command));
 
-                    return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(Command)) : prop.PropertyType);
+                    var type = prop is null ? null :
+                               prop.IsBindingProperty ? prop.PropertyType.GenericTypeArguments.SingleOrDefault() :
+                               prop.PropertyType;
+
+                    // replace object with Command, we can't produce anything else than a delegate from a command binding
+                    if (type is null || type == typeof(object))
+                        type = typeof(Delegate);
+                    
+                    if (!type.IsDelegate())
+                    {
+                        // can I just throw an exception here?
+                        throw new Exception($"Command binding can only be used in properties of a delegate type (or ICommandBinding). Property {prop} has type {prop?.PropertyType.ToCode()}.");
+                    }
+
+                    return new ExpectedTypeBindingProperty(type);
                 }
             }
         }
