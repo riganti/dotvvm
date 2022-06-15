@@ -70,9 +70,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Creates the constructor for this object.
         /// </summary>
-        private Expression CallConstructor(Expression services, Expression[] properties)
+        private Expression CallConstructor(Expression services, Dictionary<PropertyInfo, ParameterExpression> propertyVariables)
         {
-            Debug.Assert(properties.Select(p => p.Type).SequenceEqual(Properties.Select(p => p.Type)));
             if (constructorFactory != null)
                 return Convert(Invoke(Constant(constructorFactory), services), Type);
 
@@ -83,14 +82,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
 
             if (Constructor is null && (Type.IsInterface || Type.IsAbstract))
-                throw new Exception($"Can not deserialize {Type.ToCode()} because it's abstact. Please avoid using abstract types in view model. If you really mean it, you can add a static factory method and mark it with [JsonConstructor] attribute.");
+                throw new Exception($"Can not deserialize {Type.ToCode()} because it's abstract. Please avoid using abstract types in view model. If you really mean it, you can add a static factory method and mark it with [JsonConstructor] attribute.");
 
             if (Constructor is null)
                 throw new Exception($"Can not deserialize {Type.ToCode()}, no constructor or multiple constructors found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.");
 
             var parameters = Constructor.GetParameters().Select(p => {
-                var pIndex = Properties.FindIndex(pp => pp.ConstructorParameter == p);
-                if (pIndex < 0)
+                var prop = Properties.FirstOrDefault(pp => pp.ConstructorParameter == p);
+                if (prop is null)
                 {
                     var mayBeService = !ReflectionUtils.IsPrimitiveType(p.ParameterType) && !typeof(IDotvvmViewModel).IsAssignableFrom(p.ParameterType);
                     if (!mayBeService)
@@ -103,10 +102,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     );
                 }
 
-                if (!Properties[pIndex].TransferToServer)
-                    throw new Exception($"Can not deserialize {Type.ToCode()}, property {Properties[pIndex].Name} is not transferred to server, but it's used in constructor.");
+                if (!prop.TransferToServer)
+                    throw new Exception($"Can not deserialize {Type.ToCode()}, property {prop.Name} is not transferred to server, but it's used in constructor.");
 
-                return properties[pIndex];
+                Debug.Assert(propertyVariables.ContainsKey(prop.PropertyInfo));
+
+                return propertyVariables[prop.PropertyInfo];
             }).ToArray();
             return Constructor switch {
                 ConstructorInfo c =>
@@ -133,7 +134,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var readerTmp = Expression.Variable(typeof(JsonReader), "readerTmp");
 
             // we first read all values into local variables and only then we either call the constructor or set the properties on the object
-            var propertyVars = Properties.Select(p => Expression.Variable(p.Type, "prop_" + p.Name)).ToArray();
+            var propertyVars = Properties
+                .Where(p => p.TransferToServer)
+                .ToDictionary(
+                    p => p.PropertyInfo,
+                    p => Expression.Variable(p.Type, "prop_" + p.Name)
+                );
 
             var hasConstructorProperties = Properties.Any(p => p.ConstructorParameter is {});
             var constructorCall = CallConstructor(servicesParameter, propertyVars);
@@ -149,14 +155,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 )));
 
             // get existing values into the local variables
-            if (propertyVars.Length > 0)
+            if (propertyVars.Count > 0)
             {
                 block.Add(IfThen(
                     Type.IsValueType ? Constant(true) : NotEqual(value, Constant(null)),
                     Block(
-                        Properties
-                            .Zip(propertyVars, (p, v) => p.PropertyInfo.GetMethod != null ? Expression.Assign(v, Expression.Property(value, p.PropertyInfo)) : null)
-                            .Where(e => e != null)!
+                        propertyVars
+                            .Where(p => p.Key.GetMethod is not null)
+                            .Select(p => Expression.Assign(p.Value, Expression.Property(value, p.Key)))
                     )
                 ));
             }
@@ -176,11 +182,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             for (int propertyIndex = 0; propertyIndex < Properties.Length; propertyIndex++)
             {
                 var property = Properties[propertyIndex];
-                var propertyVar = propertyVars[propertyIndex];
                 if (!property.TransferToServer)
                 {
                     continue;
                 }
+                var propertyVar = propertyVars[property.PropertyInfo];
 
                 var existingValue =
                     property.Populate ?
@@ -322,14 +328,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 block.Add(Assign(value, constructorCall));
             }
 
-            if (propertyVars.Length > 0)
+            if (propertyVars.Count > 0)
             {
-                var propertySettingExpressions = Properties
-                    .Zip(propertyVars, (p, v) =>
-                        p is { PropertyInfo.SetMethod: not null, ConstructorParameter: null, TransferToServer: true }
-                            ? Assign(Property(value, p.PropertyInfo), v)
-                            : null)
-                    .Where(e => e != null).ToList();
+                var propertySettingExpressions =
+                    Properties
+                        .Where(p => p is { PropertyInfo.SetMethod: not null, ConstructorParameter: null, TransferToServer: true })
+                        .Select(p => Assign(Property(value, p.PropertyInfo), propertyVars[p.PropertyInfo]))
+                        .ToList();
 
                 if (propertySettingExpressions.Any())
                 {
@@ -342,7 +347,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // build the lambda expression
             var ex = Expression.Lambda<ReaderDelegate>(
-                Expression.Block(typeof(object), new[] { value, currentProperty, readerTmp }.Concat(propertyVars), block).OptimizeConstants(),
+                Expression.Block(typeof(object), new[] { value, currentProperty, readerTmp }.Concat(propertyVars.Values), block).OptimizeConstants(),
                 reader, serializer, valueParam, encryptedValuesReader, servicesParameter);
             return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
