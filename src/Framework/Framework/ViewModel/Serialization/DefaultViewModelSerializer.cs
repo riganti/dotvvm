@@ -345,7 +345,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var reader = viewModelToken.CreateReader();
             try
             {
-                viewModelConverter.Populate(reader, serializer, context.ViewModel!);
+                var newVM = viewModelConverter.Populate(reader, serializer, context.ViewModel!);
+                if (newVM != context.ViewModel)
+                {
+                    context.ViewModel = newVM;
+                    if (context.View is not null)
+                        context.View.DataContext = newVM;
+                }
             }
             catch (Exception ex)
             {

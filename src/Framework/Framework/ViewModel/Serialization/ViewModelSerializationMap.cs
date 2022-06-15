@@ -393,7 +393,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        private static object? Deserialize(JsonSerializer serializer, JsonReader reader, ViewModelPropertyMap property, object existingValue)
+        private static object? Deserialize(JsonSerializer serializer, JsonReader reader, ViewModelPropertyMap property, object? existingValue)
         {
             if (property.JsonConverter != null && property.JsonConverter.CanRead && property.JsonConverter.CanConvert(property.Type))
             {
