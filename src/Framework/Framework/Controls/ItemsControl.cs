@@ -99,21 +99,22 @@ namespace DotVVM.Framework.Controls
 
         protected IBinding GetIndexBinding(IDotvvmRequestContext context)
         {
-            var binding = GetValueRaw(Internal.CurrentIndexBindingProperty) as IBinding;
-            if (binding == null)
+            var result = GetValueRaw(Internal.CurrentIndexBindingProperty) as IBinding;
+            if (result is {})
             {
-                // slower path: create the _index binding at runtime and cache it
+                return result;
+            }
+            else
+            {
+                // slower path: create the _index binding at runtime
                 var bindingService = context.Services.GetRequiredService<BindingCompilationService>();
                 var dataContext = GetDataSourceBinding().GetProperty<CollectionElementDataContextBindingProperty>().DataContext;
-                binding = bindingService.Cache.CreateCachedBinding(
-                    "_index", new object[] { dataContext },
-                    () => new ValueBindingExpression<string>(bindingService, new object?[] {
+                return bindingService.Cache.CreateCachedBinding("_index", new object[] { dataContext }, () =>
+                    new ValueBindingExpression<int>(bindingService, new object?[] {
                         dataContext,
                         new ParsedExpressionBindingProperty(CreateIndexBindingExpression(dataContext))
                     }));
             }
-
-            return binding;
 
         }
     }
