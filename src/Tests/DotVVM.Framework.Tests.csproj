@@ -13,7 +13,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net6.0;net472</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">net6.0;net472</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">net6.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <PublicSign>True</PublicSign>
@@ -31,7 +32,7 @@
     <ProjectReference Include="../Framework/Hosting.Owin/DotVVM.Framework.Hosting.Owin.csproj" />
     <PackageReference Include="CheckTestOutput" Version="0.4.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <Compile Remove="AspCore/CachingTests.cs"/>
+    <Compile Remove="AspCore/CachingTests.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <ProjectReference Include="../Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
