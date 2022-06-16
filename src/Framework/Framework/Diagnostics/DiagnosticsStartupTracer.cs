@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -7,16 +8,17 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Diagnostics.Models;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Tracing;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Diagnostics
 {
     public class DiagnosticsStartupTracer : IStartupTracer
     {
         private readonly Stopwatch stopwatch = new Stopwatch();
-        private readonly object locker = new object();
 
-        private readonly IList<EventTiming> events = new List<EventTiming>();
-        private bool startupCompleted;
+        // list with concurrent read capability
+        private ImmutableList<EventTiming> events = ImmutableList<EventTiming>.Empty;
+        private int startupCompleted;
 
         private long ElapsedMillisecondsSinceLastLog => events.Sum(e => e.Duration);
 
@@ -30,34 +32,27 @@ namespace DotVVM.Framework.Diagnostics
             }
 
             var eventTiming = CreateEventTiming(eventName);
-            bool reportLateEvent;
-            lock (locker)
-            {
-                events.Add(eventTiming);
-                reportLateEvent = startupCompleted;
-            }
+            ConcurrencyUtils.CasChange(ref events, l => l.Add(eventTiming));
+            var reportLateEvent = startupCompleted > 0;
 
             if (reportLateEvent)
             {
-                LateInfoReported?.Invoke(BuildDiagnosticsInformation(new[] { eventTiming }));
+                LateInfoReported?.Invoke(BuildDiagnosticsInformation(ImmutableList.Create(eventTiming), stopwatch.ElapsedMilliseconds));
             }
         }
 
         public Task NotifyStartupCompleted(IDiagnosticsInformationSender informationSender)
         {
             DiagnosticsInformation info;
-            lock (locker)
+            var competedCount = Interlocked.Increment(ref startupCompleted);
+            if (competedCount > 1)
             {
-                if (startupCompleted)
-                {
-                    throw new InvalidOperationException($"{nameof(NotifyStartupCompleted)} cannot be called twice!");
-                }
-                startupCompleted = true;
-
-                LateInfoReported += i => informationSender.SendInformationAsync(i);
-
-                info = BuildDiagnosticsInformation(events);
+                throw new InvalidOperationException($"{nameof(NotifyStartupCompleted)} cannot be called twice!");
             }
+
+            LateInfoReported += i => informationSender.SendInformationAsync(i);
+
+            info = BuildDiagnosticsInformation(events, stopwatch.ElapsedMilliseconds);
 
             // report startup events
             return informationSender.SendInformationAsync(info);
@@ -74,7 +69,7 @@ namespace DotVVM.Framework.Diagnostics
             );
         }
 
-        private DiagnosticsInformation BuildDiagnosticsInformation(IList<EventTiming> eventTimings)
+        private static DiagnosticsInformation BuildDiagnosticsInformation(ImmutableList<EventTiming> eventTimings, long elapsedMilliseconds)
         {
             return new DiagnosticsInformation(
                 new RequestDiagnostics(
@@ -86,7 +81,7 @@ namespace DotVVM.Framework.Diagnostics
                 ),
                 new ResponseDiagnostics(),
                 eventTimings,
-                stopwatch.ElapsedMilliseconds
+                elapsedMilliseconds
             );
         }
     }
