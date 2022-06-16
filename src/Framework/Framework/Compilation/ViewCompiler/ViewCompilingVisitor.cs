@@ -211,6 +211,9 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
             base.VisitPropertyTemplate(propertyTemplate);
 
+            // add return void, otherwise it may fail on deprecated .NET framework
+            emitter.EmitStatement(Expression.Default(typeof(void)));
+
             var compiledDelegate = emitter.PopMethod<Action<IControlBuilderFactory, IServiceProvider, DotvvmControl>>();
             controlName = parentName;
 

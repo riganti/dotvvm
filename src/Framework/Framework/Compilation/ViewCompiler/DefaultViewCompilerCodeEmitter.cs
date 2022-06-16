@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             var variable = Expression.Variable(expression.Type, name);
             blockStack.Peek().Variables.Add(name, variable);
 
-            blockStack.Peek().Expressions.Add(Expression.Assign(variable, expression));
+            EmitStatement(Expression.Assign(variable, expression));
 
             return variable;
         }
@@ -148,7 +148,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             var controlParameter = GetParameterOrVariable(controlName);
             var assigment = Expression.Assign(Expression.PropertyOrField(controlParameter, propertyName), valueExpression);
 
-            blockStack.Peek().Expressions.Add(assigment);
+            EmitStatement(assigment);
         }
 
         private readonly Dictionary<string, List<(DotvvmProperty prop, Expression value)>> controlProperties = new Dictionary<string, List<(DotvvmProperty, Expression)>>();
@@ -200,7 +200,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
             var magicSetValueCall = Expression.Call(controlParameter, nameof(DotvvmBindableObject.MagicSetValue), emptyTypeArguments, keyExpr, valueExpr, EmitValue(hashSeed));
 
-            blockStack.Peek().Expressions.Add(magicSetValueCall);
+            EmitStatement(magicSetValueCall);
         }
 
         private bool TryCreateArrayOfConstants(Expression?[] values, out object?[] invertedValues)
@@ -233,7 +233,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             //[collectionParameter].Add([variablePartameter])
             var collectionAddCall = Expression.Call(collectionParameter, "Add", emptyTypeArguments, variablePartameter);
 
-            blockStack.Peek().Expressions.Add(collectionAddCall);
+            EmitStatement(collectionAddCall);
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             //[collectionExpression].Children.AddUnchecked([variableParameter])
             var collectionAddCall = Expression.Call(collectionExpression, "AddUnchecked", emptyTypeArguments, variablePartameter);
 
-            blockStack.Peek().Expressions.Add(collectionAddCall);
+            EmitStatement(collectionAddCall);
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
             var assigment = Expression.Assign(dictionaryKeyExpression, valueExpression);
 
-            blockStack.Peek().Expressions.Add(assigment);
+            EmitStatement(assigment);
         }
 
         /// <summary>
@@ -305,7 +305,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
             var ifStatement = Expression.IfThen(ifCondition, statement);
 
-            blockStack.Peek().Expressions.Add(ifStatement);
+            EmitStatement(ifStatement);
 
             //var c = ([property.PropertyType])[parentName].GetValue(property);
 
@@ -317,8 +317,11 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         /// </summary>
         public void EmitReturnClause(string variableName)
         {
-            var parameter = GetParameterOrVariable(variableName);
-            blockStack.Peek().Expressions.Add(parameter);
+            EmitStatement(GetParameterOrVariable(variableName));
+        }
+        public void EmitStatement(Expression expr)
+        {
+            blockStack.Peek().Expressions.Add(expr);
         }
 
         public ParameterExpression GetParameterOrVariable(string identifierName)
