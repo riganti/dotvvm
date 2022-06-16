@@ -436,7 +436,7 @@ namespace DotVVM.Framework.Controls
 
             if (r.HasId)
             {
-                var clientId = r.ClientId ?? CreateClientId();
+                var clientId = r.ClientId ?? CreateClientId()?.UnwrapToObject();
                 if (clientId is IValueBinding binding)
                 {
                     if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();

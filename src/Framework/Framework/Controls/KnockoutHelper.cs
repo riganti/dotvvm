@@ -248,11 +248,7 @@ namespace DotVVM.Framework.Controls
                 return parametrizedCode.ToString(p =>
                     p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                     p == CommandBindingExpression.CurrentPathParameter ? CodeParameterAssignment.FromIdentifier(getContextPath(control)) :
-                    p == CommandBindingExpression.ControlUniqueIdParameter ? (
-                        uniqueControlId is IValueBinding ?
-                            ((IValueBinding)uniqueControlId).GetParametrizedKnockoutExpression(control) :
-                            CodeParameterAssignment.FromIdentifier(MakeStringLiteral((string)uniqueControlId!))
-                        ) :
+                    p == CommandBindingExpression.ControlUniqueIdParameter ? uniqueControlId?.GetParametrizedJsExpression(control) ?? CodeParameterAssignment.FromLiteral("") :
                     p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
                     p == JavascriptTranslator.KnockoutViewModelParameter ? viewModel :
                     p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :

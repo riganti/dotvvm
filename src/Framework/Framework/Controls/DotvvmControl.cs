@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -58,7 +59,7 @@ namespace DotVVM.Framework.Controls
         public ControlLifecycleRequirements LifecycleRequirements = ControlLifecycleRequirements.Init | ControlLifecycleRequirements.Load | ControlLifecycleRequirements.PreRender;
 
         /// <summary>
-        /// Gets or sets the unique control ID.
+        /// Gets or sets the control client ID within its naming container.
         /// </summary>
         [MarkupOptions]
         public string? ID
@@ -71,18 +72,27 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string?, DotvvmControl>(c => c.ID, isValueInherited: false);
 
         /// <summary>
-        /// Gets id of the control that will be written in 'id' attribute. Returns null if the IDProperty is not set.
+        /// Gets the calculated client ID of the control that will be rendered in the 'id' attribute. Returns null if the ID property is not set.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public string? ClientID => (string?)GetValue(ClientIDProperty) ?? CreateAndSaveClientId();
+        public ValueOrBinding<string>? ClientID => EnsureClientId();
         public static readonly DotvvmProperty ClientIDProperty
             = DotvvmProperty.Register<string?, DotvvmControl>(c => c.ClientID, null);
 
-        string? CreateAndSaveClientId()
+        ValueOrBinding<string>? EnsureClientId()
         {
+            if (!IsPropertySet(IDProperty))
+            {
+                return null;
+            }
+            if (IsPropertySet(ClientIDProperty))
+            {
+                return GetValueOrBinding<string>(ClientIDProperty);
+            }
+
             var id = CreateClientId();
-            if (id != null) SetValue(ClientIDProperty, id);
-            return (string?)id;
+            SetValue(ClientIDProperty, id?.UnwrapToObject());
+            return id;
         }
 
 
@@ -212,7 +222,7 @@ namespace DotVVM.Framework.Controls
             {
                 throw new DotvvmControlException(this, "Postback.Update cannot be set on property which don't render html attributes.");
             }
-            htmlAttributes.Attributes.Set("data-dotvvm-id", GetDotvvmUniqueId());
+            htmlAttributes.Attributes.Set("data-dotvvm-id", GetDotvvmUniqueId().UnwrapToObject());
         }
 
         protected struct RenderState
@@ -389,7 +399,7 @@ namespace DotVVM.Framework.Controls
         {
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
 
-            var control = GetAllDescendants().SingleOrDefault(c => c.ClientID == id);
+            var control = GetAllDescendants().SingleOrDefault(c => c.ClientID?.ValueOrDefault == id);
             if (control == null && throwIfNotFound)
             {
                 throw new Exception(string.Format("The control with ID '{0}' was not found.", id));
@@ -447,7 +457,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public static bool IsNamingContainer(DotvvmBindableObject control)
         {
-            return (bool)control.GetValue(Internal.IsNamingContainerProperty)!;
+            return (bool)Internal.IsNamingContainerProperty.GetValue(control)!;
         }
 
         /// <summary>
@@ -488,92 +498,128 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the internal unique ID of the control. Returns either string or IValueBinding.
         /// </summary>
-        public object GetDotvvmUniqueId() =>
+        public ValueOrBinding<string> GetDotvvmUniqueId(ValueOrBinding<string?> prefix = default, ValueOrBinding<string?> suffix = default) =>
             // build the client ID
-            JoinValuesOrBindings(GetUniqueIdFragments());
+            JoinValuesOrBindings(GetUniqueIdFragments(), prefix, suffix);
 
-        private object JoinValuesOrBindings(IList<object?> fragments)
+        private ValueOrBinding<string> JoinValuesOrBindings(IReadOnlyList<object?> fragments, ValueOrBinding<string?> prefix, ValueOrBinding<string?> suffix)
         {
-            if (fragments.Count == 1)
-                return fragments[0] ?? "";
-            else if (fragments.All(f => f is string or null))
+            if (fragments.Count == 1 && prefix.ValueIsNullOrEmpty() && suffix.ValueIsNullOrEmpty())
             {
-                return string.Join("_", fragments);
+                return ValueOrBinding<string>.FromBoxedValue(fragments[0] ?? "");
+            }
+            else if (fragments.All(f => f is string or null) && prefix.HasValue && suffix.HasValue)
+            {
+                string result = prefix.ValueOrDefault + string.Join("_", fragments) + suffix.ValueOrDefault;
+                return new(result);
             }
             else
             {
-                BindingCompilationService? service = null;
+                BindingCompilationService? service = (prefix.BindingOrDefault ?? suffix.BindingOrDefault)?.GetProperty<BindingCompilationService>();
                 var result = new ParametrizedCode.Builder();
                 var first = true;
+                if (!prefix.ValueIsNullOrEmpty())
+                {
+                    result.Add(prefix.GetJsExpression(this, unwrapped: true));
+                    result.Add("+");
+                    Debug.Assert(fragments.Any());
+                }
                 foreach (var f in fragments)
                 {
                     if (!first | (first = false))
                         result.Add("+'_'+");
+
                     if (f is IValueBinding binding)
                     {
-                        service = service ?? binding.GetProperty<BindingCompilationService>(ErrorHandlingMode.ReturnNull);
+                        service ??= binding.GetProperty<BindingCompilationService>(ErrorHandlingMode.ReturnNull);
                         result.Add(binding.GetParametrizedKnockoutExpression(this, unwrapped: true), OperatorPrecedence.Addition);
                     }
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }
-                if (service == null) throw new NotSupportedException();
-                return ValueBindingExpression.CreateBinding<string?>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence(OperatorPrecedence.Addition, false)), this.GetDataContextType());
+                if (!suffix.ValueIsNullOrEmpty())
+                {
+                    Debug.Assert(fragments.Any());
+                    result.Add("+");
+                    result.Add(suffix.GetJsExpression(this, unwrapped: true));
+                }
+                if (service is null)
+                    throw new NotSupportedException("Could not generate control ID, there is a binding in the fragments, but it does not have a binding compilation service. Fragments: " + string.Join(", ", fragments));
+
+                var resultBinding = ValueBindingExpression.CreateBinding<string>(
+                    service.WithoutInitialization(),
+                    h => null!,
+                    result.Build(new OperatorPrecedence(OperatorPrecedence.Addition, false)),
+                    this.GetDataContextType()
+                );
+
+                return new ValueOrBinding<string>(resultBinding);
             }
         }
 
         /// <summary>
-        /// Adds the corresponding attribute for the Id property.
+        /// Calculates the corresponding attribute for the Id property.
         /// </summary>
-        protected virtual object? CreateClientId() =>
-            !this.IsPropertySet(IDProperty) ? null :
-                // build the client ID
-                GetClientIdFragments()?.Apply(JoinValuesOrBindings);
-
-        private IList<object?> GetUniqueIdFragments()
+        public ValueOrBinding<string>? CreateClientId(ValueOrBinding<string?> prefix = default, ValueOrBinding<string?> suffix = default)
         {
-            var fragments = new List<object?> { GetValue(Internal.UniqueIDProperty) };
+            var fragments = GetClientIdFragments();
+            return fragments is null ? null : JoinValuesOrBindings(fragments, prefix, suffix);
+        }
+
+        private List<object?> GetUniqueIdFragments()
+        {
+            var fragments = new List<object?>
+            {
+                Internal.UniqueIDProperty.GetValue(this)
+            };
             foreach (var ancestor in GetAllAncestors())
             {
                 if (IsNamingContainer(ancestor))
                 {
-                    fragments.Add(ancestor.GetValueRaw(Internal.ClientIDFragmentProperty) ?? ancestor.GetValueRaw(Internal.UniqueIDProperty));
+                    fragments.Add(
+                        Internal.ClientIDFragmentProperty.GetValue(ancestor) ?? Internal.UniqueIDProperty.GetValue(ancestor)
+                    );
                 }
             }
             fragments.Reverse();
             return fragments;
         }
 
-        private IList<object?>? GetClientIdFragments()
+        private List<object?>? GetClientIdFragments()
         {
-            var rawId = GetValue(IDProperty);
+            var rawId = IDProperty.GetValue(this);
+
             // can't generate ID from nothing
             if (rawId == null) return null;
 
+            var fragments = new List<object?> { rawId };
             if (ClientIDMode == ClientIDMode.Static)
             {
                 // just rewrite Static mode ID
-                return new[] { GetValueRaw(IDProperty) };
+                return fragments;
             }
 
-            var fragments = new List<object?> { rawId };
             DotvvmControl? childContainer = null;
-            bool searchingForIdElement = false;
-            foreach (DotvvmControl ancestor in GetAllAncestors())
+            var searchingForIdElement = false;
+            foreach (var ancestor in GetAllAncestors())
             {
-                if (IsNamingContainer(ancestor))
+                if (ancestor is not DotvvmControl ancestorControl)
+                {
+                    throw new DotvvmControlException(this, "The client ID cannot be determined for a control which is not part of the control tree. An ancestor that doesn't inherit from DotvvmControl was found on the path to the root.");
+                }
+
+                if (IsNamingContainer(ancestorControl))
                 {
                     if (searchingForIdElement)
                     {
-                        fragments.Add(childContainer!.GetDotvvmUniqueId());
+                        fragments.Add(childContainer!.GetDotvvmUniqueId().UnwrapToObject());
                     }
                     searchingForIdElement = false;
 
-                    var clientIdExpression = ancestor.GetValueRaw(Internal.ClientIDFragmentProperty);
-                    if (clientIdExpression is IValueBinding)
+                    if (Internal.ClientIDFragmentProperty.GetValue(ancestorControl) is {} clientIdExpression)
                     {
                         fragments.Add(clientIdExpression);
                     }
-                    else if (ancestor.GetValueRaw(IDProperty) is object ancestorId && "" != ancestorId as string)
+                    else if (ancestorControl.GetValueRaw(IDProperty) is var ancestorId && ancestorId is not null or "")
                     {
                         // add the ID fragment
                         fragments.Add(ancestorId);
@@ -581,24 +627,24 @@ namespace DotVVM.Framework.Controls
                     else
                     {
                         searchingForIdElement = true;
-                        childContainer = ancestor;
+                        childContainer = ancestorControl;
                     }
                 }
 
-                if (searchingForIdElement && ancestor.IsPropertySet(ClientIDProperty))
+                if (searchingForIdElement && ancestorControl.IsPropertySet(ClientIDProperty))
                 {
-                    fragments.Add(ancestor.GetValueRaw(ClientIDProperty));
+                    fragments.Add(ancestorControl.GetValueRaw(ClientIDProperty));
                     searchingForIdElement = false;
                 }
 
-                if (ancestor.ClientIDMode == ClientIDMode.Static)
+                if (ancestorControl.ClientIDMode == ClientIDMode.Static)
                 {
                     break;
                 }
             }
             if (searchingForIdElement)
             {
-                fragments.Add(childContainer!.GetDotvvmUniqueId());
+                fragments.Add(childContainer!.GetDotvvmUniqueId().UnwrapToObject());
             }
             fragments.Reverse();
             return fragments;

@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Runtime
                     {
                         control.Render(new HtmlWriter(w, context), context);
 
-                        var clientId = control.GetDotvvmUniqueId() as string;
+                        var clientId = control.GetDotvvmUniqueId().ValueOrDefault;
                         if (clientId == null)
                         {
                             throw new DotvvmControlException(control, "This control cannot use PostBack.Update=\"true\" because it has dynamic ID. This happens when the control is inside a Repeater or other data-bound control and the RenderSettings.Mode=\"Client\".");
