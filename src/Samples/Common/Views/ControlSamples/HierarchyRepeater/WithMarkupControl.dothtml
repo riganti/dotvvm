@@ -2,7 +2,7 @@
 @masterPage Views/Samples.dotmaster
 
 <dot:Content ContentPlaceHolderID="Main">
-    <h1>Basic usage of <code>HierarchyRepeater</code></h1>
+    <h1><code>HierarchyRepeater</code> with Markup Controls</h1>
 
     <h2>Server Rendering</h2>
     <dot:HierarchyRepeater DataSource="{value: Roots}"
@@ -13,8 +13,7 @@
                            ItemClass="item"
                            RenderSettings.Mode="Server"
                            PostBack.Update="true">
-        <span RenderSettings.Mode="Client" title={value: _root.GlobalLabel}>{{value: Name}}</span>
-        <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" title={value: $"{_root.GlobalLabel}: {Name}"} />
+        <cc:NodeControl DataContext="{value: _this}" />
     </dot:HierarchyRepeater>
 
     <h2>Client Rendering</h2>
@@ -25,8 +24,7 @@
                            ItemWrapperTagName="li"
                            ItemClass="item"
                            RenderSettings.Mode="Client">
-        <span title={value: _root.GlobalLabel}>{{value: Name}}</span>
-        <dot:Button Click="{command: ClickNode()}" Text="{value: ClickCount}" />
+        <cc:NodeControl DataContext="{value: _this}" />
     </dot:HierarchyRepeater>
 
     <h2>No Item and Level Tags</h2>
@@ -51,8 +49,7 @@
 
     <h2>Repeater</h2>
     <dot:Repeater DataSource="{value: Roots}">
-        <span>{{value: Name}}</span>
-        <dot:Button Click="{command: ClickNode()}" Text="{value: ClickCount}" />
+        <cc:NodeControl DataContext="{value: _this}" />
     </dot:Repeater>
 
     <p>Prefix of all node <code>title</code> attributes: <dot:TextBox Text={value: GlobalLabel} /> </p>

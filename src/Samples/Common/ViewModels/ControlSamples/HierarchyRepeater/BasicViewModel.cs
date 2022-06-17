@@ -57,6 +57,11 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.HierarchyRepeater
             public int ClickCount { get; set; } = 0;
 
             public List<Node> Children { get; set; } = new();
+
+            public void ClickNode()
+            {
+                ClickCount++;
+            }
         }
     }
 }
