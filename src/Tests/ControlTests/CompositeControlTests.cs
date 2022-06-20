@@ -210,29 +210,6 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
-        [TestMethod]
-        public async Task AttributeComparisonsAreCaseInsensitive()
-        {
-            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-                <dot:Placeholder RenderSettings.Mode=Server>
-
-
-                    <!-- static value -->
-                    <cc:MessedUpControlWhichUsesUppercaseAttributes CssClass1=A CssClass2=D />
-                    <!-- value binding + resource binding -->
-                    <cc:MessedUpControlWhichUsesUppercaseAttributes CssClass1={value: 'A'} CssClass2={resource: 'D'} />
-                    <!-- value binding + static -->
-                    <cc:MessedUpControlWhichUsesUppercaseAttributes CssClass1={value: EnumForCssClasses} CssClass2=D />
-                    <!-- both value bindings -->
-                    <cc:MessedUpControlWhichUsesUppercaseAttributes CssClass1={value: TrueBool ? 'D' : 'A'} CssClass2={value: EnumForCssClasses} />
-
-                </dot:Placeholder>
-                "
-            );
-
-            check.CheckString(r.FormattedHtml, fileExtension: "html");
-        }
-
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -487,20 +464,6 @@ namespace DotVVM.Framework.Tests.ControlTests
 
                     li.SetProperty(c => c.InnerText, bindingService.Cache.CreateValueBinding<string>("_this.Label", li.GetDataContextType()));
                 }));
-        }
-    }
-
-    public class MessedUpControlWhichUsesUppercaseAttributes: CompositeControl
-    {
-        public static DotvvmControl GetContents(
-            ValueOrBinding<string> cssClass1,
-            ValueOrBinding<string> cssClass2
-        )
-        {
-            return new HtmlGenericControl("div")
-                .AddAttribute("ClaSS", cssClass1)
-                .AddAttribute("class", cssClass2)
-                .AddAttribute("CLASS", "one-more-class");
         }
     }
 
