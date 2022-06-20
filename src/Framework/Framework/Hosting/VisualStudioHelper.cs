@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Hosting
             }
 
             var obj = new {
-                dotvvmVersion = typeof(DotvvmConfiguration).Assembly.GetName().Version,
+                dotvvmVersion = typeof(DotvvmConfiguration).Assembly.GetName().Version.ToString(4),
                 config,
                 properties = includeProperties ? DotvvmPropertySerializableList.Properties : null,
                 capabilities = includeProperties ? DotvvmPropertySerializableList.Capabilities : null,
