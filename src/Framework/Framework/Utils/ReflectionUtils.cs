@@ -396,10 +396,8 @@ namespace DotVVM.Framework.Utils
                 return type.GetGenericArguments()[0];
             else if (typeof(Task).IsAssignableFrom(type))
                 return typeof(void);
-#if DotNetCore
             else if (type.IsGenericType && typeof(ValueTask<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
                 return type.GetGenericArguments()[0];
-#endif
             else
                 return type;
         }
