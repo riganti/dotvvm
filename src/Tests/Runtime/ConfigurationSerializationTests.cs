@@ -28,8 +28,16 @@ namespace DotVVM.Framework.Tests.Runtime
         void checkConfig(DotvvmConfiguration config, bool includeProperties = false, string checkName = null, string fileExtension = "json", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)
         {
             var serialized = DotVVM.Framework.Hosting.VisualStudioHelper.SerializeConfig(config, includeProperties);
+            // Unify package versions
             serialized = Regex.Replace(serialized, "Version=[0-9.]+", "Version=***");
             serialized = Regex.Replace(serialized, "\"dotvvmVersion\": \"[0-9]\\.[0-9]\\.[0-9]\\.[0-9]\"", "\"dotvvmVersion\": \"*.*.*.*\"");
+            // Unify all occurrences of mscorlib and system.private.corelib
+            serialized = serialized.Replace("mscorlib, Version=***, Culture=neutral, PublicKeyToken=b77a5c561934e089", "CoreLibrary");
+            serialized = serialized.Replace("System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e", "CoreLibrary");
+            // Special case - unify IServiceProvider
+            serialized = serialized.Replace("System.IServiceProvider, CoreLibrary", "System.IServiceProvider, ComponentLibrary");
+            serialized = serialized.Replace("System.IServiceProvider, System.ComponentModel, Version=***, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.IServiceProvider, ComponentLibrary");
+
             var jobject = JObject.Parse(serialized);
             if (jobject["properties"] is object)
                 foreach (var testControl in ((JObject)jobject["properties"]).Properties().Where(p => p.Name.Contains(".Tests.")).ToArray())

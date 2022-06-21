@@ -57,11 +57,11 @@
           "Identifier": "secondService",
           "ParameterType": {
             "$type": "DotVVM.Framework.Compilation.ControlTree.Resolved.ResolvedTypeDescriptor, DotVVM.Framework",
-            "Type": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, System.ComponentModel, Version=***, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+            "Type": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, ComponentLibrary]], CoreLibrary]], CoreLibrary]]",
             "Name": "Func`1",
             "Namespace": "System",
-            "Assembly": "System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
-            "FullName": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, System.ComponentModel, Version=***, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+            "Assembly": "CoreLibrary",
+            "FullName": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, ComponentLibrary]], CoreLibrary]], CoreLibrary]]"
           },
           "Inherit": true
         }

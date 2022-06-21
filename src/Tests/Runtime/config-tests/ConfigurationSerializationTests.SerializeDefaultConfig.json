@@ -214,7 +214,7 @@
     },
     "DotVVM.Framework.Controls.CheckBox": {
       "Checked": {
-        "type": "System.Nullable`1[[System.Boolean, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+        "type": "System.Nullable`1[[System.Boolean, CoreLibrary]]"
       },
       "CheckedItems": {
         "type": "System.Collections.IEnumerable"
@@ -363,7 +363,7 @@
         "type": "System.Boolean"
       },
       "MaxFileSize": {
-        "type": "System.Nullable`1[[System.Int32, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+        "type": "System.Nullable`1[[System.Int32, CoreLibrary]]"
       },
       "NumberOfFilesIndicatorText": {
         "type": "System.String",
@@ -471,7 +471,7 @@
         "type": "System.Boolean"
       },
       "SortChanged": {
-        "type": "System.Action`1[[System.String, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+        "type": "System.Action`1[[System.String, CoreLibrary]]"
       }
     },
     "DotVVM.Framework.Controls.GridViewCheckBoxColumn": {
@@ -615,7 +615,7 @@
         "mappingMode": "InnerElement"
       },
       "ItemChildrenBinding": {
-        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding`1[[System.Collections.Generic.IEnumerable`1[[System.Object, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], DotVVM.Framework",
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding`1[[System.Collections.Generic.IEnumerable`1[[System.Object, CoreLibrary]], CoreLibrary]], DotVVM.Framework",
         "dataContextChange": [
           {
             "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
@@ -699,7 +699,7 @@
     },
     "DotVVM.Framework.Controls.Infrastructure.DotvvmView": {
       "Directives": {
-        "type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "type": "System.Collections.Generic.Dictionary`2[[System.String, CoreLibrary],[System.String, CoreLibrary]]",
         "isValueInherited": true
       }
     },
@@ -1020,7 +1020,7 @@
         "type": "System.String"
       },
       "UseHistoryApi": {
-        "type": "System.Nullable`1[[System.Boolean, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+        "type": "System.Nullable`1[[System.Boolean, CoreLibrary]]"
       }
     },
     "DotVVM.Framework.Controls.Styles": {
