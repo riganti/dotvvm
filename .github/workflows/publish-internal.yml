@@ -1,18 +1,8 @@
-name: Publish packages
+name: Publish packages to internal feed
 
 on:
   workflow_dispatch:
     inputs:
-      push-internal-feed:
-        type: boolean
-        default: true
-        description: Push to internal feed?
-        required: true
-      push-public-feed:
-        type: boolean
-        default: false
-        description: Push to NuGet.org?
-        required: true
       major:
         type: string
         default: "4"
@@ -181,12 +171,3 @@ jobs:
           dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" $_.FullName
         }
       working-directory: ${{ github.workspace }}
-      if: ${{ github.event.inputs.push-internal-feed == true }}
-
-    - name: Publish to the public feed
-      run: >
-        Get-ChildItem -Path "${{ github.workspace}}/artifacts/packages" -Filter "*.nupkg" | ForEach-Object {
-          Write-Host "Pretending to push '$($_.FullName)' to NuGet.org."
-        }
-      working-directory: ${{ github.workspace }}
-      if: ${{ github.event.inputs.push-public-feed == true }}

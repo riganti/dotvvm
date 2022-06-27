@@ -1,0 +1,25 @@
+name: Copy packages to NuGet.org
+
+on:
+  workflow_dispatch:
+    inputs:
+      package-names:
+        type: string
+        default: ""
+        description: Package names to copy
+        required: true
+      version:
+        type: string
+        default: ""
+        description: The version of packages to copy
+        required: true
+
+jobs:
+  copy:
+    name: Copy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+
+      - name: NOP
+        run: echo NOP
