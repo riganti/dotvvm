@@ -1,4 +1,4 @@
-name: Copy packages to NuGet.org
+name: publish-public
 
 on:
   workflow_dispatch:

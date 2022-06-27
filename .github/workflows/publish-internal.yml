@@ -1,4 +1,4 @@
-name: Publish packages to internal feed
+name: publish-internal
 
 on:
   workflow_dispatch:
