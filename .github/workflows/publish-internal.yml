@@ -1,7 +1,6 @@
 name: publish-internal
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       major:
