@@ -1,7 +1,6 @@
 name: publish-public
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       package-names:
