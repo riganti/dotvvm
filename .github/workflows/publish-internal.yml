@@ -27,12 +27,12 @@ on:
         type: boolean
         default: false
         description: Is this a final preview version?
-        required: true
+        required: false
       use-build-number:
         type: boolean
         default: true
         description: Append the build number?
-        required: true
+        required: false
       additional-suffix:
         type: string
         default: ""
