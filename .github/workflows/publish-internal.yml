@@ -57,7 +57,7 @@ jobs:
           -minor "${{ github.event.inputs.minor }}" `
           -patch "${{ github.event.inputs.patch }}" `
           -preview "${{ github.event.inputs.preview }}" `
-          -buildNumber "${{ github.run_id }}" `
+          -buildNumber "${{ github.run_number }}" `
           -additionalSuffix "${{ github.event.inputs.additional-suffix }}" `
           -isFinalPreview ${{ format('${0}', github.event.inputs.is-final-preview) }} `
           -useBuildNumber ${{ format('${0}', github.event.inputs.use-build-number) }}) ;
@@ -165,13 +165,14 @@ jobs:
       with:
         project: src/Tracing/MiniProfiler.Owin
 
-    - run: Write-Output "$env:SIGN_CONFIG" | Out-File "${{ github.workspace }}/signconfig.json"
+    - name: Prepare signclient
+      run: Write-Output "$env:SIGN_CONFIG" | Out-File "${{ github.workspace }}/signconfig.json" && dotnet tool restore
       env:
         SIGN_CONFIG: ${{ secrets.SIGN_CONFIG }}
+      working-directory: ${{ github.workspace }}/src
 
     - name: Sign packages
-      run: |
-        dotnet tool restore;
+      run: >
         Get-ChildItem -Path "${{ github.workspace}}/artifacts/packages" -Filter "*.nupkg" | ForEach-Object {
             dotnet signclient sign
               --baseDirectory "${{ github.workspace}}/artifacts/packages"
