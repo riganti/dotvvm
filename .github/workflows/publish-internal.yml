@@ -174,14 +174,14 @@ jobs:
     - name: Sign packages
       run: >
         Get-ChildItem -Path "${{ github.workspace}}/artifacts/packages" -Filter "*.nupkg" | ForEach-Object {
-            dotnet signclient sign
-              --baseDirectory "${{ github.workspace}}/artifacts/packages"
-              --input *.nupkg
-              --config "${{ github.workspace }}/signconfig.json"
-              --user "${{ secrets.SIGN_USER }}"
-              --secret "${{ secrets.SIGN_SECRET }}"
-              --name "$($_.BaseName)"
-              --description "$($_.BaseName + " " + $version)"
+            dotnet signclient sign `
+              --baseDirectory "${{ github.workspace}}/artifacts/packages" `
+              --input *.nupkg `
+              --config "${{ github.workspace }}/signconfig.json" `
+              --user "${{ secrets.SIGN_USER }}" `
+              --secret "${{ secrets.SIGN_SECRET }}" `
+              --name "$($_.BaseName)" `
+              --description "$($_.BaseName + " " + $version)" `
               --descriptionUrl "https://github.com/riganti/dotvvm"
         }
       working-directory: ${{ github.workspace }}/src
@@ -189,6 +189,6 @@ jobs:
     - name: Publish to the internal feed
       run: >
         Get-ChildItem -Path "${{ github.workspace }}/artifacts/packages" -Filter "*.nupkg" | ForEach-Object {
-          dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" $_.FullName
+          dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" "$($_.FullName)"
         }
       working-directory: ${{ github.workspace }}
