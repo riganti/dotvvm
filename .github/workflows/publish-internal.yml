@@ -176,7 +176,7 @@ jobs:
         Get-ChildItem -Path "${{ github.workspace}}/artifacts/packages" -Filter "*.nupkg" | ForEach-Object {
             dotnet signclient sign `
               --baseDirectory "${{ github.workspace}}/artifacts/packages" `
-              --input *.nupkg `
+              --input "$($_.Name)" `
               --config "${{ github.workspace }}/signconfig.json" `
               --user "${{ secrets.SIGN_USER }}" `
               --secret "${{ secrets.SIGN_SECRET }}" `
