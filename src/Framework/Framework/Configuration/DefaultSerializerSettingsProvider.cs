@@ -11,6 +11,7 @@ namespace DotVVM.Framework.Configuration
 {
     public sealed class DefaultSerializerSettingsProvider
     {
+        private const int defaultMaxSerializationDepth = 64;
         internal readonly JsonSerializerSettings Settings;
 
         public JsonSerializerSettings GetSettingsCopy()
@@ -29,7 +30,8 @@ namespace DotVVM.Framework.Configuration
                     new StringEnumConverter(),
                     new DotvvmDictionaryConverter(),
                     new DotvvmByteArrayConverter()
-                }
+                },
+                MaxDepth = defaultMaxSerializationDepth
             };
         }
 
@@ -46,6 +48,7 @@ namespace DotVVM.Framework.Configuration
 
         private DefaultSerializerSettingsProvider()
         {
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings() { MaxDepth = defaultMaxSerializationDepth };
             Settings = CreateSettings();
         }
     }
