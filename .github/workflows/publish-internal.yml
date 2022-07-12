@@ -39,9 +39,6 @@ on:
         description: Additional suffix
         required: false
 
-env:
-  AZURE_ARTIFACTS_FEED_URL: https://pkgs.dev.azure.com/rigantitfs/DotVVM/_packaging/GitHubPublishTest/nuget/v3/index.json
-
 jobs:
   publish:
     name: Publish
@@ -66,9 +63,6 @@ jobs:
 
     - name: Set up
       uses: ./.github/setup
-      with:
-        azure-artifacts-feed: ${{ env.AZURE_ARTIFACTS_FEED_URL }}
-        azure-artifacts-pat: ${{ secrets.AZURE_ARTIFACTS_PAT }}
 
     - name: DotVVM.Core
       uses: ./.github/pack
@@ -196,8 +190,15 @@ jobs:
 
     - name: Publish NuGet packages to the internal feed
       run: >
+        dotnet nuget add source `
+          --username "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
+          --password "${{ secrets.AZURE_ARTIFACTS_PAT }}" `
+          --store-password-in-clear-text `
+          --name internal `
+          "${{ secrets.AZURE_ARTIFACTS_FEED }}"
+
         Get-ChildItem -Path "${{ github.workspace }}/artifacts/packages" -Filter "*.nupkg" | ForEach-Object {
-          dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" "$($_.FullName)"
+          dotnet nuget push --api-key az --source internal "$($_.FullName)"
         }
       working-directory: ${{ github.workspace }}
 
