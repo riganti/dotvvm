@@ -186,9 +186,24 @@ jobs:
         }
       working-directory: ${{ github.workspace }}/src
 
-    - name: Publish to the internal feed
+    - name: dotvvm-types
+      run: >
+        cd "${{ github.workspace }}/src/Framework/Framework" && `
+        npm run dotvvm-types && `
+        cd "${{ github.workspace }}/ci/scripts/npm" && `
+        cp "${{ github.workspace }}/src/Framework/Framework/obj/dotvvm-types/dotvvm.d.ts" index.d.ts && `
+        npm version "$version" --no-git-tag-version
+
+    - name: Publish NuGet packages to the internal feed
       run: >
         Get-ChildItem -Path "${{ github.workspace }}/artifacts/packages" -Filter "*.nupkg" | ForEach-Object {
           dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" "$($_.FullName)"
         }
       working-directory: ${{ github.workspace }}
+
+    - name: Publish dotvvm-types to the internal feed
+      uses: JS-DevTools/npm-publish@v1
+      with:
+        token: ${{ secrets.NPM_TOKEN }}
+        package: ${{ github.workspace }}/ci/scripts/npm/package.json
+        dry-run: true
