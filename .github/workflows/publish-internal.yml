@@ -206,5 +206,5 @@ jobs:
       uses: JS-DevTools/npm-publish@v1
       with:
         token: ${{ secrets.NPM_TOKEN }}
-        package: ${{ github.workspace }}/ci/scripts/npm/package.json
+        package: ${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json
         dry-run: true
