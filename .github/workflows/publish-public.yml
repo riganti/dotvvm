@@ -3,11 +3,16 @@ name: publish-public
 on:
   workflow_dispatch:
     inputs:
-      package-names:
+      nuget-package-names:
         type: string
         default: ""
-        description: Package names to copy
-        required: true
+        description: NuGet packages to copy
+        required: false
+      npm-package-names:
+        type: string
+        default: ""
+        description: npm packages to copy
+        required: false
       version:
         type: string
         default: ""
@@ -21,5 +26,28 @@ jobs:
     timeout-minutes: 20
     steps:
 
-      - name: NOP
-        run: echo NOP
+      - name: Authenticate with NuGet internal feed
+        run: >
+          dotnet nuget add source `
+            --username "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
+            --password "${{ secrets.AZURE_ARTIFACTS_PAT }}" `
+            --store-password-in-clear-text `
+            --name internal `
+            "${{ secrets.AZURE_ARTIFACTS_FEED }}"
+
+      - name: Copy NuGet packages
+        run: >
+          mkdir packages
+          "${{ inputs.nuget-package-names }}".Split(",") | ForEach-Object {
+            nuget install "$_" `
+              -DirectDownload `
+              -NonInteractive `
+              -SolutionDirectory "/dev/null" `
+              -OutputDirectory packages `
+              -Version "${{ inputs.version }}" `
+              -Source internal
+            nuget push "packages/$_.${{ inputs.version }}/$_.${{ inputs.version }}.nupkg"`
+              -Source "${{ secrets.PUBLIC_NUGET_FEED }}" `
+              -ApiKey "${{ secrets.PUBLIC_NUGET_API_KEY }}" `
+              -NonInteractive
+          }
