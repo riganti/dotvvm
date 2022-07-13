@@ -183,9 +183,9 @@ jobs:
     - name: dotvvm-types
       run: >
         cd "${{ github.workspace }}/src/Framework/Framework" && `
-        npm run dotvvm-types && `
+        npm run tsc-types && `
         cd "${{ github.workspace }}/ci/scripts/npm" && `
-        cp "${{ github.workspace }}/src/Framework/Framework/obj/dotvvm-types/dotvvm.d.ts" index.d.ts && `
+        cp "${{ github.workspace }}/src/Framework/Framework/obj/typescript-types/dotvvm.d.ts" index.d.ts && `
         npm version "$version" --no-git-tag-version
 
     - name: Publish NuGet packages to the internal feed
