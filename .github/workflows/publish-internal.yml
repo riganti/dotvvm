@@ -55,7 +55,7 @@ jobs:
       packages: ${{ steps.read.outputs.packages }}
 
   publish-nuget-package:
-    name: Publish a NuGet package
+    name: Publish NuGet packages
     runs-on: windows-2022
     timeout-minutes: 10
     needs: read-nuget-packages
@@ -230,3 +230,38 @@ jobs:
     #     token: ${{ secrets.NPM_TOKEN }}
     #     package: ${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json
     #     dry-run: true
+
+  publish-dotvvm-types:
+    runs-on: windows-2022
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Compose version
+      run: >
+        $version = $(./.github/workflows/ComposeVersion.ps1 `
+          -major "${{ github.event.inputs.major }}" `
+          -minor "${{ github.event.inputs.minor }}" `
+          -patch "${{ github.event.inputs.patch }}" `
+          -preview "${{ github.event.inputs.preview }}" `
+          -buildNumber "${{ github.run_number }}" `
+          -additionalSuffix "${{ github.event.inputs.additional-suffix }}" `
+          -isFinalPreview ${{ format('${0}', github.event.inputs.is-final-preview) }} `
+          -useBuildNumber ${{ format('${0}', github.event.inputs.use-build-number) }}) ;
+        echo "Version is set to '$version'" ;
+        echo "DOTVVM_VERSION=$version" >> "${{ github.env }}"
+
+    - name: dotvvm-types
+      run: >
+        cd "${{ github.workspace }}/src/Framework/Framework" && `
+        npm run tsc-types && `
+        cd "${{ github.workspace }}/ci/scripts/npm" && `
+        cp "${{ github.workspace }}/src/Framework/Framework/obj/typescript-types/dotvvm.d.ts" index.d.ts && `
+        npm version "$env:DOTVVM_VERSION" --no-git-tag-version && `
+        cat "${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json"
+
+    - name: Publish dotvvm-types to the internal feed
+      uses: JS-DevTools/npm-publish@v1
+      with:
+        token: ${{ secrets.NPM_TOKEN }}
+        package: ${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json
+        dry-run: true
