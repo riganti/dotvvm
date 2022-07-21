@@ -252,21 +252,23 @@ jobs:
     - name: Set up
       uses: ./.github/setup
 
-    - name: DotVVM
+    - name: Build Framework
       uses: ./.github/pack
       with:
         project: src/Framework/Framework
 
-    - name: dotvvm-types
-      run: >
-        cd "${{ github.workspace }}/src/Framework/Framework" && `
-        npm run tsc-types && `
-        cd "${{ github.workspace }}/ci/scripts/npm" && `
-        cp "${{ github.workspace }}/src/Framework/Framework/obj/typescript-types/dotvvm.d.ts" index.d.ts && `
-        npm version "$env:DOTVVM_VERSION" --no-git-tag-version && `
-        cat "${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json"
+    - name: Build dotvvm-types
+      run: npm run tsc-types
+      working-directory: src/Framework/Framework
 
-    - name: Publish dotvvm-types to the internal feed
+    - name: Compose dotvvm-types
+      run: >
+        "${{ github.workspace }}/src/Framework/Framework/obj/typescript-types/dotvvm.d.ts" index.d.ts;
+        npm version "$env:DOTVVM_VERSION" --no-git-tag-version;
+        cat "${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json";
+      working-directory: ci/scripts/npm/dotvvm-types
+
+    - name: Publish dotvvm-types
       uses: JS-DevTools/npm-publish@v1
       with:
         token: ${{ secrets.NPM_TOKEN }}
