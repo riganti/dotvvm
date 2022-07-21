@@ -51,7 +51,7 @@ jobs:
           echo "$PACKAGES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
     outputs:
-      packages: ${{ env.PACKAGES }}
+      packages: ${{ steps.read.env.PACKAGES }}
 
   publish-nuget-package:
     name: Publish a NuGet package
