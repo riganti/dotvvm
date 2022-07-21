@@ -47,11 +47,12 @@ jobs:
       - id: read
         run: >
           PACKAGES=$(cat ./.github/workflows/nuget-packages.json);
-          echo "PACKAGES<<EOF" >> $GITHUB_ENV;
-          echo "$PACKAGES" >> $GITHUB_ENV;
-          echo "EOF" >> $GITHUB_ENV;
+          PACKAGES="${PACKAGES//'%'/'%25'}";
+          PACKAGES="${PACKAGES//$'\n'/'%0A'}";
+          PACKAGES="${PACKAGES//$'\r'/'%0D'}";
+          echo "::set-output name=packages::$PACKAGES"
     outputs:
-      packages: ${{ steps.read.env.PACKAGES }}
+      packages: ${{ steps.read.outputs.packages }}
 
   publish-nuget-package:
     name: Publish a NuGet package
