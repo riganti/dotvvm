@@ -46,10 +46,10 @@ jobs:
       - uses: actions/checkout@v2
       - id: read
         run: >
-          PACKAGES=$(cat ./.github/workflows/nuget-packages.json)
-          echo "PACKAGES<<EOF" >> $GITHUB_ENV
-          echo "$PACKAGES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          PACKAGES=$(cat ./.github/workflows/nuget-packages.json);
+          echo "PACKAGES<<EOF" >> $GITHUB_ENV;
+          echo "$PACKAGES" >> $GITHUB_ENV;
+          echo "EOF" >> $GITHUB_ENV;
     outputs:
       packages: ${{ steps.read.env.PACKAGES }}
 
