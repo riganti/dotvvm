@@ -252,6 +252,11 @@ jobs:
     - name: Set up
       uses: ./.github/setup
 
+    - name: DotVVM
+      uses: ./.github/pack
+      with:
+        project: src/Framework/Framework
+
     - name: dotvvm-types
       run: >
         cd "${{ github.workspace }}/src/Framework/Framework" && `
