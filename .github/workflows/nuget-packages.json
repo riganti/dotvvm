@@ -1,0 +1,78 @@
+[
+  {
+    "name": "DotVVM.Core",
+    "project": "src/Framework/Core"
+  },
+  {
+    "name": "DotVVM",
+    "project": "src/Framework/Framework"
+  },
+  {
+    "name": "DotVVM.Owin",
+    "project": "src/Framework/Hosting.Owin"
+  },
+  {
+    "name": "DotVVM.AspNetCore",
+    "project": "src/Framework/Hosting.AspNetCore"
+  },
+  {
+    "name": "DotVVM.CommandLine",
+    "project": "src/Tools/CommandLine"
+  },
+  {
+    "name": "DotVVM.Tools.StartupPerf",
+    "project": "src/Tools/StartupPerfTester"
+  },
+  {
+    "name": "DotVVM.Api.Swashbuckle.AspNetCore",
+    "project": "src/Api/Swashbuckle.AspNetCore"
+  },
+  {
+    "name": "DotVVM.Api.Swashbuckle.Owin",
+    "project": "src/Api/Swashbuckle.Owin"
+  },
+  {
+    "name": "DotVVM.HotReload",
+    "project": "src/Tools/HotReload/Common"
+  },
+  {
+    "name": "DotVVM.HotReload.AspNetCore",
+    "project": "src/Tools/HotReload/AspNetCore"
+  },
+  {
+    "name": "DotVVM.HotReload.Owin",
+    "project": "src/Tools/HotReload/Owin"
+  },
+  {
+    "name": "DotVVM.Testing",
+    "project": "src/Framework/Testing"
+  },
+  {
+    "name": "DotVVM.DynamicData",
+    "project": "src/DynamicData/DynamicData"
+  },
+  {
+    "name": "DotVVM.DynamicData.Annotations",
+    "project": "src/DynamicData/Annotations"
+  },
+  {
+    "name": "DotVVM.Tracing.ApplicationInsights",
+    "project": "src/Tracing/ApplicationInsights"
+  },
+  {
+    "name": "DotVVM.Tracing.ApplicationInsights.AspNetCore",
+    "project": "src/Tracing/ApplicationInsights.AspNetCore"
+  },
+  {
+    "name": "DotVVM.Tracing.ApplicationInsights.Owin",
+    "project": "src/Tracing/ApplicationInsights.Owin"
+  },
+  {
+    "name": "DotVVM.Tracing.MiniProfiler.AspNetCore",
+    "project": "src/Tracing/MiniProfiler.AspNetCore"
+  },
+  {
+    "name": "DotVVM.Tracing.MiniProfiler.Owin",
+    "project": "src/Tracing/MiniProfiler.Owin"
+  }
+]

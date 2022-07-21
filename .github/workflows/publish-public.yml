@@ -26,9 +26,11 @@ jobs:
     timeout-minutes: 20
     steps:
 
+      - uses: nuget/setup-nuget@v1
+
       - name: Authenticate with NuGet internal feed
         run: >
-          dotnet nuget add source `
+          nuget add source `
             --username "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
             --password "${{ secrets.AZURE_ARTIFACTS_PAT }}" `
             --store-password-in-clear-text `
