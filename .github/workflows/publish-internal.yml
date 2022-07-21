@@ -50,7 +50,7 @@ jobs:
           PACKAGES="${PACKAGES//'%'/'%25'}";
           PACKAGES="${PACKAGES//$'\n'/'%0A'}";
           PACKAGES="${PACKAGES//$'\r'/'%0D'}";
-          echo "::set-output name=packages::$PACKAGES"
+          echo "::set-output name=packages::{\"include\":$PACKAGES}"
     outputs:
       packages: ${{ steps.read.outputs.packages }}
 
