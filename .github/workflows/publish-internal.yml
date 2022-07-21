@@ -45,9 +45,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: read
-        run: echo "::set-output name=packages::$(cat ./.github/workflows/nuget-packages.json)"
+        run: >
+          PACKAGES=$(cat ./.github/workflows/nuget-packages.json)
+          echo "PACKAGES<<EOF" >> $GITHUB_ENV
+          echo "$PACKAGES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
     outputs:
-      packages: ${{ steps.read.outputs.packages }}
+      packages: ${{ env.PACKAGES }}
 
   publish-nuget-package:
     name: Publish a NuGet package
