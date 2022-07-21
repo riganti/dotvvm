@@ -263,7 +263,7 @@ jobs:
 
     - name: Compose dotvvm-types
       run: >
-        "${{ github.workspace }}/src/Framework/Framework/obj/typescript-types/dotvvm.d.ts" index.d.ts;
+        cp "${{ github.workspace }}/src/Framework/Framework/obj/typescript-types/dotvvm.d.ts" index.d.ts;
         npm version "$env:DOTVVM_VERSION" --no-git-tag-version;
         cat "${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json";
       working-directory: ci/scripts/npm/dotvvm-types
