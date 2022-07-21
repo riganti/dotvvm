@@ -43,6 +43,7 @@ jobs:
   read-nuget-packages:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - id: read
         run: echo "::set-output name=packages::$(cat ./.github/workflows/nuget-packages.json)"
     outputs:
