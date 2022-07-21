@@ -175,7 +175,7 @@ jobs:
               --user "${{ secrets.SIGN_USER }}" `
               --secret "${{ secrets.SIGN_SECRET }}" `
               --name "$($_.BaseName)" `
-              --description "$($_.BaseName + " " + $version)" `
+              --description "$($_.BaseName + " " + $env:DOTVVM_VERSION)" `
               --descriptionUrl "https://github.com/riganti/dotvvm"
         }
       working-directory: ${{ github.workspace }}/src
@@ -186,7 +186,7 @@ jobs:
         npm run tsc-types && `
         cd "${{ github.workspace }}/ci/scripts/npm" && `
         cp "${{ github.workspace }}/src/Framework/Framework/obj/typescript-types/dotvvm.d.ts" index.d.ts && `
-        npm version "$version" --no-git-tag-version && `
+        npm version "$env:DOTVVM_VERSION" --no-git-tag-version && `
         cat "${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json"
 
     - name: Publish NuGet packages to the internal feed
