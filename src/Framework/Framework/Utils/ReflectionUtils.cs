@@ -496,7 +496,7 @@ namespace DotVVM.Framework.Utils
             {
                 return instance.ToString()!;
             }
-            else if (typeof(T).GetCustomAttribute<FlagsAttribute>() != null)
+            else if (EnumInfo<T>.IsFlags)
             {
                 return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value));
             }
@@ -524,6 +524,7 @@ namespace DotVVM.Framework.Utils
         internal static class EnumInfo<T> where T: struct, Enum
         {
             internal static readonly bool HasEnumMemberField;
+            internal static readonly bool IsFlags;
 
             static EnumInfo()
             {
@@ -535,6 +536,7 @@ namespace DotVVM.Framework.Utils
                         break;
                     }
                 }
+                IsFlags = typeof(T).IsDefined(typeof(FlagsAttribute));
             }
         }
         

@@ -405,8 +405,9 @@ namespace DotVVM.Framework.Compilation.Javascript
                 // shortcut for constant integers (it's used by C# compiler when inserting constant enums)
                 if (originalOperand.NodeType == ExpressionType.Constant)
                 {
-                    // TODO: this won't work with flags
-                    return new JsLiteral(ReflectionUtils.ToEnumString(target, Enum.GetName(target, ((ConstantExpression)originalOperand).Value)));
+                    var enumValue = Enum.ToObject(target, ((ConstantExpression)originalOperand).Value!);
+                    // JsLiteral will JSON-serialize the enumValue
+                    return new JsLiteral(enumValue);
                 }
 
                 return new JsIdentifierExpression("dotvvm")
