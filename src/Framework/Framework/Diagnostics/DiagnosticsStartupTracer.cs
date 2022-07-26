@@ -18,7 +18,6 @@ namespace DotVVM.Framework.Diagnostics
 
         // list with concurrent read capability
         private ImmutableList<EventTiming> events = ImmutableList<EventTiming>.Empty;
-        private int startupCompleted;
 
         private long ElapsedMillisecondsSinceLastLog => events.Sum(e => e.Duration);
 
@@ -31,40 +30,43 @@ namespace DotVVM.Framework.Diagnostics
                 stopwatch.Start();
             }
 
-            var eventTiming = CreateEventTiming(eventName);
-            ConcurrencyUtils.CasChange(ref events, l => l.Add(eventTiming));
-            var reportLateEvent = startupCompleted > 0;
+            var list = ConcurrencyUtils.CasChange(ref events, l => l.Add(CreateEventTiming(eventName, l)));
+            var reportLateEvent = list.Any(x => x.StartupComplete);
 
             if (reportLateEvent)
             {
+                var eventTiming = list.FindLast(_ => true)!;
                 LateInfoReported?.Invoke(BuildDiagnosticsInformation(ImmutableList.Create(eventTiming), stopwatch.ElapsedMilliseconds));
             }
         }
 
         public Task NotifyStartupCompleted(IDiagnosticsInformationSender informationSender)
         {
-            DiagnosticsInformation info;
-            var competedCount = Interlocked.Increment(ref startupCompleted);
-            if (competedCount > 1)
-            {
-                throw new InvalidOperationException($"{nameof(NotifyStartupCompleted)} cannot be called twice!");
-            }
+            var list = ConcurrencyUtils.CasChange(ref events, l => {
+
+                if (l.Any(x => x.StartupComplete))
+                {
+                    throw new InvalidOperationException($"{nameof(NotifyStartupCompleted)} cannot be called twice!");
+                }
+
+                return l.Add(CreateEventTiming(StartupTracingConstants.StartupComplete, l) with { StartupComplete = true });
+            });
 
             LateInfoReported += i => informationSender.SendInformationAsync(i);
 
-            info = BuildDiagnosticsInformation(events, stopwatch.ElapsedMilliseconds);
+            var info = BuildDiagnosticsInformation(list, stopwatch.ElapsedMilliseconds);
 
             // report startup events
             return informationSender.SendInformationAsync(info);
         }
 
-        private EventTiming CreateEventTiming(string eventName)
+        private EventTiming CreateEventTiming(string eventName, ImmutableList<EventTiming> existingEvents)
         {
             var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 
             return new EventTiming(
                 eventName,
-                elapsedMilliseconds - ElapsedMillisecondsSinceLastLog,
+                elapsedMilliseconds - (existingEvents.Count > 0 ? existingEvents.FindLast(_ => true)!.TotalDuration : 0),
                 elapsedMilliseconds
             );
         }
