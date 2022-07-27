@@ -80,6 +80,7 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.IsFalse(dict.TryGetValue(1, out _));
         }
 
+#if DotNetCore
         [TestMethod]
         public void IsCollectible()
         {
@@ -99,5 +100,6 @@ namespace DotVVM.Framework.Tests.Runtime
                 counter++;
             }
         }
+#endif
     }
 }
