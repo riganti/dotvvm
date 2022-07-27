@@ -165,7 +165,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             using var stream = new MemoryStream();
             // Serialize array
-            using (var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, leaveOpen: true)))
+            using (var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, 4096, leaveOpen: true)))
             {
                 new DotvvmByteArrayConverter().WriteJson(writer, array, new JsonSerializer());
                 writer.Flush();
