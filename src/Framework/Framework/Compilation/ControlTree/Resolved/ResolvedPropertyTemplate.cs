@@ -3,7 +3,7 @@ using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
-    public class ResolvedPropertyTemplate : ResolvedPropertySetter, IAbstractPropertyTemplate
+    public sealed class ResolvedPropertyTemplate : ResolvedPropertySetter, IAbstractPropertyTemplate
     {
         public List<ResolvedControl> Content { get; set; }
 

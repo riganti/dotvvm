@@ -120,16 +120,16 @@ namespace DotVVM.Framework.Binding.Expressions
             });
 
         /// Crates a new value binding expression from the specified .NET delegate and Javascript expression. Note that this operation is not very cheap and the result is not cached.
-        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object?[], T> func, ParametrizedCode expression, DataContextStack? dataContext = null) =>
+        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object?[], T> func, ParametrizedCode expression, DataContextStack? dataContext = null, object?[]? additionalProperties = null) =>
             new ValueBindingExpression<T>(service, new object?[] {
                 new BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
                 new KnockoutExpressionBindingProperty(expression, expression, expression),
                 dataContext
-            });
+            }.Concat(additionalProperties ?? Array.Empty<object?>()));
 
         /// Crates a new value binding expression from the specified Linq.Expression. Note that this operation is quite expansive and the result is not cached (you are supposed to do it and NOT invoke this function for every request).
-        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Expression<Func<object?[], T>> expr, DataContextStack? dataContext)
+        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Expression<Func<object?[], T>> expr, DataContextStack? dataContext, object?[]? additionalProperties = null)
         {
             var visitor = new ViewModelAccessReplacer(expr.Parameters.Single());
             var expression = visitor.Visit(expr.Body);
@@ -139,7 +139,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 new ParsedExpressionBindingProperty(BindingHelper.AnnotateStandardContextParams(expression, dataContext).OptimizeConstants()),
                 new ResultTypeBindingProperty(typeof(T)),
                 dataContext
-            });
+            }.Concat(additionalProperties ?? Array.Empty<object?>()));
         }
 
         class ViewModelAccessReplacer : ExpressionVisitor

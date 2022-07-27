@@ -190,7 +190,8 @@ namespace DotVVM.Framework.Testing
                 headResources,
                 bodyResources,
                 htmlDocument,
-                commands
+                commands,
+                context.View
             );
         }
     }
@@ -249,7 +250,8 @@ namespace DotVVM.Framework.Testing
             string? headResources,
             string? bodyResources,
             IHtmlDocument html,
-            (DotvvmControl, DotvvmProperty, ICommandBinding)[] commands
+            (DotvvmControl, DotvvmProperty, ICommandBinding)[] commands,
+            DotvvmView view
         )
         {
             TestHelper = testHelper;
@@ -260,6 +262,7 @@ namespace DotVVM.Framework.Testing
             this.BodyResources = bodyResources;
             this.Html = html;
             this.Commands = commands;
+            this.View = view;
         }
 
         public ControlTestHelper TestHelper { get; }
@@ -272,6 +275,7 @@ namespace DotVVM.Framework.Testing
         public string? BodyResources { get; }
         public IHtmlDocument Html { get; }
         public (DotvvmControl control, DotvvmProperty property, ICommandBinding command)[] Commands { get; }
+        public DotvvmView View { get; }
 
         public string FormattedHtml
         {
@@ -317,7 +321,7 @@ namespace DotVVM.Framework.Testing
                     command.BindingId,
                     null,
                     args ?? new object[0],
-                    KnockoutHelper.GetValidationTargetExpression(control)
+                    KnockoutHelper.GetValidationTargetExpression(control)?.identificationExpression
                 ));
 
                 if (applyChanges)

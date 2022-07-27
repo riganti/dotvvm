@@ -10,6 +10,7 @@ namespace DotVVM.Samples.Tests.Complex
     {
         [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_Auth_SecuredPage))]
+        [Trait("Category", "dev-only")] // relies on error page
         public void Complex_Auth_Login()
         {
             RunInAllBrowsers(browser => {

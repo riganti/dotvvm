@@ -6,6 +6,14 @@ inputs:
     default: chrome
     description: The name of the browser to be tested in
     required: false
+  build-configuration:
+    default: Debug
+    description: which --configuration to pass to dotnet build / dotnet run    
+    required: false
+  runtime-environment:
+    default: Development
+    description: which --environment to pass to ASP.NET Core / dotnet run. Irrelevant on Windows, since we use OWIN there
+    required: false
   github-token:
     description: GitHub token so that test results can be uploaded
     required: true
@@ -20,12 +28,15 @@ runs:
     run: bash ./.github/uitest/uitest.sh
       --samples-profile "seleniumconfig.aspnetcorelatest.${{ inputs.browser }}.json"
       --trx-name "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
+      --config "${{ inputs.build-configuration }}"
+      --environment "${{ inputs.runtime-environment }}"
     shell: bash
   - if: ${{ runner.os == 'Windows' }}
     name: uitest.ps1
     run: .\.github\uitest\uitest.ps1
       -SamplesProfile "seleniumconfig.owin.${{ inputs.browser }}.json"
       -TrxName "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
+      -Config "${{ inputs.build-configuration }}"
     shell: pwsh
 
   # publish the result to github

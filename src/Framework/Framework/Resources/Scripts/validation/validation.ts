@@ -45,11 +45,11 @@ export const globalValidationObject = {
     removeErrors
 }
 
-const createValidationHandler = (pathFunction: (context: KnockoutBindingContext) => any) => ({
+const createValidationHandler = (pathFunction: (context: KnockoutBindingContext) => any, pathId: string) => ({
     name: "validate",
     execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
         if (pathFunction) {
-            options.validationTargetPath = pathFunction.toString();
+            options.validationTargetPath = pathId
             // resolve target
             const context = ko.contextFor(options.sender);
             const validationTarget = pathFunction(context);
@@ -78,9 +78,9 @@ const runClientSideValidation = (validationTarget: any, options: PostbackOptions
 }
 
 export function init() {
-    postbackHandlers["validate"] = (opt) => createValidationHandler(opt.path);
-    postbackHandlers["validate-root"] = () => createValidationHandler(c => dotvvm.viewModelObservables.root);
-    postbackHandlers["validate-this"] = () => createValidationHandler(c => c.$data);
+    postbackHandlers["validate"] = (opt) => createValidationHandler(opt.fn, opt.path);
+    postbackHandlers["validate-root"] = () => createValidationHandler(c => dotvvm.viewModelObservables.root, "/");
+    postbackHandlers["validate-this"] = () => createValidationHandler(c => c.$data, "_this");
 
     if (compileConstants.isSpa) {
         spaEvents.spaNavigating.subscribe(args => {

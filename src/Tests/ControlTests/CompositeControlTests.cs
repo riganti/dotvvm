@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Linq;
 using System.Threading.Tasks;
 using CheckTestOutput;
 using DotVVM.Framework.Binding;
@@ -54,6 +55,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <cc:WithPrivateGetContents TagName=article />
                 "
             );
+
+            CollectionAssert.AreEqual(new WrappedHtmlControl2[0], r.View.GetAllDescendants().OfType<WrappedHtmlControl2>().ToArray());
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
@@ -158,6 +161,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                     <cc:CreatingMarkupControl TestCase=c />
                     Markup control with property, but different
                     <cc:CreatingMarkupControl TestCase=d />
+                    Markup control with property, but not prerendered, because it has a resource binding
+                    <cc:CreatingMarkupControl TestCase={resource: _root.TestCase} />
                 </dot:Placeholder>
                 ",
                 markupFiles: new Dictionary<string, string> {
@@ -215,6 +220,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
             public string Label { get; } = "My Label";
             public bool AfterPreRender { get; set; } = false;
+            public string TestCase { get; set; } = "d";
 
             public List<string> List { get; set; } = new List<string> { "list-item1", "list-item2" };
 
@@ -237,6 +243,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Never)]
     public class WrappedHtmlControl: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -250,6 +257,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public class WrappedHtmlControl2: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -264,6 +272,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public class RepeatedButton: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -301,6 +310,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
     public class RepeatedButton2: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -327,6 +337,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     }
 
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
     public class WithPrivateGetContents: CompositeControl
     {
         public string TagName
@@ -342,6 +353,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
     public class BindingMappingControl: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -362,6 +374,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             };
         }
     }
+
     public class CreatingMarkupControl: CompositeControl
     {
         public static DotvvmControl GetContents(

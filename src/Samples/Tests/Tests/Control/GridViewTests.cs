@@ -49,7 +49,7 @@ namespace DotVVM.Samples.Tests.Control
                 firstRow.ElementAt("td", 5).First("button").Click();
 
                 //getting rid iof "postback interupted message"
-                browser.FindElements("div#debugNotification").First().Click();
+                browser.SingleOrDefault("div#debugNotification")?.Click();
                 browser.WaitForPostback();
 
                 var validationResult = browser.ElementAt(".validation", 0);

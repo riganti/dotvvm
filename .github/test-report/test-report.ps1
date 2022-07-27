@@ -48,11 +48,12 @@ function Build-MarkdownReport {
 
 function Get-ReportText {
     $reportText = [System.IO.File]::ReadAllText($reportPath)
-    if ($reportText.Length -gt 65535 ) {
+    # actual max length is 65535, we truncate to 65000 to have some margin
+    if ($reportText.Length -gt 65000 ) {
+        Write-ActionWarning "Report is $($reportText.Length) characters long. Shortening to 65000."
         $tooLongError = "...`nThe test report is too long to display.`n"
-        $reportText = $reportText.Substring(0, [System.Math]::Min($reportText.Length, 65535 - $tooLongError.Length)) `
+        $reportText = $reportText.Substring(0, [System.Math]::Min($reportText.Length, 65000 - $tooLongError.Length)) `
             + $tooLongError
-        Write-ActionWarning "Report is $($reportText.Length) characters long. Shortening to 65535."
     }
     return $reportText;
 }

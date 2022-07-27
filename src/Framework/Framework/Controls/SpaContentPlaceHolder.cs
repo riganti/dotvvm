@@ -73,9 +73,10 @@ namespace DotVVM.Framework.Controls
         {
             var dotvvmViewId = GetAllAncestors().First(a => a is DotvvmView).GetType().ToString();
             var markupRelativeFilePath = (string?)GetValue(Internal.MarkupFileNameProperty);
+            var uniqueId = GetDotvvmUniqueId().GetValue();
 
             return HashUtils.HashAndBase64Encode(
-                (dotvvmViewId, markupRelativeFilePath, GetDotvvmUniqueId()).ToString());
+                (dotvvmViewId, markupRelativeFilePath, uniqueId).ToString());
         }
 
         protected internal override void OnInit(IDotvvmRequestContext context)

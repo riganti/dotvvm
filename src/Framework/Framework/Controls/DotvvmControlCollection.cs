@@ -6,6 +6,7 @@ using System.Linq;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Controls
 {
@@ -213,8 +214,7 @@ namespace DotVVM.Framework.Controls
         {
             if (item.Parent != null && item.Parent != parent && IsInParentsChildren(item))
             {
-                throw new DotvvmControlException(parent, "The control cannot be added to the collection " +
-                    "because it already has a different parent! Remove it from the original collection first.");
+                throw new ControlUsedInAnotherTreeException(parent, item);
             }
             item.Parent = parent;
 
@@ -439,5 +439,13 @@ namespace DotVVM.Framework.Controls
             }
             return true;
         }
+
+        public record ControlUsedInAnotherTreeException(DotvvmControl ParentControl, DotvvmControl AddedControl):
+            DotvvmExceptionBase(RelatedControl: AddedControl)
+        {
+            public override string Message => $"The control {AddedControl.GetType().ToCode(stripNamespace: true)} cannot be added to {ParentControl.GetType().ToCode(stripNamespace: true)}.Controls, " +
+                "because it already has a different parent! Remove it from the original collection first or clone the control.";
+        }
+
     }
 }

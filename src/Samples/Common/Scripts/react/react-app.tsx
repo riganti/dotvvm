@@ -35,10 +35,14 @@ function TemplateSelector(props) {
     </div>
 }
 
+const Button = ({ text, click, dataUI }) =>
+    <button onClick={e => click()} data-ui={dataUI}>{text}</button>
+
 // DotVVM Context importer 
 export default (context) => ({
     $controls: {
         recharts: registerReactControl(RechartComponent, { context, onMouse() { /* default empty method */ } }),
-        TemplateSelector: registerReactControl(TemplateSelector)
+        TemplateSelector: registerReactControl(TemplateSelector),
+        Button: registerReactControl(Button)
     }
 })

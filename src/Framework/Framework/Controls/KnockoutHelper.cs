@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
@@ -168,9 +169,9 @@ namespace DotVVM.Framework.Controls
                 return GetPostBackHandlersScript(control, propertyName,
                     // validation handler
                     validationPathExpr == null ? null :
-                    validationPathExpr == RootValidationTargetExpression ? "\"validate-root\"" :
-                    validationPathExpr == "c => c.$data" ? "\"validate-this\"" :
-                    $"[\"validate\", {{path:{validationPathExpr}}}]",
+                    validationPathExpr.Value.identificationExpression == "/" ? "\"validate-root\"" :
+                    validationPathExpr.Value.identificationExpression == "_this" ? "\"validate-this\"" :
+                    $"[\"validate\", {{fn:{validationPathExpr.Value.javascriptExpression}, path:{MakeStringLiteral(validationPathExpr.Value.identificationExpression)}}}]",
 
                     // use window.setTimeout
                     options.UseWindowSetTimeout ? "\"timeout\"" : null,
@@ -247,11 +248,7 @@ namespace DotVVM.Framework.Controls
                 return parametrizedCode.ToString(p =>
                     p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                     p == CommandBindingExpression.CurrentPathParameter ? CodeParameterAssignment.FromIdentifier(getContextPath(control)) :
-                    p == CommandBindingExpression.ControlUniqueIdParameter ? (
-                        uniqueControlId is IValueBinding ?
-                            ((IValueBinding)uniqueControlId).GetParametrizedKnockoutExpression(control) :
-                            CodeParameterAssignment.FromIdentifier(MakeStringLiteral((string)uniqueControlId!))
-                        ) :
+                    p == CommandBindingExpression.ControlUniqueIdParameter ? uniqueControlId?.GetParametrizedJsExpression(control) ?? CodeParameterAssignment.FromLiteral("") :
                     p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
                     p == JavascriptTranslator.KnockoutViewModelParameter ? viewModel :
                     p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :
@@ -396,20 +393,28 @@ namespace DotVVM.Framework.Controls
             return $"c => {body}";
         }
 
-        public const string RootValidationTargetExpression = "c => dotvvm.viewModelObservables.root";
-
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
-        public static string? GetValidationTargetExpression(DotvvmBindableObject control)
+        public static (string javascriptExpression, string identificationExpression)? GetValidationTargetExpression(DotvvmBindableObject control)
         {
             if (!(bool)control.GetValue(Validation.EnabledProperty)!)
             {
                 return null;
             }
-
-            return control.GetValueBinding(Validation.TargetProperty)?.GetValueBindingContextLambda(control) ??
-                RootValidationTargetExpression;
+            var binding = control.GetValueBinding(Validation.TargetProperty);
+            if (binding == null)
+            {
+                return ("c => dotvvm.viewModelObservables.root", "/");
+            }
+            else
+            {
+                var jsExpression = binding.GetValueBindingContextLambda(control);
+                var bindingString = binding.GetProperty<OriginalStringBindingProperty>().Code;
+                var stepsUp = binding.FindDataContextTarget(control).stepsUp;
+                var identificationExpression = stepsUp == 0 ? bindingString : $"_parent{stepsUp}:{bindingString}";
+                return (jsExpression, identificationExpression);
+            }
         }
 
         /// <summary>

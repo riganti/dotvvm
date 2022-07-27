@@ -103,7 +103,7 @@ namespace DotVVM.Framework.Runtime.Commands
                         }
 
                         //checking validation path
-                        var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(control);
+                        var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(control)?.identificationExpression;
                         if (currentValidationTargetPath != validationTargetPath)
                         {
                             wrongExceptionPropertyKeys.Add("validation path");

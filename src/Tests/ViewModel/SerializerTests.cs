@@ -165,7 +165,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             using var stream = new MemoryStream();
             // Serialize array
-            using (var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, leaveOpen: true)))
+            using (var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, 4096, leaveOpen: true)))
             {
                 new DotvvmByteArrayConverter().WriteJson(writer, array, new JsonSerializer());
                 writer.Flush();
@@ -339,7 +339,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual(obj.Property1, obj2.Property1);
             Assert.AreEqual(obj.GetService(), obj2.GetService());
             Assert.AreEqual(obj.Property1, (string)json["Property1"]);
-            Assert.IsFalse(json.ContainsKey("Service"));
+            Assert.IsNull(json.Property("Service"));
         }
 
         [TestMethod]
@@ -356,7 +356,23 @@ namespace DotVVM.Framework.Tests.ViewModel
             CollectionAssert.Contains(obj2.SignedDictionary, new KeyValuePair<string, string>("a", "x"));
             CollectionAssert.Contains(obj2.SignedDictionary, new KeyValuePair<string, string>("b", "y"));
             Assert.AreEqual(obj.SignedDictionary.Count, obj2.SignedDictionary.Count);
-            Assert.IsFalse(!json.ContainsKey("SignedDictionary"));
+            Assert.IsNotNull(json.Property("SignedDictionary"));
+        }
+
+        [TestMethod]
+        public void DoesNotTouchIrrelevantGetters()
+        {
+            var obj = new ParentClassWithBrokenGetters() {
+                NestedVM = {
+                    SomeNestedVM = new TestViewModelWithRecords {
+                        Primitive = 100
+                    }
+                }
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(obj.NestedVM.SomeNestedVM.Primitive, obj2.NestedVM.SomeNestedVM.Primitive);
+            Assert.AreEqual(obj.NestedVM.BrokenGetter, obj2.NestedVM.BrokenGetter);
         }
         public class ViewModelWithService
         {
@@ -489,5 +505,18 @@ namespace DotVVM.Framework.Tests.ViewModel
     {
         [Protect(ProtectMode.SignData)]
         public Dictionary<string, string> SignedDictionary { get; set; } = new();
+    }
+
+    // we had a bug that the deserializer touched all properties before deserializing, some of these could crash on NRE because they were computing something
+    public class ClassWithBrokenGetters
+    {
+        public TestViewModelWithRecords SomeNestedVM { get; set; } = null;
+
+        public bool BrokenGetter => SomeNestedVM.Primitive > 10;
+    }
+
+    public class ParentClassWithBrokenGetters
+    {
+        public ClassWithBrokenGetters NestedVM { get; set; } = new ClassWithBrokenGetters();
     }
 }

@@ -65,6 +65,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             }
             else
             {
+                if (Object.Equals(value.GetValue(), oldValue.GetValue()))
+                    return true;
+
                 if (!value.Property.MarkupOptions.AllowValueMerging) error = $"Property '{value.Property}' is already set and it's value can't be merged.";
                 var merger = (IAttributeValueMerger)Activator.CreateInstance(value.Property.MarkupOptions.AttributeValueMerger)!;
                 var mergedValue = (ResolvedPropertySetter?)merger.MergeResolvedValues(oldValue, value, out error);

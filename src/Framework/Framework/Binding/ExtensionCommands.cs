@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Binding
         {
             var bindingService = control.GetValue(Internal.RequestContextProperty).NotNull().CastTo<IDotvvmRequestContext>()
                 .Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
-            var id = control.GetDotvvmUniqueId() + methodUsageId;
+            var id = control.GetDotvvmUniqueId().GetValue() + methodUsageId;
             var propertyName = control.GetType().FullName + "/" + methodUsageId;
             var property = DotvvmProperty.ResolveProperty(typeof(PropertyBox), propertyName) ?? DotvvmProperty.Register(propertyName, typeof(object), typeof(PropertyBox), null, false, null, typeof(PropertyBox), throwOnDuplicateRegistration: false);
             var binding = new CommandBindingExpression(bindingService, action, id);

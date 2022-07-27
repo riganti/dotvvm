@@ -242,7 +242,7 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(counter, "1");
 
                 browser.Wait(1000);
-                browser.Single("#debugNotification").Click();
+                browser.SingleOrDefault("#debugNotification")?.Click();
 
                 // command: server validation
                 button = browser.ElementAt("input[type=button]", 2);
@@ -262,7 +262,7 @@ namespace DotVVM.Samples.Tests.Feature
                     AssertUI.InnerTextEquals(counter, "1");
                 }, 5000);
                 
-                browser.Single("#closeDebugWindow").Click();
+                browser.SingleOrDefault("#closeDebugWindow")?.Click();
 
                 // staticCommand server call: success
                 button = browser.ElementAt("input[type=button]", 4);
@@ -282,7 +282,7 @@ namespace DotVVM.Samples.Tests.Feature
                     AssertUI.InnerTextEquals(counter, "2");
                 }, 5000);
 
-                browser.Single("#closeDebugWindow").Click();
+                browser.SingleOrDefault("#closeDebugWindow")?.Click();
 
                 // staticCommand local-only action: success
                 button = browser.ElementAt("input[type=button]", 6);

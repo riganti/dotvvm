@@ -19,8 +19,9 @@ namespace DotVVM.Framework.Hosting
                 config.ServiceProvider.GetRequiredService<IControlResolver>();
             }
 
+            var dotvvmVersion = (typeof(DotvvmConfiguration).Assembly.GetName().Version ?? new System.Version(0, 0, 0, 0));
             var obj = new {
-                dotvvmVersion = typeof(DotvvmConfiguration).Assembly.GetName().Version,
+                dotvvmVersion = dotvvmVersion.ToString(4),
                 config,
                 properties = includeProperties ? DotvvmPropertySerializableList.Properties : null,
                 capabilities = includeProperties ? DotvvmPropertySerializableList.Capabilities : null,

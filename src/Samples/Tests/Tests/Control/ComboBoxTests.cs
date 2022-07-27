@@ -154,6 +154,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
+        [Trait("Category", "dev-only")]// tests error page
         public void Control_ComboBox_ItemBinding_ItemValueBinding_Complex_Error()
         {
             RunInAllBrowsers(browser => {
@@ -210,6 +211,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
+        [Trait("Category", "dev-only")]// tests error page
         public void Control_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_Complex_Error()
         {
             RunInAllBrowsers(browser => {
@@ -222,6 +224,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
+        [Trait("Category", "dev-only")]// tests error page
         public void Control_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error()
         {
             RunInAllBrowsers(browser => {

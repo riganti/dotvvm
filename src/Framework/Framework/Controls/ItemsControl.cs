@@ -90,9 +90,12 @@ namespace DotVVM.Framework.Controls
 
             control.SetProperty(new ResolvedPropertyBinding(Internal.CurrentIndexBindingProperty,
                 new ResolvedBinding(bindingService, new Compilation.BindingParserOptions(typeof(ValueBindingExpression)), dataContext,
-                parsedExpression: Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(
-                    new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter())))));
+                parsedExpression: CreateIndexBindingExpression(dataContext))));
         }
+
+        private static ParameterExpression CreateIndexBindingExpression(DataContextStack dataContext) =>
+            Expression.Parameter(typeof(int), "_index")
+                .AddParameterAnnotation(new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter()));
 
         protected IBinding GetIndexBinding(IDotvvmRequestContext context)
         {
@@ -109,13 +112,10 @@ namespace DotVVM.Framework.Controls
                 return bindingService.Cache.CreateCachedBinding("_index", new object[] { dataContext }, () =>
                     new ValueBindingExpression<int>(bindingService, new object?[] {
                         dataContext,
-                        new ParsedExpressionBindingProperty(
-                            Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(
-                                new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter()))
-                        )
-                    }
-                ));
+                        new ParsedExpressionBindingProperty(CreateIndexBindingExpression(dataContext))
+                    }));
             }
+
         }
     }
 }

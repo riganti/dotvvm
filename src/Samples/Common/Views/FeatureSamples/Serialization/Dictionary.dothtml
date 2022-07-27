@@ -14,7 +14,7 @@
         <legend>
             Dict
         </legend>
-        <dot:Repeater DataSource="{value:  Dictionary}" UITests.Name="dictionary">
+        <dot:Repeater DataSource="{value:  Dictionary}" data-uitest-name="dictionary">
             <span>{{value:  Key}}:{{value: Value}}</span>
             <br />
         </dot:Repeater>
@@ -25,13 +25,13 @@
         <legend>
             ListKeyValue
         </legend>
-        <dot:Repeater DataSource="{value:  ListKeyValue}" UITests.Name="list">
+        <dot:Repeater DataSource="{value:  ListKeyValue}" data-uitest-name="list">
             <span>{{value:  Key}}:{{value: Value}}</span>
             <br />
         </dot:Repeater>
     </fieldset>
-    <dot:Button UITests.Name="verify" Click="{command:VerifyDeserialization()}" Text="Verify deserialization" />
-    <span UITests.Name="result">
+    <dot:Button data-uitest-name="verify" Click="{command:VerifyDeserialization()}" Text="Verify deserialization" />
+    <span data-uitest-name="result">
         {{value: Result}}
     </span>
 </body>

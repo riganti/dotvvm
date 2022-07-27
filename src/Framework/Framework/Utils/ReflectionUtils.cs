@@ -17,7 +17,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Configuration;
 using FastExpressionCompiler;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using RecordExceptions;
 
 namespace DotVVM.Framework.Utils
@@ -346,7 +349,7 @@ namespace DotVVM.Framework.Utils
             typeof(Delegate).IsAssignableFrom(type);
         public static bool IsDelegate(this Type type, [NotNullWhen(true)] out MethodInfo? invokeMethod)
         {
-            if (type.IsDelegate())
+            if (type.IsDelegate() && typeof(Delegate) != type)
             {
                 invokeMethod = type.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance).NotNull("Could not find delegate Invoke method");
                 return true;
@@ -393,10 +396,8 @@ namespace DotVVM.Framework.Utils
                 return type.GetGenericArguments()[0];
             else if (typeof(Task).IsAssignableFrom(type))
                 return typeof(void);
-#if DotNetCore
             else if (type.IsGenericType && typeof(ValueTask<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
                 return type.GetGenericArguments()[0];
-#endif
             else
                 return type;
         }
@@ -478,10 +479,19 @@ namespace DotVVM.Framework.Utils
             if (instance == null)
                 return null;
 
-            var name = instance.ToString()!;
             if (!EnumInfo<T>.HasEnumMemberField)
-                return name;
-            return ToEnumString(typeof(T), name);
+            {
+                return instance.ToString()!;
+            }
+            else if (typeof(T).GetCustomAttribute<FlagsAttribute>() != null)
+            {
+                return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value));
+            }
+            else
+            {
+                var name = instance.ToString()!;
+                return ToEnumString(typeof(T), name);
+            }
         }
 
         public static string ToEnumString(Type enumType, string name)
