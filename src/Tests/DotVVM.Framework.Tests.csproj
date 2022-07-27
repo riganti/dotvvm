@@ -28,6 +28,9 @@
     <ProjectReference Include="../Framework/Framework/DotVVM.Framework.csproj" />
     <ProjectReference Include="../Framework/Testing/DotVVM.Framework.Testing.csproj" />
   </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <DefineConstants>$(DefineConstants);DotNetCore</DefineConstants>
+  </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <ProjectReference Include="../Framework/Hosting.Owin/DotVVM.Framework.Hosting.Owin.csproj" />
     <PackageReference Include="CheckTestOutput" Version="0.4.3" />

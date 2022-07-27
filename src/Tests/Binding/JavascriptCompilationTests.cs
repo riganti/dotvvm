@@ -860,13 +860,12 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("StringProp.Split('c')", "c", "None")]
         [DataRow("StringProp.Split(\"str\")", "str", "None")]
         [DataRow("StringProp.Split('c', StringSplitOptions.None)", "c", "None")]
         [DataRow("StringProp.Split('c', StringSplitOptions.RemoveEmptyEntries)", "c", "RemoveEmptyEntries")]
         public void JsTranslator_StringSplit_WithOptions(string binding, string delimiter, string options)
         {
-            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual($"dotvvm.translations.string.split(StringProp(),\"{delimiter}\",\"{options}\")", result);
         }
 
@@ -1099,20 +1098,29 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("StringProp.EndsWith('test',StringComparison.InvariantCultureIgnoreCase)",
             "dotvvm.translations.string.endsWith(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.Trim()", "StringProp().trim()")]
-        [DataRow("StringProp.Trim('0')", "dotvvm.translations.string.trimEnd(dotvvm.translations.string.trimStart(StringProp(),\"0\"),\"0\")")]
-        [DataRow("StringProp.TrimStart()", "StringProp().trimStart()")]
-        [DataRow("StringProp.TrimStart('0')", "dotvvm.translations.string.trimStart(StringProp(),\"0\")")]
-        [DataRow("StringProp.TrimEnd()", "StringProp().trimEnd()")]
-        [DataRow("StringProp.TrimEnd('0')", "dotvvm.translations.string.trimEnd(StringProp(),\"0\")")]
         [DataRow("StringProp.PadLeft(1)", "StringProp().padStart(1)")]
         [DataRow("StringProp.PadRight(2)", "StringProp().padEnd(2)")]
         [DataRow("StringProp.PadLeft(1,'#')", "StringProp().padStart(1,\"#\")")]
         [DataRow("StringProp.PadRight(2,'#')", "StringProp().padEnd(2,\"#\")")]
         [DataRow("string.IsNullOrEmpty(StringProp)", "!(StringProp()?.length>0)")]
         [DataRow("string.IsNullOrWhiteSpace(StringProp)", "!(StringProp()?.trim().length>0)")]
+#if DotNetCore
+        [DataRow("StringProp.Trim('0')", "dotvvm.translations.string.trimEnd(dotvvm.translations.string.trimStart(StringProp(),\"0\"),\"0\")")]
+        [DataRow("StringProp.TrimStart()", "StringProp().trimStart()")]
+        [DataRow("StringProp.TrimStart('0')", "dotvvm.translations.string.trimStart(StringProp(),\"0\")")]
+        [DataRow("StringProp.TrimEnd()", "StringProp().trimEnd()")]
+        [DataRow("StringProp.TrimEnd('0')", "dotvvm.translations.string.trimEnd(StringProp(),\"0\")")]
+#endif
+#if !DotNetCore
+        [DataRow("StringProp.Trim('0')", "dotvvm.translations.string.trimEnd(dotvvm.translations.string.trimStart(StringProp(),[\"0\"][0]),[\"0\"][0])")]
+        [DataRow("StringProp.TrimStart()", "dotvvm.translations.string.trimStart(StringProp(),[][0])")]
+        [DataRow("StringProp.TrimStart('0')", "dotvvm.translations.string.trimStart(StringProp(),[\"0\"][0])")]
+        [DataRow("StringProp.TrimEnd()", "dotvvm.translations.string.trimEnd(StringProp(),[][0])")]
+        [DataRow("StringProp.TrimEnd('0')", "dotvvm.translations.string.trimEnd(StringProp(),[\"0\"][0])")]
+#endif
         public void JavascriptCompilation_StringFunctions(string input, string expected)
         {
-            var result = CompileBinding(input, typeof(TestViewModel));
+            var result = CompileBinding(input, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, typeof(TestViewModel));
             Assert.AreEqual(expected, result);
         }
     }

@@ -80,6 +80,7 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.IsFalse(dict.TryGetValue(1, out _));
         }
 
+#if DotNetCore
         [TestMethod]
         public void IsCollectible()
         {
@@ -95,9 +96,10 @@ namespace DotVVM.Framework.Tests.Runtime
                 Thread.Sleep(32);
                 GC.Collect(2, GCCollectionMode.Forced);
                 Thread.Sleep(32);
-                Assert.IsTrue(counter < 30); // wut, no Assert.LessThan?
+                Assert.IsTrue(counter < 60); // wut, no Assert.LessThan?
                 counter++;
             }
         }
+#endif
     }
 }

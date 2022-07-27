@@ -162,7 +162,11 @@ namespace DotVVM.Framework.Compilation.Styles
             ResolvedControlHelper.SetContent(newControl, control.Content.ToArray(), StyleOverrideOptions.Append);
 
             // copy properties
-            foreach (var p in control.Properties.Values)
+            foreach (var p in control.Properties.Values
+#if !DotNetCore
+                .ToArray()
+#endif
+                )
             {
                 control.Properties.Remove(p.Property);
 
