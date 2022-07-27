@@ -10,6 +10,7 @@ namespace DotVVM.Framework.Hosting
     public class StartupTracingConstants
     {
         public static readonly string AddDotvvmStarted = nameof(AddDotvvmStarted);
+        public static readonly string StartupComplete = nameof(StartupComplete);
 
         public static readonly string DotvvmConfigurationUserServicesRegistrationStarted = nameof(DotvvmConfigurationUserServicesRegistrationStarted);
         public static readonly string DotvvmConfigurationUserServicesRegistrationFinished = nameof(DotvvmConfigurationUserServicesRegistrationFinished);
