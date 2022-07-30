@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private static object dotvvmLocker = new object();
         private static bool isDotvvmInitialized = false;
 
-        private static readonly Dictionary<string, string> controlNameMappings = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> controlNameMappings;
 
         public DefaultControlResolver(DotvvmConfiguration configuration, IControlBuilderFactory controlBuilderFactory, CompiledAssemblyCache compiledAssemblyCache) : base(configuration.Markup)
         {
@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         startupTracer?.TraceEvent(StartupTracingConstants.InvokeAllStaticConstructorsStarted);
                         InvokeStaticConstructorsOnAllControls();
                         ResolveAllPropertyAliases();
-                        ResolveAllControlAliases();
+                        controlNameMappings = BuildControlAliasesMap();
                         startupTracer?.TraceEvent(StartupTracingConstants.InvokeAllStaticConstructorsFinished);
 
                         isInitialized = true;
@@ -196,8 +196,26 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// After all DotvvmControls have been discovered, build a map of alternative names.
         /// </summary>
-        private void ResolveAllControlAliases()
+        private Dictionary<string, string> BuildControlAliasesMap()
         {
+            var mappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            void AddMapping(Type controlType, string source)
+            {
+                // the configuration can contain the assembly name either as a simple name, or as a full name - we need to register both mappings so both cases are covered
+                foreach (var assemblyName in new[] { controlType.Assembly.GetName().Name, controlType.Assembly.FullName })
+                {
+                    var mappingSource = $"{controlType.Namespace}.{source}, {assemblyName}";
+                    if (mappings.TryGetValue(source, out var existingTarget))
+                    {
+                        throw new DotvvmCompilationException($"A conflicting primary name or alternative name {source} found at control {controlType.FullName} - it is already pointing to {existingTarget}.");
+                    }
+
+                    var mappingTarget = $"{controlType.Namespace}.{controlType.Name}, {controlType.Assembly.FullName}";
+                    mappings.Add(mappingSource, mappingTarget);
+                }
+            }
+
             foreach (var assembly in compiledAssemblyCache.GetAllAssemblies())
             {
                 // find all control types
@@ -210,7 +228,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 {
                     if (controlType.GetCustomAttribute<ControlMarkupOptionsAttribute>() is { } markupOptions)
                     {
-
                         if (markupOptions.PrimaryName is {} primaryName)
                         {
                             AddMapping(controlType, primaryName);
@@ -225,18 +242,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     }
                 }
             }
-
-            void AddMapping(Type controlType, string source)
-            {
-                var mappingSource = $"{controlType.Namespace}.{source}, {controlType.Assembly.FullName}";
-                if (controlNameMappings.TryGetValue(source, out var existingTarget))
-                {
-                    throw new DotvvmCompilationException($"A conflicting primary name or alternative name {source} found at control {controlType.FullName} - it is already pointing to {existingTarget}.");
-                }
-
-                var mappingTarget = $"{controlType.Namespace}.{controlType.Name}, {controlType.Assembly.FullName}";
-                controlNameMappings.Add(mappingSource, mappingTarget);
-            }
+            return mappings;
         }
 
         /// <summary>
