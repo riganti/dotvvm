@@ -10,7 +10,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
-    public class ResolvedPropertyCapability : ResolvedPropertySetter
+    public sealed class ResolvedPropertyCapability : ResolvedPropertySetter
     {
         public new DotvvmCapabilityProperty Property
         {

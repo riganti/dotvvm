@@ -52,9 +52,9 @@
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
     <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <Reference Include="System" />
     <Reference Include="System.Runtime" />
     <Reference Include="System.Net.Http" />
@@ -63,6 +63,7 @@
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
   </ItemGroup>
   <ItemGroup>
     <None Update="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt">
@@ -91,7 +92,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Pack analyzers together with the main DotVVM package -->
+    <ProjectReference Include="../../Analyzers/Analyzers.Package/DotVVM.Analyzers.Package.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(DOTVVM_ROOT)' != ''">
+    <None Include="$(DOTVVM_ROOT)/artifacts/bin/DotVVM.Analyzers.Package/$(Configuration)/netstandard2.0/DotVVM.Analyzers.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
+    <None Include="$(DOTVVM_ROOT)/artifacts/bin/DotVVM.Analyzers.Package/$(Configuration)/netstandard2.0/DotVVM.Analyzers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
+    <None Include="../../Analyzers/Analyzers.Package/tools/*.ps1" PackagePath="tools" Pack="true" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(DOTVVM_ROOT)' == ''">
     <None Include="../../Analyzers/Analyzers.Package/bin/$(Configuration)/netstandard2.0/DotVVM.Analyzers.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
     <None Include="../../Analyzers/Analyzers.Package/bin/$(Configuration)/netstandard2.0/DotVVM.Analyzers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
     <!-- Add install / uninstall scripts for .NET Framework -->
@@ -119,11 +132,9 @@
     <Exec Command="yarnpkg install --immutable" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
     <Exec Command="npm ci" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
 
-    <Exec Command="yarnpkg build-production" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
-    <Exec Command="yarnpkg build-development" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="yarnpkg build-stats" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
 
-    <Exec Command="npm run build-production" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
-    <Exec Command="npm run build-development" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="npm run build-stats" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
   </Target>
 
 </Project>

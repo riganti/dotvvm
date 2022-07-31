@@ -6,7 +6,7 @@
 		resource binding
 		<div class="a class123-some-class" data-custom-class-attr="some-class"></div>
 		value binding
-		<div data-bind="class: &quot;a class123-&quot; + SomeClass(), attr: { &quot;data-custom-class-attr&quot;: SomeClass }"></div>
+		<div data-bind="class: &quot;a class123-&quot; + (SomeClass() ?? &quot;&quot;), attr: { &quot;data-custom-class-attr&quot;: SomeClass }"></div>
 		checkbox with checkbox-checked class
 		<input data-bind="class: int() > 10 == true ? &quot;checkbox-checked&quot; : &quot;&quot;, dotvvm-CheckState: int() > 10" type="checkbox">
 		<input data-bind="class: Boolean() == true ? &quot;checkbox-checked&quot; : &quot;&quot;, dotvvm-CheckState: Boolean" type="checkbox">

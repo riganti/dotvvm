@@ -64,7 +64,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], false, i => ShouldIncludeProperty(i.TypeId, i.Property));
                 context.ViewModelJson.Remove("viewModel");
             }
-            return context.ViewModelJson.ToString(JsonFormatting);
+            var result = context.ViewModelJson.ToString(JsonFormatting);
+            context.HttpContext.SetItem("dotvvm-viewmodel-size-bytes", result.Length);
+            return result;
         }
 
         private bool? ShouldIncludeProperty(string typeId, string property)
@@ -343,7 +345,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var reader = viewModelToken.CreateReader();
             try
             {
-                viewModelConverter.Populate(reader, serializer, context.ViewModel!);
+                var newVM = viewModelConverter.Populate(reader, serializer, context.ViewModel!);
+                if (newVM != context.ViewModel)
+                {
+                    context.ViewModel = newVM;
+                    if (context.View is not null)
+                        context.View.DataContext = newVM;
+                }
             }
             catch (Exception ex)
             {

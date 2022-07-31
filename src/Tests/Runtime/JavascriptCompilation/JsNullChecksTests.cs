@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Indexer(new JsLiteral(7));
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("(a&&a[5]??[])[7]", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("((a&&a[5])??[])[7]", node.FormatScript(), node.FormatScript(niceMode: true));
         }
 
         [TestMethod]

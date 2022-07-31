@@ -36,6 +36,21 @@ namespace DotVVM.Framework.Utils
         public static BinaryExpression UpdateType(this BinaryExpression expr, ExpressionType type) =>
             Expression.MakeBinary(type, expr.Left, expr.Right);
 
+        public static Expression WrapException(Expression expr, Action<Exception> wrapException)
+        {
+            var p = Expression.Parameter(typeof(Exception), "ex");
+            return Expression.TryCatch(
+                expr,
+                Expression.Catch(
+                    p,
+                    Expression.Block(
+                        Expression.Invoke(Expression.Constant(wrapException), p),
+                        Expression.Rethrow(expr.Type)
+                    )
+                )
+            );
+        }
+
         /// <summary> Substitutes arguments in the LambdaExpression with the specified expressions. </summary>
         public static Expression Replace(this LambdaExpression ex, params Expression[] parameters)
         {

@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
         }
 
-        public BindingParserNode ReadDirectiveValue()
+        public BindingParserNode ReadImportDirectiveValue()
         {
             var startIndex = CurrentIndex;
             var first = ReadNamespaceOrTypeName();
@@ -45,6 +45,76 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
             }
             return first;
+        }
+
+        public BindingParserNode ReadArrayInitializerValue()
+        {
+            var startIndex = CurrentIndex;
+            SkipWhiteSpace();
+
+            if (PeekType() == BindingTokenType.OpenArrayBrace)
+            {
+                var initializerExpressions = new List<BindingParserNode>();
+                Read();
+                SkipWhiteSpace();
+                initializerExpressions.Add(ReadArrayInitializerValue());
+                SkipWhiteSpace();
+
+                while (Peek() is BindingToken comma && comma.Type == BindingTokenType.Comma)
+                {
+                    Read();
+                    SkipWhiteSpace();
+                    initializerExpressions.Add(ReadArrayInitializerValue());
+                    SkipWhiteSpace();
+                }
+
+                if(PeekType() == BindingTokenType.CloseArrayBrace)
+                {
+                    Read();
+                    SkipWhiteSpace();
+                }
+
+                return CreateNode(new ArrayInitializerExpression(initializerExpressions), startIndex);
+            }
+
+            return CreateNode(ReadOrElseExpression(), startIndex);
+        }
+
+        public BindingParserNode ReadPropertyDirectiveValue()
+        {
+            var startIndex = CurrentIndex;
+            SkipWhiteSpace();
+
+            var propertyType = TryReadTypeReference(out var resultType)
+                ? resultType
+                : new ActualTypeReferenceBindingParserNode(new SimpleNameBindingParserNode(""));
+
+            var propertyName = ReadNamespaceOrTypeName();
+            var propertyDeclaration = new PropertyDeclarationBindingParserNode(propertyType, propertyName);
+
+            SkipWhiteSpace();
+
+            if (Peek()?.Type == BindingTokenType.AssignOperator)
+            {
+                Read();
+                SkipWhiteSpace();
+
+                propertyDeclaration.Initializer = ReadArrayInitializerValue();
+            }
+            if (Peek()?.Type == BindingTokenType.Comma)
+            {
+                Read();
+                SkipWhiteSpace();
+
+                var attributes = ReadArguments();
+
+                foreach (var attribute in attributes)
+                {
+                    propertyDeclaration.Attributes.Add(attribute);
+                }
+            }
+
+            return CreateNode(propertyDeclaration, startIndex);
         }
 
         public BindingParserNode ReadDirectiveTypeName()
@@ -106,8 +176,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 if (lastIndex == CurrentIndex)
                 {
-                    var extraToken = Read()!;
-                    expressions.Add(CreateNode(new LiteralExpressionBindingParserNode(extraToken.Text), lastIndex, "Unexpected token"));
+                    var unexpectedToken = Read()!;
+                    expressions.Add(CreateNode(new LiteralExpressionBindingParserNode(unexpectedToken.Text) { IsUnexpectedToken = true }, lastIndex, "Unexpected token"));
                 }
 
                 lastIndex = CurrentIndex;
@@ -252,12 +322,25 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         private BindingParserNode ReadOrExpression()
         {
             var startIndex = CurrentIndex;
-            var first = ReadAndExpression();
+            var first = ReadExclusiveOrExpression();
             while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.OrOperator)
             {
                 Read();
-                var second = ReadAndExpression();
+                var second = ReadExclusiveOrExpression();
                 first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.OrOperator), startIndex);
+            }
+            return first;
+        }
+
+        private BindingParserNode ReadExclusiveOrExpression()
+        {
+            var startIndex = CurrentIndex;
+            var first = ReadAndExpression();
+            while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.ExclusiveOrOperator)
+            {
+                Read();
+                var second = ReadAndExpression();
+                first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.ExclusiveOrOperator), startIndex);
             }
             return first;
         }
@@ -359,7 +442,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 var @operator = operatorToken.Type;
                 var isOperatorUnsupported = @operator == BindingTokenType.UnsupportedOperator;
 
-                if (@operator == BindingTokenType.NotOperator || @operator == BindingTokenType.SubtractOperator || isOperatorUnsupported)
+                if (@operator == BindingTokenType.NotOperator || @operator == BindingTokenType.SubtractOperator || @operator == BindingTokenType.OnesComplementOperator || isOperatorUnsupported)
                 {
                     Read();
                     var target = ReadUnaryExpression();
@@ -534,7 +617,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             BindingParserNode expression = onlyTypeName ? ReadIdentifierNameExpression() : ReadAtomicExpression();
 
-
             var next = Peek();
             int previousIndex = -1;
             while (next != null && previousIndex != CurrentIndex)
@@ -641,6 +723,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             // function call
             Read();
+            var arguments = ReadArguments();
+            var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
+            Read();
+            SkipWhiteSpace();
+            expression = CreateNode(new FunctionCallBindingParserNode(expression, arguments), startIndex, error ? "The ')' was expected." : null);
+            return expression;
+        }
+
+        private List<BindingParserNode> ReadArguments()
+        {
             var arguments = new List<BindingParserNode>();
             int previousInnerIndex = -1;
             while (Peek() is BindingToken operatorToken && operatorToken.Type != BindingTokenType.CloseParenthesis && previousInnerIndex != CurrentIndex)
@@ -655,11 +747,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
                 arguments.Add(ReadExpression());
             }
-            var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
-            Read();
-            SkipWhiteSpace();
-            expression = CreateNode(new FunctionCallBindingParserNode(expression, arguments), startIndex, error ? "The ')' was expected." : null);
-            return expression;
+
+            return arguments;
         }
 
         private BindingParserNode ReadAtomicExpression()

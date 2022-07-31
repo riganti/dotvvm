@@ -8,6 +8,7 @@
     <SignAssembly>true</SignAssembly>
     <OutputType>Exe</OutputType>
     <Nullable>enable</Nullable>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <!--Related to packaging-->
@@ -46,16 +47,26 @@
     <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" />
   </ItemGroup>
 
-  <Target Name="BuildCompiler" BeforeTargets="BeforeBuild">
-    <MSBuild Projects="..\Compiler\DotVVM.Compiler.csproj" Targets="Restore;Build;Publish" Properties="TargetFramework=netcoreapp3.1;Configuration=$(Configuration);PublishDir=$(OutputPath)tools\netcoreapp3.1\any" />
-    <MSBuild Projects="..\Compiler\DotVVM.Compiler.csproj" Condition=" '$(OS)' == 'Windows_NT' " Targets="Restore;Build;Publish" Properties="TargetFramework=net472;Configuration=$(Configuration);PublishDir=$(OutputPath)tools\net472\any" />
-  </Target>
+  <ItemGroup>
+    <ProjectReference Include="..\Compiler\DotVVM.Compiler.csproj">
+        <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+        <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
+        <AdditionalProperties>PublishDir=$(OutputPath)tools\netcoreapp3.1\any</AdditionalProperties>
+        <Targets>Publish</Targets>
+    </ProjectReference>
+    <ProjectReference Include="..\Compiler\DotVVM.Compiler.csproj" Condition=" '$(OS)' == 'Windows_NT' ">
+        <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+        <SetTargetFramework>TargetFramework=net472</SetTargetFramework>
+        <AdditionalProperties>PublishDir=$(OutputPath)tools\net472\any</AdditionalProperties>
+        <Targets>Publish</Targets>
+    </ProjectReference>
+  </ItemGroup>
 
   <Target Name="AddCompilerToPublish" BeforeTargets="Publish;Pack">
     <ItemGroup>
       <ToolsFile Include="$(OutputPath)\tools\**" />
     </ItemGroup>
-    <Message Text="$(PublishDir)" Importance="High" />
+    <Warning Text="CommandLine should be packaged on Windows because of its dependency on Compiler!" Condition=" '$(OS)' != 'Windows_NT' "/>
     <Copy SourceFiles="@(ToolsFile)" DestinationFolder="$(PublishDir)\tools\%(RecursiveDir)" />
   </Target>
 
@@ -82,7 +93,6 @@
         $(_IconUrlElement)
         $(_ReleaseNotesElement)
       </_CommonMetadataElements>
-      <_CompilerPath>..\Compiler\bin\$(Configuration)\</_CompilerPath>
     </PropertyGroup>
     <ItemGroup>
       <NuspecProperty Include="PackageType=$(PackageType)" />
@@ -92,7 +102,7 @@
       <NuspecProperty Include="Version=$(PackageVersion)" />
       <NuspecProperty Include="ProjectDirectory=$(MSBuildProjectDirectory)" />
       <NuspecProperty Include="SettingsFile=$(_ToolsSettingsFilePath)" />
-      <NuspecProperty Include="Output=$(PublishDir)" />
+      <NuspecProperty Include="Output=$(PublishDir)**\*" />
     </ItemGroup>
     <PropertyGroup Condition="'$(NuspecFile)' != '' and '$(NuspecProperties)' == ''">
       <NuspecProperties>@(NuspecProperty, ';')</NuspecProperties>

@@ -109,6 +109,7 @@ namespace DotVVM.Framework.Testing
 
         public static DotvvmConfiguration CreateConfiguration(Action<IServiceCollection>? customServices = null) =>
             DotvvmConfiguration.CreateDefault(s => {
+                s.AddSingleton<ITestSingletonService, TestSingletonService>();
                 customServices?.Invoke(s);
                 RegisterMoqServices(s);
             });
@@ -200,5 +201,9 @@ namespace DotVVM.Framework.Testing
                 Thread.CurrentThread.CurrentUICulture = originalUICulture;
             }
         }
+
+
+        public interface ITestSingletonService { }
+        public class TestSingletonService: ITestSingletonService { }
     }
 }

@@ -12,10 +12,12 @@
       "ES6"
     ]
   },
+  "include": [
+    "Scripts/react/**/*"
+  ],
   
   "exclude": [
     "node_modules",
     "wwwroot",
-    "Scripts/TestWebApiClientOwin.ts"
   ]
 }

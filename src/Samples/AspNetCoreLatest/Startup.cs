@@ -50,6 +50,8 @@ namespace DotVVM.Samples.BasicSamples
             services.AddAuthentication("Scheme3")
                 .AddCookie("Scheme3");
 
+            services.AddHealthChecks();
+
             services.AddLocalization(o => o.ResourcesPath = "Resources");
 
             services.AddDotVVM<DotvvmServiceConfigurator>();
@@ -78,11 +80,14 @@ namespace DotVVM.Samples.BasicSamples
                 }
             });
 
-
 #if AssertConfiguration
             // this compilation symbol is set by CI server
             config.AssertConfigurationIsValid();
 #endif
+            app.UseRouting();
+            app.UseEndpoints(endpoints => {
+                endpoints.MapHealthChecks("/health");
+            });
             app.UseStaticFiles();
 
             app.UseEndpoints(endpoints => {

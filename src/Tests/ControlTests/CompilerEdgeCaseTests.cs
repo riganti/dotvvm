@@ -30,6 +30,17 @@ namespace DotVVM.Framework.Tests.ControlTests
 
         }
 
+        [TestMethod]
+        public async Task EmptySeparatorTemplate()
+        {
+            // empty templates didn't work on .NET framework
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:Repeater DataSource={value: Label}>
+                    <SeparatorTemplate></SeparatorTemplate>
+                    teststring
+                </dot:Repeater> ");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             public int Integer { get; set; } = 10000000;

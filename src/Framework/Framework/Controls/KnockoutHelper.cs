@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
@@ -25,16 +26,24 @@ namespace DotVVM.Framework.Controls
             var expression = control.GetValueBinding(property);
             if (expression != null && (!control.RenderOnServer || renderEvenInServerRenderingMode))
             {
-                writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
-                if (valueUpdate != null)
-                {
-                    writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
-                }
+                writer.AddKnockoutDataBind(name, control, expression, valueUpdate);
             }
             else
             {
                 nullBindingAction?.Invoke();
                 if (setValueBack && expression != null) control.SetValue(property, expression.Evaluate(control));
+            }
+        }
+
+        /// <summary>
+        /// Adds the data-bind attribute to the next HTML element that is being rendered.
+        /// </summary>
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableObject control, IValueBinding expression, string? valueUpdate = null)
+        {
+            writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
+            if (valueUpdate != null)
+            {
+                writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
             }
         }
 
@@ -156,13 +165,13 @@ namespace DotVVM.Framework.Controls
             {
                 if (!options.AllowPostbackHandlers) return "[]";
                 // turn validation off for static commands
-                var validationPath = expression is IStaticCommandBinding ? null : GetValidationTargetExpression(control);
+                var validationPathExpr = expression is IStaticCommandBinding ? null : GetValidationTargetExpression(control);
                 return GetPostBackHandlersScript(control, propertyName,
                     // validation handler
-                    validationPath == null ? null :
-                    validationPath == RootValidationTargetExpression ? "\"validate-root\"" :
-                    validationPath == "$data" ? "\"validate-this\"" :
-                    $"[\"validate\", {{path:{JsonConvert.ToString(validationPath)}}}]",
+                    validationPathExpr == null ? null :
+                    validationPathExpr.Value.identificationExpression == "/" ? "\"validate-root\"" :
+                    validationPathExpr.Value.identificationExpression == "_this" ? "\"validate-this\"" :
+                    $"[\"validate\", {{fn:{validationPathExpr.Value.javascriptExpression}, path:{MakeStringLiteral(validationPathExpr.Value.identificationExpression)}}}]",
 
                     // use window.setTimeout
                     options.UseWindowSetTimeout ? "\"timeout\"" : null,
@@ -239,11 +248,7 @@ namespace DotVVM.Framework.Controls
                 return parametrizedCode.ToString(p =>
                     p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                     p == CommandBindingExpression.CurrentPathParameter ? CodeParameterAssignment.FromIdentifier(getContextPath(control)) :
-                    p == CommandBindingExpression.ControlUniqueIdParameter ? (
-                        uniqueControlId is IValueBinding ?
-                            ((IValueBinding)uniqueControlId).GetParametrizedKnockoutExpression(control) :
-                            CodeParameterAssignment.FromIdentifier(MakeStringLiteral((string)uniqueControlId!))
-                        ) :
+                    p == CommandBindingExpression.ControlUniqueIdParameter ? uniqueControlId?.GetParametrizedJsExpression(control) ?? CodeParameterAssignment.FromLiteral("") :
                     p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
                     p == JavascriptTranslator.KnockoutViewModelParameter ? viewModel :
                     p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :
@@ -376,21 +381,40 @@ namespace DotVVM.Framework.Controls
                 return $"[{JsonConvert.ToString(handlerName)},{GenerateHandlerOptions(obj, new Dictionary<string, object?> { ["q"] = queueName })}]";
             }
         }
-
-        public const string RootValidationTargetExpression = "dotvvm.viewModelObservables['root']";
+        
+        /// <summary> Returns a lambda function taking the knockout context as its single argument, returning the result of the IValueBinding. </summary>
+        public static string GetValueBindingContextLambda(this IValueBinding binding, DotvvmBindableObject contextControl, bool unwrapped = false)
+        {
+            var expr = binding.GetParametrizedKnockoutExpression(contextControl, unwrapped);
+            var body = expr.ToString(a =>
+                a == JavascriptTranslator.KnockoutContextParameter ? new("c", OperatorPrecedence.Max) :
+                a == JavascriptTranslator.KnockoutViewModelParameter ? new("c.$data", OperatorPrecedence.Max) :
+                default);
+            return $"c => {body}";
+        }
 
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
-        public static string? GetValidationTargetExpression(DotvvmBindableObject control)
+        public static (string javascriptExpression, string identificationExpression)? GetValidationTargetExpression(DotvvmBindableObject control)
         {
             if (!(bool)control.GetValue(Validation.EnabledProperty)!)
             {
                 return null;
             }
-
-            return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ??
-                RootValidationTargetExpression;
+            var binding = control.GetValueBinding(Validation.TargetProperty);
+            if (binding == null)
+            {
+                return ("c => dotvvm.viewModelObservables.root", "/");
+            }
+            else
+            {
+                var jsExpression = binding.GetValueBindingContextLambda(control);
+                var bindingString = binding.GetProperty<OriginalStringBindingProperty>().Code;
+                var stepsUp = binding.FindDataContextTarget(control).stepsUp;
+                var identificationExpression = stepsUp == 0 ? bindingString : $"_parent{stepsUp}:{bindingString}";
+                return (jsExpression, identificationExpression);
+            }
         }
 
         /// <summary>

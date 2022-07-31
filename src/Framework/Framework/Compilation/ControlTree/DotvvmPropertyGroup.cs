@@ -150,16 +150,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return null;
         }
 
-        static void RunClassConstructor(Type type)
-        {
-            RuntimeHelpers.RunClassConstructor(type.TypeHandle);
-            if (type.BaseType != typeof(object))
-                RunClassConstructor(type.BaseType!);
-        }
-
         public static IEnumerable<DotvvmPropertyGroup> GetPropertyGroups(Type controlType)
         {
-            RunClassConstructor(controlType);
+            DefaultControlResolver.InitType(controlType);
             foreach (var pg in descriptorDictionary.Values)
             {
                 if (pg.DeclaringType.IsAssignableFrom(controlType))

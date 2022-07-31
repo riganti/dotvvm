@@ -11,6 +11,8 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Controls
 {
@@ -24,14 +26,16 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-        private class ControlInfo
+        internal class ControlInfo
         {
             public MethodInfo GetContentsMethod;
-            public ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> Properties;
+            public ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> Getters;
+            public ImmutableArray<IControlAttributeDescriptor> Properties { get; }
 
-            public ControlInfo(MethodInfo getContentsMethod, ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> properties)
+            public ControlInfo(MethodInfo getContentsMethod, ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> getters, ImmutableArray<IControlAttributeDescriptor> properties)
             {
                 GetContentsMethod = getContentsMethod;
+                Getters = getters;
                 Properties = properties;
             }
         }
@@ -42,30 +46,39 @@ namespace DotVVM.Framework.Controls
         private static object registrationLock = new object();
         internal static void RegisterProperties(Type controlType)
         {
-            Func<IDotvvmRequestContext, CompositeControl, object> initializeArgument(ParameterInfo parameter)
+            IControlAttributeDescriptor initializeArgument(Type controlType, ParameterInfo parameter)
             {
                 if (parameter.ParameterType == typeof(IDotvvmRequestContext))
-                    return (context, _) => context;
+                    return Internal.RequestContextProperty;
                 var defaultValue =
                     parameter.HasDefaultValue ?
                         (ValueOrBinding<object>?)ValueOrBinding<object>.FromBoxedValue(parameter.DefaultValue) :
                         (ValueOrBinding<object>?)null;
                 var newProperty = DotvvmCapabilityProperty.InitializeArgument(parameter, parameter.Name!, parameter.ParameterType, controlType, null, defaultValue);
+                return newProperty;
+            }
+            Func<IDotvvmRequestContext, CompositeControl, object> compileGetter(IControlAttributeDescriptor property, Type parameterType)
+            {
+                if (property == Internal.RequestContextProperty)
+                    return (context, _) => context;
 
                 var (getter, setter) =
-                    newProperty is DotvvmProperty p ? DotvvmCapabilityProperty.CodeGeneration.CreatePropertyAccessors(parameter.ParameterType, p) :
-                    newProperty is DotvvmPropertyGroup g ? DotvvmCapabilityProperty.CodeGeneration.CreatePropertyGroupAccessors(parameter.ParameterType, g) :
+                    property is DotvvmProperty p ? DotvvmCapabilityProperty.CodeGeneration.CreatePropertyAccessors(parameterType, p) :
+                    property is DotvvmPropertyGroup g ? DotvvmCapabilityProperty.CodeGeneration.CreatePropertyGroupAccessors(parameterType, g) :
                     throw new NotSupportedException();
 
                 var wrappedExpression = Expression.Lambda<Func<IDotvvmRequestContext, CompositeControl, object>>(
                     Expression.Convert(getter.Body, typeof(object)),
                     Expression.Parameter(typeof(IDotvvmRequestContext)), getter.Parameters[0]);
-                return wrappedExpression.Compile();
+                return wrappedExpression.CompileFast();
+
             }
 
             lock (registrationLock)
             {
                 if (controlInfoCache.ContainsKey(controlType)) return;
+
+                DefaultControlResolver.InitType(controlType.BaseType.NotNull());
 
                 var method = controlType.GetMethod("GetContents", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 if (method == null)
@@ -73,11 +86,30 @@ namespace DotVVM.Framework.Controls
                 if (!(typeof(DotvvmControl).IsAssignableFrom(method.ReturnType) || typeof(IEnumerable<DotvvmControl>).IsAssignableFrom(method.ReturnType)))
                     throw new Exception($"Could not initialize control {controlType.FullName}, GetContents method does not return DotvvmControl nor IEnumerable<DotvvmControl>");
 
-                var arguments = method.GetParameters().Select(initializeArgument);
+                var argumentProperties = method.GetParameters().Select(p => initializeArgument(controlType, p)).ToImmutableArray();
+                var argumentGetters = argumentProperties.Zip(method.GetParameters(), (prop, arg) => compileGetter(prop, arg.ParameterType)).ToImmutableArray();
 
-                if (!controlInfoCache.TryAdd(controlType, new ControlInfo(method, arguments.ToImmutableArray())))
+                if (!controlInfoCache.TryAdd(controlType, new ControlInfo(method, argumentGetters, argumentProperties)))
                     throw new Exception("no");
             }
+        }
+
+        static internal ControlInfo GetControlInfo(Type controlType) =>
+            controlInfoCache[controlType];
+
+        internal IEnumerable<DotvvmControl> ExecuteGetContents(IDotvvmRequestContext context)
+        {
+            var info = GetControlInfo(this.GetType());
+            // TODO: generate Linq.Expression instead of this reflection invocation
+            var args = info.Getters.Select(p => p(context, this)).ToArray();
+            var result = info.GetContentsMethod.Invoke(this, args);
+
+            if (result is IEnumerable<DotvvmControl> enumerable)
+                return enumerable;
+            else if (result != null)
+                return new DotvvmControl[] { (DotvvmControl)result };
+            else
+                return Array.Empty<DotvvmControl>();
         }
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
@@ -87,19 +119,13 @@ namespace DotVVM.Framework.Controls
 
             this.Children.Clear();
 
-            var info = controlInfoCache[this.GetType()];
-
-            // TODO: generate Linq.Expression instead of this reflection invocation
-            var args = info.Properties.Select(p => p(context, this)).ToArray();
-            var content = info.GetContentsMethod.Invoke(this, args);
+            var content = ExecuteGetContents(context);
 
             if (this.Children.Count > 0)
                 throw new DotvvmControlException(this, $"{GetType().Name}.GetContents may not modify the Children collection, it should return the new children and it will be handled automatically.");
 
-            if (content is IEnumerable<DotvvmControl> enumerable)
-                foreach (var c in enumerable) this.Children.Add(c);
-            else if (content != null)
-                this.Children.Add((DotvvmControl)content);
+            foreach (var child in content)
+                this.Children.Add(child);
 
             base.OnLoad(context);
         }

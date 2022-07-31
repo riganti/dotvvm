@@ -153,6 +153,9 @@ namespace DotVVM.Framework.Compilation.Binding
                 case BindingTokenType.NotOperator:
                     eop = ExpressionType.Not;
                     break;
+                case BindingTokenType.OnesComplementOperator:
+                    eop = ExpressionType.OnesComplement;
+                    break;
                 default:
                     throw new NotSupportedException($"unary operator { node.Operator } is not supported");
             }
@@ -211,6 +214,9 @@ namespace DotVVM.Framework.Compilation.Binding
                     break;
                 case BindingTokenType.OrElseOperator:
                     eop = ExpressionType.OrElse;
+                    break;
+                case BindingTokenType.ExclusiveOrOperator:
+                    eop = ExpressionType.ExclusiveOr;
                     break;
                 case BindingTokenType.AssignOperator:
                     eop = ExpressionType.Assign;
@@ -331,7 +337,7 @@ namespace DotVVM.Framework.Compilation.Binding
             // we try to resolve member access into an extension parameter
             // for example _parent._index should resolve into the _index extension parameter on the parent context
             var extensionParameter = TryResolveExtensionParameter(target, nameNode);
-            
+
             // even when we find the extension parameter, member properties should have priority (for compatibility, at least)
 
             return
@@ -345,10 +351,10 @@ namespace DotVVM.Framework.Compilation.Binding
         Expression? TryResolveExtensionParameter(Expression target, IdentifierNameBindingParserNode nameNode)
         {
             // target is _parent, _this, _root, ...
-            if (target.GetParameterAnnotation() is BindingParameterAnnotation { ExtensionParameter: null, DataContext: {} dataContext } &&
+            if (target.GetParameterAnnotation() is BindingParameterAnnotation { ExtensionParameter: null, DataContext: { } dataContext } &&
                 // name is simple (no generics)
-                nameNode is SimpleNameBindingParserNode { Name: {} name } &&
-                dataContext.ExtensionParameters.FirstOrDefault(e => e.Identifier == name) is {} parameter)
+                nameNode is SimpleNameBindingParserNode { Name: { } name } &&
+                dataContext.ExtensionParameters.FirstOrDefault(e => e.Identifier == name) is { } parameter)
             {
                 return Expression.Parameter(
                     ResolvedTypeDescriptor.ToSystemType(parameter.ParameterType) ?? typeof(UnknownTypeSentinel),
@@ -526,6 +532,19 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         protected override Expression VisitVoid(VoidBindingParserNode node) => Expression.Default(typeof(void));
+
+        protected override Expression VisitArrayInitializer(ArrayInitializerExpression node)
+        {
+            var initializers = node.ElementInitializers.Select(e => Visit(e));
+
+            var firstInitializer = initializers.FirstOrDefault();
+
+            var firstElementType = firstInitializer?.Type ?? throw new DotvvmCompilationException($"Could not get the determine type of array element.");
+
+            var arrayElementType = initializers.All(i => i.Type.IsAssignableFrom(firstElementType)) ? firstElementType : throw new DotvvmCompilationException($"All elements of the array initializer must be of the same type.");
+
+            return Expression.NewArrayInit(arrayElementType, initializers.Select(i => Expression.Convert(i, arrayElementType)));
+        }
 
         private Expression? GetMemberOrTypeExpression(IdentifierNameBindingParserNode node, Type[]? typeParameters)
         {

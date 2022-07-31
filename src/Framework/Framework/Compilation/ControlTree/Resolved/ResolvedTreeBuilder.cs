@@ -1,29 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
-using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
-using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Compilation.ViewCompiler;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public class ResolvedTreeBuilder : IAbstractTreeBuilder
     {
         private readonly BindingCompilationService bindingService;
-        private readonly CompiledAssemblyCache compiledAssemblyCache;
-        private readonly ExtensionMethodsCache extensionMethodsCache;
+        private readonly DirectiveCompilationService directiveService;
 
-        public ResolvedTreeBuilder(BindingCompilationService bindingService, CompiledAssemblyCache compiledAssemblyCache, ExtensionMethodsCache extensionsMethodsCache)
+        public ResolvedTreeBuilder(BindingCompilationService bindingService, DirectiveCompilationService directiveService)
         {
             this.bindingService = bindingService;
-            this.compiledAssemblyCache = compiledAssemblyCache;
-            this.extensionMethodsCache = extensionsMethodsCache;
+            this.directiveService = directiveService;
         }
 
         public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, IAbstractControlBuilderDescriptor? masterPage)
@@ -68,128 +64,65 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedPropertyValue((DotvvmProperty)property, value) { DothtmlNode = sourceNode };
         }
 
+        //TODO: Copy errors from nameSyntax
         public IAbstractServiceInjectDirective BuildServiceInjectDirective(
             DothtmlDirectiveNode node,
             SimpleNameBindingParserNode nameSyntax,
-            BindingParserNode typeSyntax)
+            BindingParserNode typeSyntax,
+            ImmutableList<NamespaceImport> imports)
         {
-            foreach (var syntaxNode in nameSyntax.EnumerateNodes().Concat(typeSyntax.EnumerateNodes() ?? Enumerable.Empty<BindingParserNode>()))
-            {
-                syntaxNode.NodeErrors.ForEach(node.AddError);
-            }
-
-            var expression = ParseDirectiveExpression(node, typeSyntax);
-
-            if (expression is UnknownStaticClassIdentifierExpression)
-            {
-                node.AddError($"{typeSyntax.ToDisplayString()} is not a valid type.");
-                return new ResolvedServiceInjectDirective(nameSyntax, typeSyntax, null) { DothtmlNode = node };
-            }
-            else if (expression is StaticClassIdentifierExpression)
-            {
-                return new ResolvedServiceInjectDirective(nameSyntax, typeSyntax, expression.Type) { DothtmlNode = node };
-            }
-            else
-            {
-                return new ResolvedServiceInjectDirective(nameSyntax, typeSyntax, null) { DothtmlNode = node };
-            }
+            return new ResolvedServiceInjectDirective(directiveService, node, nameSyntax, typeSyntax, imports);
         }
 
+        //TODO: Copy errors from aliasSyntax and nameSyntax
         public IAbstractImportDirective BuildImportDirective(
             DothtmlDirectiveNode node,
             BindingParserNode? aliasSyntax,
             BindingParserNode nameSyntax)
-        {
-            foreach (var syntaxNode in nameSyntax.EnumerateNodes().Concat(aliasSyntax?.EnumerateNodes() ?? Enumerable.Empty<BindingParserNode>()))
-            {
-                syntaxNode.NodeErrors.ForEach(node.AddError);
-            }
-
-            var expression = ParseDirectiveExpression(node, nameSyntax);
-
-            if (expression is UnknownStaticClassIdentifierExpression)
-            {
-                var namespaceValid = expression
-                    .CastTo<UnknownStaticClassIdentifierExpression>().Name
-                    .Apply(compiledAssemblyCache.IsAssemblyNamespace);
-
-                if (!namespaceValid)
-                {
-                    node.AddError($"{nameSyntax.ToDisplayString()} is unknown type or namespace.");
-                }
-
-                return new ResolvedImportDirective(aliasSyntax, nameSyntax, null) { DothtmlNode = node };
-
-            }
-            else if (expression is StaticClassIdentifierExpression)
-            {
-                return new ResolvedImportDirective(aliasSyntax, nameSyntax, expression.Type) { DothtmlNode = node };
-            }
-
-            node.AddError($"{nameSyntax.ToDisplayString()} is not a type or namespace.");
-            return new ResolvedImportDirective(aliasSyntax, nameSyntax, null) { DothtmlNode = node };
+        { 
+            return new ResolvedImportDirective(directiveService, node, aliasSyntax, nameSyntax);
         }
 
-        public IAbstractViewModelDirective BuildViewModelDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
+        //TODO: Copy errors from nameSyntax
+        public IAbstractViewModelDirective BuildViewModelDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax, ImmutableList<NamespaceImport> imports)
         {
-            var type = ResolveTypeNameDirective(directive, nameSyntax);
-            return new ResolvedViewModelDirective(nameSyntax, type!) { DothtmlNode = directive };
+            return new ResolvedViewModelDirective(directiveService, directive, nameSyntax, imports);
         }
 
-        public IAbstractBaseTypeDirective BuildBaseTypeDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
+        //TODO: Copy errors from nameSyntax
+        public IAbstractBaseTypeDirective BuildBaseTypeDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax, ImmutableList<NamespaceImport> imports)
         {
-            var type = ResolveTypeNameDirective(directive, nameSyntax);
-            return new ResolvedBaseTypeDirective(nameSyntax, type!) { DothtmlNode = directive };
+            return new ResolvedBaseTypeDirective(directiveService, directive, nameSyntax, imports);
         }
-        public IAbstractDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName) =>
-            new ResolvedViewModuleDirective(modulePath, resourceName) { DothtmlNode = directiveNode };
+        public IAbstractViewModuleDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName) =>
+            new ResolvedViewModuleDirective(directiveNode, modulePath, resourceName);
 
-        private ResolvedTypeDescriptor? ResolveTypeNameDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
+        public IAbstractPropertyDeclarationDirective BuildPropertyDeclarationDirective(
+            DothtmlDirectiveNode directive,
+            TypeReferenceBindingParserNode typeSyntax,
+            SimpleNameBindingParserNode nameSyntax,
+            BindingParserNode? initializer,
+            IList<IAbstractDirectiveAttributeReference> resolvedAttributes,
+            BindingParserNode valueSyntaxRoot,
+            ImmutableList<NamespaceImport> imports)
         {
-            var expression = ParseDirectiveExpression(directive, nameSyntax) as StaticClassIdentifierExpression;
-            if (expression == null)
-            {
-                directive.AddError($"Could not resolve type '{nameSyntax.ToDisplayString()}'.");
-                return null;
-            }
-            else return new ResolvedTypeDescriptor(expression.Type);
+
+            return new ResolvedPropertyDeclarationDirective(directiveService, directive, nameSyntax, typeSyntax, initializer, resolvedAttributes, imports);
         }
 
-
-        private Expression? ParseDirectiveExpression(DothtmlDirectiveNode directive, BindingParserNode expressionSyntax)
+        public IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReference(
+            DothtmlDirectiveNode directiveNode,
+            IdentifierNameBindingParserNode propertyNameSyntax,
+            ActualTypeReferenceBindingParserNode typeSyntax,
+            LiteralExpressionBindingParserNode initializer,
+            ImmutableList<NamespaceImport> imports)
         {
-            TypeRegistry registry;
-            if (expressionSyntax is TypeOrFunctionReferenceBindingParserNode typeOrFunction)
-                expressionSyntax = typeOrFunction.ToTypeReference();
-
-            if (expressionSyntax is AssemblyQualifiedNameBindingParserNode assemblyQualifiedName)
-            {
-                registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache, assemblyQualifiedName.AssemblyName.ToDisplayString());
-            }
-            else
-            {
-                registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
-            }
-
-            var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache)) {
-                ResolveOnlyTypeName = true,
-                Scope = null
-            };
-
-            try
-            {
-                return visitor.Visit(expressionSyntax);
-            }
-            catch (Exception ex)
-            {
-                directive.AddError($"{expressionSyntax.ToDisplayString()} is not a valid type or namespace: {ex.Message}");
-                return null;
-            }
+            return new ResolvedPropertyDirectiveAttributeReference(directiveService, directiveNode, typeSyntax, propertyNameSyntax, initializer, imports);
         }
 
         public IAbstractDirective BuildDirective(DothtmlDirectiveNode node)
         {
-            return new ResolvedDirective() { DothtmlNode = node };
+            return new ResolvedDirective(node);
         }
 
         public bool AddProperty(IAbstractControl control, IAbstractPropertySetter setter, [NotNullWhen(false)] out string? error)
@@ -201,5 +134,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             ((ResolvedContentNode)control).AddChild((ResolvedControl)child);
         }
+
     }
 }

@@ -157,7 +157,7 @@ test("Postback: sanity check", async () => {
         const obj = JSON.parse(init.body as string)
         expect(obj.command).toBe("c")
         expect(obj.renderedResources).toStrictEqual(["resource1", "resource2"])
-        expect(obj.validationTargetPath).toBe("dotvvm.viewModelObservables['root']")
+        expect(obj.validationTargetPath).toBe("/")
         expect(obj.viewModel.$csrfToken).toBe("test token")
         expect(obj.viewModel.Property1).toBe(0)
 

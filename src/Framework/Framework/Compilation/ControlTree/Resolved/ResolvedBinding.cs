@@ -14,9 +14,9 @@ using Microsoft.CodeAnalysis;
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     [DebuggerDisplay("{BindingType.Name}: {Value}")]
-    public class ResolvedBinding : ResolvedTreeNode, IAbstractBinding
+    public sealed class ResolvedBinding : ResolvedTreeNode, IAbstractBinding
     {
-        public IBinding Binding {get;}
+        public IBinding Binding { get; }
 
         public BindingCompilationService BindingService { get; }
 
@@ -84,6 +84,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
         }
 
-        public override string? ToString() => Binding.ToString();
+        public override string? ToString() => Binding is null ? "Binding is null" : Binding.ToString();
     }
 }

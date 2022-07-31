@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Binding.HelperNamespace;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -321,7 +322,9 @@ namespace DotVVM.Framework.Tests.Binding
             var ex = Assert.ThrowsException<NullReferenceException>(() =>
                 EvalExpression<TestViewModel>(v => TimeSpan.FromSeconds(v.IntProp).TotalMilliseconds, null)
             );
-            Assert.AreEqual("Binding expression 'Convert(v.IntProp, Double)' of type 'System.Double' has evaluated to null.", ex.Message);
+            var convertExpression = (TestEnvironmentHelper.GetFrameworkType() == TestEnvironmentHelper.FrameworkType.Net)
+                ? "Convert(v.IntProp, Double)" : "Convert(v.IntProp)";
+            Assert.AreEqual($"Binding expression '{convertExpression}' of type 'System.Double' has evaluated to null.", ex.Message);
 
             Assert.AreEqual(1000d, EvalExpression<TestViewModel>(v => TimeSpan.FromSeconds(v.IntProp).TotalMilliseconds, new TestViewModel { IntProp = 1 }));
         }

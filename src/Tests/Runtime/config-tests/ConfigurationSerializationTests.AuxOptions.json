@@ -1,4 +1,5 @@
 {
+  "dotvvmVersion": "*.*.*.*",
   "config": {
     "applicationPhysicalPath": "/opt/myApp",
     "markup": {
@@ -38,7 +39,10 @@
     "experimentalFeatures": {},
     "debug": true,
     "diagnostics": {
-      "compilationPage": {}
+      "compilationPage": {},
+      "perfWarnings": {
+        "bigViewModelBytes": 5242880.0
+      }
     }
   }
 }

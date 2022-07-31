@@ -35,6 +35,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
+        [Trait("Category", "dev-only")] // relies on error page
         public void Feature_ViewModelProtection_SignedNestedInServerToClient()
         {
             RunInAllBrowsers(browser => {
@@ -45,6 +46,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
+        [Trait("Category", "dev-only")] // tests error page in the end
         public void Feature_ViewModelProtection_NestedSignatures()
         {
             RunInAllBrowsers(browser => {

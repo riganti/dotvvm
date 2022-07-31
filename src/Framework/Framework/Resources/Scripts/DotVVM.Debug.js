@@ -62,6 +62,10 @@
             e.responseObject ? "DotVVM error response" :
             "HTTP request failed, maybe internet connection is lost or url is malformed");
         var iframe = debugWindow.querySelector("iframe");
+        if (iframe.src && iframe.src.startsWith("blob:")) {
+            URL.revokeObjectURL(iframe.src);
+        }
+        iframe.src = ""
         var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
         if (e.responseObject) {
             iframeDocument.querySelector('body').innerHTML = "<code><pre></pre></code>";
@@ -70,8 +74,9 @@
             iframeDocument.querySelector('html').innerText = "Server returned something, but the resource body was already used by another handler. You can use your browser's devtools to inspect the request content.";
         } else if (e.response) {
             iframeDocument.querySelector('html').innerHTML = "";
-            e.response.text().then(function (text) {
-                iframeDocument.querySelector('html').innerHTML = text;
+            e.response.blob().then(function (blob) {
+                const blobUrl = URL.createObjectURL(blob)
+                iframe.src = blobUrl
             });
         } else {
             iframeDocument.querySelector('html').innerHTML = "";

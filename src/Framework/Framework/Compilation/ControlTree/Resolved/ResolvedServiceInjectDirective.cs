@@ -1,11 +1,8 @@
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
-using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -13,15 +10,22 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     {
         public SimpleNameBindingParserNode NameSyntax { get; }
         public BindingParserNode TypeSyntax { get; }
-        public Type? Type { get; }
+        public ResolvedTypeDescriptor? Type { get; }
 
-        ITypeDescriptor? IAbstractServiceInjectDirective.Type => ResolvedTypeDescriptor.Create(Type);
+        ITypeDescriptor? IAbstractServiceInjectDirective.Type => Type;
 
-        public ResolvedServiceInjectDirective(SimpleNameBindingParserNode nameSyntax, BindingParserNode typeSyntax, Type? injectedType)
+        public ResolvedServiceInjectDirective(
+            DirectiveCompilationService directiveService,
+            DothtmlDirectiveNode node,
+            SimpleNameBindingParserNode nameSyntax,
+            BindingParserNode typeSyntax,
+            ImmutableList<NamespaceImport> imports)
+            : base(node)
         {
             NameSyntax = nameSyntax;
             TypeSyntax = typeSyntax;
-            Type = injectedType;
+            Type = directiveService.ResolveType(node, typeSyntax, imports);
+
         }
     }
 }

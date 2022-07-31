@@ -85,9 +85,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IRequestCancellationTokenProvider, RequestCancellationTokenProvider>();
             services.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
             services.TryAddScoped<IDotvvmRequestContext>(s => s.GetRequiredService<DotvvmRequestContextStorage>().Context);
-            services.AddTransient<IDotvvmWarningSink, AspNetCoreLoggerWarningSink>();
 
             services.TryAddSingleton<IStartupTracer>(startupTracer);
+
+            DotvvmHealthCheck.RegisterHealthCheck(services);
         }
     }
 }

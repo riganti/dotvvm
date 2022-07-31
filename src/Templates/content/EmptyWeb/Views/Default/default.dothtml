@@ -7,6 +7,6 @@
     <title></title>
 </head>
 <body>
-	<h1>{{value: Title}}</h1>
+    <h1>{{value: Title}}</h1>
 </body>
 </html>

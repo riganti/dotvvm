@@ -28,6 +28,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
         NotEqualsOperator,
 
         NotOperator,
+        OnesComplementOperator,
 
         StringLiteralToken,
         InterpolatedStringToken,
@@ -40,6 +41,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
         AndAlsoOperator,
         OrOperator,
         OrElseOperator,
+        ExclusiveOrOperator,
 
         AssignOperator,
 

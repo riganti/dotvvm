@@ -11,6 +11,11 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     {
         public string Value => ((DothtmlDirectiveNode)DothtmlNode!).Value;
 
+        public ResolvedDirective(DothtmlDirectiveNode node)
+        {
+            DothtmlNode = node;
+        }
+
         public override void Accept(IResolvedControlTreeVisitor visitor)
         {
             visitor.VisitDirective(this);

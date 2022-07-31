@@ -1,24 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Net;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
-using DotVVM.Framework.Compilation.Parser.Binding.Parser;
-using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
-using System.Collections.ObjectModel;
 using DotVVM.Framework.Binding;
 using System.Diagnostics.CodeAnalysis;
-using DotVVM.Framework.Compilation.ViewCompiler;
-using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Compilation.Directives;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -29,8 +21,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         protected readonly IControlResolver controlResolver;
         protected readonly IAbstractTreeBuilder treeBuilder;
-        protected readonly DotvvmResourceRepository? resourceRepo;
-
+        private readonly IMarkupDirectiveCompilerPipeline markupDirectiveCompilerPipeline;
         protected Lazy<IControlResolverMetadata> rawLiteralMetadata;
         protected Lazy<IControlResolverMetadata> literalMetadata;
         protected Lazy<IControlResolverMetadata> placeholderMetadata;
@@ -38,72 +29,51 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlTreeResolverBase"/> class.
         /// </summary>
-        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, DotvvmResourceRepository? resourceRepo)
+        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, IMarkupDirectiveCompilerPipeline markupDirectiveCompilerPipeline)
         {
             this.controlResolver = controlResolver;
             this.treeBuilder = treeBuilder;
-            this.resourceRepo = resourceRepo;
+            this.markupDirectiveCompilerPipeline = markupDirectiveCompilerPipeline;
             rawLiteralMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RawLiteral))));
             literalMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(Literal))));
             placeholderMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(PlaceHolder))));
         }
-
-        public static HashSet<string> SingleValueDirectives = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ParserConstants.BaseTypeDirective,
-            ParserConstants.MasterPageDirective,
-            ParserConstants.ResourceTypeDirective,
-            ParserConstants.ViewModelDirectiveName
-        };
 
         /// <summary>
         /// Resolves the control tree.
         /// </summary>
         public virtual IAbstractTreeRoot ResolveTree(DothtmlRootNode root, string fileName)
         {
-            var directives = ProcessDirectives(root);
-            var wrapperType = ResolveWrapperType(directives, fileName);
-            var viewModelType = ResolveViewModelType(directives, root, fileName);
-            var namespaceImports = ResolveNamespaceImports(directives, root);
-            var injectedServices = ResolveInjectDirectives(directives);
-            IAbstractControlBuilderDescriptor? masterPage = null;
-            if (directives.TryGetValue(ParserConstants.MasterPageDirective, out var masterPageDirective))
-            {
-                masterPage = ResolveMasterPage(fileName, masterPageDirective.First());
-            }
-            var viewModule = ResolveImportedViewModules(AssignViewModuleId(masterPage), directives, isMarkupControl: !wrapperType.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))));
+            var directiveMetadata = markupDirectiveCompilerPipeline.Compile(root, fileName);
 
             // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the
             // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
             // actually resolved when the control builder is ready and the metadata are complete.
-            var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(wrapperType, fileName));
+            var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(directiveMetadata.BaseType, fileName));
 
-            var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, null, namespaceImports, new BindingExtensionParameter[] {
-                new CurrentMarkupControlExtensionParameter(wrapperType),
+            var dataContextTypeStack = CreateDataContextTypeStack(directiveMetadata.ViewModelType, null, directiveMetadata.Imports, new BindingExtensionParameter[] {
+                new CurrentMarkupControlExtensionParameter(directiveMetadata.BaseType),
                 new BindingPageInfoExtensionParameter(),
-                new BindingApiExtensionParameter(),
-            }.Concat(injectedServices)
-             .Concat(viewModule is null ? new BindingExtensionParameter[0] : new[] { viewModule.Value.extensionParameter }).ToArray());
+                new BindingApiExtensionParameter()
+            }.Concat(directiveMetadata.InjectedServices)
+             .Concat(directiveMetadata.ViewModuleResult is null ? new BindingExtensionParameter[0] : new[] { directiveMetadata.ViewModuleResult.ExtensionParameter }).ToArray());
 
-
-            var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives, masterPage);
+            var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directiveMetadata.Directives, directiveMetadata.MasterPage);
             view.FileName = fileName;
 
-            if (viewModule.HasValue)
+            if (directiveMetadata.ViewModuleResult is { })
             {
                 treeBuilder.AddProperty(
                     view,
-                    treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, viewModule.Value.resource, null),
+                    treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, directiveMetadata.ViewModuleResult.Reference, null),
                     out _
                 );
             }
 
-            ValidateMasterPage(view, masterPage, masterPageDirective?.First());
-
             ResolveRootContent(root, view, viewMetadata);
 
             return view;
-        }
+        }     
 
         /// <summary>
         /// Resolves the content of the root node.
@@ -127,120 +97,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             ResolveControlContentImmediately(view, root.Content);
         }
-
-        /// <summary>
-        /// Resolves the view model for the root node.
-        /// </summary>
-        protected virtual ITypeDescriptor? ResolveViewModelType(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, DothtmlRootNode root, string fileName)
-        {
-            if (!directives.ContainsKey(ParserConstants.ViewModelDirectiveName) || directives[ParserConstants.ViewModelDirectiveName].Count == 0)
-            {
-                root.AddError($"The @viewModel directive is missing in the page '{fileName}'!");
-                return null;
-            }
-            var viewmodelDirective = (IAbstractViewModelDirective)directives[ParserConstants.ViewModelDirectiveName].First();
-            if (viewmodelDirective?.ResolvedType is object && viewmodelDirective.ResolvedType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmBindableObject))))
-            {
-                root.AddError($"The @viewModel directive cannot contain type that derives from DotvvmBindableObject!");
-                return null;
-            }
-
-            return viewmodelDirective?.ResolvedType;
-        }
-
-        protected virtual IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> ProcessDirectives(DothtmlRootNode root)
-        {
-            var directives = new Dictionary<string, IReadOnlyList<IAbstractDirective>>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var directiveGroup in root.Directives.GroupBy(d => d.Name, StringComparer.OrdinalIgnoreCase))
-            {
-                if (SingleValueDirectives.Contains(directiveGroup.Key) && directiveGroup.Count() > 1)
-                {
-                    foreach (var d in directiveGroup)
-                    {
-                        ProcessDirective(d);
-                        d.AddError($"Directive '{d.Name}' cannot be present multiple times.");
-                    }
-                    directives[directiveGroup.Key] = ImmutableList.Create(ProcessDirective(directiveGroup.First()));
-                }
-                else
-                {
-                    directives[directiveGroup.Key] = directiveGroup.Select(ProcessDirective).ToImmutableList();
-                }
-            }
-
-            return new ReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>>(directives);
-        }
-
-        protected virtual ImmutableList<InjectedServiceExtensionParameter> ResolveInjectDirectives(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives) =>
-            directives.Values.SelectMany(d => d).OfType<IAbstractServiceInjectDirective>()
-            .Where(d => d.Type != null)
-            .Select(d => new InjectedServiceExtensionParameter(d.NameSyntax.Name, d.Type!))
-            .ToImmutableList();
-
-        private (JsExtensionParameter extensionParameter, ViewModuleReferenceInfo resource)? ResolveImportedViewModules(string id, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, bool isMarkupControl)
-        {
-            if (!directives.TryGetValue(ParserConstants.ViewModuleDirective, out var moduleDirectives))
-                return null;
-
-            var resources =
-                moduleDirectives
-                .Cast<IAbstractViewModuleDirective>()
-                .Select(x => {
-                    if (this.resourceRepo is object && x.DothtmlNode is object)
-                    {
-                        var resource = this.resourceRepo.FindResource(x.ImportedResourceName);
-                        var node = (x.DothtmlNode as DothtmlDirectiveNode)?.ValueNode ?? x.DothtmlNode;
-                        if (resource is null)
-                            node.AddError($"Cannot find resource named '{x.ImportedResourceName}' referenced by the @js directive!");
-                        else if (!(resource is ScriptModuleResource))
-                            node.AddError($"The resource named '{x.ImportedResourceName}' referenced by the @js directive must be of the ScriptModuleResource type!");
-                    }
-                    return x.ImportedResourceName;
-                })
-                .ToArray();
-
-            return (new JsExtensionParameter(id, isMarkupControl), new ViewModuleReferenceInfo(id, resources, isMarkupControl));
-        }
-
-        protected virtual string AssignViewModuleId(IAbstractControlBuilderDescriptor? masterPage)
-        {
-            var numberOfMasterPages = 0;
-            while (masterPage != null)
-            {
-                masterPage = masterPage.MasterPage;
-                numberOfMasterPages += 1;
-            }
-            return "p" + numberOfMasterPages;
-        }
-
-        protected abstract IAbstractControlBuilderDescriptor? ResolveMasterPage(string currentFile, IAbstractDirective masterPageDirective);
-
-        protected virtual void ValidateMasterPage(IAbstractTreeRoot root, IAbstractControlBuilderDescriptor? masterPage, IAbstractDirective? masterPageDirective)
-        {
-            if (masterPage == null)
-                return;
-            var viewModel = root.DataContextTypeStack.DataContextType;
-
-            if (masterPage.DataContextType is ResolvedTypeDescriptor typeDescriptor && typeDescriptor.Type == typeof(UnknownTypeSentinel))
-            {
-                masterPageDirective!.DothtmlNode!.AddError("Could not resolve the type of viewmodel for the specified master page. " +
-                    $"This usually means that there is an error with the @viewModel directive in the master page file: \"{masterPage.FileName}\". " +
-                    $"Make sure that the provided viewModel type is correct and visible for DotVVM.");
-            }
-            else if (!masterPage.DataContextType.IsAssignableFrom(viewModel))
-            {
-                masterPageDirective!.DothtmlNode!.AddError($"The viewmodel {viewModel.Name} is not assignable to the viewmodel of the master page {masterPage.DataContextType.Name}.");
-            }
-        }
-
-        protected virtual ImmutableList<NamespaceImport> ResolveNamespaceImports(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, DothtmlRootNode root)
-            => ResolveNamespaceImportsCore(directives).ToImmutableList();
-
-        private IEnumerable<NamespaceImport> ResolveNamespaceImportsCore(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
-            => directives.Values.SelectMany(d => d).OfType<IAbstractImportDirective>()
-            .Where(d => !d.HasError)
-            .Select(d => new NamespaceImport(d.NameSyntax.ToDisplayString(), d.AliasSyntax.As<IdentifierNameBindingParserNode>()?.Name));
 
         /// <summary>
         /// Processes the parser node and builds a control.
@@ -365,7 +221,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 ProcessAttribute(DotvvmBindableObject.DataContextProperty, dataContextAttribute, control, dataContext);
             }
 
-            if (control.TryGetProperty(DotvvmBindableObject.DataContextProperty, out var dataContextProperty) && dataContextProperty is IAbstractPropertyBinding { Binding: var dataContextBinding } )
+            if (control.TryGetProperty(DotvvmBindableObject.DataContextProperty, out var dataContextProperty) && dataContextProperty is IAbstractPropertyBinding { Binding: var dataContextBinding })
             {
                 if (dataContextBinding?.ResultType != null)
                 {
@@ -413,118 +269,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 bindingOptions = bindingOptions.AddImports(context.NamespaceImports);
 
             return CompileBinding(node, bindingOptions, context!, property);
-        }
-
-        protected virtual IAbstractDirective ProcessDirective(DothtmlDirectiveNode directiveNode)
-        {
-            if (string.Equals(ParserConstants.ImportNamespaceDirective, directiveNode.Name) || string.Equals(ParserConstants.ResourceNamespaceDirective, directiveNode.Name))
-            {
-                return ProcessImportDirective(directiveNode);
-            }
-            else if (string.Equals(ParserConstants.ViewModelDirectiveName, directiveNode.Name, StringComparison.OrdinalIgnoreCase))
-            {
-                return ProcessViewModelDirective(directiveNode);
-            }
-            else if (string.Equals(ParserConstants.BaseTypeDirective, directiveNode.Name, StringComparison.OrdinalIgnoreCase))
-            {
-                return ProcessBaseTypeDirective(directiveNode);
-            }
-            else if (string.Equals(ParserConstants.ServiceInjectDirective, directiveNode.Name, StringComparison.OrdinalIgnoreCase))
-            {
-                return ProcessServiceInjectDirective(directiveNode);
-            }
-            else if (string.Equals(ParserConstants.ViewModuleDirective, directiveNode.Name, StringComparison.OrdinalIgnoreCase))
-            {
-                return ProcessViewModuleDirective(directiveNode);
-            }
-
-            return treeBuilder.BuildDirective(directiveNode);
-        }
-
-        protected virtual IAbstractDirective ProcessViewModelDirective(DothtmlDirectiveNode directiveNode)
-        {
-            return this.treeBuilder.BuildViewModelDirective(directiveNode, ParseDirectiveTypeName(directiveNode));
-        }
-
-        protected virtual IAbstractDirective ProcessBaseTypeDirective(DothtmlDirectiveNode directiveNode)
-        {
-            return this.treeBuilder.BuildBaseTypeDirective(directiveNode, ParseDirectiveTypeName(directiveNode));
-        }
-
-        protected virtual BindingParserNode ParseDirectiveTypeName(DothtmlDirectiveNode directiveNode)
-        {
-            var tokenizer = new BindingTokenizer();
-            tokenizer.Tokenize(directiveNode.ValueNode.Text);
-            var parser = new BindingParser() {
-                Tokens = tokenizer.Tokens
-            };
-            var valueSyntaxRoot = parser.ReadDirectiveTypeName();
-            if (!parser.OnEnd())
-            {
-                directiveNode.AddError($"Unexpected token: {parser.Peek()?.Text}.");
-            }
-            return valueSyntaxRoot;
-        }
-
-        protected BindingParserNode ParseImportDirectiveValue(DothtmlDirectiveNode directiveNode)
-        {
-            var tokenizer = new BindingTokenizer();
-            tokenizer.Tokenize(directiveNode.ValueNode.Text);
-            var parser = new BindingParser() {
-                Tokens = tokenizer.Tokens
-            };
-            var result = parser.ReadDirectiveValue();
-
-            if (!parser.OnEnd())
-                directiveNode.AddError($"Unexpected token: {parser.Peek()?.Text}.");
-
-            return result;
-        }
-
-        protected virtual IAbstractDirective ProcessImportDirective(DothtmlDirectiveNode directiveNode)
-        {
-            var valueSyntaxRoot = ParseImportDirectiveValue(directiveNode);
-
-            BindingParserNode? alias = null;
-            BindingParserNode? name = null;
-            if (valueSyntaxRoot is BinaryOperatorBindingParserNode assignment)
-            {
-                alias = assignment.FirstExpression;
-                name = assignment.SecondExpression;
-            }
-            else
-            {
-                name = valueSyntaxRoot;
-            }
-
-            return treeBuilder.BuildImportDirective(directiveNode, alias, name);
-        }
-
-        protected virtual IAbstractDirective ProcessServiceInjectDirective(DothtmlDirectiveNode directiveNode)
-        {
-            var valueSyntaxRoot = ParseImportDirectiveValue(directiveNode);
-
-            if (valueSyntaxRoot is BinaryOperatorBindingParserNode assignment)
-            {
-                var name = assignment.FirstExpression as SimpleNameBindingParserNode;
-                if (name == null)
-                {
-                    directiveNode.AddError($"Identifier expected on the left side of the assignment.");
-                    name = new SimpleNameBindingParserNode("service");
-                }
-                var type = assignment.SecondExpression;
-                return treeBuilder.BuildServiceInjectDirective(directiveNode, name, type);
-            }
-            else
-            {
-                directiveNode.AddError($"Assignment operation expected - the correct form is `@{ParserConstants.ServiceInjectDirective} myStringService = ISomeService<string>`");
-                return treeBuilder.BuildServiceInjectDirective(directiveNode, new SimpleNameBindingParserNode("service"), valueSyntaxRoot);
-            }
-        }
-
-        protected virtual IAbstractDirective ProcessViewModuleDirective(DothtmlDirectiveNode directiveNode)
-        {
-            return treeBuilder.BuildViewModuleDirective(directiveNode, modulePath: directiveNode.Value, resourceName: directiveNode.Value);
         }
 
         static HashSet<string> treatBindingAsHardCodedValue = new HashSet<string> { "resource" };
@@ -811,55 +555,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     child.AddError($"Content is not allowed inside the property '{property.FullName}'! (Conflicting node: Node {child.GetType().Name})");
                 }
             }
-        }
-
-        /// <summary>
-        /// Resolves the type of the wrapper.
-        /// </summary>
-        private ITypeDescriptor ResolveWrapperType(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, string fileName)
-        {
-            var wrapperType = GetDefaultWrapperType(fileName);
-
-            var baseControlDirective = !directives.ContainsKey(ParserConstants.BaseTypeDirective)
-                ? null
-                : (IAbstractBaseTypeDirective?)directives[ParserConstants.BaseTypeDirective].SingleOrDefault();
-
-            if (baseControlDirective != null)
-            {
-                var baseType = baseControlDirective.ResolvedType;
-                if (baseType == null)
-                {
-                    baseControlDirective.DothtmlNode!.AddError($"The type '{baseControlDirective.Value}' specified in baseType directive was not found!");
-                }
-                else if (!baseType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl))))
-                {
-                    baseControlDirective.DothtmlNode!.AddError("Markup controls must derive from DotvvmMarkupControl class!");
-                    wrapperType = baseType;
-                }
-                else
-                {
-                    wrapperType = baseType;
-                }
-            }
-
-            return wrapperType;
-        }
-
-        /// <summary>
-        /// Gets the default type of the wrapper for the view.
-        /// </summary>
-        private ITypeDescriptor GetDefaultWrapperType(string fileName)
-        {
-            ITypeDescriptor wrapperType;
-            if (fileName.EndsWith(".dotcontrol", StringComparison.Ordinal))
-            {
-                wrapperType = new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl));
-            }
-            else
-            {
-                wrapperType = new ResolvedTypeDescriptor(typeof(DotvvmView));
-            }
-            return wrapperType;
         }
 
         protected virtual bool IsCollectionProperty(IPropertyDescriptor property)

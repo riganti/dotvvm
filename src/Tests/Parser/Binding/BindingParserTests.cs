@@ -140,6 +140,20 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual("b", ((IdentifierNameBindingParserNode)add.SecondExpression).Name);
         }
 
+        [TestMethod]
+        public void BindingParser_BinaryOperatorExclusiveOr_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("a ^ b");
+
+            var root = (BinaryOperatorBindingParserNode)result;
+            Assert.AreEqual(BindingTokenType.ExclusiveOrOperator, root.Operator);
+
+            var a = (IdentifierNameBindingParserNode)root.FirstExpression;
+            var b = (IdentifierNameBindingParserNode)root.SecondExpression;
+            Assert.AreEqual("a", a.Name);
+            Assert.AreEqual("b", b.Name);
+        }
+
 
         [TestMethod]
         public void BindingParser_MemberAccess_ArrayIndexer_Chain_Valid()
@@ -185,7 +199,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsFalse(result.HasNodeErrors);
             Assert.AreEqual(1, result.Arguments.Count);
             Assert.AreEqual(typeof(BinaryOperatorBindingParserNode), result.Arguments[0].GetType());
-            Assert.AreEqual("x + y + z", result.Arguments[0].ToDisplayString());
+            Assert.AreEqual("\"x\" + \"y\" + \"z\"", result.Arguments[0].ToDisplayString());
         }
 
         [TestMethod]
@@ -367,6 +381,38 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        public void BindingParser_AssignOperator_ValueWithUnaryMinus()
+        {
+            var result = (BinaryOperatorBindingParserNode)bindingParserNodeFactory.Parse("a=-5");
+            Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
+
+            var first = (IdentifierNameBindingParserNode)result.FirstExpression;
+            Assert.AreEqual("a", first.Name);
+
+            var second = (UnaryOperatorBindingParserNode)result.SecondExpression;
+            Assert.AreEqual(BindingTokenType.SubtractOperator, second.Operator);
+
+            var literal = (LiteralExpressionBindingParserNode)second.InnerExpression;
+            Assert.AreEqual(5, (int)literal.Value);
+        }
+
+        [TestMethod]
+        public void BindingParser_AssignOperator_ValueWithUnaryNegation()
+        {
+            var result = (BinaryOperatorBindingParserNode)bindingParserNodeFactory.Parse("a=!b");
+            Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
+
+            var first = (IdentifierNameBindingParserNode)result.FirstExpression;
+            Assert.AreEqual("a", first.Name);
+
+            var second = (UnaryOperatorBindingParserNode)result.SecondExpression;
+            Assert.AreEqual(BindingTokenType.NotOperator, second.Operator);
+
+            var identifier = (IdentifierNameBindingParserNode)second.InnerExpression;
+            Assert.AreEqual("b", identifier.Name);
+        }
+
+        [TestMethod]
         public void BindingParser_AssignOperator_Incomplete()
         {
             var result = (BinaryOperatorBindingParserNode)bindingParserNodeFactory.Parse("a = ");
@@ -410,9 +456,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_MultipleUnsupportedBinaryOperators_Valid()
+        public void BindingParser_UnsupportedBinaryOperator_Valid()
         {
-            var parser = bindingParserNodeFactory.SetupParser("_root.MyCoolProperty += _this.Number1 + Number2^_parent0.Exponent * Multiplikator");
+            var parser = bindingParserNodeFactory.SetupParser("_root.MyCoolProperty += _this.Number1 * Multiplikator");
             var node = parser.ReadExpression();
 
             Assert.IsTrue(parser.OnEnd());
@@ -422,19 +468,10 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             CheckBinaryOperatorNodeType<MemberAccessBindingParserNode, BinaryOperatorBindingParserNode>(plusAssignNode, BindingTokenType.UnsupportedOperator);
 
-            var caretNode = plusAssignNode.SecondExpression as BinaryOperatorBindingParserNode;
-
-            CheckBinaryOperatorNodeType<BinaryOperatorBindingParserNode, BinaryOperatorBindingParserNode>(caretNode, BindingTokenType.UnsupportedOperator);
-
-            var plusNode = caretNode.FirstExpression as BinaryOperatorBindingParserNode;
-
-            CheckBinaryOperatorNodeType<MemberAccessBindingParserNode, IdentifierNameBindingParserNode>(plusNode, BindingTokenType.AddOperator);
-
-            var multiplyNode = caretNode.SecondExpression as BinaryOperatorBindingParserNode;
+            var multiplyNode = plusAssignNode.SecondExpression as BinaryOperatorBindingParserNode;
 
             CheckBinaryOperatorNodeType<MemberAccessBindingParserNode, IdentifierNameBindingParserNode>(multiplyNode, BindingTokenType.MultiplyOperator);
 
-            Assert.IsTrue(caretNode.NodeErrors.Any());
             Assert.IsTrue(plusAssignNode.NodeErrors.Any());
         }
 
@@ -1113,6 +1150,119 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual("var b = 2; var c = 3; a + b + c", node2.ToDisplayString());
             Assert.AreEqual("var c = 3; a + b + c", node3.ToDisplayString());
             Assert.AreEqual("a + b + c", node3.SecondExpression.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_MinimalPropertyDeclaration()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("System.String MyProperty");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
+            var name = root.Name.CastTo<SimpleNameBindingParserNode>();
+
+            Assert.AreEqual("System.String MyProperty", root.ToDisplayString());
+            Assert.AreEqual("System.String", type.ToDisplayString());
+            Assert.AreEqual("MyProperty", name.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_InitializedPropertyDeclaration()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("System.String MyProperty = \"Test\"");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
+            var name = root.Name.CastTo<SimpleNameBindingParserNode>();
+            var init = root.Initializer.CastTo<LiteralExpressionBindingParserNode>();
+
+            Assert.AreEqual("System.String MyProperty = \"Test\"", root.ToDisplayString());
+            Assert.AreEqual("System.String", type.ToDisplayString());
+            Assert.AreEqual("MyProperty", name.ToDisplayString());
+            Assert.AreEqual("\"Test\"", init.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_InitializedAttributedPropertyDeclaration()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("System.String MyProperty = \"Test\", MarkupOptions.AllowHardCodedValue = false, MarkupOptions.Required = true");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
+            var name = root.Name.CastTo<SimpleNameBindingParserNode>();
+            var init = root.Initializer.CastTo<LiteralExpressionBindingParserNode>();
+            var attributes = root.Attributes;
+            Assert.AreEqual(2, attributes.Count);
+
+            var att1 = root.Attributes[0].CastTo<BinaryOperatorBindingParserNode>();
+            var att2 = root.Attributes[1].CastTo<BinaryOperatorBindingParserNode>();
+
+            Assert.AreEqual("System.String MyProperty = \"Test\", MarkupOptions.AllowHardCodedValue = False, MarkupOptions.Required = True", root.ToDisplayString());
+            Assert.AreEqual("System.String", type.ToDisplayString());
+            Assert.AreEqual("MyProperty", name.ToDisplayString());
+            Assert.AreEqual("\"Test\"", init.ToDisplayString());
+            Assert.AreEqual("MarkupOptions.AllowHardCodedValue = False", att1.ToDisplayString());
+            Assert.AreEqual("MarkupOptions.Required = True", att2.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_AttributedPropertyDeclaration()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("System.String MyProperty, MarkupOptions.AllowHardCodedValue = false, MarkupOptions.Required = true");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
+            var name = root.Name.CastTo<SimpleNameBindingParserNode>();
+            var attributes = root.Attributes;
+
+            Assert.AreEqual(2, attributes.Count);
+            Assert.IsNull(root.Initializer);
+
+            var att1 = root.Attributes[0].CastTo<BinaryOperatorBindingParserNode>();
+            var att2 = root.Attributes[1].CastTo<BinaryOperatorBindingParserNode>();
+
+            Assert.AreEqual("System.String MyProperty, MarkupOptions.AllowHardCodedValue = False, MarkupOptions.Required = True", root.ToDisplayString());
+            Assert.AreEqual("System.String", type.ToDisplayString());
+            Assert.AreEqual("MyProperty", name.ToDisplayString());
+            Assert.AreEqual("MarkupOptions.AllowHardCodedValue = False", att1.ToDisplayString());
+            Assert.AreEqual("MarkupOptions.Required = True", att2.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_AttributedArrayInitializedPropertyDeclaration()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("Namespace.Enum[] MyProperty = [ Namespace.Enum.Value1, Namespace.Enum.Value2, Namespace.Enum.Value3 ], MarkupOptions.AllowHardCodedValue = false, MarkupOptions.Required = true");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
+            var name = root.Name.CastTo<SimpleNameBindingParserNode>();
+            var attributes = root.Attributes;
+
+            Assert.AreEqual(2, attributes.Count);
+            Assert.IsNotNull(root.Initializer);
+
+            var att1 = root.Attributes[0].CastTo<BinaryOperatorBindingParserNode>();
+            var att2 = root.Attributes[1].CastTo<BinaryOperatorBindingParserNode>();
+
+            var element1Initializer = root.Initializer.CastTo<ArrayInitializerExpression>().ElementInitializers[0].CastTo<MemberAccessBindingParserNode>();
+            var element2Initializer = root.Initializer.CastTo<ArrayInitializerExpression>().ElementInitializers[1].CastTo<MemberAccessBindingParserNode>();
+            var element3Initializer = root.Initializer.CastTo<ArrayInitializerExpression>().ElementInitializers[2].CastTo<MemberAccessBindingParserNode>();
+
+            Assert.AreEqual("Namespace.Enum[] MyProperty = [ Namespace.Enum.Value1, Namespace.Enum.Value2, Namespace.Enum.Value3 ], MarkupOptions.AllowHardCodedValue = False, MarkupOptions.Required = True", root.ToDisplayString());
+            Assert.AreEqual("Namespace.Enum[]", type.ToDisplayString());
+            Assert.AreEqual("MyProperty", name.ToDisplayString());
+
+            Assert.AreEqual("Namespace.Enum.Value1", element1Initializer.ToDisplayString());
+            Assert.AreEqual("Namespace.Enum.Value2", element2Initializer.ToDisplayString());
+            Assert.AreEqual("Namespace.Enum.Value3", element3Initializer.ToDisplayString());
+
+            Assert.AreEqual("MarkupOptions.AllowHardCodedValue = False", att1.ToDisplayString());
+            Assert.AreEqual("MarkupOptions.Required = True", att2.ToDisplayString());
         }
 
         private static string SkipWhitespaces(string str) => string.Join("", str.Where(c => !char.IsWhiteSpace(c)));

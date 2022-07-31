@@ -10,6 +10,7 @@ using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
+using System.Security.Claims;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -41,18 +42,18 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=Simple Text={value: Label} />
 
                 <!-- client rendering, static params -->
-                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text='Click me' />
+                <dot:RouteLink RenderSettings.Mode=Client RouteName={resource: 'WithParams'} Param-A=A Param-B={resource: 1} Text='Click me' />
                 <!-- client rendering, static params, query and suffix -->
-                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B={resource: 1} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- client rendering, dynamic params, query and suffix -->
                 <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A={value: Label} Param-B={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- client rendering, static params, text binding -->
                 <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text={value: Label} />
 
                 <!-- server rendering, static params -->
-                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A=A Param-B=1 Text='Click me' />
+                <dot:RouteLink RenderSettings.Mode=Server RouteName={resource: 'WithParams'} Param-A=A Param-B={resource: 1} Text='Click me' />
                 <!-- server rendering, static params, query and suffix -->
-                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-a=A Param-B=1 Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-a=A Param-B={resource: 1} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- server rendering, dynamic params, query and suffix -->
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A={value: Label} Param-b={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- server rendering, static params, text binding -->
@@ -72,12 +73,14 @@ namespace DotVVM.Framework.Tests.ControlTests
                     {{value: Integer}}
                     {{value: Float}}
                     {{value: DateTime}}
+                    {{value: NullableString}}
                 </span>
                 <!-- literal syntax, server rendering -->
                 <span RenderSettings.Mode=Server>
                     {{value: Integer}}
                     {{value: Float}}
                     {{value: DateTime}}
+                    {{value: NullableString}}
                 </span>
                 <!-- control syntax, client rendering -->
                 <span RenderSettings.Mode=Client>
@@ -365,6 +368,45 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [DataTestMethod]
+        [DataRow("Client")]
+        [DataRow("Server")]
+        public async Task FileUpload(string renderMode)
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @$"
+                <!-- output should be the same in Client/Server rendering -->
+                <dot:FileUpload UploadedFiles={{value: Files}}
+                    RenderSettings.Mode={renderMode} />
+            ", fileName: $"FileUpload-{renderMode}");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task Auth()
+        {
+            var testUser = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { 
+                new Claim(ClaimTypes.Role, "admin"),
+                new Claim(ClaimTypes.Role, "tester"), 
+                new Claim("custom-claim", "trolllololololo"), 
+                new Claim(ClaimTypes.NameIdentifier, "test.user")
+            }, "Basic"));
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+            
+                IsAuthenticated: {{resource: _user.Identity.IsAuthenticated}}
+
+                <div IncludeInPage={resource: _user.IsInRole('admin')}> Only for admins </div>
+
+                <div IncludeInPage={resource: _user.IsInRole('premium')}> Only for premium users </div>
+
+
+                <dot:AuthenticatedView> Only for authenticated users </dot:AuthenticatedView>
+
+                <dot:RoleView Roles='a,b,c'><IsNotMemberTemplate> not member </IsNotMemberTemplate> <IsMemberTemplate> Only for some random roles </IsMemberTemplate> </dot:RoleView> 
+            ", user: testUser);
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -374,6 +416,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             [Bind(Name = "date")]
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
             public string Label { get; } = "My Label";
+
+            public string NullableString { get; } = null;
 
             public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>() {
                 RowEditOptions = {
@@ -385,6 +429,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                     new CustomerData() { Id = 2, Name = "Two" }
                 }
             };
+
+            public UploadedFilesCollection Files { get; set; } = new UploadedFilesCollection();
 
             public class CustomerData
             {

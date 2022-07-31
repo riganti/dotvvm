@@ -1,9 +1,7 @@
-﻿/// <reference path="../../../../Framework/Framework/obj/typescript-types/dotvvm.d.ts" />
-import * as React from 'react';
+﻿import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { KnockoutTemplateReactComponent, registerReactControl } from 'dotvvm-jscomponent-react';
 import { LineChart, XAxis, Tooltip, CartesianGrid, Line, Dot } from 'recharts';
-import type { StateManager } from 'state-manager';
 
 // react component
 function RechartComponent(props: any) {
@@ -37,10 +35,14 @@ function TemplateSelector(props) {
     </div>
 }
 
+const Button = ({ text, click, dataUI }) =>
+    <button onClick={e => click()} data-ui={dataUI}>{text}</button>
+
 // DotVVM Context importer 
 export default (context) => ({
     $controls: {
         recharts: registerReactControl(RechartComponent, { context, onMouse() { /* default empty method */ } }),
-        TemplateSelector: registerReactControl(TemplateSelector)
+        TemplateSelector: registerReactControl(TemplateSelector),
+        Button: registerReactControl(Button)
     }
 })

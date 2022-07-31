@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.Serialization;
+using System.Linq;
 using System.Threading.Tasks;
 using CheckTestOutput;
 using DotVVM.Framework.Binding;
@@ -48,11 +50,13 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <cc:WrappedHtmlControl TagName=div Text={value: Label} />
                 <!-- Content -->
                 <cc:WrappedHtmlControl TagName=div> <!-- empty content --> </cc:WrappedHtmlControl>
-                <cc:WrappedHtmlControl TagName=div> Something here </cc:WrappedHtmlControl>
+                <cc:WrappedHtmlControl TagName=div> <Content> Something here </Content> </cc:WrappedHtmlControl>
 
                 <cc:WithPrivateGetContents TagName=article />
                 "
             );
+
+            CollectionAssert.AreEqual(new WrappedHtmlControl2[0], r.View.GetAllDescendants().OfType<WrappedHtmlControl2>().ToArray());
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
@@ -76,6 +80,41 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
+
+        [TestMethod]
+        public async Task WrappedRepeaterControlWithGeneratedIds()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- SSR -->
+                <cc:ControlWhichUsesUniqueIds DataSource={value: List} RenderSettings.Mode=Server />
+                <!-- CSR -->
+                <cc:ControlWhichUsesUniqueIds DataSource={value: List} RenderSettings.Mode=Client />
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task WrappedHierarchyRepeaterControlWithGeneratedIds()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- SSR -->
+                <cc:HierarchyControlWhichUsesUniqueIds DataSource={value: Hierarchy} ItemChildrenBinding={value: Children} RenderSettings.Mode=Server />
+                <!-- CSR -->
+                <cc:HierarchyControlWhichUsesUniqueIds DataSource={value: Hierarchy} ItemChildrenBinding={value: Children} RenderSettings.Mode=Client />
+                ",
+                renderResources: true
+            );
+
+            foreach (var junkElement in r.Html.QuerySelectorAll("#__dot_viewmodel_root, script, head"))
+            {
+                junkElement.Remove();
+            }
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
 
         [TestMethod]
         public async Task BindingMapping()
@@ -122,6 +161,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                     <cc:CreatingMarkupControl TestCase=c />
                     Markup control with property, but different
                     <cc:CreatingMarkupControl TestCase=d />
+                    Markup control with property, but not prerendered, because it has a resource binding
+                    <cc:CreatingMarkupControl TestCase={resource: _root.TestCase} />
                 </dot:Placeholder>
                 ",
                 markupFiles: new Dictionary<string, string> {
@@ -144,6 +185,31 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task ControlWithMultipleEnumClasses()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:Placeholder RenderSettings.Mode=Server>
+
+
+                    <!-- static value -->
+                    <cc:ControlWithMultipleEnumClasses Type1=A Type2=D />
+                    <!-- value binding + resource binding -->
+                    <cc:ControlWithMultipleEnumClasses Type1={value: EnumForCssClasses} Type2={resource: TrueBool ? 'D' : 'A'} />
+                    <!-- value binding + static -->
+                    <cc:ControlWithMultipleEnumClasses Type1={value: EnumForCssClasses} Type2=D />
+                    <!-- static + value binding -->
+                    <cc:ControlWithMultipleEnumClasses Type1=D Type2={value: EnumForCssClasses} />
+                    <!-- both value bindings -->
+                    <cc:ControlWithMultipleEnumClasses Type1={value: TrueBool ? 'D' : 'A'} Type2={value: EnumForCssClasses} />
+
+                </dot:Placeholder>
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -154,22 +220,36 @@ namespace DotVVM.Framework.Tests.ControlTests
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
             public string Label { get; } = "My Label";
             public bool AfterPreRender { get; set; } = false;
+            public string TestCase { get; set; } = "d";
 
             public List<string> List { get; set; } = new List<string> { "list-item1", "list-item2" };
+
+            public List<HierarchyVM> Hierarchy { get; set; } = new() {
+                new("A", new()),
+                new("B", new() { new("C", new() { new("D", new()) }) })
+            };
+
+            public bool TrueBool { get; set; } = true;
+
+            public EnumForCssClasses EnumForCssClasses { get; set; } = EnumForCssClasses.C;
 
             public override Task PreRender()
             {
                 AfterPreRender = true;
                 return base.PreRender();
             }
+
+            public record HierarchyVM(string Label, List<HierarchyVM> Children);
         }
     }
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Never)]
     public class WrappedHtmlControl: CompositeControl
     {
         public static DotvvmControl GetContents(
             string tagName,
             HtmlCapability html,
+            [MarkupOptions(MappingMode = MappingMode.InnerElement)]
             TextOrContentCapability content
         )
         {
@@ -177,6 +257,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public class WrappedHtmlControl2: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -191,6 +272,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public class RepeatedButton: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -228,6 +310,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
     public class RepeatedButton2: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -254,6 +337,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     }
 
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
     public class WithPrivateGetContents: CompositeControl
     {
         public string TagName
@@ -269,6 +353,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
     public class BindingMappingControl: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -289,6 +374,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             };
         }
     }
+
     public class CreatingMarkupControl: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -305,5 +391,92 @@ namespace DotVVM.Framework.Tests.ControlTests
                 _ => throw null
             };
         }
+    }
+
+    public class ControlWithMultipleEnumClasses: CompositeControl
+    {
+        public static DotvvmControl GetContents(
+            ValueOrBinding<EnumForCssClasses> type1,
+            ValueOrBinding<EnumForCssClasses> type2
+        )
+        {
+            return new HtmlGenericControl("div")
+                .AddAttribute("class", type1)
+                .AddAttribute("class", type2);
+        }
+    }
+
+    public class ControlWhichUsesUniqueIds: CompositeControl
+    {
+        private readonly BindingCompilationService bindingService;
+
+        public ControlWhichUsesUniqueIds(BindingCompilationService bindingService)
+        {
+            this.bindingService = bindingService;
+        }
+        public DotvvmControl GetContents(
+            IValueBinding<IEnumerable<string>> dataSource
+        )
+        {
+            return new Repeater() {
+                WrapperTagName = "ul",
+                RenderAsNamedTemplate = false // for testing
+            }
+                .SetProperty(Repeater.DataSourceProperty, dataSource)
+                .SetProperty(Repeater.ItemTemplateProperty, new DelegateTemplate((_, container) => {
+                    var li = new HtmlGenericControl("li");
+                    container.Children.Add(li);
+                    // this won't work unless the <li> is rooted
+                    var id = li.GetDotvvmUniqueId();
+                    li.AddAttribute("data-id", id);
+
+                    li.SetProperty(c => c.InnerText, ValueBindingExpression.CreateThisBinding<string>(bindingService, li.GetDataContextType()));
+                }));
+        }
+    }
+
+    public class HierarchyControlWhichUsesUniqueIds: CompositeControl
+    {
+        private readonly BindingCompilationService bindingService;
+
+        public HierarchyControlWhichUsesUniqueIds(BindingCompilationService bindingService)
+        {
+            this.bindingService = bindingService;
+        }
+        public DotvvmControl GetContents(
+            IValueBinding<System.Collections.IEnumerable> dataSource,
+            [CollectionElementDataContextChange(1)]
+            [ControlPropertyBindingDataContextChange("DataSource")]
+            IValueBinding<IEnumerable<object>> itemChildrenBinding
+        )
+        {
+            return new HierarchyRepeater() {
+                WrapperTagName = "ul"
+            }
+                .SetProperty(HierarchyRepeater.DataSourceProperty, dataSource)
+                .SetProperty(HierarchyRepeater.ItemChildrenBindingProperty, itemChildrenBinding)
+                .SetProperty(HierarchyRepeater.ItemTemplateProperty, new DelegateTemplate((_, container) => {
+                    var li = new HtmlGenericControl("li");
+                    container.Children.Add(li);
+                    // this won't work unless the <li> is rooted
+                    var id = li.GetDotvvmUniqueId();
+                    li.AddAttribute("data-id", id);
+
+                    li.SetProperty(c => c.InnerText, bindingService.Cache.CreateValueBinding<string>("_this.Label", li.GetDataContextType()));
+                }));
+        }
+    }
+
+
+    public enum EnumForCssClasses
+    {
+        [EnumMember(Value = "class-a")]
+        A,
+        [EnumMember(Value = "class-b")]
+        B,
+        [EnumMember(Value = "class-c")]
+        C,
+        [EnumMember(Value = "class-d")]
+        D
     }
 }

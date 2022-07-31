@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_UnwrappedObservables()
         {
             var js = CompileBinding("TestViewModel2.Collection[0].StringValue.Length + TestViewModel2.Collection[8].StringValue", new[] { typeof(TestViewModel) });
-            Assert.AreEqual("TestViewModel2().Collection()[0]().StringValue().length+TestViewModel2().Collection()[8]().StringValue()", js);
+            Assert.AreEqual("(TestViewModel2().Collection()[0]().StringValue().length??\"\")+(TestViewModel2().Collection()[8]().StringValue()??\"\")", js);
         }
 
         [TestMethod]
@@ -116,6 +116,40 @@ namespace DotVVM.Framework.Tests.Binding
             var js = CompileBinding("_parent + _parent2 + _parent0 + _parent1 + _parent3", typeof(string), typeof(string), typeof(string), typeof(string), typeof(string))
                 .Replace("(", "").Replace(")", "");
             Assert.AreEqual("$parent+$parents[1]+$data+$parent+$parents[2]", js);
+        }
+
+        [DataTestMethod]
+        [DataRow("2+2", "2+2", DisplayName = "2+2")]
+        [DataRow("2+2+2", "2+2+2", DisplayName = "2+2+2")]
+        [DataRow("(2+2)+2", "2+2+2", DisplayName = "(2+2)+2")]
+        [DataRow("2+(2+2)", "2+(2+2)", DisplayName = "2+(2+2)")]
+        [DataRow("2+(2*2)", "2+2*2", DisplayName = "2+(2*2)")]
+        [DataRow("2*(2+2)", "2*(2+2)", DisplayName = "2*(2+2)")]
+        [DataRow("IntProp & (2+2)", "IntProp()&2+2", DisplayName = "IntProp & (2+2)")]
+        [DataRow("IntProp & 2+2", "IntProp()&2+2", DisplayName = "IntProp & 2+2")]
+        [DataRow("IntProp & -1", "IntProp()&-1", DisplayName = "IntProp & -1")]
+        [DataRow("'a' + 'b'", "\"ab\"", DisplayName = "'a' + 'b'")]
+        [DataRow("IntProp ^ 1", "IntProp()^1", DisplayName = "IntProp ^ 1")]
+        [DataRow("'xx' + IntProp", "\"xx\"+IntProp()", DisplayName = "'xx' + IntProp")]
+        [DataRow("true == (IntProp == 1)", "true==(IntProp()==1)", DisplayName = "true == (IntProp == 1)")]
+        public void JavascriptCompilation_BinaryExpressions(string expr, string expectedJs)
+        {
+            var js = CompileBinding(expr, new [] { typeof(TestViewModel) });
+            Assert.AreEqual(expectedJs, js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_ExclusiveOr_ReturnsBooleanIfOperandsAreBooleans()
+        {
+            var js = CompileBinding("BoolProp = BoolProp ^ true", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("BoolProp(BoolProp()!=true).BoolProp", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_OnesComplementOperator()
+        {
+            var js = CompileBinding("IntProp = ~IntProp", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("IntProp(~IntProp()).IntProp", js);
         }
 
         [TestMethod]
@@ -304,7 +338,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_LambdaWithDelegateInvocation()
         {
             var result = this.CompileBinding("arg(12) + _this", new [] { typeof(string) }, typeof(Func<Func<int, string>, string>));
-            Assert.AreEqual("(arg)=>ko.unwrap(arg)(12)+$data", result);
+            Assert.AreEqual("(arg)=>(ko.unwrap(arg)(12)??\"\")+$data", result);
         }
 
         [TestMethod]
@@ -826,13 +860,12 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("StringProp.Split('c')", "c", "None")]
         [DataRow("StringProp.Split(\"str\")", "str", "None")]
         [DataRow("StringProp.Split('c', StringSplitOptions.None)", "c", "None")]
         [DataRow("StringProp.Split('c', StringSplitOptions.RemoveEmptyEntries)", "c", "RemoveEmptyEntries")]
         public void JsTranslator_StringSplit_WithOptions(string binding, string delimiter, string options)
         {
-            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual($"dotvvm.translations.string.split(StringProp(),\"{delimiter}\",\"{options}\")", result);
         }
 
@@ -1007,7 +1040,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_AssignAndUse()
         {
             var result = CompileBinding("StringProp2 = (_this.StringProp = _this.StringProp2 = 'lol') + 'hmm'", typeof(TestViewModel));
-            Assert.AreEqual("StringProp2(StringProp(StringProp2(\"lol\").StringProp2()).StringProp()+\"hmm\").StringProp2", result);
+            Assert.AreEqual("StringProp2((StringProp(StringProp2(\"lol\").StringProp2()).StringProp()??\"\")+\"hmm\").StringProp2", result);
         }
 
         [TestMethod]
@@ -1028,14 +1061,14 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_AssignmentExpectsObservable()
         {
             var result = CompileBinding("_api.RefreshOnChange(StringProp = StringProp2, StringProp + StringProp2)", typeof(TestViewModel));
-            Assert.AreEqual("dotvvm.api.refreshOn(StringProp(StringProp2()).StringProp,ko.pureComputed(()=>StringProp()+StringProp2()))", result);
+            Assert.AreEqual("dotvvm.api.refreshOn(StringProp(StringProp2()).StringProp,ko.pureComputed(()=>(StringProp()??\"\")+(StringProp2()??\"\")))", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_ApiRefreshOn()
         {
             var result = CompileBinding("_api.RefreshOnChange('here would be the API invocation', StringProp + StringProp2)", typeof(TestViewModel));
-            Assert.AreEqual("dotvvm.api.refreshOn(\"here would be the API invocation\",ko.pureComputed(()=>StringProp()+StringProp2()))", result);
+            Assert.AreEqual("dotvvm.api.refreshOn(\"here would be the API invocation\",ko.pureComputed(()=>(StringProp()??\"\")+(StringProp2()??\"\")))", result);
         }
 
         [DataTestMethod]
@@ -1065,20 +1098,29 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("StringProp.EndsWith('test',StringComparison.InvariantCultureIgnoreCase)",
             "dotvvm.translations.string.endsWith(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.Trim()", "StringProp().trim()")]
-        [DataRow("StringProp.Trim('0')", "dotvvm.translations.string.trimEnd(dotvvm.translations.string.trimStart(StringProp(),\"0\"),\"0\")")]
-        [DataRow("StringProp.TrimStart()", "StringProp().trimStart()")]
-        [DataRow("StringProp.TrimStart('0')", "dotvvm.translations.string.trimStart(StringProp(),\"0\")")]
-        [DataRow("StringProp.TrimEnd()", "StringProp().trimEnd()")]
-        [DataRow("StringProp.TrimEnd('0')", "dotvvm.translations.string.trimEnd(StringProp(),\"0\")")]
         [DataRow("StringProp.PadLeft(1)", "StringProp().padStart(1)")]
         [DataRow("StringProp.PadRight(2)", "StringProp().padEnd(2)")]
         [DataRow("StringProp.PadLeft(1,'#')", "StringProp().padStart(1,\"#\")")]
         [DataRow("StringProp.PadRight(2,'#')", "StringProp().padEnd(2,\"#\")")]
         [DataRow("string.IsNullOrEmpty(StringProp)", "!(StringProp()?.length>0)")]
         [DataRow("string.IsNullOrWhiteSpace(StringProp)", "!(StringProp()?.trim().length>0)")]
+#if DotNetCore
+        [DataRow("StringProp.Trim('0')", "dotvvm.translations.string.trimEnd(dotvvm.translations.string.trimStart(StringProp(),\"0\"),\"0\")")]
+        [DataRow("StringProp.TrimStart()", "StringProp().trimStart()")]
+        [DataRow("StringProp.TrimStart('0')", "dotvvm.translations.string.trimStart(StringProp(),\"0\")")]
+        [DataRow("StringProp.TrimEnd()", "StringProp().trimEnd()")]
+        [DataRow("StringProp.TrimEnd('0')", "dotvvm.translations.string.trimEnd(StringProp(),\"0\")")]
+#endif
+#if !DotNetCore
+        [DataRow("StringProp.Trim('0')", "dotvvm.translations.string.trimEnd(dotvvm.translations.string.trimStart(StringProp(),[\"0\"][0]),[\"0\"][0])")]
+        [DataRow("StringProp.TrimStart()", "dotvvm.translations.string.trimStart(StringProp(),[][0])")]
+        [DataRow("StringProp.TrimStart('0')", "dotvvm.translations.string.trimStart(StringProp(),[\"0\"][0])")]
+        [DataRow("StringProp.TrimEnd()", "dotvvm.translations.string.trimEnd(StringProp(),[][0])")]
+        [DataRow("StringProp.TrimEnd('0')", "dotvvm.translations.string.trimEnd(StringProp(),[\"0\"][0])")]
+#endif
         public void JavascriptCompilation_StringFunctions(string input, string expected)
         {
-            var result = CompileBinding(input, typeof(TestViewModel));
+            var result = CompileBinding(input, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, typeof(TestViewModel));
             Assert.AreEqual(expected, result);
         }
     }

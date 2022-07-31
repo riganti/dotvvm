@@ -341,7 +341,7 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var control = @"{
 	let vm = options.viewModel;
-	vm.StringProp(await MethodExtensions.test(vm.StringProp, ""a"") + await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp.state], options));
+	vm.StringProp((await MethodExtensions.test(vm.StringProp, ""a"") ?? """") + (await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp.state], options) ?? """"));
 }";
 
             AreEqual(control, result);
@@ -385,7 +385,7 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var expectedResult = @"{
 	let vm = options.viewModel;
-	vm.StringProp(await options.knockoutContext.$control.Change.state(vm.StringProp.state) + await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp.state], options));
+	vm.StringProp((await options.knockoutContext.$control.Change.state(vm.StringProp.state) ?? """") + (await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp.state], options) ?? """"));
 }";
 
             AreEqual(expectedResult, result);
@@ -405,6 +405,16 @@ namespace DotVVM.Framework.Tests.Binding
  }";
 
             AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_FailReasonablyOnInvalidMethod()
+        {
+            TestMarkupControl.CreateInitialized();
+
+            var result = Assert.ThrowsException<BindingPropertyException>(() => CompileBinding("TestViewModel.GetCharCode", false, typeof(TestViewModel)));
+
+            Assert.AreEqual("Static method 'TestViewModel.GetCharCode' not found, but an instance method exists.", result.GetBaseException().Message);
         }
 
         public void AreEqual(string expected, string actual)

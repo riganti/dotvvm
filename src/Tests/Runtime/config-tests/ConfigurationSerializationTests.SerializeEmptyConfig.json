@@ -1,4 +1,5 @@
 {
+  "dotvvmVersion": "*.*.*.*",
   "config": {
     "markup": {
       "importedNamespaces": [
@@ -36,7 +37,10 @@
     "experimentalFeatures": {},
     "debug": false,
     "diagnostics": {
-      "compilationPage": {}
+      "compilationPage": {},
+      "perfWarnings": {
+        "bigViewModelBytes": 5242880.0
+      }
     }
   }
 }

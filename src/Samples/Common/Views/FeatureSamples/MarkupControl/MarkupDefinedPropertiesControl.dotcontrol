@@ -1,0 +1,42 @@
+﻿@import System.Collections.Generic
+@import System
+@import DotVVM.Framework.Binding.Expressions
+@import DotVVM.Framework.Controls
+
+@viewModel object
+
+@property string Heading, MarkupOptionsAttribute.AllowBinding = false
+@property IList<string> Items
+@property string[][] Array = [ ["a"], ["b", "c"], ["d"] ]
+@property Command AddCommand
+@property Func<int, int> AddOne = (int index) => index = index+1
+@property int Counter = 0
+
+<h1>{{value: _control.Heading}}</h1>
+
+<section>
+    <h2>Collections</h2>
+    <dot:Repeater data-ui="list" WrapperTagName="ol" DataSource="{value: _control.Items }">
+        <li data-ui="list-item">{{value: _this}}</li>
+    </dot:Repeater>
+
+    <dot:Button data-ui="add-item" Click="{command: _control.AddCommand()}" Text="Add item" />
+</section>
+
+<section>
+    <h2>2D Array</h2>
+    <dot:Repeater WrapperTagName="ol" DataSource="{value: _control.Array }">
+        <li data-ui="2d-array-x">
+            <dot:Repeater WrapperTagName="ol" DataSource="{value: _this }">
+                <li data-ui="2d-array-y">{{value: _this}}</li>
+            </dot:Repeater>
+        </li>
+    </dot:Repeater>
+</section>
+
+<section>
+    <h2>Lambda commands</h2>
+    <span data-ui="counter" InnerText={value: _control.Counter} />
+
+    <dot:Button data-ui="increase-counter" Click="{command: _control.Counter = _control.AddOne(_control.Counter) }" Text="Increase counter" />
+</section>

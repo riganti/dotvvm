@@ -126,12 +126,9 @@ namespace DotVVM.Framework.Compilation.Binding
             var property = DotvvmProperty.ResolveProperty(target.Type, name);
             if (property == null) return null;
 
-            var field = property.DeclaringType.GetField(property.Name + "Property", BindingFlags.Static | BindingFlags.Public);
-            if (field == null) return null;
-
             return Expression.Convert(
                 Expression.Call(target, "GetValue", Type.EmptyTypes,
-                    Expression.Field(null, field),
+                    Expression.Constant(property),
                     Expression.Constant(true)
                 ),
                 property.PropertyType

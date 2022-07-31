@@ -312,7 +312,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static CodeParameterInfo FromExpression(JsSymbolicParameter expression)
         {
-            return new CodeParameterInfo(expression.Symbol, JsParensFixingVisitor.OperatorLevel(expression.Parent as JsExpression), expression.Parent is JsMemberAccessExpression, expression.DefaultAssignment);
+            return new CodeParameterInfo(expression.Symbol, JsParensFixingVisitor.GetParentLevel(expression), expression.Parent is JsMemberAccessExpression, expression.DefaultAssignment);
         }
     }
 

@@ -93,6 +93,8 @@ namespace DotVVM.Samples.Common
             });
 
             resources.RegisterScriptModuleFile("FeatureSamples_Resources_ReactAppModule", "script/react-app.js");
+            resources.RegisterStylesheetFile("FeatureSamples_Resources_SvelteAppStyle", "script/svelte-app.css");
+            resources.RegisterScriptModuleFile("FeatureSamples_Resources_SvelteAppModule", "script/svelte-app.js", dependencies: new [] { "FeatureSamples_Resources_SvelteAppStyle" });
             resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule", "Scripts/testViewModule.js");
             resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule2", "Scripts/testViewModule2.js");
             resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule3", "Scripts/testViewModule3.js");

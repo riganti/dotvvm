@@ -10,6 +10,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.HelperNamespace;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -158,6 +159,10 @@ namespace DotVVM.Framework.Compilation.Binding
             return null;
         }
 
+        //TODO: Refactor ImplicitConversion usages to EnsureImplicitConversion where applicable to take advantage of nullability 
+        public static Expression EnsureImplicitConversion(Expression src, Type destType)
+            => ImplicitConversion(src, destType, true, false)!;
+
         // 6.1 Implicit Conversions
         public static Expression? ImplicitConversion(Expression src, Type destType, bool throwException = false, bool allowToString = false)
         {
@@ -189,6 +194,10 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public static Expression? ToStringConversion(Expression src)
         {
+            if (src.Type.UnwrapNullableType().IsEnum)
+            {
+                return Expression.Call(typeof(Enums), "ToEnumString", new [] { src.Type.UnwrapNullableType() }, src);
+            }
             var toStringMethod = src.Type.GetMethod("ToString", Type.EmptyTypes);
             if (toStringMethod?.DeclaringType == typeof(object))
                 toStringMethod = null;
@@ -329,10 +338,10 @@ namespace DotVVM.Framework.Compilation.Binding
         /// It also replaces special ExtensionParameters attached to the expression for lambda parameters
         public static Expression? MagicLambdaConversion(Expression expr, Type expectedType)
         {
+            if (expr.Type.IsDelegate())
+                return expr;
             if (expectedType.IsDelegate(out var invokeMethod))
             {
-                if (expr.Type.IsDelegate())
-                    return expr;
                 var resultType = invokeMethod.ReturnType;
                 var delegateArgs = invokeMethod
                                       .GetParameters()
@@ -358,6 +367,14 @@ namespace DotVVM.Framework.Compilation.Binding
                         delegateArgs
                     );
                 }
+            }
+            else if (expectedType == typeof(Delegate))
+            {
+                // convert to any delegate, we just wrap it to `() => { return expr; }`
+                return Expression.Lambda(
+                    body: expr,
+                    parameters: Array.Empty<ParameterExpression>()
+                );
             }
             else
                 return null;

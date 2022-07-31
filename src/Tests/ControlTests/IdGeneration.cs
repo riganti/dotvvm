@@ -50,6 +50,19 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task AutomaticIdGeneration_IdAttributeConflict()
+        {
+            var r = await cth.RunPage(typeof(TestViewModel), @"
+                <!-- we shouldn't generated the Dotvvm unique id when html:id is set explicitly -->
+                <dot:Repeater DataSource={value: Nested.Nested} RenderSettings.Mode=Server>
+                    <ItemTemplate> <span id=generated_id html:id=hardcoded_id></span> </ItemTemplate>
+                </dot:Repeater>
+                "
+            );
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class TestViewModel: DotvvmViewModelBase
         {
             public NestedViewModel Nested { get; set; } = new NestedViewModel {

@@ -27,6 +27,7 @@ namespace DotVVM.Framework.Tests.ViewModel
                 DotvvmConfiguration.CreateDefault());
         }
 
+#if DotNetCore
         [DataTestMethod]
         [DataRow(typeof(bool), "'Boolean'")]
         [DataRow(typeof(int?), "{'type':'nullable','inner':'Int32'}")]
@@ -55,6 +56,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var result = typeMetadataSerializer.GetTypeIdentifier(type, dependentObjectTypes, dependentEnumTypes);
             Assert.AreEqual(expected.Replace("'", "\""), result.ToString(Formatting.None));
         }
+#endif
 
         [TestMethod]        
         public void ViewModelTypeMetadata_TypeMetadata()

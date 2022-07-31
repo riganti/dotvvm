@@ -8,6 +8,7 @@ namespace DotVVM.Framework.Runtime.Tracing
 
     public class NullRequestTracer : IRequestTracer
     {
+        private NullRequestTracer() { }
         public Task TraceEvent(string eventName, IDotvvmRequestContext context)
         {
             return TaskUtils.GetCompletedTask();
@@ -22,6 +23,8 @@ namespace DotVVM.Framework.Runtime.Tracing
         {
             return TaskUtils.GetCompletedTask();
         }
+
+        public readonly static NullRequestTracer Instance = new NullRequestTracer();
     }
 
 }

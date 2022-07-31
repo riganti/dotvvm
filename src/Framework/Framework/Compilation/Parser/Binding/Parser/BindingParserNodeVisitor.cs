@@ -83,6 +83,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitVoid(voidNode);
             }
+            else if (node is ArrayInitializerExpression arrayInitializerExpression)
+            {
+                return VisitArrayInitializer(arrayInitializerExpression);
+            }
             else if (node is null)
             {
                 return default(T)!;
@@ -184,6 +188,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         }
 
         protected virtual T VisitVoid(VoidBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
+        protected virtual T VisitArrayInitializer(ArrayInitializerExpression node)
         {
             return DefaultVisit(node);
         }

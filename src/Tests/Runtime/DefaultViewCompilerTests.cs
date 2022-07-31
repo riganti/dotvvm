@@ -144,7 +144,7 @@ test <dot:Literal><a /></dot:Literal>";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.AreEqual(1, page.Children.Count);
+            Assert.AreEqual(1, page.Children.Count, string.Join(", ", page.Children.Select(c => c.GetType().Name)));
 
             Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
 

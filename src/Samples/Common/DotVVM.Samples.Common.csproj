@@ -43,6 +43,7 @@
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_StringToObject.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\GridView\GridViewCellDecorators.dothtml" />
+    <None Remove="Views\ControlSamples\HierarchyRepeater\Basic.dothtml" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
@@ -91,6 +92,8 @@
     <None Remove="Views\FeatureSamples\LambdaExpressions\ClientSideFiltering.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\MarkupDefinedProperties.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\MarkupDefinedPropertiesControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\ServiceDependency\ServiceDependencyControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostbackAbortSignal\LoadAbortViewModel.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\ByteArray.dothtml" />
@@ -98,6 +101,7 @@
     <None Remove="Views\FeatureSamples\Serialization\EnumSerializationCoercion.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\SerializationDateTimeOffset.dothtml" />
     <None Remove="Views\FeatureSamples\StringInterpolation\StringInterpolation.dothtml" />
+    <None Remove="Views\FeatureSamples\Validation\ValidatorValueComplexExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\Incrementer.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\IncrementerInRepeater.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\InnerModuleControl.dotcontrol" />

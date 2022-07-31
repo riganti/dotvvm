@@ -196,7 +196,7 @@ namespace DotVVM.Framework.Controls
                 linkButton.SetValue(LinkButton.TextProperty, GetValueRaw(HeaderTextProperty));
                 cell.Children.Add(linkButton);
 
-                var bindingId = linkButton.GetDotvvmUniqueId() + "_sortBinding";
+                var bindingId = linkButton.GetDotvvmUniqueId().GetValue() + "_sortBinding";
                 var binding = new CommandBindingExpression(context.Services.GetRequiredService<BindingCompilationService>().WithoutInitialization(), h => sortCommand(sortExpression), bindingId);
                 linkButton.SetBinding(ButtonBase.ClickProperty, binding);
 

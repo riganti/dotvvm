@@ -377,7 +377,7 @@ test("PostBack + validation errors", async () => {
     const cleanup = watchEvents(false);
     try {
 
-        await expect(postBack(window.document.body, ["$root"], "c", "", undefined, [ "concurrency-default", [ "validate", { path: "$root" } ] ])).rejects.toBeInstanceOf(DotvvmPostbackError);
+        await expect(postBack(window.document.body, ["$root"], "c", "", undefined, [ "concurrency-default", [ "validate", { path: (c: any) => c.$root } ] ])).rejects.toBeInstanceOf(DotvvmPostbackError);
 
         var history = getEventHistory();
 

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
@@ -62,7 +63,7 @@ namespace DotVVM.Framework.Binding
 
             AssertPropertyNotDefined(this, postContent: false);
 
-            var dotnetFieldName = name.Replace("-", "_").Replace(":", "_");
+            var dotnetFieldName = ToPascalCase(name.Replace("-", "_").Replace(":", "_"));
             attributeProvider ??=
                 declaringType.GetProperty(dotnetFieldName) ??
                 declaringType.GetField(dotnetFieldName) ??
@@ -249,20 +250,28 @@ namespace DotVVM.Framework.Binding
             resultProperty.Setter = accessors.setter.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
+        static string ToPascalCase(string p) =>
+            p.Length > 0 && char.IsLower(p[0]) ?
+                char.ToUpperInvariant(p[0]) + p.Substring(1) :
+                p;
+
         private static readonly ParameterExpression currentControlParameter = Expression.Parameter(typeof(DotvvmBindableObject), "control");
-        /// <summary> Returns DotvvmProperty, DotvvmCapabilityProperty or DotvvmPRopertyGroup </summary>
-        internal static object InitializeArgument(ICustomAttributeProvider attributeProvider, string propertyName, Type propertyType, Type declaringType, DotvvmCapabilityProperty? declaringCapability, ValueOrBinding<object>? defaultValue)
+        /// <summary> Returns DotvvmProperty, DotvvmCapabilityProperty or DotvvmPropertyGroup </summary>
+        internal static IControlAttributeDescriptor InitializeArgument(ICustomAttributeProvider attributeProvider, string propertyName, Type propertyType, Type declaringType, DotvvmCapabilityProperty? declaringCapability, ValueOrBinding<object>? defaultValue)
         {
+            // we need to make sure that base type is initialized, otherwise we might miss that some properties are already defined in base type
+            // and we'd redefine them for the second time here (HtmlGenericControl.Id vs DotvvmControl.Id, see https://github.com/riganti/dotvvm/issues/1387)
+            DefaultControlResolver.InitType(declaringType.BaseType.NotNull("declaringType.BaseType is null"));
+            
             var capabilityType = declaringCapability?.PropertyType;
-            if (char.IsLower(propertyName[0]))
-                propertyName = char.ToUpperInvariant(propertyName[0]) + propertyName.Substring(1);
-            propertyName = propertyName.DotvvmInternString(trySystemIntern: true);
+            propertyName = ToPascalCase(propertyName).DotvvmInternString(trySystemIntern: true);
 
             if (attributeProvider.GetCustomAttribute<DefaultValueAttribute>() is DefaultValueAttribute defaultAttribute)
             {
                 defaultValue = ValueOrBinding<object>.FromBoxedValue(defaultAttribute.Value);
             }
             var boxedDefaultValue = defaultValue?.UnwrapToObject();
+            var globalPrefix = declaringCapability?.Prefix ?? "";
 
             // Property Group
             if (attributeProvider.GetCustomAttribute<PropertyGroupAttribute>() is PropertyGroupAttribute groupAttribute)
@@ -270,7 +279,6 @@ namespace DotVVM.Framework.Binding
                 var elementType = Helpers.GetDictionaryElement(propertyType);
                 var unwrappedType = elementType.UnwrapValueOrBinding();
 
-                var globalPrefix = declaringCapability?.Prefix ?? "";
                 var propertyGroup = DotvvmPropertyGroup.Register(
                     declaringType,
                     groupAttribute.Prefixes.Select(p => globalPrefix + p).ToArray(),
@@ -290,7 +298,7 @@ namespace DotVVM.Framework.Binding
             // Control Capability
             else if (propertyType.IsDefined(typeof(DotvvmControlCapabilityAttribute)) || attributeProvider.IsDefined(typeof(DotvvmControlCapabilityAttribute), true))
             {
-                var prefix = attributeProvider.GetCustomAttribute<DotvvmControlCapabilityAttribute>()?.Prefix ?? "";
+                var prefix = globalPrefix + attributeProvider.GetCustomAttribute<DotvvmControlCapabilityAttribute>()?.Prefix;
 
                 DotvvmCapabilityProperty capability;
                 if (Find(declaringType, propertyType, prefix) is {} existingProperty)
@@ -331,9 +339,9 @@ namespace DotVVM.Framework.Binding
                     else if (!typeof(ValueOrBinding).IsAssignableFrom(propertyType.UnwrapNullableType()))
                         dotvvmProperty.MarkupOptions.AllowBinding = false;
 
-                    if (typeof(DotvvmBindableObject).IsAssignableFrom(type) ||
+                    if (typeof(IDotvvmObjectLike).IsAssignableFrom(type) ||
                         typeof(ITemplate).IsAssignableFrom(type) ||
-                        typeof(IEnumerable<DotvvmBindableObject>).IsAssignableFrom(type))
+                        typeof(IEnumerable<IDotvvmObjectLike>).IsAssignableFrom(type))
                         dotvvmProperty.MarkupOptions.MappingMode = MappingMode.Both;
 
                     DotvvmProperty.Register(dotvvmProperty);

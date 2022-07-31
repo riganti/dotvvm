@@ -46,7 +46,13 @@ namespace DotVVM.Framework.Compilation
             if (a is string aString && b is string bString)
                 return HtmlWriter.JoinAttributeValues(gProp.GroupMemberName, aString, bString);
 
-            throw new NotSupportedException($"Cannot merge html attribute values {a} and {b}, the values must be of type string.");
+            // append to list. Order does not matter in html attributes
+            if (a is HtmlGenericControl.AttributeList alist)
+                return new HtmlGenericControl.AttributeList(b, alist);
+            else if (b is HtmlGenericControl.AttributeList blist)
+                return new HtmlGenericControl.AttributeList(a, blist);
+
+            return new HtmlGenericControl.AttributeList(a, new HtmlGenericControl.AttributeList(b, null));
         }
     }
 }

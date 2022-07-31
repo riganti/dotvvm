@@ -17,7 +17,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Configuration;
 using FastExpressionCompiler;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using RecordExceptions;
 
 namespace DotVVM.Framework.Utils
@@ -346,7 +349,7 @@ namespace DotVVM.Framework.Utils
             typeof(Delegate).IsAssignableFrom(type);
         public static bool IsDelegate(this Type type, [NotNullWhen(true)] out MethodInfo? invokeMethod)
         {
-            if (type.IsDelegate())
+            if (type.IsDelegate() && typeof(Delegate) != type)
             {
                 invokeMethod = type.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance).NotNull("Could not find delegate Invoke method");
                 return true;
@@ -393,10 +396,8 @@ namespace DotVVM.Framework.Utils
                 return type.GetGenericArguments()[0];
             else if (typeof(Task).IsAssignableFrom(type))
                 return typeof(void);
-#if DotNetCore
             else if (type.IsGenericType && typeof(ValueTask<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
                 return type.GetGenericArguments()[0];
-#endif
             else
                 return type;
         }
@@ -472,10 +473,27 @@ namespace DotVVM.Framework.Utils
             member is TypeInfo type ? type.AsType() :
             throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
 
-        public static string ToEnumString<T>(this T instance) where T : Enum
+        [return: NotNullIfNotNull("instance")]
+        public static string? ToEnumString<T>(T? instance) where T : struct, Enum
         {
-            return ToEnumString(instance.GetType(), instance.ToString());
+            if (instance == null)
+                return null;
+
+            if (!EnumInfo<T>.HasEnumMemberField)
+            {
+                return instance.ToString()!;
+            }
+            else if (typeof(T).GetCustomAttribute<FlagsAttribute>() != null)
+            {
+                return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value));
+            }
+            else
+            {
+                var name = instance.ToString()!;
+                return ToEnumString(typeof(T), name);
+            }
         }
+
         public static string ToEnumString(Type enumType, string name)
         {
             var field = enumType.GetField(name);
@@ -490,6 +508,23 @@ namespace DotVVM.Framework.Utils
             return name;
         }
 
+        internal static class EnumInfo<T> where T: struct, Enum
+        {
+            internal static readonly bool HasEnumMemberField;
+
+            static EnumInfo()
+            {
+                foreach (var field in typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static))
+                {
+                    if (field.IsDefined(typeof(EnumMemberAttribute), false))
+                    {
+                        HasEnumMemberField = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
         public static Type GetDelegateType(MethodInfo methodInfo)
         {
             return Expression.GetDelegateType(methodInfo.GetParameters().Select(a => a.ParameterType).Append(methodInfo.ReturnType).ToArray());

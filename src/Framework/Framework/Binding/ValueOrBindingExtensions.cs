@@ -74,11 +74,21 @@ public static class ValueOrBindingExtensions
     public static ValueOrBinding<string> AsString<T>(this ValueOrBinding<T> v)
     {
         if (v.BindingOrDefault is IBinding binding)
-            return new ValueOrBinding<string>(
+            return new(
                 binding.GetProperty<ExpectedAsStringBindingExpression>().Binding
             );
+        else if (v.ValueOrDefault is null)
+        {
+            return new("");
+        }
+        else if (typeof(T).IsValueType && typeof(T).UnwrapNullableType().IsEnum)
+        {
+            return new(ReflectionUtils.ToEnumString(typeof(T), v.ValueOrDefault.ToString() ?? ""));
+        }
         else
-            return new ValueOrBinding<string>("" + v.ValueOrDefault);
+        {
+            return new(v.ValueOrDefault.ToString() ?? "");
+        }
     }
     /// <summary> Returns ValueOrBinding with the value of `a is object`. The resulting binding is cached, so it's safe to use this method at runtime. </summary>
     public static ValueOrBinding<bool> NotNull<T>(this ValueOrBinding<T> v) =>
@@ -114,6 +124,30 @@ public static class ValueOrBindingExtensions
         else
             return new(string.IsNullOrWhiteSpace(v.ValueOrDefault));
     }
+
+    /// <summary> Returns if the ValueOrBinding contains a value and the value is equal to <paramref name="value"/>. </summary>
+    public static bool ValueEquals<T>(this ValueOrBinding<T> v, [MaybeNull] T value)
+    {
+        if (v.HasBinding)
+            return false;
+        else
+            return EqualityComparer<T>.Default.Equals(v.ValueOrDefault, value);
+    }
+
+    /// <summary> Returns if the ValueOrBinding contains a value and the value is equal to <paramref name="value"/>. </summary>
+    public static bool ValueEquals<T>(this ValueOrBinding<T> v, [MaybeNull] T value, IEqualityComparer<T> comparer)
+    {
+        if (v.HasBinding)
+            return false;
+        else
+            return comparer.Equals(v.ValueOrDefault, value);
+    }
+
+    /// <summary> Returns true if the ValueOrBinding contains value, but the value is null. </summary>
+    public static bool ValueIsNull<T>(this ValueOrBinding<T> v) => v.HasValue && v.ValueOrDefault is null;
+
+    /// <summary> Returns true if the ValueOrBinding contains value, but the value is null or an empty string. </summary>
+    public static bool ValueIsNullOrEmpty(this ValueOrBinding<string?> v) => v.HasValue && string.IsNullOrEmpty(v.ValueOrDefault);
 
     /// <summary> Returns ValueOrBinding with the value of `a &amp;&amp; b`. If both a and b contain a binding, they are combined together. The result is cached, so it's safe to use this method at runtime. </summary>
     public static ValueOrBinding<bool> And(this ValueOrBinding<bool> a, ValueOrBinding<bool> b)
