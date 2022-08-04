@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var dotvvmBuilder = CreateControlRenderer(div, new object());
 
             var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
-            StringAssert.Contains(exc.Message, "The property 'DotvvmBindableObject.DataContext' cannot contain hard coded value");
+            StringAssert.Contains(exc.Message, "The property DotvvmBindableObject.DataContext cannot contain hard coded value");
         }
 
         [TestMethod]
@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var dotvvmBuilder = CreateControlRenderer(checkbox, new object());
 
             var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder()); 
-            StringAssert.Contains(exc.Message, "The property 'CheckBox.Checked' cannot contain hard coded value");
+            StringAssert.Contains(exc.Message, "The property CheckBox.Checked cannot contain hard coded value");
         }
 
         [TestMethod]

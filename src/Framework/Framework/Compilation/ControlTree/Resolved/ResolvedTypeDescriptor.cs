@@ -44,10 +44,24 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return Type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
         }
 
+        public bool IsEqualTo(Type other)
+        {
+            return this.Type == other;
+        }
         public bool IsEqualTo(ITypeDescriptor other)
         {
+            if (other is ResolvedTypeDescriptor { Type: var otherType })
+                return this.IsEqualTo(otherType);
             return Name == other.Name && Namespace == other.Namespace && Assembly == other.Assembly;
         }
+
+        public override bool Equals(object? obj) =>
+            obj is null ? false :
+            obj is ResolvedTypeDescriptor { Type: var otherType } ? IsEqualTo(otherType) :
+            obj is Type otherType2 ? IsEqualTo(otherType2) :
+            obj is ITypeDescriptor typeD ? IsEqualTo(typeD) :
+            false;
+        public override int GetHashCode() => Type.GetHashCode();
 
         public ITypeDescriptor? TryGetArrayElementOrIEnumerableType()
         {

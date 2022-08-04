@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Binding
 {
-    public sealed class GroupedDotvvmProperty : DotvvmProperty
+    public sealed class GroupedDotvvmProperty : DotvvmProperty, IGroupedPropertyDescriptor
     {
         public DotvvmPropertyGroup PropertyGroup { get; }
 
         public string GroupMemberName { get; }
+
+        IPropertyGroupDescriptor IGroupedPropertyDescriptor.PropertyGroup => PropertyGroup;
 
         public GroupedDotvvmProperty(string groupMemberName, DotvvmPropertyGroup propertyGroup)
         {
@@ -30,7 +32,9 @@ namespace DotVVM.Framework.Binding
                 DefaultValue = group.DefaultValue,
                 IsValueInherited = false,
                 Name = propname,
-                ObsoleteAttribute = group.ObsoleteAttribute
+                ObsoleteAttribute = group.ObsoleteAttribute,
+                OwningCapability = group.OwningCapability,
+                UsedInCapabilities = group.UsedInCapabilities
             };
 
             DotvvmProperty.InitializeProperty(prop, group.AttributeProvider);
