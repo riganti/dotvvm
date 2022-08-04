@@ -1418,6 +1418,12 @@
         "type": "System.Object"
       }
     },
+    "DotVVM.Framework.Tests.ControlTests.CustomControlWithInternalProperty": {
+      "PropGroup": {
+        "prefix": "PropGroup-",
+        "type": "System.String"
+      }
+    },
     "DotVVM.Framework.Tests.ControlTests.RepeatedButton": {
       "Attributes": {
         "prefixes": [

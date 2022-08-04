@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
@@ -17,6 +18,7 @@ namespace DotVVM.Framework.Compilation
         class ExpressionInspectingVisitor: ExpressionVisitor
         {
             public HashSet<DotvvmProperty> UsedProperties { get; } = new();
+            public HashSet<DotvvmPropertyGroup> UsedPropertyGroups { get; } = new();
             public bool UsesViewModel { get; set; }
             protected override Expression VisitConstant(ConstantExpression node)
             {
@@ -28,6 +30,12 @@ namespace DotVVM.Framework.Compilation
             {
                 if (typeof(DotvvmProperty).IsAssignableFrom(node.Type) && node.Member is FieldInfo { IsStatic: true } field)
                     UsedProperties.Add((DotvvmProperty)field.GetValue(null).NotNull());
+
+                if (node.Expression is {} &&
+                    typeof(DotvvmBindableObject).IsAssignableFrom(node.Expression.Type) &&
+                    DotvvmPropertyGroup.ResolvePropertyGroup(node.Expression.Type, node.Member.Name) is {} propertyGroup)
+                    UsedPropertyGroups.Add(propertyGroup);
+
                 return base.VisitMember(node);
             }
 
@@ -60,7 +68,8 @@ namespace DotVVM.Framework.Compilation
             base.VisitView(view);
 
             var props = exprVisitor.UsedProperties.OrderBy(p => p.Name).ToArray();
-            var info = new ControlUsedPropertiesInfo(props, exprVisitor.UsesViewModel);
+            var propertyGroups = exprVisitor.UsedPropertyGroups.OrderBy(p => p.Name).ToArray();
+            var info = new ControlUsedPropertiesInfo(props, propertyGroups, exprVisitor.UsesViewModel);
 
             view.SetProperty(new ResolvedPropertyValue(Internal.UsedPropertiesInfoProperty, info));
         }
@@ -69,6 +78,7 @@ namespace DotVVM.Framework.Compilation
     [HandleAsImmutableObjectInDotvvmPropertyAttribute]
     sealed record ControlUsedPropertiesInfo(
         DotvvmProperty[] ClientSideUsedProperties,
+        DotvvmPropertyGroup[] ClientSideUsedPropertyGroups,
         bool UsesViewModelClientSide
     );
 }

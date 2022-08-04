@@ -153,8 +153,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Dictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
             AddMethodTranslator(typeof(IDictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
             AddMethodTranslator(typeof(IReadOnlyDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
-            AddMethodTranslator(typeof(ReadOnlyDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
-            AddMethodTranslator(typeof(ReadOnlyCollection<>), "get_Item", new GenericMethodCompiler(listGetIndexer));
             AddMethodTranslator(typeof(Array).GetMethod(nameof(Array.SetValue), new[] { typeof(object), typeof(int) }), new GenericMethodCompiler(arrayElementSetter));
             AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((JsExpression[] args, MethodInfo method) => args[0]));
             AddPropertyGetterTranslator(typeof(Nullable<>), "HasValue",
@@ -551,9 +549,10 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             AddMethodTranslator(typeof(Dictionary<,>), "Clear", parameterCount: 0, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("clear").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
-            AddMethodTranslator(typeof(Dictionary<,>), "ContainsKey", parameterCount: 1, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("containsKey").Invoke(args[0], args[1])));
-            AddMethodTranslator(typeof(Dictionary<,>), "Remove", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+            var containsKey = new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("containsKey").Invoke(args[0], args[1]));
+            AddMethodTranslator(typeof(IDictionary<,>), "ContainsKey", parameterCount: 1, translator: containsKey);
+            AddMethodTranslator(typeof(IReadOnlyDictionary<,>), "ContainsKey", parameterCount: 1, translator: containsKey);
+            AddMethodTranslator(typeof(IDictionary<,>), "Remove", parameterCount: 1, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("remove").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
         }
 
@@ -674,14 +673,18 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return result;
             }
 
-            foreach (var iface in method.DeclaringType!.GetInterfaces())
+            if (!method.DeclaringType!.IsInterface)
             {
-                if (Interfaces.Contains(iface))
+                // attempt to match a translation defined on an interface. For example Dictionary`2.ContainsKey should match the IDictionary`2.ContainsKey translation
+                foreach (var iface in method.DeclaringType.GetInterfaces())
                 {
-                    var map = method.DeclaringType.GetInterfaceMap(iface);
-                    var imIndex = Array.IndexOf(map.TargetMethods, method);
-                    if (imIndex >= 0 && MethodTranslators.TryGetValue(map.InterfaceMethods[imIndex], out var translator) && translator.TryTranslateCall(context, args, method) is JsExpression result)
-                        return result;
+                    if (Interfaces.Contains(iface) || iface.IsConstructedGenericType && Interfaces.Contains(iface.GetGenericTypeDefinition()))
+                    {
+                        var map = method.DeclaringType.GetInterfaceMap(iface);
+                        var imIndex = Array.IndexOf(map.TargetMethods, method);
+                        if (imIndex >= 0 && TryTranslateCall(context, args, map.InterfaceMethods[imIndex]) is JsExpression result)
+                            return result;
+                    }
                 }
             }
             if (method.DeclaringType.IsGenericType && !method.DeclaringType.IsGenericTypeDefinition)
