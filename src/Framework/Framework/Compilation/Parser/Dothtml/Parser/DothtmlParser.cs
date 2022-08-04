@@ -138,17 +138,12 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                     // text
                     if (!doNotAppend
                         && CurrentElementContent.Count > 0
-                        && CurrentElementContent[CurrentElementContent.Count - 1].GetType() == typeof(DothtmlLiteralNode)
-                        && !(CurrentElementContent[CurrentElementContent.Count - 1] is DotHtmlCommentNode))
+                        && CurrentElementContent[CurrentElementContent.Count - 1] is DothtmlLiteralNode lastLiteral
+                        && !lastLiteral.Escape
+                        && lastLiteral.MainValueToken is null)
                     {
                         // append to the previous literal
-                        var lastLiteral = (DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1];
-                        if (lastLiteral.Escape)
-                            CurrentElementContent.Add(new DothtmlLiteralNode() { Tokens = { PeekPart() } });
-                        else
-                        {
-                            lastLiteral.Tokens.Add(PeekPart());
-                        }
+                        lastLiteral.Tokens.Add(PeekPart());
                     }
                     else
                     {
@@ -226,18 +221,22 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         private DothtmlLiteralNode ReadCData()
         {
+            var startIndex = CurrentIndex;
             Assert(DothtmlTokenType.OpenCData);
-            var node = new DothtmlLiteralNode();
-            node.Tokens.Add(PeekPart());
             Read();
+
             Assert(DothtmlTokenType.CDataBody);
-            node.Tokens.Add(PeekPart());
-            node.Escape = true;
+            var body = Peek()!;
             Read();
+
             Assert(DothtmlTokenType.CloseCData);
-            node.Tokens.Add(PeekPart());
             Read();
-            return node;
+        
+            return new DothtmlLiteralNode() {
+                Escape = true,
+                Tokens = { GetTokensFrom(startIndex) },
+                MainValueToken = body
+            };
         }
 
         private DotHtmlCommentNode ReadComment()

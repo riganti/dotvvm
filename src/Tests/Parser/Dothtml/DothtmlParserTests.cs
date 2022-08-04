@@ -425,7 +425,7 @@ test";
             Assert.AreEqual("test ", ((DothtmlLiteralNode)nodes[0]).Value);
 
             Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
-            Assert.AreEqual(@"<![CDATA[<a href=""test1"">test2</a>]]>", ((DothtmlLiteralNode)nodes[1]).Value);
+            Assert.AreEqual(@"<a href=""test1"">test2</a>", ((DothtmlLiteralNode)nodes[1]).Value);
 
             Assert.IsInstanceOfType(nodes[2], typeof(DothtmlLiteralNode));
             Assert.AreEqual(" test3 ", ((DothtmlLiteralNode)nodes[2]).Value);
