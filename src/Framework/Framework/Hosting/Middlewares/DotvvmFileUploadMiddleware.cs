@@ -18,8 +18,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class DotvvmFileUploadMiddleware : IMiddleware
     {
-        private static readonly Regex baseMimeTypeRegex = new Regex(@"/.*$");
-        private static readonly Regex wildcardMimeTypeRegex = new Regex(@"/\*$");
+        private static readonly Regex baseMimeTypeRegex = new Regex(@"/.*$", RegexOptions.CultureInvariant);
+        private static readonly Regex wildcardMimeTypeRegex = new Regex(@"/\*$", RegexOptions.CultureInvariant);
         private readonly IOutputRenderer outputRenderer;
         private readonly IUploadedFileStorage fileStorage;
         private readonly IViewModelSerializer viewModelSerializer;
@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 try
                 {
                     // get the boundary
-                    var boundary = Regex.Match(contentType, @"boundary=""?(?<boundary>[^\n\;\"" ]*)").Groups["boundary"];
+                    var boundary = Regex.Match(contentType, @"boundary=""?(?<boundary>[^\n\;\"" ]*)", RegexOptions.CultureInvariant).Groups["boundary"];
                     if (!boundary.Success || string.IsNullOrWhiteSpace(boundary.Value))
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;

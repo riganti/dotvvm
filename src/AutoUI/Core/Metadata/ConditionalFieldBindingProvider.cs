@@ -86,7 +86,7 @@ namespace DotVVM.AutoUI.Metadata
         {
             ValueOrBinding<bool> ProcessPart(string identifier, string negate)
             {
-                if (!Regex.IsMatch(identifier, "^!?[a-zA-Z_][a-zA-Z0-9_]*$"))
+                if (!Regex.IsMatch(identifier, "^!?[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.CultureInvariant))
                 {
                     throw new DotvvmControlException($"Invalid syntax in the attribute ViewNames property near syntax '{identifier}'! The expression can only contain identifier names and operators & (AND), | (OR) and ! (NOT).");
                 }
@@ -99,7 +99,7 @@ namespace DotVVM.AutoUI.Metadata
                 return result;
             }
 
-            var match = Regex.Match(viewName, @"^\s*(!?)(\w+)(\s*(\|{1,2}|&{1,2})\s*(!?)(\w+)\s*)*$");
+            var match = Regex.Match(viewName, @"^\s*(!?)(\w+)(\s*(\|{1,2}|&{1,2})\s*(!?)(\w+)\s*)*$", RegexOptions.CultureInvariant);
             if (!match.Success)
             {
                 throw new DotvvmControlException($"Invalid syntax in the attribute ViewNames property '{viewName}'! The expression can only contain identifier names and operators & (AND), | (OR) and ! (NOT).");

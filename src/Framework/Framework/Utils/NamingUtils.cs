@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Utils
 
         public static bool IsValidResourceName(string name)
         {
-            // return Regex.IsMatch(name, @"^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$");
+            // return Regex.IsMatch(name, @"^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$", RegexOptions.CultureInvariant);
             // but the regex is slow, so:
 
             bool allowedFirstLetter(char ch) =>
