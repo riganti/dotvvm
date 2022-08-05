@@ -221,7 +221,8 @@ You need to implement the [IFormEditorProvider](./Core/PropertyHandlers/FormEdit
 in the form, and the [IGridColumnProvider](./Core/PropertyHandlers/GridColumns/IGridColumnProvider.cs) to implement about
 custom GridView column.
 
-Then, you have to register the editor in the `DotvvmStartup.cs` file. Please note that the order of editor providers and grid columns matters. The Dynamic Data will use the first provider which returns `CanHandleProperty = true`
+Then, you have to register the editor in the `DotvvmStartup.cs` file. Please note that the order of editor providers and grid columns matters.
+AutoUI will use the first provider which returns `CanHandleProperty = true`
 for the property.
 
 ```

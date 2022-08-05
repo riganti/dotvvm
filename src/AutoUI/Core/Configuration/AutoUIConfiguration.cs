@@ -10,7 +10,7 @@ using DotVVM.Framework.Utils;
 namespace DotVVM.AutoUI.Configuration
 {
     /// <summary>
-    /// Represents the configuration of DotVVM Dynamic Data library.
+    /// Represents the configuration of DotVVM AutoUI library.
     /// </summary>
     public class AutoUIConfiguration
     {

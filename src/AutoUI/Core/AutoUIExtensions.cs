@@ -13,14 +13,14 @@ namespace DotVVM.AutoUI
     public static class AutoUIExtensions
     {
         /// <summary>
-        /// Registers all services required by DotVVM Dynamic Data.
+        /// Registers all services required by DotVVM AutoUI.
         /// </summary>
         public static IDotvvmServiceCollection AddAutoUI(this IDotvvmServiceCollection services, Action<AutoUIConfiguration>? configure = null)
         {
             var autoUiConfiguration = new AutoUIConfiguration();
             configure?.Invoke(autoUiConfiguration);
             
-            // add the configuration of Dynamic Data to the service collection
+            // add the configuration of AutoUI to the service collection
             services.Services.AddSingleton(serviceProvider => autoUiConfiguration);
 
             RegisterDefaultProviders(services.Services, autoUiConfiguration);
@@ -63,9 +63,7 @@ namespace DotVVM.AutoUI
         }
 
 
-        /// <summary>
-        /// Registers the Dynamic Data controls and return the Dynamic Data configuration.
-        /// </summary>
+        /// <summary> Registers the AutoUI controls </summary>
         private static void AddAutoUIConfiguration(DotvvmConfiguration config)
         {
             config.Markup.AddCodeControls("auto", typeof(AutoUIExtensions).Namespace! + ".Controls", typeof(AutoUIExtensions).Assembly.FullName!);
