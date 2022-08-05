@@ -138,9 +138,9 @@ namespace DotVVM.Framework.Binding
             control.properties.Set(group.GetDotvvmProperty(key), value.UnwrapToObject());
         }
         public void Set(string key, TValue value) =>
-            this.Set(key, new ValueOrBinding<TValue>(value));
+            control.properties.Set(group.GetDotvvmProperty(key), value);
         public void SetBinding(string key, IBinding binding) =>
-            this.Set(key, new ValueOrBinding<TValue>(binding));
+            control.properties.Set(group.GetDotvvmProperty(key), binding);
 
         public bool ContainsKey(string key)
         {

@@ -233,6 +233,22 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.AreEqual("Control type DotVVM.Framework.Controls.HtmlGenericControl can't be used in collection of type DotVVM.Framework.Controls.Repeater.", e.Message);
         }
 
+        [TestMethod]
+        public async Task ClassBindingControl()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- Active=false -->
+                <cc:ClassBindingControl Active=false />
+                <!-- Active=true -->
+                <cc:ClassBindingControl Active Width=100 />
+                <!-- bindings -->
+                <cc:ClassBindingControl Active={value: Integer > 100} Width={value: Integer} />
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -509,6 +525,18 @@ namespace DotVVM.Framework.Tests.ControlTests
         )
         {
             return new Literal(repeaters.Count().ToString());
+        }
+    }
+    public class ClassBindingControl: CompositeControl
+    {
+        public static DotvvmControl GetContents(
+            ValueOrBinding<bool> active,
+            ValueOrBinding<int>? width
+        )
+        {
+            return new HtmlGenericControl("div")
+                .AddCssClass("is-active", active)
+                .AddCssStyle("width", width);
         }
     }
 }

@@ -130,6 +130,16 @@ namespace DotVVM.Framework.Binding
                 yield return x;
         }
 
+        /// <summary> Return a <see cref="DotvvmProperty" /> defined by this capability with the specified name. `null` is returned if there is no property with the name or if this capability does not have property mapping.
+        /// <code> HtmlGenericControl.HtmlCapabilityProperty.FindProperty("Visible") </code> </summary>
+        public DotvvmProperty? FindProperty(string name) =>
+            PropertyMapping?.FirstOrDefault(p => p.prop.Name == name).dotvvmProperty;
+
+        /// <summary> Return a <see cref="DotvvmPropertyGroup" /> defined by this capability with the specified name. `null` is returned if there is no property with the name or if this capability does not have property mapping.
+        /// <code> HtmlGenericControl.HtmlCapabilityProperty.FindPropertyGroup("Attributes") </code> </summary>
+        public DotvvmPropertyGroup? FindPropertyGroup(string name) =>
+            PropertyGroupMapping?.FirstOrDefault(p => p.prop.Name == name).dotvvmPropertyGroup;
+
         private static void AssertPropertyNotDefined(DotvvmCapabilityProperty p, bool postContent = false)
         {
             if (Find(p.DeclaringType.NotNull(), p.PropertyType, p.Prefix) is {} existingCapability)
