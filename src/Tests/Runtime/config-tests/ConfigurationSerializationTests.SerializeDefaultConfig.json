@@ -1466,7 +1466,7 @@
         "fromCapability": "Props"
       },
       "Header": {
-        "prefix": "Label-",
+        "prefix": "Header-",
         "type": "System.String",
         "fromCapability": "Props"
       },
