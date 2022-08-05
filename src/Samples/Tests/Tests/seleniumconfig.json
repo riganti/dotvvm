@@ -1,11 +1,11 @@
-﻿{
+{
   "factories": {
     "chrome:fast": {
       "capabilities": [ "--headless" ]
     }
   },
   "baseUrls": [
-    "http://localhost:16018/"
+    "http://localhost:5407/"
   ],
   "testRunOptions": {
     "runInParallel": false,
