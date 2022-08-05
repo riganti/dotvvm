@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -25,8 +25,6 @@ namespace DotVVM.AutoUI.Metadata
         {
             var metadata = entityType.GetProperties()
                 .Select(propertyDisplayMetadataProvider.GetPropertyMetadata)
-                .OrderBy(p => p.Order)
-                .ThenBy(p => p.PropertyInfo?.MetadataToken)
                 .Where(p => p.AutoGenerateField)
                 .Where(p => string.IsNullOrEmpty(viewContext.GroupName)
                             || viewContext.GroupName.Equals(p.GroupName, StringComparison.OrdinalIgnoreCase))
@@ -34,6 +32,8 @@ namespace DotVVM.AutoUI.Metadata
                         || p.VisibleAttributes.Where(a => !string.IsNullOrEmpty(a.ViewNames))
                             .All(a => ConditionalFieldBindingProvider.ProcessExpression(a.ViewNames,
                                 v => v.Equals(viewContext.ViewName, StringComparison.OrdinalIgnoreCase))))
+                .OrderBy(p => p.Order)
+                .ThenBy(p => p.PropertyInfo?.MetadataToken)
                 .ToList();
             
             return metadata;
