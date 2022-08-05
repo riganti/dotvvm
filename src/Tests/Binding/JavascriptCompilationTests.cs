@@ -595,6 +595,17 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("String", "\"Hello\"", "\"Hello\"", DisplayName = "Contains call with string.")]
+        [DataRow("", "1", "1", DisplayName = "Contains call with int.")]
+        [DataRow("Enum", "TestEnum.A", "\"A\"", DisplayName = "Contains call with enum.")]
+        [DataRow("Enum", "EnumProperty", "EnumProperty()", DisplayName = "Contains call with enum property.")]
+        public void JsTranslator_ListContains(string listPrefix, string bindingValue, string jsValue)
+        {
+            var result = CompileBinding($"{listPrefix}List.Contains({bindingValue})", new[] { typeof(TestViewModel) }, typeof(bool), null);
+            Assert.AreEqual($"dotvvm.translations.array.contains({listPrefix}List(),{jsValue})", result);
+        }
+
+        [TestMethod]
         [DataRow("Enumerable.LastOrDefault(LongArray)", DisplayName = "Regular call of Enumerable.LastOrDefault")]
         [DataRow("LongArray.LastOrDefault()", DisplayName = "Syntax sugar - extension method")]
         public void JsTranslator_EnumerableLastOrDefault(string binding)

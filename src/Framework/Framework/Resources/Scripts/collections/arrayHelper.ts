@@ -65,6 +65,10 @@ function distinct<T>(array: T[]): T[] {
     return Array.from(new Set(array.map(ko.unwrap)));
 }
 
+function contains<T>(array: T[], value: T): boolean {
+    return array.map(ko.unwrap).includes(value);
+}
+
 function firstOrDefault<T>(array: T[], predicate: (s: T) => boolean): T | null {
     for (const item of array) {
         const itemUnwrapped = ko.unwrap(item)

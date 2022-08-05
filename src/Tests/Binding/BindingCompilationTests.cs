@@ -1041,11 +1041,11 @@ namespace DotVVM.Framework.Tests.Binding
         public Guid GuidProp { get; set; }
         public Tuple<int, bool> Tuple { get; set; }
         public List<int> List { get; set; }
-
-        public long LongProperty { get; set; }
-
-        public long[] LongArray => new long[] { 1, 2, long.MaxValue };
+        public List<TestEnum> EnumList { get; set; }
+        public List<string> StringList { get; set; }
         public List<long> LongList => new List<long>() { 1, 2, long.MaxValue };
+        public long LongProperty { get; set; }
+        public long[] LongArray => new long[] { 1, 2, long.MaxValue };
         public string[] StringArray => new string[] { "Hello ", "DotVVM" };
         public Dictionary<string, TestViewModel2> StringVmDictionary = new() { { "a", new TestViewModel2() }, { "b", new TestViewModel2() } };
         public Dictionary<int?, TestViewModel2> NullableIntVmDictionary = new() { { 0, new TestViewModel2() }, { 1, new TestViewModel2() } };
