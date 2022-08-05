@@ -1,5 +1,6 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,7 +65,7 @@ namespace DotVVM.Framework.Controls
 
         public ITemplate ToTemplate()
         {
-            return new CloneTemplate();
+            return new CloneTemplate(ToControls());
         }
     }
 }
