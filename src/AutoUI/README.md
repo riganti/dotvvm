@@ -1,185 +1,240 @@
-# DotVVM Dynamic Data
+# DotVVM Auto UI
 
-Reimplementation of **ASP.NET Dynamic Data** for [DotVVM](https://github.com/riganti/dotvvm).
-
+Automatically generated forms, tables and more from type metadata. 
 
 ## Data Annotations
 
-The main goal of this library is to generate user interface from metadata. Currently, there are two interfaces:
+The main goal of this library is to generate user interface from metadata.
+It should be able to create reasonable UI from just the type information, for more control control over it you can use the following attributes.
 
-* `IPropertyDisplayMetadataProvider` provides basic information about properties - the display name, format string, order, group name (you can split the fields into multiple groups and render each group separately).
+* `[Display(Name = "X")]` - sets the property display name
+* `[Display(Prompt = "enter your email")]` - sets the [placeholder](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#placeholder) text of a textbox
+* `[Display(Description = "Longer description of the data collected")]` - sets longer description. It will be set into the `title` attribute, and shown as sub-heading in some forms
+* `[Display(Order = 10)]` - by default, the properties are in the order as they are defined in C#. This attribute allows you to change the order
+* `[Display(GroupName = "A")]` - makes this field visible in form with `GroupName` property set to `A`
+* `[Display(AutoGenerateField = false)]` - hide the field from forms. Note that a malicious user might still be able to see it and change it in the viewmodel, unless you also apply `[Protect(ProtectMode.EncryptData)]`, `[Bind(Direction.None)]` or `[JsonIgnore]`
+* `[DisplayFormat(DataFormatString = "dd. MM. yyyy")]` - controls the format string used in textbox and literals
+* `[DataType(...)]` - controls which input type will be generated for the specified property
+    - `DataType.MultilineText` - `<textarea>`
+    - `DataType.Password` - `<input type=password>`
+    - `DataType.Date` - `<input type=date>`. Note that this works for both `DateTime` and `string` properties
+    - `DataType.Time` - `<input type=time>`
+    - `DataType.DateTime` - `<input type=datetime-local>`
+    - You can add support for more by implementing the `IFormEditorProvider` interface
+* `[Style(...)]` - allows adding additional CSS classes to different parts of the forms, or tables
+* `[Editable(AllowEdit = false)]` - makes the read only. Note that without `[Protect(ProtectMode.Sign]` anyone can change the underlying viewmodel anyway.
+* `[Visible(Roles = "Developer & !Manger")]` - makes the field visible only to authenticated users with the `Developer` roles and without the `Manager` role
+* `[Visible(ViewNames = "Insert | Edit")]` - makes the field visible in forms with ViewName property set to `Insert` or `Edit`
+* `[Enabled(...)]` - makes the field editable under some conditions (similar API to `[Visible(...)]`)
+* `[UIHint(...)]` - currently not used by AutoUI, but can be used for matching custom providers
 
-* `IViewModelValidationMetadataProvider` allows to retrieve all validation attributes for each property.
+### Example
 
+```csharp
 
-## Initialization
-
-First, install the `DotVVM.DynamicData` NuGet package in your project.
-
-```
-Install-Package DotVVM.DynamicData
-```
-
-To use Dynamic Data, add the following line to the `Startup.cs` file.
-
-```
-// ASP.NET Core (place this snippet in the ConfigureServices method)
-services.AddDotVVM(options =>
-{
-    var dynamicDataConfig = new DynamicDataConfiguration();
-    // set up config
-    options.AddDynamicData(dynamicDataConfig);
-});
-
-// OWIN
-app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, options: options =>
-{
-    var dynamicDataConfig = new DynamicDataConfiguration();
-    // set up config
-    options.AddDynamicData(dynamicDataConfig);
-});
-```
-
-This will allow to provide UI metadata using the standard .NET Data Annotations attributes.
-
-```
+```csharp
 public class EmployeeDTO
 {
     [Display(AutoGenerateField = false)]        // this field will be hidden
     public int Id { get; set; }
 
-
-
-    // first group of fields
-
     [Required]
-    [EmailAddress]
-    [Display(Name = "User Name", Order = 1, GroupName = "Basic Info")]
+    [Display(GroupName = "Basic Info")]
     public string UserName { get; set; }
 
     [Required]
-    [Display(Name = "First Name", Order = 2, GroupName = "Basic Info")]
+    [Display(GroupName = "Basic Info")]
     public string FirstName { get; set; }
 
     [Required]
-    [Display(Name = "Last Name", Order = 3, GroupName = "Basic Info")]
+    [Display(GroupName = "Basic Info")]
     public string LastName { get; set; }
 
-    [DisplayFormat(DataFormatString = "d")]
-    [Display(Name = "Birth Date", Order = 4, GroupName = "Basic Info")]
+    [Display(GroupName = "Basic Info")]
     public DateTime BirthDate { get; set; }
 
 
-    // second group of fields
-
-    [Display(Name = "E-mail", Order = 11, GroupName = "Contact Info")]
+    [Display(Name = "E-mail", GroupName = "Contact Info")]
+    [EmailAddress] // use <input type=email>
     public string PersonalEmail { get; set; }
 
-    [Display(Name = "Phone", Order = 12, GroupName = "Contact Info")]
+    [Display(Name = "Phone", GroupName = "Contact Info")]
+    [DataType(DataType.PhoneNumber)] // use <input type=tel>
     public string PersonalPhone { get; set; }
 
 }
+
 ```
+
+### Configuration API
+
+
+The metadata can be also controlled using a configuration API:
+
+```csharp
+
+services.AddAutoUI(config => {
+    // for all properties with a certain name
+    config.PropertyMetadataRules
+        .For("IsCompany", r => r.SetDisplayName(""))
+        .For("ProductId", r => r.UseSelection<ProductSelection>());
+})
+
+```
+
+The metadata provider can be easily extended by implementing and registering these two interfaces:
+
+* `IPropertyDisplayMetadataProvider` provides basic information about properties - all information listed above.
+
+* `IViewModelValidationMetadataProvider` retrieves validation attributes for each property.
+
+
+## Initialization
+
+First, install the `DotVVM.AutoUI` NuGet package in your project.
+
+```
+dotnet add package DotVVM.AutoUI
+```
+
+To use AutoUI, add the following line to the `Startup.cs` file.
+
+```csharp
+// ASP.NET Core (place this snippet in the ConfigureServices method)
+services.AddDotVVM(options =>
+{
+    options.AddAutoUI(config => {
+        // configuration options
+    });
+});
+
+// OWIN
+app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, options: options =>
+{    // set up config
+    options.AddAutoUI(config => {
+        // configuration options
+    });
+});
+```
+
+This will allow to provide UI metadata using the standard .NET Data Annotations attributes.
 
 <br />
 
-## GridView
+## `GridView` - data tables
 
-Now, when you have your DTO class decorated with data annotation attributes, you can auto-generate GridView columns.
+When your view model class is decorated with data annotation attributes, you can auto-generate GridView columns.
 
-DotVVM Dynamic Data brings the `DynamicDataGridViewDecorator` control. Use this decorator on `GridView` to initialize the `Columns` collection.
+DotVVM AutoUI brings the `auto:GridViewColumns` control, it is a special grid column which get's replaced by a separate column for each property.
+It can be used with the built-in `dot:GridView`, and also with the `GridView`s in DotVVM component packages
 
-```
-    <dd:DynamicDataGridViewDecorator>
-        <bs:GridView Type="Bordered" DataSource="{value: Employees}" />
-    </dd:DynamicDataGridViewDecorator>
-```
-
-If you want to add your own columns (e.g. the edit button) to the auto-generated ones, you can use the `ColumnPlacement` to specify, whether
-the generated columns should appear on the left side or the right side from your own columns.
-
-```
-    <dd:DynamicDataGridViewDecorator ColumnPlacement="Left">
-        <bs:GridView Type="Bordered" DataSource="{value: Employees}">
-            <Columns>
-
-                <!-- The auto-generated columns will appear here because ColumnPlacement is Left. -->
-
-                <dot:GridViewTemplateColumn>   <!-- your own column -->
-                    <dot:LinkButton Click="{command: _parent.Edit(Id)}">
-                        <bs:GlyphIcon Icon="Pencil" />
-                    </dot:LinkButton>
-                </dot:GridViewTemplateColumn>
-            </Columns>
-        </bs:GridView>
-    </dd:DynamicDataGridViewDecorator>
+```html
+<bs:GridView Type="Bordered" DataSource="{value: Employees}">
+    <auto:GridViewColumns />
+    <!-- It can be combined with any custom columns -->
+    <dot:GridViewTemplateColumn>
+        <a href='{value: $"/people/edit/{_this.Id}"}'> <bs:GlyphIcon Icon="Pencil" /> Edit</a>
+    </dot:GridViewTemplateColumn>
+</bs:GridView>
 ```
 
-<br />
+Number of properties can be used to customize the `auto:GridViewColumns` behavior. Most notably:
 
-## Generating Forms
+* `Property-LastAccessTime={value: _this.LastContactTime.ToBrowserLocalTime()}`
+    - passes the LastContactTime property through the [`ToBrowserLocalTime`](https://www.dotvvm.com/Docs/ListItem/pages/concepts/localization-and-cultures/local-vs-utc-dates#converting-utc-time-to-the-browser-timezone) function
+* `Property-Name={value: FirstName + " " + LastName}`
+    - adds new column with the specified value binding
+* `Header-LastContactTime="Last Seen"`
+    - sets custom display name for the column
+* `ExcludeProperties="FirstName, LastName"`
+    - removes the FirstName and LastName columns from the table
+* `IncludeProperties="Name, Email"`
+    - only the listed properties will be included in the table
+* `<ContentTemplate-Id> <a href='{value: $"/people/detail/{Id}"}'> {{value: Id}} </a> </ContentTemplate-Id>`
+    - sets a custom HTML template for the `Id` column 
+* `IsEditable-Id=false`
+    - marks the `Id` property as not editable (only in this GridView's inline edit mode)
+* `<EditorTemplate-MyProperty> ...` - similar to `ContentTemplate-X`
 
-DotVVM Dynamic Data also contains the `DynamicEntity` control - you can use it to generate forms.
+There is also similar `auto:GridViewColumn` which is used for a single property. 
+
+## Forms
+
+DotVVM AutoUI contains the `auto:Form` control for basic forms.
+We also include `auto:BootstrapForm` and `auto:BulmaForm` for use with the bootstrap or bulma CSS frameworks.
+If you have another favorite CSS framework, it's not hard to make a Form for your needs.
+Our `BootstrapForm` and `BulmaForm` are both under 200 lines, and you can start by copying its code.
+
+The following code with create a simple form
 
 ```
-<dd:DynamicEntity DataContext="{value: EditedEmployee}" />
+<auto:Form DataContext="{value: EditedEmployee}" />
 ```
 
-The control takes its `DataContext` and generates form fields for all properties of the object using the metadata from data annotation attributes.
+The control takes the edited view model as `DataContext` and generates form fields for all properties of the object using the metadata from data annotation attributes.
 
-If you want the form to have a custom layout, you need to use the group names and render each group separately. If you specify the `GroupName` property, the `DynamicEntity` will render
+As with grid columns, there is a similar set of properties to customize the form behavior:
+
+* `ExcludeProperties="Id, CreatedTime"`
+    - Removes the FirstName and LastName columns from the form
+* `IncludeProperties="FirstName, LastName, Email"`
+    - Only the listed properties will be included in the form
+* `ViewName=Insert` / `GroupName=Group1`
+    - Include only properties from the specified group and view
+* `Label-LastContactTime="Last Seen"`
+    - Sets custom display name for the field
+* `Visible-BirthDate={value: IsPerson}`
+    - Only display this field if the condition is true
+* `Enabled-InvoiceAmount={value: !IsClosed}`
+    - Only allow editing this field if the condition is true
+* `Changed-Email={staticCommand: _parent.IsEmailUnique = service.IsEmailUnique(Email)}`
+    - Event fired when a field changes. May be used to reload some data related to this field
+* `<FieldTemplate-X>`
+    - overrides the entire field layout (including label, validation, ...)
+* `<EditorTemplate-X>`
+    - use the template instead of the default editor
+
+
+If you want to layout the form into multiple parts, you can use the group names to render each group separately. If you specify the `GroupName` property, the `Form` will render
 only fields from this group.
 
 ```
 <!-- This will render two columns. -->
 <div class="row">
     <div class="col-md-6">
-        <dd:DynamicEntity DataContext="{value: EditedEmployee}" GroupName="Basic Info" />
+        <auto:BootstrapForm DataContext="{value: EditedEmployee}" GroupName="Basic Info" />
     </div>
     <div class="col-md-6">
-        <dd:DynamicEntity DataContext="{value: EditedEmployee}" GroupName="Contact Info" />
+        <auto:BootstrapForm DataContext="{value: EditedEmployee}" GroupName="Contact Info" />
     </div>
 </div>
 ```
 
-By default, the form is rendered using the [TableDynamicFormBuilder](./src/DotVVM.Framework.DynamicData/DotVVM.Framework.Controls.DynamicData/Builders/TableDynamicFormBuilder.cs) class.
-This class renders HTML table with rows for each of the form fields.
-
-You can write your own form builder and register it in the `DotvvmStartup.cs` class. The builder must implement the `IFormBuilder` interface.
-
-```
-config.ServiceLocator.RegisterSingleton<IFormBuilder>(() => new YourOwnFormBuilder());
-```
-
-If you have implemented your own form builder and there is a chance that it might be useful for other people, please send us PR and we'll be happy to include as part of the library.
-
-<br />
+If you have implemented your own form control and there is a chance that it might be useful for other people, please send us PR and we'll be happy to include as part of the library.
 
 ## Custom Editors
 
-Currently, the framework supports `TextBox` and `CheckBox` editors, which can edit string, numeric, date-time and boolean values.
+Currently, the framework supports `TextBox`, `CheckBox` and `ComboBox` editors, which can edit string, numeric, date-time and boolean values.
 If you want to support any other data type, you can implement your own editor and grid column.
 
-You need to derive from the [FormEditorProviderBase](./src/DotVVM.Framework.DynamicData/DotVVM.Framework.Controls.DynamicData/PropertyHandlers/FormEditors/FormEditorProviderBase.cs) to implement a custom editor
-in the form, and to derive from the [GridColumnProviderBase](./src/DotVVM.Framework.DynamicData/DotVVM.Framework.Controls.DynamicData/PropertyHandlers/GridColumns/GridColumnProviderBase.cs) to implement about
+You need to implement the [IFormEditorProvider](./Core/PropertyHandlers/FormEditors/IFormEditorProvider.cs) to implement a custom editor
+in the form, and the [IGridColumnProvider](./Core/PropertyHandlers/GridColumns/IGridColumnProvider.cs) to implement about
 custom GridView column.
 
 Then, you have to register the editor in the `DotvvmStartup.cs` file. Please note that the order of editor providers and grid columns matters. The Dynamic Data will use the first provider which returns `CanHandleProperty = true`
 for the property.
 
 ```
-dynamicDataConfig.FormEditorProviders.Add(new YourEditorProvider());
-dynamicDataConfig.GridColumnProviders.Add(new YourGridColumnProvider());
+autouiConfig.FormEditorProviders.Add(new YourEditorProvider());
+autouiConfig.GridColumnProviders.Add(new YourGridColumnProvider());
 ```
-
-<br />
 
 ## Loading Metadata from Resource Files
 
 Decorating every field with the `[Display(Name = "Whatever")]` is not very effective when it comes to localization - you need to specify the resource file type and resource key.
 Also, if you have multiple entities with the `FirstName` property, you'll probably want to use the same field name for all of them.
 
-That's why DotVVM Dynamic Data comes with the resource-based metadata providers. They can be registered in the `DotvvmStartup.cs` like this:
+That's why DotVVM Auto UI comes with the resource-based metadata providers. They can be registered in the `DotvvmStartup.cs` like this:
 
 ```
 config.RegisterResourceMetadataProvider(typeof(Resources.ErrorMessages), typeof(Resources.PropertyDisplayNames));
@@ -236,18 +291,14 @@ Here is a brief list of features that are already done, and features that are pl
 * HTML table layout for Forms
 * TextBox and CheckBox editors
 * ComboBox editor with support of conventions
+* `DisplayFormatAttribute` (`NullDisplayText`)
+* `auto:Editor` control for editing individual fields
 
 ### In Progress
 
-* `DisplayFormatAttribute` (`NullDisplayText`)
-* `DynamicEditor` control for editing individual field
-* DateTimePicker and UserControl editor
 * More form layouts
+* Page templates
 
 ### Future
 
-* `UIHint` attribute support
 * Auto-generating filters on top of the GridView
-* Entity Relationship support
-* Collection editors
-* Page templates

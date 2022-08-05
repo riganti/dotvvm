@@ -14,8 +14,6 @@ namespace DotVVM.AutoUI.Configuration
     /// </summary>
     public class AutoUIConfiguration
     {
-        public Dictionary<Type, object> Properties { get; } = new Dictionary<Type, object>();
-
         /// <summary>
         /// Gets a list of registered providers that render form fields.
         /// </summary>

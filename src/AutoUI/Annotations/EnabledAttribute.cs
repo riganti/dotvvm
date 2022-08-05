@@ -3,7 +3,7 @@
 namespace DotVVM.AutoUI.Annotations;
 
 /// <summary>
-/// Indicates under which conditions the auto-generated field should be visible to the user.
+/// Indicates under which conditions the auto-generated field should be enable (i.e. editable) to the user.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 public class EnabledAttribute : Attribute, IConditionalFieldAttribute

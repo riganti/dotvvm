@@ -63,7 +63,7 @@ namespace DotVVM.AutoUI.Controls
             public IReadOnlyDictionary<string, ValueOrBinding<bool>> IsEditable { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
 
             /// <summary> Overrides which text is used as the column title. </summary>
-            [PropertyGroup("Label-")]
+            [PropertyGroup("Header-")]
             public IReadOnlyDictionary<string, ValueOrBinding<string>> Header { get; init; } = new Dictionary<string, ValueOrBinding<string>>();
 
             /// <summary> Overrides how the field is displayed. </summary>
