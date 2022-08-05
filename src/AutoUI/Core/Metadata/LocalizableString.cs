@@ -4,6 +4,8 @@ using System.Resources;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.AutoUI.Metadata
 {
@@ -43,11 +45,9 @@ namespace DotVVM.AutoUI.Metadata
                     context.BindingService,
                     new object[] {
                         new ParsedExpressionBindingProperty(
-                            Expression.Call(
-                                Expression.Constant(this),
-                                "Localize",
-                                Type.EmptyTypes)
+                            ExpressionUtils.Replace(() => this.Localize())
                         ),
+                        (BindingDelegate)((_, _) => this.Localize()) // skip the expression compilation
                     }
                 );
                 return new ValueOrBinding<string>(binding);
