@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			{
 				if (string.IsNullOrEmpty(rule.TagName))
 				{
-					var compiledControl = FindCompiledControl(tagName, rule.Namespace.NotNull(), rule.Assembly.NotNull());
+					var compiledControl = FindCompiledControl(rule.TagPrefix!, tagName, rule.Namespace.NotNull(), rule.Assembly.NotNull());
 					if (compiledControl != null)
 					{
 						return compiledControl;
@@ -193,7 +193,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the compiled control.
         /// </summary>
-        protected abstract IControlType? FindCompiledControl(string tagName, string namespaceName, string assemblyName);
+        protected abstract IControlType? FindCompiledControl(string tagPrefix, string tagName, string namespaceName, string assemblyName);
 
 		/// <summary>
 		/// Finds the markup control.
