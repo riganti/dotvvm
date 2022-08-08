@@ -470,19 +470,19 @@ namespace DotVVM.Framework.Compilation.Javascript
                 args => new JsIdentifierExpression("Math").Member("trunc").Invoke(args[1])));
         }
 
+        private bool EnsureIsComparableInJavascript(MethodInfo method, Type type)
+        {
+            if (!ReflectionUtils.IsPrimitiveType(type))
+                throw new DotvvmCompilationException($"Cannot translate invocation of method \"{method.Name}\" to JavaScript. Comparison of non-primitive types is not supported.");
+
+            return true;
+        }
+
         private void AddDefaultEnumerableTranslations()
         {
             var returnTrueFunc = new JsArrowFunctionExpression(Enumerable.Empty<JsIdentifier>(), new JsLiteral(true));
             var selectIdentityFunc = new JsArrowFunctionExpression(new[] { new JsIdentifier("arg") },
                 new JsIdentifierExpression("ko").Member("unwrap").Invoke(new JsIdentifierExpression("arg")));
-
-            bool EnsureIsComparableInJavascript(MethodInfo method, Type type)
-            {
-                if (!ReflectionUtils.IsPrimitiveType(type))
-                    throw new DotvvmCompilationException($"Cannot translate invocation of method \"{method.Name}\" to JavaScript. Comparison of non-primitive types is not supported.");
-
-                return true;
-            }
 
             bool IsDelegateReturnTypeEnum(Type type)
                 => type.GetGenericArguments().Last().IsEnum;
@@ -578,6 +578,11 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(List<>), "Reverse", parameterCount: 0, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("reverse").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
             AddMethodTranslator(typeof(List<>), "AsReadOnly", parameterCount: 0, translator: new GenericMethodCompiler(args => args[0]));
+            AddMethodTranslator(
+               typeof(List<>), "Contains",
+               parameterCount: 1,
+               translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("contains").Invoke(args[0], args[1]).WithAnnotation(MayBeNullAnnotation.Instance),
+               check: (method, target, arguments) => target is not null && EnsureIsComparableInJavascript(method, ReflectionUtils.GetEnumerableType(target.Type).NotNull())));
 
             // DotVVM list extensions:
             AddMethodTranslator(typeof(ListExtensions), "AddOrUpdate", parameterCount: 4, translator: new GenericMethodCompiler(args =>

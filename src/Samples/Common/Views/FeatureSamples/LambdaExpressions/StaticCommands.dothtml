@@ -71,6 +71,7 @@
         <dot:Button Text="Is there a customer named Carl?" Click="{staticCommand: OperationResult = SourceCustomers.Any((CustomerData c) => c.Name == "Carl")}" />
         <dot:Button Text="Get maximum number of finished transactions" Click="{staticCommand: OperationResult = SourceCustomers.Max((CustomerData c) => c.FinishedTransactions)}" />
         <dot:Button Text="Get minimum number of finished transactions" Click="{staticCommand: OperationResult = SourceCustomers.Min((CustomerData c) => c.FinishedTransactions)}" />
+        <dot:Button Text="Is there green in the list" Click="{staticCommand: OperationResult = SelectedCategories.Contains(StaticCommandsViewModel.Category.Green)}" />
     </div>
 
     <div>
