@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Controls
             }
 
             var viewModule = GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
-            if (viewModule is object)
+            if (viewModule is {})
             {
                 Debug.Assert(viewModule.IsMarkupControl);
                 context.ResourceManager.AddRequiredResource(viewModule.ImportResourceName);
@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Controls
                     continue;
 
                 var pinfo = GetPropertySerializationInfo(p); // migrate to use the KnockoutBindingGroup helpers
-                if (pinfo.Js is object)
+                if (pinfo.Js is {})
                 {
                     properties.Add(p.Name, pinfo.Js);
                 }
@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Controls
                 foreach (var p in values.Properties.OrderBy(p => p.GroupMemberName))
                 {
                     var pinfo = GetPropertySerializationInfo(p); // migrate to use the KnockoutBindingGroup helpers
-                    if (pinfo.Js is object)
+                    if (pinfo.Js is {})
                     {
                         js.Append("{Key: ")
                           .Append(JsonConvert.ToString(p.GroupMemberName, '"', StringEscapeHandling.EscapeHtml))
@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Controls
             }
 
             var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
-            if (viewModule is object)
+            if (viewModule is {})
             {
                 var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
