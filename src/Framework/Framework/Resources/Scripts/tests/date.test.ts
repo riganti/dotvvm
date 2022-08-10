@@ -56,9 +56,14 @@ test("Date 0:00:00 PM 1/1/9999 - Year 9999", () => {
     testDateIsSameAfterParse("9999-01-01T00:00:00.000000");
 });
 
+test("Date 6/28/2021 3:28:31 PM", () => {
+    testDateIsSameAfterParse("2021-06-28T15:28:31.000000");
+});
+
 function testDateIsSameAfterParse(dateInputString: string, expectedOutputDateString: string|null = null) {
-    const date = parseDate(dateInputString) ?? new Date();
-    const outputDateString = dotvvm_Globalize.format(date, "yyyy-MM-ddTHH:mm:ss.fff000");
+    const date = parseDate(dateInputString);
+
+    const outputDateString = date ? dotvvm_Globalize.format(date, "yyyy-MM-ddTHH:mm:ss.fff000") : null;
     expectedOutputDateString = expectedOutputDateString ?? dateInputString;
 
     expect(outputDateString).toBe(expectedOutputDateString);

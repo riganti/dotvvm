@@ -4,7 +4,7 @@ export function parseDate(value: string | null, convertFromUtc: boolean = false)
     if (value == null) return null;
     const match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{1,7})$");
     if (match) {
-        const date = new Date();
+        const date = new Date(0);
         let month = parseInt(match[2], 10) - 1;
         let day = parseInt(match[3], 10);
 
@@ -19,7 +19,7 @@ export function parseDate(value: string | null, convertFromUtc: boolean = false)
         day = day < 1 ? 1 : day;
 
         //We set components of the date by hand, this prevents JS from 'corecting' years 00XX to 19XX
-        date.setMilliseconds(date.setMilliseconds(match.length > 7 ? parseInt(match[7].substring(1, 4), 10) : 0));
+        date.setMilliseconds(match.length > 7 ? parseInt(match[7].substring(1, 4), 10) : 0);
         date.setSeconds(parseInt(match[6], 10));
         date.setMinutes(parseInt(match[5], 10));
         date.setHours(parseInt(match[4], 10));
