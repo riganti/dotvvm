@@ -11,6 +11,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Controls
 {
@@ -380,6 +381,34 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        static string ValueDebugString(object? value)
+        {
+            if (value == null)
+                return "<null>";
+            if (value is ITemplate) 
+                return "<a template>";
+            if (value is DotvvmBindableObject)
+                return $"<control {value.GetType().ToCode(stripNamespace: true)}>";
+            if (value is IEnumerable<DotvvmBindableObject> controlCollection)
+                return $"<{controlCollection.Count()} controls>";
+            if (value is string valueStr)
+                return valueStr;
+            if (value is System.Collections.IDictionary dict)
+            {
+                var dictStr = dict.Keys.OfType<object>().Select(k => $"{ValueDebugString(k)}: {ValueDebugString(dict[k])}").StringJoin(", ");
+                return $"{{ {dictStr} }}";
+            }
+            if (value is System.Collections.IEnumerable collection)
+                return "[" + string.Join(", ", collection.OfType<object>().ToArray()) + "]";
+
+            var toStringed = value.ToString() ?? "<man, please don't return null from ToString...>";
+            var type = value.GetType();
+            if (!type.IsPrimitive && toStringed == type.FullName)
+                return value.GetType().ToCode(stripNamespace: true);
+
+            return toStringed;
+        }
+
         /// <summary> Returns somewhat readable string representing this dotvvm control. </summary>
         public static string DebugString(this DotvvmBindableObject control, DotvvmConfiguration? config = null, bool multiline = true, bool useHtml = false)
         {
@@ -394,42 +423,79 @@ namespace DotVVM.Framework.Controls
                               where p.DeclaringType != typeof(Internal)
                               let isAttached = !p.DeclaringType.IsAssignableFrom(type)
                               orderby !isAttached, p.Name
-                              let coreName = p is GroupedDotvvmProperty gp ? gp.PropertyGroup.Prefixes.First() + gp.GroupMemberName : p.Name
-                              let name = isAttached ? p.DeclaringType.Name + "." + coreName : coreName
-                              let value = rawValue == null ? "<null>" :
-                                          rawValue is ITemplate ? "<a template>" :
-                                          rawValue is DotvvmBindableObject ? $"<control {rawValue.GetType()}>" :
-                                          rawValue is IEnumerable<DotvvmBindableObject> controlCollection ? $"<{controlCollection.Count()} controls>" :
-                                          rawValue is IEnumerable<object> collection ? string.Join(", ", collection) :
-                                          rawValue.ToString()
+                              let name = p is GroupedDotvvmProperty gp ? (propName: gp.PropertyGroup.Prefixes.First(), memberName: gp.GroupMemberName) : (p.Name, null)
+                              let className = isAttached ? p.DeclaringType.Name : null
+                              let value = ValueDebugString(rawValue)
                               let croppedValue = value.Length > 41 ? value.Substring(0, 40) + "…" : value
-                              select new { p, name, croppedValue, value, isAttached }
+                              select new { p, className, propName = name.propName, memberName = name.memberName, croppedValue, value, isAttached }
                              ).ToArray();
 
             var location = (file: control.TryGetValue(Internal.MarkupFileNameProperty) as string, line: control.TryGetValue(Internal.MarkupLineNumberProperty) as int? ?? -1);
             var reg = config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace && Type.GetType(c.Namespace + "." + type.Name + ", " + c.Assembly) == type) ??
                       config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace) ??
                       config?.Markup.Controls.FirstOrDefault(c => c.Assembly == type.Assembly.GetName().Name);
-            var ns = reg?.TagPrefix ?? (type.Namespace == "DotVVM.Framework.Controls" ? "dot" : "_");
-            var tagName = type == typeof(HtmlGenericControl) ? ((HtmlGenericControl)control).TagName : ns + ":" + type.Name;
+            var ns = reg?.TagPrefix ?? type.Namespace switch {
+                "DotVVM.Framework.Controls" => "dot",
+                "DotVVM.BusinessPack.Controls" or "DotVVM.BusinessPack.PostBackHandlers" => "bp",
+                "DotVVM.BusinessPack.Controls.FilterOperators" => "op",
+                "DotVVM.BusinessPack.Controls.FilterBuilderFields" => "fp",
+                _ => "_"
+            };
 
-            var dothtmlString = $"<{tagName} ";
-            var prefixLength = dothtmlString.Length;
 
-            foreach (var p in properties)
+            string dothtmlString;
+            if (useHtml)
             {
-                if (multiline && p != properties[0])
-                    dothtmlString += "\n" + new string(' ', prefixLength);
-                dothtmlString += $"{p.name}={p.croppedValue}";
+                var tagName = type == typeof(HtmlGenericControl) ?
+                    $"<span class='tag-name'>{((HtmlGenericControl)control).TagName}</span>" :
+                    $"<span class='tag-prefix'>{WebUtility.HtmlEncode(ns)}</span>:<span class='control-name'>{WebUtility.HtmlEncode(type.Name)}</span>";
+                dothtmlString = $"&lt;<span class='tag' title='{WebUtility.HtmlEncode(type.ToCode())}'>{tagName}</span> ";
+                var prefixLength = dothtmlString.Length;
+
+                foreach (var p in properties)
+                {
+                    if (p != properties[0])
+                    {
+                        if (multiline)
+                            dothtmlString += "<br />" + new string(' ', prefixLength);
+                        else
+                            dothtmlString += " ";
+                    }
+                    var name = (p.className is null ? "" : $"<span class='class-name'>{WebUtility.HtmlEncode(p.className)}</span>" + ".")
+                        + $"<span class='property-name'>{WebUtility.HtmlEncode(p.propName)}</span>"
+                        + (p.memberName is null ? "" : $"<span class='attribute-name'>{WebUtility.HtmlEncode(p.memberName)}</span>");
+
+                    dothtmlString += $"{name}=<span class='attribute-value' title='{WebUtility.HtmlEncode(p.value)}'>{WebUtility.HtmlEncode(p.croppedValue)}</span>";
+                }
+                dothtmlString += " /&gt;";
             }
-            dothtmlString += " />";
+            else
+            {
+                var tagName = type == typeof(HtmlGenericControl) ? ((HtmlGenericControl)control).TagName : ns + ":" + type.Name;
+                dothtmlString = $"<{tagName} ";
+                var prefixLength = dothtmlString.Length;
+
+                foreach (var p in properties)
+                {
+                    if (p != properties[0])
+                    {
+                        if (multiline)
+                            dothtmlString += "\n" + new string(' ', prefixLength);
+                        else
+                            dothtmlString += " ";
+                    }
+                    var name = (p.className is null ? "" : p.className + ".") + p.propName + p.memberName;
+                    dothtmlString += $"{name}={p.croppedValue}";
+                }
+                dothtmlString += " />";
+            }
             
             var fileLocation = (location.file)
                      + (location.line >= 0 ? ":" + location.line : "");
 
             if (useHtml)
             {
-                dothtmlString = $"<code class='element'>{WebUtility.HtmlEncode(dothtmlString)}</code>";
+                dothtmlString = $"<code class='element'>{dothtmlString}</code>";
 
                 if (!string.IsNullOrWhiteSpace(fileLocation))
                 {
@@ -437,10 +503,10 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
-            var endOfLine = useHtml ? "<br />" : Environment.NewLine;
 
             if (!string.IsNullOrWhiteSpace(fileLocation))
             {
+                var endOfLine = useHtml ? "<br />" : Environment.NewLine;
                 return dothtmlString + (multiline ? endOfLine : " ") + "from " + fileLocation;
             }
             else

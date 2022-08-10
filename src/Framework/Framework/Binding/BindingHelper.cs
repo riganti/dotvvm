@@ -18,6 +18,7 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Runtime;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Binding
 {
@@ -91,7 +92,17 @@ namespace DotVVM.Framework.Binding
                 if (a.properties.Contains(DotvvmBindableObject.DataContextProperty)) changes++;
             }
 
-            throw new InvalidDataContextTypeException(control, contextObject, controlContext, bindingContext);
+            // try to get the real objects, to see which is wrong
+            object?[]? dataContexts = null;
+            try
+            {
+                dataContexts = control.GetDataContexts().ToArray();
+            }
+            catch { }
+
+            throw new InvalidDataContextTypeException(control, contextObject, controlContext, bindingContext,
+                ActualContextTypes: dataContexts?.Select(o => o?.GetType()).ToArray()
+            );
         }
 
         /// <summary>
@@ -453,15 +464,24 @@ namespace DotVVM.Framework.Binding
             DotvvmBindableObject Control,
             object? ContextObject,
             DataContextStack ControlContext,
-            DataContextStack BindingContext
+            DataContextStack BindingContext,
+            Type?[]? ActualContextTypes
         )
             : DotvvmExceptionBase(
                 RelatedBinding: ContextObject as IBinding,
                 RelatedControl: Control
             )
         {
-            public override string Message =>
-                $"Could not find DataContext space of '{ContextObject}'. The DataContextType property of the binding does not correspond to DataContextType of the {Control.GetType().Name} nor any of its ancestors. Control's context is {ControlContext}, binding's context is {BindingContext}.";
+            public override string Message
+            {
+                get
+                {
+                    var actualContextsHelp =
+                        ActualContextTypes is null ? "" :
+                        $" Real data context types: {string.Join(", ", ActualContextTypes.Select(t => t?.ToCode(stripNamespace: true) ?? "null"))}.";
+                    return  $"Could not find DataContext space of '{ContextObject}'. The DataContextType property of the binding does not correspond to DataContextType of the {Control.GetType().Name} nor any of its ancestors. Control's context is {ControlContext}, binding's context is {BindingContext}." + actualContextsHelp;
+                }
+            }
         }
 
         public record BindingNotSupportedException(IBinding Binding, [CallerMemberName] string Caller = "")

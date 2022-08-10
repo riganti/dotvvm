@@ -44,6 +44,16 @@ html {
     --error-color: #de1212;
     --error-dark-color: #a82f23;
     --success-color: green;
+
+
+    /* stolen colors from VSCode light theme */
+    --syntax-class: #267f99;
+    --syntax-prop: #001080;
+    --syntax-method: #795e26;
+    --syntax-keyword: #0000ff;
+    --syntax-pink: color: #af00db;;
+    --syntax-black: #000000;
+    --font-monospace: "Droid Sans Mono", "Consolas", "monospace", monospace
 }
 
 /* Basic text */
@@ -317,8 +327,33 @@ ul {
         margin: .25em 1em;
     }
 
+code {
+    font-family: var(--font-monospace);
+    color: var(--syntax-black);
+}
+
 code.element {
-    color: var(--error-dark-color);
+}
+code.element .property-name {
+    color: var(--syntax-prop);
+}
+code.element .tag-name {
+    color: var(--syntax-keyword);
+}
+code.element .tag-prefix {
+    color: var(--syntax-keyword);
+}
+code.element .control-name {
+    color: var(--syntax-class);
+}
+code.element .class-name {
+    color: var(--syntax-class);
+}
+code.element .attribute-name {
+    color: var(--syntax-keyword);
+}
+code.element .attribute-value {
+    color: var(--syntax-black);
 }
 code.location {
     font-weight: bold;
