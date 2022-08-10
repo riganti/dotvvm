@@ -58,17 +58,20 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 #endif
 
-        [TestMethod]        
+        [TestMethod]
         public void ViewModelTypeMetadata_TypeMetadata()
         {
-            var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
-            var result = typeMetadataSerializer.SerializeTypeMetadata(new[]
+            CultureUtils.RunWithCulture("en-US", () =>
             {
-                mapper.GetMap(typeof(TestViewModel))
-            });
+                var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
+                var result = typeMetadataSerializer.SerializeTypeMetadata(new[]
+                {
+                    mapper.GetMap(typeof(TestViewModel))
+                });
 
-            var checker = new OutputChecker("testoutputs");
-            checker.CheckJsonObject(result);
+                var checker = new OutputChecker("testoutputs");
+                checker.CheckJsonObject(result);
+            });
         }
 
         [Flags]
