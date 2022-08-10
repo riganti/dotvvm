@@ -1377,18 +1377,15 @@
           "",
           "html:"
         ],
-        "type": "System.Object",
-        "fromCapability": "HtmlCapability"
+        "type": "System.Object"
       },
       "CssClasses": {
         "prefix": "Class-",
-        "type": "System.Boolean",
-        "fromCapability": "HtmlCapability"
+        "type": "System.Boolean"
       },
       "CssStyles": {
         "prefix": "Style-",
-        "type": "System.Object",
-        "fromCapability": "HtmlCapability"
+        "type": "System.Object"
       }
     },
     "DotVVM.Framework.Controls.JsComponent": {

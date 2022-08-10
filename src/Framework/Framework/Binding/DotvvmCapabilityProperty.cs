@@ -285,14 +285,11 @@ namespace DotVVM.Framework.Binding
                     propertyName,
                     unwrappedType,
                     attributeProvider,
-                    boxedDefaultValue
+                    boxedDefaultValue,
+                    declaringCapability: declaringCapability
                 );
+                propertyGroup.AddUsedInCapability(declaringCapability);
 
-                if (declaringCapability is object)
-                {
-                    propertyGroup.OwningCapability = declaringCapability;
-                    propertyGroup.UsedInCapabilities = propertyGroup.UsedInCapabilities.Add(declaringCapability);
-                }
                 return propertyGroup;
             }
             // Control Capability

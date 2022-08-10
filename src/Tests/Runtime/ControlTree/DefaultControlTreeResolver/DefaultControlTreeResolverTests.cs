@@ -701,5 +701,26 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsFalse(control3[1].DothtmlNode.HasNodeErrors);
             Assert.IsFalse(control3[2].DothtmlNode.HasNodeErrors);
         }
+
+        [TestMethod]
+        public void DefaultViewCompiler_NonExistenPropertyWarning()
+        {
+           var markup = $@"
+@viewModel System.Boolean
+<dot:Button TestProperty=AA Visble={{value: false}} normal-attribute=AA Click={{command: 0}} />
+";
+            var button = ParseSource(markup)
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Button));
+
+            var elementNode = (DothtmlElementNode)button.DothtmlNode;
+            var attribute1 = elementNode.Attributes.Single(a => a.AttributeName == "TestProperty");
+            var attribute2 = elementNode.Attributes.Single(a => a.AttributeName == "normal-attribute");
+            var attribute3 = elementNode.Attributes.Single(a => a.AttributeName == "Visble");
+
+            Assert.AreEqual(0, attribute2.AttributeNameNode.NodeWarnings.Count(), attribute2.AttributeNameNode.NodeWarnings.StringJoin(", "));
+            Assert.AreEqual("HTML attribute name 'TestProperty' should not contain uppercase letters. Did you intent to use a DotVVM property instead?", attribute1.AttributeNameNode.NodeWarnings.Single());
+            Assert.AreEqual("HTML attribute name 'Visble' should not contain uppercase letters. Did you mean Visible, or another DotVVM property?", attribute3.AttributeNameNode.NodeWarnings.Single());
+        }
     }
 }

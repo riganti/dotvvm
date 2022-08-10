@@ -8,4 +8,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         bool IsBindingProperty { get; }
         string FullName { get; }
     }
+
+    public interface IGroupedPropertyDescriptor: IPropertyDescriptor
+    {
+        string GroupMemberName { get; }
+        IPropertyGroupDescriptor PropertyGroup { get; }
+    }
 }
