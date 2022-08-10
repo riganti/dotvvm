@@ -18,7 +18,7 @@ export default {
                 domNodeDisposal: false,
                 elementValidationState: true
             }
-            
+
             // add metadata for validation
             let metadata = [] as DotvvmValidationObservableMetadata
             if (ko.isObservable(obs)) {
@@ -40,7 +40,7 @@ export default {
                     }
                 });
             }, 0);
-            
+
             const valueUpdateHandler = () => {
                 const obs = valueAccessor();
                 if (!ko.isObservable(obs)) {
@@ -80,7 +80,7 @@ export default {
                     element.setAttribute("data-dotvvm-value-type-valid", "true");
                     elmMetadata.elementValidationState = true;
                 }
-            
+
                 const originalElementValue = element.value;
                 try {
                     if (obs.peek() === newValue) {
@@ -91,9 +91,11 @@ export default {
                             (obs as any)[lastSetErrorSymbol] = void 0;
                         }
                     } else {
-                        obs(newValue);
+                        if (element.validity.valid) {
+                            obs(newValue);
+                        }
                     }
-                } catch (err) { 
+                } catch (err) {
                     // observable may throw an exception if there is a validation error
                     // but subscribers will be notified anyway so it's not a problem
                     elmMetadata.elementValidationState = false;
@@ -105,7 +107,7 @@ export default {
                 }
             };
 
-            element.addEventListener(valueUpdate, valueUpdateHandler);            
+            element.addEventListener(valueUpdate, valueUpdateHandler);
         },
         update(element: HTMLInputElement, valueAccessor: () => any) {
             const obs = valueAccessor();
