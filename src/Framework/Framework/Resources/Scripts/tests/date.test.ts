@@ -13,15 +13,18 @@ test("Date 01:01:01.1 01/01/1901", () => {
 });
 
 test("Date 6:58:10 PM 0/10/2022 - Zero month", () => {
-    testDateIsSameAfterParse("2022-00-10T18:58:10.000000");
+    //No practical way to set day 0 and month 0 to JS date object
+    testDateIsSameAfterParse("2022-00-10T18:58:10.000000", "2022-01-10T18:58:10.000000");
 });
 
 test("Date 6:58:10 PM 5/0/2022 - Zero day", () => {
-    testDateIsSameAfterParse("2022-05-00T18:58:10.000000");
+    //No practical way to set day 0 and month 0 to JS date object
+    testDateIsSameAfterParse("2022-05-00T18:58:10.000000", "2022-05-01T18:58:10.000000");
 });
 
 test("Date 6:58:10 PM 0/0/2022 - Zero day and month", () => {
-    testDateIsSameAfterParse("2022-00-00T18:58:10.000000");
+    //No practical way to set day 0 and month 0 to JS date object
+    testDateIsSameAfterParse("2022-00-00T18:58:10.000000", "2022-01-01T18:58:10.000000");
 });
 
 test("Date 6:58:10 PM 1/1/0 - Zero year", () => {
@@ -29,7 +32,8 @@ test("Date 6:58:10 PM 1/1/0 - Zero year", () => {
 });
 
 test("Date 0:00:00 PM 0/0/0 - Zero all", () => {
-    testDateIsSameAfterParse("0000-00-00T00:00:00.000000");
+    //No practical way to set day 0 and month 0 to JS date object
+    testDateIsSameAfterParse("0000-00-00T00:00:00.000000", "0000-01-01T00:00:00.000000"); 
 });
 
 test("Date 0:00:00 PM 1/1/1 - Year one", () => {
@@ -52,9 +56,10 @@ test("Date 0:00:00 PM 1/1/9999 - Year 9999", () => {
     testDateIsSameAfterParse("9999-01-01T00:00:00.000000");
 });
 
-function testDateIsSameAfterParse(dateInputString: string) {
+function testDateIsSameAfterParse(dateInputString: string, expectedOutputDateString: string|null = null) {
     const date = parseDate(dateInputString) ?? new Date();
-    const outputDateString = dotvvm_Globalize.format(date, "yyyy-MM-ddTHH:mm:ss.fff000")
+    const outputDateString = dotvvm_Globalize.format(date, "yyyy-MM-ddTHH:mm:ss.fff000");
+    expectedOutputDateString = expectedOutputDateString ?? dateInputString;
 
-    expect(dateInputString).toBe(outputDateString);
+    expect(outputDateString).toBe(expectedOutputDateString);
 }

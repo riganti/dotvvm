@@ -16,6 +16,6 @@
     "module": "ES2015"
   },
   // "include": ["Resources/Scripts/global-declarations.ts", "Resources/Scripts/**.ts", "Resources/Scripts/typings/knockout/knockout.d.ts"],
-  "exclude": ["obj/**", "Resources/Scripts/tests", "node_modules/**"],
+  "exclude": ["obj/**", "node_modules/**"],
   "compileOnSave": false
 }
