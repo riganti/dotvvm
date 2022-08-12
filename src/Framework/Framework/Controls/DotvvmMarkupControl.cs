@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
@@ -57,7 +59,7 @@ namespace DotVVM.Framework.Controls
             }
 
             var viewModule = GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
-            if (viewModule is object)
+            if (viewModule is {})
             {
                 Debug.Assert(viewModule.IsMarkupControl);
                 context.ResourceManager.AddRequiredResource(viewModule.ImportResourceName);
@@ -71,19 +73,41 @@ namespace DotVVM.Framework.Controls
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             var properties = new KnockoutBindingGroup();
-            var usedProperties =
-                GetValue<ControlUsedPropertiesInfo>(Internal.UsedPropertiesInfoProperty)?.ClientSideUsedProperties
-                    ?? GetDeclaredProperties();
-            foreach (var p in usedProperties)
+            var usedProperties = GetValue<ControlUsedPropertiesInfo>(Internal.UsedPropertiesInfoProperty);
+            foreach (var p in usedProperties?.ClientSideUsedProperties ?? GetDeclaredProperties())
             {
                 if (p.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
                     continue;
 
                 var pinfo = GetPropertySerializationInfo(p); // migrate to use the KnockoutBindingGroup helpers
-                if (pinfo.Js is object)
+                if (pinfo.Js is {})
                 {
                     properties.Add(p.Name, pinfo.Js);
                 }
+            }
+
+            foreach (var pg in usedProperties?.ClientSideUsedPropertyGroups ?? DotvvmPropertyGroup.GetPropertyGroups(this.GetType()))
+            {
+                if (pg.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
+                    continue;
+
+                var js = new StringBuilder().Append("[");
+                
+                var values = new VirtualPropertyGroupDictionary<object>(this, pg);
+                foreach (var p in values.Properties.OrderBy(p => p.GroupMemberName))
+                {
+                    var pinfo = GetPropertySerializationInfo(p); // migrate to use the KnockoutBindingGroup helpers
+                    if (pinfo.Js is {})
+                    {
+                        js.Append("{Key: ")
+                          .Append(JsonConvert.ToString(p.GroupMemberName, '"', StringEscapeHandling.EscapeHtml))
+                          .Append(", Value: ")
+                          .Append(pinfo.Js)
+                          .Append("},");
+                    }
+                }
+                js.Append("]");
+                properties.Add(pg.Name, js.ToString());
             }
 
             if (!properties.IsEmpty)
@@ -98,7 +122,7 @@ namespace DotVVM.Framework.Controls
             }
 
             var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
-            if (viewModule is object)
+            if (viewModule is {})
             {
                 var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;

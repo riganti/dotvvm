@@ -105,6 +105,8 @@ namespace DotVVM.Framework.Binding
         public DotvvmCapabilityProperty? OwningCapability { get; internal set; }
         /// <summary> The capabilities which use this property. </summary>
         public ImmutableArray<DotvvmCapabilityProperty> UsedInCapabilities { get; internal set; } = ImmutableArray<DotvvmCapabilityProperty>.Empty;
+        IPropertyDescriptor? IControlAttributeDescriptor.OwningCapability => OwningCapability;
+        IEnumerable<IPropertyDescriptor> IControlAttributeDescriptor.UsedInCapabilities => UsedInCapabilities;
 
 
         internal void AddUsedInCapability(DotvvmCapabilityProperty? p)

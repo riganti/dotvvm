@@ -41,11 +41,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private ConcurrentDictionary<string, GroupedDotvvmProperty> generatedProperties = new();
 
         /// <summary> The capability which declared this property. When the property is declared by an capability, it can only be used by this capability. </summary>
-        public DotvvmCapabilityProperty? OwningCapability { get; internal set; }
+        public DotvvmCapabilityProperty? OwningCapability { get; }
+        IPropertyDescriptor? IControlAttributeDescriptor.OwningCapability => OwningCapability;
         /// <summary> The capabilities which use this property. </summary>
-        public ImmutableArray<DotvvmCapabilityProperty> UsedInCapabilities { get; internal set; } = ImmutableArray<DotvvmCapabilityProperty>.Empty;
+        public ImmutableArray<DotvvmCapabilityProperty> UsedInCapabilities { get; private set; } = ImmutableArray<DotvvmCapabilityProperty>.Empty;
+        IEnumerable<IPropertyDescriptor> IControlAttributeDescriptor.UsedInCapabilities => UsedInCapabilities;
 
-        internal DotvvmPropertyGroup(PrefixArray prefixes, Type valueType, Type declaringType, FieldInfo? descriptorField, ICustomAttributeProvider attributeProvider, string name, object? defaultValue)
+        internal DotvvmPropertyGroup(PrefixArray prefixes, Type valueType, Type declaringType, FieldInfo? descriptorField, ICustomAttributeProvider attributeProvider, string name, object? defaultValue, DotvvmCapabilityProperty? owningCapability = null)
         {
             this.DescriptorField = descriptorField;
             this.DeclaringType = declaringType;
@@ -58,6 +60,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 ValueMerger = (IAttributeValueMerger?)Activator.CreateInstance(MarkupOptions.AttributeValueMerger);
             }
+            this.OwningCapability = owningCapability;
         }
 
         private static (MarkupOptionsAttribute, DataContextChangeAttribute[], DataContextStackManipulationAttribute?, ObsoleteAttribute?)
@@ -70,6 +73,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 $"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} cannot be set both at property group '{name}'.");
             var obsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
             return (markupOptions, dataContextChange.ToArray(), dataContextManipulation, obsoleteAttribute);
+        }
+
+        internal void AddUsedInCapability(DotvvmCapabilityProperty? p)
+        {
+            if (p is object)
+                lock(this)
+                {
+                    if (!UsedInCapabilities.Contains(p))
+                        UsedInCapabilities = UsedInCapabilities.Add(p);
+                }
         }
 
         IPropertyDescriptor IPropertyGroupDescriptor.GetDotvvmProperty(string name) => GetDotvvmProperty(name);
@@ -109,12 +122,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return field;
         }
 
-        public static DotvvmPropertyGroup Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, ICustomAttributeProvider attributeProvider, object? defaultValue)
+        public static DotvvmPropertyGroup Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, ICustomAttributeProvider attributeProvider, object? defaultValue, DotvvmCapabilityProperty? declaringCapability = null)
         {
             return descriptorDictionary.GetOrAdd((declaringType, name), fullName => {
                 // the field is optional, here
                 var field = declaringType.GetField(name + "GroupDescriptor", BindingFlags.Public | BindingFlags.Static);
-                return new DotvvmPropertyGroup(prefixes, valueType, declaringType, field, attributeProvider, name, defaultValue);
+                return new DotvvmPropertyGroup(prefixes, valueType, declaringType, field, attributeProvider, name, defaultValue, declaringCapability);
             });
         }
 

@@ -19,5 +19,8 @@ namespace DotVVM.Framework.Compilation
         ObsoleteAttribute? ObsoleteAttribute { get; }
         ITypeDescriptor DeclaringType { get; }
         ITypeDescriptor PropertyType { get; }
+
+        IPropertyDescriptor? OwningCapability { get; }
+        IEnumerable<IPropertyDescriptor> UsedInCapabilities { get; }
     }
 }

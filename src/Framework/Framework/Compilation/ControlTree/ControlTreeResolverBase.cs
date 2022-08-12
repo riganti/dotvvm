@@ -315,6 +315,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 return;
             }
 
+            ValidateAttribute(property, control, attribute);
+
             // set the property
             if (attribute.ValueNode == null)
             {
@@ -345,15 +347,79 @@ namespace DotVVM.Framework.Compilation.ControlTree
             else
             {
                 // hard-coded value in markup
-                if (!property.MarkupOptions.AllowHardCodedValue)
-                {
-                    attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain hard coded value.");
-                }
-
                 var textValue = (DothtmlValueTextNode)attribute.ValueNode;
-                var value = ConvertValue(WebUtility.HtmlDecode(textValue.Text), property.PropertyType);
-                var propertyValue = treeBuilder.BuildPropertyValue(property, value, attribute);
-                if (!treeBuilder.AddProperty(control, propertyValue, out var error)) attribute.AddError(error);
+
+                try
+                {
+                    // ConvertValue may fail, we don't want to crash the compiler in that case.
+                    var value = ConvertValue(WebUtility.HtmlDecode(textValue.Text), property.PropertyType);
+                    var propertyValue = treeBuilder.BuildPropertyValue(property, value, attribute);
+
+                    if (!treeBuilder.AddProperty(control, propertyValue, out var error)) attribute.AddError(error);
+                }
+                catch (Exception e)
+                {
+                    textValue.AddError($"The value '{textValue.Text}' could not be converted to {property.PropertyType.FullName}: {e.Message}");
+                }
+            }
+        }
+
+        private void ValidateAttribute(IPropertyDescriptor property, IAbstractControl control, DothtmlAttributeNode attribute)
+        {
+            if (!property.MarkupOptions.AllowHardCodedValue && attribute.ValueNode is not DothtmlValueBindingNode)
+            {
+                var err = $"The property {property.FullName} cannot contain hard coded value.";
+                if (attribute.ValueNode is not null)
+                    attribute.ValueNode.AddError(err);
+                else
+                    attribute.AddError(err);
+                return;
+            }
+
+            if (!property.MarkupOptions.AllowHardCodedValue &&
+                attribute.ValueNode is DothtmlValueBindingNode resourceBinding &&
+                treatBindingAsHardCodedValue.Contains(resourceBinding.BindingNode.Name))
+            {
+                // TODO: next major version - make this error
+                var err = $"The property {property.FullName} cannot contain hardcoded value nor resource bindings. This will be an error in the next major version.";
+                resourceBinding.AddWarning(err);
+                return;
+            }
+
+            if (!property.MarkupOptions.AllowBinding &&
+                attribute.ValueNode is DothtmlValueBindingNode binding &&
+                !treatBindingAsHardCodedValue.Contains(binding.BindingNode.Name))
+            {
+                // stupid edge case, precompiled controls currently don't allow resource bindings, so it's better to not suggest it in the error message
+                var allowsResourceBinding =
+                    control.Metadata.PrecompilationMode <= ControlPrecompilationMode.IfPossibleAndIgnoreExceptions;
+                var resourceBindingHelp =
+                    allowsResourceBinding && property.PropertyType.IsPrimitiveTypeDescriptor() ? " You can use a resource binding instead - the resource will evaluate the expression server-side." : "";
+                var err = $"The property {property.FullName} cannot contain {binding.BindingNode.Name} binding." + resourceBindingHelp;
+                attribute.AddError(err);
+                return;
+            }
+
+            // validate that html attributes names look valid
+            if (property is IGroupedPropertyDescriptor groupedProperty &&
+                property.UsedInCapabilities.Any(c => c.PropertyType.IsEqualTo(typeof(HtmlCapability))))
+            {
+                var pGroup = groupedProperty.PropertyGroup;
+                var name = groupedProperty.GroupMemberName;
+                if (pGroup.Name.EndsWith("Attributes") && name.ToLowerInvariant() != name)
+                {
+                    // properties with at most two typos
+                    var similarNameProperties =
+                        control.Metadata.AllProperties
+                        .Where(p => StringSimilarity.DamerauLevenshteinDistance(p.Name.ToLowerInvariant(), name.ToLowerInvariant()) <= 2)
+                        .Select(p => p.Name)
+                        .ToArray();
+                    var similarPropertyHelp =
+                        similarNameProperties.Any() ? $" Did you mean {string.Join(", ", similarNameProperties)}, or another DotVVM property?" : " Did you intent to use a DotVVM property instead?";
+                    attribute.AttributeNameNode.AddWarning(
+                        $"HTML attribute name '{name}' should not contain uppercase letters." + similarPropertyHelp
+                    );
+                }
             }
         }
 

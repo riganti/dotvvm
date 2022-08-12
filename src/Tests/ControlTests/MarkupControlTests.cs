@@ -14,6 +14,9 @@ using DotVVM.Framework.Testing;
 using DotVVM.Framework.Compilation.Styles;
 using AngleSharp;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Hosting;
+using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -22,10 +25,12 @@ namespace DotVVM.Framework.Tests.ControlTests
     {
         static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
             _ = Repeater.RenderAsNamedTemplateProperty;
+            config.Resources.RegisterScriptModuleUrl("somemodule", "http://localhost:99999/somemodule.js", null);
             config.Markup.AddMarkupControl("cc", "CustomControl", "CustomControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithCommand", "CustomControlWithCommand.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithProperty", "CustomControlWithProperty.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithInvalidVM", "CustomControlWithInvalidVM.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "CustomControlWithInternalProperty", "CustomControlWithInternalProperty.dotcontrol");
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
         }, services: s => {
             s.AddSingleton<TestService>();
@@ -135,6 +140,32 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task MarkupControl_InternalProperty()
+        {
+            // test that passing a string -> string dictionary into a _js.Invoke works
+            // the dictionary is either in a internal DotvvmProperty or declared as a property group
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <cc:CustomControlWithInternalProperty PropGroup-const='AA' PropGroup-resource={resource: 'XX' + Integer} PropGroup-value={value: Integer} />
+                ",
+                markupFiles: new Dictionary<string, string> {
+                    ["CustomControlWithInternalProperty.dotcontrol"] = @"
+                        @viewModel object
+                        @js somemodule
+                        @baseType DotVVM.Framework.Tests.ControlTests.CustomControlWithInternalProperty
+
+                        <dot:Button Click={staticCommand: _js.Invoke('xx', _control.Something)} />
+                        <dot:Button Click={staticCommand: _js.Invoke('xx', _control.PropGroup)} />
+
+                        {{value: _control.PropGroup.ContainsKey('test')}}
+                    "
+                }
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
         public async Task ShouldFailReasonablyWhenControlHasInvalidViewModel()
         {
             var e = await Assert.ThrowsExceptionAsync<DotvvmCompilationException>(() => cth.RunPage(typeof(BasicTestViewModel), @"
@@ -184,6 +215,22 @@ namespace DotVVM.Framework.Tests.ControlTests
         public void IncrementProperty()
         {
             this.SetValueToSource(PProperty, (int)GetValue(PProperty) + 1);
+        }
+    }
+
+    public class CustomControlWithInternalProperty : DotvvmMarkupControl
+    {
+        internal static readonly DotvvmProperty SomethingProperty =
+            DotvvmProperty.Register<Dictionary<string, string>, CustomControlWithInternalProperty>("Something");
+
+        [PropertyGroup("PropGroup-", ValueType = typeof(bool))]
+        public VirtualPropertyGroupDictionary<string> PropGroup => new(this, PropGroupGroupDescriptor);
+        public static DotvvmPropertyGroup PropGroupGroupDescriptor =
+            DotvvmPropertyGroup.Register<string, CustomControlWithInternalProperty>("PropGroup-", nameof(PropGroup));
+
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        {
+            this.SetValue(SomethingProperty, new Dictionary<string, string> { { "test", "test" }, {"x", "y"} });
         }
     }
 }

@@ -407,6 +407,24 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task CurlyBraceEscaping()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                CDATA: <![CDATA[ <span>{{value: Label}}</span> ]]>
+
+                <br>
+
+                Escape sequence: &#123;&#123;value: Label&#125;&#125;
+
+                <br>
+
+                Lazy escaping: {&#123;value: Label}}
+            ");
+            check.CheckString(r.OutputString, fileExtension: "raw.html");
+            check.CheckString(r.FormattedHtml, fileExtension: "reparsed.html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]

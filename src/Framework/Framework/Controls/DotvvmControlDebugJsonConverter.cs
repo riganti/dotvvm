@@ -32,7 +32,8 @@ namespace DotVVM.Framework.Controls
                 let isAttached = !p.DeclaringType.IsAssignableFrom(obj.GetType())
                 orderby !isAttached, p.Name
                 let name = isAttached ? p.DeclaringType.Name + "." + p.Name : p.Name
-                let value = rawValue is IBinding ? JValue.CreateString(rawValue.ToString()) :
+                let value = rawValue is null     ? JValue.CreateNull() :
+                            rawValue is IBinding ? JValue.CreateString(rawValue.ToString()) :
                                                    JToken.FromObject(rawValue, serializer)
                 select new JProperty(name, value)
             );

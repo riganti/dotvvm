@@ -262,7 +262,7 @@ $@"
             {
                 Write("<p class='source file'>Source File: <strong>");
                 WriteText(source.SystemFileName);
-                Write($"</strong> +{source.LineNumber}</p>");
+                Write($"</strong>:{source.LineNumber}</p>");
             }
         }
 
