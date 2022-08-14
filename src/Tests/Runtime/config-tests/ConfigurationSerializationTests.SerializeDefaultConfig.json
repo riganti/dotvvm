@@ -253,30 +253,38 @@
         "type": "System.String"
       },
       "RequiresFormCheckCssClass": {
-        "type": "System.Boolean"
+        "type": "System.Boolean",
+        "isAttached": true
       },
       "RequiresFormControlCssClass": {
-        "type": "System.Boolean"
+        "type": "System.Boolean",
+        "isAttached": true
       },
       "RequiresFormSelectCssClass": {
-        "type": "System.Boolean"
+        "type": "System.Boolean",
+        "isAttached": true
       }
     },
     "DotVVM.AutoUI.Controls.BulmaForm": {
       "WrapWithCheckboxClass": {
-        "type": "System.Boolean"
+        "type": "System.Boolean",
+        "isAttached": true
       },
       "WrapWithInputClass": {
-        "type": "System.Boolean"
+        "type": "System.Boolean",
+        "isAttached": true
       },
       "WrapWithRadioClass": {
-        "type": "System.Boolean"
+        "type": "System.Boolean",
+        "isAttached": true
       },
       "WrapWithSelectClass": {
-        "type": "System.Boolean"
+        "type": "System.Boolean",
+        "isAttached": true
       },
       "WrapWithTextareaClass": {
-        "type": "System.Boolean"
+        "type": "System.Boolean",
+        "isAttached": true
       }
     },
     "DotVVM.Framework.Compilation.ControlTree.LifecycleRequirementsAssigningVisitor": {
@@ -483,11 +491,13 @@
     "DotVVM.Framework.Controls.Events": {
       "Click": {
         "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
-        "isActive": true
+        "isActive": true,
+        "isAttached": true
       },
       "DoubleClick": {
         "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
-        "isActive": true
+        "isActive": true,
+        "isAttached": true
       }
     },
     "DotVVM.Framework.Controls.FileUpload": {
@@ -527,7 +537,8 @@
     "DotVVM.Framework.Controls.FormControls": {
       "Enabled": {
         "type": "System.Boolean",
-        "isValueInherited": true
+        "isValueInherited": true,
+        "isAttached": true
       }
     },
     "DotVVM.Framework.Controls.GridView": {
@@ -957,22 +968,27 @@
     "DotVVM.Framework.Controls.PostBack": {
       "Concurrency": {
         "type": "DotVVM.Framework.Controls.PostbackConcurrencyMode, DotVVM.Framework",
-        "isValueInherited": true
+        "isValueInherited": true,
+        "isAttached": true
       },
       "ConcurrencyQueue": {
         "type": "System.String",
-        "isValueInherited": true
+        "isValueInherited": true,
+        "isAttached": true
       },
       "ConcurrencyQueueSettings": {
         "type": "DotVVM.Framework.Controls.ConcurrencyQueueSettingsCollection, DotVVM.Framework",
-        "mappingMode": "InnerElement"
+        "mappingMode": "InnerElement",
+        "isAttached": true
       },
       "Handlers": {
         "type": "DotVVM.Framework.Controls.PostBackHandlerCollection, DotVVM.Framework",
-        "mappingMode": "InnerElement"
+        "mappingMode": "InnerElement",
+        "isAttached": true
       },
       "Update": {
-        "type": "System.Boolean"
+        "type": "System.Boolean",
+        "isAttached": true
       }
     },
     "DotVVM.Framework.Controls.PostBackHandler": {
@@ -997,7 +1013,8 @@
     "DotVVM.Framework.Controls.RenderSettings": {
       "Mode": {
         "type": "DotVVM.Framework.Controls.RenderMode, DotVVM.Framework",
-        "isValueInherited": true
+        "isValueInherited": true,
+        "isAttached": true
       }
     },
     "DotVVM.Framework.Controls.Repeater": {
@@ -1168,39 +1185,47 @@
       "Append": {
         "type": "System.Collections.Generic.IEnumerable`1[[DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
         "mappingMode": "InnerElement",
-        "isCompileTimeOnly": true
+        "isCompileTimeOnly": true,
+        "isAttached": true
       },
       "Exclude": {
         "type": "System.Boolean",
-        "isCompileTimeOnly": true
+        "isCompileTimeOnly": true,
+        "isAttached": true
       },
       "Prepend": {
         "type": "System.Collections.Generic.IEnumerable`1[[DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
         "mappingMode": "InnerElement",
-        "isCompileTimeOnly": true
+        "isCompileTimeOnly": true,
+        "isAttached": true
       },
       "Remove": {
         "type": "System.Boolean",
-        "isCompileTimeOnly": true
+        "isCompileTimeOnly": true,
+        "isAttached": true
       },
       "ReplaceWith": {
         "type": "DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework",
         "mappingMode": "InnerElement",
-        "isCompileTimeOnly": true
+        "isCompileTimeOnly": true,
+        "isAttached": true
       },
       "RequiredResources": {
         "type": "System.String[]",
         "mappingMode": "Exclude",
-        "isCompileTimeOnly": true
+        "isCompileTimeOnly": true,
+        "isAttached": true
       },
       "Tag": {
         "type": "System.String[]",
-        "isCompileTimeOnly": true
+        "isCompileTimeOnly": true,
+        "isAttached": true
       },
       "Wrappers": {
         "type": "System.Collections.Generic.IEnumerable`1[[DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
         "mappingMode": "InnerElement",
-        "isCompileTimeOnly": true
+        "isCompileTimeOnly": true,
+        "isAttached": true
       }
     },
     "DotVVM.Framework.Controls.SuppressPostBackHandler": {
@@ -1251,11 +1276,13 @@
     "DotVVM.Framework.Controls.UITests": {
       "GenerateStub": {
         "type": "System.Boolean",
-        "isValueInherited": true
+        "isValueInherited": true,
+        "isAttached": true
       },
       "Name": {
         "type": "System.String",
-        "isActive": true
+        "isActive": true,
+        "isAttached": true
       }
     },
     "DotVVM.Framework.Controls.UpdateProgress": {
@@ -1272,11 +1299,13 @@
     "DotVVM.Framework.Controls.Validation": {
       "Enabled": {
         "type": "System.Boolean",
-        "isValueInherited": true
+        "isValueInherited": true,
+        "isAttached": true
       },
       "Target": {
         "type": "System.Object",
-        "isValueInherited": true
+        "isValueInherited": true,
+        "isAttached": true
       }
     },
     "DotVVM.Framework.Controls.ValidationSummary": {
@@ -1293,23 +1322,28 @@
     "DotVVM.Framework.Controls.Validator": {
       "HideWhenValid": {
         "type": "System.Boolean",
-        "isValueInherited": true
+        "isValueInherited": true,
+        "isAttached": true
       },
       "InvalidCssClass": {
         "type": "System.String",
-        "isValueInherited": true
+        "isValueInherited": true,
+        "isAttached": true
       },
       "SetToolTipText": {
         "type": "System.Boolean",
-        "isValueInherited": true
+        "isValueInherited": true,
+        "isAttached": true
       },
       "ShowErrorMessageText": {
         "type": "System.Boolean",
-        "isValueInherited": true
+        "isValueInherited": true,
+        "isAttached": true
       },
       "Value": {
         "type": "System.Object",
-        "isActive": true
+        "isActive": true,
+        "isAttached": true
       }
     }
   },
@@ -1562,6 +1596,374 @@
         "prefix": "Query-",
         "type": "System.Object"
       }
+    }
+  },
+  "controls": {
+    "DotVVM.AutoUI.Controls.AutoEditor": {
+      "assembly": "DotVVM.AutoUI",
+      "baseType": "DotVVM.Framework.Controls.CompositeControl, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.AutoUI.Controls.AutoForm": {
+      "assembly": "DotVVM.AutoUI",
+      "baseType": "DotVVM.AutoUI.Controls.AutoFormBase, DotVVM.AutoUI"
+    },
+    "DotVVM.AutoUI.Controls.AutoFormBase": {
+      "assembly": "DotVVM.AutoUI",
+      "baseType": "DotVVM.Framework.Controls.CompositeControl, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.AutoUI.Controls.AutoGridViewColumn": {
+      "assembly": "DotVVM.AutoUI",
+      "baseType": "DotVVM.Framework.Controls.GridViewColumn, DotVVM.Framework"
+    },
+    "DotVVM.AutoUI.Controls.AutoGridViewColumns": {
+      "assembly": "DotVVM.AutoUI",
+      "baseType": "DotVVM.Framework.Controls.GridViewColumn, DotVVM.Framework"
+    },
+    "DotVVM.AutoUI.Controls.BootstrapForm": {
+      "assembly": "DotVVM.AutoUI",
+      "baseType": "DotVVM.AutoUI.Controls.AutoFormBase, DotVVM.AutoUI"
+    },
+    "DotVVM.AutoUI.Controls.BulmaForm": {
+      "assembly": "DotVVM.AutoUI",
+      "baseType": "DotVVM.AutoUI.Controls.AutoFormBase, DotVVM.AutoUI"
+    },
+    "DotVVM.Framework.Compilation.Styles.ResolvedControlHelper+LazyRuntimeControl": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.AuthenticatedView": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ConfigurableHtmlControl, DotVVM.Framework",
+      "defaultContentProperty": "AuthenticatedTemplate"
+    },
+    "DotVVM.Framework.Controls.BodyResourceLinks": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.Button": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ButtonBase, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.ButtonBase": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.CheckableControlBase": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.CheckBox": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.CheckableControlBase, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.ClaimView": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ConfigurableHtmlControl, DotVVM.Framework",
+      "defaultContentProperty": "HasClaimTemplate",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.ComboBox": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.SelectHtmlControlBase, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.CompositeControl": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework",
+      "isAbstract": true,
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.ConcurrencyQueueSetting": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.ConfigurableHtmlControl": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.ConfirmPostBackHandler": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.PostBackHandler, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.Content": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.ContentPlaceHolder": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ConfigurableHtmlControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.DataItemContainer": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.DataPager": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.Decorator": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.DotvvmBindableObject": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "System.Object",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.DotvvmControl": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.DotvvmMarkupControl": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.EmptyData": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ItemsControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.EnvironmentView": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ConfigurableHtmlControl, DotVVM.Framework",
+      "defaultContentProperty": "IsEnvironmentTemplate",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.FileUpload": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.GridView": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ItemsControl, DotVVM.Framework",
+      "defaultContentProperty": "Columns",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.GridViewCheckBoxColumn": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.GridViewColumn, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.GridViewColumn": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.GridViewTemplateColumn": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.GridViewColumn, DotVVM.Framework",
+      "defaultContentProperty": "ContentTemplate",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.GridViewTextColumn": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.GridViewColumn, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.HeadResourceLinks": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.HierarchyRepeater": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ItemsControl, DotVVM.Framework",
+      "defaultContentProperty": "ItemTemplate",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.HierarchyRepeater+HierarchyRepeaterItem": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.HierarchyRepeater+HierarchyRepeaterLevel": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.HtmlGenericControl": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.HtmlLiteral": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ConfigurableHtmlControl, DotVVM.Framework",
+      "defaultContentProperty": "Html"
+    },
+    "DotVVM.Framework.Controls.Infrastructure.DotvvmView": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.Infrastructure.GlobalizeResource": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.Infrastructure.MarkupControlContainer": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.Infrastructure.MarkupControlContainer`1": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.Infrastructure.MarkupControlContainer, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.Infrastructure.RawLiteral": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.InlineScript": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework",
+      "defaultContentProperty": "Script"
+    },
+    "DotVVM.Framework.Controls.ItemsControl": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.JsComponent": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.Label": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.LinkButton": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ButtonBase, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.ListBox": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.SelectHtmlControlBase, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.Literal": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.MultiSelect": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.MultiSelectHtmlControlBase, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.MultiSelectHtmlControlBase": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.MultiSelector, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.MultiSelector": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.SelectorBase, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.NamedCommand": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.Panel": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.PlaceHolder": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.PostBackHandler": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.PrecompiledControlPlaceholder": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.RadioButton": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.CheckableControlBase, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.Repeater": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ItemsControl, DotVVM.Framework",
+      "defaultContentProperty": "ItemTemplate",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.RequiredResource": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.RoleView": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ConfigurableHtmlControl, DotVVM.Framework",
+      "defaultContentProperty": "IsMemberTemplate",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.RouteLink": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.SelectHtmlControlBase": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.Selector, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.Selector": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.SelectorBase, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.SelectorBase": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ItemsControl, DotVVM.Framework",
+      "isAbstract": true
+    },
+    "DotVVM.Framework.Controls.SelectorItem": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.SpaContentPlaceHolder": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.ContentPlaceHolder, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.SuppressPostBackHandler": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.PostBackHandler, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.TemplateHost": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.TextBox": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.UpdateProgress": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.ValidationSummary": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.Validator": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Testing.FakeBodyResourceLink": {
+      "assembly": "DotVVM.Framework.Testing",
+      "baseType": "DotVVM.Framework.Controls.BodyResourceLinks, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Testing.FakeHeadResourceLink": {
+      "assembly": "DotVVM.Framework.Testing",
+      "baseType": "DotVVM.Framework.Controls.HeadResourceLinks, DotVVM.Framework"
     }
   }
 }

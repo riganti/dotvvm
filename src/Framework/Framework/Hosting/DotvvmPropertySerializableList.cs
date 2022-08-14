@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
@@ -29,7 +30,9 @@ namespace DotVVM.Framework.Hosting
                         p.MarkupOptions.Required,
                         p is ActiveDotvvmProperty,
                         p is CompileTimeOnlyDotvvmProperty,
-                        fromCapability: p.OwningCapability?.Name
+                        fromCapability: p.OwningCapability?.Name,
+                        isAttached: p.AttributeProvider?.IsDefined(typeof(AttachedPropertyAttribute), true) == true ||
+                                    p.PropertyInfo?.IsDefined(typeof(AttachedPropertyAttribute), true) == true
                     )
                 }
             )
@@ -68,14 +71,37 @@ namespace DotVVM.Framework.Hosting
                         p.DataContextChangeAttributes.Length > 0 ? p.DataContextChangeAttributes : null,
                         p.DataContextManipulationAttribute,
                         p.MarkupOptions.MappingMode,
-                        fromCapability: p.OwningCapability?.Name
+                        fromCapability: p.OwningCapability?.Name,
+                        isAttached: p.AttributeProvider?.IsDefined(typeof(AttachedPropertyAttribute), true) == true
                     )
                 }
             )
             .GroupBy(p => p.declaringType)
             .ToDictionary(p => p.Key.FullName!, p => p.ToDictionary(p => p.name, p => p.p).ToSorted(StringComparer.OrdinalIgnoreCase)).ToSorted(StringComparer.OrdinalIgnoreCase);
 
+        public static SortedDictionary<string, DotvvmControlInfo> GetControls(CompiledAssemblyCache assemblies)
+        {
+            var result = new SortedDictionary<string, DotvvmControlInfo>(StringComparer.OrdinalIgnoreCase);
+            foreach (var a in assemblies.GetAllAssemblies())
+            {
+                foreach (var c in a.GetLoadableTypes())
+                {
+                    if (!typeof(DotvvmBindableObject).IsAssignableFrom(c)) continue;
 
+                    var markupOptions = c.GetCustomAttribute<ControlMarkupOptionsAttribute>();
+                    var control = new DotvvmControlInfo(
+                        c.Assembly.GetName().Name,
+                        c.BaseType,
+                        isAbstract: c.IsAbstract || c.IsGenericType,
+                        markupOptions?.DefaultContentProperty,
+                        !markupOptions?.AllowContent ?? false
+                    );
+                    result[c.FullName] = control;
+                }
+            }
+
+            return result;
+        }
 
         public record DotvvmPropertyInfo(
             Type type,
@@ -90,7 +116,8 @@ namespace DotVVM.Framework.Hosting
             bool isCompileTimeOnly = false,
             string? fromCapability = null,
             [property: DefaultValue("")]
-            string capabilityPrefix = ""
+            string capabilityPrefix = "",
+            bool isAttached = false
         ) { }
 
         public record DotvvmPropertyGroupInfo(
@@ -101,7 +128,17 @@ namespace DotVVM.Framework.Hosting
             DataContextStackManipulationAttribute? dataContextManipulation,
             [property: DefaultValue(MappingMode.Attribute)]
             MappingMode mappingMode = MappingMode.Attribute,
-            string? fromCapability = null
+            string? fromCapability = null,
+            bool isAttached = false
+        ) { }
+
+
+        public record DotvvmControlInfo(
+            string assembly,
+            Type baseType,
+            bool isAbstract,
+            string? defaultContentProperty,
+            bool withoutContent
         ) { }
 
 

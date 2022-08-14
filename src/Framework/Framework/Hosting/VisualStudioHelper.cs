@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
@@ -26,6 +27,7 @@ namespace DotVVM.Framework.Hosting
                 properties = includeProperties ? DotvvmPropertySerializableList.Properties : null,
                 capabilities = includeProperties ? DotvvmPropertySerializableList.Capabilities : null,
                 propertyGroups = includeProperties ? DotvvmPropertySerializableList.PropertyGroups : null,
+                controls = includeProperties ? DotvvmPropertySerializableList.GetControls(config.ServiceProvider.GetRequiredService<CompiledAssemblyCache>()) : null,
             };
             return JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings {
                 TypeNameHandling = TypeNameHandling.Auto,

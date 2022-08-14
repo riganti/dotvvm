@@ -39,17 +39,16 @@ namespace DotVVM.Framework.Tests.Runtime
             serialized = serialized.Replace("System.IServiceProvider, System.ComponentModel, Version=***, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.IServiceProvider, ComponentLibrary");
 
             var jobject = JObject.Parse(serialized);
-            bool shouldBeRemoved(JProperty p) =>
-                p.Name.Contains(".Tests.") || p.Name.Contains(".DynamicData.");
-            if (jobject["properties"] is object)
-                foreach (var testControl in ((JObject)jobject["properties"]).Properties().Where(shouldBeRemoved).ToArray())
-                    testControl.Remove();
-            if (jobject["propertyGroups"] is object)
-                foreach (var testControl in ((JObject)jobject["propertyGroups"]).Properties().Where(shouldBeRemoved).ToArray())
-                    testControl.Remove();
-            if (jobject["capabilities"] is object)
-                foreach (var testControl in ((JObject)jobject["capabilities"]).Properties().Where(shouldBeRemoved).ToArray())
-                    testControl.Remove();
+            void removeTestStuff(JToken token)
+            {
+                if (token is object)
+                    foreach (var testControl in ((JObject)token).Properties().Where(p => p.Name.Contains(".Tests.")).ToArray())
+                        testControl.Remove();
+            }
+            removeTestStuff(jobject["properties"]);
+            removeTestStuff(jobject["propertyGroups"]);
+            removeTestStuff(jobject["capabilities"]);
+            removeTestStuff(jobject["controls"]);
             check.CheckString(jobject.ToString(), checkName, fileExtension, memberName, sourceFilePath);
         }
 
