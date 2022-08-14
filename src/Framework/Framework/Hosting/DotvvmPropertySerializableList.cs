@@ -95,9 +95,11 @@ namespace DotVVM.Framework.Hosting
                     if (!typeof(DotvvmBindableObject).IsAssignableFrom(c)) continue;
 
                     var markupOptions = c.GetCustomAttribute<ControlMarkupOptionsAttribute>();
+                    var interfaces = c.GetInterfaces().Except(c.BaseType.GetInterfaces()).ToArray();
                     var control = new DotvvmControlInfo(
                         c.Assembly.GetName().Name,
                         c.BaseType,
+                        interfaces: interfaces.Length > 0 ? interfaces : null,
                         isAbstract: c.IsAbstract || c.IsGenericType,
                         markupOptions?.DefaultContentProperty,
                         !markupOptions?.AllowContent ?? false
@@ -146,6 +148,7 @@ namespace DotVVM.Framework.Hosting
         public record DotvvmControlInfo(
             string assembly,
             Type baseType,
+            Type[]? interfaces,
             bool isAbstract,
             string? defaultContentProperty,
             bool withoutContent
