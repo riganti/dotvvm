@@ -28,6 +28,12 @@ namespace DotVVM.Framework.Hosting
                         p.MarkupOptions.Name != p.Name ? p.MarkupOptions.Name : null,
                         p.MarkupOptions.MappingMode,
                         p.MarkupOptions.Required,
+                        onlyBindings: !p.MarkupOptions.AllowHardCodedValue,
+                        onlyHardcoded: !p.MarkupOptions.AllowBinding,
+                        isCommand: p.PropertyType.IsDelegate(),
+                        commandArguments: p.PropertyType.IsDelegate(out var invoke) && invoke.GetParameters().Length > 0
+                                          ? invoke.GetParameters().Select(p => new CommandArgumentInfo(p.Name, p.ParameterType)).ToArray()
+                                          : null,
                         p is ActiveDotvvmProperty,
                         p is CompileTimeOnlyDotvvmProperty,
                         fromCapability: p.OwningCapability?.Name,
@@ -112,6 +118,10 @@ namespace DotVVM.Framework.Hosting
             [property: DefaultValue(MappingMode.Attribute)]
             MappingMode mappingMode = MappingMode.Attribute,
             bool required = false,
+            bool onlyBindings = false,
+            bool onlyHardcoded = false,
+            bool isCommand = false,
+            CommandArgumentInfo[]? commandArguments = null,
             bool isActive = false,
             bool isCompileTimeOnly = false,
             string? fromCapability = null,
@@ -139,6 +149,12 @@ namespace DotVVM.Framework.Hosting
             bool isAbstract,
             string? defaultContentProperty,
             bool withoutContent
+        ) { }
+
+
+        public record CommandArgumentInfo(
+            string name,
+            Type type
         ) { }
 
 
