@@ -91,7 +91,7 @@ export default {
                             (obs as any)[lastSetErrorSymbol] = void 0;
                         }
                     } else {
-                        if (element.validity.valid) {
+                        if (element.validity.valid || element.value !== '') {
                             obs(newValue);
                         }
                     }
