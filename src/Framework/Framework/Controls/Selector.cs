@@ -39,28 +39,50 @@ namespace DotVVM.Framework.Controls
             if (control.GetValue(ItemValueBindingProperty) is ResolvedPropertySetter itemValueBinding)
             {
                 var to = selectedValueBinding.GetResultType();
-                var nonNullableTo = to?.UnwrapNullableType();
                 var from = itemValueBinding.GetResultType();
 
-                if (to != null && from != null
-                    && !to.IsAssignableFrom(from) && !nonNullableTo!.IsAssignableFrom(from))
+                if (!IsValueAssignable(from, to))
                 {
-                    yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.DothtmlNode);
+                    yield return CreateSelectedValueTypeError(selectedValueBinding, to, from);
                 }
             }
             else if (control.GetValue(DataSourceProperty) is ResolvedPropertySetter dataSourceBinding)
             {
                 var to = selectedValueBinding.GetResultType();
-                var nonNullableTo = to?.UnwrapNullableType();
                 var from = dataSourceBinding.GetResultType()?.UnwrapNullableType()?.GetEnumerableType();
 
-                if (to != null && from != null
-                    && !to.IsAssignableFrom(from) && !nonNullableTo!.IsAssignableFrom(from)
-                    && !(to.IsEnum && from == typeof(string)) && !(to.UnwrapNullableType().IsEnum && from == typeof(string)))
+                if (!IsDataSourceItemAssignable(from, to))
                 {
-                    yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.DothtmlNode);
+                    yield return CreateSelectedValueTypeError(selectedValueBinding, to, from);
                 }
             }
+        }
+
+        protected static ControlUsageError CreateSelectedValueTypeError(ResolvedPropertySetter selectedValueBinding, Type? to, Type? from)
+            => new ($"Type '{from?.FullName ?? "?"}' is not assignable to '{to?.FullName ?? "?"}'.", selectedValueBinding.DothtmlNode);
+
+        protected static bool IsValueAssignable(Type? valueType, Type? to)
+        {
+            var nonNullableTo = to?.UnwrapNullableType();
+
+            return
+                to == null ||
+                valueType == null ||
+                to.IsAssignableFrom(valueType) ||
+                nonNullableTo!.IsAssignableFrom(valueType);
+        }
+
+        protected static bool IsDataSourceItemAssignable(Type? itemType, Type? to)
+        {
+            var nonNullableTo = to?.UnwrapNullableType();
+
+            return
+                to == null ||
+                itemType == null ||
+                to.IsAssignableFrom(itemType) ||
+                nonNullableTo!.IsAssignableFrom(itemType) ||
+                (to.IsEnum && itemType == typeof(string)) ||
+                (to.UnwrapNullableType().IsEnum && itemType == typeof(string));
         }
     }
 }
