@@ -3,6 +3,9 @@ using Riganti.Selenium.Core;
 using DotVVM.Testing.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
+using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium;
+using Riganti.Selenium.Core.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -13,7 +16,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ListBox_ListBox()
+        public void Control_ListBox_SelectionModeSingle()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ListBox_ListBox);
@@ -21,9 +24,9 @@ namespace DotVVM.Samples.Tests.Control
                 var result = browser.Single("[data-ui=result]");
                 AssertUI.InnerTextEquals(result, "0");
 
-                AssertUI.Attribute(browser.Single("select"), "size", "3");
+                AssertUI.Attribute(browser.Single("select[data-ui=single]"), "size", "3");
 
-                var firstOption = browser.ElementAt("select option", 0);
+                var firstOption = browser.ElementAt("select[data-ui=single] option", 0);
 
                 AssertUI.InnerTextEquals(firstOption, "Too long text");
                 AssertUI.Attribute(firstOption, "title", "Nice title");
@@ -31,7 +34,7 @@ namespace DotVVM.Samples.Tests.Control
                 firstOption.Click();
                 AssertUI.InnerTextEquals(result, "1");
 
-                var secondOption = browser.ElementAt("select option", 1);
+                var secondOption = browser.ElementAt("select[data-ui=single] option", 1);
 
                 AssertUI.InnerTextEquals(secondOption, "Text1");
                 AssertUI.Attribute(secondOption, "title", "Even nicer title");
@@ -40,5 +43,42 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.InnerTextEquals(result, "2");
             });
         }
+
+        [Fact]
+        public void Control_ListBox_SelectionModeSinglMultiple()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ListBox_ListBox);
+
+                var initialSelectedElements = browser.FindElements("li");
+                Assert.Equal(0, initialSelectedElements.Count);
+
+                AssertUI.HasAttribute(browser.Single("select[data-ui=multiple]"), "multiple");
+
+                var firstOption = browser.ElementAt("select[data-ui=multiple] option", 0);
+                var thirdOption = browser.ElementAt("select[data-ui=multiple] option", 2);
+                var fourOption = browser.ElementAt("select[data-ui=multiple] option", 3);
+
+                AssertUI.InnerTextEquals(firstOption, "Too long text");
+                AssertUI.Attribute(firstOption, "title", "Nice title");
+
+                firstOption.Click();
+                CtrlClick(browser, thirdOption);
+                CtrlClick(browser, fourOption);
+
+                var selectedElements = browser.FindElements("li");
+                Assert.Equal(3, selectedElements.Count);
+
+                AssertUI.InnerTextEquals(selectedElements[0], "1");
+                AssertUI.InnerTextEquals(selectedElements[1], "3");
+                AssertUI.InnerTextEquals(selectedElements[2], "4");
+            });
+        }
+
+        private static void CtrlClick(IBrowserWrapper browser, IElementWrapper thirdOption) => new Actions(browser.Driver)
+                            .KeyDown(Keys.Control)
+                            .Click(thirdOption.WebElement)
+                            .KeyUp(Keys.Control)
+                            .Perform();
     }
 }
