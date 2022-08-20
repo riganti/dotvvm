@@ -923,6 +923,9 @@
       }
     },
     "DotVVM.Framework.Controls.ListBox": {
+      "SelectionMode": {
+        "type": "DotVVM.Framework.Controls.ListBoxSelectionMode, DotVVM.Framework"
+      },
       "Size": {
         "type": "System.Int32"
       }
