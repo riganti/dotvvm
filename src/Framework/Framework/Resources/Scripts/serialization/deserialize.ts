@@ -10,8 +10,8 @@ export function deserialize(viewModel: any, target?: any, deserializeAll: boolea
     }
 
     if (ko.isObservable(target) && "setState" in target) {
-        target.setState(unmapKnockoutObservables(viewModel))
-        target[notifySymbol as any](target.state)
+        target.setState!(unmapKnockoutObservables(viewModel));
+        (target as any)[notifySymbol as any](target.state)
         return target
     }
 

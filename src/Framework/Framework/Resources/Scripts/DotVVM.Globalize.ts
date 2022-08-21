@@ -1,5 +1,4 @@
-﻿/// <reference path="typings/globalize/globalize.d.ts" />
-import { parseDate as serializationParseDate, serializeDate } from './serialization/date'
+﻿import { parseDate as serializationParseDate, serializeDate } from './serialization/date'
 import { getCulture } from './dotvvm-base';
 
 function getGlobalize(): GlobalizeStatic {
@@ -55,7 +54,7 @@ export function parseDate(value: string, format: string, previousValue?: Date) {
 
 export const parseDotvvmDate = serializationParseDate;
 
-export function bindingDateToString(value: KnockoutObservable<string | Date> | string | Date | null | undefined, format: string = "G") {
+export function bindingDateToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string = "G") {
     const unwrapDate = () => {
         const unwrappedVal = ko.unwrap(value);
         return typeof unwrappedVal == "string" ? serializationParseDate(unwrappedVal) : unwrappedVal;
@@ -78,7 +77,7 @@ export function bindingDateToString(value: KnockoutObservable<string | Date> | s
     }
 }
 
-export function bindingNumberToString(value: KnockoutObservable<string | number> | string | number | null | undefined, format: string = "G") {
+export function bindingNumberToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string = "G") {
     const formatNumber = () => formatString(format, value);
 
     if (ko.isWriteableObservable(value)) {

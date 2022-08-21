@@ -42,7 +42,7 @@ export default {
                             if (!ko.isObservable(prop) || !("setState" in prop)) {
                                 throw new Error(`Can not set property ${name} as it's not observable with setState method: ${prop}`)
                             }
-                            prop.setState(val)
+                            prop.setState!(val)
                         }
                     }
                 })
