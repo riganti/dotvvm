@@ -13,10 +13,10 @@ interface KnockoutUtils {
 }
 
 interface KnockoutObservableStatic {
-    <T>(value?: T | null, validator?: (newValue: T[]) => void): KnockoutObservable<T>;
+    <T>(value: T, validator: (newValue: T) => void): KnockoutObservable<T>;
 }
 interface KnockoutObservableArrayStatic {
-    <T>(value?: T[] | null, validator?: (newValue: T[]) => void): KnockoutObservableArray<T>;
+    <T>(value: T[] | null, validator: (newValue: T[]) => void): KnockoutObservableArray<T>;
 }
 
 interface KnockoutObservable<T> {

@@ -1,5 +1,6 @@
 ﻿import dotvvm from '../dotvvm-root'
 import * as evaluator from '../utils/evaluator'
+import { ObservableHierarchy, ObservableSubHierarchy, ObservableSubSubHierarchy } from './observableHierarchies'
 
 jest.mock("../metadata/typeMap", () => ({
     getTypeInfo(typeId: string) {
@@ -61,7 +62,7 @@ function getParentedContext():ParentedContext{
 }
 
 function createComplexObservableTargetWithNullArrayElement(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
@@ -101,7 +102,7 @@ function createComplexObservableTargetWithArrayElementPropertyMissing(): Knockou
 }
 
 function createComplexObservableTargetWithArrayElementPropertyNull(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
@@ -123,7 +124,7 @@ function createComplexObservableTargetWithArrayElementPropertyNull(): KnockoutOb
 }
 
 function createComplexObservableTargetWithArrayElementMissingAndNull(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
@@ -138,7 +139,7 @@ function createComplexObservableTargetWithArrayElementMissingAndNull(): Knockout
 }
 
 function createComplexObservableTargetWithArrayElementPropertyObservableNull(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
@@ -160,7 +161,7 @@ function createComplexObservableTargetWithArrayElementPropertyObservableNull(): 
 }
 
 function createComplexObservableTargetWithMissingArrayElement(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
@@ -178,7 +179,7 @@ function createComplexObservableTargetWithMissingArrayElement(): KnockoutObserva
 }
 
 function createComplexObservableTargetWithNullSubHierarchy(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: null
@@ -205,12 +206,12 @@ function createComplexObservableSubViewmodel(): ObservableSubHierarchy {
         $type: ko.observable("t5_a"),
         Prop21: ko.observable("bb"),
         Prop22: ko.observable("cc"),
-        Prop23: ko.observableArray([
-            ko.observable({
+        Prop23: ko.observableArray<KnockoutObservable<ObservableSubSubHierarchy> | null>([
+            ko.observable<ObservableSubSubHierarchy>({
                 $type: ko.observable("t5_a_a"),
                 Prop231: ko.observable("dd")
             }),
-            ko.observable({
+            ko.observable<ObservableSubSubHierarchy>({
                 $type: ko.observable("t5_a_a"),
                 Prop231: ko.observable("ee")
             })
@@ -247,22 +248,6 @@ interface ParentedContext {
     $data:  string,
     $rawData: KnockoutObservable<string>,
     $root: ObservableHierarchy
-}
-
-interface ObservableHierarchy {
-    $type: string | KnockoutObservable<string>
-    Prop1: KnockoutObservable<string>
-    Prop2: null | KnockoutObservable<ObservableSubHierarchy>
-}
-
-interface ObservableSubHierarchy {
-    $type: string | KnockoutObservable<string>
-    Prop21: KnockoutObservable<string>
-    Prop22: KnockoutObservable<string>
-    Prop23: KnockoutObservableArray<null | KnockoutObservable<{ 
-        Prop231: null | KnockoutObservable<null | string>,
-        $type: string | KnockoutObservable<string>
-    }>>
 }
 
 const testTypeMap: TypeMap = {
