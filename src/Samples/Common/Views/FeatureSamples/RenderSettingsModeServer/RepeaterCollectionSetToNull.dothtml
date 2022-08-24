@@ -1,0 +1,26 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.RenderSettingsModeServer.RepeaterCollectionSetToNullViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <p>Sample for a bug fix - when a collection in the viewmodel was set to null and it was bound using dotvvm-SSR-foreach, an error occurred and the viewmodel wasn't applied. </p>
+
+    <dot:Button Text="Set null" Click="{command: Test()}" />
+    <dot:Button Text="Set non-null" Click="{command: Test2()}" />
+
+    <p>Value: <span class="value">{{value: Value}}</span></p>
+
+    <dot:Repeater DataSource="{value: Objects}" WrapperTagName="ul" RenderSettings.Mode="Server">
+        <li>{{value: Id}}</li>
+    </dot:Repeater>
+
+</body>
+</html>
+
+
