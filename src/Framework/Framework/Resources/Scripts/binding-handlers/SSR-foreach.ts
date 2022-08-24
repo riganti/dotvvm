@@ -25,7 +25,7 @@ export default {
                     savedNodes = ko.utils.cloneNodes(ko.virtualElements.childNodes(element), true /* shouldCleanNodes */);
                 }
 
-                if (rawValue != null && unwrappedValue != null) {
+                if (unwrappedValue != null) {
                     if (!isInitial) {
                         ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes!));
                     }
