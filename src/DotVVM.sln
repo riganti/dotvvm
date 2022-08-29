@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Api.Swashb
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Api.Swashbuckle.AspNetCore", "Api\Swashbuckle.AspNetCore\DotVVM.Framework.Api.Swashbuckle.AspNetCore.csproj", "{C6D75B1C-6EBE-4FEE-802F-5FBB92CD6498}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Api.Swashbuckle.Owin.Tests", "Api\Swashbuckle.Owin.Tests\DotVVM.Framework.Api.Swashbuckle.Owin.Tests.csproj", "{CDAA2A06-2070-4F85-BD35-8C910013FB77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Api.Swashbuckle.Owin.Tests", "Api\Swashbuckle.Owin.Tests\DotVVM.Framework.Api.Swashbuckle.Owin.Tests.csproj", "{CDAA2A06-2070-4F85-BD35-8C910013FB77}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Api.Swashbuckle.Owin", "Api\Swashbuckle.Owin\DotVVM.Framework.Api.Swashbuckle.Owin.csproj", "{F84F7D75-0EB6-40B7-992E-9125D638B2D5}"
 EndProject
@@ -63,9 +63,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Compiler", "Tools\Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tools.StartupPerfTester", "Tools\StartupPerfTester\DotVVM.Tools.StartupPerfTester.csproj", "{15931432-CB16-4E1F-A8D9-87DD0A8C6CC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.Owin", "Samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj", "{5B5B07E7-BC20-4168-BE55-CF9414575D47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples.Api.Owin", "Samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj", "{5B5B07E7-BC20-4168-BE55-CF9414575D47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Owin", "Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj", "{1C7A9914-8CDC-4075-9422-37BD0E51C076}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples.Owin", "Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj", "{1C7A9914-8CDC-4075-9422-37BD0E51C076}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DynamicData", "DynamicData", "{72211E6B-8744-42B5-BA3C-C86ED4344789}"
 EndProject
@@ -93,9 +93,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.ApplicationI
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.MiniProfiler.AspNetCore", "Samples\MiniProfiler.AspNetCore\DotVVM.Samples.MiniProfiler.AspNetCore.csproj", "{2ACC89F1-F7CA-4406-ACD7-3B62DE20686F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.ApplicationInsights.Owin", "Samples\ApplicationInsights.Owin\DotVVM.Samples.ApplicationInsights.Owin.csproj", "{85617AC0-D0A5-40B8-8C81-4B13877E7837}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.ApplicationInsights.Owin", "Samples\ApplicationInsights.Owin\DotVVM.Samples.ApplicationInsights.Owin.csproj", "{85617AC0-D0A5-40B8-8C81-4B13877E7837}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.MiniProfiler.Owin", "Samples\MiniProfiler.Owin\DotVVM.Samples.MiniProfiler.Owin.csproj", "{24B04C26-27FB-423A-813D-662B5176F836}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.MiniProfiler.Owin", "Samples\MiniProfiler.Owin\DotVVM.Samples.MiniProfiler.Owin.csproj", "{24B04C26-27FB-423A-813D-662B5176F836}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HotReload", "HotReload", "{C7EDA97F-E024-4CEB-A712-F20B94937F96}"
 EndProject
@@ -113,18 +113,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Analyzers.CodeFixes"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Analyzers.Package", "Analyzers\Analyzers.Package\DotVVM.Analyzers.Package.csproj", "{CA24D1FC-6C97-4529-894C-D026E690BD87}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Analyzers.Vsix", "Analyzers\Analyzers.Vsix\DotVVM.Analyzers.Vsix.csproj", "{33E8009D-9976-40DD-81A2-9F912A8B036A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Analyzers.Tests", "Analyzers\Analyzers.Tests\DotVVM.Analyzers.Tests.csproj", "{EB51ADB0-A0B8-4252-978D-9EEB9E9C9344}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{DB0AB0C3-DA5E-4B5A-9CD4-036D37B50AED}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Tracing\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems*{35f3d396-e702-4acb-be7e-301e52561559}*SharedItemsImports = 5
-		Tracing\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems*{407d8620-72c2-454c-945d-840130d80d0b}*SharedItemsImports = 13
-		Tracing\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems*{c474ef4c-8d49-4983-8d20-5beff46f2a19}*SharedItemsImports = 5
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -662,18 +655,6 @@ Global
 		{CA24D1FC-6C97-4529-894C-D026E690BD87}.Release|x64.Build.0 = Release|Any CPU
 		{CA24D1FC-6C97-4529-894C-D026E690BD87}.Release|x86.ActiveCfg = Release|Any CPU
 		{CA24D1FC-6C97-4529-894C-D026E690BD87}.Release|x86.Build.0 = Release|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Debug|x64.Build.0 = Debug|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Debug|x86.Build.0 = Debug|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Release|x64.ActiveCfg = Release|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Release|x64.Build.0 = Release|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Release|x86.ActiveCfg = Release|Any CPU
-		{33E8009D-9976-40DD-81A2-9F912A8B036A}.Release|x86.Build.0 = Release|Any CPU
 		{EB51ADB0-A0B8-4252-978D-9EEB9E9C9344}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EB51ADB0-A0B8-4252-978D-9EEB9E9C9344}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB51ADB0-A0B8-4252-978D-9EEB9E9C9344}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -738,11 +719,15 @@ Global
 		{E99AB44B-C297-46F0-8E97-4C0F58D84E99} = {D10C02E0-DB0B-49F2-8D2E-BA3B5ED4654C}
 		{6B10E0E9-C458-4BED-A61E-E131EBE59611} = {D10C02E0-DB0B-49F2-8D2E-BA3B5ED4654C}
 		{CA24D1FC-6C97-4529-894C-D026E690BD87} = {D10C02E0-DB0B-49F2-8D2E-BA3B5ED4654C}
-		{33E8009D-9976-40DD-81A2-9F912A8B036A} = {D10C02E0-DB0B-49F2-8D2E-BA3B5ED4654C}
 		{EB51ADB0-A0B8-4252-978D-9EEB9E9C9344} = {39D9C693-FDAF-4EAD-AFC6-D5F311AAF27F}
 		{DB0AB0C3-DA5E-4B5A-9CD4-036D37B50AED} = {E57EE0B8-30FC-4702-B310-FB82C19D7473}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {61F8A195-365E-47B1-A6F2-CD3534E918F8}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Tracing\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems*{35f3d396-e702-4acb-be7e-301e52561559}*SharedItemsImports = 5
+		Tracing\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems*{407d8620-72c2-454c-945d-840130d80d0b}*SharedItemsImports = 13
+		Tracing\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems*{c474ef4c-8d49-4983-8d20-5beff46f2a19}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal
