@@ -26,11 +26,9 @@ runs:
     shell: bash
 
   # .NET
-  - uses: actions/setup-dotnet@v1
+  - uses: actions/setup-dotnet@v2
     with:
-      dotnet-version: |
-        5.0.403
-        6.0.100
+      dotnet-version: 6.0.100
   - if: ${{ runner.os == 'Windows' }}
     uses: microsoft/setup-msbuild@v1.1
 
