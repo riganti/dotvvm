@@ -16,19 +16,16 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> When set, the control will be evaluated only once during view compilation, instead of execting it for every request. It only work for <see cref="CompositeControl" />s. </summary>
         public ControlPrecompilationMode Precompile { get; set; } = ControlPrecompilationMode.Never;
-    }
 
-    public enum ControlPrecompilationMode
-    {
-        /// <summary> Never attempt precompilation. </summary>
-        Never,
-        /// <summary> Attempt precompilation whenever it's possible (the control is CompositeControl and there are no resource bindings in properties which can't handle bindings). If exception is thrown by the control, it is ignored and precompilation is skipped. </summary>
-        IfPossibleAndIgnoreExceptions,
-        /// <summary> Attempt precompilation whenever it's possible (the control is CompositeControl and there are no resource bindings in properties which can't handle bindings). If exception is thrown by the control, compilation fails. </summary>
-        IfPossible,
-        /// <summary> Always try to precompile the control and fail compilation when it's not possible. </summary>
-        Always,
-        /// <summary> Always precompile this controls and do that while styles are being processed. This will allow other styles to match onto the generated controls. </summary>
-        InServerSideStyles
+        /// <summary>
+        /// If set, the control will be referenced by this name in the markup and the primary name will appear in the Visual Studio IntelliSense.
+        /// If not set, the control class name will be used as a primary name.
+        /// </summary>
+        public string? PrimaryName { get; set; } = null;
+
+        /// <summary>
+        /// Represents a set of alternative names that are possible to use in the markup.
+        /// </summary>
+        public string[]? AlternativeNames { get; set; } = null;
     }
 }

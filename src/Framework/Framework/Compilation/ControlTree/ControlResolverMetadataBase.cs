@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
@@ -23,6 +24,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public string? Namespace => controlType.Type.Namespace;
 
         public string Name => controlType.Type.Name;
+
+        public string? PrimaryName { get; }
+
+        public HashSet<string>? AlternativeNames { get; }
 
         [JsonIgnore]
         public ITypeDescriptor Type => controlType.Type;
@@ -104,6 +109,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 LoadPropertyGroups(propertyGroups);
                 return propertyGroups;
             });
+
+            PrimaryName = attribute?.PrimaryName;
+            AlternativeNames = attribute?.AlternativeNames?.ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
         protected abstract void LoadProperties(Dictionary<string, IPropertyDescriptor> result);
