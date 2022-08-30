@@ -31,9 +31,7 @@ namespace DotVVM.Framework.Hosting
                         onlyBindings: !p.MarkupOptions.AllowHardCodedValue,
                         onlyHardcoded: !p.MarkupOptions.AllowBinding,
                         isCommand: p.PropertyType.IsDelegate(),
-                        commandArguments: p.PropertyType.IsDelegate(out var invoke) && invoke.GetParameters().Length > 0
-                                          ? invoke.GetParameters().Select(p => new CommandArgumentInfo(p.Name, p.ParameterType)).ToArray()
-                                          : null,
+                        commandArguments: GetCommandArguments(p.PropertyType),
                         p is ActiveDotvvmProperty,
                         p is CompileTimeOnlyDotvvmProperty,
                         fromCapability: p.OwningCapability?.Name,
@@ -77,6 +75,10 @@ namespace DotVVM.Framework.Hosting
                         p.DataContextChangeAttributes.Length > 0 ? p.DataContextChangeAttributes : null,
                         p.DataContextManipulationAttribute,
                         p.MarkupOptions.MappingMode,
+                        onlyBindings: !p.MarkupOptions.AllowHardCodedValue,
+                        onlyHardcoded: !p.MarkupOptions.AllowBinding,
+                        isCommand: p.PropertyType.IsDelegate(),
+                        commandArguments: GetCommandArguments(p.PropertyType),
                         fromCapability: p.OwningCapability?.Name,
                         isAttached: p.AttributeProvider?.IsDefined(typeof(AttachedPropertyAttribute), true) == true
                     )
@@ -111,6 +113,14 @@ namespace DotVVM.Framework.Hosting
             return result;
         }
 
+        static CommandArgumentInfo[]? GetCommandArguments(Type commandType)
+        {
+            if (commandType.IsDelegate(out var invoke) && invoke.GetParameters().Length > 0)
+                return invoke.GetParameters().Select(p => new CommandArgumentInfo(p.Name, p.ParameterType)).ToArray();
+            else
+                return null;
+        }
+
         public record DotvvmPropertyInfo(
             Type type,
             DataContextChangeAttribute[]? dataContextChange,
@@ -140,6 +150,10 @@ namespace DotVVM.Framework.Hosting
             DataContextStackManipulationAttribute? dataContextManipulation,
             [property: DefaultValue(MappingMode.Attribute)]
             MappingMode mappingMode = MappingMode.Attribute,
+            bool onlyBindings = false,
+            bool onlyHardcoded = false,
+            bool isCommand = false,
+            CommandArgumentInfo[]? commandArguments = null,
             string? fromCapability = null,
             bool isAttached = false
         ) { }
