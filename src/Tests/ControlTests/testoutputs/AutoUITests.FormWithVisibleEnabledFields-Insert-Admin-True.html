@@ -1,0 +1,54 @@
+<html>
+	<head></head>
+	<body>
+		<table class="autoui-form-table">
+			<tbody>
+				<tr data-bind="dotvvm-validation: InsertOnly, dotvvm-validationOptions: {}">
+					<td class="autoui-label"></td>
+					<td class="autoui-editor">
+						<label id="InsertOnly__input">
+							<input data-bind="dotvvm-CheckState: InsertOnly" type="checkbox">
+							<span>Insert only</span>
+						</label>
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: AdminOrModeratorOnly, dotvvm-validationOptions: {}">
+					<td class="autoui-label"></td>
+					<td class="autoui-editor">
+						<label id="AdminOrModeratorOnly__input">
+							<input data-bind="dotvvm-CheckState: AdminOrModeratorOnly" type="checkbox">
+							<span>Admin or moderator only</span>
+						</label>
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: AlwaysReadOnly, dotvvm-validationOptions: {}">
+					<td class="autoui-label"></td>
+					<td class="autoui-editor">
+						<label id="AlwaysReadOnly__input">
+							<input data-bind="dotvvm-CheckState: AlwaysReadOnly" disabled="disabled" type="checkbox">
+							<span>Always read only</span>
+						</label>
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: AuthenticatedEditOnly, dotvvm-validationOptions: {}">
+					<td class="autoui-label"></td>
+					<td class="autoui-editor">
+						<label id="AuthenticatedEditOnly__input">
+							<input data-bind="dotvvm-CheckState: AuthenticatedEditOnly" type="checkbox">
+							<span>Authenticated edit only</span>
+						</label>
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: AnonymousOnly, dotvvm-validationOptions: {}">
+					<td class="autoui-label"></td>
+					<td class="autoui-editor">
+						<label id="AnonymousOnly__input">
+							<input data-bind="dotvvm-CheckState: AnonymousOnly" disabled="disabled" type="checkbox">
+							<span>Anonymous only</span>
+						</label>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</body>
+</html>

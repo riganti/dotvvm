@@ -1,4 +1,4 @@
-﻿{
+{
   "factories": {
     "chrome:fast": {
       "capabilities": [ "--headless" ]

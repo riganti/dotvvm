@@ -496,7 +496,7 @@ test <dot:Literal><a /></dot:Literal>";
 
             },
             services => {
-                services.AddSingleton<CustomControlFactory>((s, t) =>
+                services.Services.AddSingleton<CustomControlFactory>((s, t) =>
                     t == typeof(TestCustomDependencyInjectionControl) ? new TestCustomDependencyInjectionControl("") { IsCorrectlyCreated = true } :
                     throw new Exception());
 

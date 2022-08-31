@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Configuration
                 throw InvalidFormatException();
             }
 
-            var match = Regex.Match(value, @"^([a-zA-Z0-9]+)\[([a-zA-Z0-9]+)\]$");
+            var match = Regex.Match(value, @"^([a-zA-Z0-9]+)\[([a-zA-Z0-9]+)\]$", RegexOptions.CultureInvariant);
             if (!match.Success)
             {
                 throw InvalidFormatException();

@@ -10,6 +10,8 @@
       "Api\\Swashbuckle.AspNetCore\\DotVVM.Framework.Api.Swashbuckle.AspNetCore.csproj",
       "DynamicData\\Annotations\\DotVVM.Framework.Controls.DynamicData.Annotations.csproj",
       "DynamicData\\DynamicData\\DotVVM.Framework.Controls.DynamicData.csproj",
+      "AutoUI\\Annotations\\DotVVM.AutoUI.Annotations.csproj",
+      "AutoUI\\Core\\DotVVM.AutoUI.csproj",
       "Framework\\Core\\DotVVM.Core.csproj",
       "Framework\\Framework\\DotVVM.Framework.csproj",
       "Framework\\Hosting.AspNetCore\\DotVVM.Framework.Hosting.AspNetCore.csproj",

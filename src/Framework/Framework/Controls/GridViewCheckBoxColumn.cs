@@ -37,6 +37,11 @@ namespace DotVVM.Framework.Controls
 
         public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
         {
+            if (EditTemplate is {} editTemplate)
+            {
+                editTemplate.BuildContent(context, container);
+                return;
+            }
             CreateControlsCore(container, enabled: true);
         }
 

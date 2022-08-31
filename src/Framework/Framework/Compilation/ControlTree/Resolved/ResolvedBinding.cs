@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public DataContextStack DataContextTypeStack => Binding.DataContext.NotNull();
 
-        public BindingErrorReporterProperty Errors => Binding.GetProperty<BindingErrorReporterProperty>();
+        public BindingErrorReporterProperty Errors => Binding.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull) ?? new BindingErrorReporterProperty();
 
         public ITypeDescriptor? ResultType => ResolvedTypeDescriptor.Create(Binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
 

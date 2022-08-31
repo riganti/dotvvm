@@ -67,6 +67,31 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, CheckableControlBase>(nameof(Enabled), FormControls.EnabledProperty);
 
+        /// <summary>
+        /// Gets or sets a CSS class that will be appended on the rendered label element.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string? LabelCssClass
+        {
+            get { return (string?)GetValue(LabelCssClassProperty); }
+            set { SetValue(LabelCssClassProperty, value); }
+        }
+        public static readonly DotvvmProperty LabelCssClassProperty
+            = DotvvmProperty.Register<string?, CheckableControlBase>(c => c.LabelCssClass, null);
+
+        /// <summary>
+        /// Gets or sets a CSS class that will be appended on the rendered input element.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string? InputCssClass
+        {
+            get { return (string?)GetValue(InputCssClassProperty); }
+            set { SetValue(InputCssClassProperty, value); }
+        }
+        public static readonly DotvvmProperty InputCssClassProperty
+            = DotvvmProperty.Register<string?, CheckableControlBase>(c => c.InputCssClass, null);
+
+
         public TextOrContentCapability TextOrContentCapability
         {
             get => (TextOrContentCapability)TextOrContentCapabilityProperty.GetValue(this);
@@ -113,6 +138,10 @@ namespace DotVVM.Framework.Controls
         {
             if (isLabelRequired)
             {
+                if (!string.IsNullOrEmpty(LabelCssClass))
+                {
+                    writer.AddAttribute("class", LabelCssClass, true);
+                }
                 writer.RenderBeginTag("label");
             }
         }
@@ -172,6 +201,11 @@ namespace DotVVM.Framework.Controls
                     writer.AddAttribute("disabled", "disabled");
                 }
             });
+
+            if (!string.IsNullOrEmpty(InputCssClass))
+            {
+                writer.AddAttribute("class", InputCssClass, true);
+            }
         }
 
         protected virtual void RenderCheckedValueComparerAttribute(IHtmlWriter writer)

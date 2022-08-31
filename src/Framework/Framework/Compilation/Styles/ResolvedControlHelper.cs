@@ -286,6 +286,8 @@ namespace DotVVM.Framework.Compilation.Styles
 
                 control.SetValueRaw(p.Property, p.ToRuntimeValue(services));
             }
+            if (c.DataContextTypeStack is {} dataContext)
+                control.SetValueRaw(Internal.DataContextTypeProperty, dataContext);
 
             foreach (var child in c.Content)
             {

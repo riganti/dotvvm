@@ -42,6 +42,13 @@ namespace DotVVM.Framework.Controls
             Value = value;
         }
 
+        public SelectorItem(ValueOrBinding<string> text, ValueOrBinding<object> value)
+            : this()
+        {
+            this.SetValue(TextProperty, text);
+            this.SetValue(ValueProperty, value);
+        }
+
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddAttribute("value", Value + "");

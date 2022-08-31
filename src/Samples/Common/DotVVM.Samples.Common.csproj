@@ -72,6 +72,8 @@
     <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
     <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
+    <None Remove="Views\FeatureSamples\AutoUI\AutoEditor.dothtml" />
+    <None Remove="Views\FeatureSamples\AutoUI\AutoForm.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Complex.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Complex2.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Simple.dothtml" />
@@ -168,6 +170,7 @@
     <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" />
     <ProjectReference Include="../Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj" />
     <ProjectReference Include="../EmbeddedResourceControls/EmbeddedResourceControls.csproj" />
+    <ProjectReference Include="../../AutoUI/Core/DotVVM.AutoUI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
@@ -176,6 +179,11 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Resources\DynamicDataTexts.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DynamicDataTexts.resx</DependentUpon>
+    </Compile>
     <Compile Update="Resources\Resource.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -183,6 +191,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Resources\DynamicDataTexts.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DynamicDataTexts.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Resources\Resource.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
