@@ -299,6 +299,7 @@ namespace DotVVM.Testing.Abstractions
     public const string FeatureSamples_Redirect_Redirect_StaticCommand = "FeatureSamples/Redirect/Redirect_StaticCommand";
     public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
     public const string FeatureSamples_RenderSettingsModeServer_RepeaterCollectionExchange = "FeatureSamples/RenderSettingsModeServer/RepeaterCollectionExchange";
+    public const string FeatureSamples_RenderSettingsModeServer_RepeaterCollectionSetToNull = "FeatureSamples/RenderSettingsModeServer/RepeaterCollectionSetToNull";
     public const string FeatureSamples_Resources_CdnScriptPriority = "FeatureSamples/Resources/CdnScriptPriority";
     public const string FeatureSamples_Resources_CdnUnavailableResourceLoad = "FeatureSamples/Resources/CdnUnavailableResourceLoad";
     public const string FeatureSamples_Resources_OnlineNonameResourceLoad = "FeatureSamples/Resources/OnlineNonameResourceLoad";

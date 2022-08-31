@@ -15,7 +15,7 @@
 
     <div>
         <h3> Repeater </h3>
-        <dot:Repeater DataSource="{value: UseNull ? null : UseAlternativeCollection ? Collection2 : Collection1}" WrapperTagName=ul>
+        <dot:Repeater DataSource="{value: UseNull ? null : UseAlternativeCollection ? Collection2 : Collection1}" WrapperTagName=ul class="repeater">
             <li RenderSettings.Mode=Client>
                 {{value: _this}}
             </li>
@@ -24,7 +24,7 @@
 
     <div>
         <h3> GridView </h3>
-        <dot:GridView DataSource="{value: UseNull ? null : UseAlternativeCollection ? Collection2 : Collection1}">
+        <dot:GridView DataSource="{value: UseNull ? null : UseAlternativeCollection ? Collection2 : Collection1}" class="gridview">
             <dot:GridViewTemplateColumn HeaderText="some column">
                 <span RenderSettings.Mode=Client>{{value: _this}}</span>
             </dot:GridViewTemplateColumn>
@@ -33,7 +33,7 @@
 
     <div>
         <h3> ComboBox </h3>
-        <dot:ComboBox DataSource="{value: UseNull ? null : UseAlternativeCollection ? Collection2 : Collection1}" ItemTextBinding="{value: _this}" SelectedValue="{value: SelectedValue}" />
+        <dot:ComboBox DataSource="{value: UseNull ? null : UseAlternativeCollection ? Collection2 : Collection1}" ItemTextBinding="{value: _this}" SelectedValue="{value: SelectedValue}" class="combobox" />
     </div>
 
 </body>
