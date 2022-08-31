@@ -280,36 +280,33 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
         public ParameterExpression EmitEnsureCollectionInitialized(string parentName, DotvvmProperty property)
         {
-            //if([parentName].GetValue(property) == null)
-            //{
-            //  [parentName].SetValue(property, new [property.PropertyType]());
-            //}
+            // var collection = new [property.PropertyType]();
+            // [parentName].SetValue(property, collection);
+            // return collection;
 
             var parentParameter = GetParameterOrVariable(parentName);
 
-            var getPropertyValue = Expression.Call(
-                parentParameter,
-                "GetValue",
-                emptyTypeArguments,
-                /*property:*/ EmitValue(property),
-                /*inherit:*/ EmitValue(true /*default*/ ));
+            var collectionType =
+                property.PropertyType.IsClass ? property.PropertyType :
+                property.PropertyType.IsGenericType ?
+                    typeof(List<>).MakeGenericType(property.PropertyType.GetGenericArguments()[0]) :
 
-            var ifCondition = Expression.Equal(getPropertyValue, Expression.Constant(null));
+                throw new Exception($"Can not create collection {property.PropertyType.ToCode(stripNamespace: true)} for property {property.FullName}");
+
+            var collection = EmitCreateObject(collectionType);
 
             var statement = Expression.Call(
                 parentParameter,
                 "SetValue",
                 emptyTypeArguments,
                 /*property*/ EmitValue(property),
-                /*value*/ EmitCreateObject(property.PropertyType));
+                /*value*/ collection);
 
-            var ifStatement = Expression.IfThen(ifCondition, statement);
 
-            EmitStatement(ifStatement);
+            EmitStatement(statement);
 
-            //var c = ([property.PropertyType])[parentName].GetValue(property);
 
-            return EmitCreateVariable(Expression.Convert(getPropertyValue, property.PropertyType));
+            return collection;
         }
 
         /// <summary>

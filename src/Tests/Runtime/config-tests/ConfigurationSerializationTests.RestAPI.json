@@ -20,7 +20,9 @@
             "Name": "TestApiClient",
             "Namespace": "DotVVM.Framework.Tests.Binding",
             "Assembly": "DotVVM.Framework.Tests, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-            "FullName": "DotVVM.Framework.Tests.Binding.TestApiClient"
+            "FullName": "DotVVM.Framework.Tests.Binding.TestApiClient",
+            "CSharpName": "TestApiClient",
+            "CSharpFullName": "DotVVM.Framework.Tests.Binding.TestApiClient"
           },
           "Inherit": true
         }
