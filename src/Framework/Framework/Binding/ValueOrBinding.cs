@@ -95,6 +95,12 @@ namespace DotVVM.Framework.Binding
         public static ValueOrBinding<T> DownCast<T2>(ValueOrBinding<T2> createFrom)
             where T2 : T => new ValueOrBinding<T>(createFrom.binding, createFrom.value!);
 
+        /// <summary> Returns a ValueOrBinding with new type T which is a base type of the old T2 </summary>
+        public static ValueOrBinding<T> UpCast(ValueOrBinding createFrom) =>
+            createFrom.BindingOrDefault != null ?
+            new ValueOrBinding<T>(createFrom.BindingOrDefault) :
+            new ValueOrBinding<T>((T)createFrom.BoxedValue!);
+
         /// <summary> Returns a ValueOrBinding with new type T2 which is a derived type of the old T. Will throw an exception if the conversion is not possible. </summary>
         public ValueOrBinding<T2> UpCast<T2>()
             where T2 : T =>
