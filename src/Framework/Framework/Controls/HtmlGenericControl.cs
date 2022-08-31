@@ -589,8 +589,13 @@ namespace DotVVM.Framework.Controls
 
         public ValueOrBinding<string?> ID { get; init; }
 
-
-        public bool IsEmpty() => Attributes.Count == 0 && CssClasses.Count == 0 && CssStyles.Count == 0 && Visible.ValueOrDefault == true && ID.ValueOrDefault == null;
+        /// <summary> Returns true if all properties are set to default value </summary>
+        public bool IsEmpty() =>
+            Attributes.Count == 0 &&
+            CssClasses.Count == 0 &&
+            CssStyles.Count == 0 &&
+            Visible.HasValue && Visible.ValueOrDefault == true &&
+            ID.HasValue && ID.ValueOrDefault == null;
 
         /// <summary> A dictionary of css styles which will be placed in the `style` attribute. </summary>
         [PropertyGroup("Style-")]
