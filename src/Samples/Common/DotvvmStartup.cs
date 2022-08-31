@@ -29,6 +29,7 @@ using DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation;
 using DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.Views.ControlSamples.TemplateHost;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -62,6 +63,8 @@ namespace DotVVM.Samples.BasicSamples
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
 
             LoadSampleConfiguration(config, applicationPath);
+
+            config.Resources.RegisterStylesheetFile("bulma", "node_modules/bulma/css/bulma.css");
 
             config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(typeof(JavascriptTranslationTestMethods),
                     nameof(JavascriptTranslationTestMethods.Unwrap),

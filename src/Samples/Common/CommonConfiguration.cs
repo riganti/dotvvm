@@ -1,4 +1,6 @@
 using System.Net.Http;
+using DotVVM.AutoUI;
+using DotVVM.AutoUI.Annotations;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
@@ -10,9 +12,11 @@ using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
+using DotVVM.Samples.Common.Resources;
 using DotVVM.Samples.Common.Utilities;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBack;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand;
@@ -64,6 +68,16 @@ namespace DotVVM.Samples.Common
             services.AddTransient<VariablesStaticCommand>();
 
             services.AddSingleton<ViewModels.ControlSamples.NamedCommand.TestService>();
+
+            dotvvmServices.AddAutoUI(config => {
+                config.PropertyDisplayNamesResourceFile = typeof(DynamicDataTexts);
+                config.PropertyMetadataRules
+                    .For("IsCompany", r => r.SetDisplayName("Hello"))
+                    .For("ProductId", r => r.UseSelection<ProductSelection>());
+            });
+            services.AddTransient<ISelectionProvider<ProductSelection>, ProductSelectionProvider>();
+            services.AddTransient<ISelectionProvider<CountrySelection>, CountrySelectionProvider>();
+            services.AddTransient<ISelectionProvider<StateSelection, AddressDTO>, StateSelectorDataProvider>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)

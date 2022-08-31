@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             config.Markup.AddMarkupControl("cc", "CustomControlWithInternalProperty", "CustomControlWithInternalProperty.dotcontrol");
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
         }, services: s => {
-            s.AddSingleton<TestService>();
+            s.Services.AddSingleton<TestService>();
         });
         OutputChecker check = new OutputChecker(
             "testoutputs");

@@ -51,6 +51,12 @@ namespace DotVVM.Framework.Compilation.Directives
                     baseControlDirective.DothtmlNode!.AddError("Markup controls must derive from DotvvmMarkupControl class!");
                     wrapperType = baseType;
                 }
+                else if (baseType.GetControlMarkupOptionsAttribute() is { } attribute
+                         && (!string.IsNullOrEmpty(attribute.PrimaryName) || attribute.AlternativeNames?.Any() == true))
+                {
+                    baseControlDirective.DothtmlNode!.AddError("Markup controls cannot use the PrimaryName or AlternativeNames properties in the ControlMarkupOptions attribute!");
+                    wrapperType = baseType;
+                }
                 else
                 {
                     wrapperType = baseType;

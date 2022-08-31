@@ -1,0 +1,21 @@
+{
+  "modelState": [
+    {
+      "errorMessage": "The field Email doesn't have a correct format.",
+      "propertyPath": "/Entity1/Email"
+    },
+    {
+      "errorMessage": "Custom overriden error message",
+      "propertyPath": "/Entity1/Email"
+    },
+    {
+      "errorMessage": "Custom error",
+      "propertyPath": "/Entity1/FirstName"
+    },
+    {
+      "errorMessage": "The field LastName is required.",
+      "propertyPath": "/Entity1/LastName"
+    }
+  ],
+  "action": "validationErrors"
+}

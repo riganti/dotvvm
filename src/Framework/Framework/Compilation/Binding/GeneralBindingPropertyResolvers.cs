@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         public Expression<BindingDelegate> CompileToDelegate(
-            CastedExpressionBindingProperty expression, DataContextStack dataContext)
+            CastedExpressionBindingProperty expression, DataContextStack? dataContext = null)
         {
             var expr = BindingCompiler.ReplaceParameters(expression.Expression, dataContext);
             expr = new ExpressionNullPropagationVisitor(e => true).Visit(expr);

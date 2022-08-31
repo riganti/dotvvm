@@ -44,11 +44,11 @@ namespace DotVVM.Framework.Controls
             control.SetBinding(prop, binding);
             return control;
         }
-        /// <summary> Sets binding into the DotvvmProperty with specified name. Returns <paramref name="control"/> for fluent API usage. </summary>
-        public static TControl SetProperty<TControl>(this TControl control, string propName, IBinding? binding)
+        /// <summary> Sets a value or a binding into the DotvvmProperty with specified name. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl SetProperty<TControl>(this TControl control, string propName, object? value)
             where TControl : DotvvmBindableObject
         {
-            control.SetBinding(control.GetDotvvmProperty(propName), binding);
+            control.SetValue(control.GetDotvvmProperty(propName), value);
             return control;
         }
         /// <summary> Sets value or binding into the DotvvmProperty referenced in the lambda expression. Returns <paramref name="control"/> for fluent API usage. </summary>
@@ -102,14 +102,6 @@ namespace DotVVM.Framework.Controls
                 control.SetProperty(property, valueOrBinding.GetValueOrDefault());
             else
                 control.Properties.Remove(property);
-            return control;
-        }
-
-        /// <summary> Sets value or binding into the DotvvmProperty with specified name. Returns <paramref name="control"/> for fluent API usage. </summary>
-        public static TControl SetProperty<TControl>(this TControl control, string propName, object? value)
-            where TControl : DotvvmBindableObject
-        {
-            control.SetProperty(control.GetDotvvmProperty(propName), value);
             return control;
         }
 
@@ -228,26 +220,30 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary> Appends a css class to this control. Note that it is currently not supported if multiple bindings would have to be joined together. Returns <paramref name="control"/> for fluent API usage. </summary>
-        public static TControl AddCssClass<TControl>(this TControl control, ValueOrBinding<string> className)
+        public static TControl AddCssClass<TControl>(this TControl control, ValueOrBinding<string?> className)
             where TControl : IControlWithHtmlAttributes
         {
-            return AddAttribute(control, "class", className.UnwrapToObject());
+            var classNameObj = className.UnwrapToObject();
+            if (classNameObj is null or "") return control;
+            return AddAttribute(control, "class", classNameObj);
         }
 
         /// <summary> Appends a css class to this control. Note that it is currently not supported if multiple bindings would have to be joined together. Returns <paramref name="control"/> for fluent API usage. </summary>
-        public static TControl AddCssClass<TControl>(this TControl control, string className)
+        public static TControl AddCssClass<TControl>(this TControl control, string? className)
             where TControl : IControlWithHtmlAttributes
         {
+            if (className is null or "") return control;
+
             return AddAttribute(control, "class", className);
         }
 
         /// <summary> Appends a list of css classes to this control. Returns <paramref name="control"/> for fluent API usage. </summary>
-        public static TControl AddCssClasses<TControl>(this TControl control, params string[] classes)
+        public static TControl AddCssClasses<TControl>(this TControl control, params string?[]? classes)
             where TControl : IControlWithHtmlAttributes
         {
             if (classes is null || classes.Length == 0)
                 return control;
-            return AddCssClass(control, string.Join(" ", classes));
+            return AddCssClass(control, string.Join(" ", classes.Where(c => !String.IsNullOrWhiteSpace(c))));
         }
 
         /// <summary> Adds a css inline style - the `style` attribute. Returns <paramref name="control"/> for fluent API usage. </summary>

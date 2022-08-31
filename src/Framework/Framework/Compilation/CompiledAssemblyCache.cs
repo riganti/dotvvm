@@ -220,5 +220,10 @@ namespace DotVVM.Framework.Compilation
             return assemblies.Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
         }
 
+        public Assembly? GetAssembly(string assemblyName)
+        {
+            return GetAllAssemblies()
+                .FirstOrDefault(a => a.GetName().Name == new AssemblyName(assemblyName).Name);
+        }
     }
 }

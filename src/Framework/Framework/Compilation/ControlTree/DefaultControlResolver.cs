@@ -28,6 +28,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private static object dotvvmLocker = new object();
         private static bool isDotvvmInitialized = false;
 
+        private static Dictionary<string, Type>? controlNameMappings;
 
         public DefaultControlResolver(DotvvmConfiguration configuration, IControlBuilderFactory controlBuilderFactory, CompiledAssemblyCache compiledAssemblyCache) : base(configuration.Markup)
         {
@@ -52,6 +53,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     }
                 }
             }
+
+            controlNameMappings = BuildControlAliasesMap();
         }
 
         internal static Task InvokeStaticConstructorsOnDotvvmControls()
@@ -192,6 +195,60 @@ namespace DotVVM.Framework.Compilation.ControlTree
         }
 
         /// <summary>
+        /// After all DotvvmControls have been discovered, build a map of alternative names.
+        /// </summary>
+        private Dictionary<string, Type> BuildControlAliasesMap()
+        {
+            var mappings = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var rule in configuration.Markup.Controls)
+            {
+                if (!string.IsNullOrEmpty(rule.TagName))
+                {
+                    // markup controls are not supported
+                    continue;
+                }
+
+                // only for code-only controls
+                var assembly = compiledAssemblyCache.GetAssembly(rule.Assembly!);
+                if (assembly == null)
+                {
+                    throw new DotvvmConfigurationException($"The assembly {rule.Assembly} was not found!");
+                }
+
+                // find all control types
+                var controlTypes = assembly.GetLoadableTypes()
+                    .Where(t => t.IsClass && t.IsPublic && !t.IsAbstract)
+                    .Where(t => typeof(DotvvmBindableObject).IsAssignableFrom(t));
+
+                // add mappings for primary names and aliases
+                foreach (var controlType in controlTypes)
+                {
+                    if (controlType.GetCustomAttribute<ControlMarkupOptionsAttribute>() is { } markupOptions)
+                    {
+                        if (markupOptions.PrimaryName is {} primaryName)
+                        {
+                            mappings[$"{rule.TagPrefix}:{primaryName}"] = controlType;
+                        }
+                        if (markupOptions.AlternativeNames?.Any() == true)
+                        {
+                            foreach (var alternativeName in markupOptions.AlternativeNames)
+                            {
+                                var name = $"{rule.TagPrefix}:{alternativeName}";
+                                if (mappings.TryGetValue(name, out _))
+                                {
+                                    throw new DotvvmCompilationException($"A conflicting primary name or alternative name {alternativeName} found at control {controlType.FullName}.");
+                                }
+                                mappings[name] = controlType;
+                            }
+                        }
+                    }
+                }
+            }
+            return mappings;
+        }
+
+        /// <summary>
         /// Resolves the control metadata for specified type.
         /// </summary>
         public override IControlResolverMetadata ResolveControl(ITypeDescriptor controlType)
@@ -204,9 +261,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the compiled control.
         /// </summary>
-        protected override IControlType? FindCompiledControl(string tagName, string namespaceName, string assemblyName)
+        protected override IControlType? FindCompiledControl(string tagPrefix, string tagName, string namespaceName, string assemblyName)
         {
-            var type = compiledAssemblyCache.FindType(namespaceName + "." + tagName + ", " + assemblyName, ignoreCase: true);
+            var type = controlNameMappings!.TryGetValue($"{tagPrefix}:{tagName}", out var mappedType)
+                ? mappedType
+                : compiledAssemblyCache.FindType($"{namespaceName}.{tagName}, {assemblyName}", ignoreCase: true);
             if (type == null)
             {
                 // the control was not found

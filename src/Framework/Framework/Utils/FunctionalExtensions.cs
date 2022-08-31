@@ -24,13 +24,17 @@ namespace DotVVM.Framework.Utils
 #endif
                  IReadOnlyDictionary<TKey, TValue> dictionary,
             TKey key,
+            TValue? defaultValue = default(TValue),
             // even if we make this method an extension, this parameter will prevent the ambiguity with the standard GetValueOrDefault
             // since C# compiler will prefer a variant without this optional parameter
             bool justAddAParameterSoCsharpDoesNotPreferThisMethodOverStandard = false)
             where TKey: notnull
         {
-            dictionary.TryGetValue(key, out var value);
-            return value;
+            if (dictionary.TryGetValue(key, out var value))
+            {
+                return value;
+            }
+            return defaultValue;
         }
 
         public static TTarget ApplyAction<TTarget>(this TTarget target, Action<TTarget> outerAction)

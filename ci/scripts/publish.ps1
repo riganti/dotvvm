@@ -155,6 +155,8 @@ $packages = @(
     [pscustomobject]@{ Package = "DotVVM.Testing"; Directory = "Framework/Testing" },
     [pscustomobject]@{ Package = "DotVVM.DynamicData"; Directory = "DynamicData/DynamicData" },
     [pscustomobject]@{ Package = "DotVVM.DynamicData.Annotations"; Directory = "DynamicData/Annotations" },
+    [pscustomobject]@{ Package = "DotVVM.AutoUI"; Directory = "AutoUI/Core" },
+    [pscustomobject]@{ Package = "DotVVM.AutoUI.Annotations"; Directory = "AutoUI/Annotations" },
     [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights"; Directory = "Tracing/ApplicationInsights" },
     [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.AspNetCore"; Directory = "Tracing/ApplicationInsights.AspNetCore" },
     [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.Owin"; Directory = "Tracing/ApplicationInsights.Owin" }
