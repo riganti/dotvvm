@@ -416,6 +416,11 @@ namespace DotVVM.Framework.Binding
                 throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} cannot be set both at property '{property.FullName}'.");
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
             property.ObsoleteAttribute = property.AttributeProvider.GetCustomAttribute<ObsoleteAttribute>();
+
+            if (property.IsBindingProperty)
+            {
+                property.MarkupOptions.AllowHardCodedValue = false;
+            }
         }
 
         public static void CheckAllPropertiesAreRegistered(Type controlType)
