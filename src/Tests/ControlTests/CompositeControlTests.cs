@@ -7,11 +7,13 @@ using System.Threading.Tasks;
 using CheckTestOutput;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Tests.Binding;
+using DotVVM.Framework.Tests.Runtime;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -204,6 +206,43 @@ namespace DotVVM.Framework.Tests.ControlTests
                     <cc:ControlWithMultipleEnumClasses Type1={value: TrueBool ? 'D' : 'A'} Type2={value: EnumForCssClasses} />
 
                 </dot:Placeholder>
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task ControlWithCollection()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                    <cc:ControlWithCollectionProperty> <Repeaters> <dot:Repeater DataSource={value: List}> xx </dot:Repeater> </Repeaters> </cc:ControlWithCollectionProperty>
+                ");
+
+            StringAssert.Contains(r.FormattedHtml, "1");
+        }
+
+        [TestMethod]
+        public async Task ControlWithCollection_WrongType()
+        {
+            var e = await Assert.ThrowsExceptionAsync<DotvvmCompilationException>(() =>
+                cth.RunPage(typeof(BasicTestViewModel), @"
+                    <cc:ControlWithCollectionProperty> <Repeaters> <bazmek /> </Repeaters> </cc:ControlWithCollectionProperty>
+                "));
+
+            Assert.AreEqual("Control type DotVVM.Framework.Controls.HtmlGenericControl can't be used in collection of type DotVVM.Framework.Controls.Repeater.", e.Message);
+        }
+
+        [TestMethod]
+        public async Task ClassBindingControl()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- Active=false -->
+                <cc:ClassBindingControl Active=false />
+                <!-- Active=true -->
+                <cc:ClassBindingControl Active Width=100 />
+                <!-- bindings -->
+                <cc:ClassBindingControl Active={value: Integer > 100} Width={value: Integer} />
                 "
             );
 
@@ -478,5 +517,26 @@ namespace DotVVM.Framework.Tests.ControlTests
         C,
         [EnumMember(Value = "class-d")]
         D
+    }
+    public class ControlWithCollectionProperty: CompositeControl
+    {
+        public static DotvvmControl GetContents(
+            IEnumerable<Repeater> repeaters
+        )
+        {
+            return new Literal(repeaters.Count().ToString());
+        }
+    }
+    public class ClassBindingControl: CompositeControl
+    {
+        public static DotvvmControl GetContents(
+            ValueOrBinding<bool> active,
+            ValueOrBinding<int>? width
+        )
+        {
+            return new HtmlGenericControl("div")
+                .AddCssClass("is-active", active)
+                .AddCssStyle("width", width);
+        }
     }
 }

@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Binding
                 return dataContext;
             }
 
-            throw new Exception($"Property '{PropertyName}' is required on '{control.Metadata.Type.Name}'.");
+            throw new Exception($"Property '{PropertyName}' is required on '{control.Metadata.Type.CSharpName}'.");
         }
 
         public override Type? GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty? property = null)

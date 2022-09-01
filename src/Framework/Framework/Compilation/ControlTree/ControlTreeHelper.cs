@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public static IPropertyDescriptor GetPropertyGroupMember(this IControlResolverMetadata metadata, string prefix, string name)
         {
             var group = metadata.PropertyGroups.FirstOrDefault(f => f.Prefix == prefix).PropertyGroup;
-            if (group == null) throw new NotSupportedException($"Control { metadata.Type.Name } does not support property group with prefix '{prefix}'.");
+            if (group == null) throw new NotSupportedException($"Control { metadata.Type.CSharpName } does not support property group with prefix '{prefix}'.");
             return group.GetDotvvmProperty(name);
         }
     }

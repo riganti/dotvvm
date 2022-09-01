@@ -15,7 +15,7 @@ using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Controls
 {
-    public static class DotvvmBindableObjectHelper
+    public static partial class DotvvmBindableObjectHelper
     {
         /// <summary> Gets the DotvvmProperty referenced by the lambda expression. </summary>
         public static DotvvmProperty GetDotvvmProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
@@ -246,11 +246,65 @@ namespace DotVVM.Framework.Controls
             return AddCssClass(control, string.Join(" ", classes.Where(c => !String.IsNullOrWhiteSpace(c))));
         }
 
-        /// <summary> Adds a css inline style - the `style` attribute. Returns <paramref name="control"/> for fluent API usage. </summary>
-        public static TControl AddCssStyle<TControl>(this TControl control, string name, string styleValue)
+        /// <summary> Appends a css class to this control if the <paramref name="condition"/> is true. </summary>
+        public static TControl AddCssClass<TControl>(this TControl control, string className, bool condition)
             where TControl : IControlWithHtmlAttributes
         {
+            if (condition)
+                return AddCssClass(control, className);
+            return control;
+        }
+
+        /// <summary> Appends a css class to this control if the <paramref name="condition"/> is true. </summary>
+        public static TControl AddCssClass<TControl>(this TControl control, string className, ValueOrBinding<bool> condition)
+            where TControl : IObjectWithCapability<HtmlCapability>
+        {
+            if (condition.HasValue)
+            {
+                AddCssClass(control.AsObjectWithHtmlAttributes(), className, condition.ValueOrDefault);
+            }
+            else
+            {
+                var p = control.GetCssClassesDictionary();
+                p.Set(className, condition);
+            }
+            return control;
+        }
+        public static TControl AddCssClass<TControl>(this TControl control, string className, ValueOrBinding<bool>? condition)
+            where TControl : IObjectWithCapability<HtmlCapability> =>
+            condition is null ? control : AddCssClass(control, className, condition.Value);
+
+        /// <summary> Adds a css inline style - the `style` attribute. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl AddCssStyle<TControl>(this TControl control, string name, string? styleValue)
+            where TControl : IControlWithHtmlAttributes
+        {
+            if (styleValue is null)
+                return control;
             return AddAttribute(control, "style", name + ":" + styleValue);
+        }
+
+        /// <summary> Adds a css inline style - the `style` attribute. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl AddCssStyle<TControl, T>(this TControl control, string name, ValueOrBinding<T>? styleValue)
+            where TControl : IObjectWithCapability<HtmlCapability>
+        {
+            if (styleValue is null)
+                return control;
+
+            if (styleValue.Value.HasValue)
+            {
+                var value = styleValue.Value.ValueOrDefault;
+                // this may happen due to implicit conversions to object
+                if (value is ValueOrBinding nestedVOB)
+                    return AddCssStyle<TControl, object?>(control, name, ValueOrBinding<object?>.UpCast(nestedVOB));
+
+                AddCssStyle(control.AsObjectWithHtmlAttributes(), name, value?.ToString());
+            }
+            else
+            {
+                var p = control.GetCssStylesDictionary();
+                p.Set(name, styleValue.Value.UnwrapToObject());
+            }
+            return control;
         }
 
         /// <summary> Sets all properties from the capability into this control. If the control does not support the capability, exception is thrown. Returns <paramref name="control"/> for fluent API usage. </summary>

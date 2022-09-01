@@ -10,6 +10,7 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public interface IControlWithHtmlAttributes
     {
+        /// <summary> A dictionary of html attributes that are rendered on this control's html tag. </summary>
         VirtualPropertyGroupDictionary<object?> Attributes { get; } 
     }
 }
