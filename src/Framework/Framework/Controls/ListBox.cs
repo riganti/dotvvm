@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public ListBox()
         {
-            
+
         }
 
         /// <summary>
@@ -81,7 +81,13 @@ namespace DotVVM.Framework.Controls
 
             var selectionMode = (ListBoxSelectionMode?)control.GetValue(SelectionModeProperty)?.GetValue() ?? ListBoxSelectionMode.Single;
 
-            if (control.GetValue(ItemValueBindingProperty) is ResolvedPropertySetter itemValueBinding)
+            if (selectionMode == ListBoxSelectionMode.Multiple && !IsCollectionPropertySetter(selectedValueBinding))
+            {
+                yield return new(
+                    $"{nameof(SelectedValue)} must be a collection if {nameof(SelectionMode)} is '{selectionMode}'.",
+                    selectedValueBinding.DothtmlNode);
+            }
+            else if (control.GetValue(ItemValueBindingProperty) is ResolvedPropertySetter itemValueBinding)
             {
                 var to = GetSelectedValueType(selectedValueBinding, selectionMode);
                 var from = itemValueBinding.GetResultType();
@@ -96,6 +102,10 @@ namespace DotVVM.Framework.Controls
                 var to = GetSelectedValueType(selectedValueBinding, selectionMode);
                 var from = dataSourceBinding.GetResultType()?.UnwrapNullableType()?.GetEnumerableType();
 
+                if (!IsCollectionPropertySetter(dataSourceBinding))
+                {
+                    yield return new ($"{nameof(DataSource)} must be a collection.", selectedValueBinding.DothtmlNode);
+                }
                 if (!IsDataSourceItemAssignable(from, to))
                 {
                     yield return CreateSelectedValueTypeError(selectedValueBinding, to, from);
@@ -103,11 +113,12 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        private static bool IsCollectionPropertySetter(ResolvedPropertySetter setter)
+            => new ResolvedTypeDescriptor(setter.GetResultType()).TryGetArrayElementOrIEnumerableType() is not null;
+
         protected static Type? GetSelectedValueType(ResolvedPropertySetter selectedValueBinding, ListBoxSelectionMode selectionMode)
-        {
-            return selectionMode == ListBoxSelectionMode.Multiple
+            => selectionMode == ListBoxSelectionMode.Multiple
                 ? selectedValueBinding.GetResultType()?.UnwrapNullableType()?.GetEnumerableType()
                 : selectedValueBinding.GetResultType();
-        }
     }
 }
