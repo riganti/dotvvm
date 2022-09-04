@@ -18,10 +18,3 @@ interface KnockoutObservableStatic {
 interface KnockoutObservableArrayStatic {
     <T>(value: T[] | null, validator: (newValue: T[]) => void): KnockoutObservableArray<T>;
 }
-
-interface KnockoutObservable<T> {
-    readonly state?: T;
-    patchState?(patch: any): void;
-    setState?(newState: any): void;
-    readonly updater?: UpdateDispatcher<T>;
-}

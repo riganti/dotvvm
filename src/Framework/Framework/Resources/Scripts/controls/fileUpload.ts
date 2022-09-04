@@ -25,8 +25,9 @@ export function reportProgress(inputControl: HTMLInputElement, isBusy: boolean, 
         // if multiple files are allowed, we append to the collection
         // if it's not, we replace the collection with the one new file
         const allowMultiple = inputControl.multiple
-        const newFiles = allowMultiple ? [...viewModel.Files.state!, ...result.result] : result.result
-        viewModel.Files.setState!(newFiles)
+        const filesObservable = viewModel.Files as DotvvmObservable<any>;
+        const newFiles = allowMultiple ? [...filesObservable.state, ...result.result] : result.result;
+        filesObservable.setState!(newFiles)
 
         // call the handler
         if (((<any> targetControl.attributes)["data-dotvvm-upload-completed"] || { value: null }).value) {

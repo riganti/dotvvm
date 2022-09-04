@@ -10,8 +10,9 @@ export function deserialize(viewModel: any, target?: any, deserializeAll: boolea
     }
 
     if (ko.isObservable(target) && "setState" in target) {
-        target.setState!(unmapKnockoutObservables(viewModel));
-        (target as any)[notifySymbol as any](target.state)
+        const targetObservable = target as DotvvmObservable<any>;
+        targetObservable.setState(unmapKnockoutObservables(viewModel));
+        (target as any)[notifySymbol as any](targetObservable.state)
         return target
     }
 
