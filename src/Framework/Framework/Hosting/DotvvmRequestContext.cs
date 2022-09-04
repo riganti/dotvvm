@@ -44,6 +44,11 @@ namespace DotVVM.Framework.Hosting
         public DotvvmRequestType RequestType { get; private set; }
 
         /// <summary>
+        /// Determines the postback type if the current HTTP request is a postback, null otherwise
+        /// </summary>
+        public PostBackType? PostBackType { get; }
+
+        /// <summary>
         /// Gets the view model object for the current HTTP request.
         /// </summary>
         public object? ViewModel { get; set; }
@@ -145,6 +150,9 @@ namespace DotVVM.Framework.Hosting
             RequestType = requestType ?? DetermineRequestType(httpContext);
             Configuration = configuration;
             _services = services;
+
+            PostBackType = (IsPostBack) ? (HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand") ?
+                 Hosting.PostBackType.StaticCommand : Hosting.PostBackType.Command : null;
         }
 
         public static DotvvmRequestType DetermineRequestType(IHttpContext context)
