@@ -18,11 +18,19 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public class StaticCommandMethodTranslator : IJavascriptMethodTranslator
     {
+        readonly DataContextStack dataContext;
         readonly IViewModelProtector protector;
+        readonly ValidationPathFormatter validationPathFormatter;
 
-        public StaticCommandMethodTranslator(IViewModelProtector protector)
+        public StaticCommandMethodTranslator(
+            DataContextStack dataContext,
+            IViewModelProtector protector,
+            ValidationPathFormatter validationPathFormatter
+        )
         {
+            this.dataContext = dataContext;
             this.protector = protector;
+            this.validationPathFormatter = validationPathFormatter;
         }
 
         public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method)
@@ -39,8 +47,14 @@ namespace DotVVM.Framework.Compilation.Binding
                 containsObservables: false
             );
 
+            var argumentPaths = arguments.Select(a =>
+                this.validationPathFormatter.GetValidationPath(a.OriginalExpression, this.dataContext) ?? new JsLiteral(null)).ToArray();
+
             return new JsIdentifierExpression("dotvvm").Member("staticCommandPostback")
-                .Invoke(new JsLiteral(encryptedPlan), new JsArrayExpression(args), new JsSymbolicParameter(CommandBindingExpression.PostbackOptionsParameter))
+                .Invoke(new JsLiteral(encryptedPlan),
+                        new JsArrayExpression(args),
+                        new JsArrayExpression(argumentPaths),
+                        new JsSymbolicParameter(CommandBindingExpression.PostbackOptionsParameter))
                 .WithAnnotation(new StaticCommandInvocationJsAnnotation(plan))
                 .WithAnnotation(new ResultIsPromiseAnnotation(e => e, resultTypeAnn))
                 .WithAnnotation(resultTypeAnn);

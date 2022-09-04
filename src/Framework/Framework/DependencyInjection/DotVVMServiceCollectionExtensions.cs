@@ -93,6 +93,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
             services.TryAddSingleton<StaticCommandMethodTranslator>();
+            services.TryAddSingleton<ValidationPathFormatter>();
             services.TryAddSingleton(s => DotvvmConfiguration.CreateDefault(s));
             services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Markup);
             services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Resources);

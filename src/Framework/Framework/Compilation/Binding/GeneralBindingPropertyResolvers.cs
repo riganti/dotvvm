@@ -443,28 +443,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             });
 
-            while (true)
-            {
-                // unwrap type conversions, negations, ...
-                if (expr is UnaryExpression unary)
-                    expr = unary.Operand;
-                // unwrap some method invocations
-                else if (expr is MethodCallExpression boxCall && boxCall.Method.DeclaringType == typeof(BoxingUtils))
-                    expr = boxCall.Arguments.First();
-                else if (expr is MethodCallExpression { Method.Name: nameof(DateTimeExtensions.ToBrowserLocalTime) } dtMethodCall && dtMethodCall.Method.DeclaringType == typeof(DateTimeExtensions))
-                    expr = dtMethodCall.Object ?? dtMethodCall.Arguments.First();
-                else if (expr is MethodCallExpression { Method.Name: nameof(object.ToString) } toStringMethodCall)
-                    expr = toStringMethodCall.Object ?? toStringMethodCall.Arguments.First();
-                else if (expr is MethodCallExpression { Method.Name: nameof(Enums.ToEnumString) } toEnumStringMethodCall && toEnumStringMethodCall.Method.DeclaringType == typeof(Enums))
-                    expr = toEnumStringMethodCall.Object ?? toEnumStringMethodCall.Arguments.First();
-                // unwrap binary operation with a constant
-                else if (expr is BinaryExpression { Right.NodeType: ExpressionType.Constant } binaryLeft)
-                    expr = binaryLeft.Left;
-                else if (expr is BinaryExpression { Left.NodeType: ExpressionType.Constant } binaryRight)
-                    expr = binaryRight.Right;
-                else
-                    break;
-            }
+            expr = ExpressionHelper.UnwrapPassthroughOperations(expr);
+
             var mainProperty = (expr as MemberExpression)?.Member as PropertyInfo;
             var unwrappedBinding = binding.DeriveBinding(expr);
 

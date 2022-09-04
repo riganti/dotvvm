@@ -9,6 +9,7 @@ using System.Reflection.Metadata;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
@@ -101,6 +102,34 @@ namespace DotVVM.Framework.Compilation.Binding
                 else return null;
             }
             return result.Expression;
+        }
+
+
+        /// <summary> Unwraps pointless operations with the expression, such as casts, boxing, ToBrowserLocalTime, ToString, ... Used to extract the actual property backing this value, used for validation expressions, ... </summary>
+        public static Expression UnwrapPassthroughOperations(Expression expr)
+        {
+            while (true)
+            {
+                // unwrap type conversions, negations, ...
+                if (expr is UnaryExpression unary)
+                    expr = unary.Operand;
+                // unwrap some method invocations
+                else if (expr is MethodCallExpression boxCall && boxCall.Method.DeclaringType == typeof(BoxingUtils))
+                    expr = boxCall.Arguments.First();
+                else if (expr is MethodCallExpression { Method.Name: nameof(DateTimeExtensions.ToBrowserLocalTime) } dtMethodCall && dtMethodCall.Method.DeclaringType == typeof(DateTimeExtensions))
+                    expr = dtMethodCall.Object ?? dtMethodCall.Arguments.First();
+                else if (expr is MethodCallExpression { Method.Name: nameof(object.ToString) } toStringMethodCall)
+                    expr = toStringMethodCall.Object ?? toStringMethodCall.Arguments.First();
+                else if (expr is MethodCallExpression { Method.Name: nameof(Enums.ToEnumString) } toEnumStringMethodCall && toEnumStringMethodCall.Method.DeclaringType == typeof(Enums))
+                    expr = toEnumStringMethodCall.Object ?? toEnumStringMethodCall.Arguments.First();
+                // unwrap binary operation with a constant
+                else if (expr is BinaryExpression { Right.NodeType: ExpressionType.Constant } binaryLeft)
+                    expr = binaryLeft.Left;
+                else if (expr is BinaryExpression { Left.NodeType: ExpressionType.Constant } binaryRight)
+                    expr = binaryRight.Right;
+                else
+                    return expr;
+            }
         }
     }
 }
