@@ -27,6 +27,7 @@ namespace DotVVM.Framework.Hosting
                         p.IsValueInherited,
                         p.MarkupOptions.Name != p.Name ? p.MarkupOptions.Name : null,
                         p.MarkupOptions.MappingMode,
+                        p.DefaultValue,
                         p.MarkupOptions.Required,
                         onlyBindings: !p.MarkupOptions.AllowHardCodedValue,
                         onlyHardcoded: !p.MarkupOptions.AllowBinding,
@@ -129,6 +130,7 @@ namespace DotVVM.Framework.Hosting
             string? mappingName = null,
             [property: DefaultValue(MappingMode.Attribute)]
             MappingMode mappingMode = MappingMode.Attribute,
+            object? defaultValue = null,
             bool required = false,
             bool onlyBindings = false,
             bool onlyHardcoded = false,
