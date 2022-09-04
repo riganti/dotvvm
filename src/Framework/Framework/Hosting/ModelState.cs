@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Validation;
 
 namespace DotVVM.Framework.Hosting
@@ -30,11 +28,17 @@ namespace DotVVM.Framework.Hosting
         internal List<ViewModelValidationError> ErrorsInternal;
 
         /// <summary>
-        /// Gets a value indicating whether the <see cref="ValidationTarget"/> is valid or not.
+        /// Gets a collection of validation errors for arguments (used for static commands)
+        /// </summary>
+        public IReadOnlyList<StaticCommandArgumentValidationError> ArgumentErrors => ArgumentErrorsInternal.AsReadOnly();
+        internal List<StaticCommandArgumentValidationError> ArgumentErrorsInternal;
+
+        /// <summary>
+        /// Gets a value indicating whether the ModelState is valid (i.e. does not contain any errors)
         /// </summary>
         public bool IsValid
         {
-            get { return !Errors.Any(); }
+            get { return !Errors.Any() && !ArgumentErrors.Any(); }
         }
 
 
@@ -44,6 +48,7 @@ namespace DotVVM.Framework.Hosting
         public ModelState()
         {
             ErrorsInternal = new List<ViewModelValidationError>();
+            ArgumentErrorsInternal = new List<StaticCommandArgumentValidationError>();
             ValidationTargetPath = "/";
         }
     }

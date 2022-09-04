@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Hosting
         public ResourceManager ResourceManager => _resourceManager ?? (_resourceManager = Services.GetRequiredService<ResourceManager>());
 
         /// <summary>
-        /// Gets the <see cref="ModelState"/> object that manages validation errors for the viewmodel.
+        /// Gets the <see cref="ModelState"/> object that manages validation errors for the and static command arguments.
         /// </summary>
         public ModelState ModelState { get; } = new ModelState();
 
