@@ -339,5 +339,22 @@ namespace DotVVM.Framework.Tests.Runtime
                     Assert.AreEqual(p.PropertyInfo.DeclaringType, p.DeclaringType);
             }
         }
+
+        [TestMethod]
+        public void DotvvmProperty_CheckCorrectValueInDataBinding()
+        {
+            foreach (var control in allControls)
+            {
+                var properties = DotvvmProperty.ResolveProperties(control);
+
+                foreach (var p in properties)
+                {
+                    if (p.IsBindingProperty)
+                    {
+                        Assert.IsFalse(p.MarkupOptions.AllowHardCodedValue);
+                    }
+                }
+            }
+        }
     }
 }

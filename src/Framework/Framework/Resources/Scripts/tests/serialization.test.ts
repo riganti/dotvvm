@@ -3,7 +3,7 @@ import { deserialize } from '../serialization/deserialize'
 import { serialize } from '../serialization/serialize'
 import { serializeDate } from '../serialization/date'
 import { tryCoerce } from '../metadata/coercer';
-import { createComplexObservableSubViewmodel, createComplexObservableViewmodel, ObservableHierarchy, ObservableSubHierarchy } from "./observableHierarchies"
+import { createComplexObservableSubViewmodel, createComplexObservableViewmodel, ObservableHierarchy, ObservableSubHierarchy, ObservableSubSubHierarchy } from "./observableHierarchies"
 
 jest.mock("../metadata/typeMap", () => ({
     getTypeInfo(typeId: string) {
@@ -1070,7 +1070,7 @@ function assertSubHierarchiesNotLinked(viewmodel: ObservableSubHierarchy, target
     viewmodel.Prop21("xx")
     expect(target.Prop21()).toBe("bb")
     //array not linked
-    viewmodel.Prop23.push(ko.observable({
+    viewmodel.Prop23.push(ko.observable<ObservableSubSubHierarchy>({
         $type: ko.observable("t5_a_a"),
         Prop231: ko.observable("ff")
     }))
@@ -1097,7 +1097,7 @@ function assertSubHierarchy(prop2Object: ObservableSubHierarchy) {
 }
 
 function createComplexObservableTarget(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
@@ -1119,7 +1119,7 @@ function createComplexObservableTarget(): KnockoutObservable<ObservableHierarchy
 }
 
 function createComplexObservableTargetWithNullArrayElement(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
@@ -1159,7 +1159,7 @@ function createComplexObservableTargetWithArrayElementPropertyMissing(): Knockou
 }
 
 function createComplexObservableTargetWithArrayElementPropertyNull(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
@@ -1181,7 +1181,7 @@ function createComplexObservableTargetWithArrayElementPropertyNull(): KnockoutOb
 }
 
 function createComplexObservableTargetWithArrayElementMissingAndNull(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
@@ -1196,7 +1196,7 @@ function createComplexObservableTargetWithArrayElementMissingAndNull(): Knockout
 }
 
 function createComplexObservableTargetWithArrayElementPropertyObservableNull(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
@@ -1218,7 +1218,7 @@ function createComplexObservableTargetWithArrayElementPropertyObservableNull(): 
 }
 
 function createComplexObservableTargetWithMissingArrayElement(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
@@ -1236,7 +1236,7 @@ function createComplexObservableTargetWithMissingArrayElement(): KnockoutObserva
 }
 
 function createComplexObservableTargetWithNullSubHierarchy(): KnockoutObservable<ObservableHierarchy> {
-    return ko.observable({
+    return ko.observable<ObservableHierarchy>({
         $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: null
