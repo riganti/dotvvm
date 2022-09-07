@@ -51,7 +51,7 @@ const createValidationHandler = (pathFunction: (context: KnockoutBindingContext)
         if (pathFunction) {
             options.validationTargetPath = pathId
             // resolve target
-            const context = ko.contextFor(options.sender);
+            const context = ko.contextFor(options.sender!);
             const validationTarget = pathFunction(context);
 
             runClientSideValidation(validationTarget, options);

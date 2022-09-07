@@ -91,9 +91,9 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
             isViewModelUpdating = true
             ko.delaySync.pause()
 
-            this.stateUpdateEvent.trigger(this._state)
+            this.stateUpdateEvent.trigger(this._state);
 
-            this.stateObservable[notifySymbol as any](this._state)
+            (this.stateObservable as any)[notifySymbol as any](this._state)
         } finally {
             try {
                 ko.delaySync.resume()

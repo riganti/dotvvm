@@ -87,7 +87,7 @@ export function wrapObservable(func: () => any, isArray?: boolean): KnockoutComp
 
     if (isArray) {
         for (const i of ["push", "pop", "unshift", "shift", "reverse", "sort", "splice", "slice", "replace", "indexOf", "remove", "removeAll"]) {
-            wrapper[i] = (...args: any) => updateObservableArray(func, i, args);
+            (wrapper as any)[i] = (...args: any) => updateObservableArray(func, i, args);
         }
         wrapper = wrapper.extend({ trackArrayChanges: true });
     }
@@ -117,7 +117,7 @@ function updateObservableArray(getObservableArray: () => KnockoutObservableArray
 
 export const unwrapComputedProperty = (obs: any) =>
     ko.isComputed(obs) && "wrappedProperty" in obs ?
-    obs["wrappedProperty"]() : // workaround for dotvvm-with-control-properties handler
+    (obs as any)["wrappedProperty"]() : // workaround for dotvvm-with-control-properties handler
     obs;
 
 function getExpressionResult(func: () => any) {

@@ -62,11 +62,11 @@ function clear(observable: any): void {
 }
 
 function distinct<T>(array: T[]): T[] {
-    return Array.from(new Set(array.map(ko.unwrap)));
+    return Array.from(new Set(array.map(e => ko.unwrap(e))));
 }
 
 function contains<T>(array: T[], value: T): boolean {
-    return array.map(ko.unwrap).includes(value);
+    return array.map(e => ko.unwrap(e)).includes(value);
 }
 
 function firstOrDefault<T>(array: T[], predicate: (s: T) => boolean): T | null {

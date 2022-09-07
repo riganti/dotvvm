@@ -22,12 +22,12 @@ export default {
             // add metadata for validation
             let metadata = [] as DotvvmValidationObservableMetadata
             if (ko.isObservable(obs)) {
-                if (!obs.dotvvmMetadata) {
-                    obs.dotvvmMetadata = [elmMetadata];
+                if (!(obs as any).dotvvmMetadata) {
+                    (obs as any).dotvvmMetadata = [elmMetadata];
                 } else {
-                    obs.dotvvmMetadata.push(elmMetadata);
+                    (obs as any).dotvvmMetadata.push(elmMetadata);
                 }
-                metadata = obs.dotvvmMetadata;
+                metadata = (obs as any).dotvvmMetadata;
             }
             setTimeout(() => {
                 // remove element from collection when its removed from dom
