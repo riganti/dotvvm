@@ -102,7 +102,7 @@
       <NuspecProperty Include="Version=$(PackageVersion)" />
       <NuspecProperty Include="ProjectDirectory=$(MSBuildProjectDirectory)" />
       <NuspecProperty Include="SettingsFile=$(_ToolsSettingsFilePath)" />
-      <NuspecProperty Include="Output=$(PublishDir)**\*" />
+      <NuspecProperty Include="Output=$(PublishDir)" />
     </ItemGroup>
     <PropertyGroup Condition="'$(NuspecFile)' != '' and '$(NuspecProperties)' == ''">
       <NuspecProperties>@(NuspecProperty, ';')</NuspecProperties>
