@@ -69,9 +69,20 @@ export class KnockoutTemplateReactComponent extends React.Component<KnockoutTemp
     }
 }
 
+/** Converts React component to DotVVM component usable through `<js:MyComponent />` syntax (or the JsComponent class)
+ * See [the complete guide](https://www.dotvvm.com/docs/4.0/pages/concepts/client-side-development/integrate-third-party-controls/react).
+ * 
+ * The component will receive all properties, commands and templates as it's React props.
+ *  * Properties are plain JS objects and values, notably they don't contain any knockout observables
+ *  * Commands are functions returning a promise, optionally expecting arguments if they were specified in the dothtml markup
+ *  * Templates are only string IDs which can be passed to the `<KnockoutTemplateReactComponent templateName={props.theTemplate} />` component
+ * 
+ * Additional property `setProps` is passed to the component, which can be used to update the component's properties (if the bound expression is updatable, otherwise it will throw an error).
+ * * Usage: `props.setProps({ myProperty: props.myProperty + 1 })`
+ */
 export const registerReactControl = (ReactControl, defaultProps = {}) => ({
-    create: (elm, props, commands, templates) => {
-        const initialProps = { ...defaultProps, ...commands, ...templates }
+    create: (elm, props, commands, templates, setProps) => {
+        const initialProps = { setProps, ...defaultProps, ...commands, ...templates }
         let currentProps = { ...initialProps, ...props };
         ReactDOM.render(<ReactControl {...currentProps} />, elm);
         return {
