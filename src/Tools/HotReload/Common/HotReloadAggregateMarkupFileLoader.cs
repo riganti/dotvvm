@@ -9,6 +9,9 @@ namespace DotVVM.HotReload
 
         public HotReloadAggregateMarkupFileLoader(IMarkupFileChangeNotifier notifier, DotvvmConfiguration configuration)
         {
+            if (!configuration.Debug)
+                return;
+
             var index = Loaders.FindIndex(l => l is DefaultMarkupFileLoader);
             if (index < 0)
             {
