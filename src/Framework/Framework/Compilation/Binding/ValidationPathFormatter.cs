@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Compilation.Binding
             this.javascriptTranslator = javascriptTranslator;
         }
 
-        public JsExpression? GetValidationPath(
+        public JsExpression GetValidationPath(
             Expression expr,
             DataContextStack dataContext,
             Func<Expression, JsExpression?>? baseFormatter = null)
@@ -54,14 +54,14 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 case MemberExpression m when m.Expression is {}: {
                     var targetPath = GetValidationPath(m.Expression, dataContext, baseFormatter);
-                    if (targetPath is null)
-                        return null;
+                    if (targetPath is null or JsLiteral { Value: null })
+                        return targetPath;
 
                     var typeMap = mapper.GetMap(m.Member.DeclaringType!);
                     var property = typeMap.Properties.FirstOrDefault(p => p.PropertyInfo == m.Member);
 
                     if (property is null)
-                        return null;
+                        return JsLiteral.Null.CommentBefore($"{m.Member.Name} is not mapped");
 
                     return stringAppend(targetPath, "/" + property.Name);
                 }
@@ -69,8 +69,10 @@ namespace DotVVM.Framework.Compilation.Binding
                     var truePath = GetValidationPath(conditional.IfTrue, dataContext, baseFormatter);
                     var falsePath = GetValidationPath(conditional.IfFalse, dataContext, baseFormatter);
 
-                    if (truePath is null || falsePath is null)
-                        return null;
+                    if (truePath is null or JsLiteral { Value: null })
+                        return truePath;
+                    if (falsePath is null or JsLiteral { Value: null })
+                        return falsePath;
 
                     return new JsConditionalExpression(
                         this.javascriptTranslator.CompileToJavascript(conditional.Test, dataContext),
@@ -80,8 +82,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 case IndexExpression index: {
                     var targetPath = GetValidationPath(index.Object, dataContext, baseFormatter);
-                    if (targetPath is null || index.Arguments.Count != 1 || !index.Arguments.Single().Type.IsNumericType())
-                        return null;
+                    if (targetPath is null or JsLiteral { Value: null })
+                        return targetPath;
+                    if (index.Arguments.Count != 1 || !index.Arguments.Single().Type.IsNumericType())
+                        return JsLiteral.Null.CommentBefore("Unsupported Index");
 
                     var indexPath = this.javascriptTranslator.CompileToJavascript(index.Arguments.Single(), dataContext);
                     if (indexPath is JsLiteral { Value: not null } indexLiteral)
@@ -90,7 +94,7 @@ namespace DotVVM.Framework.Compilation.Binding
                         return new JsBinaryExpression(stringAppend(targetPath, "/"), BinaryOperatorType.Plus, indexPath);
                 }
                 default:
-                    return null;
+                    return JsLiteral.Null.CommentBefore($"{expr} isn't supported");
             }
         }
 

@@ -272,5 +272,12 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
             return expression;
         }
+
+        public static T CommentBefore<T>(this T node, string comment)
+            where T: JsNode
+        {
+            node.InsertChildBefore(node.FirstChild, new JsCommentNode(comment), JsTreeRoles.Comment);
+            return node;
+        }
     }
 }

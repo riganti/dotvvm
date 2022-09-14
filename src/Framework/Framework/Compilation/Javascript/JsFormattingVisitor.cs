@@ -456,5 +456,15 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
             Emit(')');
         }
+
+        public void VisitCommentNode(JsCommentNode commentNode)
+        {
+            if (this.NiceMode && string.IsNullOrEmpty(commentNode.Text))
+            {
+                Emit(" /*");
+                Emit(commentNode.Text.Replace("*/", "* /"));
+                Emit("*/ ");
+            }
+        }
     }
 }

@@ -31,6 +31,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static readonly JsTreeRole<JsExpression> Expression = new JsTreeRole<JsExpression>("Expression");
         public static readonly JsTreeRole<JsExpression> TargetExpression = new JsTreeRole<JsExpression>("Target");
         public readonly static JsTreeRole<JsExpression> Condition = new JsTreeRole<JsExpression>("Condition");
+
+        public static readonly JsTreeRole<JsCommentNode> Comment = new JsTreeRole<JsCommentNode>("Comment");
         //public static readonly JsTreeRole<JsTypeParameterDeclaration> TypeParameter = new JsTreeRole<JsTypeParameterDeclaration>("TypeParameter");
         //public static readonly JsTreeRole<JsAstType> TypeArgument = new JsTreeRole<JsAstType>("TypeArgument");
         //public readonly static JsTreeRole<JsConstraint> Constraint = new JsTreeRole<JsConstraint>("Constraint");
