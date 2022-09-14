@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Binding
     /// <summary>
     /// The DotvvmProperty that fallbacks to another DotvvmProperty's value.
     /// </summary>
-    public class DotvvmPropertyWithFallback : DotvvmProperty
+    public sealed class DotvvmPropertyWithFallback : DotvvmProperty
     {
         /// <summary>
         /// Gets the property which value will be used as a fallback when this property is not set.
