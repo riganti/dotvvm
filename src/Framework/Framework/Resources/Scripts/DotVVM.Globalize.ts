@@ -14,7 +14,7 @@ export function format(format: string, ...values: any[]): string {
         const value = values[parseInt(group0, 10)];
         if (group1) {
             group1 = group1.substring(1);
-            return formatString(group1, value, undefined);
+            return formatString(group1, value, null);
         } else {
             return value;
         }
@@ -23,7 +23,7 @@ export function format(format: string, ...values: any[]): string {
 
 type GlobalizeFormattable = null | undefined | string | Date | number
 
-export function formatString(format: string | null | undefined, value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, type: string | undefined) {
+export function formatString(format: string | null | undefined, value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, type: string | null) {
     value = ko.unwrap(value);
     if (value == null || value === "") {
         return "";
@@ -92,7 +92,7 @@ export function bindingDateToString(value: GlobalizeFormattable | KnockoutObserv
 }
 
 export function bindingNumberToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string = "G") {
-    const formatNumber = () => formatString(format, value, undefined);
+    const formatNumber = () => formatString(format, value, null);
 
     if (ko.isWriteableObservable(value)) {
         return ko.pureComputed({

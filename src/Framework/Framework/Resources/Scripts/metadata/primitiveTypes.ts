@@ -139,7 +139,7 @@ function validateString(value: any) {
     if (value === null) {
         wasCoerced = false;
     } else if (typeof value === "number") {
-        value = formatString("n", value, undefined);
+        value = formatString("n", value, null);
         wasCoerced = true;
     } else if (value instanceof Date) {
         value = formatString("g", value, "datetime");

@@ -226,7 +226,10 @@ namespace DotVVM.Framework.Controls
                 if (resolvedValueType == FormatValueType.DateTime)
                 {
                     writer.AddAttribute("data-dotvvm-value-type", "datetime");
-                    formatString ??= "G";
+                }
+                else if (resolvedValueType == FormatValueType.Number)
+                {
+                    writer.AddAttribute("data-dotvvm-value-type", "number");
                 }
                 else if (resolvedValueType == FormatValueType.DateOnly)
                 {
@@ -238,14 +241,8 @@ namespace DotVVM.Framework.Controls
                     writer.AddAttribute("data-dotvvm-value-type", "timeonly");
                     formatString ??= "T";
                 }
-                else if (resolvedValueType == FormatValueType.Number)
-                {
-                    writer.AddAttribute("data-dotvvm-value-type", "number");
-                    formatString ??= "G";
-                }
 
-                formatString ??= "G";
-                writer.AddAttribute("data-dotvvm-format", formatString);
+                writer.AddAttribute("data-dotvvm-format", formatString ?? "G");
             }
         }
 

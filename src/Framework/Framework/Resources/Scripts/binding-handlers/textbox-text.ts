@@ -137,7 +137,7 @@ export default {
             // apply formatting
             const format = element.getAttribute("data-dotvvm-format");
             if (format) {
-                value = globalize.formatString(format, value, element.getAttribute("data-dotvvm-value-type") ?? undefined);
+                value = globalize.formatString(format, value, element.getAttribute("data-dotvvm-value-type"));
             }
 
             const invalidValue = element.getAttribute("data-invalid-value");
