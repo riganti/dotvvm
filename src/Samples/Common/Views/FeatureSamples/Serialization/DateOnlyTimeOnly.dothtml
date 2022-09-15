@@ -1,0 +1,35 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization.DateOnlyTimeOnlyViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>DateOnly and TimeOnly playground</h1>
+
+    <p>
+        <h2>Rendered using spans</h2>
+        <b>DateOnly:</b> {{value: DateOnly}} <br/>
+        <b>TimeOnly:</b> {{value: TimeOnly}} <br/>
+    </p>
+
+    <p>
+        <h2>Rendered using default textboxes</h2>
+        <b>DateOnly:</b> <dot:TextBox Text="{value: DateOnly}" /> <br />
+        <b>TimeOnly:</b> <dot:TextBox Text="{value: TimeOnly}" />
+    </p>
+
+    <p>
+        <h2>Rendered using textboxes with input types</h2>
+        <b>DateOnly:</b> <dot:TextBox Text="{value: DateOnly}" Type="Date" /> <br />
+        <b>TimeOnly:</b> <dot:TextBox Text="{value: TimeOnly}" Type="Time" />
+    </p>
+
+</body>
+</html>
+
+

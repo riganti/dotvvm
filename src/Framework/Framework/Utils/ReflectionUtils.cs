@@ -255,7 +255,9 @@ namespace DotVVM.Framework.Utils
         {
             typeof(DateTime),
             typeof(DateTimeOffset),
-            typeof(TimeSpan)
+            typeof(TimeSpan),
+            typeof(DateOnly),
+            typeof(TimeOnly)
         };
 
         public static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
@@ -277,7 +279,7 @@ namespace DotVVM.Framework.Utils
         public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
             typeof(string), typeof(char),
             typeof(bool),
-            typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan),
+            typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan), typeof(DateOnly), typeof(TimeOnly),
             typeof(Guid),
             typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong),
             typeof(float), typeof(double), typeof(decimal)

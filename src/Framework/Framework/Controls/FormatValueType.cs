@@ -4,7 +4,9 @@ namespace DotVVM.Framework.Controls
     {
         Text = 0,
         DateTime = 1,
-        Number = 2
+        Number = 2,
+        DateOnly = 3,
+        TimeOnly = 4
     }
     
 }

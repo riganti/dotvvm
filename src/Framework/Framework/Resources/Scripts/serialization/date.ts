@@ -8,7 +8,7 @@ export function parseDate(value: string | null, convertFromUtc: boolean = false)
         let month = parseInt(match[2], 10) - 1;
         let day = parseInt(match[3], 10);
 
-         //Javascript date object does not support month 00 and rolls to december.
+        //Javascript date object does not support month 00 and rolls to december.
         //In case of user input of 00 we correct it to january.
         //This is more user friendly than suddendly having december.
         month = month < 0 ? 0 : month;
@@ -18,7 +18,7 @@ export function parseDate(value: string | null, convertFromUtc: boolean = false)
         //We sanitize it to 1st of the same month to avoid this unpredictability
         day = day < 1 ? 1 : day;
 
-        //We set components of the date by hand, this prevents JS from 'corecting' years 00XX to 19XX
+        //We set components of the date by hand, this prevents JS from 'correcting' years 00XX to 19XX
         date.setMilliseconds(match.length > 7 ? parseInt(match[7].substring(1, 4), 10) : 0);
         date.setSeconds(parseInt(match[6], 10));
         date.setMinutes(parseInt(match[5], 10));
@@ -30,6 +30,54 @@ export function parseDate(value: string | null, convertFromUtc: boolean = false)
         if (convertFromUtc) {
             date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
         }
+        return date;
+    }
+    return null;
+}
+
+export function parseDateOnly(value: string | null): Date | null {
+    if (value == null) return null;
+    const match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})$");
+    if (match) {
+        const date = new Date(0);
+        let year = parseInt(match[1], 10);
+        let month = parseInt(match[2], 10) - 1;
+        let day = parseInt(match[3], 10);
+
+        //Javascript date object does not support month 00 and rolls to december.
+        //In case of user input of 00 we correct it to january.
+        //This is more user friendly than suddendly having december.
+        month = month < 0 ? 0 : month;
+
+        //Javascript date object does not support day 0 and rolls to 30 or 31 and rolls the month value to previous month.
+        //This results in unpredictable behaviour if user inputs 00 into date input field for instance
+        //We sanitize it to 1st of the same month to avoid this unpredictability
+        day = day < 1 ? 1 : day;
+
+        //We set components of the date by hand, this prevents JS from 'correcting' years 00XX to 19XX
+        date.setDate(day);
+        date.setMonth(month);
+        date.setFullYear(year);
+        return date;
+    }
+    return null;
+}
+
+export function parseTimeOnly(value: string | null): Date | null {
+    if (value == null) return null;
+    const match = value.match("^([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{1,7})$");
+    if (match) {
+        const date = new Date(0);
+        let hours = parseInt(match[1], 10);
+        let minutes = parseInt(match[2], 10);
+        let seconds = parseInt(match[3], 10);
+        let milliseconds = match.length > 4 ? parseInt(match[4].substring(1, 4), 10) : 0;
+
+        //We set components of the date by hand, this prevents JS from 'correcting' years 00XX to 19XX
+        date.setMilliseconds(milliseconds);
+        date.setSeconds(seconds);
+        date.setMinutes(minutes);
+        date.setHours(hours);
         return date;
     }
     return null;
@@ -94,6 +142,41 @@ export function serializeDate(date: string | Date | null, convertToUtc: boolean 
     const s = padNumber(date2.getSeconds(), 2);
     const ms = padNumber(date2.getMilliseconds(), 3);
     return `${y}-${m}-${d}T${h}:${mi}:${s}.${ms}0000`;
+}
+
+export function serializeDateOnly(date: string | Date | null): string | null {
+    if (date == null) {
+        return null;
+    } else if (typeof date == "string") {
+        // just print in the console if it's invalid
+        if (parseDateOnly(date) == null && parseDate(date) == null) {
+            logWarning("coercer", `Date ${date} is invalid.`);
+        }
+        return date;
+    }
+
+    const y = padNumber(date.getFullYear(), 4);
+    const m = padNumber((date.getMonth() + 1), 2);
+    const d = padNumber(date.getDate(), 2);
+    return `${y}-${m}-${d}`;
+}
+
+export function serializeTimeOnly(date: string | Date | null): string | null {
+    if (date == null) {
+        return null;
+    } else if (typeof date == "string") {
+        // just print in the console if it's invalid
+        if (parseTimeOnly(date) == null && parseDate(date) == null) {
+            logWarning("coercer", `Date ${date} is invalid.`);
+        }
+        return date;
+    }
+
+    const h = padNumber(date.getHours(), 2);
+    const mi = padNumber(date.getMinutes(), 2);
+    const s = padNumber(date.getSeconds(), 2);
+    const ms = padNumber(date.getMilliseconds(), 3);
+    return `${h}:${mi}:${s}.${ms}0000`;
 }
 
 export function serializeTimeSpan(time: string | number | null): string | null {
