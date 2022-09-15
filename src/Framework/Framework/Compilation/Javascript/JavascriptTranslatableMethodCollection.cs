@@ -224,7 +224,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
 
-            foreach (var num in ReflectionUtils.NumericTypes.Except(new[] { typeof(char) }))
+            foreach (var num in ReflectionUtils.GetNumericTypes().Except(new[] { typeof(char) }))
             {
                 AddMethodTranslator(num.GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
                     args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString")

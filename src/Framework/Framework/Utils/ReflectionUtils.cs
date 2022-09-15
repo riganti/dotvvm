@@ -251,7 +251,7 @@ namespace DotVVM.Framework.Utils
             return ResolvedTypeDescriptor.ToSystemType(result);
         }
 
-        public static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
+        private static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
         {
             typeof(DateTime),
             typeof(DateTimeOffset),
@@ -260,7 +260,7 @@ namespace DotVVM.Framework.Utils
             typeof(TimeOnly)
         };
 
-        public static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
+        private static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
         {
             typeof (sbyte),
             typeof (byte),
@@ -276,7 +276,7 @@ namespace DotVVM.Framework.Utils
             typeof (decimal)
         };
 
-        public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
+        private static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
             typeof(string), typeof(char),
             typeof(bool),
             typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan), typeof(DateOnly), typeof(TimeOnly),
@@ -288,6 +288,11 @@ namespace DotVVM.Framework.Utils
         public static bool IsNumericType(this Type type)
         {
             return NumericTypes.Contains(type);
+        }
+
+        public static IEnumerable<Type> GetNumericTypes()
+        {
+            return NumericTypes;
         }
 
         public static bool IsDateOrTimeType(this Type type)
@@ -335,6 +340,11 @@ namespace DotVVM.Framework.Utils
             return PrimitiveTypes.Contains(type)
                 || (IsNullableType(type) && IsPrimitiveType(type.UnwrapNullableType()))
                 || type.IsEnum;
+        }
+
+        public static bool IsSerializationSupported(this Type type)
+        {
+            return IsPrimitiveType(type);
         }
 
         public static bool IsNullableType(Type type)
