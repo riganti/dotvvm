@@ -342,9 +342,12 @@ namespace DotVVM.Framework.Utils
                 || type.IsEnum;
         }
 
-        public static bool IsSerializationSupported(this Type type)
+        public static bool IsSerializationSupported(this Type type, bool includeNullables)
         {
-            return IsPrimitiveType(type);
+            if (includeNullables)
+                return IsPrimitiveType(type);
+
+            return PrimitiveTypes.Contains(type);
         }
 
         public static bool IsNullableType(Type type)

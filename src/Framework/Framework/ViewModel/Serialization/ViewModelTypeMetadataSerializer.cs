@@ -135,7 +135,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         internal JToken GetTypeIdentifier(Type type, HashSet<Type> dependentObjectTypes, HashSet<Type> dependentEnumTypes)
         {
-            if (type.IsSerializationSupported())
+            if (type.IsSerializationSupported(includeNullables: false))
             {
                 return GetPrimitiveTypeName(type);
             }
