@@ -35,5 +35,14 @@ namespace DotVVM.Framework.Hosting
             }
             return new AuthenticationManager(concreteContext.OriginalContext);
         }
+
+
+        /// <summary>
+        /// Gets the <see cref="IDotvvmRequestContext"/> bound to the specified <see cref="HttpContext"/>.
+        /// </summary>
+        public static IDotvvmRequestContext? GetDotvvmContext(this HttpContext httpContext)
+        {
+            return httpContext.Items.TryGetValue(HostingConstants.DotvvmRequestContextKey, out var value) ? value as IDotvvmRequestContext : null;
+        }
     }
 }

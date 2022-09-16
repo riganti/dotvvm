@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Hosting
                 // create the context
                 var dotvvmContext = CreateDotvvmContext(context, scope);
                 dotvvmContext.Services.GetRequiredService<DotvvmRequestContextStorage>().Context = dotvvmContext;
-                context.Set(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
+                context.Set(HostingConstants.DotvvmRequestContextKey, dotvvmContext);
                 dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
 
                 try
