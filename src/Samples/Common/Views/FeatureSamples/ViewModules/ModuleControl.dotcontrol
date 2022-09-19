@@ -22,6 +22,10 @@
     <dot:Button Text="callSetResultCommand" Click="{staticCommand: _js.Invoke("callSetResultCommand")}" />
     Result: <span class="named-command-result">{{value: Result}}</span>
 </p>
+<p>
+    Value: <dot:TextBox Text={value: ChildObject.Test} />
+    Serialized: <dot:TextBox Text={value: _js.Invoke<string>("serializeArgsTest", 10, ChildObject.Test)} />
+</p>
 
 <dot:NamedCommand Name="SetResultCommand" Command="{staticCommand: (int a1, string a2, TestObject a3) => Result = a1.ToString() + "_" + a2 + "_" + a3.Test}" />
 

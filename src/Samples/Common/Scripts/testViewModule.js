@@ -59,4 +59,8 @@ class Page {
         }
         return result;
     }
+
+    serializeArgsTest(arg1, arg2) {
+        return this.serializeArgs([arg1, arg2]);
+    }
 }
