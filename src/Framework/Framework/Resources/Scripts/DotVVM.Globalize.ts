@@ -41,12 +41,12 @@ export function formatString(format: string | null | undefined, value: Globalize
         // DateTime, DateOnly or TimeOnly\
         if (type === "dateonly") {
             value = serializationParseDateOnly(value);
-            if (format == null) {
+            if (format == null || format.length == 0) {
                 format = "D";
             }
         } else if (type == "timeonly") {
             value = serializationParseTimeOnly(value);
-            if (format == null) {
+            if (format == null || format.length == 0) {
                 format = "T";
             }
         } else {
@@ -58,7 +58,7 @@ export function formatString(format: string | null | undefined, value: Globalize
         }
     }
 
-    if (!format) {
+    if (format == null || format.length == 0) {
         format = "G";
     }
 

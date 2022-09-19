@@ -95,7 +95,8 @@ namespace DotVVM.Framework.Controls
         public static bool NeedsFormatting(IValueBinding? binding)
         {
             bool isFormattedType(Type? type) =>
-                type != null && (type == typeof(float) || type == typeof(double) || type == typeof(decimal) || type == typeof(DateTime) || isFormattedType(Nullable.GetUnderlyingType(type)));
+                type != null && (type == typeof(float) || type == typeof(double) || type == typeof(decimal) ||
+                type == typeof(DateTime) || type == typeof(DateOnly) || type == typeof(TimeOnly) || isFormattedType(Nullable.GetUnderlyingType(type)));
 
             bool isFormattedTypeOrObj(Type? type) => type == typeof(object) || isFormattedType(type);
 
@@ -159,7 +160,8 @@ namespace DotVVM.Framework.Controls
                     // almost always the Literal will be rendered before script resources are, so requesting the resource in render should be safe. In case it's not, user can always add it manually (the error message should be quite clear).
                     context.ResourceManager.AddCurrentCultureGlobalizationResource();
 
-                    expression = "dotvvm.globalize.formatString(" + JsonConvert.ToString(FormatString) + ", " + expression + ")";
+                    var formattedType = $"\"{GetValueBinding(TextProperty)?.ResultType.Name.ToLowerInvariant()}\"";
+                    expression = "dotvvm.globalize.formatString(" + JsonConvert.ToString(FormatString) + ", " + expression + ", " + formattedType + ")";
                 }
 
                 if (r.RenderSpanElement)
