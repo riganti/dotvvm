@@ -931,6 +931,40 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("DateOnly.ToString()", "")]
+        [DataRow("DateOnly.ToString('D')", "\"D\"")]
+        public void JsTranslator_DateOnly_ToString(string binding, string args)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.globalize.bindingDateOnlyToString(DateOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
+        }
+
+        [TestMethod]
+        [DataRow("NullableDateOnly.ToString()", "")]
+        public void JsTranslator_NullableDateOnly_ToString(string binding, string args)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.globalize.bindingDateOnlyToString(NullableDateOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
+        }
+
+        [TestMethod]
+        [DataRow("TimeOnly.ToString()", "")]
+        [DataRow("TimeOnly.ToString('T')", "\"T\"")]
+        public void JsTranslator_TimeOnly_ToString(string binding, string args)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.globalize.bindingTimeOnlyToString(TimeOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
+        }
+
+        [TestMethod]
+        [DataRow("NullableTimeOnly.ToString()", "")]
+        public void JsTranslator_NullableTimeOnly_ToString(string binding, string args)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.globalize.bindingTimeOnlyToString(NullableTimeOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
+        }
+
+        [TestMethod]
         public void JsTranslator_WebUtility_UrlEncode()
         {
             var result = CompileBinding("WebUtility.UrlEncode(\"Hello World!\")", new[] { new NamespaceImport("System.Net") }, new[] { typeof(TestViewModel) });

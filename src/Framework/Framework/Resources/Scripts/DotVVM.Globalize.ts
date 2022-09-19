@@ -1,4 +1,11 @@
-﻿import { parseDate as serializationParseDate, parseDateOnly as serializationParseDateOnly, parseTimeOnly as serializationParseTimeOnly, serializeDate } from './serialization/date'
+﻿import {
+    parseDate as serializationParseDate,
+    parseDateOnly as serializationParseDateOnly,
+    parseTimeOnly as serializationParseTimeOnly,
+    serializeDate,
+    serializeDateOnly,
+    serializeTimeOnly
+} from './serialization/date'
 import { getCulture } from './dotvvm-base';
 
 function getGlobalize(): GlobalizeStatic {
@@ -69,17 +76,29 @@ export function parseDate(value: string, format: string, previousValue?: Date) {
 export const parseDotvvmDate = serializationParseDate;
 
 export function bindingDateToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string = "G") {
+    return bindingDateLikeTypeToString(value, format, "datetime", serializeDate, serializationParseDate);
+}
+
+export function bindingDateOnlyToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string = "D") {
+    return bindingDateLikeTypeToString(value, format, "dateonly", serializeDateOnly, serializationParseDateOnly);
+}
+
+export function bindingTimeOnlyToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string = "T") {
+    return bindingDateLikeTypeToString(value, format, "timeonly", serializeTimeOnly, serializationParseTimeOnly);
+}
+
+function bindingDateLikeTypeToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string, type: string, serializer: Function, parser: Function) {
     const unwrapDate = () => {
         const unwrappedVal = ko.unwrap(value);
-        return typeof unwrappedVal == "string" ? serializationParseDate(unwrappedVal) : unwrappedVal;
+        return typeof unwrappedVal == "string" ? parser(unwrappedVal) : unwrappedVal;
     };
 
-    const formatDate = () => formatString(format, value, "DateTime");
+    const formatDate = () => formatString(format, value, type);
 
     if (ko.isWriteableObservable(value)) {
         const unwrappedVal = unwrapDate();
         const setter = typeof unwrappedVal == "string" ? (v: Date | null) => {
-            return value(v && serializeDate(v, false));
+            return value(v && serializer(v, false));
         } : value;
         return ko.pureComputed({
             read: formatDate,
