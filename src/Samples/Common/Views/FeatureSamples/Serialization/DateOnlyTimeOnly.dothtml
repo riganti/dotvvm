@@ -13,8 +13,8 @@
 
     <p>
         <h2>Rendered plainly</h2>
-        <b>DateOnly:</b> {{value: DateOnly}} <br />
-        <b>TimeOnly:</b> {{value: TimeOnly}} <br />
+        <span data-ui="dateonly-plain"><b>DateOnly:</b> {{value: DateOnly}} </span><br />
+        <span data-ui="timeonly-plain"><b>TimeOnly:</b> {{value: TimeOnly}} </span><br />
     </p>
 
     <p>
