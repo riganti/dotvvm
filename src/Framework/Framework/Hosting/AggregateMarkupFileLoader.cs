@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DotVVM.Framework.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Hosting
 {
     public class AggregateMarkupFileLoader : IMarkupFileLoader
     {
-        public List<IMarkupFileLoader> Loaders { get; private set; } = new List<IMarkupFileLoader>();
+        private readonly List<IMarkupFileLoader> loaders;
 
-        public AggregateMarkupFileLoader()
+        public AggregateMarkupFileLoader(IOptions<AggregateMarkupFileLoaderOptions> options, IServiceProvider serviceProvider)
         {
-            // the EmbeddedMarkupFileLoader must be registered before DefaultMarkupFileLoader (which gets wrapped by HotReloadMarkupFileLoader)
-            Loaders.Add(new EmbeddedMarkupFileLoader());
-            Loaders.Add(new DefaultMarkupFileLoader());
+            loaders = options.Value.LoaderTypes
+                .Select(p => (IMarkupFileLoader)serviceProvider.GetRequiredService(p))
+                .ToList();
         }
 
         /// <summary>
@@ -22,9 +24,9 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public MarkupFile? GetMarkup(DotvvmConfiguration configuration, string virtualPath)
         {
-            for (int i = 0; i < Loaders.Count; i++)
+            for (var i = 0; i < loaders.Count; i++)
             {
-                var result = Loaders[i].GetMarkup(configuration, virtualPath);
+                var result = loaders[i].GetMarkup(configuration, virtualPath);
                 if (result != null)
                 {
                     return result;
