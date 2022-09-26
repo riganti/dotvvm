@@ -2217,5 +2217,29 @@
       "assembly": "DotVVM.Framework.Testing",
       "baseType": "DotVVM.Framework.Controls.HeadResourceLinks, DotVVM.Framework"
     }
+  },
+  "assemblies": {
+    "assemblyDirs": [
+      "/home/exyi/code/dotvvm/src/Tests/bin/Debug/net6.0",
+      "/usr/share/dotnet/shared/Microsoft.AspNetCore.App/6.0.9",
+      "/usr/share/dotnet/shared/Microsoft.NETCore.App/6.0.9"
+    ],
+    "assemblyNames": [
+      "DotVVM.Framework, Version=***",
+      "Microsoft.CSharp, Version=***",
+      "Microsoft.Extensions.DependencyInjection.Abstractions, Version=***",
+      "mscorlib, Version=***",
+      "netstandard, Version=***",
+      "System.Collections, Version=***",
+      "System.Collections.Concurrent, Version=***",
+      "System.ComponentModel, Version=***",
+      "System.Linq, Version=***",
+      "System.Linq.Expressions, Version=***",
+      "System.Private.CoreLib, Version=***",
+      "System.Runtime, Version=***",
+      "System.Runtime.InteropServices, Version=***",
+      "System.ValueTuple, Version=***"
+    ],
+    "mainAssembly": "testhost, Version=***"
   }
 }

@@ -28,6 +28,7 @@ namespace DotVVM.Framework.Hosting
                 capabilities = includeProperties ? DotvvmPropertySerializableList.Capabilities : null,
                 propertyGroups = includeProperties ? DotvvmPropertySerializableList.PropertyGroups : null,
                 controls = includeProperties ? DotvvmPropertySerializableList.GetControls(config.ServiceProvider.GetRequiredService<CompiledAssemblyCache>()) : null,
+                assemblies = includeProperties ? AssemblySerializableList.CreateFromCache(config.ServiceProvider.GetRequiredService<CompiledAssemblyCache>()) : null,
             };
             return JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings {
                 TypeNameHandling = TypeNameHandling.Auto,
