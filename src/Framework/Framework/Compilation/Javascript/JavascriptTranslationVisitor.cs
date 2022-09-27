@@ -425,7 +425,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
                 return new JsIdentifierExpression("dotvvm")
                     .Member("translations").Member("enums").Member("toInt")
-                    .Invoke(operand, new JsLiteral(target.GetTypeHash()));
+                    .Invoke(operand, new JsLiteral(originalOperand.Type.GetTypeHash()));
             }
 
             // by default, just allow any conversion
