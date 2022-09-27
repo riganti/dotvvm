@@ -160,6 +160,7 @@ $@"
                 Converters = {
                 new ReflectionTypeJsonConverter(),
                 new ReflectionAssemblyJsonConverter(),
+                new DotvvmTypeDescriptorJsonConverter(),
                 new Controls.DotvvmControlDebugJsonConverter(),
                 new IgnoreStuffJsonConverter(),
                 new BindingDebugJsonConverter()

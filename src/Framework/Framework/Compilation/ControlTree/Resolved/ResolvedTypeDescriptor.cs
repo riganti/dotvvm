@@ -9,9 +9,11 @@ using System.Reflection;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using FastExpressionCompiler;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
+    [JsonConverter(typeof(ResourceManagement.DotvvmTypeDescriptorJsonConverter))]
     public sealed class ResolvedTypeDescriptor : ITypeDescriptor
     {
         private static ConcurrentDictionary<(Type, string), ResolvedTypeDescriptor?> cache = new ConcurrentDictionary<(Type, string), ResolvedTypeDescriptor?>();

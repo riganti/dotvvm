@@ -43,6 +43,7 @@ namespace DotVVM.Framework.Hosting
                 Converters = {
                     new StringEnumConverter(),
                     new ReflectionTypeJsonConverter(),
+                    new DotvvmTypeDescriptorJsonConverter(),
                     new ReflectionAssemblyJsonConverter()
                 },
                 ContractResolver = new DotvvmConfigurationSerializationResolver()
