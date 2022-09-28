@@ -39,3 +39,12 @@ function getLogLevel() : LogLevel {
     }
     return "normal";
 }
+
+/** puts the string in quotes, escaping weird characters if it is more complex than just letters */
+export function debugQuoteString(s: string) {
+    if (/[\w-_]/.test(s)) {
+        return s;
+    } else {
+        return JSON.stringify(s);
+    }
+}
