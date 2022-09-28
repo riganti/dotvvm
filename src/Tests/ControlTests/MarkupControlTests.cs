@@ -31,6 +31,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             config.Markup.AddMarkupControl("cc", "CustomControlWithProperty", "CustomControlWithProperty.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithInvalidVM", "CustomControlWithInvalidVM.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithInternalProperty", "CustomControlWithInternalProperty.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "CustomControlWithJsInvoke", "CustomControlWithJsInvoke.dotcontrol");
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
         }, services: s => {
             s.Services.AddSingleton<TestService>();
@@ -182,6 +183,29 @@ namespace DotVVM.Framework.Tests.ControlTests
             ));
 
             Assert.AreEqual("Could not resolve type 'ClassThatDoesNotExist'.", e.Message);
+        }
+
+
+        [TestMethod]
+        public async Task MarkupControl_JsInvoke()
+        {
+            var p = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <cc:CustomControlWithJsInvoke SomeProperty=Test />
+                ",
+                directives: $"@service s = {typeof(TestService)}",
+                markupFiles: new Dictionary<string, string> {
+                    ["CustomControlWithJsInvoke.dotcontrol"] = @"
+                        @viewModel object
+                        @property string SomeProperty
+                        @wrapperTag div
+                        @js somemodule
+
+                        <span InnerText={value: _js.Invoke<string>('jsfn', _control.SomeProperty)} />
+                        "
+                }
+            );
+
+            check.CheckString(p.FormattedHtml, fileExtension: "html");
         }
 
 

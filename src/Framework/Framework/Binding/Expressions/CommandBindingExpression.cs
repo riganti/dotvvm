@@ -115,7 +115,6 @@ namespace DotVVM.Framework.Binding.Expressions
         }
 
         public static CodeSymbolicParameter PostbackOptionsParameter = new CodeSymbolicParameter("CommandBindingExpression.PostbackOptionsParameter");
-        public static CodeSymbolicParameter SenderElementParameter = new CodeSymbolicParameter("CommandBindingExpression.SenderElementParameter");
         public static CodeSymbolicParameter CurrentPathParameter = new CodeSymbolicParameter("CommandBindingExpression.CurrentPathParameter");
         public static CodeSymbolicParameter CommandIdParameter = new CodeSymbolicParameter("CommandBindingExpression.CommandIdParameter");
         public static CodeSymbolicParameter ControlUniqueIdParameter = new CodeSymbolicParameter("CommandBindingExpression.ControlUniqueIdParameter");
@@ -127,7 +126,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         private static ParametrizedCode createJavascriptPostbackInvocation(JsExpression? commandArgs) =>
             new JsIdentifierExpression("dotvvm").Member("postBack").Invoke(
-                new JsSymbolicParameter(SenderElementParameter),
+                new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter),
                 new JsSymbolicParameter(CurrentPathParameter),
                 new JsSymbolicParameter(CommandIdParameter),
                 new JsSymbolicParameter(ControlUniqueIdParameter),

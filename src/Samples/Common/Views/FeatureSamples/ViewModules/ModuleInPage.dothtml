@@ -14,22 +14,22 @@
     <div DataContext="{value: Page}">
         <h2>_js.Invoke</h2>
         <p>
-            <dot:Button Text="noArgs" Click="{staticCommand: _js.Invoke(" noArgs")}" />
+            <dot:Button Text="noArgs" Click="{staticCommand: _js.Invoke("noArgs")}" />
         </p>
         <p>
-            <dot:Button Text="oneArg" Click="{staticCommand: _js.Invoke(" oneArg", 10)}" />
+            <dot:Button Text="oneArg" Click="{staticCommand: _js.Invoke("oneArg", 10)}" />
         </p>
         <p>
-            <dot:Button Text="twoArgs" Click="{staticCommand: _js.Invoke(" twoArgs", 10, ChildObject)}" />
+            <dot:Button Text="twoArgs" Click="{staticCommand: _js.Invoke("twoArgs", 10, ChildObject)}" />
         </p>
         <p>
-            <dot:Button Text="syncIncrement" Click="{staticCommand: Value = _js.Invoke<int>(" syncIncrement", Value)}" />
-            <dot:Button Text="asyncIncrement" Click="{staticCommand: Value = _js.Invoke<System.Threading.Tasks.Task<int>>(" asyncIncrement", Value).Result}" />
-            <dot:Button Text="callIncrementCommand" Click="{staticCommand: Value = _js.Invoke<System.Threading.Tasks.Task<int>>(" callIncrementCommand", Value).Result}" />
+            <dot:Button Text="syncIncrement" Click="{staticCommand: Value = _js.Invoke<int>("syncIncrement", Value)}" />
+            <dot:Button Text="asyncIncrement" Click="{staticCommand: Value = _js.Invoke<System.Threading.Tasks.Task<int>>("asyncIncrement", Value).Result}" />
+            <dot:Button Text="callIncrementCommand" Click="{staticCommand: Value = _js.Invoke<System.Threading.Tasks.Task<int>>("callIncrementCommand", Value).Result}" />
             Value: <span class="increment-value">{{value: Value}}</span>
         </p>
         <p>
-            <dot:Button Text="callSetResultCommand" Click="{staticCommand: _js.Invoke(" callSetResultCommand")}" />
+            <dot:Button Text="callSetResultCommand" Click="{staticCommand: _js.Invoke("callSetResultCommand")}" />
             Result: <span class="named-command-result">{{value: Result}}</span>
         </p>
         <p>
@@ -37,7 +37,7 @@
             Serialized: <dot:TextBox Text={value: _js.Invoke<string>("serializeArgsTest", 10, ChildObject.Test)} />
         </p>
 
-        <dot:NamedCommand Name="SetResultCommand" Command="{staticCommand: (int a1, string a2, TestObject a3) => _root.Page.Result = a1.ToString() + " _" + a2 + "_" + a3.Test}" />
+        <dot:NamedCommand Name="SetResultCommand" Command="{staticCommand: (int a1, string a2, TestObject a3) => _root.Page.Result = a1.ToString() + "_" + a2 + "_" + a3.Test}" />
 
         <dot:NamedCommand Name="IncrementCommand" Command="{staticCommand: (int value) => value + 1}" />
 

@@ -24,6 +24,9 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static readonly CodeSymbolicParameter ParentKnockoutContextParameter = new ContextSymbolicParameter(1, "Parent");
         public static readonly CodeSymbolicParameter KnockoutViewModelParameter = new ViewModelSymbolicParameter(0, "", "$data");
         public static readonly CodeSymbolicParameter ParentKnockoutViewModelParameter = new ViewModelSymbolicParameter(1, "Parent", "$parent");
+        public static readonly CodeSymbolicParameter CurrentElementParameter = new CodeSymbolicParameter("CurrentElement",
+            new CodeParameterAssignment("$element", OperatorPrecedence.Max)
+        );
 
         public static CodeSymbolicParameter GetKnockoutViewModelParameter(int parentIndex) => parentIndex switch {
             < 0 => throw new ArgumentOutOfRangeException("parentIndex"),
