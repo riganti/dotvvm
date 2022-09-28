@@ -31,6 +31,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             config.Markup.AddMarkupControl("cc", "CustomControlWithProperty", "CustomControlWithProperty.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithInvalidVM", "CustomControlWithInvalidVM.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithInternalProperty", "CustomControlWithInternalProperty.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "CustomControlWithResourceProperty", "CustomControlWithResourceProperty.dotcontrol");
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
         }, services: s => {
             s.Services.AddSingleton<TestService>();
@@ -184,6 +185,28 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.AreEqual("Could not resolve type 'ClassThatDoesNotExist'.", e.Message);
         }
 
+        [TestMethod]
+        public async Task PropertyDirectiveWithResourceBinding()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <cc:CustomControlWithResourceProperty ShowDescription={value: true} />
+                <cc:CustomControlWithResourceProperty ShowDescription=true />
+                <cc:CustomControlWithResourceProperty />
+                ",
+                directives: $"@service s = {typeof(TestService)}",
+                markupFiles: new Dictionary<string, string> {
+                    ["CustomControlWithResourceProperty.dotcontrol"] = @"
+                        @viewModel object
+                        @property bool ShowDescription
+                        
+                        <p IncludeInPage={resource: _control.ShowDescription}>test</p>
+
+                    "
+                }
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
 
         public class BasicTestViewModel : DotvvmViewModelBase
         {
