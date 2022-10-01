@@ -182,7 +182,7 @@ jobs:
           always-auth=true `
           registry=${{ secrets.INTERNAL_NPM_REGISTRY }} `
           ${feed}:username=${{ secrets.INTERNAL_NPM_USERNAME }} `
-          ${feed}:username=${{ secrets.INTERNAL_NPM_EMAIL }} `
+          ${feed}:email=${{ secrets.INTERNAL_NPM_EMAIL }} `
           ${feed}:_password=$password
       working-directory: ci/scripts/npm/dotvvm-types
 
