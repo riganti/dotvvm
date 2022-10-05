@@ -2,7 +2,7 @@
 {
     public class HostingConstants
     {
-        public const string DotvvmRequestContextOwinKey = "dotvvm.requestContext";
+        public const string DotvvmRequestContextKey = "dotvvm.requestContext";
 
         public const string GlobalizeCultureUrlPath = "dotvvmGlobalizeCulture";
         public const string GlobalizeCultureUrlIdParameter = "id";
