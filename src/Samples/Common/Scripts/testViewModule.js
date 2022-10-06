@@ -63,4 +63,18 @@ class Page {
     serializeArgsTest(arg1, arg2) {
         return this.serializeArgs([arg1, arg2]);
     }
+
+    buildQuery(page, queryParameters) {
+        if (!queryParameters || !queryParameters.length) { queryParameters = []; }
+
+        let queryParamObject = this.composeQueryParametersObject(queryParameters);
+
+        return dotvvm.buildUrlSuffix(page, queryParamObject);
+    }
+
+    composeQueryParametersObject(queryParameters) {
+        let queryParamObject = {};
+        queryParameters.map(qp => { queryParamObject[qp.Key] = qp.Value; });
+        return queryParamObject;
+    }
 }

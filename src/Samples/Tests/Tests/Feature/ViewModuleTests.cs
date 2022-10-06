@@ -195,6 +195,27 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_ViewModules_ModuleInMarkupControl_Link()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInMarkupControl);
+
+                var inputTextBox = browser.Single("input[data-ui=serialized-input]");
+
+                AssertUI.TextEquals(inputTextBox, "Hello");
+
+                inputTextBox.Clear();
+                inputTextBox.SendKeys("Test1");
+                new Actions(browser.Driver).SendKeys(Keys.Tab).Perform();
+
+                var link = browser.Single("a[data-ui=test-link]");
+                var href= link.GetAttribute("href");
+
+                AssertUI.Attribute(link, "href", value => value.EndsWith("test.page?action=new&id=Test1"));
+            });
+        }
+
         private void TestModule(IBrowserWrapper browser, IElementWrapper log, IElementWrapperCollection<IElementWrapper, IBrowserWrapper> moduleButtons, IElementWrapper incrementValue, IElementWrapper result, string prefix)
         {
             moduleButtons[0].Click();
