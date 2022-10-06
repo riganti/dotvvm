@@ -246,7 +246,7 @@ namespace DotVVM.Framework.Controls
             string SubstituteArguments(ParametrizedCode parametrizedCode)
             {
                 return parametrizedCode.ToString(p =>
-                    p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
+                    p == JavascriptTranslator.CurrentElementParameter ? options.ElementAccessor :
                     p == CommandBindingExpression.CurrentPathParameter ? CodeParameterAssignment.FromIdentifier(getContextPath(control)) :
                     p == CommandBindingExpression.ControlUniqueIdParameter ? uniqueControlId?.GetParametrizedJsExpression(control) ?? CodeParameterAssignment.FromLiteral("") :
                     p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :

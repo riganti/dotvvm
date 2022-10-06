@@ -127,7 +127,7 @@ namespace DotVVM.Framework.Configuration
                                 new JsFunctionExpression(new[] { new JsIdentifier("args") }, new JsBlockStatement(new JsReturnStatement(
                                     new JsArrayExpression(!isRead ? autoRefreshKeyExpression.Clone() : null)
                                 ))),
-                                isRead ? (JsExpression)new JsLiteral(null) : new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter, new CodeParameterAssignment("$element", OperatorPrecedence.Max)),
+                                isRead ? (JsExpression)new JsLiteral(null) : new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter, new CodeParameterAssignment("$element", OperatorPrecedence.Max)),
                                 new JsFunctionExpression(new[] { new JsIdentifier("args") }, new JsBlockStatement(new JsReturnStatement(
                                     isRead ? sharingKeyExpression.Clone() : new JsLiteral(Guid.NewGuid().ToString())
                                 )))
