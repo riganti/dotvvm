@@ -4,6 +4,9 @@ using System.Net.NetworkInformation;
 using System.Text;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using Newtonsoft.Json.Linq;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Abstractions.Attributes;
@@ -169,6 +172,26 @@ namespace DotVVM.Samples.Tests.Feature
 
                 links[0].Click();
                 AssertLastLogEntry(log, "testViewModule2: init");
+            });
+        }
+
+        [Fact]
+        public void Feature_ViewModules_ModuleInMarkupControl_ValueBinding()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInMarkupControl);
+
+                var inputTextBox = browser.Single("input[data-ui=serialized-input]");
+                var resultTextBox = browser.Single("input[data-ui=serialized-result]");
+
+                AssertUI.TextEquals(inputTextBox, "Hello");
+                AssertUI.TextEquals(resultTextBox, "10, \"Hello\"");
+
+                inputTextBox.Clear();
+                inputTextBox.SendKeys("Test");
+                new Actions(browser.Driver).SendKeys(Keys.Tab).Perform();
+
+                AssertUI.TextEquals(resultTextBox, "10, \"Test\"");
             });
         }
 
