@@ -9,7 +9,7 @@ public class PropertyDisplayMetadataModifier
 {
     private readonly List<Action<PropertyDisplayMetadata>> actions = new();
 
-    public PropertyDisplayMetadataModifier UseSelection<T>() where T : Annotations.Selection
+    public PropertyDisplayMetadataModifier SetSelection<T>() where T : Annotations.Selection
     {
         actions.Add(m => m.SelectionConfiguration = new SelectionAttribute(typeof(T)));
         return this;
@@ -51,13 +51,13 @@ public class PropertyDisplayMetadataModifier
         return this;
     }
 
-    public PropertyDisplayMetadataModifier Ignore()
+    public PropertyDisplayMetadataModifier Hide()
     {
         actions.Add(m => m.AutoGenerateField = false);
         return this;
     }
 
-    public PropertyDisplayMetadataModifier AutoGenerateField(bool value)
+    public PropertyDisplayMetadataModifier SetAutoGenerateField(bool value)
     {
         actions.Add(m => m.AutoGenerateField = value);
         return this;
