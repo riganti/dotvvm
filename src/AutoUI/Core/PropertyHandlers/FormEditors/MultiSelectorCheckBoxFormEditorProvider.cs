@@ -1,5 +1,6 @@
 ﻿using DotVVM.AutoUI.Controls;
 using DotVVM.AutoUI.Metadata;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 
@@ -24,7 +25,7 @@ public class MultiSelectorCheckBoxFormEditorProvider : FormEditorProviderBase
             .SetProperty(c => c.DataSource, selectorDataSourceBinding)
             .SetProperty(c => c.ItemTemplate, new CloneTemplate(
                 new HtmlGenericControl("li")
-                    .SetProperty(Internal.DataContextTypeProperty, context.DataContextStack.CreateChildStack(selectorConfiguration.PropertyType))
+                    .SetProperty(Internal.DataContextTypeProperty, context.CreateChildDataContextStack(context.DataContextStack, selectorConfiguration.PropertyType))
                     .AppendChildren(
                         new CheckBox()
                             .SetProperty(c => c.Text, context.CreateValueBinding("DisplayName", selectorConfiguration.PropertyType))

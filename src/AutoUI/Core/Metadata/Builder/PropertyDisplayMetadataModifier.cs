@@ -7,7 +7,7 @@ namespace DotVVM.AutoUI.Metadata.Builder;
 
 public class PropertyDisplayMetadataModifier
 {
-    private List<Action<PropertyDisplayMetadata>> actions = new();
+    private readonly List<Action<PropertyDisplayMetadata>> actions = new();
 
     public PropertyDisplayMetadataModifier UseSelection<T>() where T : Annotations.Selection
     {
@@ -57,6 +57,12 @@ public class PropertyDisplayMetadataModifier
         return this;
     }
 
+    public PropertyDisplayMetadataModifier AutoGenerateField(bool value)
+    {
+        actions.Add(m => m.AutoGenerateField = value);
+        return this;
+    }
+
     public PropertyDisplayMetadataModifier ShowForViews(string viewNames)
     {
         actions.Add(m =>
@@ -93,9 +99,9 @@ public class PropertyDisplayMetadataModifier
         return this;
     }
 
-    public PropertyDisplayMetadataModifier Enable(bool allowEdit = true)
+    public PropertyDisplayMetadataModifier SetIsEditable(bool value = true)
     {
-        actions.Add(m => m.IsEditable = allowEdit);
+        actions.Add(m => m.IsEditable = value);
         return this;
     }
 
