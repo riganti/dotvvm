@@ -89,9 +89,12 @@ namespace DotVVM.CommandLine
 
             var pinfo = new ProcessStartInfo {
                 FileName = executable,
-                UseShellExecute = false,
-                Arguments = string.Join(' ', compilerArgs)
+                UseShellExecute = false
             };
+            foreach (var a in compilerArgs)
+            {
+                pinfo.ArgumentList.Add(a);
+            }
 
             var process = System.Diagnostics.Process.Start(pinfo);
             process.WaitForExit();
