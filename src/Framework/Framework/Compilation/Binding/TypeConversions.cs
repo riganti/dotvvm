@@ -11,78 +11,24 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.HelperNamespace;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
     public class TypeConversion
     {
-        private static Dictionary<Type, List<Type>> ImplicitNumericConversions = new Dictionary<Type, List<Type>>();
-        private static readonly Dictionary<Type, int> typePrecedence;
-
-        /// <summary>
-        /// Performs implicit conversion between two expressions depending on their type precedence
-        /// </summary>
-        /// <param name="le"></param>
-        /// <param name="re"></param>
-        internal static void Convert(ref Expression le, ref Expression re)
-        {
-            if (typePrecedence.ContainsKey(le.Type) && typePrecedence.ContainsKey(re.Type))
-            {
-                if (typePrecedence[le.Type] > typePrecedence[re.Type]) re = Expression.Convert(re, le.Type);
-                if (typePrecedence[le.Type] < typePrecedence[re.Type]) le = Expression.Convert(le, re.Type);
-            }
-        }
-
-        /// <summary>
-        /// Performs implicit conversion on an expression against a specified type
-        /// </summary>
-        /// <param name="le"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        internal static Expression Convert(Expression le, Type type)
-        {
-            if (typePrecedence.ContainsKey(le.Type) && typePrecedence.ContainsKey(type))
-            {
-                if (typePrecedence[le.Type] < typePrecedence[type]) return Expression.Convert(le, type);
-            }
-            if (le.Type.IsNullable() && Nullable.GetUnderlyingType(le.Type) == type)
-            {
-                le = Expression.Property(le, "Value");
-            }
-            if (type.IsNullable() && Nullable.GetUnderlyingType(type) == le.Type)
-            {
-                le = Expression.Convert(le, type);
-            }
-            if (type == typeof(object))
-            {
-                return Expression.Convert(le, type);
-            }
-            if (le.Type == typeof(object))
-            {
-                return Expression.Convert(le, type);
-            }
-            return le;
-        }
-
-        /// <summary>
-        /// Compares two types for implicit conversion
-        /// </summary>
-        /// <param name="from">The source type</param>
-        /// <param name="to">The destination type</param>
-        /// <returns>-1 if conversion is not possible, 0 if no conversion necessary, +1 if conversion possible</returns>
-        internal static int CanConvert(Type from, Type to)
-        {
-            if (typePrecedence.ContainsKey(@from) && typePrecedence.ContainsKey(to))
-            {
-                return typePrecedence[to] - typePrecedence[@from];
-            }
-            else
-            {
-                if (@from == to) return 0;
-                if (to.IsAssignableFrom(@from)) return 1;
-            }
-            return -1;
-        }
+        private static Dictionary<Type, Type[]> ImplicitNumericConversions = new() {
+            [typeof(sbyte)] = new Type[] { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+            [typeof(byte)] = new Type[] { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+            [typeof(short)] = new Type[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+            [typeof(ushort)] = new Type[] { typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+            [typeof(int)] = new Type[] { typeof(long), typeof(float), typeof(double), typeof(decimal) },
+            [typeof(uint)] = new Type[] { typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+            [typeof(long)] = new Type[] { typeof(float), typeof(double), typeof(decimal) },
+            [typeof(ulong)] = new Type[] { typeof(float), typeof(double), typeof(decimal) },
+            [typeof(char)] = new Type[] { typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+            [typeof(float)] = new Type[] { typeof(double) },
+        };
 
         // 6.1.7 Boxing Conversions
         // A boxing conversion permits a value-type to be implicitly converted to a reference type. A boxing conversion exists from any non-nullable-value-type to object and dynamic,
@@ -160,12 +106,14 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         //TODO: Refactor ImplicitConversion usages to EnsureImplicitConversion where applicable to take advantage of nullability 
-        public static Expression EnsureImplicitConversion(Expression src, Type destType)
+        public static Expression EnsureImplicitConversion(Expression src, Type destType, bool allowToString = false)
             => ImplicitConversion(src, destType, true, false)!;
 
         // 6.1 Implicit Conversions
         public static Expression? ImplicitConversion(Expression src, Type destType, bool throwException = false, bool allowToString = false)
         {
+            if (src is null) throw new ArgumentNullException(nameof(src));
+            if (destType is null) throw new ArgumentNullException(nameof(destType));
             if (src is MethodGroupExpression methodGroup)
             {
                 return methodGroup.CreateDelegateExpression(destType, throwException);
@@ -182,7 +130,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 result = ToStringConversion(src);
             }
-            if (throwException && result == null) throw new InvalidOperationException($"Could not implicitly convert expression of type { src.Type } to { destType }.");
+            if (throwException && result == null) throw new InvalidOperationException($"Could not implicitly convert expression of type { src.Type.ToCode() } to { destType.ToCode() }.");
             return result;
         }
 
@@ -241,42 +189,42 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     if (value >= SByte.MinValue && value <= SByte.MinValue)
                     {
-                        return Expression.Constant((sbyte)srcValue, typeof(sbyte));
+                        return Expression.Constant((sbyte)value, typeof(sbyte));
                     }
                 }
                 if (destType == typeof(byte))
                 {
                     if (value >= Byte.MinValue && value <= Byte.MaxValue)
                     {
-                        return Expression.Constant((byte)srcValue, typeof(byte));
+                        return Expression.Constant((byte)value, typeof(byte));
                     }
                 }
                 if (destType == typeof(short))
                 {
                     if (value >= Int16.MinValue && value <= Int16.MaxValue)
                     {
-                        return Expression.Constant((short)srcValue, typeof(short));
+                        return Expression.Constant((short)value, typeof(short));
                     }
                 }
                 if (destType == typeof(ushort))
                 {
                     if (value >= UInt16.MinValue && value <= UInt16.MaxValue)
                     {
-                        return Expression.Constant((ushort)srcValue, typeof(ushort));
+                        return Expression.Constant((ushort)value, typeof(ushort));
                     }
                 }
                 if (destType == typeof(uint))
                 {
                     if (value >= uint.MinValue)
                     {
-                        return Expression.Constant((uint)srcValue, typeof(uint));
+                        return Expression.Constant((uint)value, typeof(uint));
                     }
                 }
                 if (destType == typeof(ulong))
                 {
                     if (value >= 0)
                     {
-                        return Expression.Constant((ulong)srcValue, typeof(ulong));
+                        return Expression.Constant((ulong)value, typeof(ulong));
                     }
                 }
             }
@@ -288,7 +236,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     if (value >= 0)
                     {
-                        return Expression.Constant((ulong)srcValue, typeof(ulong));
+                        return Expression.Constant((ulong)value, typeof(ulong));
                     }
                 }
             }
@@ -448,32 +396,6 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             else
                 return null;
-        }
-
-        static TypeConversion()
-        {
-            typePrecedence = new Dictionary<Type, int>
-            {
-                    {typeof (object), 0},
-                    {typeof (bool), 1},
-                    {typeof (byte), 2},
-                    {typeof (int), 3},
-                    {typeof (short), 4},
-                    {typeof (long), 5},
-                    {typeof (float), 6},
-                    {typeof (double), 7}
-                };
-
-            ImplicitNumericConversions.Add(typeof(sbyte), new List<Type>() { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) });
-            ImplicitNumericConversions.Add(typeof(byte), new List<Type>() { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) });
-            ImplicitNumericConversions.Add(typeof(short), new List<Type>() { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) });
-            ImplicitNumericConversions.Add(typeof(ushort), new List<Type>() { typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) });
-            ImplicitNumericConversions.Add(typeof(int), new List<Type>() { typeof(long), typeof(float), typeof(double), typeof(decimal) });
-            ImplicitNumericConversions.Add(typeof(uint), new List<Type>() { typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) });
-            ImplicitNumericConversions.Add(typeof(long), new List<Type>() { typeof(float), typeof(double), typeof(decimal) });
-            ImplicitNumericConversions.Add(typeof(ulong), new List<Type>() { typeof(float), typeof(double), typeof(decimal) });
-            ImplicitNumericConversions.Add(typeof(char), new List<Type>() { typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) });
-            ImplicitNumericConversions.Add(typeof(float), new List<Type>() { typeof(double) });
         }
     }
 }

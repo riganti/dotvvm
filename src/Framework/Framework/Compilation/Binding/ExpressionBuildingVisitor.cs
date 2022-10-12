@@ -123,6 +123,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 // Translate to a String.Format(...) call
                 var arguments = node.Arguments.Select((arg, index) => HandleErrors(node.Arguments[index], Visit)!).ToArray();
+                ThrowOnErrors();
                 return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format) }.Concat(arguments).ToArray());
             }
             else

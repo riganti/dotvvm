@@ -586,6 +586,16 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Valid_EnumBitOps()
+        {
+            var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
+            Assert.AreEqual(TestEnum.A, ExecuteBinding("EnumProperty & 1", viewModel));
+            Assert.AreEqual(TestEnum.B, ExecuteBinding("EnumProperty | 1", viewModel));
+            Assert.AreEqual(TestEnum.B, ExecuteBinding("EnumProperty | 'B'", viewModel));
+            Assert.AreEqual(TestEnum.C, ExecuteBinding("(EnumProperty | 'D') & 'C'", viewModel));
+        }
+
+        [TestMethod]
 
         public void BindingCompiler_Valid_GenericMethodCall()
         {
@@ -944,7 +954,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type System.Void to System.Object")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type void to object")]
         public void BindingCompiler_MultiBlockExpression_EmptyBlockAtEnd_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -952,7 +962,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type System.Void to System.Object")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type void to object")]
         public void BindingCompiler_MultiBlockExpression_WhitespaceBlockAtEnd_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -1050,7 +1060,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var aggEx = Assert.ThrowsException<BindingPropertyException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));
             var ex = aggEx.GetBaseException();
-            StringAssert.Contains(ex.Message, "cannot be assigned into");
+            StringAssert.Contains(ex.Message, "Could not implicitly convert expression of type int to string");
         }
 
         [TestMethod]
