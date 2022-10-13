@@ -578,15 +578,16 @@ namespace DotVVM.Framework.Controls
     [DotvvmControlCapability]
     public sealed record HtmlCapability
     {
-        /// <summary> A dictionary of html attributes that are rendered on this control's html tag. </summary>
+        /// <summary> Gets or sets a dictionary of HTML attributes that are rendered on this control HTML tag. </summary>
         [PropertyGroup("", "html:")]
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
         public IDictionary<string, ValueOrBinding<object?>> Attributes { get; init; } = new Dictionary<string, ValueOrBinding<object?>>();
 
-        /// <summary> A dictionary of css classes. All classes which value is `true` will be placed in the `class` attribute. </summary>
+        /// <summary> Gets or sets a dictionary of CSS classes. All classes which value is `true` will be placed in the `class` attribute. </summary>
         [PropertyGroup("Class-")]
         public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
 
+        /// <summary> Gets or sets the ID of the control. Based on the `ClientIDMode` property, the value may be prefixed by DotVVM in order to be unique. </summary>
         public ValueOrBinding<string?> ID { get; init; }
 
         /// <summary> Returns true if all properties are set to default value </summary>
@@ -597,11 +598,11 @@ namespace DotVVM.Framework.Controls
             Visible.HasValue && Visible.ValueOrDefault == true &&
             ID.HasValue && ID.ValueOrDefault == null;
 
-        /// <summary> A dictionary of css styles which will be placed in the `style` attribute. </summary>
+        /// <summary> Gets or sets a dictionary of CSS styles which will be placed in the `style` attribute. </summary>
         [PropertyGroup("Style-")]
         public IDictionary<string, ValueOrBinding<object?>> CssStyles { get; init; } = new Dictionary<string, ValueOrBinding<object?>>();
 
-        /// <summary> When set to false, `style="display: none"` will be added to this control. </summary>
+        /// <summary> Gets or sets whether the control is visible. When set to false, `style="display: none"` will be added to this control. </summary>
         public ValueOrBinding<bool> Visible { get; init; } = new(true);
     }
 
