@@ -2,13 +2,21 @@
 
 namespace DotVVM.AutoUI.Annotations;
 
+/// <summary>
+/// Indicates that the user will select a value from a list of SelectionType provided by ISelectionProvider&lt;SelectionType&gt;
+/// </summary>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class SelectionAttribute : System.Attribute
 {
-    public Type PropertyType { get; }
+    public Type SelectionType { get; }
 
-    public SelectionAttribute(Type propertyType)
+    public SelectionAttribute(Type selectionType)
     {
-        PropertyType = propertyType;
+        if (!typeof(Selection).IsAssignableFrom(selectionType))
+        {
+            throw new ArgumentException($"The type {selectionType} used in SelectorAttribute must inherit from DotVVM.AutoUI.Annotations.Selection.");
+        }
+
+        SelectionType = selectionType;
     }
 }

@@ -16,13 +16,13 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
         public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, AutoUIContext context)
         {
             var selectorConfiguration = property.SelectionConfiguration!;
-            var selectorDataSourceBinding = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selectorConfiguration.PropertyType);
+            var selectorDataSourceBinding = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selectorConfiguration.SelectionType);
 
             return new ComboBox()
                 .SetCapability(props.Html)
                 .SetProperty(c => c.DataSource, selectorDataSourceBinding)
-                .SetProperty(c => c.ItemTextBinding, context.CreateValueBinding("DisplayName", selectorConfiguration.PropertyType))
-                .SetProperty(c => c.ItemValueBinding, context.CreateValueBinding("Value", selectorConfiguration.PropertyType))
+                .SetProperty(c => c.ItemTextBinding, context.CreateValueBinding("DisplayName", selectorConfiguration.SelectionType))
+                .SetProperty(c => c.ItemValueBinding, context.CreateValueBinding("Value", selectorConfiguration.SelectionType))
                 .SetProperty(c => c.SelectedValue, props.Property)
                 .SetProperty(c => c.Enabled, props.Enabled)
                 .SetProperty(c => c.SelectionChanged, props.Changed);
