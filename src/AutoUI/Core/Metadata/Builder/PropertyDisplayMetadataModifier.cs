@@ -68,7 +68,7 @@ public class PropertyDisplayMetadataModifier
         actions.Add(m =>
         {
             m.AutoGenerateField = true;
-            m.VisibleAttributes = new[] { new VisibleAttribute() { ViewNames = viewNames } };
+            m.VisibleAttributes.Add(new VisibleAttribute() { ViewNames = viewNames });
         });
         return this;
     }
@@ -78,7 +78,7 @@ public class PropertyDisplayMetadataModifier
         actions.Add(m =>
         {
             m.AutoGenerateField = true;
-            m.VisibleAttributes = new[] { new VisibleAttribute() { Roles = roles } };
+            m.VisibleAttributes.Add(new VisibleAttribute() { Roles = roles });
         });
         return this;
     }
@@ -88,7 +88,7 @@ public class PropertyDisplayMetadataModifier
         actions.Add(m =>
         {
             m.AutoGenerateField = true;
-            m.VisibleAttributes = new[] { new VisibleAttribute() { IsAuthenticated = mode } };
+            m.VisibleAttributes.Add(new VisibleAttribute() { IsAuthenticated = mode });
         });
         return this;
     }
@@ -110,7 +110,7 @@ public class PropertyDisplayMetadataModifier
         actions.Add(m =>
         {
             m.IsEditable = true;
-            m.EnabledAttributes = new[] { new EnabledAttribute() { ViewNames = viewNames } };
+            m.EnabledAttributes.Add(new EnabledAttribute() { ViewNames = viewNames });
         });
         return this;
     }
@@ -120,7 +120,7 @@ public class PropertyDisplayMetadataModifier
         actions.Add(m =>
         {
             m.IsEditable = true;
-            m.EnabledAttributes = new[] { new EnabledAttribute() { Roles = roles } };
+            m.EnabledAttributes.Add(new EnabledAttribute() { Roles = roles });
         });
         return this;
     }
@@ -129,7 +129,7 @@ public class PropertyDisplayMetadataModifier
     {
         actions.Add(m => {
             m.IsEditable = true;
-            m.EnabledAttributes = new[] { new EnabledAttribute() { IsAuthenticated = mode } };
+            m.EnabledAttributes.Add(new EnabledAttribute() { IsAuthenticated = mode });
         });
         return this;
     }
