@@ -327,7 +327,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                     if (newContents[index] && newContents[index][notifySymbol as any]) {
                         continue
                     }
-                    if (compileConstants.debug && newContents[index]) {
+                    if (compileConstants.debug && ko.isObservable(newContents[index])) {
                         logWarning("state-manager", `Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, unmapKnockoutObservables(newContents[index]))
                     }
                     const indexForClosure = index

@@ -468,3 +468,41 @@ test("remove on observable array - state is updated immediately", () => {
     expect(vm.Array.state.length).toEqual(2)
 
 })
+
+test("push on observable array - no warning when the new item is not observable", () => {
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 },
+        { Id: 4 },
+    ])
+    s.doUpdateNow();
+    expect(vm.Array().length).toEqual(3)
+    
+    const warn = jest.spyOn(console, 'warn');
+    try {
+        vm.Array.push({ Id: 5 });
+        expect(warn).toHaveBeenCalledTimes(0);
+    }
+    finally {
+        warn.mockRestore();
+    }
+})
+
+test("push on observable array - keep warning when the new item is observable", () => {
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 },
+        { Id: 4 },
+    ])
+    s.doUpdateNow();
+    expect(vm.Array().length).toEqual(3)
+    
+    const warn = jest.spyOn(console, 'warn');
+    try {
+        vm.Array.push(ko.observable({ Id: ko.observable(5) }));
+        expect(warn).toHaveBeenCalled();
+    }
+    finally {
+        warn.mockRestore();
+    }
+})
