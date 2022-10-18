@@ -498,14 +498,17 @@ namespace DotVVM.Framework.Hosting
                 { // fine, this is allowed even cross-site
                 }
                 // if SPA is used, dest will be empty, since it's initiated from JS
-                // we only allow this with the X-DotVVM-SpaContentPlaceHolder header
+                // every SPA request has the X-DotVVM-SpaContentPlaceHolder header
                 // we "trust" the client - as if he lies about it being a SPA request,
                 // he'll will just get a redirect response, not anything useful
+                //
+                // however, it is possible that destination is empty also when
+                // restoring closed tabs (tested on chrome)
+                // therefore, we can not discard non-SPA requests either
+
                 else if (dest is "empty")
                 {
-                    if (!DetermineSpaRequest(context.HttpContext))
-                        await context.RejectRequest($"Pages can not be loaded using Javascript for security reasons. If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.DisableForRoute(\"{route}\")");
-                    if (site != "same-origin")
+                    if (DetermineSpaRequest(context.HttpContext) && site != "same-origin")
                         await context.RejectRequest($"Cross site SPA requests are disabled.");
                 }
                 else
