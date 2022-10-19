@@ -12,37 +12,52 @@
         .alt-row {
             background-color: #FFFFBB;
         }
+        td {
+            padding-right: 20px;
+        }
     </style>
     <dot:RequiredResource Name="globalize:cs-CZ" />
 </head>
 <body>
-    <div class="container" class="a" data-attribute="&lt;">
-
+    <div class="container">
 
         <h1>Task List</h1>
 
-        <fieldset data-testattribute>
+        <fieldset>
             <legend>Add Task</legend>
 
-            <p>Title: <dot:TextBox text="{value: NewTaskTitle}" /></p>
-            <p><dot:Button text="Create" Click="{command: AddTask()}" /></p>
+            <p>Title: <dot:TextBox text={value: NewTaskTitle} /></p>
+            <p>
+                <dot:Button text="Create (command)" Click={command: AddTask()} />
+                <dot:Button text="Create" Click={staticCommand: Tasks.Add(TaskListViewModel.CreateTask(NewTaskTitle));
+                                                                NewTaskName = ""} />
+            </p>
         </fieldset>
         <p>&nbsp;</p>
 
         <table class="table">
-            <dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
-                <tr Class-completed="{value: IsCompleted}" Class-alt-row="{value: _collection.IsEven}">
+            <dot:Repeater DataSource={value: Tasks} WrapperTagName=tbody>
+                <tr Class-completed={value: IsCompleted}
+                    Class-alt-row={value: _collection.IsEven}>
                     <td>{{value: Title}}</td>
                     <td>
                         <dot:LinkButton Text="done"
-                                        Click="{command: _parent.CompleteTask(TaskId)}"
-                                        Visible="{value: !IsCompleted}" ></dot:LinkButton>
+                                        Click={command: _parent.CompleteTask(TaskId)}
+                                        Visible={value: !IsCompleted} />
+                    </td>
+                    <td>
+                        <dot:LinkButton Text="done (static command)"
+                                        Click={staticCommand: _root.Tasks[_index] = TaskListViewModel.StaticCompleteTask(_this)}
+                                        Visible={value: !IsCompleted} />
+                    </td>
+                    <td>
+                        <dot:LinkButton Text="done (client-side)"
+                                        Click={staticCommand: IsCompleted = true}
+                                        Visible={value: !IsCompleted} />
                     </td>
                 </tr>
             </dot:Repeater>
         </table>
-
-        <dot:Button Click="{command: SaveDataAsync()}" Text="Save to db" />
     </div>
 
     <%-- server-side comment not rendered in html --%>

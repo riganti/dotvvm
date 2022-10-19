@@ -53,6 +53,18 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.TaskList
             Tasks.Single(t => t.TaskId == id).IsCompleted = true;
         }
 
+        [AllowStaticCommand]
+        public static TaskViewModel StaticCompleteTask(TaskViewModel task)
+        {
+            task.IsCompleted = true;
+            return task;
+        }
+        [AllowStaticCommand]
+        public static TaskViewModel CreateTask(string task)
+        {
+            return new TaskViewModel { TaskId = Guid.NewGuid(), Title = task };
+        }
+
     }
 
     public class TaskViewModel
