@@ -161,7 +161,7 @@
       },
       "OverrideTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
-        "mappingMode": "Both",
+        "mappingMode": "InnerElement",
         "fromCapability": "Props"
       },
       "Property": {
@@ -204,7 +204,7 @@
       },
       "ContentTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
-        "mappingMode": "Both",
+        "mappingMode": "InnerElement",
         "fromCapability": "Props"
       },
       "Property": {
@@ -1310,6 +1310,11 @@
       "Value": {
         "type": "System.Object",
         "isActive": true
+      }
+    },
+    "DotvvmMarkupControl-YYPITyOzVEL518wclEMJZw==": {
+      "SomeProperty": {
+        "type": "System.String"
       }
     }
   },
