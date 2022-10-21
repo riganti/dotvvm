@@ -11,7 +11,6 @@ import { logWarning } from "./utils/logging";
 import { observable } from "knockout";
 import {ValidationError} from "./validation/error";
 import { errorsSymbol } from "./validation/common";
-import { showUploadDialog } from "./controls/fileUpload";
 
 
 export const currentStateSymbol = Symbol("currentState")
