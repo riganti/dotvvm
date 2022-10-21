@@ -80,18 +80,27 @@ export class KnockoutTemplateReactComponent extends React.Component<KnockoutTemp
  * * Usage: `props.setProps({ myProperty: props.myProperty + 1 })`
  */
 export const registerReactControl = (ReactControl, defaultProps = {}) => ({
-    create: (elm, props, commands, templates, setProps) => {
+    create: (elm, props, commands, templates, setPropsRaw) => {
         const initialProps = { setProps, ...defaultProps, ...commands, ...templates }
         let currentProps = { ...initialProps, ...props };
-        ReactDOM.render(<ReactControl {...currentProps} />, elm);
         return {
             updateProps(updatedProps) {
                 currentProps = { ...currentProps, ...updatedProps }
-                ReactDOM.render(<ReactControl {...currentProps} />, elm);
+                rerender()
             },
             dispose() {
                 ReactDOM.unmountComponentAtNode(elm)
             }
+        }
+
+        function rerender() {
+            ReactDOM.render(<ReactControl {...currentProps} />, elm);
+        }
+
+        function setProps(updatedProps) {
+            currentProps = { ...currentProps, ...updatedProps }
+            setPropsRaw(updatedProps)
+            rerender()
         }
     }
 });
