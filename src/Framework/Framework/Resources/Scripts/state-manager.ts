@@ -11,6 +11,7 @@ import { logWarning } from "./utils/logging";
 import { observable } from "knockout";
 import {ValidationError} from "./validation/error";
 import { errorsSymbol } from "./validation/common";
+import { showUploadDialog } from "./controls/fileUpload";
 
 
 export const currentStateSymbol = Symbol("currentState")
@@ -196,31 +197,48 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
 }
 
 export function unmapKnockoutObservables(viewModel: any): any {
-    viewModel = ko.unwrap(viewModel)
-    if (isPrimitive(viewModel)) {
-        return viewModel
+    const options = { 
+        shouldLogWarning: false
+    };
+    const result = unmapKnockoutObservablesCore(viewModel, options);
+    if (compileConstants.debug && options.shouldLogWarning) {
+        logWarning("state-manager", `Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, ko.toJS(viewModel))
+    }
+    return result;
+}
+
+function unmapKnockoutObservablesCore(viewModel: any, options: { shouldLogWarning: boolean }): any {
+    const value = ko.unwrap(viewModel)
+
+    if (viewModel !== value && !viewModel[notifySymbol]) {
+        // we've found custom observable
+        options.shouldLogWarning = true;
     }
 
-    if (viewModel instanceof Date) {
-        // return serializeDate(viewModel)
-        return viewModel
+    if (isPrimitive(value)) {
+        return value
+    }
+
+    if (value instanceof Date) {
+        // return serializeDate(value)
+        return value
     }
 
     // This is a bad idea as it does not register in the knockout dependency tracker and the caller is not triggered on change
 
-    // if (currentStateSymbol in viewModel) {
-    //     return viewModel[currentStateSymbol]
+    // if (currentStateSymbol in value) {
+    //     return value[currentStateSymbol]
     // }
 
-    if (viewModel instanceof Array) {
-        return viewModel.map(unmapKnockoutObservables)
+    if (value instanceof Array) {
+        return value.map(i => unmapKnockoutObservablesCore(i, options))
     }
 
     const result: any = {};
-    for (const prop of keys(viewModel)) {
-        const value = ko.unwrap(viewModel[prop])
-        if (typeof value != "function") {
-            result[prop] = unmapKnockoutObservables(value)
+    for (const prop of keys(value)) {
+        const v = ko.unwrap(value[prop])
+        if (typeof v != "function") {
+            result[prop] = unmapKnockoutObservablesCore(value[prop], options)
         }
     }
     return result
@@ -326,9 +344,6 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                 for (let index = 0; index < newVal.length; index++) {
                     if (newContents[index] && newContents[index][notifySymbol as any]) {
                         continue
-                    }
-                    if (compileConstants.debug && ko.isObservable(newContents[index])) {
-                        logWarning("state-manager", `Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, unmapKnockoutObservables(newContents[index]))
                     }
                     const indexForClosure = index
                     newContents[index] = createWrappedObservable(newVal[index], Array.isArray(typeHint) ? typeHint[0] : void 0, update => updater((viewModelArray: any) => {
