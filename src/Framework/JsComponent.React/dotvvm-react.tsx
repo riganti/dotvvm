@@ -1,5 +1,4 @@
-﻿/// <reference path="../../Framework/Framework/obj/typescript-types/dotvvm.d.ts" />
-import * as React from 'react';
+﻿import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import type { StateManager } from 'state-manager';
 
