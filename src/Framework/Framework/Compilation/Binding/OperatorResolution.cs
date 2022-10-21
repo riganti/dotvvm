@@ -46,6 +46,16 @@ namespace DotVVM.Framework.Compilation.Binding
                 right = Expression.Constant(null, left.Type.MakeNullableType());
             }
 
+            // lift the other side to null
+            if (left.Type.IsNullable() && right.Type.IsValueType && !right.Type.IsNullable())
+            {
+                right = Expression.Convert(right, right.Type.MakeNullableType());
+            }
+            else if (right.Type.IsNullable() && left.Type.IsValueType && !left.Type.IsNullable())
+            {
+                left = Expression.Convert(left, left.Type.MakeNullableType());
+            }
+
             var leftType = left.Type.UnwrapNullableType();
             var rightType = right.Type.UnwrapNullableType();
 

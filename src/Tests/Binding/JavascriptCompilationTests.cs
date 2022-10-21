@@ -58,11 +58,57 @@ namespace DotVVM.Framework.Tests.Binding
             return JavascriptTranslator.FormatKnockoutScript(jsExpression);
         }
 
-        [TestMethod]
-        public void JavascriptCompilation_EnumComparison()
+        [DataTestMethod]
+        [DataRow("_this == 'Local'", "$data==\"Local\"")]
+        [DataRow("'Local' == _this", "\"Local\"==$data")]
+        [DataRow("_this == 2", "$data==\"Local\"")]
+        [DataRow("2 == _this", "\"Local\"==$data")]
+        [DataRow("_this & 'Local'", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"G0/GAE51KlQlMR5T\")&2,\"G0/GAE51KlQlMR5T\")")]
+        [DataRow("'Local' & _this", "dotvvm.translations.enums.fromInt(2&dotvvm.translations.enums.toInt($data,\"G0/GAE51KlQlMR5T\"),\"G0/GAE51KlQlMR5T\")")]
+        [DataRow("_this | 'Local'", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"G0/GAE51KlQlMR5T\")|2,\"G0/GAE51KlQlMR5T\")")]
+        [DataRow("_this & 1", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"G0/GAE51KlQlMR5T\")&1,\"G0/GAE51KlQlMR5T\")")]
+        [DataRow("1 & _this", "dotvvm.translations.enums.fromInt(1&dotvvm.translations.enums.toInt($data,\"G0/GAE51KlQlMR5T\"),\"G0/GAE51KlQlMR5T\")")]
+        public void JavascriptCompilation_EnumOperators(string expr, string expectedJs)
         {
-            var js = CompileBinding($"_this == 'Local'", typeof(DateTimeKind));
-            Assert.AreEqual("$data==\"Local\"", js);
+            var js = CompileBinding(expr, typeof(DateTimeKind));
+            Assert.AreEqual(expectedJs, js);
+        }
+
+        [DataTestMethod]
+        [DataRow("StringProp + StringProp", "(StringProp()??\"\")+(StringProp()??\"\")")]
+        [DataRow("StringProp + null", "StringProp()??\"\"")]
+        [DataRow("null + StringProp", "StringProp()??\"\"")]
+        [DataRow("'' + StringProp", "StringProp()??\"\"")]
+        [DataRow("BoolProp + StringProp", "BoolProp()+(StringProp()??\"\")")]
+        [DataRow("IntProp + IntProp + 'aa'", "IntProp()+IntProp()+\"aa\"")]
+        [DataRow("DoubleProp + 'aa'", "DoubleProp()+\"aa\"")]
+        [DataRow("'a' + DoubleProp", "\"a\"+DoubleProp()")]
+        [DataRow("'a' + NullableIntProp + null", "\"a\"+(NullableIntProp()??\"\")")]
+        public void JavascriptCompilation_StringPlus(string expr, string expectedJs)
+        {
+            var js = CompileBinding(expr, typeof(TestViewModel));
+            Assert.AreEqual(expectedJs, js);
+        }
+
+        [DataTestMethod]
+        [DataRow("NullableIntProp + NullableDoubleProp", "NullableIntProp()+NullableDoubleProp()")]
+        [DataRow("NullableIntProp & NullableIntProp", "NullableIntProp()&NullableIntProp()")]
+        [DataRow("NullableIntProp | NullableIntProp", "NullableIntProp()|NullableIntProp()")]
+        [DataRow("NullableIntProp ^ NullableIntProp", "NullableIntProp()^NullableIntProp()")]
+        [DataRow("NullableIntProp + 10", "NullableIntProp()+10")]
+        [DataRow("NullableIntProp - 10L", "NullableIntProp()-10")]
+        [DataRow("NullableIntProp / 10.0", "NullableIntProp()/10.0")]
+        [DataRow("10.0 / NullableIntProp", "10.0/NullableIntProp()")]
+        [DataRow("null / NullableIntProp", "null/NullableIntProp()")]
+        [DataRow("null == NullableIntProp", "null==NullableIntProp()")]
+        [DataRow("10 > NullableIntProp", "10>NullableIntProp()")]
+        [DataRow("NullableDoubleProp < 10", "NullableDoubleProp()<10")]
+        [DataRow("10+null", "10+null")]
+        [DataRow("10+null", "10+null")]
+        public void JavascriptCompilation_NullableOps(string expr, string expectedJs)
+        {
+            var js = CompileBinding(expr, typeof(TestViewModel));
+            Assert.AreEqual(expectedJs, js);
         }
 
         [TestMethod]
