@@ -10,7 +10,14 @@ namespace DotVVM.Framework.Controls
     [DotvvmControlCapability]
     public sealed record TextOrContentCapability
     {
+        /// <summary>
+        /// Gets or sets the text inside the control.
+        /// </summary>
         public ValueOrBinding<string>? Text { get; init; }
+
+        /// <summary>
+        /// Gets or sets the content placed inside the control.
+        /// </summary>
         public List<DotvvmControl>? Content { get; init; }
 
         public TextOrContentCapability() { }
