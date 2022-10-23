@@ -198,6 +198,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater", "Views/FeatureSamples/PostBack/RecursiveTextRepeater.dotcontrol");
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater2", "Views/FeatureSamples/PostBack/RecursiveTextRepeater2.dotcontrol");
             config.Markup.AddMarkupControl("cc", "ModuleControl", "Views/FeatureSamples/ViewModules/ModuleControl.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "LinkModuleControl", "Views/FeatureSamples/ViewModules/LinkModuleControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "Incrementer", "Views/FeatureSamples/ViewModules/Incrementer.dotcontrol");
             config.Markup.AddMarkupControl("cc", "TemplatedListControl", "Views/ControlSamples/TemplateHost/TemplatedListControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "TemplatedMarkupControl", "Views/ControlSamples/TemplateHost/TemplatedMarkupControl.dotcontrol");

@@ -11,6 +11,7 @@ import {
     serializeTimeSpan
 } from "../serialization/date";
 import { CoerceError } from "../shared-classes";
+import { isNumber } from "../utils/isNumber";
 
 type PrimitiveTypes = { 
     [name: string]: { 
@@ -93,44 +94,21 @@ export const primitiveTypes: PrimitiveTypes = {
 };
 
 function validateInt(value: any, min: number, max: number) {
-    let wasCoerced = false;
-    if (typeof value === "string") {
-        if (value === "") {
-            return;
-        }
-        value = Number(value);
-        if (isNaN(value)) {
-            return;
-        }
-        wasCoerced = true;
-    } else if (typeof value !== "number") {
-        return;
+    const originalValue = value
+    if (!isNumber(value)) {
+        return
     }
+    value = Number(value)
+    value = Math.trunc(value)
     
-    if (Math.trunc(value) !== value) {
-        value = Math.trunc(value);
-        wasCoerced = true;
-    }
-    
-    if (!isNaN(value) && value >= min && value <= max) {
-        return { value, wasCoerced };
+    if (value >= min && value <= max) {
+        return { value, wasCoerced: value !== originalValue };
     }
 }
 
 function validateFloat(value: any) {
-    let wasCoerced = false;
-    if (typeof value === "string") {
-        value = Number(value);
-        if (isNaN(value)) {
-            return;
-        }
-        wasCoerced = true;
-    } else if (typeof value !== "number") {
-        return;
-    }
-        
-    if (!isNaN(value)) {
-        return { value, wasCoerced };
+    if (isNumber(value)) {
+        return { value: +value, wasCoerced: value !== +value };
     }
 }
 

@@ -11,6 +11,8 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Utils;
 using System.Linq;
 using System.Collections.Immutable;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
@@ -63,22 +65,42 @@ namespace DotVVM.Framework.Compilation.Directives
                 }
             }
 
-            if (DirectiveNodesByName.TryGetValue(ParserConstants.PropertyDeclarationDirective, out var abstractDirectives) && abstractDirectives.Any())
+            if (DirectiveNodesByName.TryGetValue(ParserConstants.PropertyDeclarationDirective, out var propertyDirectives) && propertyDirectives.Any())
             {
-                wrapperType = CreateDymanicDeclaringType(wrapperType) ?? wrapperType;
+                wrapperType = CreateDynamicDeclaringType(wrapperType, propertyDirectives) ?? wrapperType;
             }
 
             return wrapperType;
         }
 
-        protected virtual ITypeDescriptor? CreateDymanicDeclaringType(ITypeDescriptor? originalWrapperType)
+        /// <summary> Gets or creates dynamic declaring type, and registers on it the properties declared using `@property` directives </summary>
+        protected virtual ITypeDescriptor? CreateDynamicDeclaringType(
+            ITypeDescriptor? originalWrapperType,
+            IEnumerable<DothtmlDirectiveNode> propertyDirectives
+        )
         {
+            var imports = DirectiveNodesByName.GetValueOrDefault(ParserConstants.ImportNamespaceDirective, Array.Empty<DothtmlDirectiveNode>())
+                .Select(d => d.Value.Trim()).OrderBy(s => s).ToImmutableArray();
+            var properties = propertyDirectives
+                .Select(p => p.Value.Trim()).OrderBy(s => s).ToImmutableArray();
             var baseType = originalWrapperType?.CastTo<ResolvedTypeDescriptor>().Type ?? typeof(DotvvmMarkupControl);
 
-            var declaringTypeBuilder = DynamicMarkupControlAssembly.Value.DefineType(
-                $"DotvvmMarkupControl-{Guid.NewGuid()}",
-                 TypeAttributes.Public, baseType);
+            using var sha = SHA256.Create();
+            var hashBytes = sha.ComputeHash(
+                new UTF8Encoding(false).GetBytes(
+                    baseType.FullName + "||" + string.Join("|", imports) + "||" + string.Join("|", properties)
+                )
+            );
+            var hash = Convert.ToBase64String(hashBytes, 0, 16);
 
+            var typeName = "DotvvmMarkupControl-" + hash;
+            if (DynamicMarkupControlAssembly.Value.GetType(typeName) is { } type)
+            {
+                return new ResolvedTypeDescriptor(type);
+            }
+
+            var declaringTypeBuilder =
+                DynamicMarkupControlAssembly.Value.DefineType(typeName, TypeAttributes.Public, baseType);
             var createdTypeInfo = declaringTypeBuilder.CreateTypeInfo()?.AsType();
 
             return createdTypeInfo is not null

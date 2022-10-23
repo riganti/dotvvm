@@ -1,4 +1,4 @@
-﻿import * as stringHelper from '../utils/stringHelper'
+﻿import * as stringHelper from '../translations/stringHelper'
 
 test("string.Contains translation", () => {
     expect(stringHelper.contains("Hello world", "world", "")).toBe(true);

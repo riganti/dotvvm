@@ -275,6 +275,29 @@ namespace DotVVM.Framework.Utils
             typeof (double),
             typeof (decimal)
         };
+        private static readonly HashSet<Type> IntegerNumericTypes = new HashSet<Type>()
+        {
+            typeof (sbyte),
+            typeof (byte),
+            typeof (short),
+            typeof (ushort),
+            typeof (int),
+            typeof (uint),
+            typeof (long),
+            typeof (ulong),
+            typeof (char),
+        };
+        private static readonly HashSet<Type> RealNumericTypes = new HashSet<Type>()
+        {
+            typeof (float),
+            typeof (double),
+            typeof (decimal)
+        };
+
+        public static IEnumerable<Type> GetNumericTypes()
+        {
+            return NumericTypes;
+        }
 
         private static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
             typeof(string), typeof(char),
@@ -285,20 +308,10 @@ namespace DotVVM.Framework.Utils
             typeof(float), typeof(double), typeof(decimal)
         };
 
-        public static bool IsNumericType(this Type type)
-        {
-            return NumericTypes.Contains(type);
-        }
-
-        public static IEnumerable<Type> GetNumericTypes()
-        {
-            return NumericTypes;
-        }
-
-        public static bool IsDateOrTimeType(this Type type)
-        {
-            return DateTimeTypes.Contains(type);
-        }
+        public static bool IsNumericType(this Type type) => NumericTypes.Contains(type);
+        public static bool IsDateOrTimeType(this Type type) => DateTimeTypes.Contains(type);
+        public static bool IsIntegerNumericType(this Type type) => IntegerNumericTypes.Contains(type);
+        public static bool IsRealNumericType(this Type type) => RealNumericTypes.Contains(type);
 
         /// <summary> Return true for Tuple, ValueTuple, KeyValuePair </summary>
         public static bool IsTupleLike(Type type) =>
@@ -498,7 +511,7 @@ namespace DotVVM.Framework.Utils
             {
                 return instance.ToString()!;
             }
-            else if (typeof(T).GetCustomAttribute<FlagsAttribute>() != null)
+            else if (EnumInfo<T>.IsFlags)
             {
                 return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value));
             }
@@ -526,6 +539,7 @@ namespace DotVVM.Framework.Utils
         internal static class EnumInfo<T> where T: struct, Enum
         {
             internal static readonly bool HasEnumMemberField;
+            internal static readonly bool IsFlags;
 
             static EnumInfo()
             {
@@ -537,6 +551,7 @@ namespace DotVVM.Framework.Utils
                         break;
                     }
                 }
+                IsFlags = typeof(T).IsDefined(typeof(FlagsAttribute));
             }
         }
         

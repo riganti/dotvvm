@@ -323,12 +323,29 @@ namespace DotVVM.Framework.Compilation.Binding
         /// </summary>
         public static Expression? ImplicitNumericConversion(Expression src, Type target)
         {
+            if (src.Type == target)
+                return src;
+
             if (ImplicitNumericConversions.TryGetValue(src.Type, out var allowed))
             {
                 if (allowed.Contains(target))
                 {
                     return Expression.Convert(src, target);
                 }
+            }
+            // enum -> int and int -> enum are non-standard, but we need them as long as we don't support explicit conversions
+            if (src.Type.IsEnum && target.IsEnum)
+                return null;
+
+            if (src.Type.IsEnum)
+            {
+                var enumType = src.Type.GetEnumUnderlyingType();
+                return ImplicitNumericConversion(Expression.Convert(src, enumType), target);
+            }
+            if (target.IsEnum)
+            {
+                var enumType = target.GetEnumUnderlyingType();
+                return ImplicitNumericConversion(src, enumType)?.Apply(c => Expression.Convert(c, target));
             }
             return null;
         }
