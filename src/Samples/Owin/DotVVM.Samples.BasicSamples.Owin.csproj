@@ -5,7 +5,7 @@
     <OverwriteAppConfigWithBindingRedirects>true</OverwriteAppConfigWithBindingRedirects>
     <LangVersion>latest</LangVersion>
     <RunCommand>$(MSBuildExtensionsPath64)\..\IIS Express\iisexpress</RunCommand>
-    <RunArguments>/path:&quot;$(MSBuildProjectDirectory)&quot; /port:65481</RunArguments>
+    <RunArguments>/path:"$(MSBuildProjectDirectory)" /port:65481</RunArguments>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,7 +36,7 @@
     <PackageReference Include="Microsoft.Owin.StaticFiles" Version="3.0.1" />
     <PackageReference Include="Microsoft.Owin.FileSystems" Version="3.0.1" />
     <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="3.0.1" />
-    <PackageReference Include="Microsoft.Owin" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Owin" Version="4.2.2" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Owin" Version="1.0.0" />
   </ItemGroup>
