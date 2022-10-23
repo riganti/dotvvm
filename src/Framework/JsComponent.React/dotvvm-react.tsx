@@ -82,7 +82,8 @@ export class KnockoutTemplateReactComponent extends React.Component<KnockoutTemp
 export const registerReactControl = (ReactControl, defaultProps = {}) => ({
     create: (elm, props, commands, templates, setPropsRaw) => {
         const initialProps = { setProps, ...defaultProps, ...commands, ...templates }
-        let currentProps = { ...initialProps, ...props };
+        let currentProps = { ...initialProps, ...props }
+        rerender()
         return {
             updateProps(updatedProps) {
                 currentProps = { ...currentProps, ...updatedProps }
