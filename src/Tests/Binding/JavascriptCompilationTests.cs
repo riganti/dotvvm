@@ -266,6 +266,23 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JavascriptCompilation_ParentReference()
+        {
+            var result = bindingHelper.ValueBinding<object>("_parent", new [] {typeof(TestViewModel), typeof(string) });
+            Assert.AreEqual("$parent", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("$parentContext.$rawData", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("$parentContext.$rawData", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+        [TestMethod]
+        public void JavascriptCompilation_ParentPropertyReference()
+        {
+            var result = bindingHelper.ValueBinding<object>("_parent.StringProp", new [] {typeof(TestViewModel), typeof(string) });
+            Assert.AreEqual("$parent.StringProp()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("$parent.StringProp", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("$parent.StringProp", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_WrappedPropertyAccessExpression()
         {
             var result = bindingHelper.ValueBinding<object>("StringProp", new [] {typeof(TestViewModel) });
