@@ -36,51 +36,11 @@ export function parseDate(value: string | null, convertFromUtc: boolean = false)
 }
 
 export function parseDateOnly(value: string | null): Date | null {
-    if (value == null) return null;
-    const match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})$");
-    if (match) {
-        const date = new Date(0);
-        let year = parseInt(match[1], 10);
-        let month = parseInt(match[2], 10) - 1;
-        let day = parseInt(match[3], 10);
-
-        //Javascript date object does not support month 00 and rolls to december.
-        //In case of user input of 00 we correct it to january.
-        //This is more user friendly than suddendly having december.
-        month = month < 0 ? 0 : month;
-
-        //Javascript date object does not support day 0 and rolls to 30 or 31 and rolls the month value to previous month.
-        //This results in unpredictable behaviour if user inputs 00 into date input field for instance
-        //We sanitize it to 1st of the same month to avoid this unpredictability
-        day = day < 1 ? 1 : day;
-
-        //We set components of the date by hand, this prevents JS from 'correcting' years 00XX to 19XX
-        date.setDate(day);
-        date.setMonth(month);
-        date.setFullYear(year);
-        return date;
-    }
-    return null;
+    return parseDate(`${value}T00:00:00.00`, false);
 }
 
 export function parseTimeOnly(value: string | null): Date | null {
-    if (value == null) return null;
-    const match = value.match("^([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{1,7})$");
-    if (match) {
-        const date = new Date(0);
-        let hours = parseInt(match[1], 10);
-        let minutes = parseInt(match[2], 10);
-        let seconds = parseInt(match[3], 10);
-        let milliseconds = match.length > 4 ? parseInt(match[4].substring(1, 4), 10) : 0;
-
-        //We set components of the date by hand, this prevents JS from 'correcting' years 00XX to 19XX
-        date.setMilliseconds(milliseconds);
-        date.setSeconds(seconds);
-        date.setMinutes(minutes);
-        date.setHours(hours);
-        return date;
-    }
-    return null;
+    return parseDate(`0000-00-00T${value}`, false);
 }
 
 export function parseTimeSpan(value: string | null): number | null {
