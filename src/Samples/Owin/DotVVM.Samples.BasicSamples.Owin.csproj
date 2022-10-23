@@ -31,11 +31,11 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />
-    <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="3.0.1" />
-    <PackageReference Include="Microsoft.Owin.StaticFiles" Version="3.0.1" />
-    <PackageReference Include="Microsoft.Owin.FileSystems" Version="3.0.1" />
-    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Owin.Security" Version="4.2.2" />
+    <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.2.2" />
+    <PackageReference Include="Microsoft.Owin.StaticFiles" Version="4.2.2" />
+    <PackageReference Include="Microsoft.Owin.FileSystems" Version="4.2.2" />
+    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
     <PackageReference Include="Microsoft.Owin" Version="4.2.2" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Owin" Version="1.0.0" />
