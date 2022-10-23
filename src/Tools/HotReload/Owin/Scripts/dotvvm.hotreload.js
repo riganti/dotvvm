@@ -13,8 +13,8 @@
             window.location.reload();
         };
         $.connection.hub.start()
-            .done(function() { dotvvm.log.logInfo('DotVVM view hot reload active.'); })
-            .fail(function(e) { dotvvm.log.logWarning('DotVVM view hot reload error!', e); });
+            .done(function() { console.log('DotVVM view hot reload active.'); })
+            .fail(function(e) { console.warn('DotVVM view hot reload error!', e); });
     }
 
     if (typeof dotvvm !== "undefined") {
