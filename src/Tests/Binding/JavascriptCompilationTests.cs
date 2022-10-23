@@ -257,6 +257,32 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JavascriptCompilation_BindingDateToString()
+        {
+            var result = bindingHelper.ValueBinding<object>("_this.ToString()", new [] { typeof(DateTime) });
+            Assert.AreEqual("dotvvm.globalize.bindingDateToString($rawData)()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("dotvvm.globalize.bindingDateToString($rawData)", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("dotvvm.globalize.bindingDateToString($rawData)", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_ParentReference()
+        {
+            var result = bindingHelper.ValueBinding<object>("_parent", new [] {typeof(TestViewModel), typeof(string) });
+            Assert.AreEqual("$parent", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("$parentContext.$rawData", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("$parentContext.$rawData", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+        [TestMethod]
+        public void JavascriptCompilation_ParentPropertyReference()
+        {
+            var result = bindingHelper.ValueBinding<object>("_parent.StringProp", new [] {typeof(TestViewModel), typeof(string) });
+            Assert.AreEqual("$parent.StringProp()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("$parent.StringProp", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("$parent.StringProp", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_WrappedPropertyAccessExpression()
         {
             var result = bindingHelper.ValueBinding<object>("StringProp", new [] {typeof(TestViewModel) });
@@ -350,6 +376,17 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(result, resultImplicit);
             Assert.AreEqual("EnumProperty", result);
         }
+
+        [DataTestMethod]
+        [DataRow("EnumProperty = IntProp", "EnumProperty(dotvvm.translations.enums.fromInt(IntProp(),\"nEayAzHQ5xyCfSP6\")).EnumProperty", DisplayName = "EnumProperty = IntProp")]
+        [DataRow("EnumProperty & TestEnum.B", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"nEayAzHQ5xyCfSP6\")&1,\"nEayAzHQ5xyCfSP6\")", DisplayName = "EnumProperty & TestEnum.B")]
+        [DataRow("EnumProperty + 1", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"nEayAzHQ5xyCfSP6\")+1,\"nEayAzHQ5xyCfSP6\")", DisplayName = "EnumProperty + 1")]
+        public void JavascriptCompilation_EnumOperations(string expr, string expectedJs)
+        {
+            var js = CompileBinding(expr, new [] { typeof(TestViewModel) });
+            Assert.AreEqual(expectedJs, js);
+        }
+
 
         [TestMethod]
         public void JsTranslator_DataContextShift()

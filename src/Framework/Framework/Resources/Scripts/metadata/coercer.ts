@@ -1,6 +1,7 @@
 import { serializeDate } from "../serialization/date";
 import { CoerceError } from "../shared-classes";
 import { keys } from "../utils/objects";
+import { tryCoerceEnum } from "./enums";
 import { primitiveTypes } from "./primitiveTypes";
 import { getObjectTypeInfo, getTypeInfo } from "./typeMap";
 
@@ -40,9 +41,9 @@ export function tryCoerce(value: any, type: TypeDefinition, originalValue: any =
                 }
                 else if (typeInfo && typeInfo.type === "enum") {
                     return tryCoerceEnum(value, typeInfo);
-                }            
+                }
             }
-        } 
+        }
         return new CoerceError(`Unsupported type metadata ${JSON.stringify(type)}!`);
     }
 
@@ -70,108 +71,6 @@ function tryCoerceNullable(value: any, innerType: TypeDefinition, originalValue:
     } else {
         return tryCoerce(value, innerType, originalValue);
     }
-}    
-
-function tryCoerceEnum(value: any, type: EnumTypeMetadata): CoerceResult {
-    let wasCoerced = false;
-
-    // first try if its a number in a string
-    if (typeof value === "string" && value !== "") {
-        const numberValue = Number(value);
-        if (!isNaN(numberValue)) {
-            value = numberValue;
-            wasCoerced = true;
-        }
-    }
-
-    // string representation
-    if (typeof value === "string") {
-        if (type.isFlags) {
-            // flags - comma-separated values
-            const parts = value.split(',');
-            const matched: string[] = [];
-            let reorderRequired = false;
-
-            for (let i = 0; i < parts.length; i++) {
-                // trim the value if needed
-                const trimmed = parts[i].trim();
-                if (trimmed.length !== parts[i].length) {
-                    wasCoerced = true;
-                    parts[i] = trimmed;
-                }
-                if (parts[i] in type.values) {
-                    if (matched.includes(parts[i])) {
-                        continue;   // ignore duplicates
-                    }
-                    if (matched.length && type.values[matched[matched.length - 1]] > type.values[parts[i]]) {
-                        reorderRequired = true;
-                    }
-                    if (type.values[parts[i]] === 0 && parts.length > 1) {
-                        wasCoerced = true;  // zero member was in the list - we don't want it there if it's not the only one
-                    } else {
-                        matched.push(parts[i]);
-                    }
-                }
-                else {
-                    return new CoerceError(`Cannot cast '${parts[i]}' to type 'Enum(${keys(type.values).join(",")})'.`);
-                }
-            }
-
-            // even if we matched all enum members, we want the coerced result to be deterministic
-            if (reorderRequired) {
-                matched.sort((a, b) => type.values[a] - type.values[b]);
-                wasCoerced = true;
-            }
-            if (wasCoerced) {
-                value = matched.join(",")
-                return { value, wasCoerced };
-            } else {
-                return { value };
-            }
-
-        } else {
-            // single value
-            if (value in type.values) {
-                return { value };
-            }
-        }
-    }
-    if (typeof value === "number") {
-        if (type.isFlags) {
-            // try to represent the enum with comma-separated strings
-            if (value) {
-                let result: number = value | 0;
-                let stringValue = "";
-                for (const k of keys(type.values).reverse()) {
-                    if (type.values[k] !== 0 && (result & type.values[k]) === type.values[k]) {
-                        result -= type.values[k];
-                        if (stringValue !== "") stringValue = "," + stringValue;
-                        stringValue = k + stringValue;
-                    }
-                }            
-                if (!result) {
-                    return { value: stringValue, wasCoerced: true };
-                }
-            } else {
-                // zero may be represented by a separate entry
-                const matched = keys(type.values).filter(k => type.values[k] === 0);
-                if (matched.length) {
-                    return { value: matched[0], wasCoerced: true };
-                } else {
-                    return { value, wasCoerced };
-                }
-            }
-        } else {
-            const matched = keys(type.values).filter(k => type.values[k] === value);
-            if (matched.length) {
-                return { value: matched[0], wasCoerced: true }
-            }
-        }
-
-        // number value not in enum, keep it as a number
-        return { value: value | 0, wasCoerced }
-    }
-    return new CoerceError(`Cannot cast '${value}' to type 'Enum(${keys(type.values).join(",")})'.`);
 }
 
 function tryCoerceArray(value: any, innerType: TypeDefinition, originalValue: any): CoerceResult {
@@ -186,7 +85,7 @@ function tryCoerceArray(value: any, innerType: TypeDefinition, originalValue: an
         const items = [];
         for (let i = 0; i < value.length; i++) {
             const item = withPathError("#" + i, () => tryCoerce(value[i], innerType, originalValue[i]))
-            if (item.isError) {                
+            if (item.isError) {
                 return item
             }
             if (item.wasCoerced) {
@@ -254,7 +153,7 @@ function tryCoerceDynamic(value: any, originalValue: any): CoerceResult {
         // coerce array items (treat them as dynamic)
         return tryCoerceArray(value, { type: "dynamic" }, originalValue);
     } else if (value instanceof Date) {
-        value = serializeDate(value, false) 
+        value = serializeDate(value, false)
     } else if (value && typeof value === "object") {
         let innerType = value["$type"];
         if (typeof innerType === "string") {
@@ -279,7 +178,7 @@ function tryCoerceDynamic(value: any, originalValue: any): CoerceResult {
             return { value: { ...value, ...patch }, wasCoerced: true };
         }
     }
-    
+
     return { value };
 }
 
@@ -290,3 +189,4 @@ function withPathError(path: string, f: () => CoerceResult): CoerceResult {
     }
     return x
 }
+

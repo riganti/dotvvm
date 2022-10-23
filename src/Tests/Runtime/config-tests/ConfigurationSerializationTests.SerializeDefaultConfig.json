@@ -161,7 +161,7 @@
       },
       "OverrideTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
-        "mappingMode": "Both",
+        "mappingMode": "InnerElement",
         "fromCapability": "Props"
       },
       "Property": {
@@ -204,7 +204,7 @@
       },
       "ContentTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
-        "mappingMode": "Both",
+        "mappingMode": "InnerElement",
         "fromCapability": "Props"
       },
       "Property": {
