@@ -187,7 +187,7 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.TextEquals(ul.ElementAt("li", 1), "3: Blue");
 
                 // click button
-                browser.Single("input[type=button]").Click().Wait();
+                browser.Single("input[type=button]").Click();
                 AssertUI.IsNotChecked(checkboxes[0]);
                 AssertUI.IsChecked(checkboxes[1]);
                 AssertUI.IsNotChecked(checkboxes[2]);

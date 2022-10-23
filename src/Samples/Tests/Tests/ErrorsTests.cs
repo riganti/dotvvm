@@ -8,6 +8,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Riganti.Selenium.DotVVM;
 using OpenQA.Selenium;
+using System.Net.Http;
 
 namespace DotVVM.Samples.Tests
 {
@@ -313,7 +314,9 @@ namespace DotVVM.Samples.Tests
                 var query = link.Substring(startQuery + 2);
                 //Log("query: " + query);
                 var specificLink = "https://referencesource.microsoft.com/api/symbols/?symbol=" + query;
+#pragma warning disable SYSLIB0014 // obsolete warning, they can't remove this anyway :)
                 using (var wc = new System.Net.WebClient())
+#pragma warning restore SYSLIB0014
                 {
                     var downloadedString = wc.DownloadString(specificLink);
                     if (downloadedString.IndexOf("No results found", StringComparison.OrdinalIgnoreCase) != -1)
@@ -364,7 +367,9 @@ namespace DotVVM.Samples.Tests
                 var link = browser.FindElements("div.exceptionStackTrace  span.docLinks  a")
                     .First(s => s.Children.Any(c => c.GetTagName() == "img" && ((c.GetAttribute("src")?.IndexOf("github", StringComparison.OrdinalIgnoreCase) ?? -1) > -1)))
                     .GetAttribute("href");
+#pragma warning disable SYSLIB0014 // obsolete warning
                 var wr = (System.Net.HttpWebRequest)System.Net.WebRequest.CreateHttp(link);
+#pragma warning restore SYSLIB0014
 
                 using (var response = wr.GetResponse())
                 {
