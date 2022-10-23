@@ -49,6 +49,7 @@ namespace DotVVM.Framework.Tests.Runtime
             removeTestStuff(jobject["propertyGroups"]);
             removeTestStuff(jobject["capabilities"]);
             removeTestStuff(jobject["controls"]);
+            jobject["assemblies"]?.Parent.Remove(); // there are user specific paths
             check.CheckString(jobject.ToString(), checkName, fileExtension, memberName, sourceFilePath);
         }
 

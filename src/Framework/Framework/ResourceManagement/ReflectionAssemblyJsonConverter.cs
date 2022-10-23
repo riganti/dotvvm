@@ -67,7 +67,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             var t = ((ITypeDescriptor)value);
             var coreAssembly = typeof(string).Assembly.GetName().Name;
-            var assembly = t.Assembly?.Split(',', 2)[0];
+            var assembly = t.Assembly?.Split(new char[] { ',' }, 2)[0];
             if (assembly is null || assembly == coreAssembly)
                 writer.WriteValue(t.FullName);
             else
