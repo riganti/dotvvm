@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Hosting
                 assemblies.Add(mainAssembly);
             return new AssemblySerializableList(
                 assemblyDirs: assemblies.Select(a => IO.Path.GetDirectoryName(a.Location)).OfType<string>().Distinct().OrderBy(x => x).ToArray(),
-                assemblyNames: assemblies.Select(getName).OrderBy(x => x).ToArray(),
+                assemblyNames: assemblies.Select(getName).OrderBy(x => x).ToArray()!,
                 mainAssembly: getName(mainAssembly)
             );
         }

@@ -95,12 +95,13 @@ namespace DotVVM.Framework.Hosting
             {
                 foreach (var c in a.GetLoadableTypes())
                 {
+                    if (c.FullName is null) continue;
                     if (!typeof(DotvvmBindableObject).IsAssignableFrom(c)) continue;
 
                     var markupOptions = c.GetCustomAttribute<ControlMarkupOptionsAttribute>();
                     var interfaces = c.GetInterfaces().Except(c.BaseType?.GetInterfaces() ?? Array.Empty<Type>()).ToArray();
                     var control = new DotvvmControlInfo(
-                        c.Assembly.GetName().Name,
+                        c.Assembly?.GetName()?.Name,
                         c.BaseType,
                         interfaces: interfaces.Length > 0 ? interfaces : null,
                         isAbstract: c.IsAbstract || c.IsGenericType,
@@ -117,7 +118,7 @@ namespace DotVVM.Framework.Hosting
         static CommandArgumentInfo[]? GetCommandArguments(Type commandType)
         {
             if (commandType.IsDelegate(out var invoke) && invoke.GetParameters().Length > 0)
-                return invoke.GetParameters().Select(p => new CommandArgumentInfo(p.Name, p.ParameterType)).ToArray();
+                return invoke.GetParameters().Select(p => new CommandArgumentInfo(p.Name ?? "__no_name", p.ParameterType)).ToArray();
             else
                 return null;
         }
@@ -162,7 +163,7 @@ namespace DotVVM.Framework.Hosting
 
 
         public record DotvvmControlInfo(
-            string assembly,
+            string? assembly,
             Type? baseType,
             Type[]? interfaces,
             bool isAbstract,
