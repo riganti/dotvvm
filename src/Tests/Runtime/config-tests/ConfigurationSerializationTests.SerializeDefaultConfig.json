@@ -353,6 +353,9 @@
       },
       "CheckedItems": {
         "type": "System.Collections.IEnumerable"
+      },
+      "DisableIndeterminate": {
+        "type": "System.Boolean"
       }
     },
     "DotVVM.Framework.Controls.ClaimView": {
