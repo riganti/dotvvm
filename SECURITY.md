@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-When it comes to security updates, we always support the current major version.
+When it comes to security updates, we always support the current major version together with the latest preview version.
 Any vulnerabilities that affect older versions will be considered on a case-by-case basis.
 
 | Version | Supported          |
