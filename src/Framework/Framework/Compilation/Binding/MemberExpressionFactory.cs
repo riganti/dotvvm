@@ -87,7 +87,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else if (members[0] is FieldInfo field)
                 {
-                    return Expression.Field(instance, field);
+                    if (field.IsLiteral)
+                        return Expression.Constant(field.GetValue(null), field.FieldType);
+                    else
+                        return Expression.Field(instance, field);
                 }
                 else if (members[0] is Type nonGenericType)
                 {
@@ -638,6 +641,14 @@ namespace DotVVM.Framework.Compilation.Binding
             if (result != null) return result;
             if (operation == ExpressionType.Equal) return EqualsMethod(left, right);
             if (operation == ExpressionType.NotEqual) return Expression.Not(EqualsMethod(left, right));
+
+
+            // try converting left to right.Type and vice versa
+            // needed to enum with pseudo-string literal operations
+            // if (TypeConversion.ImplicitConversion(left, right.Type) is {} leftConverted)
+            //     return GetBinaryOperator(leftConverted, right, operation);
+            // if (TypeConversion.ImplicitConversion(right, left.Type) is {} rightConverted)
+            //     return GetBinaryOperator(left, rightConverted, operation);
 
             // lift the operator
             if (left.Type.IsNullable() || right.Type.IsNullable())

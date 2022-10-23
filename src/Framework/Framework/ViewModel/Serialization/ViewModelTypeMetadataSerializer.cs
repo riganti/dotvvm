@@ -6,7 +6,9 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.ViewModel.Serialization
@@ -15,7 +17,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     public class ViewModelTypeMetadataSerializer : IViewModelTypeMetadataSerializer
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
-
+        private readonly bool debug;
         private static readonly HashSet<Type> supportedPrimitiveTypes = new HashSet<Type>()
         {
             typeof(Boolean),
@@ -41,9 +43,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private static readonly ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies> cachedObjectMetadata = new ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies>();
         private static readonly ConcurrentDictionary<Type, JObject> cachedEnumMetadata = new ConcurrentDictionary<Type, JObject>();
 
-        public ViewModelTypeMetadataSerializer(IViewModelSerializationMapper viewModelSerializationMapper)
+        public ViewModelTypeMetadataSerializer(IViewModelSerializationMapper viewModelSerializationMapper, DotvvmConfiguration? config = null)
         {
             this.viewModelSerializationMapper = viewModelSerializationMapper;
+            this.debug = config != null && config.Debug;
         }
 
         public JToken SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, ISet<string>? ignoredTypes = null)
@@ -116,6 +119,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             var type = new JObject();
             type["type"] = "object";
+            if (debug)
+            {
+                type["debugName"] = map.Type.ToCode(stripNamespace: true);
+            }
 
             var properties = new JObject();
             foreach (var property in map.Properties.Where(p => p.IsAvailableOnClient()))
@@ -123,6 +130,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var prop = new JObject();
 
                 prop["type"] = GetTypeIdentifier(property.Type, dependentObjectTypes, dependentEnumTypes);
+
+                if (debug && property.Name != property.PropertyInfo.Name)
+                {
+                    prop["debugName"] = property.PropertyInfo.Name;
+                }
 
                 if (property.TransferToServerOnlyInPath)
                 {
@@ -205,6 +217,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var e = new JObject();
             e["type"] = "enum";
             e["isFlags"] = ReflectionUtils.GetCustomAttribute<FlagsAttribute>(type) != null;
+
+            if (debug)
+            {
+                e["debugName"] = type.ToCode(stripNamespace: true);
+            }
 
             // order of enum values is important on the client (for Flags enum coercion)
             var underlyingType = Enum.GetUnderlyingType(type);

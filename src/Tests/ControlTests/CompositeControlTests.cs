@@ -186,6 +186,21 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
+        [TestMethod]
+        public async Task BindingMappingWithEnum()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <div class-test-class={value: Status == 'Failed'} />
+                <!-- value binding -->
+                <cc:TestStatusIcon TestStatus={value: Status} />
+                <!-- resource binding (should be false) -->
+                <cc:TestStatusIcon TestStatus={resource: Status} />
+                <!-- hardcoded value (should be true) -->
+                <cc:TestStatusIcon TestStatus='Failed' />
+                ");
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
 
         [TestMethod]
         public async Task ControlWithMultipleEnumClasses()
@@ -260,6 +275,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             public string Label { get; } = "My Label";
             public bool AfterPreRender { get; set; } = false;
             public string TestCase { get; set; } = "d";
+
+            public TestStatusEnum Status { get; set; } = TestStatusEnum.StillRunning;
 
             public List<string> List { get; set; } = new List<string> { "list-item1", "list-item2" };
 
@@ -518,6 +535,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         [EnumMember(Value = "class-d")]
         D
     }
+
     public class ControlWithCollectionProperty: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -537,6 +555,19 @@ namespace DotVVM.Framework.Tests.ControlTests
             return new HtmlGenericControl("div")
                 .AddCssClass("is-active", active)
                 .AddCssStyle("width", width);
+        }
+    }
+
+    public enum TestStatusEnum { Ok, StillRunning, Failed }
+
+    public class TestStatusIcon : CompositeControl
+    {
+        public static DotvvmControl GetContents(ValueOrBinding<TestStatusEnum> testStatus)
+        {
+            var icon = new HtmlGenericControl("i");
+            icon.AddCssClass("fas");
+            icon.CssClasses.Add("fa-times", testStatus.Select(t => t == TestStatusEnum.Failed));
+            return icon;
         }
     }
 }
