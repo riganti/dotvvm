@@ -11,7 +11,11 @@
       "ES6"
     ],
     "declaration": true,
-    "declarationDir": "dist/declarations"
+    "declarationDir": "dist/declarations",
+    "typeRoots": [
+      "./node_modules/@types", 
+      "./node_modules/dotvvm-types"
+    ]
   },
 
   "exclude": [
