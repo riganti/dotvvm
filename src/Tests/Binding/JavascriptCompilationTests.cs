@@ -257,6 +257,15 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JavascriptCompilation_BindingDateToString()
+        {
+            var result = bindingHelper.ValueBinding<object>("_this.ToString()", new [] { typeof(DateTime) });
+            Assert.AreEqual("dotvvm.globalize.bindingDateToString($rawData)()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("dotvvm.globalize.bindingDateToString($rawData)", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("dotvvm.globalize.bindingDateToString($rawData)", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_WrappedPropertyAccessExpression()
         {
             var result = bindingHelper.ValueBinding<object>("StringProp", new [] {typeof(TestViewModel) });

@@ -1,0 +1,25 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- insane hierarchical list, the binding should contain `$item()`, not `$rawData` -->
+		<div>
+			<!-- ko dotvvm-SSR-foreach: { data: HItems } -->
+			<!-- ko dotvvm-SSR-item: 0 -->A
+			<!-- /ko -->
+			<!-- ko dotvvm-SSR-foreach: { data: ko.unwrap($foreachCollectionSymbol)[0]().Children } -->
+			<!-- ko dotvvm-SSR-item: 0 -->A_1
+			<!-- /ko -->
+			<!-- ko dotvvm-SSR-foreach: { data: ko.unwrap($foreachCollectionSymbol)[0]().Children } -->
+			<!-- ko dotvvm-SSR-item: 0 -->A_1_1
+			<!-- /ko -->
+			<!-- ko dotvvm-SSR-item: 1 -->A_1_2
+			<!-- /ko -->
+			<!-- /ko -->
+			<!-- /ko -->
+			<!-- ko dotvvm-SSR-item: 1 -->B
+			<!-- /ko -->
+			<!-- /ko -->
+		</div>
+	</body>
+</html>
