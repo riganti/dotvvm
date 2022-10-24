@@ -160,7 +160,12 @@ namespace DotVVM.Framework.Controls
                     // almost always the Literal will be rendered before script resources are, so requesting the resource in render should be safe. In case it's not, user can always add it manually (the error message should be quite clear).
                     context.ResourceManager.AddCurrentCultureGlobalizationResource();
 
-                    var formattedType = $"\"{GetValueBinding(TextProperty)?.ResultType.Name.ToLowerInvariant()}\"";
+                    // get value binding type and unwrap if it is nullable
+                    var valueBindingType = GetValueBinding(TextProperty)?.ResultType;
+                    if (valueBindingType != null && valueBindingType.IsNullable())
+                        valueBindingType = valueBindingType.UnwrapNullableType();
+
+                    var formattedType = $"\"{valueBindingType?.Name.ToLowerInvariant()}\"";
                     expression = "dotvvm.globalize.formatString(" + JsonConvert.ToString(FormatString) + ", " + expression + ", " + formattedType + ")";
                 }
 
