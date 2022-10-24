@@ -76,7 +76,6 @@ export default {
                     newValue = isEmpty ? null : serializeDateOnly(result);
                 } else if (elmMetadata.dataType === "timeonly") {
                     // parse timeonly
-                    // parse dateonly
                     let currentValue = obs();
                     if (currentValue != null) {
                         currentValue = parseTimeOnly(currentValue);

@@ -38,7 +38,7 @@ export function formatString(format: string | null | undefined, value: Globalize
 
     if (typeof value === "string") {
 
-        // DateTime, DateOnly or TimeOnly\
+        // DateTime, DateOnly or TimeOnly
         if (type === "dateonly") {
             value = serializationParseDateOnly(value);
             if (format == null || format.length == 0) {
