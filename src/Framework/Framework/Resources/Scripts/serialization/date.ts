@@ -40,7 +40,7 @@ export function parseDateOnly(value: string | null): Date | null {
 }
 
 export function parseTimeOnly(value: string | null): Date | null {
-    return parseDate(`0000-00-00T${value}`, false);
+    return parseDate(`1970-01-01T${value}`, false);
 }
 
 export function parseTimeSpan(value: string | null): number | null {
@@ -104,7 +104,7 @@ export function serializeDate(date: string | Date | null, convertToUtc: boolean 
     return `${y}-${m}-${d}T${h}:${mi}:${s}.${ms}0000`;
 }
 
-export function serializeDateOnly(date: string | Date | null): string | null {
+export function serializeDateOnly(date: Date | null): string | null {
     if (date == null) {
         return null;
     } else if (typeof date == "string") {
@@ -121,7 +121,7 @@ export function serializeDateOnly(date: string | Date | null): string | null {
     return `${y}-${m}-${d}`;
 }
 
-export function serializeTimeOnly(date: string | Date | null): string | null {
+export function serializeTimeOnly(date: Date | null): string | null {
     if (date == null) {
         return null;
     } else if (typeof date == "string") {
