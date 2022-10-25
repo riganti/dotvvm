@@ -67,7 +67,7 @@ public class ContactFormViewModel
 * [Server-side rendering](https://www.dotvvm.com/docs/tutorials/basics-server-side-html-generation/latest)
 * Binding to [REST APIs](https://www.dotvvm.com/docs/tutorials/basics-rest-api-bindings/latest) and [patching viewmodel using static commands](https://www.dotvvm.com/docs/tutorials/basics-static-command-services/latest)
 * Can run side-by-side with other ASP.NET frameworks (Web Forms, MVC, Razor Pages)
-* **IntelliSense and tooling for Visual Studio [2017](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVMforVisualStudio-17892), [2019](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2019) and [Code](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.dotvvm-vscode)**
+* **IntelliSense and tooling for Visual Studio [2019](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2019), [2022](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2022) and [Code](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.dotvvm-vscode)**
 
 ## Getting started with DotVVM
 
@@ -75,8 +75,8 @@ Learn the basic principles of DotVVM in our [DotVVM Academy](https://academy.dot
 
 The easiest way to start with DotVVM is to download **[DotVVM for Visual Studio](https://www.dotvvm.com/landing/dotvvm-for-visual-studio-extension)** and do **File > New > Project**.
 
-* Free extension for [Visual Studio 2017](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVMforVisualStudio-17892)
 * Free extension for [Visual Studio 2019](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2019)
+* Free extension for [Visual Studio 2022](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2022)
 
 You can also [install DotVVM in existing ASP.NET projects](https://www.dotvvm.com/docs/tutorials/how-to-start-existing-app/latest) and use it side-by-side with other ASP.NET frameworks (Web Forms, MVC, Razor Pages).
 
@@ -88,9 +88,9 @@ There is also [dotnet new template](https://www.dotvvm.com/docs/tutorials/how-to
 
 |                         | ASP.NET Core                | OWIN                  |
 |-------------------------|-----------------------------|-----------------------|
-| Current stable version  | `DotVVM.AspNetCore 4.0.2`   | `DotVVM.Owin 4.0.2`   |
+| Current stable version  | `DotVVM.AspNetCore 4.0.*`   | `DotVVM.Owin 4.0.*`   |
 | Minimum runtime version | `.NET Core 3.1`             | `.NET 4.7.2`          |
-| Minimum ASP.NET version | `ASP.NET Core 3.1`          | `OWIN 3.0.1`          |
+| Minimum ASP.NET version | `ASP.NET Core 3.1`          | `OWIN 4.2.2`          |
 
 You can find the plans for next releases in the [roadmap](roadmap.md).
 
