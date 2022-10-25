@@ -3,7 +3,7 @@
 namespace DotVVM.AutoUI.Annotations;
 
 /// <summary>
-/// Indicates that the user will select a value from a list of SelectionType provided by ISelectionProvider&lt;SelectionType&gt;
+/// Indicates that the user will select a value from a list of SelectionType provided by <see cref="ISelectionProvider{SelectionType}" />
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class SelectionAttribute : System.Attribute
