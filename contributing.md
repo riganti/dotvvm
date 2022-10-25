@@ -64,7 +64,7 @@ The OWIN and ASP.NET Core integration is split in two projects called `DotVVM.Fr
 
 You may want to try to use DotVVM source codes directly from your project so you can interactively test your changes or simply check if some bugfix works correctly. 
 
-The first step is to clone the DotVVM git repository, if you want to make some changes, you probably want to fork in on github beforehand (see above for more info). The second and last step is to replace NuGet reference to project reference in your project file (`Something.csproj`) - simply replace the `<PackageReference Include="DotVVM.AspNetCore" ... />` with `<ProjectReference Include="path/to/dotvvm/src/Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />`. In VS Code, you don't need to update solutions file or anything, this is the only thing the .NET SDK cares about - in Visual Studio 2022, you'll probably need to add DotVVM projects to the solution (right-click and Add Existing Project).
+The first step is to clone the DotVVM git repository, if you want to make some changes, you probably want to fork it on github beforehand (see above for more info). The second and last step is to replace NuGet reference to project reference in your project file (`Something.csproj`) - simply replace the `<PackageReference Include="DotVVM.AspNetCore" ... />` with `<ProjectReference Include="path/to/dotvvm/src/Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />`. In VS Code, you don't need to update solutions file or anything, this is the only thing the .NET SDK cares about - in Visual Studio 2022, you'll probably need to add DotVVM projects to the solution (right-click and Add Existing Project).
 
 ## Support and communication
 
