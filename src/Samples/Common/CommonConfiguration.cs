@@ -73,7 +73,7 @@ namespace DotVVM.Samples.Common
                 config.PropertyDisplayNamesResourceFile = typeof(DynamicDataTexts);
                 config.PropertyMetadataRules
                     .For("IsCompany", r => r.SetDisplayName("Hello"))
-                    .For("ProductId", r => r.UseSelection<ProductSelection>());
+                    .For("ProductId", r => r.SetSelection<ProductSelection>());
             });
             services.AddTransient<ISelectionProvider<ProductSelection>, ProductSelectionProvider>();
             services.AddTransient<ISelectionProvider<CountrySelection>, CountrySelectionProvider>();

@@ -53,11 +53,11 @@ namespace DotVVM.AutoUI.Metadata
                 FormatString = displayFormatAttribute?.DataFormatString,
                 NullDisplayText = displayFormatAttribute?.NullDisplayText,
                 AutoGenerateField = displayAttribute?.GetAutoGenerateField() ?? true,
-                VisibleAttributes = p.GetCustomAttributes<VisibleAttribute>(),
+                VisibleAttributes = p.GetCustomAttributes<VisibleAttribute>().ToList(),
                 DataType = dataTypeAttribute?.DataType,
                 Styles = styleAttribute,
                 IsEditable = editableFilter?.AllowEdit != false,
-                EnabledAttributes = p.GetCustomAttributes<EnabledAttribute>(),
+                EnabledAttributes = p.GetCustomAttributes<EnabledAttribute>().ToList(),
                 SelectionConfiguration = selectorAttribute,
                 UIHints = uiHintAttributes.Select(a => a.UIHint).ToArray(),
                 IsDefaultLabelAllowed = p.PropertyType.UnwrapNullableType() != typeof(bool) // TODO: make this configurable, maybe?
