@@ -251,14 +251,16 @@ namespace DotVVM.Framework.Utils
             return ResolvedTypeDescriptor.ToSystemType(result);
         }
 
-        public static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
+        private static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
         {
             typeof(DateTime),
             typeof(DateTimeOffset),
-            typeof(TimeSpan)
+            typeof(TimeSpan),
+            typeof(DateOnly),
+            typeof(TimeOnly)
         };
 
-        public static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
+        private static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
         {
             typeof (sbyte),
             typeof (byte),
@@ -273,7 +275,7 @@ namespace DotVVM.Framework.Utils
             typeof (double),
             typeof (decimal)
         };
-        public static readonly HashSet<Type> IntegerNumericTypes = new HashSet<Type>()
+        private static readonly HashSet<Type> IntegerNumericTypes = new HashSet<Type>()
         {
             typeof (sbyte),
             typeof (byte),
@@ -285,17 +287,22 @@ namespace DotVVM.Framework.Utils
             typeof (ulong),
             typeof (char),
         };
-        public static readonly HashSet<Type> RealNumericTypes = new HashSet<Type>()
+        private static readonly HashSet<Type> RealNumericTypes = new HashSet<Type>()
         {
             typeof (float),
             typeof (double),
             typeof (decimal)
         };
 
-        public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
+        public static IEnumerable<Type> GetNumericTypes()
+        {
+            return NumericTypes;
+        }
+
+        private static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
             typeof(string), typeof(char),
             typeof(bool),
-            typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan),
+            typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan), typeof(DateOnly), typeof(TimeOnly),
             typeof(Guid),
             typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong),
             typeof(float), typeof(double), typeof(decimal)
@@ -346,6 +353,14 @@ namespace DotVVM.Framework.Utils
             return PrimitiveTypes.Contains(type)
                 || (IsNullableType(type) && IsPrimitiveType(type.UnwrapNullableType()))
                 || type.IsEnum;
+        }
+
+        public static bool IsSerializationSupported(this Type type, bool includeNullables)
+        {
+            if (includeNullables)
+                return IsPrimitiveType(type);
+
+            return PrimitiveTypes.Contains(type);
         }
 
         public static bool IsNullableType(Type type)

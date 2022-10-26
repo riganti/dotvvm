@@ -18,28 +18,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
         private readonly bool debug;
-        private static readonly HashSet<Type> supportedPrimitiveTypes = new HashSet<Type>()
-        {
-            typeof(Boolean),
-            typeof(Byte),
-            typeof(SByte),
-            typeof(Int16),
-            typeof(UInt16),
-            typeof(Int32),
-            typeof(UInt32),
-            typeof(Int64),
-            typeof(UInt64),
-            typeof(Single),
-            typeof(Double),
-            typeof(Decimal),
-            typeof(String),
-            typeof(Char),
-            typeof(Guid),
-            typeof(DateTime),
-            typeof(TimeSpan),
-            typeof(DateTimeOffset)
-        };
-
         private static readonly ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies> cachedObjectMetadata = new ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies>();
         private static readonly ConcurrentDictionary<Type, JObject> cachedEnumMetadata = new ConcurrentDictionary<Type, JObject>();
 
@@ -170,7 +148,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         internal JToken GetTypeIdentifier(Type type, HashSet<Type> dependentObjectTypes, HashSet<Type> dependentEnumTypes)
         {
-            if (supportedPrimitiveTypes.Contains(type))
+            if (type.IsSerializationSupported(includeNullables: false))
             {
                 return GetPrimitiveTypeName(type);
             }
