@@ -107,12 +107,6 @@ export function serializeDate(date: string | Date | null, convertToUtc: boolean 
 export function serializeDateOnly(date: Date | null): string | null {
     if (date == null) {
         return null;
-    } else if (typeof date == "string") {
-        // just print in the console if it's invalid
-        if (parseDateOnly(date) == null && parseDate(date) == null) {
-            logWarning("coercer", `Date ${date} is invalid.`);
-        }
-        return date;
     }
 
     const y = padNumber(date.getFullYear(), 4);
@@ -124,12 +118,6 @@ export function serializeDateOnly(date: Date | null): string | null {
 export function serializeTimeOnly(date: Date | null): string | null {
     if (date == null) {
         return null;
-    } else if (typeof date == "string") {
-        // just print in the console if it's invalid
-        if (parseTimeOnly(date) == null && parseDate(date) == null) {
-            logWarning("coercer", `Date ${date} is invalid.`);
-        }
-        return date;
     }
 
     const h = padNumber(date.getHours(), 2);
