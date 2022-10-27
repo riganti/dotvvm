@@ -28,6 +28,7 @@
                       ItemTextBinding="{value: Text}"
                       ItemValueBinding="{value: Id}"
                       SelectedValue="{value: SelectedItemId}" />
+        <dot:Validator Value="{value: SelectedItemId}" ShowErrorMessageText="true" />
     </p>
 
     <p>
@@ -37,6 +38,7 @@
                       ItemTextBinding="{value: Text}"
                       ItemValueBinding="{value: Id}"
                       SelectedValue="{value: SelectedItemNullableId}" />
+        <dot:Validator Value="{value: SelectedItemNullableId}" ShowErrorMessageText="true" />
     </p>
 
     <p>
@@ -44,7 +46,17 @@
         <br />
         Query parameter: {{value: IdInQuery}}
     </p>
-    <dot:RouteLink RouteName="FeatureSamples_CustomPrimitiveTypes_Basic" Param-Id="{value: IdInRoute}" Query-Id="{value: IdInQuery}" />
+    <p>
+        <dot:RouteLink RouteName="FeatureSamples_CustomPrimitiveTypes_Basic" Param-Id="{value: IdInRoute}" Query-Id="{value: IdInQuery}" />
+    </p>
+
+    <p>
+        <dot:LinkButton Text="Call command" Click="{command: CommandWithSampleId(SelectedItemId)}" />
+        <br />
+        <dot:LinkButton Text="Call static command" Click="{staticCommand: StaticCommandResult = StaticCommandWithSampleId(SelectedItemId)}" />
+        <br />
+        Static command result: {{value: StaticCommandResult}}
+    </p>
 </body>
 </html>
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -47,6 +48,26 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
             new SampleItem() { Id = SampleId.CreateExisting(new Guid("c2654a1f-3781-49a8-911b-c7346db166e0")), Text = "Item 2" },
             new SampleItem() { Id = SampleId.CreateExisting(new Guid("e467a201-9ab7-4cd5-adbf-66edd03f6ae1")), Text = "Item 3" },
         };
+
+        public SampleId StaticCommandResult { get; set; }
+
+        [AllowStaticCommand]
+        public SampleId StaticCommandWithSampleId(SampleId? current)
+        {
+            if (!Items.Any(i => i.Id == current))
+            {
+                throw new Exception("The 'current' parameter didn't deserialize correctly.");
+            }
+            return SampleId.CreateExisting(new Guid("54162c7e-cdcc-4585-aa92-2e78be3f0c75"));
+        }
+
+        public void CommandWithSampleId(SampleId current)
+        {
+            if (!Items.Any(i => i.Id == current))
+            {
+                throw new Exception("The 'current' parameter didn't deserialize correctly.");
+            }
+        }
 
     }
 
@@ -140,7 +161,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
         {
             if (reader.TokenType == JsonToken.String)
             {
-                var idText = reader.ReadAsString();
+                var idText = (string)reader.Value;
                 var idValue = Guid.Parse(idText);
                 return TypeId<TId>.CreateExisting(idValue);
             }
@@ -152,7 +173,6 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
             {
                 throw new JsonSerializationException($"Token {reader.TokenType} cannot be deserialized as TypeId!");
             }
-            
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
