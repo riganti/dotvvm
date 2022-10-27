@@ -22,6 +22,7 @@ using FastExpressionCompiler;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using RecordExceptions;
+using System.ComponentModel;
 
 namespace DotVVM.Framework.Utils
 {
@@ -226,6 +227,11 @@ namespace DotVVM.Framework.Utils
                     return ulong.Parse(str2, numberStyle & NumberStyles.Integer, CultureInfo.InvariantCulture);
                 else if (type.IsNumericType())
                     return Convert.ChangeType(long.Parse(str2, numberStyle & NumberStyles.Integer, CultureInfo.InvariantCulture), type, CultureInfo.InvariantCulture);
+            }
+
+            if (TypeDescriptor.GetConverter(type) is { } converter && converter.CanConvertFrom(value.GetType()))
+            {
+                return converter.ConvertTo(value, type);
             }
 
             // convert
