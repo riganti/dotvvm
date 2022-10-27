@@ -5,12 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
-using DotVVM.Samples.Common.ViewModels.FeatureSamples.CompositeControls;
 using Newtonsoft.Json;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
 {
-    public class BasicViewModel : DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPA.SiteViewModel
+    public class BasicViewModel : DotvvmViewModelBase
     {
 
         [FromRoute("id")]

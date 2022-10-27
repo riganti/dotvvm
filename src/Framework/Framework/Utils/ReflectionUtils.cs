@@ -293,6 +293,8 @@ namespace DotVVM.Framework.Utils
             typeof (double),
             typeof (decimal)
         };
+        // mapping of server-side types to their client-side representation
+        internal static readonly Dictionary<Type, Type> CustomPrimitiveTypes = new Dictionary<Type, Type>();
 
         public static IEnumerable<Type> GetNumericTypes()
         {
@@ -348,19 +350,12 @@ namespace DotVVM.Framework.Utils
             return type != typeof(string) && IsEnumerable(type) && !IsDictionary(type);
         }
 
-        public static bool IsPrimitiveType(Type type)
+        public static bool IsPrimitiveType(this Type type)
         {
             return PrimitiveTypes.Contains(type)
+                || CustomPrimitiveTypes.ContainsKey(type)
                 || (IsNullableType(type) && IsPrimitiveType(type.UnwrapNullableType()))
                 || type.IsEnum;
-        }
-
-        public static bool IsSerializationSupported(this Type type, bool includeNullables)
-        {
-            if (includeNullables)
-                return IsPrimitiveType(type);
-
-            return PrimitiveTypes.Contains(type);
         }
 
         public static bool IsNullableType(Type type)
@@ -609,6 +604,15 @@ namespace DotVVM.Framework.Utils
             {
                 yield return baseType;
                 type = baseType;
+            }
+        }
+
+        internal static void RegisterCustomPrimitiveTypes(IList<CustomPrimitiveTypeRegistration> customPrimitiveTypeRegistrations)
+        {
+            // TODO: validation
+            foreach (var registration in customPrimitiveTypeRegistrations)
+            {
+                CustomPrimitiveTypes.Add(registration.Type, registration.ClientSidePrimitiveType);
             }
         }
     }

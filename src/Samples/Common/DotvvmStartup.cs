@@ -31,6 +31,7 @@ using DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.Views.ControlSamples.TemplateHost;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -80,6 +81,8 @@ namespace DotVVM.Samples.BasicSamples
             config.AssertConfigurationIsValid();
 
             config.RouteTable.Add("Errors_Routing_NonExistingView", "Errors/Routing/NonExistingView", "Views/Errors/Routing/NonExistingView.dothml");
+
+            config.Runtime.CustomPrimitiveTypes.Add(new CustomPrimitiveTypeRegistration(typeof(SampleId), typeof(Guid?)));
         }
 
         private void LoadSampleConfiguration(DotvvmConfiguration config, string applicationPath)

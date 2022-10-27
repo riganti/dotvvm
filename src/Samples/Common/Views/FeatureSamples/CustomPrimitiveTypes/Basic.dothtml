@@ -1,8 +1,26 @@
 ﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes.BasicViewModel, DotVVM.Samples.Common
-@masterPage Views/ComplexSamples/SPA/site.dotmaster
 
-<dot:Content ContentPlaceHolderID="Container">
+<!DOCTYPE html>
 
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Conditional css classes</title>
+    <style>
+        .italic {
+            font-style: italic;
+        }
+
+        .blue {
+            color: blue;
+        }
+
+        .bordered {
+            border: solid 2px black;
+        }
+    </style>
+</head>
+<body>
     <p>
         Selected item ID: {{value: SelectedItemId}}
         <br />
@@ -26,7 +44,7 @@
         <br />
         Query parameter: {{value: IdInQuery}}
     </p>
-    <dot:RouteLink RouteName="" Param-Id="{value: IdInRoute}" Query-Id="{value: IdInQuery}" />
-
-</dot:Content>
+    <dot:RouteLink RouteName="FeatureSamples_CustomPrimitiveTypes_Basic" Param-Id="{value: IdInRoute}" Query-Id="{value: IdInQuery}" />
+</body>
+</html>
 
