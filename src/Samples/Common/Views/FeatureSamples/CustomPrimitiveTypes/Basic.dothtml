@@ -57,6 +57,10 @@
         <br />
         Static command result: {{value: StaticCommandResult}}
     </p>
+
+    <p>
+        Binding with JS translation: {{value: $"My id values are {SelectedItemId.IdValue.ToString()} and {SelectedItemNullableId.IdValue.ToString().ToUpper()}"}}
+    </p>
 </body>
 </html>
 
