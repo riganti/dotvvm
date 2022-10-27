@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Core.Storage;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ViewModel.Validation;
 using Newtonsoft.Json;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
@@ -66,6 +67,12 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
             if (!Items.Any(i => i.Id == current))
             {
                 throw new Exception("The 'current' parameter didn't deserialize correctly.");
+            }
+            if (current == Items[0].Id)
+            {
+                this.AddModelError(vm => vm.SelectedItemId, "Valid property path");
+                this.AddModelError(vm => vm.SelectedItemId.IdValue, "Invalid property path");
+                Context.FailOnInvalidModelState();
             }
         }
 
