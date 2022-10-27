@@ -159,9 +159,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else if (type.IsPrimitiveType())        // we intentionally detect this after handling enums and nullable types
             {
-                if (ReflectionUtils.CustomPrimitiveTypes.TryGetValue(type, out var clientSideType))
+                if (ReflectionUtils.CustomPrimitiveTypes.TryGetValue(type, out var registration))
                 {
-                    return GetTypeIdentifier(clientSideType, dependentObjectTypes, dependentEnumTypes);
+                    return GetTypeIdentifier(registration.ClientSideType, dependentObjectTypes, dependentEnumTypes);
                 }
                 return GetPrimitiveTypeName(type);
             }

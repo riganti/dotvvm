@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -21,18 +22,21 @@ namespace DotVVM.Framework.Configuration
 
         private JsonSerializerSettings CreateSettings()
         {
+            var converters = new List<JsonConverter>
+            {
+                new DotvvmDateTimeConverter(),
+                new DotvvmDateOnlyConverter(),
+                new DotvvmTimeOnlyConverter(),
+                new StringEnumConverter(),
+                new DotvvmDictionaryConverter(),
+                new DotvvmByteArrayConverter()
+            };
+            converters.AddRange(ReflectionUtils.GetCustomPrimitiveTypeJsonConverters());
+
             return new JsonSerializerSettings()
             {
                 DateTimeZoneHandling = DateTimeZoneHandling.Unspecified,
-                Converters = new List<JsonConverter>
-                {
-                    new DotvvmDateTimeConverter(),
-                    new DotvvmDateOnlyConverter(),
-                    new DotvvmTimeOnlyConverter(),
-                    new StringEnumConverter(),
-                    new DotvvmDictionaryConverter(),
-                    new DotvvmByteArrayConverter()
-                },
+                Converters = converters,
                 MaxDepth = defaultMaxSerializationDepth
             };
         }
@@ -42,11 +46,20 @@ namespace DotVVM.Framework.Configuration
             get
             {
                 if (instance == null)
-                    instance = new DefaultSerializerSettingsProvider();
+                {
+                    lock (instanceLocker)
+                    {
+                        if (instance == null)
+                        {
+                            instance = new DefaultSerializerSettingsProvider();
+                        }
+                    }
+                }
                 return instance;
             }
         }
         private static DefaultSerializerSettingsProvider? instance;
+        private static object instanceLocker = new();
 
         private DefaultSerializerSettingsProvider()
         {
