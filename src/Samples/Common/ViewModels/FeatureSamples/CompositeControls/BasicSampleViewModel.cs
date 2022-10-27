@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CompositeControls
 {

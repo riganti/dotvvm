@@ -1,0 +1,32 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes.BasicViewModel, DotVVM.Samples.Common
+@masterPage Views/ComplexSamples/SPA/site.dotmaster
+
+<dot:Content ContentPlaceHolderID="Container">
+
+    <p>
+        Selected item ID: {{value: SelectedItemId}}
+        <br />
+        <dot:ComboBox DataSource="{value: Items}"
+                      ItemTextBinding="{value: Text}"
+                      ItemValueBinding="{value: Id}"
+                      SelectedValue="{value: SelectedItemId}" />
+    </p>
+
+    <p>
+        Selected nullable item ID: {{value: SelectedItemNullableId}}
+        <br />
+        <dot:ComboBox DataSource="{value: Items}"
+                      ItemTextBinding="{value: Text}"
+                      ItemValueBinding="{value: Id}"
+                      SelectedValue="{value: SelectedItemNullableId}" />
+    </p>
+
+    <p>
+        Route parameter: {{value: IdInRoute}}
+        <br />
+        Query parameter: {{value: IdInQuery}}
+    </p>
+    <dot:RouteLink RouteName="" Param-Id="{value: IdInRoute}" Query-Id="{value: IdInQuery}" />
+
+</dot:Content>
+
