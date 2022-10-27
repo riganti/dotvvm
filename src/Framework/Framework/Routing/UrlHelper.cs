@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Utils;
@@ -30,7 +31,7 @@ namespace DotVVM.Framework.Routing
                     }
                     break;
                 case IEnumerable<KeyValuePair<string, object>> keyValueCollection:
-                    foreach (var item in keyValueCollection)
+                    foreach (var item in keyValueCollection.Where(i => i.Value != null))
                     {
                         AppendQueryParam(ref resultSuffix, item.Key, item.Value.ToString().NotNull());
                     }

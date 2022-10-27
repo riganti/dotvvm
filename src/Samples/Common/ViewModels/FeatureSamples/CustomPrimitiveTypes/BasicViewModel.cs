@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Core.Storage;
 using DotVVM.Framework.ViewModel;
 using Newtonsoft.Json;
 
@@ -53,12 +56,42 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
         public string Text { get; set; }
     }
 
-
+    [TypeConverter(typeof(TypeIdConverter<SampleId>))]
     [JsonConverter(typeof(TypeIdJsonConverter<SampleId>))]
     public record SampleId : TypeId<SampleId>
     {
         public SampleId(Guid idValue) : base(idValue)
         {
+        }
+    }
+
+    public class TypeIdConverter<TId> : TypeConverter
+        where TId : TypeId<TId>
+    {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            return sourceType == typeof(string) || sourceType == typeof(Guid) || sourceType == typeof(Guid?);
+        }
+
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+        {
+            return destinationType == typeof(TId);
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+            if (value is string stringValue)
+            {
+                return TypeId<TId>.CreateExisting(new Guid(stringValue));
+            }
+            else if (value is Guid guidValue)
+            {
+                return TypeId<TId>.CreateExisting(guidValue);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 
