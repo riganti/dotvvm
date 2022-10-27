@@ -229,14 +229,15 @@ namespace DotVVM.Framework.Utils
                     return Convert.ChangeType(long.Parse(str2, numberStyle & NumberStyles.Integer, CultureInfo.InvariantCulture), type, CultureInfo.InvariantCulture);
             }
 
-            if (TypeDescriptor.GetConverter(type) is { } converter && converter.CanConvertFrom(value.GetType()))
-            {
-                return converter.ConvertTo(value, type);
-            }
-
             // convert
             try
             {
+                // custom primitive types
+                if (CustomPrimitiveTypes.TryGetValue(type, out var registration))
+                {
+                    return registration.ConvertToServerSideType(value);
+                }
+
                 return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
             }
             catch (Exception e)
@@ -300,7 +301,7 @@ namespace DotVVM.Framework.Utils
             typeof (decimal)
         };
         // mapping of server-side types to their client-side representation
-        internal static readonly Dictionary<Type, Type> CustomPrimitiveTypes = new Dictionary<Type, Type>();
+        internal static readonly Dictionary<Type, CustomPrimitiveTypeRegistration> CustomPrimitiveTypes = new Dictionary<Type, CustomPrimitiveTypeRegistration>();
 
         public static IEnumerable<Type> GetNumericTypes()
         {
@@ -571,13 +572,40 @@ namespace DotVVM.Framework.Utils
             }
         }
 
+        private static volatile bool customPrimitiveTypesRegistered = false;
         internal static void RegisterCustomPrimitiveTypes(IList<CustomPrimitiveTypeRegistration> customPrimitiveTypeRegistrations)
         {
-            // TODO: validation
             foreach (var registration in customPrimitiveTypeRegistrations)
             {
-                CustomPrimitiveTypes.Add(registration.Type, registration.ClientSidePrimitiveType);
+                if (IsPrimitiveType(registration.ServerSideType)
+                    || IsCollection(registration.ServerSideType)
+                    || IsDictionary(registration.ServerSideType))
+                {
+                    throw new DotvvmConfigurationException($"The type {registration.ServerSideType} cannot be used as a custom primitive type. Custom primitive types cannot be collections, dictionaries, and cannot be primitive types already supported by DotVVM.");
+                }
+                if (CustomPrimitiveTypes.ContainsKey(registration.ServerSideType))
+                {
+                    throw new DotvvmConfigurationException($"The type {registration.ServerSideType} is already registered as a custom primitive type.");
+                }
+                if (!PrimitiveTypes.Contains(registration.ClientSideType.UnwrapNullableType()))
+                {
+                    throw new DotvvmConfigurationException($"The custom primitive type {registration.ServerSideType} cannot use {registration.ClientSideType} as a client-side equivalent. Only primitive types (strings, numbers, Guid, date and time types) are supported.");
+                }
+
+                CustomPrimitiveTypes.Add(registration.ServerSideType, registration);
             }
+            customPrimitiveTypesRegistered = true;
+        }
+
+        internal static IEnumerable<JsonConverter> GetCustomPrimitiveTypeJsonConverters()
+        {
+            if (!customPrimitiveTypesRegistered)
+            {
+                throw new InvalidOperationException("Cannot access DefaultSerializerSettingsProvider.Instance before DotvvmConfiguration was initialized!");
+            }
+            return CustomPrimitiveTypes.Values
+                .Where(t => t.JsonConverter != null)
+                .Select(t => t.JsonConverter!);
         }
     }
 }

@@ -330,11 +330,14 @@ namespace DotVVM.Framework.Hosting
 #pragma warning restore CS0618
             }
         }
+        protected virtual JsonSerializer CreateJsonSerializer() => DefaultSerializerSettingsProvider.Instance.Settings.Apply(JsonSerializer.Create);
 
         private object? ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
         {
+            var serializer = CreateJsonSerializer();
+
             var methodArgs = plan.Arguments.Select((a, index) =>
-                a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg!) :
+                a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg!, serializer) :
                 a.Type == StaticCommandParameterType.Constant || a.Type == StaticCommandParameterType.DefaultValue ? a.Arg :
                 a.Type == StaticCommandParameterType.Inject ?
 #pragma warning disable CS0618
