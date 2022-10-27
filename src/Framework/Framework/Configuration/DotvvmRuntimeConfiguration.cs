@@ -17,11 +17,20 @@ namespace DotVVM.Framework.Configuration
         private IList<IActionFilter> _globalFilters;
 
         /// <summary>
+        /// Gets types that are treated as primitive by DotVVM components and serialization.
+        /// </summary>
+        [JsonIgnore()]
+        public IList<CustomPrimitiveTypeRegistration> CustomPrimitiveTypes => _customPrimitiveTypes;
+        private IList<CustomPrimitiveTypeRegistration> _customPrimitiveTypes;
+
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRuntimeConfiguration"/> class.
         /// </summary>
         public DotvvmRuntimeConfiguration()
         {
             _globalFilters = new FreezableList<IActionFilter>();
+            _customPrimitiveTypes = new FreezableList<CustomPrimitiveTypeRegistration>();
         }
 
         private bool isFrozen = false;
@@ -35,6 +44,7 @@ namespace DotVVM.Framework.Configuration
         {
             this.isFrozen = true;
             FreezableList.Freeze(ref _globalFilters);
+            FreezableList.Freeze(ref _customPrimitiveTypes);
         }
     }
 }
