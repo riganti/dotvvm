@@ -12,7 +12,7 @@ import { getObjectTypeInfo } from "../metadata/typeMap"
 import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
 import { currentStateSymbol, lastSetErrorSymbol } from "../state-manager"
-import { logError } from "../utils/logging"
+import { logError, logWarning } from "../utils/logging"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -332,11 +332,15 @@ export function removeErrors(...paths: string[]) {
 export function addErrors(errors: ValidationErrorDescriptor[], options: AddErrorsOptions = {}): void {
     const root = options.root ?? dotvvm.viewModelObservables.root
     for (const prop of errors) {
-        // find the property
         const propertyPath = prop.propertyPath;
-        const property = evaluator.traverseContext(root, propertyPath);
+        try {
+            // find the property
+            const property = evaluator.traverseContext(root, propertyPath);
 
-        ValidationError.attach(prop.errorMessage, propertyPath, property);
+            ValidationError.attach(prop.errorMessage, propertyPath, property);
+        } catch (err) {
+            logWarning("validation", `Unable to find viewmodel property ${propertyPath}. If you've added this validation error using Context.AddModelError, make sure the property path is correct and that the object hasn't been removed from the viewmodel.`);
+        }
     }
 
     if (options.triggerErrorsChanged !== false && errors.length > 0) {
