@@ -16,8 +16,8 @@
             window.location.reload();
         });
         connection.start()
-            .then(function () { dotvvm.log.logInfo('DotVVM view hot reload active.'); })
-            .catch(function (e) { dotvvm.log.logWarning('DotVVM view hot reload error!', e); });
+            .then(function () { console.log('DotVVM view hot reload active.'); })
+            .catch(function (e) { console.warn('DotVVM view hot reload error!', e); });
     }
 
     if (typeof dotvvm !== "undefined") {

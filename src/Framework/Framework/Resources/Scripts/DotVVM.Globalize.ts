@@ -1,4 +1,11 @@
-﻿import { parseDate as serializationParseDate, serializeDate } from './serialization/date'
+﻿import {
+    parseDate as serializationParseDate,
+    parseDateOnly as serializationParseDateOnly,
+    parseTimeOnly as serializationParseTimeOnly,
+    serializeDate,
+    serializeDateOnly,
+    serializeTimeOnly
+} from './serialization/date'
 import { getCulture } from './dotvvm-base';
 
 function getGlobalize(): GlobalizeStatic {
@@ -14,7 +21,7 @@ export function format(format: string, ...values: any[]): string {
         const value = values[parseInt(group0, 10)];
         if (group1) {
             group1 = group1.substring(1);
-            return formatString(group1, value);
+            return formatString(group1, value, null);
         } else {
             return value;
         }
@@ -23,21 +30,35 @@ export function format(format: string, ...values: any[]): string {
 
 type GlobalizeFormattable = null | undefined | string | Date | number
 
-export function formatString(format: string | null | undefined, value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>) {
+export function formatString(format: string | null | undefined, value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, type: string | null) {
     value = ko.unwrap(value);
     if (value == null || value === "") {
         return "";
     }
 
     if (typeof value === "string") {
-        // JSON date in string
-        value = serializationParseDate(value);
+
+        // DateTime, DateOnly or TimeOnly
+        if (type === "dateonly") {
+            value = serializationParseDateOnly(value);
+            if (format == null || format.length == 0) {
+                format = "D";
+            }
+        } else if (type == "timeonly") {
+            value = serializationParseTimeOnly(value);
+            if (format == null || format.length == 0) {
+                format = "T";
+            }
+        } else {
+            value = serializationParseDate(value);
+        }
+
         if (value == null) {
             throw new Error(`Could not parse ${value} as a date`);
         }
     }
 
-    if (!format) {
+    if (format == null || format.length == 0) {
         format = "G";
     }
 
@@ -55,17 +76,29 @@ export function parseDate(value: string, format: string, previousValue?: Date) {
 export const parseDotvvmDate = serializationParseDate;
 
 export function bindingDateToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string = "G") {
+    return bindingDateLikeTypeToString(value, format, "datetime", serializeDate, serializationParseDate);
+}
+
+export function bindingDateOnlyToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string = "D") {
+    return bindingDateLikeTypeToString(value, format, "dateonly", serializeDateOnly, serializationParseDateOnly);
+}
+
+export function bindingTimeOnlyToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string = "T") {
+    return bindingDateLikeTypeToString(value, format, "timeonly", serializeTimeOnly, serializationParseTimeOnly);
+}
+
+function bindingDateLikeTypeToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string, type: string, serializer: Function, parser: Function) {
     const unwrapDate = () => {
         const unwrappedVal = ko.unwrap(value);
-        return typeof unwrappedVal == "string" ? serializationParseDate(unwrappedVal) : unwrappedVal;
+        return typeof unwrappedVal == "string" ? parser(unwrappedVal) : unwrappedVal;
     };
 
-    const formatDate = () => formatString(format, value);
+    const formatDate = () => formatString(format, value, type);
 
     if (ko.isWriteableObservable(value)) {
         const unwrappedVal = unwrapDate();
         const setter = typeof unwrappedVal == "string" ? (v: Date | null) => {
-            return value(v && serializeDate(v, false));
+            return value(v && serializer(v, false));
         } : value;
         return ko.pureComputed({
             read: formatDate,
@@ -78,7 +111,7 @@ export function bindingDateToString(value: GlobalizeFormattable | KnockoutObserv
 }
 
 export function bindingNumberToString(value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, format: string = "G") {
-    const formatNumber = () => formatString(format, value);
+    const formatNumber = () => formatString(format, value, null);
 
     if (ko.isWriteableObservable(value)) {
         return ko.pureComputed({

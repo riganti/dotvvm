@@ -223,8 +223,44 @@ namespace DotVVM.Framework.Compilation.Javascript
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
+            AddMethodTranslator(typeof(DateOnly).GetMethod(nameof(DateOnly.ToString), Type.EmptyTypes), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateOnlyToString")
+                        .WithAnnotation(new GlobalizeResourceBindingProperty())
+                        .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                        .WithAnnotation(ResultIsObservableAnnotation.Instance)
+            ));
+            AddMethodTranslator(typeof(DateOnly?).GetMethod(nameof(Nullable<DateOnly>.ToString), Type.EmptyTypes), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateOnlyToString")
+                        .WithAnnotation(new GlobalizeResourceBindingProperty())
+                        .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                        .WithAnnotation(ResultIsObservableAnnotation.Instance)
+            ));
+            AddMethodTranslator(typeof(DateOnly).GetMethod(nameof(DateOnly.ToString), new[] { typeof(string) }), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateOnlyToString")
+                        .WithAnnotation(new GlobalizeResourceBindingProperty())
+                        .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                        .WithAnnotation(ResultIsObservableAnnotation.Instance)
+            ));
+            AddMethodTranslator(typeof(TimeOnly).GetMethod(nameof(TimeOnly.ToString), Type.EmptyTypes), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingTimeOnlyToString")
+                        .WithAnnotation(new GlobalizeResourceBindingProperty())
+                        .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                        .WithAnnotation(ResultIsObservableAnnotation.Instance)
+            ));
+            AddMethodTranslator(typeof(TimeOnly?).GetMethod(nameof(Nullable<TimeOnly>.ToString), Type.EmptyTypes), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingTimeOnlyToString")
+                        .WithAnnotation(new GlobalizeResourceBindingProperty())
+                        .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                        .WithAnnotation(ResultIsObservableAnnotation.Instance)
+            ));
+            AddMethodTranslator(typeof(TimeOnly).GetMethod(nameof(TimeOnly.ToString), new[] { typeof(string) }), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingTimeOnlyToString")
+                        .WithAnnotation(new GlobalizeResourceBindingProperty())
+                        .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                        .WithAnnotation(ResultIsObservableAnnotation.Instance)
+            ));
 
-            foreach (var num in ReflectionUtils.NumericTypes.Except(new[] { typeof(char) }))
+            foreach (var num in ReflectionUtils.GetNumericTypes().Except(new[] { typeof(char) }))
             {
                 AddMethodTranslator(num.GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
                     args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString")

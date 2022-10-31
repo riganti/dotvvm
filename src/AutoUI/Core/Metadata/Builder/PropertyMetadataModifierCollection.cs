@@ -6,18 +6,27 @@ namespace DotVVM.AutoUI.Metadata.Builder
 {
     public class PropertyMetadataModifierCollection
     {
-        private List<(Func<PropertyInfo, bool> matcher, Action<PropertyDisplayMetadataModifier> rule)> rules = new();
+        private readonly List<(Func<PropertyInfo, bool> matcher, Action<PropertyDisplayMetadataModifier> rule)> rules = new();
 
+        /// <summary>
+        /// Registers a configuration rule for all properties of the specified type.
+        /// </summary>
         public PropertyMetadataModifierCollection For(Type propertyType, Action<PropertyDisplayMetadataModifier> rule)
         {
             return For(p => p.PropertyType == propertyType, rule);
         }
 
+        /// <summary>
+        /// Registers a configuration rule for all properties with the specified name.
+        /// </summary>
         public PropertyMetadataModifierCollection For(string propertyName, Action<PropertyDisplayMetadataModifier> rule)
         {
             return For(p => p.Name == propertyName, rule);
         }
 
+        /// <summary>
+        /// Registers a configuration rule for all properties matching the specified condition.
+        /// </summary>
         public PropertyMetadataModifierCollection For(Func<PropertyInfo, bool> matcher, Action<PropertyDisplayMetadataModifier> rule)
         {
             rules.Add((matcher, rule));

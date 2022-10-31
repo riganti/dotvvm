@@ -12,29 +12,29 @@
 		<!-- control syntax, client rendering -->
 		<span>
 			<span data-bind="text: int"></span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, float)"></span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, date)"></span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, float, &quot;double&quot;)"></span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, date, &quot;datetime&quot;)"></span>
 		</span>
 		
 		<!-- control syntax, server rendering -->
 		<span>
 			<span data-bind="text: int">10000000</span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, float)">0.11111</span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, date)">8/11/2020 4:01:44 PM</span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, float, &quot;double&quot;)">0.11111</span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, date, &quot;datetime&quot;)">8/11/2020 4:01:44 PM</span>
 		</span>
 		
 		<!-- control syntax, client rendering, format string -->
 		<span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;X&quot;, int)"></span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;P2&quot;, float)"></span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;dddd&quot;, date)"></span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;X&quot;, int, &quot;int32&quot;)"></span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;P2&quot;, float, &quot;double&quot;)"></span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;dddd&quot;, date, &quot;datetime&quot;)"></span>
 		</span>
 		
 		<!-- control syntax, server rendering, format string -->
 		<span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;X&quot;, int)">989680</span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;P2&quot;, float)">11.11%</span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;dddd&quot;, date)">Tuesday</span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;X&quot;, int, &quot;int32&quot;)">989680</span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;P2&quot;, float, &quot;double&quot;)">11.11%</span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;dddd&quot;, date, &quot;datetime&quot;)">Tuesday</span>
 		</span>
 	</body>
 </html>
