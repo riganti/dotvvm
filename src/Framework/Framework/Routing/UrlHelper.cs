@@ -48,7 +48,14 @@ namespace DotVVM.Framework.Routing
         }
 
         private static string AppendQueryParam(ref string urlSuffix, string name, string value)
-            => urlSuffix += (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&") + $"{Uri.EscapeDataString(name)}={Uri.EscapeDataString(value)}";
+        {
+            urlSuffix += (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&");
+            var hasValue = value.Trim() != string.Empty;
+
+            return (!hasValue) ?
+                urlSuffix += Uri.EscapeDataString(name) :
+                urlSuffix += $"{Uri.EscapeDataString(name)}={Uri.EscapeDataString(value)}";
+        }
 
         /// <summary>
         /// Checks whether the URL is local.
