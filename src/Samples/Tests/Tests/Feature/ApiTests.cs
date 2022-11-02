@@ -9,6 +9,7 @@ using Riganti.Selenium.Core.Api;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
+using static DotVVM.Samples.Tests.UITestUtils;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -24,43 +25,46 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // click the first button (ID = 11)
                 browser.WaitFor(() => {
-                    browser.First(".id-company[data-company-id='11'] input[type=button]").Click()
-                        .Wait();
+                    browser.First(".id-company[data-company-id='11'] input[type=button]").Click();
                 }, 30000, "Cannot find CompanyID = 11. Probably data are not loaded. (The page did not load in 5s.)");
 
                 // ensure that orders have been loaded
-                var orders = browser.FindElements(".id-order");
-                AssertUI.Any(orders).Attribute("data-order-id", "6");
+                WaitForIgnoringStaleElements(() => {
+                    AssertUI.Any(browser.FindElements(".id-order"), waitForOptions: WaitForOptions.Disabled).Attribute("data-order-id", "6");
+                });
 
-                var idToDelete = orders[2].GetAttribute("data-order-id");       // every order has two elements (read-only and edit)
+                var idToDelete = browser.FindElements(".id-order")[2].GetAttribute("data-order-id");       // every order has two elements (read-only and edit)
 
                 // delete order (ID = 7)
-                browser.First($".id-order[data-order-id='{idToDelete}'] input[type=button][value=Delete]").Click().Wait();
-                orders = browser.FindElements(".id-order");
-                AssertUI.Any(orders).Attribute("data-order-id", "6");
-                AssertUI.All(orders).Attribute("data-order-id", s => s != idToDelete);
+                browser.First($".id-order[data-order-id='{idToDelete}'] input[type=button][value=Delete]").Click();
+                WaitForIgnoringStaleElements(() => {
+                    AssertUI.Any(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", "6");
+                    AssertUI.All(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", s => s != idToDelete);
+                });
 
                 // click the second button (ID = 12)
-                browser.First(".id-company[data-company-id='12'] input[type=button]").Click().Wait();
+                browser.First(".id-company[data-company-id='12'] input[type=button]").Click();
+
 
                 // ensure that orders have been loaded
-                orders = browser.FindElements(".id-order");
-                AssertUI.Any(orders).Attribute("data-order-id", "2");
-                AssertUI.Any(orders).Attribute("data-order-id", "9");
+                WaitForIgnoringStaleElements(() => {
+                    AssertUI.Any(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", "2");
+                    AssertUI.Any(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", "9");
+                });
 
                 // edit order (ID = 2)
-                browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click().Wait();
+                browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click();
                 browser.First(".id-order.id-edit input[type=text]").Clear().SendKeys("2000-01-01");
-                browser.First(".id-order.id-edit input[type=button][value=Apply]").Click().Wait();
-                browser.First(".id-order.id-edit input[type=button][value=Exit]").Click().Wait();
+                browser.First(".id-order.id-edit input[type=button][value=Apply]").Click();
+                browser.First(".id-order.id-edit input[type=button][value=Exit]").Click();
 
                 AssertUI.TextEquals(browser.First(".id-order[data-order-id='2'] .id-date"), "2000-01-01");
 
                 // change the order (ID = 2) date back so the test can be run once again
-                browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click().Wait();
+                browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click();
                 browser.First(".id-order.id-edit input[type=text]").Clear().SendKeys("2010-01-01");
-                browser.First(".id-order.id-edit input[type=button][value=Apply]").Click().Wait();
-                browser.First(".id-order.id-edit input[type=button][value=Exit]").Click().Wait();
+                browser.First(".id-order.id-edit input[type=button][value=Apply]").Click();
+                browser.First(".id-order.id-edit input[type=button][value=Exit]").Click();
 
                 AssertUI.TextEquals(browser.First(".id-order[data-order-id='2'] .id-date"), "2010-01-01");
             });
@@ -147,7 +151,7 @@ namespace DotVVM.Samples.Tests.Feature
                 {
                     r.First("input[type=checkbox]").Click();
                 }
-                browser.First(".form-grid input[type=button]").Click().Wait();
+                browser.First(".form-grid input[type=button]").Click();
                 browser.ElementAt(".form-create input[type=button]", 1).Click();
 
                 // make sure it disappeared
