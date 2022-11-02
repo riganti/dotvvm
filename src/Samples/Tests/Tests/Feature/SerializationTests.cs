@@ -253,6 +253,56 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Serialization_DateOnly()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_DateOnlyTimeOnly);
+
+                var dateOnlyPlain = browser.Single("dateonly-plain", SelectByDataUi);
+                var dateOnlySpan = browser.Single("dateonly-span", SelectByDataUi);
+                var dateOnlyTextBox = browser.Single("dateonly-textbox", SelectByDataUi);
+
+                // Initial state
+                const string initialDateOnlyValue = "Wednesday, September 14, 2022";
+                AssertUI.TextEquals(dateOnlyTextBox, initialDateOnlyValue);
+                AssertUI.TextEquals(dateOnlySpan, initialDateOnlyValue);
+                AssertUI.TextEquals(dateOnlyPlain, "DateOnly: " + initialDateOnlyValue);
+
+                // Change date
+                const string newDateOnlyValue = "Saturday, June 25, 2022";
+                dateOnlyTextBox.Clear().SendKeys(newDateOnlyValue).SendEnterKey();
+                AssertUI.TextEquals(dateOnlyTextBox, newDateOnlyValue);
+                AssertUI.TextEquals(dateOnlySpan, newDateOnlyValue);
+                AssertUI.TextEquals(dateOnlyPlain, "DateOnly: " + newDateOnlyValue);
+            });
+        }
+
+        [Fact]
+        public void Feature_Serialization_TimeOnly()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_DateOnlyTimeOnly);
+
+                var timeOnlyPlain = browser.Single("timeonly-plain", SelectByDataUi);
+                var timeOnlySpan = browser.Single("timeonly-span", SelectByDataUi);
+                var timeOnlyTextBox = browser.Single("timeonly-textbox", SelectByDataUi);
+
+                // Initial state
+                const string initialTimeOnlyValue = "11:56:42 PM";
+                AssertUI.TextEquals(timeOnlyTextBox, initialTimeOnlyValue);
+                AssertUI.TextEquals(timeOnlySpan, initialTimeOnlyValue);
+                AssertUI.TextEquals(timeOnlyPlain, "TimeOnly: " + initialTimeOnlyValue);
+
+                // Change date
+                const string newTimeOnlyValue = "9:23:00 AM";
+                timeOnlyTextBox.Clear().SendKeys(newTimeOnlyValue).SendEnterKey();
+                AssertUI.TextEquals(timeOnlyTextBox, newTimeOnlyValue);
+                AssertUI.TextEquals(timeOnlySpan, newTimeOnlyValue);
+                AssertUI.TextEquals(timeOnlyPlain, "TimeOnly: " + newTimeOnlyValue);
+            });
+        }
+
         public SerializationTests(ITestOutputHelper output) : base(output)
         {
         }

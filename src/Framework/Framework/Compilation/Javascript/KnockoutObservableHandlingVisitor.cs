@@ -46,9 +46,9 @@ namespace DotVVM.Framework.Compilation.Javascript
                     node.RemoveAnnotation(MayBeNullAnnotation.Instance);
                 }
             }
-            else if (node is JsSymbolicParameter sp && sp.Symbol == JavascriptTranslator.KnockoutViewModelParameter && !ShouldUnwrap(node))
+            else if (node is JsSymbolicParameter sp && sp.Symbol is JavascriptTranslator.ViewModelSymbolicParameter vm && !ShouldUnwrap(node))
             {
-                node.ReplaceWith(new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$rawData"));
+                node.ReplaceWith(new JsSymbolicParameter(vm.WithReturnsObservable(true)));
             }
         }
 

@@ -100,6 +100,7 @@
     <None Remove="Views\FeatureSamples\PostbackAbortSignal\LoadAbortViewModel.dothtml" />
     <None Remove="Views\FeatureSamples\RenderSettingsModeServer\RepeaterCollectionSetToNull.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\ByteArray.dothtml" />
+    <None Remove="Views\FeatureSamples\Serialization\DateOnlyTimeOnly.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\TimeSpan.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\EnumSerializationCoercion.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\SerializationDateTimeOffset.dothtml" />
@@ -108,6 +109,7 @@
     <None Remove="Views\FeatureSamples\ViewModules\Incrementer.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\IncrementerInRepeater.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\InnerModuleControl.dotcontrol" />
+    <None Remove="Views\FeatureSamples\ViewModules\LinkModuleControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControl.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControlTwice.dothtml" />
@@ -165,6 +167,7 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Views\FeatureSamples\ViewModules\LinkModuleControl.dotcontrol" />
     <EmbeddedResource Include="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>

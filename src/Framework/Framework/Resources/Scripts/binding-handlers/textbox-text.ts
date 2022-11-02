@@ -1,4 +1,4 @@
-import { parseDate, serializeDate } from '../serialization/date'
+import { parseDate, parseDateOnly, parseTimeOnly, serializeDate, serializeDateOnly, serializeTimeOnly } from '../serialization/date'
 import * as globalize from '../DotVVM.Globalize'
 import { DotvvmValidationElementMetadata, DotvvmValidationObservableMetadata, getValidationMetadata } from '../validation/common';
 import { lastSetErrorSymbol } from '../state-manager';
@@ -65,6 +65,24 @@ export default {
                     result = globalize.parseNumber(element.value);
                     isEmpty = result === null || isNaN(result);
                     newValue = isEmpty ? null : result;
+                } else if (elmMetadata.dataType === "dateonly") {
+                    // parse dateonly
+                    let currentValue = obs();
+                    if (currentValue != null) {
+                        currentValue = parseDateOnly(currentValue);
+                    }
+                    result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
+                    isEmpty = result == null;
+                    newValue = isEmpty ? null : serializeDateOnly(result);
+                } else if (elmMetadata.dataType === "timeonly") {
+                    // parse timeonly
+                    let currentValue = obs();
+                    if (currentValue != null) {
+                        currentValue = parseTimeOnly(currentValue);
+                    }
+                    result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
+                    isEmpty = result == null;
+                    newValue = isEmpty ? null : serializeTimeOnly(result);
                 } else {
                     // string
                     newValue = element.value;
@@ -118,7 +136,7 @@ export default {
             // apply formatting
             const format = element.getAttribute("data-dotvvm-format");
             if (format) {
-                value = globalize.formatString(format, value);
+                value = globalize.formatString(format, value, element.getAttribute("data-dotvvm-value-type"));
             }
 
             const invalidValue = element.getAttribute("data-invalid-value");

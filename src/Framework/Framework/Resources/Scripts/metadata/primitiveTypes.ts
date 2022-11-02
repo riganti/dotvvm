@@ -1,6 +1,17 @@
 import { formatString, parseDate as globalizeParseDate } from "../DotVVM.Globalize";
-import { parseDate as serializationParseDate, parseTimeSpan as serializationParseTimeSpan, parseDateTimeOffset as serializationParseDateTimeOffset, serializeDate, serializeTimeSpan } from "../serialization/date";
+import {
+    parseDate as serializationParseDate,
+    parseDateOnly as serializationParseDateOnly,
+    parseTimeOnly as serializationParseTimeOnly,
+    parseTimeSpan as serializationParseTimeSpan,
+    parseDateTimeOffset as serializationParseDateTimeOffset,
+    serializeDate,
+    serializeDateOnly,
+    serializeTimeOnly,
+    serializeTimeSpan
+} from "../serialization/date";
 import { CoerceError } from "../shared-classes";
+import { isNumber } from "../utils/isNumber";
 
 type PrimitiveTypes = { 
     [name: string]: { 
@@ -68,6 +79,12 @@ export const primitiveTypes: PrimitiveTypes = {
     DateTime: {
         tryCoerce: validateDateTime
     },
+    DateOnly: {
+        tryCoerce: validateDateOnly
+    },
+    TimeOnly: {
+        tryCoerce: validateTimeOnly
+    },
     TimeSpan: {
         tryCoerce: validateTimeSpan
     },
@@ -77,44 +94,21 @@ export const primitiveTypes: PrimitiveTypes = {
 };
 
 function validateInt(value: any, min: number, max: number) {
-    let wasCoerced = false;
-    if (typeof value === "string") {
-        if (value === "") {
-            return;
-        }
-        value = Number(value);
-        if (isNaN(value)) {
-            return;
-        }
-        wasCoerced = true;
-    } else if (typeof value !== "number") {
-        return;
+    const originalValue = value
+    if (!isNumber(value)) {
+        return
     }
+    value = Number(value)
+    value = Math.trunc(value)
     
-    if (Math.trunc(value) !== value) {
-        value = Math.trunc(value);
-        wasCoerced = true;
-    }
-    
-    if (!isNaN(value) && value >= min && value <= max) {
-        return { value, wasCoerced };
+    if (value >= min && value <= max) {
+        return { value, wasCoerced: value !== originalValue };
     }
 }
 
 function validateFloat(value: any) {
-    let wasCoerced = false;
-    if (typeof value === "string") {
-        value = Number(value);
-        if (isNaN(value)) {
-            return;
-        }
-        wasCoerced = true;
-    } else if (typeof value !== "number") {
-        return;
-    }
-        
-    if (!isNaN(value)) {
-        return { value, wasCoerced };
+    if (isNumber(value)) {
+        return { value: +value, wasCoerced: value !== +value };
     }
 }
 
@@ -123,10 +117,10 @@ function validateString(value: any) {
     if (value === null) {
         wasCoerced = false;
     } else if (typeof value === "number") {
-        value = formatString("n", value);
+        value = formatString("n", value, null);
         wasCoerced = true;
     } else if (value instanceof Date) {
-        value = formatString("g", value);
+        value = formatString("g", value, "datetime");
         wasCoerced = true;
     } else if (typeof value === "boolean") {
         value = value ? "true" : "false";
@@ -178,6 +172,60 @@ function validateDateTime(value: any) {
     
     if (value instanceof Date) {
         return { value: serializeDate(value, false), wasCoerced: true };
+    }
+}
+
+function validateDateOnly(value: any) {
+    if (typeof value === "string") {
+        // strict DotVVM format parse
+        const dateOnly = serializationParseDateOnly(value);
+        if (dateOnly != null) {
+            return { value: value, wasCoerced: false };
+        }
+
+        // less-strict DotVVM format parse (coercion from DateTime)
+        const dateTime = serializationParseDate(value);
+        if (dateTime != null) {
+            // try to coerce DateTime to DateOnly
+            const coercedDateOnly = serializeDateOnly(dateTime);
+            if (coercedDateOnly != null) {
+                return { value: coercedDateOnly, wasCoerced: true };
+            }
+        }
+
+        // loose parse (the format parameter is intentionally blank - let Globalize.js use default formats from current culture)
+        value = globalizeParseDate(value, "");
+    }
+
+    if (value instanceof Date) {
+        return { value: serializeDateOnly(value), wasCoerced: true };
+    }
+}
+
+function validateTimeOnly(value: any) {
+    if (typeof value === "string") {
+        // strict DotVVM format parse
+        const timeOnly = serializationParseTimeOnly(value);
+        if (timeOnly != null) {
+            return { value: value, wasCoerced: false };
+        }
+
+        // less-strict DotVVM format parse (coercion from DateTime)
+        const dateTime = serializationParseDate(value);
+        if (dateTime != null) {
+            // try to coerce DateTime toTimeOnly
+            const coercedTimeOnly = serializeTimeOnly(dateTime);
+            if (coercedTimeOnly != null) {
+                return { value: coercedTimeOnly, wasCoerced: true }
+            }
+        }
+
+        // loose parse (the format parameter is intentionally blank - let Globalize.js use default formats from current culture)
+        value = globalizeParseDate(value, "");
+    }
+
+    if (value instanceof Date) {
+        return { value: serializeTimeOnly(value), wasCoerced: true };
     }
 }
 
