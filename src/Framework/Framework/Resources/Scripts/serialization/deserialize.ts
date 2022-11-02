@@ -40,12 +40,7 @@ export function deserializePrimitive(viewModel: any, target?: any): any {
 }
 
 export function deserializeDate(viewModel: any, target?: any): any {
-    serializeDate(viewModel);
-    if (ko.isObservable(target)) {
-        target(viewModel);
-        return target;
-    }
-    return viewModel;
+    return deserializePrimitive(target, serializeDate(viewModel));
 }
 
 export function deserializeArray(viewModel: any, target?: any, deserializeAll: boolean = false): any {
