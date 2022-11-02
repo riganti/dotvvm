@@ -132,7 +132,7 @@ describe("DotVVM.Validation - public API", () => {
 
             //Check
             expect(warnMock).toHaveBeenCalled();
-            expect(warnMock.mock.calls[0][2]).toContain("Unable to find viewmodel property /Prop1/NonExistent");
+            expect(warnMock.mock.calls[0][2]).toContain("Validation error could not been applied to property specified by propertyPath /Prop1/NonExistent. Property with name NonExistent does not exist on /Prop1.");
         }
         finally {
             warnMock.mockRestore();
@@ -154,7 +154,7 @@ describe("DotVVM.Validation - public API", () => {
 
             //Check
             expect(warnMock).toHaveBeenCalled();
-            expect(warnMock.mock.calls[0][2]).toContain("Unable to find viewmodel property /NonExistent");
+            expect(warnMock.mock.calls[0][2]).toContain("Validation error could not been applied to property specified by propertyPath /NonExistent. Property with name NonExistent does not exist on root.");
         }
         finally {
             warnMock.mockRestore();
