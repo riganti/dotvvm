@@ -9,6 +9,7 @@ using Riganti.Selenium.Core.Api;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
+using static DotVVM.Samples.Tests.UITestUtils;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -28,7 +29,7 @@ namespace DotVVM.Samples.Tests.Feature
                 }, 30000, "Cannot find CompanyID = 11. Probably data are not loaded. (The page did not load in 5s.)");
 
                 // ensure that orders have been loaded
-                WaitForExecutor.WaitFor(() => {
+                WaitForIgnoringStaleElements(() => {
                     AssertUI.Any(browser.FindElements(".id-order"), waitForOptions: WaitForOptions.Disabled).Attribute("data-order-id", "6");
                 });
 
@@ -36,7 +37,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // delete order (ID = 7)
                 browser.First($".id-order[data-order-id='{idToDelete}'] input[type=button][value=Delete]").Click();
-                WaitForExecutor.WaitFor(() => {
+                WaitForIgnoringStaleElements(() => {
                     AssertUI.Any(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", "6");
                     AssertUI.All(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", s => s != idToDelete);
                 });
@@ -46,7 +47,7 @@ namespace DotVVM.Samples.Tests.Feature
 
 
                 // ensure that orders have been loaded
-                WaitForExecutor.WaitFor(() => {
+                WaitForIgnoringStaleElements(() => {
                     AssertUI.Any(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", "2");
                     AssertUI.Any(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", "9");
                 });

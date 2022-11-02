@@ -1,5 +1,6 @@
 using System;
 using OpenQA.Selenium;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests;
 public static class UITestUtils
@@ -21,4 +22,10 @@ public static class UITestUtils
     }
     public static void StaleElementRetry(Action action, int attempts = 5) =>
         StaleElementRetry(() => { action(); return 0; }, attempts);
+
+
+    public static void WaitForIgnoringStaleElements(Action action, WaitForOptions options = null)
+    {
+        WaitForExecutor.WaitFor(() => StaleElementRetry(action), options);
+    }
 }
