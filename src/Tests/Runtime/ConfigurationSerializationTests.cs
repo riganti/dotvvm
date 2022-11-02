@@ -34,6 +34,8 @@ namespace DotVVM.Framework.Tests.Runtime
             // Unify all occurrences of mscorlib and system.private.corelib
             serialized = serialized.Replace("mscorlib, Version=***, Culture=neutral, PublicKeyToken=b77a5c561934e089", "CoreLibrary");
             serialized = serialized.Replace("System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e", "CoreLibrary");
+            serialized = serialized.Replace("mscorlib", "CoreLibrary");
+            serialized = serialized.Replace("System.Private.CoreLib", "CoreLibrary");
             // Special case - unify IServiceProvider
             serialized = serialized.Replace("System.IServiceProvider, CoreLibrary", "System.IServiceProvider, ComponentLibrary");
             serialized = serialized.Replace("System.IServiceProvider, System.ComponentModel, Version=***, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.IServiceProvider, ComponentLibrary");
