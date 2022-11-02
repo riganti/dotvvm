@@ -361,6 +361,7 @@ namespace DotVVM.Framework.Hosting
                 context.CsrfToken = postData["$csrfToken"].Value<string>();
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
 
+                var knownTypes = postData["knownTypeMetadata"].Values<string>().ToArray();
                 var command = postData["command"].Value<string>();
                 var arguments = postData["args"] as JArray;
                 var executionPlan =
@@ -380,7 +381,7 @@ namespace DotVVM.Framework.Hosting
 
                 await OutputRenderer.WriteStaticCommandResponse(
                     context,
-                    ViewModelSerializer.BuildStaticCommandResponse(context, result));
+                    ViewModelSerializer.BuildStaticCommandResponse(context, result, knownTypes));
             }
             finally
             {
