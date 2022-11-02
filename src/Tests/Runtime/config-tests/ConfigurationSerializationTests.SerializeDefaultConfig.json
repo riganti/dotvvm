@@ -1866,32 +1866,46 @@
     "DotVVM.AutoUI.Controls.AutoEditor": {
       "assembly": "DotVVM.AutoUI",
       "baseType": "DotVVM.Framework.Controls.CompositeControl, DotVVM.Framework",
-      "withoutContent": true
+      "withoutContent": true,
+      "markupPrimaryName": "Editor",
+      "isComposite": true,
+      "precompilationMode": "InServerSideStyles"
     },
     "DotVVM.AutoUI.Controls.AutoForm": {
       "assembly": "DotVVM.AutoUI",
-      "baseType": "DotVVM.AutoUI.Controls.AutoFormBase, DotVVM.AutoUI"
+      "baseType": "DotVVM.AutoUI.Controls.AutoFormBase, DotVVM.AutoUI",
+      "markupPrimaryName": "Form",
+      "isComposite": true,
+      "precompilationMode": "InServerSideStyles"
     },
     "DotVVM.AutoUI.Controls.AutoFormBase": {
       "assembly": "DotVVM.AutoUI",
       "baseType": "DotVVM.Framework.Controls.CompositeControl, DotVVM.Framework",
-      "isAbstract": true
+      "isAbstract": true,
+      "isComposite": true,
+      "precompilationMode": "InServerSideStyles"
     },
     "DotVVM.AutoUI.Controls.AutoGridViewColumn": {
       "assembly": "DotVVM.AutoUI",
-      "baseType": "DotVVM.Framework.Controls.GridViewColumn, DotVVM.Framework"
+      "baseType": "DotVVM.Framework.Controls.GridViewColumn, DotVVM.Framework",
+      "markupPrimaryName": "GridViewColumn"
     },
     "DotVVM.AutoUI.Controls.AutoGridViewColumns": {
       "assembly": "DotVVM.AutoUI",
-      "baseType": "DotVVM.Framework.Controls.GridViewColumn, DotVVM.Framework"
+      "baseType": "DotVVM.Framework.Controls.GridViewColumn, DotVVM.Framework",
+      "markupPrimaryName": "GridViewColumns"
     },
     "DotVVM.AutoUI.Controls.BootstrapForm": {
       "assembly": "DotVVM.AutoUI",
-      "baseType": "DotVVM.AutoUI.Controls.AutoFormBase, DotVVM.AutoUI"
+      "baseType": "DotVVM.AutoUI.Controls.AutoFormBase, DotVVM.AutoUI",
+      "isComposite": true,
+      "precompilationMode": "InServerSideStyles"
     },
     "DotVVM.AutoUI.Controls.BulmaForm": {
       "assembly": "DotVVM.AutoUI",
-      "baseType": "DotVVM.AutoUI.Controls.AutoFormBase, DotVVM.AutoUI"
+      "baseType": "DotVVM.AutoUI.Controls.AutoFormBase, DotVVM.AutoUI",
+      "isComposite": true,
+      "precompilationMode": "InServerSideStyles"
     },
     "DotVVM.Framework.Compilation.Styles.ResolvedControlHelper+LazyRuntimeControl": {
       "assembly": "DotVVM.Framework",

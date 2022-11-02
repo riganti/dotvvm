@@ -100,13 +100,22 @@ namespace DotVVM.Framework.Hosting
 
                     var markupOptions = c.GetCustomAttribute<ControlMarkupOptionsAttribute>();
                     var interfaces = c.GetInterfaces().Except(c.BaseType?.GetInterfaces() ?? Array.Empty<Type>()).ToArray();
+                    var isComposite = typeof(CompositeControl).IsAssignableFrom(c) && typeof(CompositeControl) != c;
                     var control = new DotvvmControlInfo(
                         c.Assembly?.GetName()?.Name,
                         c.BaseType,
                         interfaces: interfaces.Length > 0 ? interfaces : null,
                         isAbstract: c.IsAbstract || c.IsGenericType,
                         markupOptions?.DefaultContentProperty,
-                        !markupOptions?.AllowContent ?? false
+                        withoutContent:
+                            !markupOptions?.AllowContent ?? false,
+                        markupPrimaryName:
+                            c.Name != markupOptions?.PrimaryName ? markupOptions?.PrimaryName : null,
+                        markupAlternativeNames:
+                            markupOptions?.AlternativeNames?.Length > 0 ? markupOptions?.AlternativeNames : null,
+                        isComposite: isComposite,
+                        precompilationMode:
+                            isComposite && markupOptions?.Precompile != ControlPrecompilationMode.Never ? markupOptions?.Precompile : null
                     );
                     result[c.FullName] = control;
                 }
@@ -168,7 +177,11 @@ namespace DotVVM.Framework.Hosting
             Type[]? interfaces,
             bool isAbstract,
             string? defaultContentProperty,
-            bool withoutContent
+            bool withoutContent,
+            string? markupPrimaryName,
+            string[]? markupAlternativeNames,
+            bool isComposite,
+            ControlPrecompilationMode? precompilationMode
         ) { }
 
 
