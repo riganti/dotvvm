@@ -1,6 +1,6 @@
 import { logWarning } from "../utils/logging";
 
-export function parseDate(value: string | null, convertFromUtc: boolean = false): Date | null {
+export function parseDate(value: string | null | undefined, convertFromUtc: boolean = false): Date | null {
     if (value == null) return null;
     if (/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d{1,7})?$/.test(value)) {
 
@@ -17,15 +17,15 @@ export function parseDate(value: string | null, convertFromUtc: boolean = false)
     return null;
 }
 
-export function parseDateOnly(value: string | null): Date | null {
+export function parseDateOnly(value: string | null | undefined): Date | null {
     return parseDate(`${value}T00:00:00.00`, false);
 }
 
-export function parseTimeOnly(value: string | null): Date | null {
+export function parseTimeOnly(value: string | null | undefined): Date | null {
     return parseDate(`1970-01-01T${value}`, false);
 }
 
-export function parseTimeSpan(value: string | null): number | null {
+export function parseTimeSpan(value: string | null | undefined): number | null {
     if (value == null) return null;
     const match = /^(-?)(\d+\.)?(\d+):(\d\d):(\d\d)(\.\d{3,7})?$/.exec(value);
     if (match) {
@@ -40,7 +40,7 @@ export function parseTimeSpan(value: string | null): number | null {
     return null;
 }
 
-export function parseDateTimeOffset(value: string | null): Date | null {
+export function parseDateTimeOffset(value: string | null | undefined): Date | null {
     if (value == null) return null;
     const d = Date.parse(value)
     if (d) {
@@ -68,42 +68,17 @@ export function serializeDate(date: string | Date | null, convertToUtc: boolean 
         .replace(' ', 'T')
         + '.' + padNumber(date.getMilliseconds(), 3) + '0000';
 }
-
-export function serializeDateOnly(date: Date | null): string | null {
-    if (date == null) {
-        return null;
-    }
+export function serializeDateOnly(date: Date): string {
     // https://stackoverflow.com/a/58633651/3577667
     // Note that I'm using Sweden as locale because it is one of the countries that uses ISO 8601 format.
     return date.toLocaleDateString('sv');
 }
 
-export function serializeTimeOnly(date: Date | null): string | null {
-    if (date == null) {
-        return null;
-    }
-
+export function serializeTimeOnly(date: Date): string {
     return date.toLocaleTimeString('sv') + '.' + padNumber(date.getMilliseconds(), 3) + '0000';
 }
 
-export function serializeTimeSpan(time: string | number | null): string | null {
-    let ticks: number;
-
-    if (time === null) {
-        return null;
-    } else if (typeof time == "string") {
-        // just print in the console if it's invalid
-        const parsedTime = parseTimeSpan(time);
-        if (parsedTime === null) {
-            logWarning("coercer", `TimeSpan ${time} is invalid.`);
-            return null;
-        }
-
-        ticks = parsedTime;
-    } else {
-        ticks = time;
-    }
-    
+export function serializeTimeSpan(ticks: number): string {
     const sign = ticks >= 0 ? "" : "-";
     ticks = Math.abs(ticks);
     const hours = (ticks / 1000 / 3600) | 0;

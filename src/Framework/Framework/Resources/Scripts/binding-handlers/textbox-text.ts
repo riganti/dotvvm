@@ -48,41 +48,26 @@ export default {
                 }
 
                 // parse the value
-                let result;
-                let isEmpty;
                 let newValue;
                 if (elmMetadata.dataType === "datetime") {
                     // parse date
-                    let currentValue = obs();
-                    if (currentValue != null) {
-                        currentValue = parseDate(currentValue);
-                    }
-                    result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
-                    isEmpty = result == null;
-                    newValue = isEmpty ? null : serializeDate(result, false);
+                    let currentValue = parseDate(obs());
+                    const result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
+                    newValue = result ? null : serializeDate(result, false);
                 } else if (elmMetadata.dataType === "number") {
                     // parse number
-                    result = globalize.parseNumber(element.value);
-                    isEmpty = result === null || isNaN(result);
-                    newValue = isEmpty ? null : result;
+                    const result = globalize.parseNumber(element.value);
+                    newValue = result == null || isNaN(result) ? null : result;
                 } else if (elmMetadata.dataType === "dateonly") {
                     // parse dateonly
-                    let currentValue = obs();
-                    if (currentValue != null) {
-                        currentValue = parseDateOnly(currentValue);
-                    }
-                    result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
-                    isEmpty = result == null;
-                    newValue = isEmpty ? null : serializeDateOnly(result);
+                    let currentValue = parseDateOnly(obs());
+                    const result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
+                    newValue = !result ? null : serializeDateOnly(result);
                 } else if (elmMetadata.dataType === "timeonly") {
                     // parse timeonly
-                    let currentValue = obs();
-                    if (currentValue != null) {
-                        currentValue = parseTimeOnly(currentValue);
-                    }
-                    result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
-                    isEmpty = result == null;
-                    newValue = isEmpty ? null : serializeTimeOnly(result);
+                    let currentValue = parseTimeOnly(obs());
+                    const result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
+                    newValue = !result ? null : serializeTimeOnly(result);
                 } else {
                     // string
                     newValue = element.value;

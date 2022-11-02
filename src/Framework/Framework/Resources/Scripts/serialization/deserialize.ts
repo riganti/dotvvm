@@ -40,7 +40,7 @@ export function deserializePrimitive(viewModel: any, target?: any): any {
 }
 
 export function deserializeDate(viewModel: any, target?: any): any {
-    viewModel = serializeDate(viewModel);
+    serializeDate(viewModel);
     if (ko.isObservable(target)) {
         target(viewModel);
         return target;
