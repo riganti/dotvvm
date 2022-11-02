@@ -120,33 +120,45 @@ describe("DotVVM.Validation - public API", () => {
     test("addErrors - second level nonexistent property", () => {
         //Setup
         const vm = createComplexObservableViewmodel();
+        var warnMock = jest.spyOn(console, 'warn').mockImplementation(() => { });
+        try {
+            //Act
+            validation.addErrors(
+                [
+                    { errorMessage: "Does not matter", propertyPath: "/Prop1/NonExistent" },
+                ],
+                { root: ko.observable(vm) }
+            );
 
-        //Act
-        const act = () => validation.addErrors(
-            [
-                { errorMessage: "Does not matter", propertyPath: "/Prop1/NonExistent" },
-            ],
-            { root: ko.observable(vm) }
-        )
-
-        //Check
-        expect(act).toThrowError("Validation error could not been applied to property specified by propertyPath /Prop1/NonExistent. Property with name NonExistent does not exist on /Prop1.");
+            //Check
+            expect(warnMock).toHaveBeenCalled();
+            expect(warnMock.mock.calls[0][2]).toContain("Validation error could not been applied to property specified by propertyPath /Prop1/NonExistent. Property with name NonExistent does not exist on /Prop1.");
+        }
+        finally {
+            warnMock.mockRestore();
+        }
     })
 
     test("addErrors - root level nonexistent property", () => {
         //Setup
         const vm = createComplexObservableViewmodel();
+        var warnMock = jest.spyOn(console, 'warn').mockImplementation(() => { });
+        try {
+            //Act
+            validation.addErrors(
+                [
+                    { errorMessage: "Does not matter", propertyPath: "/NonExistent" },
+                ],
+                { root: ko.observable(vm) }
+            );
 
-        //Act
-        const act = () => validation.addErrors(
-            [
-                { errorMessage: "Does not matter", propertyPath: "/NonExistent" },
-            ],
-            { root: ko.observable(vm) }
-        )
-
-        //Check
-        expect(act).toThrowError("Validation error could not been applied to property specified by propertyPath /NonExistent. Property with name NonExistent does not exist on root.");
+            //Check
+            expect(warnMock).toHaveBeenCalled();
+            expect(warnMock.mock.calls[0][2]).toContain("Validation error could not been applied to property specified by propertyPath /NonExistent. Property with name NonExistent does not exist on root.");
+        }
+        finally {
+            warnMock.mockRestore();
+        }
     })
 
     test("removeErrors - remove everything from root up", () => {
