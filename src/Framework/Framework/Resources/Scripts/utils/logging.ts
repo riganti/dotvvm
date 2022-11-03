@@ -4,21 +4,37 @@ type LogLevel = "normal" | "verbose";
 
 export const level = getLogLevel();
 
-export function logInfoVerbose(area: string, ...args: any[]) {
+export type DotvvmLoggingArea = (
+    | "debug"
+    | "log"
+    | "postback"
+    | "spa"
+    | "static-command"
+    | "binding-handler"
+    | "resource-loader"
+    | "coercer"
+    | "state-manager"
+    | "validation"
+    | "evaluator"
+    | "events"
+    | "rest-api"
+)
+
+export function logInfoVerbose(area: DotvvmLoggingArea, ...args: any[]) {
     if (compileConstants.debug && level === "verbose") {
         console.log(`%c${area}`, ...args);
     }
 }
 
-export function logInfo(area: string, ...args: any[]) {
+export function logInfo(area: DotvvmLoggingArea, ...args: any[]) {
     console.log(`%c${area}`, ...args);
 }
 
-export function logWarning(area: string, ...args: any[]) {
+export function logWarning(area: DotvvmLoggingArea, ...args: any[]) {
     console.warn(`%c${area}`, ...args);
 }
 
-export function logError(area: string, ...args: any[]) {
+export function logError(area: DotvvmLoggingArea, ...args: any[]) {
     console.error(`%c${area}`, ...args);
 }
 
@@ -34,7 +50,7 @@ function getLogLevel() : LogLevel {
         var logLevel = window.localStorage.getItem("dotvvm-loglevel");
         if (!logLevel) return "normal";
         if (logLevel === "normal" || logLevel === "verbose") return logLevel;
-        
+
         logWarning("log", "Invalid value of 'dotvvm-loglevel' config value! Supported values: 'normal', 'verbose'");
     }
     return "normal";
