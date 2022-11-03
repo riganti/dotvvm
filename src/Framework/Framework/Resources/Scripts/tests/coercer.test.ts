@@ -293,7 +293,7 @@ test("string - valid", () => {
 test("string - valid, converted from number", () => {
     const result = tryCoerce(-15, "String");
     expect(result.wasCoerced).toBeTruthy();
-    expect(result.value).toEqual("-15.00");        // TODO - format
+    expect(result.value).toEqual("-15");
 })
 
 test("string - valid, converted from boolean", () => {
@@ -303,9 +303,9 @@ test("string - valid, converted from boolean", () => {
 })
 
 test("string - valid, converted from Date", () => {
-    const result = tryCoerce(new Date(2020, 0, 10, 12, 34, 56), "String");
+    const result = tryCoerce(new Date("2020-01-10T12:34:56Z"), "String");
     expect(result.wasCoerced).toBeTruthy();
-    expect(result.value).toEqual("1/10/2020 12:34 PM");     // TODO - format
+    expect(result.value).toEqual("2020-01-10T12:34:56.0000000");
 })
 
 test("string - valid, null", () => {
@@ -479,7 +479,7 @@ test("object - valid, infer $type", () => {
 test("object - valid, with coercion", () => {
     const result = tryCoerce({ $type: "t1", a: 15 }, "t1");
     expect(result.wasCoerced).toBeTruthy();
-    expect(result.value).toEqual({ $type: "t1", a: "15.00" });
+    expect(result.value).toEqual({ $type: "t1", a: "15" });
 })
 
 test("object - valid, enum property", () => {
