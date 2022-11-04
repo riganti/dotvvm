@@ -27,15 +27,15 @@ export function logInfoVerbose(area: DotvvmLoggingArea, ...args: any[]) {
 }
 
 export function logInfo(area: DotvvmLoggingArea, ...args: any[]) {
-    console.log(`%c${area}`, ...args);
+    console.log(area, ...args);
 }
 
 export function logWarning(area: DotvvmLoggingArea, ...args: any[]) {
-    console.warn(`%c${area}`, ...args);
+    console.warn(area, ...args);
 }
 
 export function logError(area: DotvvmLoggingArea, ...args: any[]) {
-    console.error(`%c${area}`, ...args);
+    console.error(area, ...args);
 }
 
 export function logPostBackScriptError(err: any) {
