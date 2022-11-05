@@ -74,6 +74,7 @@ function Publish-Sample {
             "-p:PublishProfile=$root\.github\uitest\GenericPublish.pubxml", `
             "-p:DeployOnBuild=true", `
             "-p:Configuration=$config", `
+            "-p:WarningLevel=0", `
             "-p:SourceLinkCreate=true"
         Wait-Process -InputObject $msBuildProcess
         if ($msBuildProcess.ExitCode -ne 0) {
@@ -192,6 +193,7 @@ try {
             "--no-restore", `
             "--logger", `
             "trx;LogFileName=$TrxName", `
+            "-p:WarningLevel=0", `
             "--results-directory", `
             "$testResultsDir"
         Wait-Process -InputObject $uiTestProcess

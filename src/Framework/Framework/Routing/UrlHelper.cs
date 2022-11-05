@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Routing
                 case null:
                     break;
                 case IEnumerable<KeyValuePair<string, string>> keyValueCollection:
-                    foreach (var item in keyValueCollection)
+                    foreach (var item in keyValueCollection.Where(i => i.Value != null))
                     {
                         AppendQueryParam(ref resultSuffix, item.Key, item.Value);
                     }
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Routing
                     }
                     break;
                 default:
-                    foreach (var prop in query.GetType().GetProperties())
+                    foreach (var prop in query.GetType().GetProperties().Where(p => p.GetValue(query) != null))
                     {
                         AppendQueryParam(ref resultSuffix, prop.Name, prop.GetValue(query)!.ToString().NotNull());
                     }
@@ -48,7 +48,14 @@ namespace DotVVM.Framework.Routing
         }
 
         private static string AppendQueryParam(ref string urlSuffix, string name, string value)
-            => urlSuffix += (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&") + $"{Uri.EscapeDataString(name)}={Uri.EscapeDataString(value)}";
+        {
+            urlSuffix += (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&");
+            var hasValue = value.Trim() != string.Empty;
+
+            return (!hasValue) ?
+                urlSuffix += Uri.EscapeDataString(name) :
+                urlSuffix += $"{Uri.EscapeDataString(name)}={Uri.EscapeDataString(value)}";
+        }
 
         /// <summary>
         /// Checks whether the URL is local.

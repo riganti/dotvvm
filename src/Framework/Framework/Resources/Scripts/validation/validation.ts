@@ -336,10 +336,9 @@ export function addErrors(errors: ValidationErrorDescriptor[], options: AddError
         try {
             // find the property
             const property = evaluator.traverseContext(root, propertyPath);
-
             ValidationError.attach(prop.errorMessage, propertyPath, property);
         } catch (err) {
-            logWarning("validation", `Unable to find viewmodel property ${propertyPath}. If you've added this validation error using Context.AddModelError, make sure the property path is correct and that the object hasn't been removed from the viewmodel.`);
+            logWarning("validation", err);
         }
     }
 
