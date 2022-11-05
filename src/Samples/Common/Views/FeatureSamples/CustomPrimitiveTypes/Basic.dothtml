@@ -5,61 +5,58 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Conditional css classes</title>
-    <style>
-        .italic {
-            font-style: italic;
-        }
-
-        .blue {
-            color: blue;
-        }
-
-        .bordered {
-            border: solid 2px black;
-        }
-    </style>
+    <title>Custom primitive types</title>
 </head>
 <body>
     <p>
-        Selected item ID: {{value: SelectedItemId}}
+        Selected item ID: <span data-ui="selected-item">{{value: SelectedItemId}}</span>
         <br />
         <dot:ComboBox DataSource="{value: Items}"
                       ItemTextBinding="{value: Text}"
                       ItemValueBinding="{value: Id}"
-                      SelectedValue="{value: SelectedItemId}" />
-        <dot:Validator Value="{value: SelectedItemId}" ShowErrorMessageText="true" />
+                      SelectedValue="{value: SelectedItemId}"
+                      data-ui="selected-item-combo"/>
+        <dot:Validator Value="{value: SelectedItemId}" ShowErrorMessageText="true"
+                       data-ui="selected-item-validator"/>
     </p>
 
     <p>
-        Selected nullable item ID: {{value: SelectedItemNullableId}}
+        Selected nullable item ID: <span data-ui="selected-item-nullable">{{value: SelectedItemNullableId}}</span>
         <br />
         <dot:ComboBox DataSource="{value: Items}"
                       ItemTextBinding="{value: Text}"
                       ItemValueBinding="{value: Id}"
-                      SelectedValue="{value: SelectedItemNullableId}" />
-        <dot:Validator Value="{value: SelectedItemNullableId}" ShowErrorMessageText="true" />
+                      SelectedValue="{value: SelectedItemNullableId}"
+                      EmptyItemText="none"
+                      data-ui="selected-item-nullable-combo"/>
+        <dot:Validator Value="{value: SelectedItemNullableId}" ShowErrorMessageText="true"
+                       data-ui="selected-item-nullable-validator"/>
     </p>
 
     <p>
-        Route parameter: {{value: IdInRoute}}
+        Route parameter: <span data-ui="id-from-route">{{value: IdInRoute}}</span>
         <br />
-        Query parameter: {{value: IdInQuery}}
+        Query parameter: <span data-ui="id-from-query">{{value: IdInQuery}}</span>
     </p>
     <p>
-        <dot:RouteLink RouteName="FeatureSamples_CustomPrimitiveTypes_Basic" Param-Id="{value: IdInRoute}" Query-Id="{value: IdInQuery}" />
-    </p>
-
-    <p>
-        <dot:LinkButton Text="Call command" Click="{command: CommandWithSampleId(SelectedItemId)}" />
-        <br />
-        <dot:LinkButton Text="Call static command" Click="{staticCommand: StaticCommandResult = StaticCommandWithSampleId(SelectedItemId)}" />
-        <br />
-        Static command result: {{value: StaticCommandResult}}
+        <dot:RouteLink RouteName="FeatureSamples_CustomPrimitiveTypes_Basic"
+                       Param-Id="{value: IdInRoute}"
+                       Query-Id="{value: IdInQuery}"
+                       data-ui="routelink"/>
     </p>
 
     <p>
-        Binding with JS translation: {{value: $"My id values are {SelectedItemId.IdValue.ToString()} and {SelectedItemNullableId.IdValue.ToString().ToUpper()}"}}
+        <dot:LinkButton Text="Call command" Click="{command: CommandWithSampleId(SelectedItemId)}"
+                        data-ui="command"/>
+        <br />
+        <dot:LinkButton Text="Call static command" Click="{staticCommand: StaticCommandResult = StaticCommandWithSampleId(SelectedItemId)}"
+                        data-ui="static-command"/>
+        <br />
+        Static command result: <span data-ui="static-command-result">{{value: StaticCommandResult}}</span>
+    </p>
+
+    <p>
+        Binding with JS translation: <span data-ui="binding">{{value: $"My id values are {SelectedItemId.IdValue.ToString()} and {SelectedItemNullableId.IdValue.ToString().ToUpper()}"}}</span>
     </p>
 </body>
 </html>
