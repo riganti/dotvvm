@@ -21,7 +21,8 @@ namespace DotVVM.Framework.Configuration
 
         private JsonSerializerSettings CreateSettings()
         {
-            return new JsonSerializerSettings() {
+            return new JsonSerializerSettings()
+            {
                 DateTimeZoneHandling = DateTimeZoneHandling.Unspecified,
                 Converters = new List<JsonConverter>
                 {

@@ -159,7 +159,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else if (type.IsPrimitiveType())        // we intentionally detect this after handling enums and nullable types
             {
-                if (ReflectionUtils.CustomPrimitiveTypes.TryGetValue(type, out var registration))
+                if (ReflectionUtils.CustomPrimitiveTypes.TryGetValue(type, out var registration) && registration is {})
                 {
                     return GetTypeIdentifier(registration.ClientSideType, dependentObjectTypes, dependentEnumTypes);
                 }
@@ -229,6 +229,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private string GetEnumTypeName(Type type) => type.GetTypeHash();
 
         private string GetPrimitiveTypeName(Type type) => type.Name.ToString();
+
 
         readonly struct ObjectMetadataWithDependencies
         {

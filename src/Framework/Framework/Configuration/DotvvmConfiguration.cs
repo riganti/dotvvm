@@ -227,6 +227,7 @@ namespace DotVVM.Framework.Configuration
             Markup = new DotvvmMarkupConfiguration(new Lazy<JavascriptTranslatorConfiguration>(() => ServiceProvider.GetRequiredService<IOptions<JavascriptTranslatorConfiguration>>().Value));
             RouteTable = new DotvvmRouteTable(this);
             _styles = new StyleRepository(this);
+
         }
 
         private static ServiceCollection CreateDefaultServiceCollection()
