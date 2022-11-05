@@ -39,11 +39,6 @@ namespace DotVVM.Framework.Configuration
         public const string DotvvmControlTagPrefix = "dot";
 
         /// <summary>
-        /// Fired when the configuration routine is completely initialized and frozen.
-        /// </summary>
-        public event Action ConfigurationReady;
-
-        /// <summary>
         /// Gets or sets the application physical path.
         /// </summary>
         [JsonProperty("applicationPhysicalPath")]
@@ -172,8 +167,6 @@ namespace DotVVM.Framework.Configuration
             _routeConstraints.Freeze();
             Styles.Freeze();
             FreezableList.Freeze(ref _compiledViewsAssemblies);
-
-            ConfigurationReady?.Invoke();
         }
 
         [JsonIgnore]
@@ -234,8 +227,6 @@ namespace DotVVM.Framework.Configuration
             Markup = new DotvvmMarkupConfiguration(new Lazy<JavascriptTranslatorConfiguration>(() => ServiceProvider.GetRequiredService<IOptions<JavascriptTranslatorConfiguration>>().Value));
             RouteTable = new DotvvmRouteTable(this);
             _styles = new StyleRepository(this);
-
-            ConfigurationReady += () => ReflectionUtils.RegisterCustomPrimitiveTypes(Runtime.CustomPrimitiveTypes);
         }
 
         private static ServiceCollection CreateDefaultServiceCollection()

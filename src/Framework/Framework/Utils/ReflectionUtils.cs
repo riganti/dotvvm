@@ -23,6 +23,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using RecordExceptions;
 using System.ComponentModel;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Utils
 {
@@ -301,7 +302,7 @@ namespace DotVVM.Framework.Utils
             typeof (decimal)
         };
         // mapping of server-side types to their client-side representation
-        internal static readonly Dictionary<Type, CustomPrimitiveTypeRegistration> CustomPrimitiveTypes = new Dictionary<Type, CustomPrimitiveTypeRegistration>();
+        internal static readonly ConcurrentDictionary<Type, CustomPrimitiveTypeRegistration?> CustomPrimitiveTypes = new();
 
         public static IEnumerable<Type> GetNumericTypes()
         {
@@ -360,9 +361,34 @@ namespace DotVVM.Framework.Utils
         public static bool IsPrimitiveType(this Type type)
         {
             return PrimitiveTypes.Contains(type)
-                || CustomPrimitiveTypes.ContainsKey(type)
                 || (IsNullableType(type) && IsPrimitiveType(type.UnwrapNullableType()))
-                || type.IsEnum;
+                || type.IsEnum
+                || CustomPrimitiveTypes.GetOrAdd(type, TryDiscoverCustomPrimitiveType) is {};
+        }
+
+        private static CustomPrimitiveTypeRegistration? TryDiscoverCustomPrimitiveType(Type type)
+        {
+            var attribute = type.GetCustomAttribute<CustomPrimitiveTypeAttribute>();
+            if (attribute == null)
+            {
+                return null;
+            }
+
+            if (IsCollection(type) || IsDictionary(type))
+            {
+                throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)}, but it cannot be used as a custom primitive type. Custom primitive types cannot be collections, dictionaries, and cannot be primitive types already supported by DotVVM.");
+            }
+            if (!PrimitiveTypes.Contains(attribute.ClientSideType.UnwrapNullableType()))
+            {
+                throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)} but its {nameof(CustomPrimitiveTypeAttribute.ClientSideType)} is not valid. The client-side representation can only be one of the built-in primitive types (string, numbers, date and time types), or a nullable version of such type.");
+            }
+            if (!typeof(ICustomPrimitiveTypeConverter).IsAssignableFrom(attribute.ConverterType))
+            {
+                throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)} but its {nameof(CustomPrimitiveTypeAttribute.ConverterType)} doesn't implement the {nameof(ICustomPrimitiveTypeConverter)} interface!");
+            }
+
+            var converter = (ICustomPrimitiveTypeConverter)Activator.CreateInstance(attribute.ConverterType);
+            return new CustomPrimitiveTypeRegistration(type, attribute.ClientSideType, converter.Convert);
         }
 
         public static bool IsNullableType(Type type)
@@ -571,41 +597,6 @@ namespace DotVVM.Framework.Utils
                 cache_GetTypeHash.TryRemove(t, out _);
             }
         }
-
-        private static volatile bool customPrimitiveTypesRegistered = false;
-        internal static void RegisterCustomPrimitiveTypes(IList<CustomPrimitiveTypeRegistration> customPrimitiveTypeRegistrations)
-        {
-            foreach (var registration in customPrimitiveTypeRegistrations)
-            {
-                if (IsPrimitiveType(registration.ServerSideType)
-                    || IsCollection(registration.ServerSideType)
-                    || IsDictionary(registration.ServerSideType))
-                {
-                    throw new DotvvmConfigurationException($"The type {registration.ServerSideType} cannot be used as a custom primitive type. Custom primitive types cannot be collections, dictionaries, and cannot be primitive types already supported by DotVVM.");
-                }
-                if (CustomPrimitiveTypes.ContainsKey(registration.ServerSideType))
-                {
-                    throw new DotvvmConfigurationException($"The type {registration.ServerSideType} is already registered as a custom primitive type.");
-                }
-                if (!PrimitiveTypes.Contains(registration.ClientSideType.UnwrapNullableType()))
-                {
-                    throw new DotvvmConfigurationException($"The custom primitive type {registration.ServerSideType} cannot use {registration.ClientSideType} as a client-side equivalent. Only primitive types (strings, numbers, Guid, date and time types) are supported.");
-                }
-
-                CustomPrimitiveTypes.Add(registration.ServerSideType, registration);
-            }
-            customPrimitiveTypesRegistered = true;
-        }
-
-        internal static IEnumerable<JsonConverter> GetCustomPrimitiveTypeJsonConverters()
-        {
-            if (!customPrimitiveTypesRegistered)
-            {
-                throw new InvalidOperationException("Cannot access DefaultSerializerSettingsProvider.Instance before DotvvmConfiguration was initialized!");
-            }
-            return CustomPrimitiveTypes.Values
-                .Where(t => t.JsonConverter != null)
-                .Select(t => t.JsonConverter!);
-        }
+        
     }
 }

@@ -81,9 +81,6 @@ namespace DotVVM.Samples.BasicSamples
 
             config.RouteTable.Add("Errors_Routing_NonExistingView", "Errors/Routing/NonExistingView", "Views/Errors/Routing/NonExistingView.dothml");
 
-            config.Runtime.CustomPrimitiveTypes.Add(
-                new CustomPrimitiveTypeRegistration<SampleId>(typeof(Guid?), SampleId.ParseValue, new TypeIdJsonConverter<SampleId>())
-            );
             config.Markup.JavascriptTranslator.MethodCollection
                 .AddPropertyGetterTranslator(typeof(ITypeId), nameof(ITypeId.IdValue),
                     new GenericMethodCompiler(args => args[0])
