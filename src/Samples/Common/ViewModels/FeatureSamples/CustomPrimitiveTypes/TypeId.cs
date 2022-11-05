@@ -47,7 +47,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
 
         public override string ToString()
         {
-            return $"{GetType()} {{{IdValue}}}";
+            return IdValue.ToString();
         }
     }
 

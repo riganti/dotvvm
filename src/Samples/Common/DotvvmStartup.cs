@@ -86,6 +86,10 @@ namespace DotVVM.Samples.BasicSamples
                 .AddPropertyGetterTranslator(typeof(ITypeId), nameof(ITypeId.IdValue),
                     new GenericMethodCompiler(args => args[0])
                 );
+            config.Markup.JavascriptTranslator.MethodCollection
+                .AddMethodTranslator(typeof(SampleId), nameof(ToString),
+                    new GenericMethodCompiler(args => args[0])
+                );
         }
 
         private void LoadSampleConfiguration(DotvvmConfiguration config, string applicationPath)

@@ -11,6 +11,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
         public SampleId(Guid idValue) : base(idValue)
         {
         }
+
+        public override string ToString() => base.ToString();
     }
 }
 
