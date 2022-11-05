@@ -234,7 +234,7 @@ namespace DotVVM.Framework.Utils
             try
             {
                 // custom primitive types
-                if (CustomPrimitiveTypes.TryGetValue(type, out var registration))
+                if (CustomPrimitiveTypes.TryGetValue(type, out var registration) && registration is {})
                 {
                     return registration.ConvertToServerSideType(value);
                 }
@@ -387,7 +387,7 @@ namespace DotVVM.Framework.Utils
                 throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)} but its {nameof(CustomPrimitiveTypeAttribute.ConverterType)} doesn't implement the {nameof(ICustomPrimitiveTypeConverter)} interface!");
             }
 
-            var converter = (ICustomPrimitiveTypeConverter)Activator.CreateInstance(attribute.ConverterType);
+            var converter = (ICustomPrimitiveTypeConverter)Activator.CreateInstance(attribute.ConverterType)!;
             return new CustomPrimitiveTypeRegistration(type, attribute.ClientSideType, converter.Convert);
         }
 
