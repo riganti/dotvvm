@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Configuration
         [JsonIgnore()]
         public IList<IActionFilter> GlobalFilters => _globalFilters;
         private IList<IActionFilter> _globalFilters;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRuntimeConfiguration"/> class.
         /// </summary>
