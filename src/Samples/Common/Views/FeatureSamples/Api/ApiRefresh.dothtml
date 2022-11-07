@@ -1,0 +1,37 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.ApiRefreshViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <p>
+        CompanyId: <dot:TextBox Text="{value: CompanyId}" />
+    </p>
+
+    <dot:GridView DataSource="{value: _apiCore.GetOrdersAll(CompanyId)}">
+        <dot:GridViewTextColumn HeaderText="Order number" ValueBinding="{value: Number}" />
+    </dot:GridView>
+
+    <p>
+        Number of requests: {{value: NumberOfRequests}}
+    </p>
+
+    <script type="text/javascript">
+    var fetchBackup = window.fetch;
+    window.fetch = function (url, init) {
+        if (typeof url === "string" && url.indexOf("negotiate") < 0) {
+            dotvvm.patchState({ NumberOfRequests: dotvvm.state.NumberOfRequests + 1 });
+        }
+        return fetchBackup.apply(window, arguments);
+    };
+    </script>
+
+</body>
+</html>
+
+
