@@ -91,7 +91,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var prop = Properties.FirstOrDefault(pp => pp.ConstructorParameter == p);
                 if (prop is null)
                 {
-                    var mayBeService = !ReflectionUtils.IsPrimitiveType(p.ParameterType) && !typeof(IDotvvmViewModel).IsAssignableFrom(p.ParameterType);
+                    var mayBeService = !ReflectionUtils.IsPrimitiveType(p.ParameterType);
                     if (!mayBeService)
                         throw new Exception($"Can not deserialize {Type.ToCode()}, constructor parameter {p.Name} is not mapped to any property.");
 
