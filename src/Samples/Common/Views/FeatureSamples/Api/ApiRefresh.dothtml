@@ -13,22 +13,28 @@
         CompanyId: <dot:TextBox Text="{value: CompanyId}" />
     </p>
 
+    <%--Tohle při změně CompanyId neudělá request znovu--%>
     <dot:GridView DataSource="{value: _apiCore.GetOrdersAll(CompanyId)}">
         <dot:GridViewTextColumn HeaderText="Order number" ValueBinding="{value: Number}" />
     </dot:GridView>
+
+    <%--Tohle taky nefunguje - tady to sice request udělá, ale v URL je pořád stará hodnota 
+    <dot:GridView DataSource="{value: _api.RefreshOnChange(_apiCore.GetOrdersAll(CompanyId), CompanyId)}">
+        <dot:GridViewTextColumn HeaderText="Order number" ValueBinding="{value: Number}" />
+    </dot:GridView>--%>
 
     <p>
         Number of requests: {{value: NumberOfRequests}}
     </p>
 
     <script type="text/javascript">
-    var fetchBackup = window.fetch;
-    window.fetch = function (url, init) {
-        if (typeof url === "string" && url.indexOf("negotiate") < 0) {
-            dotvvm.patchState({ NumberOfRequests: dotvvm.state.NumberOfRequests + 1 });
-        }
-        return fetchBackup.apply(window, arguments);
-    };
+        var fetchBackup = window.fetch;
+        window.fetch = function (url, init) {
+            if (typeof url === "string" && url.indexOf("negotiate") < 0) {
+                dotvvm.patchState({ NumberOfRequests: dotvvm.state.NumberOfRequests + 1 });
+            }
+            return fetchBackup.apply(window, arguments);
+        };
     </script>
 
 </body>
