@@ -8,6 +8,7 @@ using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
+using static DotVVM.Samples.Tests.UITestUtils;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -24,8 +25,11 @@ namespace DotVVM.Samples.Tests.Feature
                 inputs.ElementAt(4).Click();
 
                 WaitForExecutor.WaitFor(() => {
-                    AssertUI.Text(browser.ElementAt("span", 0), s => !s.Contains("KEY: "), waitForOptions: WaitForOptions.Disabled);
-                    AssertUI.Text(browser.ElementAt("span", 1), s => !s.Contains("VAL: "), waitForOptions: WaitForOptions.Disabled);
+                    StaleElementRetry(() => {
+                        AssertUI.Text(browser.ElementAt("span", 0), s => !s.Contains("KEY: "), waitForOptions: WaitForOptions.Disabled);
+                        AssertUI.Text(browser.ElementAt("span", 1), s => !s.Contains("VAL: "), waitForOptions: WaitForOptions.Disabled);
+                    });
+
                 }, options: WaitForOptions.LongerTimeout);
 
             });

@@ -168,6 +168,7 @@ function start_samples {
     PORT=$2
     PID_VAR=$3
     dotnet run --project "$ROOT/${PROJECT}" \
+        -p:WarningLevel=0 \
         --no-restore \
         --configuration "$CONFIGURATION" \
         -- \

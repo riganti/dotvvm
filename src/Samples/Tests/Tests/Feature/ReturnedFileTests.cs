@@ -65,7 +65,9 @@ namespace DotVVM.Samples.Tests.Feature
             Assert.NotEmpty(downloadURL);
 
             string returnedFile;
+#pragma warning disable SYSLIB0014 // obsolete
             using (var client = new WebClient())
+#pragma warning restore SYSLIB0014
             {
                 returnedFile = client.DownloadString(browser.GetAbsoluteUrl(downloadURL));
             }
