@@ -6,7 +6,7 @@ export const level = getLogLevel();
 
 export type DotvvmLoggingArea = (
     | "debug"
-    | "log"
+    | "configuration"
     | "postback"
     | "spa"
     | "static-command"
@@ -50,7 +50,7 @@ function getLogLevel() : LogLevel {
         if (!logLevel) return "normal";
         if (logLevel === "normal" || logLevel === "verbose") return logLevel;
 
-        logWarning("log", "Invalid value of 'dotvvm-loglevel' config value! Supported values: 'normal', 'verbose'");
+        logWarning("configuration", "Invalid value of 'dotvvm-loglevel' config value! Supported values: 'normal', 'verbose'");
     }
     return "normal";
 }
