@@ -15,7 +15,6 @@ export type DotvvmLoggingArea = (
     | "coercer"
     | "state-manager"
     | "validation"
-    | "evaluator"
     | "events"
     | "rest-api"
 )
