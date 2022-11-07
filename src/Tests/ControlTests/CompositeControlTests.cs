@@ -574,7 +574,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                         .AddAttribute("href", id);
                     li.Children.Add(anchor);
                 })
-            }.SetProperty(DotvvmControl.IDProperty, id);
+            }.SetProperty(Internal.UniqueIDProperty, id);
             var contentRepeater = new Repeater() {
                 WrapperTagName = "div",
                 RenderAsNamedTemplate = false, // for testing
@@ -584,7 +584,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                     container.Children.Add(div);
                     contentTemplate.BuildContent(cx, div);
                 })
-            }.SetProperty(DotvvmControl.IDProperty, id);
+            }.SetProperty(Internal.UniqueIDProperty, id);
 
             return new PlaceHolder {
                 Children = {
