@@ -58,6 +58,19 @@ namespace DotVVM.Framework.Controls
         public static DotvvmPropertyGroup TemplatesGroupDescriptor =
             DotvvmPropertyGroup.Register<ITemplate, JsComponent>(new [] { "", "template-" }, nameof(Templates));
 
+        public HtmlCapability HtmlCapability
+        {
+            get { return (HtmlCapability)GetValue(HtmlCapabilityProperty)!; }
+            set { SetValue(HtmlCapabilityProperty, value); }
+        }
+
+        /// <summary> Allows modifying the attributes of the wrapper html tag (`div` by default) </summary>
+        public static DotvvmCapabilityProperty HtmlCapabilityProperty =
+            DotvvmCapabilityProperty.RegisterCapability<HtmlCapability, JsComponent>(
+                globalPrefix: "html:",
+                capabilityAttributeProvider: typeof(JsComponent).GetProperty("HtmlCapability")!
+            );
+
         public JsComponent()
         {
         }
@@ -123,9 +136,8 @@ namespace DotVVM.Framework.Controls
                 binding.Add("view", ViewModuleHelpers.GetViewIdJsExpression(viewModule, this));
 
             writer.AddKnockoutDataBind("dotvvm-js-component", binding);
-
-            writer.RenderBeginTag(WrapperTagName);
-            writer.RenderEndTag();
+            var htmlElement = new HtmlGenericControl(WrapperTagName, this.HtmlCapability);
+            htmlElement.Render(writer, context);
         }
 
         [ApplyControlStyle]

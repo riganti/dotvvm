@@ -13,7 +13,8 @@
     <div data-ui="rechart-control">
         <js:recharts IncludeInPage={value: IncludeInPage}
                      data={value: Data}
-                     onMouse={staticCommand: (string n) => CurrentThing = n}>
+                     onMouse={staticCommand: (string n) => CurrentThing = n}
+                     html:class-test-class={value: true}>
         </js:recharts>
     </div>
 
