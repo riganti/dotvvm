@@ -13,15 +13,20 @@
         CompanyId: <dot:TextBox Text="{value: CompanyId}" />
     </p>
 
+    <p> Not updating </p>
+
     <%--Tohle při změně CompanyId neudělá request znovu--%>
     <dot:GridView DataSource="{value: _apiCore.GetOrdersAll(CompanyId)}">
         <dot:GridViewTextColumn HeaderText="Order number" ValueBinding="{value: Number}" />
     </dot:GridView>
 
-    <%--Tohle taky nefunguje - tady to sice request udělá, ale v URL je pořád stará hodnota 
+
+    <p> Updating </p>
+
+    <%--Tohle taky nefunguje - tady to sice request udělá, ale v URL je pořád stará hodnota  --%>
     <dot:GridView DataSource="{value: _api.RefreshOnChange(_apiCore.GetOrdersAll(CompanyId), CompanyId)}">
         <dot:GridViewTextColumn HeaderText="Order number" ValueBinding="{value: Number}" />
-    </dot:GridView>--%>
+    </dot:GridView>
 
     <p>
         Number of requests: {{value: NumberOfRequests}}
