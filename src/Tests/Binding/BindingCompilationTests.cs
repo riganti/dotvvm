@@ -36,37 +36,58 @@ namespace DotVVM.Framework.Tests.Binding
             this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
 
-        public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)
+        public object ExecuteBinding(string expression, NamespaceImport[] imports = null, Type expectedType = null)
         {
-            var context = DataContextStack.Create(contexts.FirstOrDefault()?.GetType() ?? typeof(object), extensionParameters: new[] {
-                new CurrentMarkupControlExtensionParameter(new ResolvedTypeDescriptor(control?.GetType() ?? typeof(DotvvmControl)))
-            });
+            return ExecuteBinding(expression, DataContextStack.Create(typeof(object)), new [] { new object() }, imports, expectedType);
+        }
+        internal object ExecuteBinding(string expression, object context)
+        {
+            return ExecuteBinding(expression, new [] { context });
+        }
+        public object ExecuteBinding(string expression, object[] contexts, NamespaceImport[] imports = null, Type expectedType = null)
+        {
+            var context = DataContextStack.Create(contexts.First().GetType());
             for (int i = 1; i < contexts.Length; i++)
             {
                 context = DataContextStack.Create(contexts[i].GetType(), context);
             }
-            return ExecuteBinding(expression, context, contexts, control, imports, expectedType);
+            return ExecuteBinding(expression, context, contexts, imports, expectedType);
         }
-        public object ExecuteBinding(string expression, DataContextStack contextType, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)
+        public object ExecuteBinding(string expression, DataContextStack contextType, object[] contexts, NamespaceImport[] imports = null, Type expectedType = null)
         {
-            Array.Reverse(contexts);
+            var control = BuildFakeControlHierarchy(contextType, contexts, null);
+            return ExecuteBinding(expression, contextType, control, imports, expectedType);
+        }
+        public object ExecuteBinding(string expression, DataContextStack contextType, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)
+        {
             var binding = new ResourceBindingExpression(bindingService, new object[] {
                 contextType,
                 new OriginalStringBindingProperty(expression),
                 BindingParserOptions.Resource.AddImports(imports),
                 new ExpectedTypeBindingProperty(expectedType ?? typeof(object))
             });
-            return binding.BindingDelegate.Invoke(contexts, control);
+            return binding.BindingDelegate.Invoke(control.GetDataContexts().ToArray(), control);
         }
 
-        public object ExecuteBinding(string expression, params object[] contexts)
+        DotvvmControl BuildFakeControlHierarchy(DataContextStack contextType, object[] contexts, DotvvmControl rootControl)
         {
-            return ExecuteBinding(expression, contexts, null);
+            var types = contextType.EnumerableItems().Reverse().ToArray();
+            DotvvmControl parent = rootControl;
+            Assert.AreEqual(types.Length, contexts.Length, $"{contextType} does not match real types: {string.Join(", ", contexts.Select(t => t?.GetType().Name))}");
+            for (int i = 0; i < types.Length; i++)
+            {
+                var c = new PlaceHolder();
+                parent?.Children.Add(c);
+                c.DataContext = contexts[i];
+                c.SetDataContextType(types[i]);
+                parent = c;
+            }
+            return parent;
         }
 
         public object ExecuteBinding(string expression, NamespaceImport[] imports, params object[] contexts)
         {
-            return ExecuteBinding(expression, contexts, null, imports);
+            return ExecuteBinding(expression, contexts, imports);
         }
 
         [TestMethod]
@@ -78,7 +99,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_NamespaceResourceBinding()
         {
-            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.ResourceKey123", new object[0], null, new NamespaceImport[]
+            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.ResourceKey123", new NamespaceImport[]
             {
                 new NamespaceImport("DotVVM.Framework.Tests")
             }));
@@ -87,7 +108,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_MoreNamespacesResourceBinding()
         {
-            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.ResourceKey123", new object[0], null, new NamespaceImport[]
+            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.ResourceKey123", new NamespaceImport[]
             {
                 new NamespaceImport("DotVVM.Framework.Tests0"),
                 new NamespaceImport("DotVVM.Framework.Tests"),
@@ -98,7 +119,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_NamespaceAliasResourceBinding()
         {
-            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("ghg.Resource1.ResourceKey123", new object[0], null, new NamespaceImport[]
+            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("ghg.Resource1.ResourceKey123", new NamespaceImport[]
             {
                 new NamespaceImport("DotVVM.Framework.Tests","ghg")
             }));
@@ -109,7 +130,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             try
             {
-                Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.NotExist", new object[0], null, new NamespaceImport[]
+                Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.NotExist", new NamespaceImport[]
                     {
                         new NamespaceImport("DotVVM.Framework.Tests")
                     }));
@@ -311,7 +332,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_RegularGenericMethodsInference(string expr, params Type[] instantiations)
         {
             var viewModel = new TestViewModel() { StringProp = "abc" };
-            var binding = ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("System.Linq") });
+            var binding = ExecuteBinding(expr, new[] { viewModel }, new[] { new NamespaceImport("System.Linq") });
             var genericArgs = binding.GetType().GetGenericArguments();
 
             for (var argIndex = 0; argIndex < genericArgs.Length; argIndex++)
@@ -325,7 +346,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_ExtensionGenericMethodsInference(string expr, params Type[] instantiations)
         {
             var viewModel = new TestViewModel() { StringProp = "abc" };
-            var binding = ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("System.Linq") });
+            var binding = ExecuteBinding(expr, new[] { viewModel }, new[] { new NamespaceImport("System.Linq") });
             var genericArgs = binding.GetType().GetGenericArguments();
 
             for (var argIndex = 0; argIndex < genericArgs.Length; argIndex++)
@@ -347,7 +368,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_LinqMethodsInference(string expr, Type resultType)
         {
             var viewModel = new TestViewModel() { StringProp = "abc" };
-            var result = ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("System.Linq") });
+            var result = ExecuteBinding(expr, new[] { viewModel }, new[] { new NamespaceImport("System.Linq") });
             Assert.AreEqual(resultType, result.GetType());
         }
 
@@ -359,7 +380,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_MoreComplexInference(string expr, int[] result)
         {
             var viewModel = new TestViewModel() { StringProp = "abc", List = new List<int>() { 1, 2, 3 } };
-            ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, expectedType: typeof(void));
+            ExecuteBinding(expr, new[] { viewModel }, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, expectedType: typeof(void));
             CollectionAssert.AreEqual(result, viewModel.List);
         }
 
@@ -529,13 +550,13 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_EnumToStringConversion()
         {
-            var result1 = ExecuteBinding("DotVVM.Framework.Tests.Binding.TestEnum.Underscore_hhh", new object[0], null, expectedType: typeof(string));
+            var result1 = ExecuteBinding("DotVVM.Framework.Tests.Binding.TestEnum.Underscore_hhh", expectedType: typeof(string));
             Assert.AreEqual("Underscore_hhh", result1);
-            var result2 = ExecuteBinding("DotVVM.Framework.Tests.Binding.TestEnum.SpecialField", new object[0], null, expectedType: typeof(string));
+            var result2 = ExecuteBinding("DotVVM.Framework.Tests.Binding.TestEnum.SpecialField", expectedType: typeof(string));
             Assert.AreEqual("xxx", result2);
-            var result3 = ExecuteBinding("EnumProperty", new object[] { new TestViewModel { EnumProperty = TestEnum.A } }, null, expectedType: typeof(string));
+            var result3 = ExecuteBinding("EnumProperty", new object[] { new TestViewModel { EnumProperty = TestEnum.A } }, expectedType: typeof(string));
             Assert.AreEqual("A", result3);
-            var result4 = ExecuteBinding("EnumProperty", new object[] { new TestViewModel { EnumProperty = TestEnum.SpecialField } }, null, expectedType: typeof(string));
+            var result4 = ExecuteBinding("EnumProperty", new object[] { new TestViewModel { EnumProperty = TestEnum.SpecialField } }, expectedType: typeof(string));
             Assert.AreEqual("xxx", result4);
         }
 
@@ -648,28 +669,28 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_Valid_NamespaceAlias()
         {
-            var result = ExecuteBinding("Alias.TestClass2.Property", new object[0], null, new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2", "Alias") });
+            var result = ExecuteBinding("Alias.TestClass2.Property", new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2", "Alias") });
             Assert.AreEqual(TestNamespace2.TestClass2.Property, result);
         }
 
         [TestMethod]
         public void BindingCompiler_Valid_MultipleNamespaceAliases()
         {
-            var result = ExecuteBinding("Alias.TestClass1.Property", new object[0], null, new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2", "Alias"), new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace1", "Alias") });
+            var result = ExecuteBinding("Alias.TestClass1.Property", new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2", "Alias"), new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace1", "Alias") });
             Assert.AreEqual(TestNamespace1.TestClass1.Property, result);
         }
 
         [TestMethod]
         public void BindingCompiler_Valid_NamespaceImportAndAlias()
         {
-            var result = ExecuteBinding("TestClass2.Property + Alias.TestClass1.Property", new object[0], null, new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2"), new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace1", "Alias") });
+            var result = ExecuteBinding("TestClass2.Property + Alias.TestClass1.Property", new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2"), new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace1", "Alias") });
             Assert.AreEqual(TestNamespace2.TestClass2.Property + TestNamespace1.TestClass1.Property, result);
         }
 
         [TestMethod]
         public void BindingCompiler_Valid_TypeAlias()
         {
-            var result = ExecuteBinding("Alias.Property", new object[0], null,
+            var result = ExecuteBinding("Alias.Property",
                 new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2.TestClass2", alias: "Alias") });
             Assert.AreEqual(TestNamespace2.TestClass2.Property, result);
         }
@@ -699,15 +720,17 @@ namespace DotVVM.Framework.Tests.Binding
 
             var control1 = new DataItemContainer() { DataItemIndex = 10 };
             control1.SetDataContextType(dc1);
+            control1.DataContext = "a";
             var control2 = new DataItemContainer() { DataItemIndex = 21 };
             control2.SetDataContextType(dc2);
+            control2.DataContext = "b";
             control1.Children.Add(control2);
             var html = new HtmlGenericControl("span");
             control2.Children.Add(html);
 
-            var result = ExecuteBinding(expr, dc2, new object[] { "a", "b" }, html);
+            var result = ExecuteBinding(expr, dc2, html);
             Assert.AreEqual(expectedResult, result);
-            var result2 = ExecuteBinding(expr, dc2, new object[] { "a", "b" }, control2);
+            var result2 = ExecuteBinding(expr, dc2, control2);
             Assert.AreEqual(expectedResult, result2);
         }
 
@@ -715,7 +738,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_Valid_ToStringConstantConversion()
         {
-            var result = ExecuteBinding("false", new object[0], null, expectedType: typeof(string));
+            var result = ExecuteBinding("false", expectedType: typeof(string));
             Assert.AreEqual("False", result);
         }
 
@@ -778,7 +801,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_ImplicitConstantConversionInsideConditional()
         {
-            var result = ExecuteBinding("true ? 'Utc' : 'Local'", new object[] { }, null, null, typeof(DateTimeKind));
+            var result = ExecuteBinding("true ? 'Utc' : 'Local'", expectedType: typeof(DateTimeKind));
             Assert.AreEqual(DateTimeKind.Utc, result);
         }
 
