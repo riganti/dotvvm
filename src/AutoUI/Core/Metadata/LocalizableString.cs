@@ -47,7 +47,7 @@ namespace DotVVM.AutoUI.Metadata
                         new ParsedExpressionBindingProperty(
                             ExpressionUtils.Replace(() => this.Localize())
                         ),
-                        (BindingDelegate)((_, _) => this.Localize()) // skip the expression compilation
+                        (BindingDelegate)(_ => this.Localize()) // skip the expression compilation
                     }
                 );
                 return new ValueOrBinding<string>(binding);

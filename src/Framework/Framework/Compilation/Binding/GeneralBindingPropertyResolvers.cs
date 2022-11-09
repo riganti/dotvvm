@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Compilation.Binding
             expr = new ExpressionNullPropagationVisitor(e => true).Visit(expr);
             expr = ExpressionUtils.ConvertToObject(expr);
             expr = replacementVisitor.WrapExpression(expr, contextObject: binding);
-            var l = Expression.Lambda<BindingDelegate>(expr, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter);
+            var l = Expression.Lambda<BindingDelegate>(expr, BindingCompiler.CurrentControlParameter);
             // Console.WriteLine(l.ToCSharpString());
             return l;
         }
@@ -92,7 +92,6 @@ namespace DotVVM.Framework.Compilation.Binding
 
             return Expression.Lambda<BindingUpdateDelegate>(
                 body,
-                BindingCompiler.ViewModelsParameter,
                 BindingCompiler.CurrentControlParameter,
                 valueParameter);
         }

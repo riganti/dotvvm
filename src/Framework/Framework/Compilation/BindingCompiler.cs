@@ -29,7 +29,6 @@ namespace DotVVM.Framework.Compilation
     public class BindingCompiler : IBindingCompiler
     {
         public static readonly ParameterExpression CurrentControlParameter = Expression.Parameter(typeof(DotvvmBindableObject), "currentControl");
-        public static readonly ParameterExpression ViewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
 
         protected readonly DotvvmConfiguration configuration;
         protected readonly BindingCompilationService bindingService;
@@ -144,7 +143,7 @@ namespace DotVVM.Framework.Compilation
 
             protected override Expression VisitParameter(ParameterExpression node)
             {
-                if (AssertAllReplaced && node != CurrentControlParameter && node != ViewModelsParameter && !contextParameters.Contains(node))
+                if (AssertAllReplaced && node != CurrentControlParameter && !contextParameters.Contains(node))
                     throw new Exception($"Parameter {node.Name}:{node.Type.Name} could not be translated.");
                 return base.VisitParameter(node);
             }

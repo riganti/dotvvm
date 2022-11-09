@@ -112,9 +112,8 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static void ExecUpdateDelegate(this BindingUpdateDelegate func, DotvvmBindableObject contextControl, object? value)
         {
-            var dataContexts = GetDataContexts(contextControl);
             //var control = contextControl.GetClosestControlBindingTarget();
-            func(dataContexts.ToArray(), contextControl, value);
+            func(contextControl, value);
         }
 
         /// <summary>
@@ -122,9 +121,8 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static void ExecUpdateDelegate<T>(this BindingUpdateDelegate<T> func, DotvvmBindableObject contextControl, T value)
         {
-            var dataContexts = GetDataContexts(contextControl);
             //var control = contextControl.GetClosestControlBindingTarget();
-            func(dataContexts.ToArray(), contextControl, value);
+            func(contextControl, value);
         }
 
         /// <summary>
@@ -132,8 +130,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static object? ExecDelegate(this BindingDelegate func, DotvvmBindableObject contextControl)
         {
-            var dataContexts = GetDataContexts(contextControl);
-            return func(dataContexts.ToArray(), contextControl);
+            return func(contextControl);
         }
 
         /// <summary>
@@ -141,8 +138,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static T ExecDelegate<T>(this BindingDelegate<T> func, DotvvmBindableObject contextControl)
         {
-            var dataContexts = GetDataContexts(contextControl);
-            return func(dataContexts.ToArray(), contextControl);
+            return func(contextControl);
         }
 
         /// <summary>
@@ -459,8 +455,8 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        public static BindingDelegate<T> ToGeneric<T>(this BindingDelegate d) => (a, b) => (T)d(a, b)!;
-        public static BindingUpdateDelegate<T> ToGeneric<T>(this BindingUpdateDelegate d) => (a, b, c) => d(a, b, c);
+        public static BindingDelegate<T> ToGeneric<T>(this BindingDelegate d) => control => (T)d(control)!;
+        public static BindingUpdateDelegate<T> ToGeneric<T>(this BindingUpdateDelegate d) => (control, val) => d(control, val);
 
         public static string GetBindingName(this IBinding binding) =>
             binding switch {
