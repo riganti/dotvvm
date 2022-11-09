@@ -908,6 +908,14 @@
       "Global": {
         "type": "System.Boolean"
       },
+      "Html:ID": {
+        "type": "System.String",
+        "fromCapability": "HtmlCapability"
+      },
+      "Html:Visible": {
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      },
       "Name": {
         "type": "System.String",
         "required": true
@@ -1381,6 +1389,12 @@
         "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
       }
     },
+    "DotVVM.Framework.Controls.JsComponent": {
+      "HtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
+        "capabilityPrefix": "html:"
+      }
+    },
     "DotVVM.Framework.Controls.RouteLink": {
       "TextOrContentCapability": {
         "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
@@ -1537,6 +1551,24 @@
       }
     },
     "DotVVM.Framework.Controls.JsComponent": {
+      "Html:Attributes": {
+        "prefixes": [
+          "html:",
+          "html:html:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      },
+      "Html:CssClasses": {
+        "prefix": "html:Class-",
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      },
+      "Html:CssStyles": {
+        "prefix": "html:Style-",
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      },
       "Props": {
         "prefixes": [
           "",

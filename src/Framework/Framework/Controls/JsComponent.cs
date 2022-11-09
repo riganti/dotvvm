@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Controls
         public static DotvvmCapabilityProperty HtmlCapabilityProperty =
             DotvvmCapabilityProperty.RegisterCapability<HtmlCapability, JsComponent>(
                 globalPrefix: "html:",
-                capabilityAttributeProvider: typeof(JsComponent).GetProperty("HtmlCapability")!
+                name: "HtmlCapability"
             );
 
         public JsComponent()
