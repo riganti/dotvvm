@@ -52,7 +52,7 @@ namespace DotVVM.Samples.Common.Views.ControlSamples.TemplateHost
                 .AppendChildren(new Button(
                     "Add item",
                     new CommandBindingExpression(bindingCompilationService, contexts => {
-                                var item = onCreateItem.BindingDelegate(this.GetDataContexts().ToArray(), this);
+                                var item = onCreateItem.BindingDelegate(this);
                                 ((dynamic)dataSource.GetBindingValue(this)).Add(((dynamic)item)());
                             }, "38921DE7-936D-4862-921A-5051DA0CAEB1")));
         }
