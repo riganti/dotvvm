@@ -20,12 +20,15 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Testing;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
+using CheckTestOutput;
+using DotVVM.Framework.Tests.Runtime;
 
 namespace DotVVM.Framework.Tests.Binding
 {
     [TestClass]
     public class BindingCompilationTests
     {
+        OutputChecker check = new OutputChecker("testoutputs");
         private DotvvmConfiguration configuration;
         private BindingCompilationService bindingService;
 
@@ -1058,6 +1061,31 @@ namespace DotVVM.Framework.Tests.Binding
         {
             Assert.AreEqual(-1025, ExecuteBinding("var intVariable = ~IntProp; intVariable", new TestViewModel { IntProp = 1024 }));
         }
+
+        [TestMethod]
+        public void Error_MissingDataContext()
+        {
+            var type = DataContextStack.Create(typeof(string), parent: DataContextStack.Create(typeof(TestViewModel)));
+            var control = new PlaceHolder();
+            control.SetDataContextType(type);
+            control.DataContext = "test";
+            check.CheckException(() =>
+                ExecuteBinding("_parent.StringProp", type, control)
+            );
+        }
+
+        [TestMethod]
+        public void Error_DifferentDataContext()
+        {
+            var type = DataContextStack.Create(typeof(string), parent: DataContextStack.Create(typeof(TestViewModel)));
+            var control = new PlaceHolder();
+            control.SetDataContextType(type);
+            control.DataContext = 1;
+            check.CheckException(() =>
+                ExecuteBinding("_this + 'aaa'", type, control)
+            );
+        }
+
     }
     class TestViewModel
     {

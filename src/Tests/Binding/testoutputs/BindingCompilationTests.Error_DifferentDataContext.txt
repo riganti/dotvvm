@@ -1,0 +1,2 @@
+WrongDataContextTypeException occurred: Could not evaluate binding {resource: _this + 'aaa'}, data context _this: string was expected, but got int. Control has the following contexts: int
+    at void DotVVM.Framework.Compilation.BindingCompiler+ParameterReplacementVisitor+CodegenHelpers.ThrowWrongContextType(ErrorInfo errorInfo, object receivedObject, DotvvmBindableObject evaluatingControl)
