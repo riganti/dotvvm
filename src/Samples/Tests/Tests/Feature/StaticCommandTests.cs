@@ -661,6 +661,17 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
         [Fact]
+        public void Feature_Lambda_Expression_Static_Command_List_Contains()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_LambdaExpressions_StaticCommands);
+                var textbox = browser.First("[data-ui=textbox]");
+
+                browser.First($"//input[@value='Is there green in the list']", By.XPath).Click();
+                AssertUI.InnerTextEquals(textbox, "true");
+            });
+        }
+        [Fact]
         public void Feature_List_Translation_Add_Item()
         {
             RunInAllBrowsers(browser => {
