@@ -12,6 +12,7 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -58,7 +59,12 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void SerializeDefaultConfig()
         {
-            var c = DotvvmConfiguration.CreateDefault();
+            var c = DotvvmConfiguration.CreateDefault(s => {
+                // explicitly register AutoUI, we want to check signatures of these controls too
+                DotVVM.AutoUI.AutoUIExtensions.AddAutoUI(new DotvvmServiceCollection(s));
+            });
+            // otherwise it behaves differently on .NET framework
+            c.ExperimentalFeatures.ExplicitAssemblyLoading.Enable();
             c.DefaultCulture = "en-US";
             checkConfig(c, includeProperties: true);
         }

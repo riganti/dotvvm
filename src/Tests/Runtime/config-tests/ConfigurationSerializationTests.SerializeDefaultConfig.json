@@ -7,7 +7,15 @@
           "tagPrefix": "dot",
           "namespace": "DotVVM.Framework.Controls",
           "assembly": "DotVVM.Framework"
+        },
+        {
+          "tagPrefix": "auto",
+          "namespace": "DotVVM.AutoUI.Controls",
+          "assembly": "DotVVM.AutoUI, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         }
+      ],
+      "assemblies": [
+        "DotVVM.AutoUI, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
       ],
       "importedNamespaces": [
         {
@@ -140,7 +148,11 @@
     },
     "runtime": {},
     "defaultCulture": "en-US",
-    "experimentalFeatures": {},
+    "experimentalFeatures": {
+      "explicitAssemblyLoading": {
+        "enabled": true
+      }
+    },
     "debug": false,
     "diagnostics": {
       "compilationPage": {},
@@ -2248,14 +2260,6 @@
     "DotVVM.Framework.Controls.Validator": {
       "assembly": "DotVVM.Framework",
       "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework"
-    },
-    "DotVVM.Framework.Testing.FakeBodyResourceLink": {
-      "assembly": "DotVVM.Framework.Testing",
-      "baseType": "DotVVM.Framework.Controls.BodyResourceLinks, DotVVM.Framework"
-    },
-    "DotVVM.Framework.Testing.FakeHeadResourceLink": {
-      "assembly": "DotVVM.Framework.Testing",
-      "baseType": "DotVVM.Framework.Controls.HeadResourceLinks, DotVVM.Framework"
     }
   }
 }
