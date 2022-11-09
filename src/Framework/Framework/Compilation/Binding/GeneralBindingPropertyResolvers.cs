@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Binding.HelperNamespace;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -53,12 +54,16 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         public Expression<BindingDelegate> CompileToDelegate(
-            CastedExpressionBindingProperty expression, DataContextStack? dataContext = null)
+            CastedExpressionBindingProperty expression, IBinding binding, DataContextStack? dataContext = null)
         {
-            var expr = BindingCompiler.ReplaceParameters(expression.Expression, dataContext);
+            var replacementVisitor = new BindingCompiler.ParameterReplacementVisitor(dataContext);
+            var expr = replacementVisitor.Visit(expression.Expression);
             expr = new ExpressionNullPropagationVisitor(e => true).Visit(expr);
             expr = ExpressionUtils.ConvertToObject(expr);
-            return Expression.Lambda<BindingDelegate>(expr, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter);
+            expr = replacementVisitor.WrapExpression(expr, contextObject: binding);
+            var l = Expression.Lambda<BindingDelegate>(expr, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter);
+            // Console.WriteLine(l.ToCSharpString());
+            return l;
         }
 
         public CastedExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty expr, ExpectedTypeBindingProperty? expectedType = null)
@@ -73,15 +78,17 @@ namespace DotVVM.Framework.Compilation.Binding
             );
         }
 
-        public Expression<BindingUpdateDelegate>? CompileToUpdateDelegate(ParsedExpressionBindingProperty binding, DataContextStack dataContext)
+        public Expression<BindingUpdateDelegate>? CompileToUpdateDelegate(ParsedExpressionBindingProperty expr, DataContextStack dataContext, IBinding binding)
         {
             var valueParameter = Expression.Parameter(typeof(object), "value");
-            var body = BindingCompiler.ReplaceParameters(binding.Expression, dataContext);
+            var replacementVisitor = new BindingCompiler.ParameterReplacementVisitor(dataContext);
+            var body = replacementVisitor.Visit(expr.Expression);
             body = new MemberExpressionFactory(extensionsMethodCache, dataContext.NamespaceImports).UpdateMember(body, valueParameter);
             if (body == null)
             {
                 return null;
             }
+            body = replacementVisitor.WrapExpression(body, contextObject: binding);
 
             return Expression.Lambda<BindingUpdateDelegate>(
                 body,
