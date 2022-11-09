@@ -37,6 +37,22 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 _ => throw new NotSupportedException()
             };
 
+        public static DataContextStack GetDataContextStack(this ResolvedPropertySetter setter, ResolvedControl? parentControl) =>
+            setter switch {
+                ResolvedPropertyBinding binding => binding.Binding.DataContextTypeStack,
+                ResolvedPropertyTemplate { Content: { Count: > 0 } } value => value.Content.First().DataContextTypeStack,
+                ResolvedPropertyControl { Control: {} } value => value.Control.DataContextTypeStack,
+                ResolvedPropertyControlCollection { Controls: { Count: > 0 } } value => value.Controls.First().DataContextTypeStack,
+                _ => setter.Property.GetDataContextType(parentControl ?? setter.ParentControl().NotNull("Could not get data context type from property setter without a parent control."))
+            };
+
+        public static ResolvedControl? ParentControl(this ResolvedTreeNode node) =>
+            node.Parent switch {
+                ResolvedControl control => control,
+                null => null,
+                var parentNode => parentNode.ParentControl(),
+            };
+
         
         public static bool IsOnlyWhitespace(this IAbstractControl control) =>
             control.Metadata.Type.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(RawLiteral))) && control.DothtmlNode?.IsNotEmpty() == false;
