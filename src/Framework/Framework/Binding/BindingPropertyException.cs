@@ -4,6 +4,7 @@ using System.Linq;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Runtime;
+using FastExpressionCompiler;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding
@@ -43,7 +44,7 @@ namespace DotVVM.Framework.Binding
             var pathMsg = "";
             if (properties.Length > 1)
             {
-                pathMsg = $" Property path: {string.Join(", ", properties.Select(p => p.Name))}";
+                pathMsg = $" Property path: {string.Join(", ", properties.Select(p => p.ToCode(stripNamespace: true)))}";
                 if (innerException is null)
                     pathMsg += " - adding any of those properties to the binding would fix the issue";
                 pathMsg += ".";
