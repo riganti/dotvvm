@@ -53,7 +53,7 @@ export default {
                     // parse date
                     let currentValue = parseDate(obs());
                     const result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
-                    newValue = result ? null : serializeDate(result, false);
+                    newValue = !result ? null : serializeDate(result, false);
                 } else if (elmMetadata.dataType === "number") {
                     // parse number
                     const result = globalize.parseNumber(element.value);
