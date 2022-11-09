@@ -113,7 +113,7 @@ namespace DotVVM.Framework.Binding.Expressions
         /// Crates a new value binding expression from the specified .NET delegate and Javascript expression. Note that this operation is not very cheap and the result is not cached.
         public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object?[], T> func, JsExpression expression, DataContextStack? dataContext = null) =>
             new ValueBindingExpression<T>(service, new object?[] {
-                new BindingDelegate((o, c) => func(o)),
+                new BindingDelegate(c => func(BindingHelper.GetDataContexts(c).ToArray())),
                 new ResultTypeBindingProperty(typeof(T)),
                 new KnockoutJsExpressionBindingProperty(expression),
                 dataContext
@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Binding.Expressions
         /// Crates a new value binding expression from the specified .NET delegate and Javascript expression. Note that this operation is not very cheap and the result is not cached.
         public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object?[], T> func, ParametrizedCode expression, DataContextStack? dataContext = null, object?[]? additionalProperties = null) =>
             new ValueBindingExpression<T>(service, new object?[] {
-                new BindingDelegate((o, c) => func(o)),
+                new BindingDelegate(c => func(BindingHelper.GetDataContexts(c).ToArray())),
                 new ResultTypeBindingProperty(typeof(T)),
                 new KnockoutExpressionBindingProperty(expression, expression, expression),
                 dataContext

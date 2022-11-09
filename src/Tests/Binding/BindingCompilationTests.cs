@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Tests.Binding
                 BindingParserOptions.Resource.AddImports(imports),
                 new ExpectedTypeBindingProperty(expectedType ?? typeof(object))
             });
-            return binding.BindingDelegate.Invoke(control.GetDataContexts().ToArray(), control);
+            return binding.BindingDelegate.Invoke(control);
         }
 
         DotvvmControl BuildFakeControlHierarchy(DataContextStack contextType, object[] contexts, DotvvmControl rootControl)

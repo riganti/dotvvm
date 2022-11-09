@@ -153,15 +153,15 @@ namespace DotVVM.Framework.Binding.Expressions
                 default);
 
         public CommandBindingExpression(BindingCompilationService service, Action<object[]> command, string id)
-            : this(service, (h, o) => (Action)(() => command(h!)), id)
+            : this(service, c => (Action)(() => command(BindingHelper.GetDataContexts(c).ToArray()!)), id)
         { }
 
         public CommandBindingExpression(BindingCompilationService service, Func<object[], Task> command, string id)
-            : this(service, (h, o) => (Command)(() => command(h!)), id)
+            : this(service, c => (Command)(() => command(BindingHelper.GetDataContexts(c).ToArray()!)), id)
         { }
 
         public CommandBindingExpression(BindingCompilationService service, Delegate command, string id)
-            : this(service, (h, o) => command, id)
+            : this(service, c => command, id)
         { }
 
         public CommandBindingExpression(BindingCompilationService service, BindingDelegate command, string id)
