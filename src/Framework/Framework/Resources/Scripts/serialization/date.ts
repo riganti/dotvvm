@@ -1,8 +1,7 @@
 import { logWarning } from "../utils/logging";
 
 export function parseDate(value: string | null | undefined, convertFromUtc: boolean = false): Date | null {
-    if (value == null) return null;
-    if (/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d{1,7})?$/.test(value)) {
+    if (value && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d{1,7})?$/.test(value)) {
 
         // for some reason, we want to support date with 00 everywhere,
         // so this hack sanitizes the date by setting day and month fields to 1
@@ -41,8 +40,7 @@ export function parseTimeSpan(value: string | null | undefined): number | null {
 }
 
 export function parseDateTimeOffset(value: string | null | undefined): Date | null {
-    if (value == null) return null;
-    const d = Date.parse(value)
+    const d = Date.parse(value!)
     if (d) {
         return new Date(d)
     }
@@ -63,15 +61,15 @@ export function serializeDate(date: string | Date | null, convertToUtc: boolean 
         }
         return date;
     }
-    return date
-        .toLocaleString( 'sv', { timeZone: convertToUtc ? 'UTC' : undefined } )
-        .replace(' ', 'T')
-        + '.' + padNumber(date.getMilliseconds(), 3) + '0000';
+    if (convertToUtc) {
+        return date.toISOString().replace(/Z$/, "") + '0000'
+    }
+    return serializeDateOnly(date) + "T" + serializeTimeOnly(date);
 }
 export function serializeDateOnly(date: Date): string {
     // https://stackoverflow.com/a/58633651/3577667
     // Note that I'm using Sweden as locale because it is one of the countries that uses ISO 8601 format.
-    return date.toLocaleDateString('sv');
+    return padNumber(date.getFullYear(), 4) + "-" + padNumber(date.getMonth() + 1, 2) + "-" + padNumber(date.getDate(), 2)
 }
 
 export function serializeTimeOnly(date: Date): string {

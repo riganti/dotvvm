@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <title></title>
 
-    <script src="https://cdn.jsdelivr.net/npm/timeshift-js@1.1.1/timeshift.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/timeshift-js@1.2.0/timeshift.min.js"></script>
     <script>
         // force UTC+01:00 for the test (careful - TimeShift cannot emulate timezones with DST, it only forces the offset)
         Date = TimeShift.Date;

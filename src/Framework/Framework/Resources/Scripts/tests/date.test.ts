@@ -1,4 +1,4 @@
-﻿import { parseDate, parseDateOnly, parseDateTimeOffset, parseTimeOnly, parseTimeSpan, serializeDateOnly, serializeTimeOnly } from "../serialization/date"
+﻿import { parseDate, parseDateOnly, parseDateTimeOffset, parseTimeOnly, parseTimeSpan, serializeDate, serializeDateOnly, serializeTimeOnly } from "../serialization/date"
 
 test("Date invalid", () => {
     expect(parseDate("")).toBe(null);
@@ -75,6 +75,9 @@ function testDateIsSameAfterParse(dateInputString: string, expectedOutputDateStr
     expectedOutputDateString = expectedOutputDateString ?? dateInputString;
 
     expect(outputDateString).toBe(expectedOutputDateString);
+
+    const serializedDate = serializeDate(date, false)!;
+    expect(serializedDate.replace(/0+$/, "")).toBe(expectedOutputDateString.replace(/0+$/, ""));
 }
 
 
