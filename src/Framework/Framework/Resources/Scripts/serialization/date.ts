@@ -67,13 +67,11 @@ export function serializeDate(date: string | Date | null, convertToUtc: boolean 
     return serializeDateOnly(date) + "T" + serializeTimeOnly(date);
 }
 export function serializeDateOnly(date: Date): string {
-    // https://stackoverflow.com/a/58633651/3577667
-    // Note that I'm using Sweden as locale because it is one of the countries that uses ISO 8601 format.
     return padNumber(date.getFullYear(), 4) + "-" + padNumber(date.getMonth() + 1, 2) + "-" + padNumber(date.getDate(), 2)
 }
 
 export function serializeTimeOnly(date: Date): string {
-    return date.toLocaleTimeString('sv') + '.' + padNumber(date.getMilliseconds(), 3) + '0000';
+    return padNumber(date.getHours(), 2) + ':' + padNumber(date.getMinutes(), 2) + ':' + padNumber(date.getSeconds(), 2) + '.' + padNumber(date.getMilliseconds(), 3) + '0000';
 }
 
 export function serializeTimeSpan(ticks: number): string {
