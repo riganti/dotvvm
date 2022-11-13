@@ -16,7 +16,7 @@
     <p> Not updating </p>
 
     <%--Tohle při změně CompanyId neudělá request znovu--%>
-    <dot:GridView DataSource="{value: _apiCore.GetOrdersAll(CompanyId)}">
+    <dot:GridView DataSource="{value: _apiCore.GetOrdersAll(CompanyId)}" data-ui="not-updating" ShowHeaderWhenNoData="true">
         <dot:GridViewTextColumn HeaderText="Order number" ValueBinding="{value: Number}" />
     </dot:GridView>
 
@@ -24,12 +24,12 @@
     <p> Updating </p>
 
     <%--Tohle taky nefunguje - tady to sice request udělá, ale v URL je pořád stará hodnota  --%>
-    <dot:GridView DataSource="{value: _api.RefreshOnChange(_apiCore.GetOrdersAll(CompanyId), CompanyId)}">
+    <dot:GridView DataSource="{value: _api.RefreshOnChange(_apiCore.GetOrdersAll(CompanyId), CompanyId)}" data-ui="updating" ShowHeaderWhenNoData="true">
         <dot:GridViewTextColumn HeaderText="Order number" ValueBinding="{value: Number}" />
     </dot:GridView>
 
     <p>
-        Number of requests: {{value: NumberOfRequests}}
+        Number of requests: <span data-ui="number">{{value: NumberOfRequests}}</span>
     </p>
 
     <script type="text/javascript">
