@@ -21,8 +21,6 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Runtime.Tracing;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Security;
 using System.Runtime.CompilerServices;
 
@@ -92,11 +90,9 @@ namespace DotVVM.Framework.Hosting
             }
             catch (CorruptedCsrfTokenException ex)
             {
-                // TODO this should be done by IOutputRender or something like that. IOutputRenderer does not support that, so should we make another IJsonErrorOutputWriter?
-                context.HttpContext.Response.StatusCode = 400;
-                context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
-                var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-                await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(new { action = "invalidCsrfToken", message = ex.Message }, settings));
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                var json = ViewModelSerializer.SerializeErrorResponse("invalidCsrfToken", ex.Message);
+                await OutputRenderer.WritePlainJsonResponse(context.HttpContext, json);
             }
             catch (DotvvmExceptionBase ex)
             {
@@ -351,15 +347,9 @@ namespace DotVVM.Framework.Hosting
         {
             try
             {
-                JObject postData;
-                using (var jsonReader = new JsonTextReader(new StreamReader(context.HttpContext.Request.Body)))
-                {
-                    postData = await JObject.LoadAsync(jsonReader);
-                }
+                var request = await ViewModelSerializer.DeserializeStaticCommandRequest(context);
 
-                // validate csrf token
-                context.CsrfToken = postData["$csrfToken"].Value<string>();
-                CsrfProtector.VerifyToken(context, context.CsrfToken);
+                CsrfProtector.VerifyToken(context, context.CsrfToken!);
 
                 var knownTypes = postData["knownTypeMetadata"].Values<string>().ToArray();
                 var command = postData["command"].Value<string>();
@@ -370,17 +360,18 @@ namespace DotVVM.Framework.Hosting
 
                 var actionInfo = new ActionInfo(
                     binding: null,
-                    () => { return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments.NotNull()), context); },
+                    () => { return ExecuteStaticCommandPlan(request.ExecutionPlan, new Queue<Func<Type, object>>(request.ArgumentAccessors.NotNull()), context); },
                     false
                 );
                 var filters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
-                    .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
+                    .Concat(request.ExecutionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
                     .ToArray();
 
                 var result = await ExecuteCommand(actionInfo, context, filters);
 
-                await OutputRenderer.WriteStaticCommandResponse(
-                    context,
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+                await OutputRenderer.WritePlainJsonResponse(
+                    context.HttpContext,
                     ViewModelSerializer.BuildStaticCommandResponse(context, result, knownTypes));
             }
             finally
