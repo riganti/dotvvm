@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Api;
@@ -56,7 +57,9 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click();
                 browser.First(".id-order.id-edit input[type=text]").Clear().SendKeys("2000-01-01");
                 browser.First(".id-order.id-edit input[type=button][value=Apply]").Click();
-                browser.First(".id-order.id-edit input[type=button][value=Exit]").Click();
+                WaitForIgnoringStaleElements(() => {
+                    browser.First(".id-order.id-edit input[type=button][value=Exit]").Click();
+                });
 
                 AssertUI.TextEquals(browser.First(".id-order[data-order-id='2'] .id-date"), "2000-01-01");
 
@@ -64,7 +67,9 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click();
                 browser.First(".id-order.id-edit input[type=text]").Clear().SendKeys("2010-01-01");
                 browser.First(".id-order.id-edit input[type=button][value=Apply]").Click();
-                browser.First(".id-order.id-edit input[type=button][value=Exit]").Click();
+                WaitForIgnoringStaleElements(() => {
+                    browser.First(".id-order.id-edit input[type=button][value=Exit]").Click();
+                });
 
                 AssertUI.TextEquals(browser.First(".id-order[data-order-id='2'] .id-date"), "2010-01-01");
             });
@@ -238,6 +243,44 @@ namespace DotVVM.Samples.Tests.Feature
                 Assert.Single(requests, r => r.EndsWith("BindingSharing/post?category=1"));
                 Assert.Single(requests, r => r.EndsWith("BindingSharing/post?category=2"));
                 Assert.Single(requests, r => r.EndsWith("BindingSharing/post?category=3"));
+            });
+        }
+
+        [Fact(Skip = "Doesn't work on OWIN because it relies on _apiCore.")]
+        public void Feature_Api_ApiRefresh()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_ApiRefresh);
+                
+                browser.Single("not-updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(0);
+                browser.Single("updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(0);
+                AssertUI.TextEquals(browser.Single("number", SelectByDataUi), "1");
+
+                browser.Single("input[type=text]").SendKeys(Keys.Backspace).SendKeys("11").SendKeys(Keys.Tab);
+
+                browser.Single("not-updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(0);
+                browser.Single("updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(10);
+
+                AssertUI.TextEquals(browser.Single("number", SelectByDataUi), "2");
+
+                browser.Single("input[type=text]").SendKeys(Keys.Backspace).SendKeys(Keys.Backspace).SendKeys("12").SendKeys(Keys.Tab);
+
+                browser.Single("not-updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(0);
+                browser.Single("updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(6);
+
+                AssertUI.TextEquals(browser.Single("number", SelectByDataUi), "3");
             });
         }
 

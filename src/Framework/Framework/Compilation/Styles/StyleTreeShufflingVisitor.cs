@@ -190,7 +190,7 @@ namespace DotVVM.Framework.Compilation.Styles
                     {
                         var prop2 = group2.GetDotvvmProperty(gProp.GroupMemberName);
                         newControl.SetProperty(
-                            ResolvedControlHelper.TranslateProperty(prop2, p.GetValue(), control.DataContextTypeStack, null));
+                            ResolvedControlHelper.TranslateProperty(prop2, p.GetValue(), p.GetDataContextStack(parentControl: control), null));
                         continue;
                     }
                 }
@@ -200,7 +200,7 @@ namespace DotVVM.Framework.Compilation.Styles
                     if (prop2 is object)
                     {
                         newControl.SetProperty(
-                            ResolvedControlHelper.TranslateProperty(prop2, p.GetValue(), control.DataContextTypeStack, null));
+                            ResolvedControlHelper.TranslateProperty(prop2, p.GetValue(), p.GetDataContextStack(parentControl: control), null));
                         continue;
                     }
                 }

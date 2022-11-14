@@ -9,7 +9,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         void BuildViewModel(IDotvvmRequestContext context, object? commandResult);
 
-        string BuildStaticCommandResponse(IDotvvmRequestContext context, object? commandResult);
+        string BuildStaticCommandResponse(IDotvvmRequestContext context, object? commandResult, string[]? knownTypeMetadata = null);
 
         string SerializeViewModel(IDotvvmRequestContext context);
 

@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public object? ResolvePropertyInitializer(DothtmlDirectiveNode directive, Type propertyType, BindingParserNode? initializer, ImmutableList<NamespaceImport> imports)
         {
-            if (initializer == null) { return null; }
+            if (initializer == null) { return CreateDefaultValue(propertyType); }
 
             var registry = RegisterImports(TypeRegistry.DirectivesDefault(compiledAssemblyCache), imports);
                 
