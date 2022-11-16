@@ -16,6 +16,7 @@ using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.Tests.Runtime;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -258,6 +259,28 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <cc:ClassBindingControl Active Width=100 />
                 <!-- bindings -->
                 <cc:ClassBindingControl Active={value: Integer > 100} Width={value: Integer} />
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+
+        [TestMethod]
+        public async Task MenuRepeater()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- Control which should render a list of links linking to a list of items bellow -->
+
+                <!-- Server -->
+                <cc:MenuRepeater DataSource={value: List} TitleBinding={value: _this} RenderSettings.Mode=Server>
+                    {{value: _this}}
+                </cc:MenuRepeater>
+
+                <!-- Client -->
+                <cc:MenuRepeater DataSource={value: List} TitleBinding={value: _this} RenderSettings.Mode=Client>
+                    {{value: _this}}
+                </cc:MenuRepeater>
                 "
             );
 
@@ -521,6 +544,56 @@ namespace DotVVM.Framework.Tests.ControlTests
                     li.SetProperty(c => c.InnerText, bindingService.Cache.CreateValueBinding<string>("_this.Label", li.GetDataContextType()));
                 }));
         }
+    }
+
+    public class MenuRepeater: CompositeControl
+    {
+        public DotvvmControl GetContents(
+            IValueBinding<System.Collections.IEnumerable> dataSource,
+            [CollectionElementDataContextChange(1)]
+            [ControlPropertyBindingDataContextChange("DataSource")]
+            IValueBinding<string> titleBinding,
+            [CollectionElementDataContextChange(1)]
+            [ControlPropertyBindingDataContextChange("DataSource")]
+            ITemplate contentTemplate,
+            IDotvvmRequestContext cx)
+        {
+            var id = this.GetValueRaw(IDProperty) ?? this.GetValue<string>(Internal.UniqueIDProperty);
+            var menuRepeater = new Repeater() {
+                WrapperTagName = "ul",
+                RenderAsNamedTemplate = false, // for testing
+                DataSource = dataSource,
+                ItemTemplate = new DelegateTemplate((_, container) => {
+                    var li = new HtmlGenericControl("li");
+                    container.Children.Add(li);
+                    var fakeId = new PlaceHolder() { ID = "item" };
+                    li.Children.Add(fakeId);
+                    var id = fakeId.CreateClientId(prefix: new("#")); // TODO: how to solve URL encoding?
+                    var anchor = new HtmlGenericControl("a")
+                        .SetProperty(HtmlGenericControl.InnerTextProperty, titleBinding)
+                        .AddAttribute("href", id);
+                    li.Children.Add(anchor);
+                })
+            }.SetProperty(Internal.UniqueIDProperty, id);
+            var contentRepeater = new Repeater() {
+                WrapperTagName = "div",
+                RenderAsNamedTemplate = false, // for testing
+                DataSource = dataSource,
+                ItemTemplate = new DelegateTemplate((_, container) => {
+                    var div = new HtmlGenericControl("div") { ID = "item" };
+                    container.Children.Add(div);
+                    contentTemplate.BuildContent(cx, div);
+                })
+            }.SetProperty(Internal.UniqueIDProperty, id);
+
+            return new PlaceHolder {
+                Children = {
+                    menuRepeater,
+                    contentRepeater
+                }
+            };
+        }
+
     }
 
 
