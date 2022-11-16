@@ -505,7 +505,7 @@ namespace DotVVM.Framework.Hosting
                 else if (dest is "empty")
                 {
                     if (!DetermineSpaRequest(context.HttpContext))
-                        await context.RejectRequest($"Pages can not be loaded using Javascript for security reasons. If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.DisableForRoute(\"{route}\")");
+                        await context.RejectRequest($"Pages can not be loaded using Javascript for security reasons. If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.DisableForRoute(\"{route}\"). [dest: {dest}, site: {site}]");
                     if (site != "same-origin")
                         await context.RejectRequest($"Cross site SPA requests are disabled.");
                 }
