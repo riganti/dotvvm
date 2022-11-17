@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
@@ -66,7 +67,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
 
         [TestMethod]
-        public void CapabilityGetterAndSetter1()
+        public void TestCapability_GetterAndSetter1()
         {
             var control = new TestControl1 { Something = "X" };
             Assert.AreEqual(
@@ -91,6 +92,88 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual("a", attrs["attr"].GetValue());
             Assert.AreEqual("x y", control.GetValue(c => c.GetCapability<HtmlCapability>().Attributes["class"].ValueOrDefault));
         }
+        [TestMethod]
+        public void BitMoreComplexCapability_DefaultValues()
+        {
+            var c = new TestControlFallbackProps().GetCapability<BitMoreComplexCapability>();
+
+            Assert.AreEqual(null, c.BindingOnly);
+            Assert.AreEqual(30, c.NotNullable);
+            Assert.AreEqual(null, c.Nullable);
+            Assert.AreEqual(null, c.ValueOrBinding.GetValue());
+            Assert.AreEqual(null, c.ValueOrBindingNullable);
+        }
+
+        [TestMethod]
+        public void BitMoreComplexCapability_NullableValueOrBinding()
+        {
+            var control = new TestControlFallbackProps();
+            Assert.AreEqual(10, control.GetValue<int>("ValueOrBindingNullable2"));
+            
+            var c = control.GetCapability<BitMoreComplexCapability>();
+            Assert.IsNull(c.ValueOrBindingNullable);
+
+            control.ValueOrBindingNullable2 = 11;
+            Assert.AreEqual(11, control.GetCapability<BitMoreComplexCapability>().ValueOrBindingNullable?.GetValue());
+
+            control.ValueOrBindingNullable2 = 10;
+            Assert.AreEqual(10, control.GetCapability<BitMoreComplexCapability>().ValueOrBindingNullable?.GetValue());
+
+            control.Properties.Remove(TestControlFallbackProps.ValueOrBindingNullable2Property);
+            Assert.IsNull(control.GetCapability<BitMoreComplexCapability>().ValueOrBindingNullable);
+        }
+
+        [TestMethod]
+        public void BitMoreComplexCapability_SetNullableValueOrBinding()
+        {
+            var control = new TestControlFallbackProps() { ValueOrBindingNullable2 = 1 };
+            Assert.AreEqual(1, control.ValueOrBindingNullable2);
+
+            control.SetCapability(new BitMoreComplexCapability { ValueOrBindingNullable = new(2) });
+            Assert.AreEqual(2, control.ValueOrBindingNullable2);
+
+            control.SetCapability(new BitMoreComplexCapability { ValueOrBindingNullable = null });
+            Assert.AreEqual(10, control.ValueOrBindingNullable2); // reverts to default
+        }
+
+        [TestMethod]
+        public void BitMoreComplexCapability_GetterAndSetter()
+        {
+            var config = DotvvmTestHelper.DefaultConfig;
+            var bindingService = config.ServiceProvider.GetRequiredService<BindingCompilationService>();
+
+            var controlF1 = new TestControlFallbackProps();
+            var controlF2 = new TestControlFallbackProps();
+            controlF1.Children.Add(controlF2);
+
+            controlF1.BindingOnly = bindingService.Cache.CreateValueBinding<string>("'aaa'", DataContextStack.Create(typeof(string)));
+
+            controlF2.ValueOrBinding2 = 1;
+            controlF2.ValueOrBindingNullable2 = 11;
+
+            var c = controlF2.GetCapability<BitMoreComplexCapability>();
+            Assert.AreEqual(controlF1.BindingOnly, c.BindingOnly);
+            Assert.AreEqual(30, c.NotNullable);
+            Assert.AreEqual(null, c.Nullable);
+            Assert.AreEqual(1, c.ValueOrBinding.GetValue());
+            Assert.AreEqual(11, c.ValueOrBindingNullable?.GetValue());
+
+
+            controlF1.BindingOnly = null;
+            controlF2.SetCapability(c with {
+                NotNullable = 31,
+                Nullable = 32,
+                ValueOrBinding = new(2),
+                ValueOrBindingNullable = new(22)
+            });
+
+            Assert.AreEqual(2, controlF2.GetValue<int>(TestControlFallbackProps.ValueOrBindingProperty));
+            Assert.AreEqual(1, controlF2.ValueOrBinding2); // this is only fallback, it shouldn't set the second property
+            Assert.AreEqual(22, controlF2.ValueOrBindingNullable2); // this one is alias
+            Assert.AreEqual(31, controlF2.GetValue<int>("NotNullable"));
+            Assert.AreEqual(32, controlF2.GetValue<int>("Nullable"));
+        }
+
 
         public class TestControl1:
             HtmlGenericControl,
@@ -140,6 +223,51 @@ namespace DotVVM.Framework.Tests.Runtime
             IObjectWithCapability<TestNestedCapabilityWithPrefix>
         {       
         }
+        // public class TestControl6:
+        //     HtmlGenericControl,
+        //     IObjectWithCapability<BitMoreComplexCapability>
+        // {       
+        // }
+        public class TestControlFallbackProps:
+            HtmlGenericControl,
+            IObjectWithCapability<BitMoreComplexCapability>
+        {
+            // Inherited -> Can't use direct access
+            public IValueBinding<string> BindingOnly
+            {
+                get { return (IValueBinding<string>)GetValue(BindingOnlyProperty); }
+                set { SetValue(BindingOnlyProperty, value); }
+            }
+            public static readonly DotvvmProperty BindingOnlyProperty =
+                DotvvmProperty.Register<IValueBinding<string>, TestControlFallbackProps>(nameof(BindingOnly), null, isValueInherited: true);
+
+            // With fallback -> Can't use direct access
+            public int? ValueOrBinding2
+            {
+                get { return (int?)GetValue(ValueOrBinding2Property); }
+                set { SetValue(ValueOrBinding2Property, value); }
+            }
+            public static readonly DotvvmProperty ValueOrBinding2Property =
+                DotvvmProperty.Register<int?, TestControlFallbackProps>(nameof(ValueOrBinding2));
+            public static readonly DotvvmPropertyWithFallback ValueOrBindingProperty =
+                DotvvmPropertyWithFallback.Register<int?, TestControlFallbackProps>("ValueOrBinding", fallbackProperty: ValueOrBinding2Property);
+
+
+            // Alias -> should redirect automatically
+            public int ValueOrBindingNullable2
+            {
+                get { return (int)GetValue(ValueOrBindingNullable2Property); }
+                set { SetValue(ValueOrBindingNullable2Property, value); }
+            }
+            public static readonly DotvvmProperty ValueOrBindingNullable2Property =
+                DotvvmProperty.Register<int, TestControlFallbackProps>(nameof(ValueOrBindingNullable2), defaultValue: 10);
+            [PropertyAlias("ValueOrBindingNullable2")]
+            public static readonly DotvvmProperty ValueOrBindingNullableProperty =
+                DotvvmPropertyAlias.RegisterAlias<TestControlFallbackProps>("ValueOrBindingNullable");
+
+            public static readonly DotvvmCapabilityProperty BitMoreComplexCapabilityProperty =
+                DotvvmCapabilityProperty.RegisterCapability<BitMoreComplexCapability, TestControlFallbackProps>();
+        }
 
         [DotvvmControlCapability]
         public sealed record TestCapability
@@ -166,6 +294,16 @@ namespace DotVVM.Framework.Tests.Runtime
 
             [DotvvmControlCapability(prefix: "Item")]
             public TestCapability ItemTest { get; init; }
+        }
+
+        [DotvvmControlCapability]
+        public sealed record BitMoreComplexCapability
+        {
+            public IValueBinding<string> BindingOnly { get; init; }
+            public ValueOrBinding<int?> ValueOrBinding { get; init; }
+            public ValueOrBinding<int>? ValueOrBindingNullable { get; init; }
+            public int? Nullable { get; init; }
+            public int NotNullable { get; init; } = 30;
         }
 
     }

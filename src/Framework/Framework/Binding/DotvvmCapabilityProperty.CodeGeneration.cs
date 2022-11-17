@@ -148,12 +148,6 @@ namespace DotVVM.Framework.Binding
                 }
                 else if (unwrappedType.IsGenericType && unwrappedType.GetGenericTypeDefinition() == typeof(ValueOrBinding<>))
                 {
-                    // could hamper some optimizations, we can fix it later if needed
-                    if (property.GetType() != typeof(DotvvmProperty))
-                        throw new NotSupportedException($"Cannot create getter/setter for ValueOrBinding and {property.GetType()}");
-                    if (property.IsValueInherited)
-                        throw new NotSupportedException($"Cannot create getter/setter for ValueOrBinding and inherited property");
-
                     var isNullable = type.IsNullable();
                     var innerType = unwrappedType.GetGenericArguments().Single();
                     var getValueOrBindingMethod =

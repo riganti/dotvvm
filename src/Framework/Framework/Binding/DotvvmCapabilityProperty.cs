@@ -272,6 +272,7 @@ namespace DotVVM.Framework.Binding
             // we need to make sure that base type is initialized, otherwise we might miss that some properties are already defined in base type
             // and we'd redefine them for the second time here (HtmlGenericControl.Id vs DotvvmControl.Id, see https://github.com/riganti/dotvvm/issues/1387)
             DefaultControlResolver.InitType(declaringType.BaseType.NotNull("declaringType.BaseType is null"));
+            // if (propertyName == "ValueOrBindingNullable") throw new Exception("xx " + declaringType);
             
             var capabilityType = declaringCapability?.PropertyType;
             propertyName = ToPascalCase(propertyName).DotvvmInternString(trySystemIntern: true);
@@ -323,7 +324,7 @@ namespace DotVVM.Framework.Binding
             // Standard property
             else
             {
-                var type = propertyType.UnwrapValueOrBinding().UnwrapNullableType();
+                var type = propertyType.UnwrapValueOrBinding();
 
                 DotvvmProperty dotvvmProperty;
                 if (DotvvmProperty.ResolveProperty(declaringType, propertyName) is {} existingProperty)
@@ -336,7 +337,7 @@ namespace DotVVM.Framework.Binding
                     dotvvmProperty = new DotvvmProperty(propertyName, type, declaringType, boxedDefaultValue, false, attributeProvider);
                     dotvvmProperty.OwningCapability = declaringCapability;
                     
-                    var isNullable = propertyType.IsNullable() || propertyType.UnwrapValueOrBinding().IsNullable();
+                    var isNullable = propertyType.IsNullable() || type.IsNullable();
                     if (!defaultValue.HasValue && !isNullable)
                         dotvvmProperty.MarkupOptions.Required = true;
 
@@ -368,18 +369,21 @@ namespace DotVVM.Framework.Binding
         }
         static void CheckPropertyConflict(DotvvmProperty existingProperty, Type newPropertyType, Type declaringType, DotvvmCapabilityProperty? declaringCapability)
         {
+            if (existingProperty is DotvvmPropertyAlias alias)
+                DotvvmPropertyAlias.Resolve(alias);
+
             string error = "";
             // same type
             if (newPropertyType != existingProperty.PropertyType)
-                error += $" The properties have different types: '{newPropertyType}' vs '{existingProperty.PropertyType}'.";
+                error += $" The properties have different types: '{newPropertyType.ToCode()}' vs '{existingProperty.PropertyType.ToCode()}'.";
 
             // the existing property must be declared above this one
             if (existingProperty.OwningCapability is {} existingCapability && declaringCapability is object)
             {
                 var commonAncestor = existingCapability.ThisAndOwners().Intersect(declaringCapability.ThisAndOwners()).FirstOrDefault();
-                var commonAncestorStr = commonAncestor?.PropertyType.Name ?? declaringType.Name;
+                var commonAncestorStr = commonAncestor?.PropertyType.ToCode(stripNamespace: true) ?? declaringType.ToCode(stripNamespace: true);
                 if (!declaringCapability.IsOwnedByCapability(existingCapability))
-                    error += $" The property is declared in capabilities {existingCapability.PropertyType.Name} and {declaringCapability.Name} - to resolve the conflict declare the property in {commonAncestorStr}.";
+                    error += $" The property is declared in capabilities {existingCapability.Name} and {declaringCapability.Name} - to resolve the conflict declare the property in {commonAncestorStr}.";
             }
             // It is allowed to share property when it's declared in the control (existingCapability is null)
             // And it's allowed to share property with GetContents parameter (declaringCapability is null)
@@ -392,14 +396,14 @@ namespace DotVVM.Framework.Binding
             var compositeHelp =
                 capabilityType is null && typeof(CompositeControl).IsAssignableFrom(declaringType) ?
                 $"The property is being defined because parameter of it's name is defined in the {declaringType}.GetContents method. " : "";
-            throw new Exception($"Cannot define property {declaringType}.{existingProperty.Name} as it already exists.{error} {capabilityHelp}");
+            throw new Exception($"Cannot define property {declaringType.ToCode()}.{existingProperty.Name} as it already exists.{error} {capabilityHelp}");
         }
 
         public record InvalidCapabilityTypeException(DotvvmCapabilityProperty Capability, string Reason)
             : DotvvmExceptionBase(Reason, RelatedProperty: Capability)
         {
             public override string Message =>
-                $"Capability {Capability.PropertyType.Name} {Reason}. It was registered as capability property in {Capability.OwningCapability?.Name ?? Capability.DeclaringType.Name}.";
+                $"Capability {Capability.PropertyType.ToCode(stripNamespace: true)} {Reason}. It was registered as capability property in {Capability.OwningCapability?.Name ?? Capability.DeclaringType.ToCode(stripNamespace: true)}.";
         }
 
         public record CapabilityAlreadyExistsException(DotvvmCapabilityProperty OldCapability, bool CheckedAfterContentRegistration)
@@ -408,7 +412,7 @@ namespace DotVVM.Framework.Binding
             public override string Message { get {
                 var postContentHelp = CheckedAfterContentRegistration ? $"It seems that the capability contains a property of the same type, which leads to the conflict. " : "";
 
-                return $"Capability of type {OldCapability.PropertyType.Name} is already registered on control {OldCapability.DeclaringType.Name} with prefix '{OldCapability.Prefix}'. {postContentHelp}If you want to register the capability multiple times, consider giving it a different prefix.";
+                return $"Capability of type {OldCapability.PropertyType.ToCode(stripNamespace: true)} is already registered on control {OldCapability.DeclaringType.ToCode(stripNamespace: true)} with prefix '{OldCapability.Prefix}'. {postContentHelp}If you want to register the capability multiple times, consider giving it a different prefix.";
             } }
         }
     }
