@@ -428,7 +428,8 @@
         "type": "System.Collections.IEnumerable"
       },
       "DisableIndeterminate": {
-        "type": "System.Boolean"
+        "type": "System.Boolean",
+        "defaultValue": false
       }
     },
     "DotVVM.Framework.Controls.ClaimView": {

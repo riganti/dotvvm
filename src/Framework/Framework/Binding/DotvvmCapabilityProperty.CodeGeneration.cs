@@ -117,8 +117,8 @@ namespace DotVVM.Framework.Binding
                 var canUseDirectAccess =
                     !property.IsValueInherited && (
                     property.GetType() == typeof(DotvvmProperty) ||
-                    property.GetType().GetMethod("GetValue", new [] { typeof(DotvvmBindableObject), typeof(bool) }).DeclaringType == typeof(DotvvmProperty) &&
-                    property.GetType().GetMethod("SetValue", new [] { typeof(DotvvmBindableObject), typeof(object) }).DeclaringType == typeof(DotvvmProperty));
+                    property.GetType().GetMethod(nameof(DotvvmProperty.GetValue), new [] { typeof(DotvvmBindableObject), typeof(bool) }).DeclaringType == typeof(DotvvmProperty) &&
+                    property.GetType().GetMethod(nameof(DotvvmProperty.SetValue), new [] { typeof(DotvvmBindableObject), typeof(object) }).DeclaringType == typeof(DotvvmProperty));
 
                 var valueParameter = Expression.Parameter(type, "value");
                 var unwrappedType = type.UnwrapNullableType();
@@ -126,15 +126,15 @@ namespace DotVVM.Framework.Binding
                 var boxedValueParameter = TypeConversion.BoxToObject(valueParameter);
                 var setValueRaw =
                     canUseDirectAccess
-                        ? Call(typeof(Helpers), "SetValueDirect", Type.EmptyTypes, currentControlParameter, Constant(property), boxedValueParameter)
-                        : Call(currentControlParameter, "SetValueRaw", Type.EmptyTypes, Constant(property), boxedValueParameter);
+                        ? Call(typeof(Helpers), nameof(Helpers.SetValueDirect), Type.EmptyTypes, currentControlParameter, Constant(property), boxedValueParameter)
+                        : Call(currentControlParameter, nameof(DotvvmBindableObject.SetValueRaw), Type.EmptyTypes, Constant(property), boxedValueParameter);
 
                 if (typeof(IBinding).IsAssignableFrom(type))
                 {
                     var getValueRaw =
                         canUseDirectAccess
-                            ? Call(typeof(Helpers), "GetValueRawDirect", Type.EmptyTypes, currentControlParameter, Constant(property))
-                            : Call(currentControlParameter, "GetValueRaw", Type.EmptyTypes, Constant(property), Constant(property.IsValueInherited));
+                            ? Call(typeof(Helpers), nameof(Helpers.GetValueRawDirect), Type.EmptyTypes, currentControlParameter, Constant(property))
+                            : Call(currentControlParameter, nameof(DotvvmBindableObject.GetValueRaw), Type.EmptyTypes, Constant(property), Constant(property.IsValueInherited));
                     return (
                         Lambda(
                             Convert(getValueRaw, type),
@@ -152,11 +152,21 @@ namespace DotVVM.Framework.Binding
                     var innerType = unwrappedType.GetGenericArguments().Single();
                     var getValueOrBindingMethod =
                         typeof(Helpers).GetMethod(
-                            (isNullable ? "GetOptionalValueOrBinding" : "GetValueOrBinding") + (canUseDirectAccess ? "" : "Slow")
+                            (isNullable, canUseDirectAccess) switch {
+                                (true, true) => nameof(Helpers.GetOptionalValueOrBinding),
+                                (true, false) => nameof(Helpers.GetOptionalValueOrBindingSlow),
+                                (false, true) => nameof(Helpers.GetValueOrBinding),
+                                (false, false) => nameof(Helpers.GetValueOrBindingSlow)
+                            }
                         )!.MakeGenericMethod(innerType);
                     var setValueOrBindingMethod =
                         typeof(Helpers).GetMethod(
-                            (isNullable ? "SetOptionalValueOrBinding" : "SetValueOrBinding") + (canUseDirectAccess ? "" : "Slow")
+                            (isNullable, canUseDirectAccess) switch {
+                                (true, true) => nameof(Helpers.SetOptionalValueOrBinding),
+                                (true, false) => nameof(Helpers.SetOptionalValueOrBindingSlow),
+                                (false, true) => nameof(Helpers.SetValueOrBinding),
+                                (false, false) => nameof(Helpers.SetValueOrBindingSlow)
+                            }
                         )!.MakeGenericMethod(innerType);
                     return (
                         Expression.Lambda(
@@ -175,13 +185,13 @@ namespace DotVVM.Framework.Binding
                 else
                 {
                     var getValueMethod = (from m in typeof(DotvvmBindableObject).GetMethods()
-                                          where m.Name == "GetValue" && !m.IsGenericMethod
+                                          where m.Name == nameof(DotvvmBindableObject.GetValue) && !m.IsGenericMethod
                                           select m).Single();
 
                     Expression getValue;
                     if (canUseDirectAccess && unwrappedType.IsValueType)
                     {
-                        getValue = Call(typeof(Helpers), "GetStructValueDirect", new Type[] { unwrappedType }, currentControlParameter, Constant(property));
+                        getValue = Call(typeof(Helpers), nameof(Helpers.GetStructValueDirect), new Type[] { unwrappedType }, currentControlParameter, Constant(property));
                         if (type.IsNullable())
                             getValue = Expression.Property(getValue, "Value");
                     }
