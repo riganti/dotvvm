@@ -87,29 +87,44 @@ jobs:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
         os: [ubuntu-latest, windows-2022, macOS-latest]
-        target-framework: [net6.0, net7.0]
     steps:
     - uses: actions/checkout@v2
     - name: Set up
       uses: ./.github/setup
       with:
         sln: src/DotVVM.Crossplatform.slnf
-    - name: Tests
+    - name: Tests (net6.0)
       uses: ./.github/unittest
       with:
         project: src/Tests
         name: framework-tests
         title: Framework Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        target-framework: ${{ matrix.target-framework }}
-    - name: Analyzers.Tests
+        target-framework: net6.0
+    - name: Tests (net7.0)
+      uses: ./.github/unittest
+      with:
+        project: src/Tests
+        name: framework-tests
+        title: Framework Tests
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        target-framework: net7.0
+    - name: Analyzers.Tests (net6.0)
       uses: ./.github/unittest
       with:
         project: src/Analyzers/Analyzers.Tests
         name: analyzers-tests
         title: Analyzer Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        target-framework: ${{ matrix.target-framework }}
+        target-framework: net6.0
+    - name: Analyzers.Tests (net7.0)
+      uses: ./.github/unittest
+      with:
+        project: src/Analyzers/Analyzers.Tests
+        name: analyzers-tests
+        title: Analyzer Tests
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        target-framework: net7.0
 
   js-tests:
     runs-on: ubuntu-latest
