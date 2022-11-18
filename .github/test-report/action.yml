@@ -21,6 +21,10 @@ inputs:
 runs:
   using: composite
   steps:
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ inputs.report-name }}
+        path: ${{ input.trx-path }}
     - run: Write-Host "::add-mask::${{ inputs.github-token }}" ;
         ./.github/test-report/test-report.ps1
           -TrxPath "${{ inputs.trx-path }}"
