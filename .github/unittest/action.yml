@@ -23,6 +23,19 @@ inputs:
 runs:
   using: composite
   steps:
+  # build the project separately first to get compilation errors as `dotnet test` fails silently for some reason
+  - run: dotnet build
+      "${{ inputs.project }}"
+      --framework "${{ inputs.target-framework }}"
+      --configuration Debug
+      -p:WarningLevel=0
+    shell: bash
+  - run: dotnet build
+      "${{ inputs.project }}"
+      --framework "${{ inputs.target-framework }}"
+      --configuration Release
+      -p:WarningLevel=0
+    shell: bash
   - run: dotnet test
       "${{ inputs.project }}"
       --framework "${{ inputs.target-framework }}"
