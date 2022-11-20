@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
@@ -26,10 +27,17 @@ namespace DotVVM.Framework.Hosting
                         p.IsValueInherited,
                         p.MarkupOptions.Name != p.Name ? p.MarkupOptions.Name : null,
                         p.MarkupOptions.MappingMode,
+                        p.DefaultValue,
                         p.MarkupOptions.Required,
+                        onlyBindings: !p.MarkupOptions.AllowHardCodedValue,
+                        onlyHardcoded: !p.MarkupOptions.AllowBinding,
+                        isCommand: p.PropertyType.IsDelegate(),
+                        commandArguments: GetCommandArguments(p.PropertyType),
                         p is ActiveDotvvmProperty,
                         p is CompileTimeOnlyDotvvmProperty,
-                        fromCapability: p.OwningCapability?.Name
+                        fromCapability: p.OwningCapability?.Name,
+                        isAttached: p.AttributeProvider?.IsDefined(typeof(AttachedPropertyAttribute), true) == true ||
+                                    p.PropertyInfo?.IsDefined(typeof(AttachedPropertyAttribute), true) == true
                     )
                 }
             )
@@ -68,14 +76,61 @@ namespace DotVVM.Framework.Hosting
                         p.DataContextChangeAttributes.Length > 0 ? p.DataContextChangeAttributes : null,
                         p.DataContextManipulationAttribute,
                         p.MarkupOptions.MappingMode,
-                        fromCapability: p.OwningCapability?.Name
+                        onlyBindings: !p.MarkupOptions.AllowHardCodedValue,
+                        onlyHardcoded: !p.MarkupOptions.AllowBinding,
+                        isCommand: p.PropertyType.IsDelegate(),
+                        commandArguments: GetCommandArguments(p.PropertyType),
+                        fromCapability: p.OwningCapability?.Name,
+                        isAttached: p.AttributeProvider?.IsDefined(typeof(AttachedPropertyAttribute), true) == true
                     )
                 }
             )
             .GroupBy(p => p.declaringType)
             .ToDictionary(p => p.Key.FullName!, p => p.ToDictionary(p => p.name, p => p.p).ToSorted(StringComparer.OrdinalIgnoreCase)).ToSorted(StringComparer.OrdinalIgnoreCase);
 
+        public static SortedDictionary<string, DotvvmControlInfo> GetControls(CompiledAssemblyCache assemblies)
+        {
+            var result = new SortedDictionary<string, DotvvmControlInfo>(StringComparer.OrdinalIgnoreCase);
+            foreach (var a in assemblies.GetAllAssemblies())
+            {
+                foreach (var c in a.GetLoadableTypes())
+                {
+                    if (c.FullName is null) continue;
+                    if (!typeof(DotvvmBindableObject).IsAssignableFrom(c)) continue;
 
+                    var markupOptions = c.GetCustomAttribute<ControlMarkupOptionsAttribute>();
+                    var interfaces = c.GetInterfaces().Except(c.BaseType?.GetInterfaces() ?? Array.Empty<Type>()).ToArray();
+                    var isComposite = typeof(CompositeControl).IsAssignableFrom(c) && typeof(CompositeControl) != c;
+                    var control = new DotvvmControlInfo(
+                        c.Assembly?.GetName()?.Name,
+                        c.BaseType,
+                        interfaces: interfaces.Length > 0 ? interfaces : null,
+                        isAbstract: c.IsAbstract || c.IsGenericType,
+                        markupOptions?.DefaultContentProperty,
+                        withoutContent:
+                            !markupOptions?.AllowContent ?? false,
+                        markupPrimaryName:
+                            c.Name != markupOptions?.PrimaryName ? markupOptions?.PrimaryName : null,
+                        markupAlternativeNames:
+                            markupOptions?.AlternativeNames?.Length > 0 ? markupOptions?.AlternativeNames : null,
+                        isComposite: isComposite,
+                        precompilationMode:
+                            isComposite && markupOptions?.Precompile != ControlPrecompilationMode.Never ? markupOptions?.Precompile : null
+                    );
+                    result[c.FullName] = control;
+                }
+            }
+
+            return result;
+        }
+
+        static CommandArgumentInfo[]? GetCommandArguments(Type commandType)
+        {
+            if (commandType.IsDelegate(out var invoke) && invoke.GetParameters().Length > 0)
+                return invoke.GetParameters().Select(p => new CommandArgumentInfo(p.Name ?? "__no_name", p.ParameterType)).ToArray();
+            else
+                return null;
+        }
 
         public record DotvvmPropertyInfo(
             Type type,
@@ -85,12 +140,18 @@ namespace DotVVM.Framework.Hosting
             string? mappingName = null,
             [property: DefaultValue(MappingMode.Attribute)]
             MappingMode mappingMode = MappingMode.Attribute,
+            object? defaultValue = null,
             bool required = false,
+            bool onlyBindings = false,
+            bool onlyHardcoded = false,
+            bool isCommand = false,
+            CommandArgumentInfo[]? commandArguments = null,
             bool isActive = false,
             bool isCompileTimeOnly = false,
             string? fromCapability = null,
             [property: DefaultValue("")]
-            string capabilityPrefix = ""
+            string capabilityPrefix = "",
+            bool isAttached = false
         ) { }
 
         public record DotvvmPropertyGroupInfo(
@@ -101,7 +162,32 @@ namespace DotVVM.Framework.Hosting
             DataContextStackManipulationAttribute? dataContextManipulation,
             [property: DefaultValue(MappingMode.Attribute)]
             MappingMode mappingMode = MappingMode.Attribute,
-            string? fromCapability = null
+            bool onlyBindings = false,
+            bool onlyHardcoded = false,
+            bool isCommand = false,
+            CommandArgumentInfo[]? commandArguments = null,
+            string? fromCapability = null,
+            bool isAttached = false
+        ) { }
+
+
+        public record DotvvmControlInfo(
+            string? assembly,
+            Type? baseType,
+            Type[]? interfaces,
+            bool isAbstract,
+            string? defaultContentProperty,
+            bool withoutContent,
+            string? markupPrimaryName,
+            string[]? markupAlternativeNames,
+            bool isComposite,
+            ControlPrecompilationMode? precompilationMode
+        ) { }
+
+
+        public record CommandArgumentInfo(
+            string name,
+            Type type
         ) { }
 
 

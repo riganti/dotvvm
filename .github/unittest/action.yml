@@ -20,20 +20,20 @@ runs:
   using: composite
   steps:
   - run: dotnet test
+      "${{ inputs.project }}"
       --no-restore
       --logger "GitHubActions;report-warnings=true"
       --logger "trx;LogFileName=${{ github.workspace }}/artifacts/test/unit-test-results-${{ inputs.name }}-Debug.trx"
       --configuration Debug
       -p:WarningLevel=0
-      "${{ inputs.project }}"
     shell: bash
   - run: dotnet test
+      "${{ inputs.project }}"
       --no-restore
       --logger "GitHubActions;report-warnings=true"
       --logger "trx;LogFileName=${{ github.workspace }}/artifacts/test/unit-test-results-${{ inputs.name }}-Release.trx"
       --configuration Release
       -p:WarningLevel=0
-      "${{ inputs.project }}"
     shell: bash
   - uses: ./.github/test-report
     with:

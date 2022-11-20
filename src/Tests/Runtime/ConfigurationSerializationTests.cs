@@ -12,6 +12,7 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -34,29 +35,36 @@ namespace DotVVM.Framework.Tests.Runtime
             // Unify all occurrences of mscorlib and system.private.corelib
             serialized = serialized.Replace("mscorlib, Version=***, Culture=neutral, PublicKeyToken=b77a5c561934e089", "CoreLibrary");
             serialized = serialized.Replace("System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e", "CoreLibrary");
+            serialized = serialized.Replace("mscorlib", "CoreLibrary");
+            serialized = serialized.Replace("System.Private.CoreLib", "CoreLibrary");
             // Special case - unify IServiceProvider
             serialized = serialized.Replace("System.IServiceProvider, CoreLibrary", "System.IServiceProvider, ComponentLibrary");
             serialized = serialized.Replace("System.IServiceProvider, System.ComponentModel, Version=***, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.IServiceProvider, ComponentLibrary");
 
             var jobject = JObject.Parse(serialized);
-            bool shouldBeRemoved(JProperty p) =>
-                p.Name.Contains(".Tests.") || p.Name.Contains(".DynamicData.");
-            if (jobject["properties"] is object)
-                foreach (var testControl in ((JObject)jobject["properties"]).Properties().Where(shouldBeRemoved).ToArray())
-                    testControl.Remove();
-            if (jobject["propertyGroups"] is object)
-                foreach (var testControl in ((JObject)jobject["propertyGroups"]).Properties().Where(shouldBeRemoved).ToArray())
-                    testControl.Remove();
-            if (jobject["capabilities"] is object)
-                foreach (var testControl in ((JObject)jobject["capabilities"]).Properties().Where(shouldBeRemoved).ToArray())
-                    testControl.Remove();
+            void removeTestStuff(JToken token)
+            {
+                if (token is object)
+                    foreach (var testControl in ((JObject)token).Properties().Where(p => p.Name.Contains(".Tests.")).ToArray())
+                        testControl.Remove();
+            }
+            removeTestStuff(jobject["properties"]);
+            removeTestStuff(jobject["propertyGroups"]);
+            removeTestStuff(jobject["capabilities"]);
+            removeTestStuff(jobject["controls"]);
+            jobject["assemblies"]?.Parent.Remove(); // there are user specific paths
             check.CheckString(jobject.ToString(), checkName, fileExtension, memberName, sourceFilePath);
         }
 
         [TestMethod]
         public void SerializeDefaultConfig()
         {
-            var c = DotvvmConfiguration.CreateDefault();
+            var c = DotvvmConfiguration.CreateDefault(s => {
+                // explicitly register AutoUI, we want to check signatures of these controls too
+                DotVVM.AutoUI.AutoUIExtensions.AddAutoUI(new DotvvmServiceCollection(s));
+            });
+            // otherwise it behaves differently on .NET framework
+            c.ExperimentalFeatures.ExplicitAssemblyLoading.Enable();
             c.DefaultCulture = "en-US";
             checkConfig(c, includeProperties: true);
         }

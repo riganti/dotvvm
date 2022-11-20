@@ -27,7 +27,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.debug = config != null && config.Debug;
         }
 
-        public JToken SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, ISet<string>? ignoredTypes = null)
+        public JObject SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, ISet<string>? ignoredTypes = null)
         {
             var dependentEnumTypes = new HashSet<Type>();
             var resultJson = new JObject();

@@ -1,4 +1,3 @@
-import { formatString, parseDate as globalizeParseDate } from "../DotVVM.Globalize";
 import {
     parseDate as serializationParseDate,
     parseDateOnly as serializationParseDateOnly,
@@ -10,7 +9,6 @@ import {
     serializeTimeOnly,
     serializeTimeSpan
 } from "../serialization/date";
-import { CoerceError } from "../shared-classes";
 import { isNumber } from "../utils/isNumber";
 
 type PrimitiveTypes = { 
@@ -117,10 +115,10 @@ function validateString(value: any) {
     if (value === null) {
         wasCoerced = false;
     } else if (typeof value === "number") {
-        value = formatString("n", value, null);
+        value = value.toString();
         wasCoerced = true;
     } else if (value instanceof Date) {
-        value = formatString("g", value, "datetime");
+        value = serializeDate(value);
         wasCoerced = true;
     } else if (typeof value === "boolean") {
         value = value ? "true" : "false";
@@ -164,10 +162,7 @@ function validateDateTime(value: any) {
         // strict DotVVM format parse
         if (serializationParseDate(value)) {
             return { value };
-        } 
-        
-        // loose parse (the format parameter is intentionally blank - let Globalize.js use default formats from current culture)
-        value = globalizeParseDate(value, "");
+        }
     }
     
     if (value instanceof Date) {
@@ -192,9 +187,6 @@ function validateDateOnly(value: any) {
                 return { value: coercedDateOnly, wasCoerced: true };
             }
         }
-
-        // loose parse (the format parameter is intentionally blank - let Globalize.js use default formats from current culture)
-        value = globalizeParseDate(value, "");
     }
 
     if (value instanceof Date) {
@@ -219,9 +211,6 @@ function validateTimeOnly(value: any) {
                 return { value: coercedTimeOnly, wasCoerced: true }
             }
         }
-
-        // loose parse (the format parameter is intentionally blank - let Globalize.js use default formats from current culture)
-        value = globalizeParseDate(value, "");
     }
 
     if (value instanceof Date) {

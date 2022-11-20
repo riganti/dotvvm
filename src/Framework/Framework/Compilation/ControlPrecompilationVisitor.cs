@@ -176,5 +176,5 @@ namespace DotVVM.Framework.Compilation
     }
 
     /// <summary> When thrown, precompilation will be skipped, even though normal exceptions are not ignored. If precompilation mode is set to Always, the compilation fails with the specified message. </summary>
-    public record SkipPrecompilationException(string Message, Exception? InnerException = null): RecordException(Message, InnerException);
+    public record SkipPrecompilationException(string Message = "Precompilation not possible.", Exception? InnerException = null): RecordException(Message, InnerException);
 }
