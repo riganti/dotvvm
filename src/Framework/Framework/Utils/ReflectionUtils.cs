@@ -387,8 +387,15 @@ namespace DotVVM.Framework.Utils
                 throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)} but its {nameof(CustomPrimitiveTypeAttribute.ConverterType)} doesn't implement the {nameof(ICustomPrimitiveTypeConverter)} interface!");
             }
 
-            var converter = (ICustomPrimitiveTypeConverter)Activator.CreateInstance(attribute.ConverterType)!;
-            return new CustomPrimitiveTypeRegistration(type, attribute.ClientSideType, converter.Convert);
+            try
+            {
+                var converter = (ICustomPrimitiveTypeConverter)Activator.CreateInstance(attribute.ConverterType)!;
+                return new CustomPrimitiveTypeRegistration(type, attribute.ClientSideType, converter.Convert);
+            }
+            catch (Exception ex)
+            {
+                throw new DotvvmCompilationException($"The converter for a custom primitive type {type} couldn't be created. Make sure the class {attribute.ConverterType} has a default constructor.", ex);
+            }
         }
 
         public static bool IsNullableType(Type type)
