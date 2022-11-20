@@ -13,6 +13,24 @@
 
     <dot:SpaContentPlaceHolder ID="MainContent" />
 
+
+
+    <h3>Request log</h3>
+    <ol ID="request-log">        
+    </ol>
+
+    <script type="text/javascript">
+        var fetchBackup = window.fetch;
+        window.fetch = function (url, init) {
+            if (typeof url === "string" && url.indexOf("/api/orders") >= 0) {
+                var ol = document.getElementById("request-log");
+                var li = document.createElement("li");
+                li.innerText = init.method + " " + url.substring(url.indexOf("/api/orders"));
+                ol.appendChild(li);
+            }
+            return fetchBackup.apply(window, arguments);
+        };
+    </script>
 </body>
 </html>
 
