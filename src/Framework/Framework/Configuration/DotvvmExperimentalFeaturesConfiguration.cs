@@ -40,11 +40,15 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("knockoutDeferUpdates")]
         public DotvvmFeatureFlag KnockoutDeferUpdates { get; private set; } = new DotvvmFeatureFlag("KnockoutDeferUpdates");
 
+        [JsonProperty("useDotvvmSerializationForStaticCommandArguments")]
+        public DotvvmGlobalFeatureFlag UseDotvvmSerializationForStaticCommandArguments { get; private set; } = new DotvvmGlobalFeatureFlag();
+
         public void Freeze()
         {
             LazyCsrfToken.Freeze();
             ServerSideViewModelCache.Freeze();
             ExplicitAssemblyLoading.Freeze();
+            UseDotvvmSerializationForStaticCommandArguments.Freeze();
         }
     }
 
