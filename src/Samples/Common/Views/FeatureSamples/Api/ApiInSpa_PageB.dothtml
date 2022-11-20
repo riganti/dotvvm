@@ -1,0 +1,22 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.ApiInSpa_PageBViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/Api/ApiInSpa_Master.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <h2>Order detail</h2>
+
+    <div DataContext="{value: _apiOwin.Orders.GetItem(Id)}">
+
+        OrderId: {{value: Id}}
+        <br />
+        Date:
+        <dot:TextBox Text="{value: Date}" FormatString="yyyy-MM-dd" />
+        <br />
+        <dot:Button Click="{staticCommand: _apiOwin.Orders.Put(Id, _this)}" Text="Update" />
+        <dot:Button Click="{staticCommand: _apiOwin.Orders.Delete(Id)}" Text="Delete" />
+    </div>
+
+    <dot:RouteLink RouteName="FeatureSamples_Api_ApiInSpa_PageA" Text="Return to list" />
+
+</dot:Content>
+

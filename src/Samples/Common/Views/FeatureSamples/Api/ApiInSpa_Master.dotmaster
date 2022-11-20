@@ -1,0 +1,19 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.ApiInSpa_MasterViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>REST API Bindings in SPA</h1>
+
+    <dot:SpaContentPlaceHolder ID="MainContent" />
+
+</body>
+</html>
+
+

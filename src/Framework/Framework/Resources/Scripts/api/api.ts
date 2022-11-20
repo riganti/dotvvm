@@ -3,6 +3,7 @@ import { deserialize } from '../serialization/deserialize';
 import { logError, logWarning } from '../utils/logging';
 import { StateManager, unmapKnockoutObservables } from '../state-manager';
 import { DotvvmEvent } from '../events';
+import { keys } from '../utils/objects';
 
 type ApiComputed<T> =
     KnockoutObservable<T | null> & {
@@ -119,4 +120,10 @@ export function refreshOn<T>(
         value.refreshValue();
     });
     return value;
+}
+
+export function clearApiCachedValues() {
+    for (let key of keys(cachedValues)) {
+        delete cachedValues[key];
+    }
 }
