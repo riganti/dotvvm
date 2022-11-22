@@ -16,6 +16,10 @@ type DotvvmCoreState = {
     _viewModelCacheId?: string
     _virtualDirectory: string
     _initialUrl: string,
+    _routeName: string,
+    _routeParameters: {
+        [name: string]: any
+    },
     _stateManager: StateManager<RootViewModel>
 }
 
@@ -60,7 +64,8 @@ export function clearViewModelCache() {
     delete getCoreState()._viewModelCache;
 }
 export function getCulture(): string { return getCoreState()._culture; }
-
+export function getRouteName(): string { return getCoreState()._routeName; }
+export function getRouteParameters(): { [name: string]: any } { return getCoreState()._routeParameters; }
 export function getStateManager(): StateManager<RootViewModel> { return getCoreState()._stateManager }
 
 let initialViewModelWrapper: any;
@@ -85,7 +90,9 @@ export function initCore(culture: string): void {
         _culture: culture,
         _initialUrl: thisViewModel.url,
         _virtualDirectory: thisViewModel.virtualDirectory!,
-        _stateManager: manager
+        _stateManager: manager,
+        _routeName: thisViewModel.routeName,
+        _routeParameters: thisViewModel.routeParameters
     }
 
     // store cached viewmodel
@@ -106,7 +113,9 @@ export function initCore(culture: string): void {
                 _culture: currentCoreState!._culture,
                 _initialUrl: a.serverResponseObject.url,
                 _virtualDirectory: a.serverResponseObject.virtualDirectory!,
-                _stateManager: currentCoreState!._stateManager
+                _stateManager: currentCoreState!._stateManager,
+                _routeName: a.serverResponseObject.routeName,
+                _routeParameters: a.serverResponseObject.routeParameters
             }
         });
     }
@@ -124,4 +133,12 @@ function persistViewModel() {
     const persistedViewModel = { ...initialViewModelWrapper, viewModel };
 
     getViewModelStorageElement().value = JSON.stringify(persistedViewModel);
+}
+
+let _customFetch: (url: string, init: RequestInit) => Promise<Response> = fetch;
+export function customFetch(url: string, init: RequestInit): Promise<Response> {
+    return _customFetch(url, init);
+}
+export function setCustomFetch(fetchImplementation: (url: string, init: RequestInit) => Promise<Response>) {
+    _customFetch = fetchImplementation;
 }

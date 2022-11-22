@@ -1,4 +1,4 @@
-import { getVirtualDirectory, getViewModel, getState, getStateManager } from '../dotvvm-base';
+import { getVirtualDirectory, getViewModel, getState, getStateManager, customFetch } from '../dotvvm-base';
 import { DotvvmPostbackError } from '../shared-classes';
 import { logInfoVerbose, logWarning } from '../utils/logging';
 import { keys } from '../utils/objects';
@@ -32,7 +32,7 @@ export async function postJSON<T>(url: string, postData: any, signal: AbortSigna
 export async function fetchJson<T>(url: string, init: RequestInit): Promise<WrappedResponse<T>> {
     let response: Response;
     try {
-        response = await fetch(url, init);
+        response = await customFetch(url, init);
     }
     catch (err) {
         throw new DotvvmPostbackError({ type: "network", err });
@@ -55,7 +55,7 @@ export async function fetchCsrfToken(signal: AbortSignal | undefined): Promise<s
         let response;
         try {
             const url = addLeadingSlash(concatUrl(getVirtualDirectory() || "", "___dotvvm-create-csrf-token___"));
-            response = await fetch(url, { signal });
+            response = await customFetch(url, { signal });
         }
         catch (err) {
             logWarning("postback", `CSRF token fetch failed.`);
