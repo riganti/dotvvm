@@ -78,7 +78,7 @@ namespace DotVVM.AutoUI.Metadata
 
         private bool HasDefaultErrorMessage(ValidationAttribute attribute)
         {
-            return string.IsNullOrEmpty((string)internalErrorMessageField.GetValue(attribute))
+            return string.IsNullOrEmpty((string?)internalErrorMessageField.GetValue(attribute))
                 && attribute.ErrorMessageResourceType == null
                 && string.IsNullOrEmpty(attribute.ErrorMessageResourceName);
         }

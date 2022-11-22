@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets the property which value will be used as a fallback when this property is not set.
         /// </summary>
-        public DotvvmProperty FallbackProperty { get; protected set; }
+        public DotvvmProperty FallbackProperty { get; private set; }
 
         public DotvvmPropertyWithFallback(DotvvmProperty fallbackProperty)
         {

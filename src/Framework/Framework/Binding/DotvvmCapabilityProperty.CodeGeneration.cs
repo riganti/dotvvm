@@ -117,8 +117,8 @@ namespace DotVVM.Framework.Binding
                 var canUseDirectAccess =
                     !property.IsValueInherited && (
                     property.GetType() == typeof(DotvvmProperty) ||
-                    property.GetType().GetMethod(nameof(DotvvmProperty.GetValue), new [] { typeof(DotvvmBindableObject), typeof(bool) }).DeclaringType == typeof(DotvvmProperty) &&
-                    property.GetType().GetMethod(nameof(DotvvmProperty.SetValue), new [] { typeof(DotvvmBindableObject), typeof(object) }).DeclaringType == typeof(DotvvmProperty));
+                    property.GetType().GetMethod(nameof(DotvvmProperty.GetValue), new [] { typeof(DotvvmBindableObject), typeof(bool) })!.DeclaringType == typeof(DotvvmProperty) &&
+                    property.GetType().GetMethod(nameof(DotvvmProperty.SetValue), new [] { typeof(DotvvmBindableObject), typeof(object) })!.DeclaringType == typeof(DotvvmProperty));
 
                 var valueParameter = Expression.Parameter(type, "value");
                 var unwrappedType = type.UnwrapNullableType();

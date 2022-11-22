@@ -33,7 +33,7 @@ fileName: "control.dotcontrol");
         [DataRow("3.14", "double", typeof(double), 3.14)]
         [DataRow("'a'", "char", typeof(char), 'a')]
         [DataRow("\"t\"+\"e\"+$\"{\"s\"}t{1+1}\"+DotVVM.Framework.Tests.Runtime.ControlTree.TestConstants.Test", "string", typeof(string), "test2test")]
-        public void ResolvedTree_MarkupDeclaredProperty_CorrectConstantInitialValue(string initializer, string typeName, Type propertyType, object? testedValue)
+        public void ResolvedTree_MarkupDeclaredProperty_CorrectConstantInitialValue(string initializer, string typeName, Type propertyType, object testedValue)
         {
             var root = ParseSource(@$"@viewModel object
 @property {typeName} IsClosed = {initializer}
@@ -126,7 +126,7 @@ fileName: "control.dotcontrol");
         [DataRow("3.14", "string", typeof(string), default(string))]
         [DataRow("\"test\"", "int []", typeof(int []), default(int []))]
         [DataRow("[ 1, 2, 3, 4 ]", "string []", typeof(string[]), default(string[]))]
-        public void ResolvedTree_MarkupDeclaredProperty_IncompatibleTypes(string initializer, string typeName, Type propertyType, object? testedValue)
+        public void ResolvedTree_MarkupDeclaredProperty_IncompatibleTypes(string initializer, string typeName, Type propertyType, object testedValue)
         {
             var root = ParseSource(@$"@viewModel object
 @property {typeName} MisstypedProperty = {initializer}
