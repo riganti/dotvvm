@@ -14,7 +14,8 @@ using System.Threading.Tasks;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Renders the HTML list box.
+    /// Renders the HTML list box - <c>&lt;select size="10"</c> element.
+    /// This component allows selecting only one value, for multiple selection use the <see cref="MultiSelect"/> component.
     /// </summary>
     public class ListBox : SelectHtmlControlBase
     {
@@ -39,19 +40,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<int, ListBox>(t => t.Size, defaultValue: 10);
 
         /// <summary>
-        /// Gets or sets if lisbox can be used to select single item, or multiple items at once
-        /// Does not support binding
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        public ListBoxSelectionMode SelectionMode
-        {
-            get { return (ListBoxSelectionMode?)GetValue(SelectionModeProperty) ?? ListBoxSelectionMode.Single; }
-            set { SetValue(SelectionModeProperty, value); }
-        }
-        public static readonly DotvvmProperty SelectionModeProperty
-            = DotvvmProperty.Register<ListBoxSelectionMode, ListBox>(c => c.SelectionMode, ListBoxSelectionMode.Single);
-
-        /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -60,36 +48,14 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind("size", this, SizeProperty, () => writer.AddAttribute("size", Size.ToString()));
         }
 
-        protected override void RenderSelectedValueProperty(IHtmlWriter writer)
-        {
-            if (SelectionMode == ListBoxSelectionMode.Multiple)
-            {
-                writer.AddAttribute("multiple", "multiple");
-                writer.AddKnockoutDataBind("selectedOptions", this, SelectedValueProperty, renderEvenInServerRenderingMode: true);
-            }
-            else
-            {
-                writer.AddKnockoutDataBind("value", this, SelectedValueProperty, renderEvenInServerRenderingMode: true);
-            }
-            writer.AddKnockoutDataBind("valueAllowUnset", "true");
-        }
-
         [ControlUsageValidator(Override = true)]
         public static new IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
             if (!(control.GetValue(SelectedValueProperty) is ResolvedPropertySetter selectedValueBinding)) yield break;
 
-            var selectionMode = (ListBoxSelectionMode?)control.GetValue(SelectionModeProperty)?.GetValue() ?? ListBoxSelectionMode.Single;
-
-            if (selectionMode == ListBoxSelectionMode.Multiple && !IsCollectionPropertySetter(selectedValueBinding))
+            if (control.GetValue(ItemValueBindingProperty) is ResolvedPropertySetter itemValueBinding)
             {
-                yield return new(
-                    $"{nameof(SelectedValue)} must be a collection if {nameof(SelectionMode)} is '{selectionMode}'.",
-                    selectedValueBinding.DothtmlNode);
-            }
-            else if (control.GetValue(ItemValueBindingProperty) is ResolvedPropertySetter itemValueBinding)
-            {
-                var to = GetSelectedValueType(selectedValueBinding, selectionMode);
+                var to = selectedValueBinding.GetResultType();
                 var from = itemValueBinding.GetResultType();
 
                 if (!IsValueAssignable(from, to))
@@ -99,7 +65,7 @@ namespace DotVVM.Framework.Controls
             }
             else if (control.GetValue(DataSourceProperty) is ResolvedPropertySetter dataSourceBinding)
             {
-                var to = GetSelectedValueType(selectedValueBinding, selectionMode);
+                var to = selectedValueBinding.GetResultType();
                 var from = dataSourceBinding.GetResultType()?.UnwrapNullableType()?.GetEnumerableType();
 
                 if (!IsCollectionPropertySetter(dataSourceBinding))
@@ -115,10 +81,5 @@ namespace DotVVM.Framework.Controls
 
         private static bool IsCollectionPropertySetter(ResolvedPropertySetter setter)
             => new ResolvedTypeDescriptor(setter.GetResultType()).TryGetArrayElementOrIEnumerableType() is not null;
-
-        protected static Type? GetSelectedValueType(ResolvedPropertySetter selectedValueBinding, ListBoxSelectionMode selectionMode)
-            => selectionMode == ListBoxSelectionMode.Multiple
-                ? selectedValueBinding.GetResultType()?.UnwrapNullableType()?.GetEnumerableType()
-                : selectedValueBinding.GetResultType();
     }
 }

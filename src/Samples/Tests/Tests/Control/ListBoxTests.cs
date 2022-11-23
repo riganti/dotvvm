@@ -16,7 +16,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ListBox_SelectionModeSingle()
+        public void Control_ListBox()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ListBox_ListBox);
@@ -45,7 +45,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ListBox_SelectionModeSinglMultiple()
+        public void Control_MultiSelect()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ListBox_ListBox);

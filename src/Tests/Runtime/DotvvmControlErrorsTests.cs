@@ -138,33 +138,33 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
-        public void ListBox_ControlUsageValidation_IncompatibleCollectionsDataSource_ThrowsException()
+        public void MultiSelect_ControlUsageValidation_IncompatibleCollectionsDataSource_ThrowsException()
         {
-            var div = "<dot:ListBox SelectionMode=\"Multiple\" SelectedValue={value: SelectedColors} DataSource={value: Integers}/>";
+            var div = "<dot:MultiSelect SelectedValues={value: SelectedColors} DataSource={value: Integers}/>";
             var dotvvmBuilder = CreateControlRenderer(div, new ListBoxTestViewModel());
 
             var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
-            StringAssert.Contains(exc.Message, "Type 'System.Int32' is not assignable to 'DotVVM.Framework.Tests.Runtime.ColorData'.");
+            StringAssert.Contains(exc.Message, "Type 'int' is not assignable to 'DotVVM.Framework.Tests.Runtime.ColorData'.");
         }
 
         [TestMethod]
-        public void ListBox_ControlUsageValidation_SelectedValueNotCollectionWhenMultiple_ThrowsException()
+        public void MultiSelect_ControlUsageValidation_SelectedValueNotCollectionWhenMultiple_ThrowsException()
         {
-            var div = "<dot:ListBox SelectionMode=\"Multiple\" DataSource={value: Colors} SelectedValue={value: SelectedColor} />";
+            var div = "<dot:MultiSelect DataSource={value: Colors} SelectedValues={value: SelectedColor} />";
             var dotvvmBuilder = CreateControlRenderer(div, new ListBoxTestViewModel());
 
             var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
-            StringAssert.Contains(exc.Message, "SelectedValue must be a collection if SelectionMode is 'Multiple'.");
+            StringAssert.Contains(exc.Message, "SelectedValues must be a collection");
         }
 
         [TestMethod]
-        public void ListBox_ControlUsageValidation_DataSourceNotACollection_B_ThrowsException()
+        public void MultiSelect_ControlUsageValidation_DataSourceNotACollection_B_ThrowsException()
         {
-            var div = "<dot:ListBox SelectionMode=\"Multiple\" DataSource={value: Grid} SelectedValue={value: SelectedColors} />";
+            var div = "<dot:MultiSelect DataSource={value: Grid} SelectedValues={value: SelectedColors} />";
             var dotvvmBuilder = CreateControlRenderer(div, new ListBoxTestViewModel());
 
             var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
-            StringAssert.Contains(exc.Message, "DataSource must be a collection.");
+            StringAssert.Contains(exc.Message, "DataSource must be a collection");
         }
 
         [TestMethod]
@@ -174,7 +174,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var dotvvmBuilder = CreateControlRenderer(div, new ListBoxTestViewModel());
 
             var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
-            StringAssert.Contains(exc.Message, "DataSource must be a collection.");
+            StringAssert.Contains(exc.Message, "DataSource must be a collection");
         }
     }
     public class CheckBoxTestViewModel

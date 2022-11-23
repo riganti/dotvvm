@@ -7,6 +7,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Controls
 {
@@ -87,8 +88,7 @@ namespace DotVVM.Framework.Controls
         [ControlUsageValidator]
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
-            if (control.Properties.ContainsKey(SelectorBase.ItemValueBindingProperty) &&
-                control.Properties.GetValue(SelectorBase.ItemValueBindingProperty) is ResolvedPropertyBinding valueBinding)
+            if (control.GetValue(SelectorBase.ItemValueBindingProperty) is ResolvedPropertyBinding valueBinding)
             {
                 var t = valueBinding.Binding.ResultType;
                 if (!t.IsPrimitiveTypeDescriptor())
@@ -96,6 +96,43 @@ namespace DotVVM.Framework.Controls
                     yield return new ControlUsageError("Return type of ItemValueBinding has to be a primitive type!", valueBinding.DothtmlNode);
                 }
             }
+
+            if (control.GetValue(SelectorBase.ItemTextBindingProperty) is ResolvedPropertyBinding textBinding)
+            {
+                // TODO: just change the property type to IValueBinding<string>?
+                var t = textBinding.Binding.ResultType;
+                if (!t.IsPrimitiveTypeDescriptor())
+                {
+                    yield return new ControlUsageError("Return type of ItemTextBinding should be string or other primitive type!", textBinding.DothtmlNode);
+                }
+            }
+        }
+
+        protected static ControlUsageError CreateSelectedValueTypeError(ResolvedPropertySetter selectedValueBinding, Type? to, Type? from)
+            => new ($"Type '{from?.ToCode() ?? "?"}' is not assignable to '{to?.ToCode() ?? "?"}'.", selectedValueBinding.DothtmlNode);
+
+        protected static bool IsValueAssignable(Type? valueType, Type? to)
+        {
+            var nonNullableTo = to?.UnwrapNullableType();
+
+            return
+                to == null ||
+                valueType == null ||
+                to.IsAssignableFrom(valueType) ||
+                nonNullableTo!.IsAssignableFrom(valueType);
+        }
+
+        protected static bool IsDataSourceItemAssignable(Type? itemType, Type? to)
+        {
+            var nonNullableTo = to?.UnwrapNullableType();
+
+            return
+                to == null ||
+                itemType == null ||
+                to.IsAssignableFrom(itemType) ||
+                nonNullableTo!.IsAssignableFrom(itemType) ||
+                (to.UnwrapNullableType().IsEnum && itemType == typeof(string));
         }
     }
+
 }

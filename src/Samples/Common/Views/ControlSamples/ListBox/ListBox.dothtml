@@ -18,12 +18,11 @@
 
     Selected: <span data-ui="result" InnerText="{value: SelectedValue}"></span>
 
-    <dot:ListBox data-ui="multiple" DataSource="{value: List}"
-                 SelectedValue="{value: SelectedValues}"
+    <dot:MultiSelect data-ui="multiple" DataSource="{value: List}"
+                 SelectedValues="{value: SelectedValues}"
                  ItemTextBinding="{value: Text}"
                  ItemValueBinding="{value: Value}"
                  ItemTitleBinding="{value: Title}"
-                 SelectionMode="Multiple"
                  Size="3" />
 
     Selected:

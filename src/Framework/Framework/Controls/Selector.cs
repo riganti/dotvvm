@@ -57,32 +57,5 @@ namespace DotVVM.Framework.Controls
                 }
             }
         }
-
-        protected static ControlUsageError CreateSelectedValueTypeError(ResolvedPropertySetter selectedValueBinding, Type? to, Type? from)
-            => new ($"Type '{from?.FullName ?? "?"}' is not assignable to '{to?.FullName ?? "?"}'.", selectedValueBinding.DothtmlNode);
-
-        protected static bool IsValueAssignable(Type? valueType, Type? to)
-        {
-            var nonNullableTo = to?.UnwrapNullableType();
-
-            return
-                to == null ||
-                valueType == null ||
-                to.IsAssignableFrom(valueType) ||
-                nonNullableTo!.IsAssignableFrom(valueType);
-        }
-
-        protected static bool IsDataSourceItemAssignable(Type? itemType, Type? to)
-        {
-            var nonNullableTo = to?.UnwrapNullableType();
-
-            return
-                to == null ||
-                itemType == null ||
-                to.IsAssignableFrom(itemType) ||
-                nonNullableTo!.IsAssignableFrom(itemType) ||
-                (to.IsEnum && itemType == typeof(string)) ||
-                (to.UnwrapNullableType().IsEnum && itemType == typeof(string));
-        }
     }
 }

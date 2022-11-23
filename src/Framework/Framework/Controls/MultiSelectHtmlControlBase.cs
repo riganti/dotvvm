@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void RenderMultipleAttribute(IHtmlWriter writer)
         {
-            writer.AddAttribute("multiple", "multiple");
+            writer.AddAttribute("multiple", "");
         }
 
         protected virtual void RenderEnabledProperty(IHtmlWriter writer)
