@@ -4,6 +4,7 @@ param(
     [string] $samplesProfile = "seleniumconfig.owin.chrome.json",
     [string] $samplesOwinPort = "5407",
     [string] $samplesApiOwinPort = "61453",
+	[string] $samplesApiAspNetCorePort = "5001",
     [string] $trxName = "ui-test-results.trx")
 
 # set the codepage to UTF-8
@@ -26,6 +27,7 @@ Config: $config
 SamplesProfile: $samplesProfile
 SamplesOwinPort: $samplesOwinPort
 SamplesApiOwinPort: $samplesApiOwinPort
+SamplesApiAspNetCorePort: $samplesApiAspNetCorePort
 TrxName: $trxName
 "@
 
@@ -36,6 +38,8 @@ $samplesOwinName = "dotvvm.owin"
 $samplesOwinPath = "$root\artifacts\DotVVM.Samples.BasicSamples.Owin"
 $samplesApiOwinName = "dotvvm.owin.api"
 $samplesApiOwinPath = "$root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin"
+$samplesApiAspNetCoreName = "dotvvm.aspnetcore.api"
+$samplesApiAspNetCorePath = "$root\artifacts\DotVVM.Samples.BasicSamples.Api.AspNetCore"
 
 function Invoke-Cmds {
     param (
@@ -183,6 +187,7 @@ try {
     Start-Sample $samplesOwinName $samplesOwinPath $samplesOwinPort
     Test-Sample $samplesOwinName $samplesOwinPort
     Start-Sample $samplesApiOwinName $samplesApiOwinPath $samplesApiOwinPort
+	Start-Sample $samplesApiAspNetCoreName $samplesApiAspNetCorePath $samplesApiAspNetCorePort
 
     Invoke-RequiredCmds "Run UI tests" {
         $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" -ArgumentList `
@@ -207,5 +212,6 @@ finally {
     Test-Sample $samplesOwinName $samplesOwinPort
     Stop-Sample $samplesOwinName
     Stop-Sample $samplesApiOwinName
+    Stop-Sample $samplesApiAspNetCoreName
 }
 

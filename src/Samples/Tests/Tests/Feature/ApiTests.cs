@@ -166,7 +166,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [Fact(Skip = "Doesn't work on OWIN because it relies on _apiCore.")]
+        [Fact]
         public void Feature_Api_BindingSharing()
         {
             RunInAllBrowsers(browser => {
@@ -246,7 +246,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [Fact(Skip = "Doesn't work on OWIN because it relies on _apiCore.")]
+        [Fact]
         public void Feature_Api_ApiRefresh()
         {
             RunInAllBrowsers(browser => {
