@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public static IDotvvmRequestContext GetDotvvmContext(this IOwinContext owinContext)
         {
-            return owinContext.Get<IDotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey);
+            return owinContext.Get<IDotvvmRequestContext>(HostingConstants.DotvvmRequestContextKey);
         }
     }
 }

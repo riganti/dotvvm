@@ -22,7 +22,7 @@ export default {
                 for (const [n, v] of Object.entries(props)) {
 
                     if (ko.isObservable(v)) {
-                        result[n] = "state" in v ? v.state : unmapKnockoutObservables(v)
+                        result[n] = "state" in v ? (v as DotvvmObservable<any>).state : unmapKnockoutObservables(v)
                     } else {
                         result[n] = v
                     }
@@ -42,7 +42,7 @@ export default {
                             if (!ko.isObservable(prop) || !("setState" in prop)) {
                                 throw new Error(`Can not set property ${name} as it's not observable with setState method: ${prop}`)
                             }
-                            prop.setState(val)
+                            (prop as DotvvmObservable<any>).setState!(val)
                         }
                     }
                 })

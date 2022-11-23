@@ -65,16 +65,16 @@ namespace DotVVM.AutoUI
 
         public IValueBinding CreateValueBinding(string expression, params Type[] nestedDataContextTypes)
         {
-            var dataContextStack = CreateDataContextStack(DataContextStack, nestedDataContextTypes);
+            var dataContextStack = CreateChildDataContextStack(DataContextStack, nestedDataContextTypes);
 
             return BindingService.Cache.CreateValueBinding(expression, dataContextStack);
         }
 
-        private DataContextStack CreateDataContextStack(DataContextStack dataContextStack, Type[] nestedDataContextTypes)
+        public DataContextStack CreateChildDataContextStack(DataContextStack dataContextStack, params Type[] nestedDataContextTypes)
         {
             foreach (var type in nestedDataContextTypes)
             {
-                dataContextStack = DataContextStack.Create(type, dataContextStack, dataContextStack.NamespaceImports, dataContextStack.ExtensionParameters);
+                dataContextStack = DataContextStack.Create(type, dataContextStack, dataContextStack.NamespaceImports, dataContextStack.ExtensionParameters, dataContextStack.BindingPropertyResolvers);
             }
             return dataContextStack;
         }

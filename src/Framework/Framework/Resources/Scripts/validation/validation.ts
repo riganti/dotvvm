@@ -12,7 +12,7 @@ import { getObjectTypeInfo } from "../metadata/typeMap"
 import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
 import { currentStateSymbol, lastSetErrorSymbol } from "../state-manager"
-import { logError } from "../utils/logging"
+import { logError, logWarning } from "../utils/logging"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -51,7 +51,7 @@ const createValidationHandler = (pathFunction: (context: KnockoutBindingContext)
         if (pathFunction) {
             options.validationTargetPath = pathId
             // resolve target
-            const context = ko.contextFor(options.sender);
+            const context = ko.contextFor(options.sender!);
             const validationTarget = pathFunction(context);
 
             runClientSideValidation(validationTarget, options);
@@ -332,11 +332,14 @@ export function removeErrors(...paths: string[]) {
 export function addErrors(errors: ValidationErrorDescriptor[], options: AddErrorsOptions = {}): void {
     const root = options.root ?? dotvvm.viewModelObservables.root
     for (const prop of errors) {
-        // find the property
         const propertyPath = prop.propertyPath;
-        const property = evaluator.traverseContext(root, propertyPath);
-
-        ValidationError.attach(prop.errorMessage, propertyPath, property);
+        try {
+            // find the property
+            const property = evaluator.traverseContext(root, propertyPath);
+            ValidationError.attach(prop.errorMessage, propertyPath, property);
+        } catch (err) {
+            logWarning("validation", err);
+        }
     }
 
     if (options.triggerErrorsChanged !== false && errors.length > 0) {

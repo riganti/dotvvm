@@ -1035,6 +1035,10 @@ namespace DotVVM.Framework.Tests.Binding
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
         public DateTime DateTime { get; set; }
+        public DateOnly DateOnly { get; set; }
+        public DateOnly? NullableDateOnly { get; set; }
+        public TimeOnly TimeOnly { get; set; }
+        public TimeOnly? NullableTimeOnly { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);

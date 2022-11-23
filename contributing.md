@@ -20,7 +20,7 @@ First, start by choosing what you'd like to do - you can have a look at [issues 
 
 Then, you can fork the repo, clone it locally, and you are ready to develop. 
 
-Finally, you'll need to create a pull request to the `v4-main` (for DotVVM 4.0) or `main` branch (for DotVVM 3.x) (__we can help with that__), make sure that you have merged the latest changes and that the PR has a readable diff.
+Finally, you'll need to create a pull request to the `main` (latest development version). If you are working on a bugfix for a previous version, you should create a pull request, for example to the `release/4.0` branch (for DotVVM 4.0.x) (__we can help with that__). Whenever making a pull request, make sure that you have merged the latest changes and that the PR has a readable diff.
 
  **Please avoid reformatting documents, refactoring stuff, changing CRLF to LF or tabs to spaces etc. - it makes the PRs difficult to review.** There is definitely room for refactoring or cleanup, but it should be done in a separate PR so it is not messed up with functional changes.
 
@@ -30,8 +30,8 @@ Finally, you'll need to create a pull request to the `v4-main` (for DotVVM 4.0) 
 * If you'd like to implement your own feature, we recommend to describe it first in an issue, so we can discuss it and help you with implementation. Sometimes the feature might be already implemented, but it just has a different name.
 * We have a [DotVVM Contrib](https://github.com/riganti/dotvvm-contrib) repository which contains several community-authored components. We'd love to see more of them. There is a brief contributing guide in the repo.
 * Feedback for the [ASP.NET Web Forms modernization story using DotVVM](https://dotvvm.com/modernize) - DotVVM can be used to modernize old ASP.NET web apps without rewriting them completely. We'll be happy if you try DotVVM on your Web Forms app and give us feedback, or possibly write an article or a case study. As a reward, we can help you with the migration if you run into any difficulties - just contact us on [Gitter](https://gitter.im/riganti/dotvvm). 
-* Tooling - we already have quite powerful [Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVMforVisualStudio-17892), but there is only a limited support for **Visual Studio Code** and no for other popular editors. We have a simple [VS Code Extension](https://github.com/riganti/dotvvm-extension-vscode), so you can start from it. If you have any questions, I'd recommend you to mention @Mylan719, the author of our Visual Studio Extension. 
-* You can also take a look at performance optimization and testing - we have a [repository with benchmarks](https://github.com/riganti/dotvvm-benchmarks) which measure time per request of all our samples. Also have a look at https://github.com/riganti/dotvvm/issues/170 and at [a performance report](https://ipfs.io/ipfs/QmScnYdY8xoPeHPN85edPdLPbi3GvHrUGicvHAuyMdrAQE/reports/BenchmarkRun-001-2017-05-31-10-34-59/report.html)
+* Tooling - we already have a quite powerful [Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVMforVisualStudio-17892), but there is only a limited support for **Visual Studio Code** and none for other popular editors. We have a simple [VS Code Extension](https://github.com/riganti/dotvvm-extension-vscode), so you can start from it. If you have any questions, I'd recommend you to mention @Mylan719, the author of our Visual Studio Extension. 
+* You can also take a look at performance optimization and testing - we have a [repository with benchmarks](https://github.com/riganti/dotvvm-benchmarks) which measure time per request of all our samples. Also have a look at https://github.com/riganti/dotvvm/issues/170.
 * [DotVVM Dynamic Data](https://github.com/riganti/dotvvm-dynamic-data) - a library that generates user interface from reflection metadata and data annotation attributes. This is how you do a form for the `EditedEmployee` property `<dd:DynamicEntity DataContext="{value: EditedEmployee}" />`. You can have a look at the roadmap in the README.md, make it faster or try to use it and fix all the problems that you have with it. ;)
 * If you'd just like to try using DotVVM in an application instead of hacking its internals, feel free to publish your work on GitHub, we will be happy to link it as a sample application. We would also appreciate any feedback to the framework.
 * If you like fixing things in a documentation, it is located at [riganti/dotvvm-docs](https://github.com/riganti/dotvvm-docs)
@@ -42,15 +42,15 @@ Finally, you'll need to create a pull request to the `v4-main` (for DotVVM 4.0) 
 
 If you plan to work with the DotVVM repository, here is a short manual what you need to do.
 
-To get started, fork the repository, and clone it on or computer. You can use Visual Studio's Team Explorer window or run `git clone https://github.com/<your_github_username>/dotvvm.git`. 
+To get started, fork the repository, and clone it on your computer. You can use Visual Studio's Team Explorer window or run `git clone https://github.com/<your_github_username>/dotvvm.git`. 
 
-We are using Visual Studio 2019 or Visual Studio Code. Some projects use .NET Core 2.1, 3.1 and .NET 5.0, so the solution will probably not open in older versions of Visual Studio.
+We are using Visual Studio 2022 or Visual Studio Code. Some projects use .NET 5.0+, so the solution will probably not open in older versions of Visual Studio.
 
 Open the `src/DotVVM.sln` solution in Visual Studio, or open the `src` folder in VS Code. 
 
 Set `Samples/DotVVM.Samples.BasicSamples.AspNetCore` as a startup project and launch it. It should just work - you'll see a page with a long list of samples (they are not often meaningful, they are used by the UI tests to verify all framework features work; however they are great for playing). 
 
-If the project does not start, feel free to ask us on [Gitter](https://gitter.im/riganti/dotvvm). For VS Code, launch it from the `src` directory, so it can find the `.vscode/launch.json` and `.vscode/tasks.json` files. You can also try to rebuild `Tests/DotVVM.Framework.Tests` project and run the unit/integration tests - it should complete in few seconds, everything should be green. :)
+If the project does not start, feel free to ask us on [Gitter](https://gitter.im/riganti/dotvvm). For VS Code, launch it from the `src` directory, so it can find the `.vscode/launch.json` and `.vscode/tasks.json` files. You can also try to rebuild `Tests` project and run the framework's unit/integration tests - it should complete in a few seconds, everything should be green. :)
 
 Almost everything interesting is in the `DotVVM.Framework` project, except for some base interfaces and attributes in `DotVVM.Core` (so you don't have to reference the entire framework in your business layer, if you just want to suppress serialization or turn on the validation of certain properties). 
 
@@ -64,7 +64,7 @@ The OWIN and ASP.NET Core integration is split in two projects called `DotVVM.Fr
 
 You may want to try to use DotVVM source codes directly from your project so you can interactively test your changes or simply check if some bugfix works correctly. 
 
-The first step is to clone the DotVVM git repository, if you want to make some changes, you probably want to fork in on github beforehand (see above for more info). The second and last step is to replace NuGet reference to project reference in your project file (`Something.csproj`) - simply replace the `<PackageReference Include="DotVVM.AspNetCore" ... />` with `<ProjectReference Include="path/to/dotvvm/src/DotVVM.Framework.Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />`. In VS Code, you don't need to update solutions file or anything, this is the only thing the .NET SDK cares about - in Visual Studio 2019, you'll probably need to add DotVVM projects to the solution (right-click and Add Existing Project).
+The first step is to clone the DotVVM git repository, if you want to make some changes, you probably want to fork it on github beforehand (see above for more info). The second and last step is to replace NuGet reference to project reference in your project file (`Something.csproj`) - simply replace the `<PackageReference Include="DotVVM.AspNetCore" ... />` with `<ProjectReference Include="path/to/dotvvm/src/Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />`. In VS Code, you don't need to update solutions file or anything, this is the only thing the .NET SDK cares about - in Visual Studio 2022, you'll probably need to add DotVVM projects to the solution (right-click and Add Existing Project).
 
 ## Support and communication
 

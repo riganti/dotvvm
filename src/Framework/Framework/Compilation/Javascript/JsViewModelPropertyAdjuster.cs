@@ -143,8 +143,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     vmType.ContainsObservables = false;
                     newExpr = (JsExpression)expr.ReplaceWith(_ =>
-                        JavascriptTranslator.GetKnockoutContextParameter(vmSymbol.ParentIndex).ToExpression()
-                            .Member("$rawData")
+                        JavascriptTranslator.GetKnockoutViewModelParameter(vmSymbol.ParentIndex, returnsObservable: true).ToExpression()
                             .Member("state").WithAnnotation(vmType));
                 }
                 else

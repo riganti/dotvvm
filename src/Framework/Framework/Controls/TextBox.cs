@@ -127,6 +127,14 @@ namespace DotVVM.Framework.Controls
             {
                 return FormatValueType.DateTime;
             }
+            else if (binding != null && (binding.ResultType == typeof(DateOnly) || binding.ResultType == typeof(DateOnly?)))
+            {
+                return FormatValueType.DateOnly;
+            }
+            else if (binding != null && (binding.ResultType == typeof(TimeOnly) || binding.ResultType == typeof(TimeOnly?)))
+            {
+                return FormatValueType.TimeOnly;
+            }
             else if (binding != null && (binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType)?.IsNumericType() == true))
             {
                 return FormatValueType.Number;
@@ -212,9 +220,8 @@ namespace DotVVM.Framework.Controls
                 var formatString = FormatString;
                 if (string.IsNullOrEmpty(formatString))
                 {
-                    formatString = implicitFormatString ?? "G";
+                    formatString = implicitFormatString;
                 }
-                writer.AddAttribute("data-dotvvm-format", formatString);
 
                 if (resolvedValueType == FormatValueType.DateTime)
                 {
@@ -224,6 +231,18 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.AddAttribute("data-dotvvm-value-type", "number");
                 }
+                else if (resolvedValueType == FormatValueType.DateOnly)
+                {
+                    writer.AddAttribute("data-dotvvm-value-type", "dateonly");
+                    formatString ??= "D";
+                }
+                else if (resolvedValueType == FormatValueType.TimeOnly)
+                {
+                    writer.AddAttribute("data-dotvvm-value-type", "timeonly");
+                    formatString ??= "T";
+                }
+
+                writer.AddAttribute("data-dotvvm-format", formatString ?? "G");
             }
         }
 

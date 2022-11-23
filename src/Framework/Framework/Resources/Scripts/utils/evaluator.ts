@@ -87,7 +87,7 @@ export function wrapObservable(func: () => any, isArray?: boolean): KnockoutComp
 
     if (isArray) {
         for (const i of ["push", "pop", "unshift", "shift", "reverse", "sort", "splice", "slice", "replace", "indexOf", "remove", "removeAll"]) {
-            wrapper[i] = (...args: any) => updateObservableArray(func, i, args);
+            (wrapper as any)[i] = (...args: any) => updateObservableArray(func, i, args);
         }
         wrapper = wrapper.extend({ trackArrayChanges: true });
     }
@@ -99,7 +99,7 @@ function updateObservable(getObservable: () => KnockoutObservable<any>, value: a
     const result = getExpressionResult(getObservable);
 
     if (!ko.isWriteableObservable(result)) {
-        logError("evaluator", `Cannot write a value to ko.computed because the expression '${getObservable}' does not return a writable observable.`);
+        logError("validation", `Cannot write a value to ko.computed because the expression '${getObservable}' does not return a writable observable.`);
     } else {
         result(value);
     }
@@ -109,7 +109,7 @@ function updateObservableArray(getObservableArray: () => KnockoutObservableArray
     const result = getExpressionResult(getObservableArray);
 
     if (!isObservableArray(result)) {
-        logError("evaluator", `Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.`);
+        logError("validation", `Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.`);
     } else {
         result[fnName].apply(result, args);
     }
@@ -117,7 +117,7 @@ function updateObservableArray(getObservableArray: () => KnockoutObservableArray
 
 export const unwrapComputedProperty = (obs: any) =>
     ko.isComputed(obs) && "wrappedProperty" in obs ?
-    obs["wrappedProperty"]() : // workaround for dotvvm-with-control-properties handler
+    (obs as any)["wrappedProperty"]() : // workaround for dotvvm-with-control-properties handler
     obs;
 
 function getExpressionResult(func: () => any) {

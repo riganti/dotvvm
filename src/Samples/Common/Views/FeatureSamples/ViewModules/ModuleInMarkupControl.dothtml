@@ -10,12 +10,12 @@
 <body>
 
     <cc:ModuleControl />
+    <cc:LinkModuleControl Page="test.page" Query-id={value: ChildObject.Test} Query-action="new" Text="Link" />
 
     <h2>Event log</h2>
     <pre ID="log">
     </pre>
 
     <dot:RequiredResource Name="globalize" />
-
 </body>
 </html>

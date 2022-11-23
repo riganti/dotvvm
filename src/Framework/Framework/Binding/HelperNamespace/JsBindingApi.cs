@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Binding.HelperNamespace
             var compiler = new GenericMethodCompiler(
                 (a, method) => {
                     var annotation = a[0].Annotation<JsExtensionParameter.ViewModuleAnnotation>().NotNull("invalid call of _js.Invoke");
-                    var viewIdOrElementExpr = annotation.IsMarkupControl ? new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter) : (JsExpression)new JsLiteral(annotation.Id);
+                    var viewIdOrElementExpr = annotation.IsMarkupControl ? new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter) : (JsExpression)new JsLiteral(annotation.Id);
 
                     var isAsync = typeof(Task).IsAssignableFrom(method.ReturnType) || method.Name == "InvokeAsync";
 

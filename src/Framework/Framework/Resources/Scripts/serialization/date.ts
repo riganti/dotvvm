@@ -1,43 +1,32 @@
 import { logWarning } from "../utils/logging";
 
-export function parseDate(value: string | null, convertFromUtc: boolean = false): Date | null {
-    if (value == null) return null;
-    const match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{1,7})$");
-    if (match) {
-        const date = new Date(0);
-        let month = parseInt(match[2], 10) - 1;
-        let day = parseInt(match[3], 10);
+export function parseDate(value: string | null | undefined, convertFromUtc: boolean = false): Date | null {
+    if (value && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d{1,7})?$/.test(value)) {
 
-         //Javascript date object does not support month 00 and rolls to december.
-        //In case of user input of 00 we correct it to january.
-        //This is more user friendly than suddendly having december.
-        month = month < 0 ? 0 : month;
-
-        //Javascript date object does not support day 0 and rolls to 30 or 31 and rolls the month value to previous month.
-        //This results in unpredictable behaviour if user inputs 00 into date input field for instance
-        //We sanitize it to 1st of the same month to avoid this unpredictability
-        day = day < 1 ? 1 : day;
-
-        //We set components of the date by hand, this prevents JS from 'corecting' years 00XX to 19XX
-        date.setMilliseconds(match.length > 7 ? parseInt(match[7].substring(1, 4), 10) : 0);
-        date.setSeconds(parseInt(match[6], 10));
-        date.setMinutes(parseInt(match[5], 10));
-        date.setHours(parseInt(match[4], 10));
-        date.setDate(day);
-        date.setMonth(month);
-        date.setFullYear(parseInt(match[1], 10));
-
-        if (convertFromUtc) {
-            date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+        // for some reason, we want to support date with 00 everywhere,
+        // so this hack sanitizes the date by setting day and month fields to 1
+        const sanitizedValue = value.replace(/00T/, "01T").replace(/00-(\d\d)T/, "01-$1T")
+        const d = Date.parse(sanitizedValue + (convertFromUtc ? "Z" : ""));
+        if (isNaN(d)) {
+            return null
+        } else {
+            return new Date(d)
         }
-        return date;
     }
     return null;
 }
 
-export function parseTimeSpan(value: string | null): number | null {
+export function parseDateOnly(value: string | null | undefined): Date | null {
+    return parseDate(`${value}T00:00:00.00`, false);
+}
+
+export function parseTimeOnly(value: string | null | undefined): Date | null {
+    return parseDate(`1970-01-01T${value}`, false);
+}
+
+export function parseTimeSpan(value: string | null | undefined): number | null {
     if (value == null) return null;
-    const match = value.match("^(-?)([0-9]+\\.)?([0-9]+):([0-9]{2}):([0-9]{2})(\\.[0-9]{3,7})?$");
+    const match = /^(-?)(\d+\.)?(\d+):(\d\d):(\d\d)(\.\d{3,7})?$/.exec(value);
     if (match) {
         const sign = match[1] ? -1 : 1;
         const days = match[2] ? parseInt(match[2], 10) : 0;
@@ -50,23 +39,16 @@ export function parseTimeSpan(value: string | null): number | null {
     return null;
 }
 
-export function parseDateTimeOffset(value: string | null): Date | null {
-    if (value == null) return null;
-    const match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{1,7})?(Z|[+-]([0-9]{1,2}):([0-9]{2}))$");
-    if (match) {
-        const offset = match[8] === "Z" ? 0 : ((match[8] === "-" ? -1 : 1) * (parseInt(match[9], 10) * 60 + parseInt(match[10], 10)));
-        return new Date(parseInt(match[1], 10), parseInt(match[2], 10) - 1, parseInt(match[3], 10),
-            parseInt(match[4], 10), parseInt(match[5], 10) + offset, parseInt(match[6], 10), match[7] ? parseInt(match[7].substring(1, 4), 10) : 0);
+export function parseDateTimeOffset(value: string | null | undefined): Date | null {
+    const d = Date.parse(value!)
+    if (d) {
+        return new Date(d)
     }
     return null;
 }
 
 function padNumber(value: string | number, digits: number): string {
-    value = value + ""
-    while (value.length < digits) {
-        value = "0" + value;
-    }
-    return value;
+    return (value + "").padStart(digits, "0");
 }
 
 export function serializeDate(date: string | Date | null, convertToUtc: boolean = true): string | null {
@@ -79,41 +61,20 @@ export function serializeDate(date: string | Date | null, convertToUtc: boolean 
         }
         return date;
     }
-    let date2 = new Date(date.getTime());
     if (convertToUtc) {
-        date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-    } else {
-        date2 = date;
+        return date.toISOString().replace(/Z$/, "") + '0000'
     }
-
-    const y = padNumber(date2.getFullYear(), 4);
-    const m = padNumber((date2.getMonth() + 1), 2);
-    const d = padNumber(date2.getDate(), 2);
-    const h = padNumber(date2.getHours(), 2);
-    const mi = padNumber(date2.getMinutes(), 2);
-    const s = padNumber(date2.getSeconds(), 2);
-    const ms = padNumber(date2.getMilliseconds(), 3);
-    return `${y}-${m}-${d}T${h}:${mi}:${s}.${ms}0000`;
+    return serializeDateOnly(date) + "T" + serializeTimeOnly(date);
+}
+export function serializeDateOnly(date: Date): string {
+    return padNumber(date.getFullYear(), 4) + "-" + padNumber(date.getMonth() + 1, 2) + "-" + padNumber(date.getDate(), 2)
 }
 
-export function serializeTimeSpan(time: string | number | null): string | null {
-    let ticks: number;
+export function serializeTimeOnly(date: Date): string {
+    return padNumber(date.getHours(), 2) + ':' + padNumber(date.getMinutes(), 2) + ':' + padNumber(date.getSeconds(), 2) + '.' + padNumber(date.getMilliseconds(), 3) + '0000';
+}
 
-    if (time === null) {
-        return null;
-    } else if (typeof time == "string") {
-        // just print in the console if it's invalid
-        const parsedTime = parseTimeSpan(time);
-        if (parsedTime === null) {
-            logWarning("coercer", `TimeSpan ${time} is invalid.`);
-            return null;
-        }
-
-        ticks = parsedTime;
-    } else {
-        ticks = time;
-    }
-    
+export function serializeTimeSpan(ticks: number): string {
     const sign = ticks >= 0 ? "" : "-";
     ticks = Math.abs(ticks);
     const hours = (ticks / 1000 / 3600) | 0;
