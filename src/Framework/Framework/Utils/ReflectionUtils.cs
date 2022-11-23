@@ -391,7 +391,7 @@ namespace DotVVM.Framework.Utils
             try
             {
                 var converter = (ICustomPrimitiveTypeConverter)Activator.CreateInstance(attribute.ConverterType)!;
-                return new CustomPrimitiveTypeRegistration(type, attribute.ClientSideType, converter.Convert);
+                return new CustomPrimitiveTypeRegistration(type, attribute.ClientSideType, converter.ToCustomPrimitiveType, converter.FromCustomPrimitiveType);
             }
             catch (Exception ex)
             {
