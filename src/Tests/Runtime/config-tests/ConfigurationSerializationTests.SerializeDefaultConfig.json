@@ -1116,6 +1116,7 @@
       },
       "Html:Visible": {
         "type": "System.Boolean",
+        "defaultValue": true,
         "fromCapability": "HtmlCapability"
       },
       "Name": {
