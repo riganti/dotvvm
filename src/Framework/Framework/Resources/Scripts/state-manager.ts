@@ -356,7 +356,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                 return
             }
         }
-        else if (!observableWasSetFromOutside && oldContents && oldContents[notifySymbol] && currentValue["$type"] && currentValue["$type"] === newVal["$type"]) {
+        else if (!observableWasSetFromOutside && oldContents && oldContents[notifySymbol] && compareObjectTypes(currentValue, newVal)) {
             // smart object, supports the notification by itself
             oldContents[notifySymbol as any](newVal)
 
@@ -403,4 +403,22 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         configurable: false
     });
     return obs
+}
+
+function compareObjectTypes(currentValue: any, newVal: any): boolean {
+    if (currentValue["$type"] && currentValue["$type"] === newVal["$type"]) {
+        // objects with type must have a same type
+        return true;
+    }
+    else if (!currentValue["$type"] && !newVal["$type"]) {
+        // dynamic objects must have the same properties
+        let currentValueKeys = keys(currentValue);
+        let newValKeys = keys(newVal);
+        if (currentValueKeys.length == newValKeys.length) {
+            currentValueKeys.sort();
+            newValKeys.sort();
+            return currentValueKeys.every((v, i) => newValKeys[i] === v);
+        }
+    }
+    return false;
 }
