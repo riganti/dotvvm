@@ -24,6 +24,7 @@ using Newtonsoft.Json.Converters;
 using RecordExceptions;
 using System.ComponentModel;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Utils
 {
