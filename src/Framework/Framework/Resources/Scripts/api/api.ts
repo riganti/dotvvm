@@ -6,7 +6,7 @@ import { DotvvmEvent } from '../events';
 import { keys } from '../utils/objects';
 
 type ApiComputed<T> =
-    KnockoutObservable<T | null> & {
+    KnockoutComputed<T | null> & {
         refreshValue: () => PromiseLike<any>
     };
 
@@ -116,8 +116,12 @@ export function refreshOn<T>(
     if (typeof value.refreshValue != "function") {
         logError("rest-api", `The object is not refreshable.`);
     }
-    watch.subscribe(() => {
-        value.refreshValue();
+    const subs = watch.subscribe(() => {
+        if (value.getSubscriptionsCount()) {
+            value.refreshValue();
+        } else {
+            subs.dispose()
+        }
     });
     return value;
 }
