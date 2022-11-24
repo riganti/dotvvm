@@ -71,6 +71,7 @@
     <None Remove="Views\Errors\InvalidServiceDirective.dothtml" />
     <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\ApiRefresh.dothtml" />
     <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoEditor.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoForm.dothtml" />
@@ -100,6 +101,7 @@
     <None Remove="Views\FeatureSamples\PostbackAbortSignal\LoadAbortViewModel.dothtml" />
     <None Remove="Views\FeatureSamples\RenderSettingsModeServer\RepeaterCollectionSetToNull.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\ByteArray.dothtml" />
+    <None Remove="Views\FeatureSamples\Serialization\DateOnlyTimeOnly.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\TimeSpan.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\EnumSerializationCoercion.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\SerializationDateTimeOffset.dothtml" />

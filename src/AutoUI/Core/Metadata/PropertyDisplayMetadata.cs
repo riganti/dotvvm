@@ -34,13 +34,13 @@ namespace DotVVM.AutoUI.Metadata
 
         public bool AutoGenerateField { get; set; }
 
-        public IEnumerable<VisibleAttribute> VisibleAttributes { get; set; } = Enumerable.Empty<VisibleAttribute>();
+        public List<VisibleAttribute> VisibleAttributes { get; set; } = new();
 
         public DataType? DataType { get; set; }
 
         public bool IsEditable { get; set; }
 
-        public IEnumerable<EnabledAttribute> EnabledAttributes { get; set; } = Enumerable.Empty<EnabledAttribute>();
+        public List<EnabledAttribute> EnabledAttributes { get; set; } = new();
 
         public StyleAttribute? Styles { get; set; }
 

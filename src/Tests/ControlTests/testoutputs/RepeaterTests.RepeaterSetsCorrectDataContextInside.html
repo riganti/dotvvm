@@ -1,0 +1,25 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- runtime/runtime -->
+		<div data-bind="foreach: { data: Items }">
+			<span>Inner precompiled, context = (type=DotVVM.Framework.Tests.ControlTests.TestItem, ext=[_index: int, _collection: BindingCollectionInfo], par=[BasicTestViewModel])</span>
+		</div>
+		
+		<!-- precompile/runtime -->
+		<div data-bind="foreach: { data: Items }">
+			<span>Inner precompiled, context = (type=DotVVM.Framework.Tests.ControlTests.TestItem, ext=[_index: int, _collection: BindingCollectionInfo], par=[BasicTestViewModel])</span>
+		</div>
+		
+		<!-- precompile/precompile -->
+		<div data-bind="foreach: { data: Items }">
+			<span>Inner precompiled, context = (type=DotVVM.Framework.Tests.ControlTests.TestItem, ext=[_index: int, _collection: BindingCollectionInfo], par=[BasicTestViewModel])</span>
+		</div>
+		
+		<!-- runtime/precompile. The inner control is not precompiled because it's created at runtime, but we can check that it does not break either. -->
+		<div data-bind="foreach: { data: Items }">
+			<span>Inner precompiled, context = (type=DotVVM.Framework.Tests.ControlTests.TestItem, ext=[_index: int, _collection: BindingCollectionInfo], par=[BasicTestViewModel])</span>
+		</div>
+	</body>
+</html>

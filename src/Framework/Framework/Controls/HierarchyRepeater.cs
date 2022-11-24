@@ -269,8 +269,9 @@ namespace DotVVM.Framework.Controls
                     .GetParametrizedKnockoutExpression(dataItem)
                     .ToString(p =>
                         p == JavascriptTranslator.KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier($"ko.unwrap($foreachCollectionSymbol)[{index}]()") :
+                        p == JavascriptTranslator.KnockoutViewModelObservableParameter ? CodeParameterAssignment.FromIdentifier($"ko.unwrap($foreachCollectionSymbol)[{index}]") :
                         p is JavascriptTranslator.ViewModelSymbolicParameter vm ?
-                            JavascriptTranslator.GetKnockoutViewModelParameter(vm.ParentIndex - 1).DefaultAssignment :
+                            vm.WithIndex(vm.ParentIndex - 1).DefaultAssignment :
                         default
                     );
 
@@ -310,8 +311,10 @@ namespace DotVVM.Framework.Controls
                 .ToString(p =>
                     p == JavascriptTranslator.KnockoutViewModelParameter ?
                         CodeParameterAssignment.FromIdentifier("$item()") :
+                    p == JavascriptTranslator.KnockoutViewModelObservableParameter ?
+                        CodeParameterAssignment.FromIdentifier("$item") :
                     p is JavascriptTranslator.ViewModelSymbolicParameter vm ?
-                        JavascriptTranslator.GetKnockoutViewModelParameter(vm.ParentIndex - 1).DefaultAssignment :
+                        vm.WithIndex(vm.ParentIndex - 1).DefaultAssignment :
                     default
                 );
 

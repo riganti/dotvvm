@@ -15,11 +15,20 @@
                 <fieldset>
                     <legend>Indeterminate CheckBox</legend>
                     <p>
-                        <dot:CheckBox Text="Indeterminate Test" Checked="{value: Indeterminate}" />
+                        <label>
+                            <dot:CheckBox ID="checkbox-indeterminate" Checked="{value: Indeterminate}" />
+                            Indeterminate Test
+                        </label>
                         &nbsp; &nbsp;
                         <dot:Button Text="Reset" Click="{staticCommand: Indeterminate = null}" />
                         &nbsp; &nbsp;
                         <span class="value">{{value: Indeterminate == null ? "Indeterminate": "Other"}}</span>                        
+                    </p>
+                    <p>
+                        <label>
+                            <dot:CheckBox ID="checkbox-no-indeterminate" Checked={value: Indeterminate} DisableIndeterminate />
+                            This checkbox should treat null as unchecked
+                        </label>
                     </p>
                 </fieldset>
             </div>

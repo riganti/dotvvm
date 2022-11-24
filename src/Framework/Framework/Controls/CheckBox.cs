@@ -44,6 +44,17 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<IEnumerable?, CheckBox>(t => t.CheckedItems, null);
 
 
+        /// <summary> When set to true, `null` in the Checked property will be treated as `false`, instead of marking the checkbox as indeterminate </summary>
+        [MarkupOptions(AllowBinding = true)]
+        public bool DisableIndeterminate
+        {
+            get { return (bool)GetValue(DisableIndeterminateProperty)!; }
+            set { SetValue(DisableIndeterminateProperty, value); }
+        }
+        public static readonly DotvvmProperty DisableIndeterminateProperty =
+            DotvvmProperty.Register<bool, CheckBox>(nameof(DisableIndeterminate));
+
+
         /// <summary>
         /// Renders the input tag.
         /// </summary>
@@ -113,7 +124,11 @@ namespace DotVVM.Framework.Controls
         protected virtual void RenderCheckedProperty(IHtmlWriter writer)
         {
             var checkedBinding = GetValueBinding(CheckedProperty);
-            writer.AddKnockoutDataBind("dotvvm-CheckState", checkedBinding!, this);
+
+            // dotvvm-CheckState sets elements to indeterminate state when checkedBinding is null,
+            // knockout's default checked binding does not do that
+            var bindingHandler = DisableIndeterminate ? "checked" : "dotvvm-CheckState";
+            writer.AddKnockoutDataBind(bindingHandler, checkedBinding!, this);
 
             // Boolean mode can have prerendered `checked` attribute
             if (RenderOnServer && true.Equals(GetValue(CheckedProperty)))
@@ -135,6 +150,14 @@ namespace DotVVM.Framework.Controls
                     $"Type of items in CheckedItems \'{to}\' must be same as CheckedValue type \'{from}\'.",
                     control.GetValue(CheckedItemsProperty)?.DothtmlNode,
                     control.GetValue(CheckedValueProperty)?.DothtmlNode
+                );
+            }
+
+            if (control.HasProperty(DisableIndeterminateProperty) && control.HasProperty(CheckedItemsProperty))
+            {
+                yield return new ControlUsageError(
+                    $"The DisableIndeterminate property has no effect when CheckedItems collection is used.",
+                    control.GetValue(DisableIndeterminateProperty)?.DothtmlNode ?? control.DothtmlNode
                 );
             }
         }

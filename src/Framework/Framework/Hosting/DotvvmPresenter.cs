@@ -361,6 +361,7 @@ namespace DotVVM.Framework.Hosting
                 context.CsrfToken = postData["$csrfToken"].Value<string>();
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
 
+                var knownTypes = postData["knownTypeMetadata"].Values<string>().ToArray();
                 var command = postData["command"].Value<string>();
                 var arguments = postData["args"] as JArray;
                 var executionPlan =
@@ -380,7 +381,7 @@ namespace DotVVM.Framework.Hosting
 
                 await OutputRenderer.WriteStaticCommandResponse(
                     context,
-                    ViewModelSerializer.BuildStaticCommandResponse(context, result));
+                    ViewModelSerializer.BuildStaticCommandResponse(context, result, knownTypes));
             }
             finally
             {
@@ -504,7 +505,7 @@ namespace DotVVM.Framework.Hosting
                 else if (dest is "empty")
                 {
                     if (!DetermineSpaRequest(context.HttpContext))
-                        await context.RejectRequest($"Pages can not be loaded using Javascript for security reasons. If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.DisableForRoute(\"{route}\")");
+                        await context.RejectRequest($"Pages can not be loaded using Javascript for security reasons. If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.DisableForRoute(\"{route}\"). [dest: {dest}, site: {site}]");
                     if (site != "same-origin")
                         await context.RejectRequest($"Cross site SPA requests are disabled.");
                 }

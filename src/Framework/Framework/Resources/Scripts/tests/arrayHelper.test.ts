@@ -1,4 +1,4 @@
-﻿import * as arrayHelper from '../collections/arrayHelper'
+﻿import * as arrayHelper from '../translations/arrayHelper'
 import { getStateManager } from '../dotvvm-base'
 import { StateManager } from '../state-manager'
 require('./stateManagement.data')

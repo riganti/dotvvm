@@ -200,7 +200,7 @@ namespace DotVVM.AutoUI.Controls
             {
                 try
                 {
-                    var dataSource = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selector.PropertyType);
+                    var dataSource = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selector.SelectionType);
                     var nonEmptyBinding =
                         dataSource.GetProperty<DataSourceLengthBinding>().Binding.GetProperty<IsMoreThanZeroBindingProperty>().Binding;
                     field.SetValueRaw(HtmlGenericControl.VisibleProperty, nonEmptyBinding);

@@ -16,6 +16,7 @@ using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.Tests.Runtime;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -186,6 +187,21 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
+        [TestMethod]
+        public async Task BindingMappingWithEnum()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <div class-test-class={value: Status == 'Failed'} />
+                <!-- value binding -->
+                <cc:TestStatusIcon TestStatus={value: Status} />
+                <!-- resource binding (should be false) -->
+                <cc:TestStatusIcon TestStatus={resource: Status} />
+                <!-- hardcoded value (should be true) -->
+                <cc:TestStatusIcon TestStatus='Failed' />
+                ");
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
 
         [TestMethod]
         public async Task ControlWithMultipleEnumClasses()
@@ -249,6 +265,28 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+
+        [TestMethod]
+        public async Task MenuRepeater()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- Control which should render a list of links linking to a list of items bellow -->
+
+                <!-- Server -->
+                <cc:MenuRepeater DataSource={value: List} TitleBinding={value: _this} RenderSettings.Mode=Server>
+                    {{value: _this}}
+                </cc:MenuRepeater>
+
+                <!-- Client -->
+                <cc:MenuRepeater DataSource={value: List} TitleBinding={value: _this} RenderSettings.Mode=Client>
+                    {{value: _this}}
+                </cc:MenuRepeater>
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -260,6 +298,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             public string Label { get; } = "My Label";
             public bool AfterPreRender { get; set; } = false;
             public string TestCase { get; set; } = "d";
+
+            public TestStatusEnum Status { get; set; } = TestStatusEnum.StillRunning;
 
             public List<string> List { get; set; } = new List<string> { "list-item1", "list-item2" };
 
@@ -506,6 +546,56 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    public class MenuRepeater: CompositeControl
+    {
+        public DotvvmControl GetContents(
+            IValueBinding<System.Collections.IEnumerable> dataSource,
+            [CollectionElementDataContextChange(1)]
+            [ControlPropertyBindingDataContextChange("DataSource")]
+            IValueBinding<string> titleBinding,
+            [CollectionElementDataContextChange(1)]
+            [ControlPropertyBindingDataContextChange("DataSource")]
+            ITemplate contentTemplate,
+            IDotvvmRequestContext cx)
+        {
+            var id = this.GetValueRaw(IDProperty) ?? this.GetValue<string>(Internal.UniqueIDProperty);
+            var menuRepeater = new Repeater() {
+                WrapperTagName = "ul",
+                RenderAsNamedTemplate = false, // for testing
+                DataSource = dataSource,
+                ItemTemplate = new DelegateTemplate((_, container) => {
+                    var li = new HtmlGenericControl("li");
+                    container.Children.Add(li);
+                    var fakeId = new PlaceHolder() { ID = "item" };
+                    li.Children.Add(fakeId);
+                    var id = fakeId.CreateClientId(prefix: new("#")); // TODO: how to solve URL encoding?
+                    var anchor = new HtmlGenericControl("a")
+                        .SetProperty(HtmlGenericControl.InnerTextProperty, titleBinding)
+                        .AddAttribute("href", id);
+                    li.Children.Add(anchor);
+                })
+            }.SetProperty(Internal.UniqueIDProperty, id);
+            var contentRepeater = new Repeater() {
+                WrapperTagName = "div",
+                RenderAsNamedTemplate = false, // for testing
+                DataSource = dataSource,
+                ItemTemplate = new DelegateTemplate((_, container) => {
+                    var div = new HtmlGenericControl("div") { ID = "item" };
+                    container.Children.Add(div);
+                    contentTemplate.BuildContent(cx, div);
+                })
+            }.SetProperty(Internal.UniqueIDProperty, id);
+
+            return new PlaceHolder {
+                Children = {
+                    menuRepeater,
+                    contentRepeater
+                }
+            };
+        }
+
+    }
+
 
     public enum EnumForCssClasses
     {
@@ -518,6 +608,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         [EnumMember(Value = "class-d")]
         D
     }
+
     public class ControlWithCollectionProperty: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -537,6 +628,19 @@ namespace DotVVM.Framework.Tests.ControlTests
             return new HtmlGenericControl("div")
                 .AddCssClass("is-active", active)
                 .AddCssStyle("width", width);
+        }
+    }
+
+    public enum TestStatusEnum { Ok, StillRunning, Failed }
+
+    public class TestStatusIcon : CompositeControl
+    {
+        public static DotvvmControl GetContents(ValueOrBinding<TestStatusEnum> testStatus)
+        {
+            var icon = new HtmlGenericControl("i");
+            icon.AddCssClass("fas");
+            icon.CssClasses.Add("fa-times", testStatus.Select(t => t == TestStatusEnum.Failed));
+            return icon;
         }
     }
 }

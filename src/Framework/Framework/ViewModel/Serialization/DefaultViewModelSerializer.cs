@@ -162,7 +162,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             context.ViewModelJson = result;
         }
 
-        private JToken SerializeTypeMetadata(IDotvvmRequestContext context, ViewModelJsonConverter viewModelJsonConverter)
+        private JObject SerializeTypeMetadata(IDotvvmRequestContext context, ViewModelJsonConverter viewModelJsonConverter)
         {
             var knownTypeIds = context.ReceivedViewModelJson?["knownTypeMetadata"]?.Values<string>().ToImmutableHashSet();
             return viewModelTypeMetadataSerializer.SerializeTypeMetadata(viewModelJsonConverter.UsedSerializationMaps, knownTypeIds);
@@ -176,14 +176,19 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 context.ViewModelJson!["resources"] = resourcesObject;
         }
 
-        public string BuildStaticCommandResponse(IDotvvmRequestContext context, object? result)
+        public string BuildStaticCommandResponse(IDotvvmRequestContext context, object? result, string[]? knownTypeMetadata = null)
         {
             var serializer = CreateJsonSerializer();
             var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
             serializer.Converters.Add(viewModelConverter);
             var response = new JObject();
             response["result"] = WriteCommandData(result, serializer, "the static command result");
-            response["typeMetadata"] = SerializeTypeMetadata(context, viewModelConverter);
+
+            var typeMetadata = viewModelTypeMetadataSerializer.SerializeTypeMetadata(viewModelConverter.UsedSerializationMaps, knownTypeMetadata?.ToHashSet());
+            if (typeMetadata.Count > 0)
+            {
+                response["typeMetadata"] = typeMetadata;
+            }
             AddCustomPropertiesIfAny(context, serializer, response);
             return response.ToString(JsonFormatting);
         }

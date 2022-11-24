@@ -1,5 +1,4 @@
-﻿/// <reference path="../../Framework/Framework/obj/typescript-types/dotvvm.d.ts" />
-import * as React from 'react';
+﻿import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import type { StateManager } from 'state-manager';
 
@@ -69,19 +68,40 @@ export class KnockoutTemplateReactComponent extends React.Component<KnockoutTemp
     }
 }
 
+/** Converts React component to DotVVM component usable through `<js:MyComponent />` syntax (or the JsComponent class)
+ * See [the complete guide](https://www.dotvvm.com/docs/4.0/pages/concepts/client-side-development/integrate-third-party-controls/react).
+ * 
+ * The component will receive all properties, commands and templates as it's React props.
+ *  * Properties are plain JS objects and values, notably they don't contain any knockout observables
+ *  * Commands are functions returning a promise, optionally expecting arguments if they were specified in the dothtml markup
+ *  * Templates are only string IDs which can be passed to the `<KnockoutTemplateReactComponent templateName={props.theTemplate} />` component
+ * 
+ * Additional property `setProps` is passed to the component, which can be used to update the component's properties (if the bound expression is updatable, otherwise it will throw an error).
+ * * Usage: `props.setProps({ myProperty: props.myProperty + 1 })`
+ */
 export const registerReactControl = (ReactControl, defaultProps = {}) => ({
-    create: (elm, props, commands, templates) => {
-        const initialProps = { ...defaultProps, ...commands, ...templates }
-        let currentProps = { ...initialProps, ...props };
-        ReactDOM.render(<ReactControl {...currentProps} />, elm);
+    create: (elm, props, commands, templates, setPropsRaw) => {
+        const initialProps = { setProps, ...defaultProps, ...commands, ...templates }
+        let currentProps = { ...initialProps, ...props }
+        rerender()
         return {
             updateProps(updatedProps) {
                 currentProps = { ...currentProps, ...updatedProps }
-                ReactDOM.render(<ReactControl {...currentProps} />, elm);
+                rerender()
             },
             dispose() {
                 ReactDOM.unmountComponentAtNode(elm)
             }
+        }
+
+        function rerender() {
+            ReactDOM.render(<ReactControl {...currentProps} />, elm);
+        }
+
+        function setProps(updatedProps) {
+            currentProps = { ...currentProps, ...updatedProps }
+            setPropsRaw(updatedProps)
+            rerender()
         }
     }
 });

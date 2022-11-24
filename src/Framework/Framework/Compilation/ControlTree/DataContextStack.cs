@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -147,11 +148,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public override string ToString()
         {
             string?[] features = new [] {
-                $"type={this.DataContextType.FullName}",
+                $"type={this.DataContextType.ToCode()}",
                 this.NamespaceImports.Any() ? "imports=[" + string.Join(", ", this.NamespaceImports) + "]" : null,
-                this.ExtensionParameters.Any() ? "ext=[" + string.Join(", ", this.ExtensionParameters.Select(e => e.Identifier + ": " + e.ParameterType.Name)) + "]" : null,
+                this.ExtensionParameters.Any() ? "ext=[" + string.Join(", ", this.ExtensionParameters.Select(e => e.Identifier + ": " + e.ParameterType.CSharpName)) + "]" : null,
                 this.BindingPropertyResolvers.Any() ? "resolvers=[" + string.Join(", ", this.BindingPropertyResolvers.Select(s => s.Method)) + "]" : null,
-                this.Parent != null ? "par=[" + string.Join(", ", this.Parents().Select(p => p.Name)) + "]" : null
+                this.Parent != null ? "par=[" + string.Join(", ", this.Parents().Select(p => p.ToCode(stripNamespace: true))) + "]" : null
             };
             return "(" + features.Where(a => a != null).StringJoin(", ") + ")";
         }

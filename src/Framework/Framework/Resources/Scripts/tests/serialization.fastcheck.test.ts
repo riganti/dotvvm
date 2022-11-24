@@ -15,7 +15,6 @@ test('Serialize and parse date', () => {
             const parsedDate = parseDate(serialized!)
             expect(date).toStrictEqual(parsedDate)
 
-            // hmm, actually, I don't know why this works 🤔
             const normalParsed = new Date(serialized!)
             expect(normalParsed).toStrictEqual(date)
 

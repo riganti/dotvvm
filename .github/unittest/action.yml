@@ -12,6 +12,10 @@ inputs:
   title:
     required: true
     description: Human-friendly name of the test project
+  target-framework:
+    required: false
+    default: net6.0
+    description: The target framework moniker used to build and run the test project
   github-token:
     description: GitHub token so that test results can be uploaded
     required: true
@@ -19,25 +23,46 @@ inputs:
 runs:
   using: composite
   steps:
-  - run: dotnet test
-      --no-restore
-      --logger "GitHubActions;report-warnings=true"
-      --logger "trx;LogFileName=${{ github.workspace }}/artifacts/test/unit-test-results-${{ inputs.name }}-Debug.trx"
+  # build the project separately first to get compilation errors as `dotnet test` fails silently for some reason
+  - run: dotnet build
+      "${{ inputs.project }}"
+      --framework "${{ inputs.target-framework }}"
       --configuration Debug
       -p:WarningLevel=0
-      "${{ inputs.project }}"
     shell: bash
-  - run: dotnet test
-      --no-restore
-      --logger "GitHubActions;report-warnings=true"
-      --logger "trx;LogFileName=${{ github.workspace }}/artifacts/test/unit-test-results-${{ inputs.name }}-Release.trx"
+  - run: dotnet build
+      "${{ inputs.project }}"
+      --framework "${{ inputs.target-framework }}"
       --configuration Release
       -p:WarningLevel=0
+    shell: bash
+  - run: dotnet test
       "${{ inputs.project }}"
+      --framework "${{ inputs.target-framework }}"
+      --no-restore
+      --logger "GitHubActions;report-warnings=true"
+      --logger "trx;LogFileName=${{ github.workspace }}/artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.target-framework }}-Debug.trx"
+      --configuration Debug
+      -p:WarningLevel=0
+    shell: bash
+  - run: dotnet test
+      "${{ inputs.project }}"
+      --framework "${{ inputs.target-framework }}"
+      --no-restore
+      --logger "GitHubActions;report-warnings=true"
+      --logger "trx;LogFileName=${{ github.workspace }}/artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.target-framework }}-Release.trx"
+      --configuration Release
+      -p:WarningLevel=0
     shell: bash
   - uses: ./.github/test-report
     with:
-      trx-path: artifacts/test/unit-test-results-${{ inputs.name }}-Debug.trx
-      report-name: ${{ inputs.name }}-Debug-${{ runner.os }}
-      report-title: ${{ inputs.title }} (Debug) on ${{ runner.os }}
+      trx-path: artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.target-framework }}-Debug.trx
+      report-name: ${{ inputs.name }}-${{ inputs.target-framework }}-Debug-${{ runner.os }}
+      report-title: ${{ inputs.title }} (${{ inputs.target-framework }}, Debug) on ${{ runner.os }}
+      github-token: ${{ inputs.github-token }}
+  - uses: ./.github/test-report
+    with:
+      trx-path: artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.target-framework }}-Release.trx
+      report-name: ${{ inputs.name }}-${{ inputs.target-framework }}-Release-${{ runner.os }}
+      report-title: ${{ inputs.title }} (${{ inputs.target-framework }}, Release) on ${{ runner.os }}
       github-token: ${{ inputs.github-token }}

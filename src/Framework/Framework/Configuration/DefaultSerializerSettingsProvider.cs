@@ -27,6 +27,8 @@ namespace DotVVM.Framework.Configuration
                 Converters = new List<JsonConverter>
                 {
                     new DotvvmDateTimeConverter(),
+                    new DotvvmDateOnlyConverter(),
+                    new DotvvmTimeOnlyConverter(),
                     new StringEnumConverter(),
                     new DotvvmDictionaryConverter(),
                     new DotvvmByteArrayConverter()

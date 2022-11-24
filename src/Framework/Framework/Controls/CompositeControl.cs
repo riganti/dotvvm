@@ -28,15 +28,17 @@ namespace DotVVM.Framework.Controls
 
         internal class ControlInfo
         {
-            public MethodInfo GetContentsMethod;
-            public ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> Getters;
-            public ImmutableArray<IControlAttributeDescriptor> Properties { get; }
+            public readonly MethodInfo GetContentsMethod;
+            public readonly ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> Getters;
+            public readonly ImmutableArray<IControlAttributeDescriptor> Properties;
+            public readonly Func<CompositeControl, object[], object> GetContentsDelegate;
 
-            public ControlInfo(MethodInfo getContentsMethod, ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> getters, ImmutableArray<IControlAttributeDescriptor> properties)
+            public ControlInfo(MethodInfo getContentsMethod, ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> getters, ImmutableArray<IControlAttributeDescriptor> properties, Func<CompositeControl, object[], object> getContentsDelegate)
             {
                 GetContentsMethod = getContentsMethod;
                 Getters = getters;
                 Properties = properties;
+                GetContentsDelegate = getContentsDelegate;
             }
         }
 
@@ -89,7 +91,22 @@ namespace DotVVM.Framework.Controls
                 var argumentProperties = method.GetParameters().Select(p => initializeArgument(controlType, p)).ToImmutableArray();
                 var argumentGetters = argumentProperties.Zip(method.GetParameters(), (prop, arg) => compileGetter(prop, arg.ParameterType)).ToImmutableArray();
 
-                if (!controlInfoCache.TryAdd(controlType, new ControlInfo(method, argumentGetters, argumentProperties)))
+
+                var invokeArgs = Expression.Parameter(typeof(object[]), "args");
+                var controlTypeArg = Expression.Parameter(typeof(CompositeControl), "control");
+                var parameters =
+                    method.GetParameters().Select((p, i) =>
+                        Expression.Convert(Expression.ArrayIndex(invokeArgs, Expression.Constant(i)), p.ParameterType));
+                var invokeDelegate = Expression.Lambda<Func<CompositeControl, object[], object>>(
+                    Expression.Convert(
+                        method.IsStatic ?
+                            Expression.Call(method, parameters) :
+                            Expression.Call(Expression.Convert(controlTypeArg, controlType), method, parameters),
+                        typeof(object)),
+                    controlTypeArg, invokeArgs
+                ).CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
+
+                if (!controlInfoCache.TryAdd(controlType, new ControlInfo(method, argumentGetters, argumentProperties, invokeDelegate)))
                     throw new Exception("no");
             }
         }
@@ -100,9 +117,8 @@ namespace DotVVM.Framework.Controls
         internal IEnumerable<DotvvmControl> ExecuteGetContents(IDotvvmRequestContext context)
         {
             var info = GetControlInfo(this.GetType());
-            // TODO: generate Linq.Expression instead of this reflection invocation
             var args = info.Getters.Select(p => p(context, this)).ToArray();
-            var result = info.GetContentsMethod.Invoke(this, args);
+            var result = info.GetContentsDelegate(this, args);
 
             if (result is IEnumerable<DotvvmControl> enumerable)
                 return enumerable;
