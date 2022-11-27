@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using Newtonsoft.Json;
@@ -15,21 +16,34 @@ namespace DotVVM.Framework.ResourceManagement
 
         public ResourceRenderPosition RenderPosition => ResourceRenderPosition.Anywhere;
 
-        public string[] ReferencedModules { get; }
+        public ViewModuleReferencedModule[] ReferencedModules { get; }
 
         public string[] Dependencies { get; }
 
         public string ResourceName { get; }
 
-        private string registrationScript;
+        private readonly string registrationScript;
 
-        public ViewModuleInitResource(string[] referencedModules, string name, string viewId, string[] dependencies)
+        public ViewModuleInitResource(ViewModuleReferencedModule[] referencedModules, string name, string viewId, string[] dependencies)
         {
             this.ResourceName = name;
             this.ReferencedModules = referencedModules.ToArray();
             this.Dependencies = dependencies;
 
-            this.registrationScript = string.Join("\r\n", this.ReferencedModules.Select(m => $"dotvvm.viewModules.init({KnockoutHelper.MakeStringLiteral(m)}, {KnockoutHelper.MakeStringLiteral(viewId)}, document.body);"));
+            this.registrationScript = string.Join("\r\n", this.ReferencedModules.Select(m =>
+            {
+                var args = new List<string>()
+                {
+                    KnockoutHelper.MakeStringLiteral(m.ModuleName),
+                    KnockoutHelper.MakeStringLiteral(viewId),
+                    "document.body"
+                };
+                if (m.InitArguments != null)
+                {
+                    args.Add($"[{string.Join(", ", m.InitArguments.Select(a => KnockoutHelper.MakeStringLiteral(a)))}]");
+                }
+                return $"dotvvm.viewModules.init({string.Join(", ", args)});";
+            }));
         }
 
         public void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)

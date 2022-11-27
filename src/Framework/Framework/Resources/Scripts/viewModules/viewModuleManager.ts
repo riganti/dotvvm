@@ -28,7 +28,7 @@ export function registerViewModules(modules: { [name: string]: any }) {
     }
 }
 
-export function initViewModule(name: string, viewIdOrElement: string | HTMLElement, rootElement: HTMLElement): ModuleContext {
+export function initViewModule(name: string, viewIdOrElement: string | HTMLElement, rootElement: HTMLElement, instanceArgs?: string[]): ModuleContext {
     if (compileConstants.debug && rootElement == null) { throw new Error("rootElement has to have a value"); }
 
     const handler = ensureModuleHandler(name);
@@ -49,11 +49,14 @@ export function initViewModule(name: string, viewIdOrElement: string | HTMLEleme
     const context = new ModuleContext(
         name,
         [rootElement],
-        elementContext && elementContext.$control ? { ...elementContext.$control } : {}
+        elementContext && elementContext.$control ? { ...elementContext.$control } : {},
+        viewIdOrElement,
+        instanceArgs
     );
     const moduleInstance = createModuleInstance(handler.module.default, context);
     context.module = moduleInstance;
     Object.freeze(context);
+    context.instanceArgs && Object.freeze(context.instanceArgs);
 
     if (typeof viewIdOrElement === "string") {
         handler.contexts[viewIdOrElement] = context;
@@ -254,13 +257,15 @@ function mapCommandResult(result: any) {
 }
 
 export class ModuleContext {
-    private readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> } = {};
+    public readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> } = {};
     public module: any;
     
     constructor(
         public readonly moduleName: string,
         public readonly elements: HTMLElement[],
-        public readonly properties: { [name: string]: any }) {
+        public readonly properties: { [name: string]: any },
+        public readonly viewIdOrElement: string | HTMLElement,
+        public readonly instanceArgs?: string[]) {
     }
     
     public registerNamedCommand = (name: string, command: (...args: any[]) => Promise<any>) => {

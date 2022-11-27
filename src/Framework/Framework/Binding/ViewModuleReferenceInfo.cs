@@ -17,14 +17,17 @@ namespace DotVVM.Framework.Binding
     [HandleAsImmutableObjectInDotvvmProperty]
     public sealed class ViewModuleReferenceInfo
     {
-        public string[] ReferencedModules { get; }
+        public ViewModuleReferencedModule[] ReferencedModules { get; }
+
         /// <summary>The modules are referenced under an Id to the dotvvm client-side runtime. The same ID must be used in the invocation from the _js literal.</summary>
         public string ViewId { get; }
 
         /// <summary> Whether control id should be used instead of ViewId to identify the modules. </summary>
         public bool IsMarkupControl { get; }
 
-        public ViewModuleReferenceInfo(string viewId, string[] referencedModules, bool isMarkupControl)
+        public string?[] ModuleInstanceArgs { get; }
+
+        public ViewModuleReferenceInfo(string viewId, ViewModuleReferencedModule[] referencedModules, bool isMarkupControl)
         {
             this.ViewId = viewId;
             this.IsMarkupControl = isMarkupControl;
@@ -46,7 +49,7 @@ namespace DotVVM.Framework.Binding
         internal (ViewModuleImportResource importResource, ViewModuleInitResource initResource) BuildResources(IDotvvmResourceRepository allResources)
         {
             var dependencies = ReferencedModules.SelectMany((moduleResourceName, index) => {
-                var moduleResource = allResources.FindResource(moduleResourceName);
+                var moduleResource = allResources.FindResource(moduleResourceName.ModuleName);
                 if (moduleResource is null)
                     throw new Exception($"Cannot find resource named '{moduleResourceName}' referenced by the @js directive!");
                 if (!(moduleResource is ScriptModuleResource))
@@ -63,8 +66,10 @@ namespace DotVVM.Framework.Binding
         private string GenerateModuleBatchUniqueId()
         {
             using var sha = SHA256.Create();
-            return Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(string.Join("\0", this.ReferencedModules))))
+            return Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(string.Join("\0", this.ReferencedModules.Select(r => r.ModuleName + "\0" + r.InitArguments != null ? string.Join("\0", r.InitArguments) : "")))))
                 .Replace("/", "_").Replace("+", "-").Replace("=", "");
         }
     }
+
+    public record ViewModuleReferencedModule(string ModuleName, string[]? InitArguments = null);
 }

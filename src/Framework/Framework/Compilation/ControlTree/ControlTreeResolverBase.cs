@@ -56,7 +56,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 new BindingPageInfoExtensionParameter(),
                 new BindingApiExtensionParameter()
             }.Concat(directiveMetadata.InjectedServices)
-             .Concat(directiveMetadata.ViewModuleResult is null ? new BindingExtensionParameter[0] : new[] { directiveMetadata.ViewModuleResult.ExtensionParameter }).ToArray());
+             .Concat(directiveMetadata.ViewModuleResult is null ? new BindingExtensionParameter[0] : new[] { directiveMetadata.ViewModuleResult.ExtensionParameter })
+             .Concat(directiveMetadata.CSharpViewModuleResult is null ? new BindingExtensionParameter[0] : new[] { directiveMetadata.CSharpViewModuleResult.ExtensionParameter }).ToArray());
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directiveMetadata.Directives, directiveMetadata.MasterPage);
             view.FileName = fileName;
@@ -66,6 +67,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 treeBuilder.AddProperty(
                     view,
                     treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, directiveMetadata.ViewModuleResult.Reference, null),
+                    out _
+                );
+            }
+
+            if (directiveMetadata.CSharpViewModuleResult is { })
+            {
+                treeBuilder.AddProperty(
+                    view,
+                    treeBuilder.BuildPropertyValue(Internal.ReferencedCSharpViewModuleInfoProperty, directiveMetadata.CSharpViewModuleResult.Reference, null),
                     out _
                 );
             }

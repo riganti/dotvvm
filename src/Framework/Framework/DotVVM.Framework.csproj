@@ -30,6 +30,7 @@
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
+    <EmbeddedResource Include="obj/javascript/dotvvmStaticResources/dotnetWasmViewModule.js" />
     <None Include="Resources\Scripts\DotVVM.Globalize.ts" />
     <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
     <None Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
@@ -118,6 +119,10 @@
   <ItemGroup>
     <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
     <TypescriptFile Include="Resources/Scripts/**/*.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypescriptFile Remove="Resources\Scripts\viewModules\dotnetWasmViewModule.ts" />
   </ItemGroup>
 
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->

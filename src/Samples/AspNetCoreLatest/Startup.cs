@@ -12,7 +12,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Samples.BasicSamples
@@ -87,6 +89,17 @@ namespace DotVVM.Samples.BasicSamples
             app.UseRouting();
             app.UseEndpoints(endpoints => {
                 endpoints.MapHealthChecks("/health");
+            });
+
+            var contentTypeProvider = new FileExtensionContentTypeProvider();
+            contentTypeProvider.Mappings.Add(".dll", "application/octet-stream");
+            contentTypeProvider.Mappings.Add(".symbols", "application/octet-stream");
+            contentTypeProvider.Mappings.Add(".blat", "application/octet-stream");
+            contentTypeProvider.Mappings.Add(".dat", "application/octet-stream");
+            app.UseStaticFiles(new StaticFileOptions() {
+                RequestPath = new PathString("/dotvvmStaticResource"),
+                FileProvider = new PhysicalFileProvider("D:\\Work\\Dotvvm\\src\\Samples\\CSharpClient\\bin\\Debug\\net7.0\\browser-wasm\\AppBundle"),
+                ContentTypeProvider = contentTypeProvider
             });
             app.UseStaticFiles();
 

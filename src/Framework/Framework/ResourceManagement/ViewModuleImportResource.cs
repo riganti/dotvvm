@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using Newtonsoft.Json;
@@ -15,7 +16,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public ResourceRenderPosition RenderPosition => ResourceRenderPosition.Anywhere;
 
-        public string[] ReferencedModules { get; }
+        public ViewModuleReferencedModule[] ReferencedModules { get; }
 
         public string[] Dependencies { get; }
 
@@ -23,13 +24,13 @@ namespace DotVVM.Framework.ResourceManagement
 
         private string registrationScript;
 
-        public ViewModuleImportResource(string[] referencedModules, string name, string[] dependencies)
+        public ViewModuleImportResource(ViewModuleReferencedModule[] referencedModules, string name, string[] dependencies)
         {
-            this.ReferencedModules = referencedModules.ToArray();
+            this.ReferencedModules = referencedModules;
             this.ResourceName = name;
             this.Dependencies = new string[] { "dotvvm" }.Concat(dependencies).ToArray();
 
-            this.registrationScript = $"dotvvm.viewModules.registerMany({{{string.Join(", ", this.ReferencedModules.Select((m, i) => JsonConvert.ToString(m, '\'', StringEscapeHandling.EscapeHtml) + ": m" + i))}}});";
+            this.registrationScript = $"dotvvm.viewModules.registerMany({{{string.Join(", ", this.ReferencedModules.Select((m, i) => JsonConvert.ToString(m.ModuleName, '\'', StringEscapeHandling.EscapeHtml) + ": m" + i))}}});";
         }
 
         public void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
@@ -39,13 +40,13 @@ namespace DotVVM.Framework.ResourceManagement
             int i = 0;
             foreach (var r in this.ReferencedModules)
             {
-                var resource = context.ResourceManager.FindResource(r);
+                var resource = context.ResourceManager.FindResource(r.ModuleName);
                 if (resource is null)
                     throw new Exception($"Resource {r} does not exist.");
                 if (!(resource is ILinkResource linkResource))
                     throw new Exception($"Resource {r} is not a LinkResource.");
 
-                var location = linkResource.GetLocations().FirstOrDefault()?.GetUrl(context, r);
+                var location = linkResource.GetLocations().FirstOrDefault()?.GetUrl(context, r.ModuleName);
                 if (location is null)
                     throw new Exception($"Could not get location of resource {r}");
 

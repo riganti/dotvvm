@@ -1,0 +1,34 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CsharpClient.CSharpClientViewModel, DotVVM.Samples.Common
+@csharp DotVVM.Samples.BasicSamples.CSharpClient.TestCsharpModule, DotVVM.Samples.BasicSamples.CSharpClient
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script type="module" src="/wasm/main.js"></script>
+</head>
+<body>
+
+    <p>
+        Value: <dot:TextBox Text="{value: Value}" />
+    </p>
+
+    <p>
+        <dot:Button Text="Hello" Click="{staticCommand: _csharp.Hello()}" />
+    </p>
+
+    <p>
+        <dot:Button Text="Test viewmodel access" Click="{staticCommand: ReadResult = _csharp.TestViewModelAccess()}" />
+        {{value: ReadResult}}
+    </p>
+
+    <p>
+        <dot:Button Text="Call named command" Click="{staticCommand: NamedCommandResult = _csharp.CallNamedCommand(Value)}" />
+        {{value: NamedCommandResult}}
+    </p>
+    <dot:NamedCommand Name="TestCommand" Command="{staticCommand: Value = Value * 2}" />
+
+</body>
+</html>
