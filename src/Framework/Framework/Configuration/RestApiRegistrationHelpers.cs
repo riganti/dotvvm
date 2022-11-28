@@ -130,7 +130,8 @@ namespace DotVVM.Framework.Configuration
                                 isRead ? (JsExpression)new JsLiteral(null) : new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter, new CodeParameterAssignment("$element", OperatorPrecedence.Max)),
                                 new JsFunctionExpression(new[] { new JsIdentifier("args") }, new JsBlockStatement(new JsReturnStatement(
                                     isRead ? sharingKeyExpression.Clone() : new JsLiteral(Guid.NewGuid().ToString())
-                                )))
+                                ))),
+                                new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter, new CodeParameterAssignment("$element", OperatorPrecedence.Max))
                             ).WithAnnotation(ResultIsObservableAnnotation.Instance)
                              .WithAnnotation(MayBeNullAnnotation.Instance)
                              .WithAnnotation(new ViewModelInfoAnnotation(method.ReturnType))

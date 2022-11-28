@@ -30,7 +30,8 @@ export function invoke<T>(
     refreshTriggers: (args: any[]) => Array<KnockoutObservable<any> | string>,
     notifyTriggers: (args: any[]) => string[],
     element: HTMLElement,
-    sharingKeyProvider: (args: any[]) => string[]
+    sharingKeyProvider: (args: any[]) => string[],
+    lifetimeElement: HTMLElement
 ): ApiComputed<T> {
     const cache: Cache = element ? ((<any> element)["apiCachedValues"] ??= {}) : cachedValues;
     const $type: TypeDefinition = { type: "dynamic" }
@@ -99,10 +100,13 @@ export function invoke<T>(
     }
 
     refreshArgs()
-    ko.computed(() =>
-        refreshTriggers(args).map(trigger => typeof trigger == "string" ? eventHub.get(trigger)() : trigger())
-    )
+    const subscription = ko.computed(
+            () => refreshTriggers(args).map(trigger => typeof trigger == "string" ? eventHub.get(trigger)() : trigger())
+        )
         .subscribe(_ => refreshValue());
+    ko.utils.domNodeDisposal.addDisposeCallback(lifetimeElement, () => {
+        subscription.dispose();
+    });
 
     const cmp = <ApiComputed<T>> <any> ko.pureComputed(() => stateManager().stateObservable().data());
     cmp.refreshValue = refreshValue
