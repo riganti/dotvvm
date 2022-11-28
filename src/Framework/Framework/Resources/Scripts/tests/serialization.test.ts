@@ -1,4 +1,4 @@
-﻿import dotvvm from '../dotvvm-root'
+import dotvvm from '../dotvvm-root'
 import { deserialize } from '../serialization/deserialize'
 import { serialize } from '../serialization/serialize'
 import { serializeDate } from '../serialization/date'

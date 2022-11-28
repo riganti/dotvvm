@@ -222,7 +222,7 @@ function validateTimeSpan(value: any) {
     if (typeof value === "string") {
         // strict DotVVM format parse
         const parsedValue = serializationParseTimeSpan(value);
-        if (parsedValue !== null) {
+        if (parsedValue != null) {
             return { value: serializeTimeSpan(parsedValue) };
         }
     }
