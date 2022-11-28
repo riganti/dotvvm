@@ -4,7 +4,7 @@ param(
     [string] $samplesProfile = "seleniumconfig.owin.chrome.json",
     [string] $samplesOwinPort = "5407",
     [string] $samplesApiOwinPort = "61453",
-	[string] $samplesApiAspNetCorePort = "5001",
+	[string] $samplesApiAspNetCorePort = "50001",
     [string] $trxName = "ui-test-results.trx")
 
 # set the codepage to UTF-8
@@ -69,22 +69,38 @@ function Invoke-RequiredCmds {
 }
 
 function Publish-Sample {
-    param ([string][parameter(Position = 0)]$path)
-    Invoke-RequiredCmds "Publish sample '$path'" {
-        $msBuildProcess = Start-Process -PassThru -NoNewWindow -FilePath "msbuild.exe" -ArgumentList `
-            "$path", `
-            "-v:m", `
-            "-noLogo", `
-            "-p:PublishProfile=$root\.github\uitest\GenericPublish.pubxml", `
-            "-p:DeployOnBuild=true", `
-            "-p:Configuration=$config", `
-            "-p:WarningLevel=0", `
-            "-p:SourceLinkCreate=true"
-        Wait-Process -InputObject $msBuildProcess
-        if ($msBuildProcess.ExitCode -ne 0) {
-            throw "MSBuild failed with exit code $($msBuildProcess.ExitCode)."
-        }
-    }
+    param (
+		[string][parameter(Position = 0)]$path,
+		[bool][parameter(Position = 1)]$isCore
+	)
+	Invoke-RequiredCmds "Publish sample '$path'" {
+		if (-not $isCore) {
+			$msBuildProcess = Start-Process -PassThru -NoNewWindow -FilePath "msbuild.exe" -ArgumentList `
+				"$path", `
+				"-v:m", `
+				"-noLogo", `
+				"-p:PublishProfile=$root\.github\uitest\GenericPublish.pubxml", `
+				"-p:DeployOnBuild=true", `
+				"-p:Configuration=$config", `
+				"-p:WarningLevel=0", `
+				"-p:SourceLinkCreate=true"
+		} else {
+			$projectName = [System.IO.Path]::GetFileNameWithoutExtension($path)
+			$msBuildProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" -ArgumentList `
+				"publish", `
+				"$path", `
+				"-c", "Release", `
+				"-o", "$root\artifacts\$projectName", `
+				"-p:WarningLevel=0", `
+				"-p:SourceLinkCreate=true", `
+				"-p:EnvironmentName=Development"
+		}
+		
+		Wait-Process -InputObject $msBuildProcess
+		if ($msBuildProcess.ExitCode -ne 0) {
+			throw "MSBuild failed with exit code $($msBuildProcess.ExitCode)."
+		}
+	}
 }
 
 function Start-Sample {
@@ -137,16 +153,18 @@ function Test-Sample {
     )
     Invoke-RequiredCmds "Test the front page of '${sampleName}'" {
         # ensure the site runs and can serve the front page
-        while ($true) {
-            $request = Invoke-WebRequest "http://localhost:${port}" -ErrorAction SilentlyContinue
-            $httpStatus = $request.StatusCode
-            if ($httpStatus -eq 200) {
-                break
-            }
-            elseif ($httpStatus -eq 500) {
-                throw "Site '${sampleName}' returned 500 Internal Server Error."
-            }
-        }
+        for ($i = 0; $i -lt 3; $i++) {
+			$request = Invoke-WebRequest "http://localhost:${port}" -SkipHttpErrorCheck
+			$httpStatus = $request.StatusCode
+			Write-Host "HTTP ${httpStatus}"
+			if ($httpStatus -le 300) {
+				return;
+			} else {
+				Write-Host $request.Content
+				Sleep 5
+			}
+		}
+		throw "The sample '${sampleName}' failed to start."
     }
 }
 
@@ -175,8 +193,9 @@ try {
         Copy-Item -Force "$profilePath" "$testDir\seleniumconfig.json"
     }
 
-    Publish-Sample "$root\src\Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj"
-    Publish-Sample "$root\src\Samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj"
+    Publish-Sample "$root\src\Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj" $false
+    Publish-Sample "$root\src\Samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj" $false
+	Publish-Sample "$root\src\Samples\Api.AspNetCore\DotVVM.Samples.BasicSamples.Api.AspNetCore.csproj" $true
 
     Invoke-RequiredCmds "Copy common" {
         Copy-Item -Force -Recurse `
@@ -187,7 +206,9 @@ try {
     Start-Sample $samplesOwinName $samplesOwinPath $samplesOwinPort
     Test-Sample $samplesOwinName $samplesOwinPort
     Start-Sample $samplesApiOwinName $samplesApiOwinPath $samplesApiOwinPort
+	Test-Sample $samplesApiOwinName $samplesApiOwinPort
 	Start-Sample $samplesApiAspNetCoreName $samplesApiAspNetCorePath $samplesApiAspNetCorePort
+	Test-Sample $samplesApiAspNetCoreName $samplesApiAspNetCorePort
 
     Invoke-RequiredCmds "Run UI tests" {
         $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" -ArgumentList `
