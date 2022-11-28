@@ -16,7 +16,7 @@
 
 
     <h3>Request log</h3>
-    <ol ID="request-log">        
+    <ol ID="request-log" ClientIDMode="Static">        
     </ol>
 
     <script type="text/javascript">

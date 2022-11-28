@@ -5,7 +5,7 @@
 
     <h2>Order list</h2>
 
-    <dot:Button Text="Reset data" Click="{command: Reset()}" />
+    <dot:Button Text="Reset data" Click="{command: Reset()}" data-ui="reset-button" />
 
     <dot:GridView DataSource="{value: _apiOwin.Orders.Get(11, 0, 20)}">
         <dot:GridViewTextColumn HeaderText="Order number" ValueBinding="{value: Number}" />

@@ -12,11 +12,11 @@
         Date:
         <dot:TextBox Text="{value: Date}" FormatString="yyyy-MM-dd" />
         <br />
-        <dot:Button Click="{staticCommand: _apiOwin.Orders.Put(Id, _this)}" Text="Update" />
-        <dot:Button Click="{staticCommand: _apiOwin.Orders.Delete(Id)}" Text="Delete" />
+        <dot:Button Click="{staticCommand: _apiOwin.Orders.Put(Id, _this)}" Text="Update" data-ui="update-button" />
+        <dot:Button Click="{staticCommand: _apiOwin.Orders.Delete(Id)}" Text="Delete" data-ui="delete-button" />
     </div>
 
-    <dot:RouteLink RouteName="FeatureSamples_Api_ApiInSpa_PageA" Text="Return to list" />
+    <dot:RouteLink RouteName="FeatureSamples_Api_ApiInSpa_PageA" Text="Return to list" data-ui="return-link" />
 
 </dot:Content>
 
