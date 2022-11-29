@@ -166,7 +166,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [Fact(Skip = "Doesn't work on OWIN because it relies on _apiCore.")]
+        [Fact]
         public void Feature_Api_BindingSharing()
         {
             RunInAllBrowsers(browser => {
@@ -246,7 +246,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [Fact(Skip = "Doesn't work on OWIN because it relies on _apiCore.")]
+        [Fact]
         public void Feature_Api_ApiRefresh()
         {
             RunInAllBrowsers(browser => {
@@ -281,6 +281,105 @@ namespace DotVVM.Samples.Tests.Feature
                     .ThrowIfDifferentCountThan(6);
 
                 AssertUI.TextEquals(browser.Single("number", SelectByDataUi), "3");
+            });
+        }
+
+        [Fact]
+        [Trait("Category", "owin-only")]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Api_ApiInSpa_PageA))]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Api_ApiInSpa_PageB))]
+        public void Feature_Api_ApiInSpa()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_ApiInSpa_PageA);
+
+                // ensure data is reset
+                browser.Single("reset-button", SelectByDataUi).Click();
+
+                // check that the list of orders is loaded
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20"
+                );
+                var grid = browser.Single("table");
+                grid.FindElements("tr").ThrowIfDifferentCountThan(11);
+
+                // open detail of the order
+                grid.ElementAt("tr", 1).Single("a").Click();
+
+                // check that order detail is loaded
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/6"
+                );
+                var input = browser.Single("input[type=text]");
+                AssertUI.Value(input, "2010-01-10");
+
+                // check that the update is done when the button is clicked while the input is focused
+                input.Clear().SendKeys("2012-01-10");
+                browser.Single("update-button", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/6",
+                    "PUT /api/orders/6",
+                    "GET /api/orders/6"
+                );
+
+                // return to the list and make sure it is refreshed
+                browser.Single("return-link", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/6",
+                    "PUT /api/orders/6",
+                    "GET /api/orders/6",
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20"
+                );
+                grid = browser.Single("table");
+                grid.FindElements("tr").ThrowIfDifferentCountThan(11);
+
+                // open detail of the order
+                grid.ElementAt("tr", 2).Single("a").Click();
+
+                // delete the order
+                input = browser.Single("input[type=text]");
+                AssertUI.Value(input, "2011-04-11");
+                browser.Single("delete-button", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/6",
+                    "PUT /api/orders/6",
+                    "GET /api/orders/6",
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/7",
+                    "DELETE /api/orders/delete/7",
+                    "GET /api/orders/7"
+                );
+
+                // return to the list and make sure it is refreshed
+                browser.Single("return-link", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/6",
+                    "PUT /api/orders/6",
+                    "GET /api/orders/6",
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/7",
+                    "DELETE /api/orders/delete/7",
+                    "GET /api/orders/7",
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20"
+                );
+                grid = browser.Single("table");
+                grid.FindElements("tr").ThrowIfDifferentCountThan(10);
+
+                void CheckRequests(params string[] expected)
+                {
+                    var items = browser.FindElements("#request-log li");
+                    items.ThrowIfDifferentCountThan(expected.Length);
+
+                    for (var i = 0; i < expected.Length; i++)
+                    {
+                        AssertUI.TextEquals(items[i], expected[i]);
+                    }
+                }
             });
         }
 

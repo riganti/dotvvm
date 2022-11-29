@@ -69,7 +69,7 @@ export function parseNumber(value: string): number {
     return getGlobalize().parseFloat(value, 10, getCulture());
 }
 
-export function parseDate(value: string, format: string, previousValue?: Date) {
+export function parseDate(value: string, format: string, previousValue?: Date | null) {
     return getGlobalize().parseDate(value, format, getCulture(), previousValue);
 }
 

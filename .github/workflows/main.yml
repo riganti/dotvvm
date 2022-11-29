@@ -93,20 +93,38 @@ jobs:
       uses: ./.github/setup
       with:
         sln: src/DotVVM.Crossplatform.slnf
-    - name: Tests
+    - name: Tests (net6.0)
       uses: ./.github/unittest
       with:
         project: src/Tests
         name: framework-tests
         title: Framework Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Analyzers.Tests
+        target-framework: net6.0
+    # - name: Tests (net7.0)
+    #   uses: ./.github/unittest
+    #   with:
+    #     project: src/Tests
+    #     name: framework-tests
+    #     title: Framework Tests
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     target-framework: net7.0
+    - name: Analyzers.Tests (net6.0)
       uses: ./.github/unittest
       with:
         project: src/Analyzers/Analyzers.Tests
         name: analyzers-tests
         title: Analyzer Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        target-framework: net6.0
+    # - name: Analyzers.Tests (net7.0)
+    #   uses: ./.github/unittest
+    #   with:
+    #     project: src/Analyzers/Analyzers.Tests
+    #     name: analyzers-tests
+    #     title: Analyzer Tests
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     target-framework: net7.0
 
   js-tests:
     runs-on: ubuntu-latest
