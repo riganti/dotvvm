@@ -5,13 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Views\Generator.dothtml" />
+    <Content Include="**/*.dothtml;**/*.dotmaster;**/*.dotcontrol" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="Always" />
+    <None Remove="**/*.dothtml;**/*.dotmaster;**/*.dotcontrol" />
   </ItemGroup>
-
   <ItemGroup>
-    <Content Include="Views\Generator.dothtml" />
+    <None Remove="dotvvm_serialized_config.json.tmp" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>

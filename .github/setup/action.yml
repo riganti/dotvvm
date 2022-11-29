@@ -31,8 +31,12 @@ runs:
       dotnet-version: |
         7.0.x
         6.0.x
+        3.1.x
   - if: ${{ runner.os == 'Windows' }}
     uses: microsoft/setup-msbuild@v1.1
+  - if: ${{ runner.os == 'Windows' }}
+    run: choco install dotnetcore-3.1-windowshosting -y
+    shell: pwsh
 
   # restore packages
   - if: ${{ runner.os == 'Windows' }}

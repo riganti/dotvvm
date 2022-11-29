@@ -3,7 +3,7 @@
 import { createArray, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
 import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
-import { getObjectTypeInfo } from "./metadata/typeMap";
+import { areObjectTypesEqual, getObjectTypeInfo } from "./metadata/typeMap";
 import { coerce } from "./metadata/coercer";
 import { patchViewModel } from "./postback/updater";
 import { wrapObservable } from "./utils/knockout";
@@ -356,7 +356,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                 return
             }
         }
-        else if (!observableWasSetFromOutside && oldContents && oldContents[notifySymbol] && currentValue["$type"] && currentValue["$type"] === newVal["$type"]) {
+        else if (!observableWasSetFromOutside && oldContents && oldContents[notifySymbol] && areObjectTypesEqual(currentValue, newVal)) {
             // smart object, supports the notification by itself
             oldContents[notifySymbol as any](newVal)
 
@@ -404,3 +404,4 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
     });
     return obs
 }
+
