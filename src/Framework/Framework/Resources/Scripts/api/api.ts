@@ -3,9 +3,10 @@ import { deserialize } from '../serialization/deserialize';
 import { logError, logWarning } from '../utils/logging';
 import { StateManager, unmapKnockoutObservables } from '../state-manager';
 import { DotvvmEvent } from '../events';
+import { keys } from '../utils/objects';
 
 type ApiComputed<T> =
-    KnockoutObservable<T | null> & {
+    KnockoutComputed<T | null> & {
         refreshValue: () => PromiseLike<any>
     };
 
@@ -28,10 +29,11 @@ export function invoke<T>(
     argsProvider: () => any[],
     refreshTriggers: (args: any[]) => Array<KnockoutObservable<any> | string>,
     notifyTriggers: (args: any[]) => string[],
-    element: HTMLElement,
-    sharingKeyProvider: (args: any[]) => string[]
+    cacheElement: HTMLElement,
+    sharingKeyProvider: (args: any[]) => string[],
+    lifetimeElement: HTMLElement
 ): ApiComputed<T> {
-    const cache: Cache = element ? ((<any> element)["apiCachedValues"] ??= {}) : cachedValues;
+    const cache: Cache = cacheElement ? ((<any> cacheElement)["apiCachedValues"] ??= {}) : cachedValues;
     const $type: TypeDefinition = { type: "dynamic" }
 
     let args: any[];
@@ -98,10 +100,12 @@ export function invoke<T>(
     }
 
     refreshArgs()
-    ko.computed(() =>
-        refreshTriggers(args).map(trigger => typeof trigger == "string" ? eventHub.get(trigger)() : trigger())
-    )
-        .subscribe(_ => refreshValue());
+    ko.computed(
+            () => refreshTriggers(args).map(trigger => typeof trigger == "string" ? eventHub.get(trigger)() : trigger()),
+            null,
+            { disposeWhenNodeIsRemoved: lifetimeElement }
+        )
+        .subscribe(_ => refreshValue());    
 
     const cmp = <ApiComputed<T>> <any> ko.pureComputed(() => stateManager().stateObservable().data());
     cmp.refreshValue = refreshValue
@@ -115,8 +119,18 @@ export function refreshOn<T>(
     if (typeof value.refreshValue != "function") {
         logError("rest-api", `The object is not refreshable.`);
     }
-    watch.subscribe(() => {
-        value.refreshValue();
+    const subs = watch.subscribe(() => {
+        if (value.getSubscriptionsCount()) {
+            value.refreshValue();
+        } else {
+            subs.dispose()
+        }
     });
     return value;
+}
+
+export function clearApiCachedValues() {
+    for (let key of keys(cachedValues)) {
+        delete cachedValues[key];
+    }
 }
