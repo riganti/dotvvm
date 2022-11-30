@@ -159,7 +159,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
 
             JsBindingApi.RegisterJavascriptTranslations(this);
-            CsharpBindingApi.RegisterJavascriptTranslations(this);
             BindingApi.RegisterJavascriptTranslations(this);
             BindingPageInfo.RegisterJavascriptTranslations(this);
             BindingCollectionInfo.RegisterJavascriptTranslations(this);

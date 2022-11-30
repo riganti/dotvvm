@@ -7,7 +7,7 @@ internal static partial class DotnetWasmInterop
 {
     private static Dictionary<ViewModuleInstanceKey, object> instances = new();
     private static DotvvmClientSerializer serializer = new();
-    
+
     [JSExport]
     internal static void CreateViewModuleInstance(string typeName, string instanceName, string[] namedCommandNames)
     {
@@ -44,13 +44,13 @@ internal static partial class DotnetWasmInterop
         }
     }
 
-    [JSImport("callNamedCommand")]
+    [JSImport("callNamedCommand", "dotvvmResource/dotvvm--interop--dotnet-wasm/dotvvm--interop--dotnet-wasm")]
     internal static partial Task<string> CallNamedCommand(string typeName, string instanceName, string commandName, string[] args);
 
-    [JSImport("getViewModelSnapshot")]
+    [JSImport("getViewModelSnapshot", "dotvvmResource/dotvvm--interop--dotnet-wasm/dotvvm--interop--dotnet-wasm")]
     internal static partial string GetViewModelSnapshot();
 
-    [JSImport("patchViewModel")]
+    [JSImport("patchViewModel", "dotvvmResource/dotvvm--interop--dotnet-wasm/dotvvm--interop--dotnet-wasm")]
     internal static partial void PatchViewModelSnapshot(string patchJson);
 
     [JSExport]

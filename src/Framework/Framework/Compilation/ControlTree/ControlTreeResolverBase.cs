@@ -62,20 +62,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directiveMetadata.Directives, directiveMetadata.MasterPage);
             view.FileName = fileName;
 
-            if (directiveMetadata.ViewModuleResult is { })
+            if (directiveMetadata.ViewModuleResult is { } || directiveMetadata.CSharpViewModuleResult is { })
             {
-                treeBuilder.AddProperty(
-                    view,
-                    treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, directiveMetadata.ViewModuleResult.Reference, null),
-                    out _
+                var firstReference = directiveMetadata.ViewModuleResult?.Reference ?? directiveMetadata.CSharpViewModuleResult?.Reference;
+                var reference = new ViewModuleReferenceInfo(
+                    firstReference!.ViewId,
+                    Enumerable.Concat(
+                        directiveMetadata.ViewModuleResult?.Reference.ReferencedModules ?? Enumerable.Empty<ViewModuleReferencedModule>(),
+                        directiveMetadata.CSharpViewModuleResult?.Reference.ReferencedModules ?? Enumerable.Empty<ViewModuleReferencedModule>()
+                    ).ToArray(),
+                    firstReference.IsMarkupControl
                 );
-            }
 
-            if (directiveMetadata.CSharpViewModuleResult is { })
-            {
                 treeBuilder.AddProperty(
                     view,
-                    treeBuilder.BuildPropertyValue(Internal.ReferencedCSharpViewModuleInfoProperty, directiveMetadata.CSharpViewModuleResult.Reference, null),
+                    treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, reference, null),
                     out _
                 );
             }

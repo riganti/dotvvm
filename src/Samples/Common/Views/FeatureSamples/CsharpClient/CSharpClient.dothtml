@@ -7,7 +7,6 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <script type="module" src="/wasm/main.js"></script>
 </head>
 <body>
 
@@ -25,8 +24,11 @@
     </p>
 
     <p>
-        <dot:Button Text="Call named command" Click="{staticCommand: NamedCommandResult = _csharp.CallNamedCommand(Value)}" />
-        {{value: NamedCommandResult}}
+        <dot:Button Text="Patch view model" Click="{staticCommand: _csharp.PatchViewModel(30)}" />
+    </p>
+
+    <p>
+        <dot:Button Text="Call named command" Click="{staticCommand: _csharp.CallNamedCommand(Value)}" />
     </p>
     <dot:NamedCommand Name="TestCommand" Command="{staticCommand: Value = Value * 2}" />
 
