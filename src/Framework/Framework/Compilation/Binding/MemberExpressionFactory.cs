@@ -74,8 +74,12 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (members.Count == 0 && throwExceptions)
                 {
                     var privateMember = type.GetAllMembers(bindingFlags | BindingFlags.NonPublic).Where(m => m.Name == name).FirstOrDefault();
-                    var privateMemberHelp = privateMember is null ? "" : $" Note that private member '{privateMember}' exists, please make it public to use in the binding.";
-                    throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }." + privateMemberHelp);
+                    if (privateMember is {})
+                        throw new Exception($"{ (isStatic ? "Static" : "Instance") } member '{privateMember}' is private, please make it public to use it in the binding.");
+                    var staticMember = type.GetAllMembers(bindingFlags | BindingFlags.Static | BindingFlags.Instance).Where(m => m.Name == name).FirstOrDefault();
+                    if (staticMember is {})
+                        throw new Exception($"Member '{staticMember}' is {(isStatic ? "not static" : "static")}.");
+                    throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }.");
                 }
                 else if (members.Count == 0 && !throwExceptions)
                     return null;

@@ -283,9 +283,9 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("PrivateField", "Could not find instance member PrivateField on type DotVVM.Framework.Tests.Binding.ErrorSampleObject. Note that private member 'System.String PrivateField' exists, please make it public to use in the binding.")]
-        [DataRow("PrivateProperty", "Could not find instance member PrivateProperty on type DotVVM.Framework.Tests.Binding.ErrorSampleObject. Note that private member 'System.String PrivateProperty' exists, please make it public to use in the binding.")]
-        [DataRow("StaticProperty", "Could not find instance member StaticProperty on type DotVVM.Framework.Tests.Binding.ErrorSampleObject.")]
+        [DataRow("PrivateField", "Instance member 'System.String PrivateField' is private, please make it public to use it in the binding.")]
+        [DataRow("PrivateProperty", "Instance member 'System.String PrivateProperty' is private, please make it public to use it in the binding.")]
+        [DataRow("StaticProperty", "Member 'System.String StaticProperty' is static.")]
         public void Error_MemberPrivate(string memberName, string error)
         {
             var ex = Assert.ThrowsException<Exception>(() =>
