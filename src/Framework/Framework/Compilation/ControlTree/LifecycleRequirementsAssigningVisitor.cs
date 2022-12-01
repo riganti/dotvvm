@@ -10,9 +10,11 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
+    [ContainsDotvvmProperties]
     public class LifecycleRequirementsAssigningVisitor : ResolvedControlTreeVisitor
     {
-        public static readonly DotvvmProperty CompileTimeLifecycleRequirementsProperty = DotvvmProperty.Register<ControlLifecycleRequirements, LifecycleRequirementsAssigningVisitor>("CompileTimeLifecycleRequirements");
+        public static readonly DotvvmProperty CompileTimeLifecycleRequirementsProperty =
+            CompileTimeOnlyDotvvmProperty.Register<ControlLifecycleRequirements, LifecycleRequirementsAssigningVisitor>("CompileTimeLifecycleRequirements");
         private static readonly ConcurrentDictionary<Type, ControlLifecycleRequirements> requirementsCache = new ConcurrentDictionary<Type, ControlLifecycleRequirements>();
         public static ControlLifecycleRequirements GetRequirements(Type controlType) =>
             requirementsCache.GetOrAdd(controlType, c =>
@@ -44,6 +46,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     control.Metadata.VirtualPath == null)
                     control.SetProperty(new ResolvedPropertyValue(CompileTimeLifecycleRequirementsProperty, value));
             }
+        }
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+                requirementsCache.TryRemove(t, out _);
         }
     }
 }

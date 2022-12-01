@@ -1,13 +1,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
     [DebuggerDisplay("{Value}")]
-    public class DothtmlLiteralNode : DothtmlNode
+    public sealed class DothtmlLiteralNode : DothtmlNode
     {
-        public string Value => Tokens.ConcatTokenText();
+        public DothtmlToken? MainValueToken { get; set; }
+        public string Value => MainValueToken is {} ? MainValueToken.Text : Tokens.ConcatTokenText();
         public bool Escape { get; set; } = false;
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()

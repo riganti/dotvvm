@@ -44,7 +44,10 @@ initDotvvm({
                 Inner2: {
                     type: "t3"
                 },
-                DateTime: { type: { type: "nullable", inner: "DateTime" } }
+                DateTime: { type: { type: "nullable", inner: "DateTime" } },
+                Dynamic: {
+                    type: { type: "dynamic" }
+                }
             }
         },
         t2: {

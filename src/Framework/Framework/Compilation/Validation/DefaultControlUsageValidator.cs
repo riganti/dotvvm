@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Compilation.Validation
             if (missingProperties.Any())
             {
                 yield return new ControlUsageError(
-                    $"The control '{ control.Metadata.Type.FullName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.",
+                    $"The control '{ control.Metadata.Type.CSharpName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.",
                     control.DothtmlNode
                 );
             }
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation.Validation
             foreach (var unknownControl in unknownContent)
             {
                 yield return new ControlUsageError(
-                    $"The control '{ unknownControl.Metadata.Type.FullName }' does not inherit from DotvvmControl and thus cannot be used in content.",
+                    $"The control '{ unknownControl.Metadata.Type.CSharpName }' does not inherit from DotvvmControl and thus cannot be used in content.",
                     control.DothtmlNode
                 );
             }
@@ -79,13 +79,13 @@ namespace DotVVM.Framework.Compilation.Validation
                     }
                 }
                 var r = method.Invoke(null, args);
-                if (r is IEnumerable<ControlUsageError>)
+                if (r is IEnumerable<ControlUsageError> errors)
                 {
-                    result.AddRange((IEnumerable<ControlUsageError>)r);
+                    result.AddRange(errors);
                 }
-                else if (r is IEnumerable<string>)
+                else if (r is IEnumerable<string> stringErrors)
                 {
-                    result.AddRange((r as IEnumerable<string>).Select(e => new ControlUsageError(e)));
+                    result.AddRange(stringErrors.Select(e => new ControlUsageError(e)));
                 }
                 continue;
                 Error:;
@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Compilation.Validation
                 throw new Exception($"ControlUsageValidator attributes on '{type.FullName}' are in an inconsistent state. Make sure all attributes have an Override property set to the same value.");
 
             if (overrideValidation.Any() && overrideValidation[0]) return methods;
-            var ancestorMethods = FindMethods(type.BaseType);
+            var ancestorMethods = FindMethods(type.BaseType!);
             return ancestorMethods.Concat(methods).ToArray();
         }
 
@@ -120,6 +120,13 @@ namespace DotVVM.Framework.Compilation.Validation
         {
             var type = metadata.Type as ResolvedTypeDescriptor;
             return type?.Type;
+        }
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+                cache.TryRemove(t, out _);
         }
     }
 }

@@ -2,24 +2,8 @@
   <PropertyGroup>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <PackageId>DotVVM.DynamicData</PackageId>
-    <PackageVersion>3.1.0</PackageVersion>
-    <VersionPrefix>3.1.0</VersionPrefix>
-    <Authors>RIGANTI</Authors>
-    <Description>Dynamic Data implementation for DotVVM.
-    DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx;dynamic data;annotations;metadata;ui generation</PackageTags>
-    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
-    <PackageLicenseUrl>https://github.com/riganti/dotvvm-dynamic-data/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/riganti/dotvvm-dynamic-data</PackageProjectUrl>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <PackageProjectUrl>https://www.dotvvm.com/docs/3.0/pages/community-add-ons/dotvvm-dynamic-data</PackageProjectUrl>
+    <PackageTags>($PackageTags);dynamic data;annotations;metadata;ui generation</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">

@@ -10,13 +10,14 @@ using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
+using System.Security.Claims;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
     [TestClass]
     public class SimpleControlTests
     {
-        ControlTestHelper cth = new ControlTestHelper(config: config => {
+        static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
             config.RouteTable.Add("WithParams", "WithParams/{A}-{B:int}/{C?}", "WithParams.dothtml", new { B = 1 });
             config.RouteTable.Add("Simple", "Simple", "Simple.dothtml");
         });
@@ -41,18 +42,18 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=Simple Text={value: Label} />
 
                 <!-- client rendering, static params -->
-                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text='Click me' />
+                <dot:RouteLink RenderSettings.Mode=Client RouteName={resource: 'WithParams'} Param-A=A Param-B={resource: 1} Text='Click me' />
                 <!-- client rendering, static params, query and suffix -->
-                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B={resource: 1} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- client rendering, dynamic params, query and suffix -->
                 <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A={value: Label} Param-B={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- client rendering, static params, text binding -->
                 <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text={value: Label} />
 
                 <!-- server rendering, static params -->
-                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A=A Param-B=1 Text='Click me' />
+                <dot:RouteLink RenderSettings.Mode=Server RouteName={resource: 'WithParams'} Param-A=A Param-B={resource: 1} Text='Click me' />
                 <!-- server rendering, static params, query and suffix -->
-                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-a=A Param-B=1 Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-a=A Param-B={resource: 1} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- server rendering, dynamic params, query and suffix -->
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A={value: Label} Param-b={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- server rendering, static params, text binding -->
@@ -72,12 +73,14 @@ namespace DotVVM.Framework.Tests.ControlTests
                     {{value: Integer}}
                     {{value: Float}}
                     {{value: DateTime}}
+                    {{value: NullableString}}
                 </span>
                 <!-- literal syntax, server rendering -->
                 <span RenderSettings.Mode=Server>
                     {{value: Integer}}
                     {{value: Float}}
                     {{value: DateTime}}
+                    {{value: NullableString}}
                 </span>
                 <!-- control syntax, client rendering -->
                 <span RenderSettings.Mode=Client>
@@ -130,6 +133,55 @@ namespace DotVVM.Framework.Tests.ControlTests
                      Style-height={value: Integer + 'em'} />
                 <div Class-another-class
                      Style-color=blue > X </div>
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task TextBox()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- basic textbox, no formatting -->
+                <span>
+                    <dot:TextBox Text={value: Label} />
+                    <dot:TextBox Text={value: Integer} />
+                    <dot:TextBox Text={value: Float} />
+                    <dot:TextBox Text={value: DateTime} />
+                </span>
+                <!-- disabled in different ways -->
+                <span>
+                    <dot:TextBox Text={value: Label} Enabled=false />
+                    <dot:TextBox Text={value: Label} Enabled={value: false} />
+                    <dot:TextBox Text={value: Label} Enabled={value: _page.EvaluatingOnServer} />
+                    <dot:TextBox Text={value: Label} Enabled={resource: false} />
+                </span>
+                <!-- select all on focus -->
+                <span>
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus />
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus=tRUE />
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus={value: Integer > 20} />
+                    <!-- this should not be set -->
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus={resource: false} />
+                </span>
+                <!-- textbox types -->
+                <span>
+                    <dot:TextBox Text={value: DateTime} type=date />
+                    <dot:TextBox Text={value: DateTime} type=DateTimeLocal />
+                    <dot:TextBox Text={value: DateTime} type=month />
+                    <dot:TextBox Text={value: DateTime} type=Time />
+                    <dot:TextBox Text={value: Integer} type=number />
+                    <dot:TextBox Text={value: Float} type=number step=0.1 />
+                    <dot:TextBox Text={value: Label} type=password />
+                    <dot:TextBox Text={value: Label} type=email />
+                </span>
+                <!-- multiline - textarea -->
+                <dot:TextBox type=MultiLine Text={value: Label} />
+                <!-- multiline - textarea with static text -->
+                <dot:TextBox type=MultiLine Text={resource: Label} />
+                <!-- UpdateTextOnInput -->
+                <dot:TextBox Text={value: Label} UpdateTextOnInput />
                 "
             );
 
@@ -230,6 +282,149 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.IsTrue(exception.Message.Contains("Changing the DataContext property on the GridViewColumn is not supported!"));
         }
 
+        [TestMethod]
+        public async Task NamedCommand()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                async static command with arg
+                <dot:NamedCommand Name=1
+                                  Command={staticCommand: (int s) => _js.InvokeAsync<int>('myCmd', s)} />
+                async static command with Invoke&lt;Task&gt;
+                <dot:NamedCommand Name=1
+                                  Command={staticCommand: (int s) => _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd', s)} />
+                Command with arg
+                <dot:NamedCommand Name=2
+                                  Command={command: (string x) => x + '0'} />
+                sync static command with argument
+                <dot:NamedCommand Name=3
+                                  Command={staticCommand: (int s) => Integer = s} />
+                Just command
+                <dot:NamedCommand Name=4
+                                  Command={command: 0} />
+                async static command
+                <dot:NamedCommand Name=5
+                                  Command={staticCommand: _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd')} />
+                sync static command
+                <dot:NamedCommand Name=6
+                                  Command={staticCommand: 0} />
+
+            ", directives: "@js dotvvm.internal");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task JsComponent()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <js:Bazmek
+                                 troll={resource: 1}
+                                 scmd={staticCommand: (int s) => _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd', s)}>
+
+                    <MyTemplate>
+                        <h1> Ahoj lidi </h1>
+                    </MyTemplate>
+                </js:Bazmek>
+
+                <js:Bazmek troll={resource: 1} />
+                <js:Bazmek lol={value: Integer} />
+                <js:Bazmek cmd={command: (string x) => x + '0'} />
+                <js:Bazmek scmd={staticCommand: (int x) => Integer = x} />
+            ", directives: "@js dotvvm.internal");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task Decorator()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:Decorator class=c1>
+                    <div /> 
+                </dot:Decorator>
+                <dot:Decorator class=c2>
+                    <%-- comment --%>
+                    <div /> 
+                </dot:Decorator>
+                <dot:Decorator class=c3>
+                    <!-- comment -->
+                    <div /> 
+                </dot:Decorator>
+            ", directives: "@js dotvvm.internal");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task HtmlLiteral()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- Static text -->
+                <dot:HtmlLiteral class=c1 Html='some text' />
+                <!-- Resource binding -->
+                <dot:HtmlLiteral class=c1 Html={resource: Label} />
+                <!-- Value binding in <span> -->
+                <dot:HtmlLiteral class=c1 Html={value: Label} WrapperTagName=span />
+                <!-- Static text, no wrapper -->
+                <dot:HtmlLiteral Html='some text' RenderWrapperTag=false />
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [DataTestMethod]
+        [DataRow("Client")]
+        [DataRow("Server")]
+        public async Task FileUpload(string renderMode)
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @$"
+                <!-- output should be the same in Client/Server rendering -->
+                <dot:FileUpload UploadedFiles={{value: Files}}
+                    RenderSettings.Mode={renderMode} />
+            ", fileName: $"FileUpload-{renderMode}");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task Auth()
+        {
+            var testUser = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { 
+                new Claim(ClaimTypes.Role, "admin"),
+                new Claim(ClaimTypes.Role, "tester"), 
+                new Claim("custom-claim", "trolllololololo"), 
+                new Claim(ClaimTypes.NameIdentifier, "test.user")
+            }, "Basic"));
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+            
+                IsAuthenticated: {{resource: _user.Identity.IsAuthenticated}}
+
+                <div IncludeInPage={resource: _user.IsInRole('admin')}> Only for admins </div>
+
+                <div IncludeInPage={resource: _user.IsInRole('premium')}> Only for premium users </div>
+
+
+                <dot:AuthenticatedView> Only for authenticated users </dot:AuthenticatedView>
+
+                <dot:RoleView Roles='a,b,c'><IsNotMemberTemplate> not member </IsNotMemberTemplate> <IsMemberTemplate> Only for some random roles </IsMemberTemplate> </dot:RoleView> 
+            ", user: testUser);
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task CurlyBraceEscaping()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                CDATA: <![CDATA[ <span>{{value: Label}}</span> ]]>
+
+                <br>
+
+                Escape sequence: &#123;&#123;value: Label&#125;&#125;
+
+                <br>
+
+                Lazy escaping: {&#123;value: Label}}
+            ");
+            check.CheckString(r.OutputString, fileExtension: "raw.html");
+            check.CheckString(r.FormattedHtml, fileExtension: "reparsed.html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -239,6 +434,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             [Bind(Name = "date")]
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
             public string Label { get; } = "My Label";
+
+            public string NullableString { get; } = null;
 
             public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>() {
                 RowEditOptions = {
@@ -250,6 +447,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                     new CustomerData() { Id = 2, Name = "Two" }
                 }
             };
+
+            public UploadedFilesCollection Files { get; set; } = new UploadedFilesCollection();
 
             public class CustomerData
             {

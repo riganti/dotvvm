@@ -30,3 +30,18 @@ export function updateTypeInfo(newTypes: TypeMap | undefined) {
 export function replaceTypeInfo(newTypes: TypeMap | undefined) {
     types = newTypes || {};
 }
+
+export function areObjectTypesEqual(currentValue: any, newVal: any): boolean {
+    if (currentValue["$type"] && currentValue["$type"] === newVal["$type"]) {
+        // objects with type must have a same type
+        return true;
+    }
+    else if (!currentValue["$type"] && !newVal["$type"]) {
+        // dynamic objects must have the same properties
+        let currentValueKeys = keys(currentValue);
+        let newValKeys = keys(newVal);
+        return currentValueKeys.length == newValKeys.length &&
+            new Set([...currentValueKeys, ...newValKeys]).size == currentValueKeys.length;
+    }
+    return false;
+}

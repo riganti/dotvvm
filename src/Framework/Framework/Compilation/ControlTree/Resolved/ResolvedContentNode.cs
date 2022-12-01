@@ -48,6 +48,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             DothtmlNode = node;
             this.content = content;
             DataContextTypeStack = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
+
+            if (content is {})
+                foreach (var c in content)
+                    c.Parent = this;
         }
 
         public ResolvedContentNode(ControlResolverMetadata metadata, DothtmlNode? node, DataContextStack dataContext)

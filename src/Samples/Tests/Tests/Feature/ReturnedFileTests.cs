@@ -62,10 +62,12 @@ namespace DotVVM.Samples.Tests.Feature
             browser.First("input").SendKeys(Keys.Enter);
             browser.WaitForPostback();
             var downloadURL = (string)jsexec.ExecuteScript("return window.downloadURL;");
-            Assert.False(string.IsNullOrEmpty(downloadURL));
+            Assert.NotEmpty(downloadURL);
 
             string returnedFile;
+#pragma warning disable SYSLIB0014 // obsolete
             using (var client = new WebClient())
+#pragma warning restore SYSLIB0014
             {
                 returnedFile = client.DownloadString(browser.GetAbsoluteUrl(downloadURL));
             }

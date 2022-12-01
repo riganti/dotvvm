@@ -56,6 +56,17 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual("Yes", result);
         }
 
+        [TestMethod]
+        public void BindingParserNodeVisitor_ParsePropertyDeclarationDirectiveInitializer_AllVisitsImplemented()
+        {
+            var tree = bindingParserNodeFactory.ParseArrayInitializer("[ [ \"Test\", \"Test2\" ], \"Test2\", 10 ]");
+
+            var testVisitor = new TestGenericVisitor();
+            var result = testVisitor.Visit(tree);
+
+            Assert.AreEqual("Yes", result);
+        }
+
         private class TestGenericVisitor : BindingParserNodeVisitor<string>
         {
             protected override string DefaultVisit(BindingParserNode node)

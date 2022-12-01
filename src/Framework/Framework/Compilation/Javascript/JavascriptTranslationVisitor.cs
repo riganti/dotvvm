@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return TranslateUnary((UnaryExpression)expression);
             }
 
-            throw new NotSupportedException($"The expression type {expression.NodeType} can not be translated to Javascript!");
+            throw new NotSupportedException($"The expression type {expression.NodeType} cannot be translated to Javascript!");
         }
 
         private JsExpression TranslateNewArrayInit(NewArrayExpression expression)
@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         private Expression ReplaceVariables(Expression node, IReadOnlyList<ParameterExpression> variables, CodeSymbolicParameter[] args)
         {
             return ExpressionUtils.Replace(Expression.Lambda(node, variables), args.Zip(variables, (o, a) => Expression.Parameter(a.Type, a.Name).AddParameterAnnotation(
-                new BindingParameterAnnotation(extensionParameter: new FakeExtensionParameter(_ => new JsSymbolicParameter(o), a.Name, new ResolvedTypeDescriptor(a.Type)))
+                new BindingParameterAnnotation(extensionParameter: new FakeExtensionParameter(_ => new JsSymbolicParameter(o), a.Name!, new ResolvedTypeDescriptor(a.Type)))
             )).ToArray());
         }
 
@@ -149,23 +149,25 @@ namespace DotVVM.Framework.Compilation.Javascript
             var property = expression.Left as MemberExpression;
             if (property != null)
             {
+                if (property.Expression is null)
+                    throw new NotSupportedException($"Assignment of static property {expression} is not supported.");
                 var target = Translate(property.Expression);
                 var value = Translate(expression.Right);
                 return TryTranslateMethodCall((property.Member as PropertyInfo)?.SetMethod, property.Expression, new[] { expression.Right }) ??
-                    SetProperty(target, property.Member, value);
+                    SetProperty(target, new VMPropertyInfoAnnotation(property.Member), value);
             }
             else if (expression.Left.GetParameterAnnotation() is BindingParameterAnnotation annotation)
             {
-                if (annotation.ExtensionParameter == null) throw new NotSupportedException($"Can not assign to data context parameter {expression.Left}");
+                if (annotation.ExtensionParameter == null) throw new NotSupportedException($"Cannot assign to data context parameter {expression.Left}");
                 return new JsAssignmentExpression(
                     TranslateParameter(expression.Left, annotation),
                     Translate(expression.Right)
                 );
             }
-            throw new NotSupportedException($"Can not assign expression of type {expression.Left.NodeType}!");
+            throw new NotSupportedException($"Cannot assign expression of type {expression.Left.NodeType}!");
         }
 
-        private JsExpression SetProperty(JsExpression target, MemberInfo property, JsExpression value) =>
+        private JsExpression SetProperty(JsExpression target, VMPropertyInfoAnnotation property, JsExpression value) =>
             new JsAssignmentExpression(TranslateViewModelProperty(target, property), value);
 
         public JsExpression TranslateConditional(ConditionalExpression expression) =>
@@ -176,6 +178,10 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression TranslateIndex(IndexExpression expression, bool setter = false)
         {
+            if (expression.Object is null)
+                throw new NotSupportedException($"Static indexer {expression} is not supported.");
+            if (expression.Indexer is null)
+                throw new NotSupportedException($"IndexExpression does not have indexer."); // wtf, but it's nullable
             var target = Translate(expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
             var method = setter ? expression.Indexer.SetMethod : expression.Indexer.GetMethod;
@@ -226,14 +232,14 @@ namespace DotVVM.Framework.Compilation.Javascript
                           null)
             .WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
-        public JsLiteral TranslateConstant(ConstantExpression expression) =>
+        public static JsLiteral TranslateConstant(ConstantExpression expression) =>
             new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
         public JsExpression TranslateMethodCall(MethodCallExpression expression)
         {
             var result = TryTranslateMethodCall(expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
-                throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } can not be translated to Javascript");
+                throw new NotSupportedException($"Method { expression.Method.DeclaringType!.Name }.{ expression.Method.Name } cannot be translated to Javascript");
             return result;
         }
 
@@ -295,8 +301,54 @@ namespace DotVVM.Framework.Compilation.Javascript
                     // round to zero, by trimming a string...
                     return new JsIdentifierExpression("parseInt").Invoke(result);
             }
+            if (expression.NodeType == ExpressionType.Add && expression.Type == typeof(string))
+            {
+                // when adding strings in JS `"a" + null` will equal to `"anull"` while in C# it equals to `"a"`.
+                // we need to replace null values with an empty string to avoid the difference:
+
+                ReplaceNullValue(result.Left, expression.Left, new JsLiteral(""));
+                ReplaceNullValue(result.Right, expression.Right, new JsLiteral(""));
+            }
+            if (expression.NodeType == ExpressionType.ExclusiveOr && expression.Left.Type == typeof(bool) && expression.Right.Type == typeof(bool))
+            {
+                // Whenever operator ^ is applied on two booleans in .NET, the result is also boolean
+
+                return new JsBinaryExpression(left.Clone(), BinaryOperatorType.NotEqual, right.Clone());
+            }
+            
+            return result;
+        }
+
+        private void ReplaceNullValue(JsExpression js, Expression expr, JsExpression replacement)
+        {
+            if (!PrimitiveToStringTranslator.CanBeNull(expr))
+            {
+            }
+            else if (js is JsLiteral literal)
+            {
+                if (literal.Value is null)
+                    js.ReplaceWith(replacement);
+            }
+            // avoid doing it if the result can't be null
+
+            // these JS expressions can't be null
+            else if (js is JsBinaryExpression or JsUnaryExpression or JsBaseFunctionExpression or JsObjectExpression or JsNewExpression)
+            {
+            }
+            // view model is never null
+            else if (js is JsSymbolicParameter symbolicParam && symbolicParam.Symbol is JavascriptTranslator.ContextSymbolicParameter or JavascriptTranslator.ViewModelSymbolicParameter)
+            {
+            }
+            // dotvvm.globalize.bindingNumberToString(), dotvvm.globalize.format(), String() never return null
+            else if (js is JsInvocationExpression { Target: JsMemberAccessExpression { MemberName: "bindingNumberToString", Target: JsMemberAccessExpression { MemberName: "globalize", Target: JsIdentifierExpression { Identifier: "dotvvm" } } } }
+                        or JsInvocationExpression { Target: JsMemberAccessExpression { MemberName: "format", Target: JsMemberAccessExpression { MemberName: "globalize", Target: JsIdentifierExpression { Identifier: "dotvvm" } } } }
+                        or JsInvocationExpression { Target: JsIdentifierExpression { Identifier: "String" } })
+            {
+            }
             else
-                return result;
+            {
+                js.ReplaceWith(x => new JsBinaryExpression(x, BinaryOperatorType.NullishCoalescing, replacement));
+            }
         }
 
         public JsExpression TranslateUnary(UnaryExpression expression)
@@ -325,15 +377,59 @@ namespace DotVVM.Framework.Compilation.Javascript
                         op = UnaryOperatorType.LogicalNot;
                     else op = UnaryOperatorType.BitwiseNot;
                     break;
+
+                case ExpressionType.OnesComplement:
+                    op = UnaryOperatorType.BitwiseNot;
+                    break;
+
                 case ExpressionType.Convert:
                 case ExpressionType.TypeAs:
                     // convert does not make sense in Javascript
-                    return operand;
+                    return TranslateConvert(expression.Operand, operand, expression.Type);
 
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }
             return new JsUnaryExpression(op, operand);
+        }
+
+        public JsExpression TranslateConvert(Expression originalOperand, JsExpression operand, Type target)
+        {
+            // float -> integer: we just apply x | 0
+            if (originalOperand.Type.IsRealNumericType() && target.IsIntegerNumericType())
+                return new JsBinaryExpression(operand, BinaryOperatorType.BitwiseOr, new JsLiteral(0));
+
+            // int -> enum: use dotvvm.translations.enums.fromInt
+            if (originalOperand.Type.IsIntegerNumericType() && target.IsEnum)
+            {
+                // shortcut for constant integers (it's used by C# compiler when inserting constant enums)
+                if (originalOperand.NodeType == ExpressionType.Constant)
+                {
+                    var enumValue = Enum.ToObject(target, ((ConstantExpression)originalOperand).Value!);
+                    // JsLiteral will JSON-serialize the enumValue
+                    return new JsLiteral(enumValue);
+                }
+
+                return new JsIdentifierExpression("dotvvm")
+                    .Member("translations").Member("enums").Member("fromInt")
+                    .Invoke(operand, new JsLiteral(target.GetTypeHash()));
+            }
+
+            // enum -> int: use dotvvm.translations.enums.toInt
+            if (originalOperand.Type.IsEnum && target.IsIntegerNumericType())
+            {
+                // shortcut for constant integers (it's used by the TranslateBinary method)
+                if (operand is JsLiteral { Value: Enum value })
+                {
+                    return new JsLiteral(Convert.ToInt32(value));
+                }
+                return new JsIdentifierExpression("dotvvm")
+                    .Member("translations").Member("enums").Member("toInt")
+                    .Invoke(operand, new JsLiteral(originalOperand.Type.GetTypeHash()));
+            }
+
+            // by default, just allow any conversion
+            return operand;
         }
 
         public JsExpression TranslateMemberAccess(MemberExpression expression)
@@ -349,14 +445,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             else
             {
                 return TryTranslateMethodCall(getter, expression.Expression, new Expression[0]) ??
-                    TranslateViewModelProperty(Translate(expression.Expression), expression.Member);
+                    TranslateViewModelProperty(Translate(expression.Expression), new VMPropertyInfoAnnotation(expression.Member));
             }
         }
 
-        public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string? name = null) =>
-            new JsMemberAccessExpression(context, name ?? propInfo.Name)
-                .WithAnnotation(new VMPropertyInfoAnnotation(propInfo))
-                .WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
+        public static JsExpression TranslateViewModelProperty(JsExpression context, VMPropertyInfoAnnotation propInfo, string? name = null) =>
+            new JsMemberAccessExpression(context, name ?? propInfo.MemberInfo.NotNull().Name)
+                .WithAnnotation(propInfo)
+                .WithAnnotation(new ViewModelInfoAnnotation(propInfo.ResultType));
 
         public JsExpression? TryTranslateMethodCall(MethodInfo? methodInfo, Expression? target, IEnumerable<Expression> arguments) =>
             methodInfo is null ? null :

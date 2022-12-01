@@ -55,10 +55,12 @@ namespace DotVVM.Framework.Controls
 
         class EqCmp : IEqualityComparer<DotvvmProperty[]>
         {
-            public bool Equals(DotvvmProperty[] x, DotvvmProperty[] y)
+            public bool Equals(DotvvmProperty[]? x, DotvvmProperty[]? y)
             {
+                if (object.ReferenceEquals(x, y)) return true;
+                if (x == null || y == null) return false;
                 if (x.Length != y.Length) return false;
-                if (x == y) return true;
+
                 for (int i = 0; i < x.Length; i++)
                     if (x[i] != y[i]) return false;
                 return true;
@@ -78,7 +80,7 @@ namespace DotVVM.Framework.Controls
 
         public static (int hashSeed, DotvvmProperty?[] keys) BuildTable(DotvvmProperty[] a)
         {
-            Debug.Assert(a.OrderBy(x => x.FullName).SequenceEqual(a));
+            Debug.Assert(a.OrderBy(x => x.FullName, StringComparer.Ordinal).SequenceEqual(a));
 
             // make sure that all tables have the same keys so that they don't take much RAM (and remain in cache and make things go faster)
             return tableCache.GetOrAdd(a, keys => {
@@ -157,6 +159,14 @@ namespace DotVVM.Framework.Controls
         {
             var (hashSeed, keys, valueTable) = CreateTableWithValues(properties, values);
             return (obj) => obj.properties.AssignBulk(keys, valueTable, hashSeed);
+        }
+
+        public class DotvvmPropertyComparer : IComparer<DotvvmProperty>
+        {
+            public int Compare(DotvvmProperty? a, DotvvmProperty? b) =>
+                string.Compare(a?.FullName, b?.FullName, StringComparison.Ordinal);
+
+            public static readonly DotvvmPropertyComparer Instance = new();
         }
     }
 }

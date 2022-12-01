@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsLiteral : JsExpression
+    public sealed class JsLiteral : JsExpression
     {
         private object? value;
 
@@ -30,6 +31,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             this.Value = value;
         }
+        public JsLiteral(bool value): this(BoxingUtils.Box(value)) { }
+        public JsLiteral(int value): this(BoxingUtils.Box(value)) { }
 
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitLiteral(this);
     }

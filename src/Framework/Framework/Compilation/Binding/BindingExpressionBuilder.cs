@@ -71,21 +71,24 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public TypeRegistry InitSymbols(DataContextStack dataContext)
         {
-            return AddTypeSymbols(TypeRegistry.Default(compiledAssemblyCache).AddSymbols(GetParameters(dataContext).Select(d => new KeyValuePair<string, Expression>(d.Name, d))), dataContext);
+            return AddTypeSymbols(TypeRegistry.Default(compiledAssemblyCache)
+                .AddSymbols(GetParameters(dataContext)
+                .Select(d => new KeyValuePair<string, Expression>(d.Name!, d))), dataContext);
         }
 
         public TypeRegistry AddTypeSymbols(TypeRegistry reg, DataContextStack dataContext)
         {
             var namespaces = dataContext.Enumerable().Select(t => t?.Namespace).Except(new[] { "System", null }).Distinct();
             return reg.AddSymbols(new[] {
-                // ViewModel is alias for current viewmodel type
-                new KeyValuePair<string, Expression>("ViewModel", TypeRegistry.CreateStatic(dataContext.DataContextType)),
-                // RootViewModel alias for root view model type
-                new KeyValuePair<string, Expression>("RootViewModel", TypeRegistry.CreateStatic(dataContext.Enumerable().Last())),
-            })
-            // alias for any viewModel in hierarchy :
-            .AddSymbols(dataContext.Enumerable()
-                .Select((t, i) => new KeyValuePair<string, Expression>($"Parent{i}ViewModel", TypeRegistry.CreateStatic(t))))
+                    // ViewModel is alias for current viewmodel type
+                    new KeyValuePair<string, Expression>("ViewModel", TypeRegistry.CreateStatic(dataContext.DataContextType)),
+                    // RootViewModel alias for root view model type
+                    new KeyValuePair<string, Expression>("RootViewModel", TypeRegistry.CreateStatic(dataContext.Enumerable().Last())),
+                }.Concat(
+                    // alias for any viewModel in hierarchy :
+                    dataContext.Enumerable()
+                    .Select((t, i) => new KeyValuePair<string, Expression>($"Parent{i}ViewModel", TypeRegistry.CreateStatic(t))))
+            )
             // import all viewModel namespaces
             .AddSymbols(namespaces.Select(ns => (Func<string, Expression?>)(typeName => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(ns + "." + typeName)))));
         }
@@ -131,14 +134,13 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         public static Expression ParseWithLambdaConversion(this IBindingExpressionBuilder builder, string expression, DataContextStack dataContexts, BindingParserOptions options, Type expectedType, params KeyValuePair<string, Expression>[] additionalSymbols)
         {
-            if (expectedType.IsDelegate())
+            if (expectedType.IsDelegate(out var invokeMethod))
             {
-                var resultType = expectedType.GetMethod("Invoke").ReturnType;
-                var delegateSymbols = expectedType
-                                      .GetMethod("Invoke")
+                var resultType = invokeMethod.ReturnType;
+                var delegateSymbols = invokeMethod
                                       .GetParameters()
                                       .Select((p, index) => new KeyValuePair<string, Expression>(
-                                          p.Name,
+                                          p.Name.NotNull(),
                                           Expression.Parameter(p.ParameterType, p.Name)
                                               .AddParameterAnnotation(new BindingParameterAnnotation(
                                                   extensionParameter: new TypeConversion.MagicLambdaConversionExtensionParameter(index, p.Name, p.ParameterType)))

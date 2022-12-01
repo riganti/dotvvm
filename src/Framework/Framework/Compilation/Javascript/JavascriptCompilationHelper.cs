@@ -11,7 +11,15 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public static class JavascriptCompilationHelper
     {
-        public static string CompileConstant(object? obj) => JsonConvert.SerializeObject(obj, DefaultSerializerSettingsProvider.Instance.Settings);
+        public static string CompileConstant(object? obj) =>
+            obj switch {
+                null => "null",
+                true => "true",
+                false => "false",
+                string s => JsonConvert.ToString(s),
+                int i => JsonConvert.ToString(i),
+                _ => JsonConvert.SerializeObject(obj, DefaultSerializerSettingsProvider.Instance.Settings)
+            };
 
         public static ViewModelInfoAnnotation? GetResultType(this JsExpression expr)
         {
@@ -76,7 +84,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             predicate(node) ||
             (node.Parent is JsParenthesizedExpression ||
                 node.Role == JsConditionalExpression.FalseRole ||
-                node.Role == JsConditionalExpression.TrueRole
+                node.Role == JsConditionalExpression.TrueRole ||
+                node.Role == JsBinaryExpression.RightRole && node.Parent is JsBinaryExpression { OperatorString: "," or "&&" or "||" or "??" }
             ) && node.Parent!.SatisfyResultCondition(predicate);
 
     }

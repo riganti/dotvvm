@@ -1,5 +1,6 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using Newtonsoft.Json;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
 using Xunit;
@@ -116,19 +117,31 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_Indeterminate);
 
-                var checkBox = browser.First("input[type=checkbox]");
+                bool isIndeterminate(string id) =>
+                    (bool)browser.GetJavaScriptExecutor().ExecuteScript($"return document.getElementById({JsonConvert.ToString(id)}).indeterminate");
+
+                var checkBox = browser.First("#checkbox-indeterminate");
                 var reset = browser.First("input[type=button]");
                 var value = browser.First("span.value");
 
                 AssertUI.InnerTextEquals(value, "Indeterminate");
+                Assert.True(isIndeterminate("checkbox-indeterminate"), "The checkbox should be in indeterminate state.");
+                Assert.False(isIndeterminate("checkbox-no-indeterminate"), "The checkbox should be unchecked, not in indetermined state.");
+
                 checkBox.Click();
                 AssertUI.InnerTextEquals(value, "Other");
+                Assert.False(isIndeterminate("checkbox-indeterminate"), "The checkbox should not be in indeterminate state anymore.");
+                AssertUI.IsChecked(checkBox);
+                AssertUI.IsChecked(browser.First("#checkbox-no-indeterminate"));
+
                 reset.Click();
                 AssertUI.InnerTextEquals(value, "Indeterminate");
+                Assert.True(isIndeterminate("checkbox-indeterminate"), "The checkbox should be in indeterminate state.");
+                AssertUI.IsNotChecked(browser.First("#checkbox-no-indeterminate"));
             });
         }
 
-        [Fact]
+        [Fact(Skip = "this test just does not work on any dotvvm version")]
         public void Control_CheckBox_CheckedItemsEmpty()
         {
             RunInAllBrowsers(browser => {
@@ -187,7 +200,7 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.TextEquals(ul.ElementAt("li", 1), "3: Blue");
 
                 // click button
-                browser.Single("input[type=button]").Click().Wait();
+                browser.Single("input[type=button]").Click();
                 AssertUI.IsNotChecked(checkboxes[0]);
                 AssertUI.IsChecked(checkboxes[1]);
                 AssertUI.IsNotChecked(checkboxes[2]);

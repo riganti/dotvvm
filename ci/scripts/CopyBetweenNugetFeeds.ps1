@@ -9,16 +9,30 @@ Param(
 
 ### Configuration
 $packages = @(
-    [pscustomobject]@{ Package = "DotVVM.Core"; Directory = "DotVVM.Core"; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM"; Directory = "DotVVM.Framework" ; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "DotVVM.Framework.Hosting.Owin"; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "DotVVM.Framework.Hosting.AspNetCore" ; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM.Testing"; Directory = "DotVVM.Framework.Testing" ; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "DotVVM.CommandLine"; Type = "tool" },
+    [pscustomobject]@{ Package = "DotVVM.Core"; Directory = "Framework/Core"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM"; Directory = "Framework/Framework" ; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "Framework/Hosting.Owin"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "Framework/Hosting.AspNetCore" ; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Testing"; Directory = "Framework/Testing" ; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "Tools/CommandLine"; Type = "tool" },
     [pscustomobject]@{ Package = "DotVVM.Templates"; Directory = "Templates" ; Type = "template" },
-    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "DotVVM.Framework.Api.Swashbuckle.AspNetCore"; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "DotVVM.Framework.Api.Swashbuckle.Owin"; Type = "standard" }
+    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "Api/Swashbuckle.AspNetCore"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "Api/Swashbuckle.Owin"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.HotReload"; Directory = "Tools/HotReload/Common"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.HotReload.AspNetCore"; Directory = "Tools/HotReload/AspNetCore"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.HotReload.Owin"; Directory = "Tools/HotReload/Owin"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.DynamicData"; Directory = "DynamicData/DynamicData"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.DynamicData.Annotations"; Directory = "DynamicData/Annotations"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.AutoUI"; Directory = "AutoUI/Core"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.AutoUI.Annotations"; Directory = "AutoUI/Annotations"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights"; Directory = "Tracing/ApplicationInsights"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.AspNetCore"; Directory = "Tracing/ApplicationInsights.AspNetCore"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.Owin"; Directory = "Tracing/ApplicationInsights.Owin"; Type = "standard" }
+    [pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.AspNetCore"; Directory = "Tracing/MiniProfiler.AspNetCore"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.Owin"; Directory = "Tracing/MiniProfiler.Owin"; Type = "standard" }
 )
+
+Write-Host "Current directory: $PWD"
 
 $webClient = New-Object System.Net.WebClient
 ## Standard packages
@@ -30,7 +44,7 @@ foreach ($package in $packages) {
 
     # standard package
     if ($package.Type -eq "standard") {
-        & .\tools\nuget.exe install $packageId -OutputDirectory .\tools\packages -version $version -DirectDownload -NoCache -DependencyVersion Ignore -source $internalServer | Out-Host
+        & ../ci/scripts/nuget.exe install $packageId -OutputDirectory .\tools\packages -version $version -DirectDownload -NoCache -DependencyVersion Ignore -source $internalServer | Out-Host
         $nupkgFile = dir -s ./tools/packages/$packageId.$version.nupkg | Select -First 1
         Write-Host "Downloaded package located on '$nupkgFile'"
     }
@@ -51,7 +65,7 @@ foreach ($package in $packages) {
     if ($nupkgFile) {
         # upload 
         Write-Host "Uploading package..."
-        & .\tools\nuget.exe push $nupkgFile -source $server -apiKey $apiKey | Out-Host
+        & ../ci/scripts/nuget.exe push $nupkgFile -source $server -apiKey $apiKey | Out-Host
         Write-Host "Package uploaded to $server."
     }
     if (Test-Path -Path ./tools/packages) {
@@ -73,7 +87,7 @@ foreach ($package in $packages) {
     
     if ($snupkgDownloaded -eq $true){
         Write-Host "Uploading snupkg package..."        
-        & .\Tools\nuget.exe push $snupkgFile -source $server -apiKey $apiKey | Out-Host
+        & ../ci/scripts/nuget.exe push $snupkgFile -source $server -apiKey $apiKey | Out-Host
 		Write-Host "Uploaded snupkg package." 
         try {
 			Remove-Item $snupkgFile

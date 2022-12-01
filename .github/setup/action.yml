@@ -1,0 +1,49 @@
+name: setup
+description: Sets up the build environment for the DotVVM repo.
+
+inputs:
+  sln:
+    default: src/DotVVM.sln
+    description: Path to a Visual Studio solution
+    required: false
+
+runs:
+  using: composite
+  steps:
+  # nuget
+  - uses: actions/cache@v2
+    with:
+      path: ~/.nuget/packages
+      key: ${{ runner.os }}-nuget
+
+  # Node.js
+  - uses: actions/setup-node@v2
+    with:
+      node-version: 16
+  - run: |
+      corepack enable
+      yarn set version stable
+    shell: bash
+
+  # .NET
+  - uses: actions/setup-dotnet@v3
+    with:
+      dotnet-version: |
+        7.0.x
+        6.0.x
+        3.1.x
+  - if: ${{ runner.os == 'Windows' }}
+    uses: microsoft/setup-msbuild@v1.1
+  - if: ${{ runner.os == 'Windows' }}
+    run: choco install dotnetcore-3.1-windowshosting -y
+    shell: pwsh
+
+  # restore packages
+  - if: ${{ runner.os == 'Windows' }}
+    uses: nuget/setup-nuget@v1
+  - if: ${{ runner.os == 'Windows' }}
+    run: msbuild ${{ inputs.sln }} -t:Restore
+    shell: pwsh
+  - if: ${{ runner.os != 'Windows' }}
+    run: dotnet restore ${{ inputs.sln }}
+    shell: bash

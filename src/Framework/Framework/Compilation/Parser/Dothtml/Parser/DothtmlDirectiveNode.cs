@@ -31,14 +31,8 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
         {
             visitor.Visit(this);
-
-            foreach (var node in EnumerateChildNodes())
-            {
-                if (visitor.Condition(node))
-                {
-                    node.Accept(visitor);
-                }
-            }
+            NameNode.AcceptIfCondition(visitor);
+            ValueNode?.AcceptIfCondition(visitor);
         }
 
         public override IEnumerable<DothtmlNode> EnumerateNodes()

@@ -32,6 +32,17 @@ namespace DotVVM.Framework.Configuration
         }
         private DotvvmConfigurationPageConfiguration _configurationPage = new();
 
+        /// <summary>
+        /// Gets or sets the options for runtime warning about slow requests, too big viewmodels, ...
+        /// </summary>
+        [JsonProperty("perfWarnings")]
+        public DotvvmPerfWarningsConfiguration PerfWarnings
+        {
+            get { return _perfWarnings; }
+            set { ThrowIfFrozen(); _perfWarnings = value; }
+        }
+        private DotvvmPerfWarningsConfiguration _perfWarnings = new();
+
         private bool isFrozen = false;
 
         private void ThrowIfFrozen()
@@ -45,6 +56,7 @@ namespace DotVVM.Framework.Configuration
             isFrozen = true;
             CompilationPage.Freeze();
             ConfigurationPage.Freeze();
+            PerfWarnings.Freeze();
         }
 
         public void Apply(DotvvmConfiguration config)

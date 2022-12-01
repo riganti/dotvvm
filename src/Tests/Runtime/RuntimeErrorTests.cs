@@ -22,6 +22,7 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Testing;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -46,6 +47,21 @@ namespace DotVVM.Framework.Tests.Runtime
                 else
                     return $"{msg}\n\n{inner}";
             }
+        }
+
+        public static async Task CheckExceptionAsync(this OutputChecker check, Func<Task> action, string checkName = null, string fileExtension = "txt", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)
+        {
+            try
+            {
+                await action();
+            }
+            catch (Exception exception)
+            {
+                var error = FormatException(exception);
+                check.CheckString(error, checkName, fileExtension, memberName, sourceFilePath);
+                return;
+            }
+            throw new Exception("Expected test to fail.");
         }
 
         public static void CheckException(this OutputChecker check, Action action, string checkName = null, string fileExtension = "txt", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)

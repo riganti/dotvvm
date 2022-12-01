@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "ES6",
+    "moduleResolution": "node",
+    "lib": [
+      "dom",
+      "ES6"
+    ],
+    "types": ["node", "svelte"],
+    "module": "esnext"
+  },
+  "include": [
+    "Scripts/svelte/**/*"
+  ],
+  
+  "exclude": [
+    "node_modules",
+    "wwwroot"
+  ],
+  "extends": "@tsconfig/svelte/tsconfig.json"
+}

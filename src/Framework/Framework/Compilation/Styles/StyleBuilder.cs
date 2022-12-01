@@ -33,9 +33,10 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public Type ControlType => style.ControlType;
 
-        public StyleBuilder(Func<StyleMatchContext<T>, bool>? matcher, bool allowDerived)
+        public StyleBuilder(Func<StyleMatchContext<T>, bool>? matcher, bool allowDerived, Type? controlType = null)
         {
-            style = new Style(!allowDerived, matcher);
+            controlType ??= typeof(T);
+            style = new Style(!allowDerived, matcher, controlType);
         }
 
         public IStyle GetStyle() => style;
@@ -58,8 +59,8 @@ namespace DotVVM.Framework.Compilation.Styles
 
         class Style : CompileTimeStyleBase
         {
-            public Style(bool exactTypeMatch, Func<StyleMatchContext<T>, bool>? matcher)
-                : base(typeof(T), exactTypeMatch)
+            public Style(bool exactTypeMatch, Func<StyleMatchContext<T>, bool>? matcher, Type controlType)
+                : base(controlType, exactTypeMatch)
             {
                 Matcher = matcher;
             }
@@ -68,7 +69,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
             public override bool Matches(IStyleMatchContext context)
             {
-                if (context.PropertyS<bool>(Controls.Styles.ExcludeProperty) == true)
+                if (context.PropertyValue<bool>(Controls.Styles.ExcludeProperty))
                     return false;
 
                 return Matcher != null ? Matcher(new StyleMatchContext<T>(context.Parent, context.Control, context.Configuration)) : true;

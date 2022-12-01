@@ -6,10 +6,10 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
     public static class JsAstHelpers
     {
-        public static JsExpression Member(this JsExpression target, string memberName)
+        public static JsExpression Member(this JsExpression target, string memberName, bool optional = false)
         {
             if (target == null) return new JsIdentifierExpression(memberName);
-            else return new JsMemberAccessExpression(target, memberName);
+            else return new JsMemberAccessExpression(target, memberName) { IsOptional = optional };
         }
 
         public static JsExpression Invoke(this JsExpression target, IEnumerable<JsExpression> arguments) =>
@@ -25,6 +25,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public static JsExpression Unary(this JsExpression target, UnaryOperatorType type, bool isPrefix = true) =>
             new JsUnaryExpression(type, target, isPrefix);
+        public static JsExpression Binary(this JsExpression left, BinaryOperatorType type, JsExpression right) =>
+            new JsBinaryExpression(left, type, right);
         public static JsExpression Await(this JsExpression target) =>
             target.Unary(UnaryOperatorType.Await);
 
@@ -142,6 +144,18 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return (TNode)node.CloneImpl();
         }
 
+        /// <summary>
+        /// Clones the whole subtree starting at this AST node, but only if the node is already used in a tree
+        /// </summary>
+        public static TNode CloneIfAlreadyUsed<TNode>(this TNode node)
+            where TNode: JsNode
+        {
+            if (node.Parent is null)
+                return node;
+            else
+                return (TNode)node.CloneImpl();
+        }
+
         public static JsNode AssignParameters(this JsNode node, Func<CodeSymbolicParameter, JsNode?> parameterAssignment)
         {
             foreach (var sp in node.Descendants.OfType<JsSymbolicParameter>())
@@ -182,11 +196,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static JsExpression EnsureObservableWrapped(this JsExpression expression)
         {
             // It's not needed to wrap if none of the descendants return an observable
-            if (!expression.DescendantNodes().Any(n => (n.HasAnnotation<ResultIsObservableAnnotation>() && !n.HasAnnotation<ShouldBeObservableAnnotation>()) || n.HasAnnotation<ObservableUnwrapInvocationAnnotation>()))
+            if (!expression.DescendantNodes().Any(n => (n.HasAnnotation(ResultIsObservableAnnotation.Instance) && !n.HasAnnotation(ShouldBeObservableAnnotation.Instance)) || n.HasAnnotation(ObservableUnwrapInvocationAnnotation.Instance)))
             {
                 return expression.WithAnnotation(ShouldBeObservableAnnotation.Instance);
             }
-            else if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableAnnotation>()))
+            else if (expression.SatisfyResultCondition(n => n.HasAnnotation(ResultIsObservableAnnotation.Instance)))
             {
                 var arguments = new List<JsExpression>(2) {
                     new JsArrowFunctionExpression(
@@ -195,7 +209,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     )
                 };
 
-                if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableArrayAnnotation>()))
+                if (expression.SatisfyResultCondition(n => n.HasAnnotation(ResultIsObservableArrayAnnotation.Instance)))
                 {
                     arguments.Add(new JsLiteral(true));
                 }
@@ -213,6 +227,47 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     .WithAnnotation(ResultIsObservableAnnotation.Instance)
                     .WithAnnotation(ShouldBeObservableAnnotation.Instance);
             }
+        }
+
+        public static JsExpression SubstituteArguments(this JsArrowFunctionExpression fnExpr, JsExpression[] arguments)
+        {
+            if (fnExpr.Parameters.Count != arguments.Length)
+                throw new ArgumentException("parameter count and arguments count must match.", nameof(arguments));
+
+            var body = fnExpr.Block;
+
+            foreach (var (p, arg) in fnExpr.Parameters.Zip(arguments, (a, b) => (a, b)))
+            {
+                body.ReplaceIdentifier(p.Name, arg);
+            }
+
+            if (fnExpr.ExpressionBody is object)
+                return fnExpr.ExpressionBody;
+            else
+                return JsArrowFunctionExpression.CreateIIFE(fnExpr.Block, isAsync: fnExpr.IsAsync);
+        }
+
+        public static JsNode ReplaceIdentifier(this JsNode expression, string identifier, JsNode replacement)
+        {
+            if (expression is JsIdentifierExpression { Identifier: var id } && id == identifier)
+            {
+                if (expression.Parent != null)
+                    expression.ReplaceWith(replacement.CloneIfAlreadyUsed());
+                return replacement;
+            }
+
+            foreach (var identifierExpr in expression.DescendantNodes(descendIntoChildren: n => n switch {
+                JsArrowFunctionExpression fnExpr => !fnExpr.Parameters.Select(p => p.Name).Contains(identifier),
+                JsFunctionExpression fnExpr => !fnExpr.Parameters.Select(p => p.Name).Contains(identifier),
+                JsBlockStatement block => !block.Body.OfType<JsVariableDefStatement>().Select(p => p.Name).Contains(identifier),
+                _ => true
+            }).OfType<JsIdentifierExpression>()
+                .Where(id => id.Identifier == identifier))
+            {
+                identifierExpr.ReplaceWith(replacement.CloneIfAlreadyUsed());
+            }
+
+            return expression;
         }
     }
 }

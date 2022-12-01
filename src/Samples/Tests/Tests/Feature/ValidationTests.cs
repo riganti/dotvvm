@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
@@ -184,13 +187,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_DynamicValidation);
-
-                // click the validate button
-                browser.Last("input[type=button]").Click();
-
-                // ensure validators are hidden
-                AssertUI.InnerTextEquals(browser.Last("span"), "true");
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 // load the customer
                 browser.Click("input[type=button]");
@@ -408,17 +404,13 @@ namespace DotVVM.Samples.Tests.Feature
 
                 //get buttons
                 var targetRootBtn = browser.ElementAt("input[type=button]", 0);
-                var targetNullBtn = browser.ElementAt("input[type=button]", 1);
-                var targetSomeBtn = browser.ElementAt("input[type=button]", 2);
+                var targetSomeBtn = browser.ElementAt("input[type=button]", 1);
 
                 //test both fields empty
                 targetRootBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 1), "The Required field is required.");
-
-                targetNullBtn.Click();
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
@@ -431,9 +423,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 1), "The Required field is required.");
-
-                targetNullBtn.Click();
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 // The invalid Email won't be reported because emails are checked only on the server
                 targetSomeBtn.Click();
@@ -449,9 +438,6 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 1), "The Required field is required.");
 
-                targetNullBtn.Click();
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
-
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.First("li"), "The Required field is required.");
@@ -465,9 +451,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
 
-                targetNullBtn.Click();
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
-
                 // The invalid email will be reported this time because now the check makes it to the server
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
@@ -480,9 +463,6 @@ namespace DotVVM.Samples.Tests.Feature
                 targetRootBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
-
-                targetNullBtn.Click();
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
@@ -581,12 +561,6 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationRulesLoadOnPostback);
 
-                // click the validate button
-                browser.Last("input[type=button]").Click();
-
-                // ensure validators are hidden
-                AssertUI.InnerTextEquals(browser.Last("span"), "true");
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 // load the customer
                 browser.Click("input[type=button]");
 
@@ -755,6 +729,85 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(result, "1");
                 counterButton.Click();
                 AssertUI.InnerTextEquals(result, "2");
+            });
+        }
+
+        [Theory]
+        [InlineData("butNo",8)]
+        [InlineData("butVM", 8)]
+        [InlineData("butData", 1, "innerProp")]
+        [InlineData("butData2", 1, "dataContext")]
+        [InlineData("butCol", 3, "repeater")]
+        [InlineData("validationTarget-butNo", 8)]
+        [InlineData("validationTarget-butVM", 2)]
+        [InlineData("validationTarget-butData", 1)]
+        public void Feature_Validation_ValidationPathResolving(string buttonSelector,int expectedCountOfValidationAsterisks, string sectionSelector=null)
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationPropertyPathResolving);
+                var button = browser.Single(buttonSelector, SelectByDataUi);
+
+                if (sectionSelector!=null)
+                {
+
+                    var section = browser.Single(sectionSelector, SelectByDataUi);
+                    var validationAsterisks = section.FindElements("span", By.TagName);
+                    foreach (var asterisk in validationAsterisks) AssertUI.IsNotDisplayed(asterisk);
+                    button.Click();
+                    foreach (var asterisk in validationAsterisks) AssertUI.IsDisplayed(asterisk);
+                }
+                else
+                {
+                    button.Click();
+                }
+
+
+
+                var countOfDisplayedAsterisks = browser.FindElements("div > span",By.CssSelector).Where(t=>t.GetInnerText()=="*").Count(t => t.IsDisplayed());
+                Assert.Equal(expectedCountOfValidationAsterisks, countOfDisplayedAsterisks);
+            });
+        }
+        [Theory]
+        [InlineData("/Text")]
+        [InlineData("/Data/Text")]
+        [InlineData("/Data2/Text")]
+        [InlineData("/Col/0/Text")]
+        [InlineData("/Col/1/Text")]
+        [InlineData("/Col/2/Text")]
+        public void Feature_Validation_ValidationPaths(string validationPath)
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationPropertyPathResolving);
+
+                var button = browser.Single("butNo", SelectByDataUi);
+                var validationPathsList = browser.Single("ValidationErrors", SelectBy.Id);
+
+                button.Click();
+
+                var validationPaths = validationPathsList.FindElements("li").Select(t => t.GetInnerText()).ToList();
+
+                bool hasCorrectValidationPath = validationPaths.Any(t => t == validationPath);
+                Assert.True(hasCorrectValidationPath,"None of the errors has expected validation path.");
+            });
+        }
+
+        [Fact]
+        public void Feature_Validation_ComplexExpressionInValidatorValue()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidatorValueComplexExpressions);
+                var textbox = browser.Single("textbox", SelectByDataUi);
+                var grid = browser.Single("grid", SelectByDataUi);
+                var button = browser.Single("button", SelectByDataUi);
+                var validationSummary = browser.Single("summary", SelectByDataUi);
+
+                // Clear DateTime which is marked as [Required]
+                textbox.Clear();
+                // Perform postback to trigger validation
+                button.Click();
+
+                AssertUI.HasClass(textbox, "error");
+                Assert.Equal(2, validationSummary.Children.Count);
             });
         }
 

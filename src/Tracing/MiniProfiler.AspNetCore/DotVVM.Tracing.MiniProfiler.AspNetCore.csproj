@@ -1,30 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-	<AssemblyTitle>DotVVM.Tracing.MiniProfiler.AspNetCore</AssemblyTitle>
-    <VersionPrefix>3.2.0</VersionPrefix>
-    <TargetFrameworks>netstandard2.1</TargetFrameworks>
+    <AssemblyTitle>DotVVM.Tracing.MiniProfiler.AspNetCore</AssemblyTitle>
+    <TargetFrameworks>netstandard2.1;net6.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.Tracing.MiniProfiler.AspNetCore</PackageId>
-    <PackageVersion>3.2.0</PackageVersion>
-    <Authors>RIGANTI</Authors>
     <Description>MiniProfiler Tracing module for ASP.NET Core and DotVVM</Description>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>dotvvm;asp.net;mvvm;owin</PackageTags>
-    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
     <DefineConstants>TRACE;AspNetCore</DefineConstants>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="../../Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MiniProfiler.AspNetCore" Version="4.2.22" />
   </ItemGroup>
   <Import Project="..\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems" Label="Shared" />

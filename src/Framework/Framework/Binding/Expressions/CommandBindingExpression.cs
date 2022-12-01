@@ -13,6 +13,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding.Expressions
@@ -34,14 +35,49 @@ namespace DotVVM.Framework.Binding.Expressions
             AddNullResolvers();
         }
 
+        private protected MaybePropValue<CommandJavascriptBindingProperty> commandJs;
+        private protected MaybePropValue<IdBindingProperty> id;
+        private protected MaybePropValue<ActionFiltersBindingProperty> actionFilters;
+
+        private protected override void StoreProperty(object p)
+        {
+            if (p is CommandJavascriptBindingProperty commandJs)
+                this.commandJs.SetValue(new(commandJs));
+            if (p is IdBindingProperty id)
+                this.id.SetValue(new(id));
+            if (p is ActionFiltersBindingProperty actionFilters)
+                this.actionFilters.SetValue(new(actionFilters));
+            else
+                base.StoreProperty(p);
+        }
+
+        public override object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        {
+            if (type == typeof(CommandJavascriptBindingProperty))
+                return commandJs.GetValue(this).GetValue(errorMode, this, type);
+            if (type == typeof(IdBindingProperty))
+                return id.GetValue(this).GetValue(errorMode, this, type);
+            if (type == typeof(ActionFiltersBindingProperty))
+                return actionFilters.GetValue(this).GetValue(errorMode, this, type);
+            return base.GetProperty(type, errorMode);
+        }
+
+        private protected override IEnumerable<object?> GetOutOfDictionaryProperties() =>
+            base.GetOutOfDictionaryProperties().Concat(new object?[] {
+                commandJs.Value.Value,
+                id.Value.Value,
+                actionFilters.Value.Value,
+            });
+
+
         public ImmutableArray<IActionFilter> ActionFilters =>
-            this.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull)?.Filters ?? ImmutableArray<IActionFilter>.Empty;
+            actionFilters.GetValueOrNull(this)?.Filters ?? ImmutableArray<IActionFilter>.Empty;
 
-        public ParametrizedCode CommandJavascript => this.GetProperty<CommandJavascriptBindingProperty>().Code;
+        public ParametrizedCode CommandJavascript => commandJs.GetValueOrThrow(this).Code;
 
-        public string BindingId => this.GetProperty<IdBindingProperty>().Id;
+        public string BindingId => id.GetValueOrThrow(this).Id;
 
-        public BindingDelegate BindingDelegate => this.GetProperty<BindingDelegate>();
+        public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
@@ -49,24 +85,36 @@ namespace DotVVM.Framework.Binding.Expressions
 
             public class Methods
             {
-                public CommandJavascriptBindingProperty CreateJs(IdBindingProperty id, ExpectedTypeBindingProperty? expectedType = null) =>
+                public CommandJavascriptBindingProperty CreateJs(IdBindingProperty id, CastedExpressionBindingProperty? expression = null) =>
                     new CommandJavascriptBindingProperty(CreateJsPostbackInvocation(
                         id.Id,
-                        needsCommandArgs: expectedType?.Type?.GetDelegateArguments()?.Length.Apply(len => len != 0)
+                        needsCommandArgs: expression?.Expression.Type?.GetDelegateArguments()?.Length.Apply(len => len != 0)
                     ));
 
                 public ExpectedTypeBindingProperty GetExpectedType(AssignedPropertyBindingProperty? property = null)
                 {
                     var prop = property?.DotvvmProperty;
-                    if (prop == null) return new ExpectedTypeBindingProperty(typeof(Command));
 
-                    return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(Command)) : prop.PropertyType);
+                    var type = prop is null ? null :
+                               prop.IsBindingProperty ? prop.PropertyType.GenericTypeArguments.SingleOrDefault() :
+                               prop.PropertyType;
+
+                    // replace object with Command, we can't produce anything else than a delegate from a command binding
+                    if (type is null || type == typeof(object))
+                        type = typeof(Delegate);
+                    
+                    if (!type.IsDelegate())
+                    {
+                        // can I just throw an exception here?
+                        throw new Exception($"Command binding can only be used in properties of a delegate type (or ICommandBinding). Property {prop} has type {prop?.PropertyType.ToCode()}.");
+                    }
+
+                    return new ExpectedTypeBindingProperty(type);
                 }
             }
         }
 
         public static CodeSymbolicParameter PostbackOptionsParameter = new CodeSymbolicParameter("CommandBindingExpression.PostbackOptionsParameter");
-        public static CodeSymbolicParameter SenderElementParameter = new CodeSymbolicParameter("CommandBindingExpression.SenderElementParameter");
         public static CodeSymbolicParameter CurrentPathParameter = new CodeSymbolicParameter("CommandBindingExpression.CurrentPathParameter");
         public static CodeSymbolicParameter CommandIdParameter = new CodeSymbolicParameter("CommandBindingExpression.CommandIdParameter");
         public static CodeSymbolicParameter ControlUniqueIdParameter = new CodeSymbolicParameter("CommandBindingExpression.ControlUniqueIdParameter");
@@ -78,7 +126,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         private static ParametrizedCode createJavascriptPostbackInvocation(JsExpression? commandArgs) =>
             new JsIdentifierExpression("dotvvm").Member("postBack").Invoke(
-                new JsSymbolicParameter(SenderElementParameter),
+                new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter),
                 new JsSymbolicParameter(CurrentPathParameter),
                 new JsSymbolicParameter(CommandIdParameter),
                 new JsSymbolicParameter(ControlUniqueIdParameter),

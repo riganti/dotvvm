@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Commands;
 using DotVVM.Framework.Utils;
 
@@ -45,15 +47,14 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var additionalInfos = InfoLoaders.Select(info => info(exception))
                 .Where(info => info != null && info.Objects != null).ToArray()
                 .Union(InfoCollectionLoader.Select(infoCollection => infoCollection(exception))
-                    .Where(infoCollection => infoCollection != null)
-                    .SelectMany(infoCollection => infoCollection)
+                    .SelectMany(infoCollection => infoCollection ?? Enumerable.Empty<ExceptionAdditionalInfo>())
                     .Where(info => info != null && info.Objects != null).ToArray())
                 .ToArray();
 
             stack.Reverse();
 
             var m = new ExceptionModel(
-                exception.GetType().FullName,
+                exception.GetType().FullName ?? "Unknown exception",
                 exception.Message,
                 stack.ToArray(),
                 exception,
@@ -87,7 +88,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static IFrameMoreInfo? CreateDotvvmDocsLink(StackFrameModel frame)
         {
-            const string DotvvmThumb = "https://dotvvm.com/Content/assets/ico/favicon.png";
+            const string DotvvmThumb = "https://www.dotvvm.com/wwwroot/Images/favicons/favicon-16x16.png";
             var type = frame.Method?.DeclaringType;
             if (type == null) return null;
             while (type.DeclaringType != null) type = type.DeclaringType;
@@ -102,28 +103,28 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static IFrameMoreInfo? CreateGithubLink(StackFrameModel frame)
         {
-            const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/master/src/";
-            const string Octocat = @"https://assets-cdn.github.com/favicon.ico";
+            const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/main/";
+            const string Octocat = @"https://github.githubassets.com/favicons/favicon.png";
             if (frame.Method?.DeclaringType?.Assembly == typeof(ErrorFormatter).Assembly)
             {
-                var fileName = frame.At?.FileName;
+                var fileName = frame.At?.FileName?.Replace('\\', '/').TrimStart('/');
                 // dotvvm github
                 if (!string.IsNullOrEmpty(fileName))
                 {
                     var urlFileName =
                         fileName.Substring(
-                            fileName.LastIndexOf("DotVVM.Framework", StringComparison.Ordinal));
-                    var url = GithubUrl + fileName.Replace('\\', '/').TrimStart('/') + "#L" + frame.At!.LineNumber;
+                            fileName.LastIndexOf("src/Framework", StringComparison.Ordinal));
+                    var url = GithubUrl + urlFileName + "#L" + frame.At!.LineNumber;
                     return FrameMoreInfo.CreateThumbLink(url, Octocat);
                 }
                 else
                 {
                     // guess by method name
-                    var urlFileName = frame.Method.DeclaringType.FullName.Replace("DotVVM.Framework", "")
+                    var urlFileName = frame.Method.DeclaringType.FullName!.Replace("DotVVM.Framework", "")
                         .Replace('.', '/');
                     if (urlFileName.Contains("+"))
                         urlFileName = urlFileName.Remove(urlFileName.IndexOf('+')); // remove nested class
-                    var url = GithubUrl + "DotVVM.Framework" + urlFileName + ".cs";
+                    var url = GithubUrl + "src/Framework/Framework" + urlFileName + ".cs";
                     return FrameMoreInfo.CreateThumbLink(url, Octocat);
                 }
             }
@@ -185,7 +186,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             const string DotNetIcon = "http://referencesource.microsoft.com/favicon.ico";
             const string SourceUrl = "http://referencesource.microsoft.com/";
             if (frame.Method?.DeclaringType?.Assembly != null &&
-                ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.Assembly.GetName().Name))
+                ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.Assembly.GetName().Name ?? ""))
             {
                 if (!String.IsNullOrEmpty(frame.At?.FileName))
                 {
@@ -203,7 +204,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     else
                     {
                         var url = SourceUrl + "#q=" +
-                                  WebUtility.HtmlEncode(frame.Method.DeclaringType.FullName.Replace('+', '.') + "." +
+                                  WebUtility.HtmlEncode(frame.Method.DeclaringType.FullName!.Replace('+', '.') + "." +
                                                         frame.Method.Name);
                         return FrameMoreInfo.CreateThumbLink(url, DotNetIcon);
                     }
@@ -214,9 +215,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static string GetGenericFullName(Type type)
         {
-            if (!type.IsGenericType) return type.FullName;
+            var name = type.FullName ?? type.Name;
+            if (!type.IsGenericType) return name;
 
-            var name = type.FullName;
             name = name.Remove(name.IndexOf("`", StringComparison.Ordinal));
             var typeInfo = type.GetTypeInfo();
 
@@ -239,11 +240,10 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         public List<Func<Exception, ExceptionAdditionalInfo?>> InfoLoaders = new();
 
-        public void AddInfoLoader<T>(Func<T, ExceptionAdditionalInfo> func)
-            where T : Exception
+        public void AddInfoLoader<T>(Func<T, ExceptionAdditionalInfo?> func)
         {
             InfoLoaders.Add(e => {
-                if (e is T) return func((T)e);
+                if (e is T t) return func(t);
                 else return null;
             });
         }
@@ -304,24 +304,44 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var template = new ErrorPageTemplate(
                 formatters: Formatters
                     .Select(f => f(exception, context))
-                    .Concat(context.GetEnvironmentTabs().Select(o => DictionarySection.Create(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
+                    .Concat(context.GetEnvironmentTabs().Select(o => new DictionarySection<string, object>(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
                     .Where(t => t != null)
                     .ToArray()!,
                 errorCode: context.Response.StatusCode,
                 errorDescription: "Unhandled exception occurred",
-                summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600));
+                summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600),
+                context: DotvvmRequestContext.TryGetCurrent(context),
+                exception: exception);
 
             return template.TransformText();
         }
 
-        static (string name, object value) StripBindingProperty(string name, object value)
+        static (string name, object? value) StripBindingProperty(string name, object value)
         {
             var t = value.GetType();
-            var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (fields.Length != 1 || !fields[0].IsInitOnly)
+            var props = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (props.Length != 1)
                 return (name, value);
 
-            return (name + "." + fields[0].Name, fields[0].GetValue(value));
+            return (name + "." + props[0].Name, props[0].GetValue(value));
+        }
+
+        private static ExceptionModel LoadDemystifiedException(ErrorFormatter formatter, Exception exception)
+        {
+            return formatter.LoadException(exception,
+                stackFrameGetter: ex => {
+                    var rawStackTrace = new StackTrace(ex, true).GetFrames();
+                    if (rawStackTrace == null) return null; // demystifier throws in these cases
+                    try
+                    {
+                        return new EnhancedStackTrace(ex).GetFrames();
+                    }
+                    catch
+                    {
+                        return rawStackTrace;
+                    }
+                },
+                methodFormatter: f => (f as EnhancedStackFrame)?.MethodInfo?.ToString());
         }
 
 
@@ -329,39 +349,81 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             var f = new ErrorFormatter();
             f.Formatters.Add((e, o) => DotvvmMarkupErrorSection.Create(e));
-            f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadException(e), "Raw Stack Trace", "raw_stack_trace"));
-            f.Formatters.Add((e, o) => DictionarySection.Create("Cookies", "cookies", o.Request.Cookies));
-            f.Formatters.Add((e, o) => DictionarySection.Create("Request Headers", "reqHeaders", o.Request.Headers));
             f.Formatters.Add((e, o) => {
-                var b = e.AllInnerExceptions().OfType<BindingPropertyException>().Select(a => a.Binding).OfType<ICloneableBinding>().FirstOrDefault();
+                try
+                {
+                    return new ExceptionSectionFormatter(LoadDemystifiedException(f, e));
+                }
+                catch
+                {
+                    return null; // just ignore errors from the demystifier
+                }
+            });
+
+            f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadException(e), "Raw Stack Trace", "raw_stack_trace"));
+            f.Formatters.Add((e, o) => {
+                var b = e.AllInnerExceptions().OfType<IDotvvmException>().Select(a => a.RelatedBinding).OfType<ICloneableBinding>().FirstOrDefault();
                 if (b == null) return null;
-                return DictionarySection.Create("Binding", "binding",
-                    new []{ new KeyValuePair<object, object>("Type", b.GetType().FullName) }
+                return new DictionarySection<object, object?>("Binding", "binding",
+                    new []{ new KeyValuePair<object, object?>("Type", b.GetType().FullName!) }
                     .Concat(
                         b.GetAllComputedProperties()
                         .Select(a => StripBindingProperty(a.GetType().Name, a))
-                        .Select(a => new KeyValuePair<object, object>(a.name, a.value))
+                        .Select(a => new KeyValuePair<object, object?>(a.name, a.value))
                     ).ToArray());
             });
+            f.Formatters.Add((e, o) => new CookiesSection(o.Request.Cookies));
+            f.Formatters.Add((e, o) => new DictionarySection<string, string>(
+                "Assemblies",
+                "assemblies",
+                AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name != null).OrderBy(a => a.GetName().Name).Select(a => {
+                    var info = a.GetName();
+                    var versionString = (info.Version != null) ? info.Version.ToString() : "unknown version";
+                    var cultureString = (info.CultureInfo != null) ? info.CultureInfo.DisplayName : "unknown culture";
+                    var publicKeyString = (info.GetPublicKeyToken() != null) ? info.GetPublicKeyToken()!
+                        .Select(b => string.Format("{0:x2}", b)).StringJoin(string.Empty) : "unknown public key";
+
+                    return new KeyValuePair<string, string>(info.Name!,
+                        $"Version={versionString}, Culture={cultureString}, PublicKeyToken={publicKeyString}");
+                })
+            ));
+            f.Formatters.Add((e, o) => new DictionarySection<string, string[]>(
+                "Request Headers",
+                "reqHeaders",
+                o.Request.Headers.Select(h =>
+                    h.Key.Equals("Cookie", StringComparison.OrdinalIgnoreCase) ?
+                        new ("Cookie", new [] {"<redacted, see Cookies tab or devtools>"}) :
+                        h)
+            ));
             f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo(
                 "Loader Exceptions",
-                e.LoaderExceptions.Select(lde => lde.GetType().Name + ": " + lde.Message).ToArray(),
+                e.LoaderExceptions.Select(lde => lde!.GetType().Name + ": " + lde.Message).ToArray(),
                 ExceptionAdditionalInfo.DisplayMode.ToString
             ));
             f.AddInfoLoader<DotvvmCompilationException>(e => {
-                var info = new ExceptionAdditionalInfo(
-                    "DotVVM Compiler",
-                    null,
-                    ExceptionAdditionalInfo.DisplayMode.ToString
-                );
+                object[]? objects = null;
                 if (e.Tokens != null && e.Tokens.Any())
                 {
-                    info.Objects = new object[]
+                    objects = new object[]
                     {
                         $"Error in '{string.Concat(e.Tokens.Select(t => t.Text))}' at line {e.Tokens.First().LineNumber} in {e.SystemFileName}"
                     };
                 }
-                return info;
+                return new ExceptionAdditionalInfo(
+                    "DotVVM Compiler",
+                    objects,
+                    ExceptionAdditionalInfo.DisplayMode.ToString
+                );
+            });
+            f.AddInfoLoader<IDotvvmException>(e => {
+                var control = e.RelatedControl;
+                if (control is null)
+                    return null;
+                return new ExceptionAdditionalInfo(
+                    "Control Hierarchy",
+                    control.GetAllAncestors(includingThis: true).Select(c => c.DebugString(useHtml: true, multiline: false)).ToArray(),
+                    ExceptionAdditionalInfo.DisplayMode.ToHtmlListUnencoded
+                );
             });
 
             f.AddInfoCollectionLoader<InvalidCommandInvocationException>(e => {

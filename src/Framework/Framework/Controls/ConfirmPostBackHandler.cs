@@ -29,9 +29,13 @@ namespace DotVVM.Framework.Controls
             = DotvvmProperty.Register<string?, ConfirmPostBackHandler>(c => c.Message, null);
 
         public ConfirmPostBackHandler() { }
+        public ConfirmPostBackHandler(ValueOrBinding<string> message)
+        {
+            this.SetValue(MessageProperty, message);
+        }
         public ConfirmPostBackHandler(string message)
         {
-            this.Message = message;
+            this.SetValue(MessageProperty, message);
         }
     }
 }

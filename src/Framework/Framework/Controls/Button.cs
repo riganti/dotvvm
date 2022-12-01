@@ -9,6 +9,7 @@ using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -49,10 +50,33 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public Button() : base("input")
         {
-            if (ButtonTagName == ButtonTagName.button)
-            {
-                TagName = "button";
-            }
+        }
+
+        public Button(
+            ValueOrBinding<string> text,
+            ICommandBinding click,
+            ButtonTagName tagName = ButtonTagName.input
+        ) : this(new TextOrContentCapability(text), click, tagName)
+        {
+        }
+
+        public Button(
+            string text,
+            ICommandBinding click,
+            ButtonTagName tagName = ButtonTagName.input
+        ) : this(new TextOrContentCapability(text), click, tagName)
+        {
+        }
+
+        public Button(
+            TextOrContentCapability content,
+            ICommandBinding click,
+            ButtonTagName tagName = ButtonTagName.button
+        ) : base(tagName == ButtonTagName.input ? "input" : "button")
+        {
+            content.WriteToChildren(this, TextProperty);
+            SetBinding(ClickProperty, click);
+            ButtonTagName = tagName;
         }
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)

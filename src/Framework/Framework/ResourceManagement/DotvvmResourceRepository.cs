@@ -12,6 +12,7 @@ using DotVVM.Framework.Routing;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Configuration;
 using System.Collections;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -37,7 +38,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         [JsonIgnore]
         public IList<IResourceProcessor> DefaultResourceProcessors => _defaultResourceProcessors;
-        // The resource processors can not be changed after init
+        // The resource processors cannot be changed after init
         private readonly FreezableList<IResourceProcessor> _defaultResourceProcessors = new FreezableList<IResourceProcessor>();
 
         /// <summary>
@@ -87,7 +88,7 @@ namespace DotVVM.Framework.ResourceManagement
             }
             else if (!_resources.TryAdd(name, resource))
             {
-                throw new InvalidOperationException($"A resource with the name '{name}' is already registered!");
+                throw new ResourceRegistrationConflictException(name, _resources[name], resource);
             }
         }
 
@@ -107,7 +108,7 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 if (linkResource.Location == null)
                 {
-                    throw new DotvvmLinkResourceException($"The Location property of the resource '{name}' is not set.");
+                    throw new DotvvmLinkResourceException($"The Location property of the resource '{name}' is not set.", resource);
                 }
             }
         }
@@ -119,7 +120,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             ValidateResourceName(name);
             // rewrite is allowed only if it's not frozen
-            if (this.isFrozen)
+            if (!this.isFrozen)
                 _parents[name] = parent;
             else
             {
@@ -160,7 +161,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             var r = FindResource(name);
             if (r is null)
-                throw new Exception($"Could not find resource {name}");
+                throw new ResourceManager.ResourceNotFoundException(name);
             return new NamedResource(name, r);
         }
 
@@ -175,6 +176,12 @@ namespace DotVVM.Framework.ResourceManagement
         {
             this.isFrozen = true;
             this._defaultResourceProcessors.Freeze();
+        }
+
+        public record ResourceRegistrationConflictException(string Name, IResource OldResource, IResource NewResource)
+            : DotvvmExceptionBase(RelatedResource: OldResource)
+        {
+            public override string Message => $"Different resource with the same name '{Name}' is already registered!";
         }
     }
 }

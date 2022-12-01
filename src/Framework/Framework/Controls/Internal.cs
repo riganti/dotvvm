@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Hosting;
@@ -61,6 +62,9 @@ namespace DotVVM.Framework.Controls
         public static DotvvmProperty ReferencedViewModuleInfoProperty =
             DotvvmProperty.Register<ViewModuleReferenceInfo, Internal>(() => ReferencedViewModuleInfoProperty);
 
+        public static DotvvmProperty UsedPropertiesInfoProperty =
+            DotvvmProperty.Register<ControlUsedPropertiesInfo, Internal>(() => UsedPropertiesInfoProperty);
+
         public static bool IsViewCompilerProperty(DotvvmProperty property)
         {
             return property.DeclaringType == typeof(Internal);
@@ -70,8 +74,31 @@ namespace DotVVM.Framework.Controls
     public static class InternalPropertyExtensions
     {
         /// Gets an expected data context type (usually determined by the compiler)
-        public static DataContextStack? GetDataContextType(this DotvvmBindableObject obj) => (DataContextStack?)obj.GetValue(Internal.DataContextTypeProperty);
+        public static DataContextStack? GetDataContextType(this DotvvmBindableObject? obj)
+        {
+            for (; obj != null; obj = obj.Parent)
+            {
+                if (obj.properties.TryGet(Internal.DataContextTypeProperty, out var v))
+                    return (DataContextStack?)v;
+            }
+            return null;
+        }
+        public static DataContextStack? GetDataContextType(this DotvvmBindableObject obj, bool inherit)
+        {
+            if (inherit)
+                return obj.GetDataContextType();
+            else if (obj.properties.TryGet(Internal.DataContextTypeProperty, out var v))
+                return (DataContextStack?)v;
+            else
+                return null;
+        }
+
         /// Sets an expected data context type
-        public static void SetDataContextType(this DotvvmBindableObject obj, DataContextStack? stack) => obj.SetValue(Internal.DataContextTypeProperty, stack);
+        public static TControl SetDataContextType<TControl>(this TControl control, DataContextStack? stack)
+            where TControl : DotvvmBindableObject
+        {
+            control.properties.Set(Internal.DataContextTypeProperty, stack);
+            return control;
+        }
     }
 }

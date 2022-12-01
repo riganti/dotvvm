@@ -7,7 +7,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
-    public class KnockoutObservableHandlingVisitor : JsNodeVisitor
+    public sealed class KnockoutObservableHandlingVisitor : JsNodeVisitor
     {
         private readonly bool AllowObservableResult;
 
@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             this.AllowObservableResult = allowObservableResult;
         }
 
-        private bool IsObservableResult(JsNode node) => node.HasAnnotation<ResultIsObservableAnnotation>() || node.HasAnnotation<ResultMayBeObservableAnnotation>();
+        private bool IsObservableResult(JsNode node) => node.HasAnnotation(ResultIsObservableAnnotation.Instance) || node.HasAnnotation(ResultMayBeObservableAnnotation.Instance);
 
         protected override void DefaultVisit(JsNode node)
         {
@@ -32,33 +32,33 @@ namespace DotVVM.Framework.Compilation.Javascript
                 node.ReplaceWith(_ => transform.TransformExpression(expression2));
             }
 
-            if (node is JsExpression expression && IsObservableResult(node) && !node.Parent!.HasAnnotation<ObservableUnwrapInvocationAnnotation>() && !(node.Role == JsAssignmentExpression.LeftRole && node.Parent is JsAssignmentExpression) && node.Parent != null)
+            if (node is JsExpression expression && IsObservableResult(node) && !node.Parent!.HasAnnotation(ObservableUnwrapInvocationAnnotation.Instance) && !(node.Role == JsAssignmentExpression.LeftRole && node.Parent is JsAssignmentExpression) && node.Parent != null)
             {
                 if (ShouldUnwrap(node))
                 {
                     // may be null is copied to the observable result
-                    node.ReplaceWith(_ => KoUnwrap(expression, expression, !node.HasAnnotation<ResultIsObservableAnnotation>()));
-                    node.RemoveAnnotations<MayBeNullAnnotation>();
+                    node.ReplaceWith(_ => KoUnwrap(expression, expression, !node.HasAnnotation(ResultIsObservableAnnotation.Instance)));
+                    node.RemoveAnnotation(MayBeNullAnnotation.Instance);
                 }
                 else
                 {
                     // may be null means that the value in the observable may be null. Which is not unwrapped, so the annotation is removed.
-                    node.RemoveAnnotations<MayBeNullAnnotation>();
+                    node.RemoveAnnotation(MayBeNullAnnotation.Instance);
                 }
             }
-            else if (node is JsSymbolicParameter sp && sp.Symbol == JavascriptTranslator.KnockoutViewModelParameter && !ShouldUnwrap(node))
+            else if (node is JsSymbolicParameter sp && sp.Symbol is JavascriptTranslator.ViewModelSymbolicParameter vm && !ShouldUnwrap(node))
             {
-                node.ReplaceWith(new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$rawData"));
+                node.ReplaceWith(new JsSymbolicParameter(vm.WithReturnsObservable(true)));
             }
         }
 
         private bool ShouldUnwrap(JsNode node) =>
             !(AllowObservableResult && node.IsRootResultExpression()) &&
-            !node.SatisfyResultCondition(n => n.HasAnnotation<ShouldBeObservableAnnotation>());
+            !node.SatisfyResultCondition(n => n.HasAnnotation(ShouldBeObservableAnnotation.Instance));
 
         public override void VisitAssignmentExpression(JsAssignmentExpression assignmentExpression)
         {
-            if (assignmentExpression.Left.HasAnnotation<ResultMayBeObservableAnnotation>())
+            if (assignmentExpression.Left.HasAnnotation(ResultMayBeObservableAnnotation.Instance))
                 throw new NotSupportedException($"Can't assign value to expression {assignmentExpression.Left}, as it may be knockout observable but is not guaranteed to be.");
 
 
@@ -68,12 +68,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             JsNode resultExpression;
             // change assignment to observable property to observable invocation
             // only do for ResultIsObservable, not ResultMayBeObservable
-            if (assignmentExpression.Left.HasAnnotation<ResultIsObservableAnnotation>())
+            if (assignmentExpression.Left.HasAnnotation(ResultIsObservableAnnotation.Instance))
             {
-                var resultType = assignmentExpression.GetResultType().NotNull("Can not process assignment operator with unknown type.");
+                var resultType = assignmentExpression.GetResultType().NotNull("Cannot process assignment operator with unknown type.");
                 var value = assignmentExpression.Right.Detach();
                 var assignee = assignmentExpression.Left.Detach();
-                assignee.RemoveAnnotations<ResultIsObservableAnnotation>();
+                assignee.RemoveAnnotation(ResultIsObservableAnnotation.Instance);
                 if (value.IsComplexType() || assignee.IsComplexType())
                     resultExpression = assignmentExpression.ReplaceWith(_ => new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(value, assignee, new JsLiteral(true))
                                                                              .WithAnnotation(ResultIsObservableAnnotation.Instance));
@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                         value = new JsIdentifierExpression("dotvvm").Member("serialization").Member("serializeDate").Invoke(value, new JsLiteral(false));
 
                     // A = B -> A(B)
-                    assignee.RemoveAnnotations<MayBeNullAnnotation>();
+                    assignee.RemoveAnnotation(MayBeNullAnnotation.Instance);
                     JsExpression newExpression = new JsInvocationExpression(assignee, value)
                         .WithAnnotation(ObservableSetterInvocationAnnotation.Instance);
                     if (!assignmentExpression.IsResultIgnored())
@@ -104,7 +104,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     resultExpression = newExpression;
                 }
 
-                resultExpression.WithAnnotation(assignmentExpression.Annotation<ShouldBeObservableAnnotation>());
+                resultExpression.WithConditionalAnnotation(assignmentExpression.HasAnnotation(ShouldBeObservableAnnotation.Instance), ShouldBeObservableAnnotation.Instance);
             }
             else if (assignmentExpression.Left.GetResultType() is ViewModelInfoAnnotation { ContainsObservables: true } && assignmentExpression.Left.IsComplexType())
             {
@@ -126,6 +126,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             expr.WithAnnotation(expr is JsInvocationExpression ? ObservableUnwrapInvocationAnnotation.Instance : null)
                 .WithAnnotation(originalNode.Annotation<VMPropertyInfoAnnotation>())
                 .WithAnnotation(originalNode.Annotation<ViewModelInfoAnnotation>())
-                .WithAnnotation(originalNode.Annotation<MayBeNullAnnotation>());
+                .WithConditionalAnnotation(originalNode.HasAnnotation(MayBeNullAnnotation.Instance), MayBeNullAnnotation.Instance);
     }
 }

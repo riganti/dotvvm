@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
@@ -24,6 +25,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public string Name => controlType.Type.Name;
 
+        public string? PrimaryName { get; }
+
+        public HashSet<string>? AlternativeNames { get; }
+
         [JsonIgnore]
         public ITypeDescriptor Type => controlType.Type;
 
@@ -31,6 +36,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         [JsonIgnore]
         public IEnumerable<string> PropertyNames => Properties.Keys;
+
+        public ControlPrecompilationMode PrecompilationMode => attribute?.Precompile ?? ControlPrecompilationMode.Never;
 
         public bool TryGetProperty(string name, [NotNullWhen(true)] out IPropertyDescriptor? value)
         {
@@ -40,7 +47,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public bool IsContentAllowed =>
             (attribute?.AllowContent ?? true) &&
             Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IDotvvmControl))) &&
-            // composite controls can not contain children, only content properties
+            // composite controls cannot contain children, only content properties
             !Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(CompositeControl)));
 
         [JsonIgnore]
@@ -48,20 +55,20 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             get
             {
-                IPropertyDescriptor result;
-                if (Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(CompositeControl))))
-                {
-                    // properties Content and ContentTemplate are used as content by default, if they exist
-                    if (Properties.TryGetValue("Content", out result))
-                        return result;
-                    if (Properties.TryGetValue("ContentTemplate", out result))
-                        return result;
-                }
+                IPropertyDescriptor? result;
 
                 var prop = attribute?.DefaultContentProperty;
-
                 if (string.IsNullOrEmpty(prop))
                 {
+                    if (Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(CompositeControl))))
+                    {
+                        // properties Content and ContentTemplate are used as content by default, if they exist
+                        if (Properties.TryGetValue("Content", out result))
+                            return result;
+                        if (Properties.TryGetValue("ContentTemplate", out result))
+                            return result;
+                    }
+                    
                     return null;
                 }
 
@@ -92,7 +99,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.attribute = controlType?.Type?.GetControlMarkupOptionsAttribute();
 
             this.properties = new Lazy<Dictionary<string, IPropertyDescriptor>>(() => {
-                var result = new Dictionary<string, IPropertyDescriptor>(StringComparer.CurrentCultureIgnoreCase);
+                var result = new Dictionary<string, IPropertyDescriptor>(StringComparer.OrdinalIgnoreCase);
                 LoadProperties(result);
                 return result;
             });
@@ -102,6 +109,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 LoadPropertyGroups(propertyGroups);
                 return propertyGroups;
             });
+
+            PrimaryName = attribute?.PrimaryName;
+            AlternativeNames = attribute?.AlternativeNames?.ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
         protected abstract void LoadProperties(Dictionary<string, IPropertyDescriptor> result);

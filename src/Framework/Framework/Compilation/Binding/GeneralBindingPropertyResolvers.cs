@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -19,6 +19,7 @@ using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Collections.Concurrent;
+using DotVVM.Framework.Binding.HelperNamespace;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -52,7 +53,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         public Expression<BindingDelegate> CompileToDelegate(
-            CastedExpressionBindingProperty expression, DataContextStack dataContext)
+            CastedExpressionBindingProperty expression, DataContextStack? dataContext = null)
         {
             var expr = BindingCompiler.ReplaceParameters(expression.Expression, dataContext);
             expr = new ExpressionNullPropagationVisitor(e => true).Visit(expr);
@@ -67,7 +68,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return new CastedExpressionBindingProperty(
                 // if the expression is of type object (i.e. null literal) try the lambda conversion.
                 convertedExpr != null && expr.Expression.Type != typeof(object) ? convertedExpr :
-                TypeConversion.MagicLambdaConversion(expr.Expression, destType) ??
+                TypeConversion.MagicLambdaConversion(expr.Expression, destType) ?? convertedExpr ??
                 TypeConversion.ImplicitConversion(expr.Expression, destType, throwException: true, allowToString: true)!
             );
         }
@@ -91,6 +92,19 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public BindingParserOptions GetDefaultBindingParserOptions(IBinding binding)
         {
+            if (binding is ResourceBindingExpression)
+                return BindingParserOptions.Resource;
+            if (binding is StaticCommandBindingExpression)
+                return BindingParserOptions.StaticCommand;
+            if (binding is ControlPropertyBindingExpression)
+                return BindingParserOptions.ControlProperty;
+            if (binding is ValueBindingExpression)
+                return BindingParserOptions.Value;
+            if (binding is ControlCommandBindingExpression)
+                return BindingParserOptions.ControlCommand;
+            if (binding is CommandBindingExpression)
+                return BindingParserOptions.Command;
+
             return new BindingParserOptions(binding.GetType());
         }
 
@@ -158,25 +172,13 @@ namespace DotVVM.Framework.Compilation.Binding
             return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(object)) : prop.PropertyType);
         }
 
-        public BindingResolverCollection GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty? property = null, DataContextStack? stack = null)
-        {
-            var prop = property?.DotvvmProperty;
-            if (prop == null) return new BindingResolverCollection(Enumerable.Empty<Delegate>());
-
-            return new BindingResolverCollection(
-                prop.GetAttributes<BindingCompilationOptionsAttribute>()
-                .SelectMany(o => o.GetResolvers())
-                .Concat(stack?.EnumerableItems().Reverse().SelectMany(s => s.BindingPropertyResolvers) ?? Enumerable.Empty<Delegate>())
-                .ToImmutableArray());
-        }
-
         public BindingCompilationRequirementsAttribute GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property)
         {
             var prop = property?.DotvvmProperty;
-            if (prop == null) return new BindingCompilationRequirementsAttribute();
+            if (prop == null) return BindingCompilationRequirementsAttribute.Empty;
 
             return
-                new[] { new BindingCompilationRequirementsAttribute() }
+                new[] { BindingCompilationRequirementsAttribute.Empty }
                 .Concat(prop.GetAttributes<BindingCompilationRequirementsAttribute>())
                 .Aggregate((a, b) => a.ApplySecond(b));
         }
@@ -189,7 +191,7 @@ namespace DotVVM.Framework.Compilation.Binding
             ParsedExpressionBindingProperty? expression = null,
             DataContextStack? dataContext = null,
             ResolvedBinding? resolvedBinding = null,
-            LocationInfoBindingProperty? locationInfo = null)
+            DotvvmLocationInfo? locationInfo = null)
         {
             var sb = new StringBuilder();
 
@@ -243,22 +245,49 @@ namespace DotVVM.Framework.Compilation.Binding
         public NegatedBindingExpression NegateBinding(ParsedExpressionBindingProperty e, IBinding binding)
         {
             return new NegatedBindingExpression(binding.DeriveBinding(
-                new ParsedExpressionBindingProperty(
-                    // Not, Equals and NotEquals are safe to optimize for both .NET and Javascript (if that the negated value was already a boolean)
-                    // but comparison operators are not safe to optimize as `null > 0` and `null <= 0` are both true on .NET (not JS, so it's possible to optimize this in the JsAST)
-                    // On the other hand it would not be possible to optimize Not(Not(...)) in the JsAST, because you can't be so sure about the type of the expression
-                    e.Expression.NodeType == ExpressionType.Not ? e.Expression.CastTo<UnaryExpression>().Operand :
-                    e.Expression.NodeType == ExpressionType.Equal ? e.Expression.CastTo<BinaryExpression>().UpdateType(ExpressionType.NotEqual) :
-                    e.Expression.NodeType == ExpressionType.NotEqual ? e.Expression.CastTo<BinaryExpression>().UpdateType(ExpressionType.Equal) :
-                    (Expression)Expression.Not(e.Expression)
-                )
+                // Not, Equals and NotEquals are safe to optimize for both .NET and Javascript (if that the negated value was already a boolean)
+                // but comparison operators are not safe to optimize as `null > 0` and `null <= 0` are both true on .NET (not JS, so it's possible to optimize this in the JsAST)
+                // On the other hand it would not be possible to optimize Not(Not(...)) in the JsAST, because you can't be so sure about the type of the expression
+                e.Expression.NodeType == ExpressionType.Not ? e.Expression.CastTo<UnaryExpression>().Operand :
+                e.Expression.NodeType == ExpressionType.Equal ? e.Expression.CastTo<BinaryExpression>().UpdateType(ExpressionType.NotEqual) :
+                e.Expression.NodeType == ExpressionType.NotEqual ? e.Expression.CastTo<BinaryExpression>().UpdateType(ExpressionType.Equal) :
+                (Expression)Expression.Not(e.Expression)
             ));
         }
-        public ExpectedAsStringBindingExpression ExpectAsStringBinding(ParsedExpressionBindingProperty e, IBinding binding)
+        public ExpectedAsStringBindingExpression ExpectAsStringBinding(ParsedExpressionBindingProperty e, ExpectedTypeBindingProperty expectedType, IBinding binding)
         {
-            return new ExpectedAsStringBindingExpression(binding.DeriveBinding(new ExpectedTypeBindingProperty(typeof(string)), e));
-        }
+            if (expectedType.Type == typeof(string))
+                return new(binding);
 
+            return new(binding.DeriveBinding(new ExpectedTypeBindingProperty(typeof(string)), e));
+        }
+        public IsNullBindingExpression IsNull(ParsedExpressionBindingProperty eprop, IBinding binding)
+        {
+            var e = eprop.Expression;
+            return new IsNullBindingExpression(binding.DeriveBinding(
+                e.Type.IsNullable() ? Expression.Not(Expression.Property(e, "HasValue")) :
+                e.Type.IsValueType ? Expression.Constant(false) :
+                Expression.ReferenceEqual(e, Expression.Constant(null, e.Type))
+            ));
+        }
+        public IsNullOrEmptyBindingExpression IsNullOrEmpty(ParsedExpressionBindingProperty eprop, IBinding binding)
+        {
+            var e = eprop.Expression;
+            if (e.Type != typeof(string))
+                throw new NotSupportedException($"{e} was not of type string, but {e.Type}");
+            return new IsNullOrEmptyBindingExpression(binding.DeriveBinding(
+                Expression.Call(typeof(string), "IsNullOrEmpty", Type.EmptyTypes, e)
+            ));
+        }
+        public IsNullOrWhitespaceBindingExpression IsNullOrWhitespace(ParsedExpressionBindingProperty eprop, IBinding binding)
+        {
+            var e = eprop.Expression;
+            if (e.Type != typeof(string))
+                throw new NotSupportedException($"{e} was not of type string, but {e.Type}");
+            return new IsNullOrWhitespaceBindingExpression(binding.DeriveBinding(
+                Expression.Call(typeof(string), "IsNullOrWhitespace", Type.EmptyTypes, e)
+            ));
+        }
 
         public DataSourceAccessBinding GetDataSourceAccess(ParsedExpressionBindingProperty expression, IBinding binding)
         {
@@ -268,32 +297,28 @@ namespace DotVVM.Framework.Compilation.Binding
                 )));
             else if (typeof(IEnumerable).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceAccessBinding(binding);
-            else throw new NotSupportedException($"Can not make datasource from binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
+            else throw new NotSupportedException($"Cannot make datasource from binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
         public DataSourceLengthBinding GetDataSourceLength(ParsedExpressionBindingProperty expression, IBinding binding)
         {
             if (expression.Expression.Type.Implements(typeof(ICollection), out var ifc) || expression.Expression.Type.Implements(typeof(ICollection<>), out ifc))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
-                    new ParsedExpressionBindingProperty(
-                        Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count)))
-                    )));
+                    Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count))!)
+                ));
             else if (expression.Expression.Type.Implements(typeof(IBaseGridViewDataSet), out var igridviewdataset))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
-                    new ParsedExpressionBindingProperty(
-                        Expression.Property(Expression.Property(expression.Expression, igridviewdataset.GetProperty(nameof(IBaseGridViewDataSet.Items))), typeof(ICollection).GetProperty(nameof(ICollection.Count)))
-                    )));
+                    Expression.Property(Expression.Property(expression.Expression, igridviewdataset.GetProperty(nameof(IBaseGridViewDataSet.Items))!), typeof(ICollection).GetProperty(nameof(ICollection.Count))!)
+                ));
             else if (expression.Expression.Type == typeof(string))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
-                    new ParsedExpressionBindingProperty(
-                        Expression.Property(expression.Expression, nameof(String.Length))
-                    )));
+                    Expression.Property(expression.Expression, nameof(String.Length))
+                ));
             else if (expression.Expression.Type.Implements(typeof(IEnumerable<>)))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
-                    new ParsedExpressionBindingProperty(
-                        Expression.Call(typeof(Enumerable), "Count", new[] { ReflectionUtils.GetEnumerableType(expression.Expression.Type) }, expression.Expression)
-                    )));
-            else throw new NotSupportedException($"Can not find collection length from binding '{expression.Expression}'.");
+                    Expression.Call(typeof(Enumerable), "Count", new[] { ReflectionUtils.GetEnumerableType(expression.Expression.Type)! }, expression.Expression)
+                ));
+            else throw new NotSupportedException($"Cannot find collection length from binding '{expression.Expression}'.");
         }
 
         public DataSourceCurrentElementBinding? GetDataSourceCurrentElement(ParsedExpressionBindingProperty expression, IBinding binding)
@@ -306,22 +331,29 @@ namespace DotVVM.Framework.Compilation.Binding
                 expr.Type.IsArray ?
                     Expression.ArrayIndex(expr, indexParameter()) :
                 expression.Expression.Type.Implements(typeof(IEnumerable<>), out var ienumerable) ?
-                    (Expression)Expression.Call(typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(ienumerable.GetGenericArguments()), expression.Expression, indexParameter()) :
+                    (Expression)Expression.Call(
+                        typeof(Enumerable), 
+                        "ElementAt",
+                        ienumerable.GetGenericArguments(),
+                        expression.Expression,
+                        indexParameter()
+                    ) :
                 null;
 
             if (makeIndexer(expression.Expression) is Expression r)
-                return new DataSourceCurrentElementBinding(binding.DeriveBinding(new ParsedExpressionBindingProperty(r)));
+                return new DataSourceCurrentElementBinding(binding.DeriveBinding(r));
 
             else if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceCurrentElementBinding(binding.DeriveBinding(
-                    new ParsedExpressionBindingProperty(makeIndexer(Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items))).NotNull())));
-            else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
+                    makeIndexer(Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items))).NotNull()));
+            else throw new NotSupportedException($"Cannot access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
 
-        public StaticCommandJsAstProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression) =>
+        public StaticCommandJsAstProperty CompileStaticCommand(DataContextStack dataContext, CastedExpressionBindingProperty expression) =>
             new StaticCommandJsAstProperty(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression));
 
+        [Obsolete("Deprecated in favor of StaticCommandOptionsLambdaJavascriptProperty.")]
         public StaticCommandJavascriptProperty FormatStaticCommand(StaticCommandJsAstProperty code) =>
             new StaticCommandJavascriptProperty(FormatJavascript(code.Expression, allowObservableResult: false, configuration.Debug, AddNullChecks));
 
@@ -341,11 +373,18 @@ namespace DotVVM.Framework.Compilation.Binding
             return new StaticCommandOptionsLambdaJavascriptProperty(FormatJavascript(lambda, allowObservableResult: false, configuration.Debug, AddNullChecks));
         }
 
-        public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding, AssignedPropertyBindingProperty? assignedProperty = null)
+        public DotvvmLocationInfo GetLocationInfo(ResolvedBinding resolvedBinding, AssignedPropertyBindingProperty? assignedProperty = null)
         {
-            return new LocationInfoBindingProperty(
-                resolvedBinding.TreeRoot?.FileName,
-                resolvedBinding.DothtmlNode?.Tokens?.Select(t => (t.StartPosition, t.EndPosition)).ToArray(),
+            var fileName = resolvedBinding.TreeRoot?.FileName?.Apply(p => System.IO.Path.Combine(
+                configuration.ApplicationPhysicalPath,
+                p
+            ));
+            // does not matter that this is slow, there is quite a lot of bindings and all the filenames take space
+            if (fileName is {})
+                fileName = string.Intern(fileName);
+            return new DotvvmLocationInfo(
+                fileName,
+                resolvedBinding.DothtmlNode?.Tokens?.Select(t => (t.ColumnNumber, t.ColumnNumber + t.Length)).ToArray(),
                 resolvedBinding.DothtmlNode?.Tokens?.FirstOrDefault()?.LineNumber ?? -1,
                 resolvedBinding.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata?.Type,
                 assignedProperty?.DotvvmProperty
@@ -369,7 +408,8 @@ namespace DotVVM.Framework.Compilation.Binding
         public ThisBindingProperty GetThisBinding(IBinding binding, DataContextStack stack)
         {
             var thisBinding = binding.DeriveBinding(
-                new ParsedExpressionBindingProperty(Expression.Parameter(stack.DataContextType, "_this").AddParameterAnnotation(new BindingParameterAnnotation(stack)))
+                Expression.Parameter(stack.DataContextType, "_this")
+                    .AddParameterAnnotation(new BindingParameterAnnotation(stack))
             );
 
             return new ThisBindingProperty(thisBinding);
@@ -387,8 +427,52 @@ namespace DotVVM.Framework.Compilation.Binding
         public IsMoreThanZeroBindingProperty IsMoreThanZero(ParsedExpressionBindingProperty expr, IBinding binding)
         {
             return new IsMoreThanZeroBindingProperty(binding.DeriveBinding(
-                new ParsedExpressionBindingProperty(Expression.GreaterThan(expr.Expression, Expression.Constant(0)))
+                Expression.GreaterThan(expr.Expression, Expression.Constant(0))
             ));
+        }
+
+        public ReferencedViewModelPropertiesBindingProperty GetReferencedViewModelProperties(IValueBinding binding, ParsedExpressionBindingProperty expression)
+        {
+            var allProperties = new List<PropertyInfo>();
+            var expr = expression.Expression;
+
+            expr.ForEachMember(m => {
+                if (m is PropertyInfo property)
+                {
+                    allProperties.Add(property);
+                }
+            });
+
+            while (true)
+            {
+                // unwrap type conversions, negations, ...
+                if (expr is UnaryExpression unary)
+                    expr = unary.Operand;
+                // unwrap some method invocations
+                else if (expr is MethodCallExpression boxCall && boxCall.Method.DeclaringType == typeof(BoxingUtils))
+                    expr = boxCall.Arguments.First();
+                else if (expr is MethodCallExpression { Method.Name: nameof(DateTimeExtensions.ToBrowserLocalTime) } dtMethodCall && dtMethodCall.Method.DeclaringType == typeof(DateTimeExtensions))
+                    expr = dtMethodCall.Object ?? dtMethodCall.Arguments.First();
+                else if (expr is MethodCallExpression { Method.Name: nameof(object.ToString) } toStringMethodCall)
+                    expr = toStringMethodCall.Object ?? toStringMethodCall.Arguments.First();
+                else if (expr is MethodCallExpression { Method.Name: nameof(Enums.ToEnumString) } toEnumStringMethodCall && toEnumStringMethodCall.Method.DeclaringType == typeof(Enums))
+                    expr = toEnumStringMethodCall.Object ?? toEnumStringMethodCall.Arguments.First();
+                // unwrap binary operation with a constant
+                else if (expr is BinaryExpression { Right.NodeType: ExpressionType.Constant } binaryLeft)
+                    expr = binaryLeft.Left;
+                else if (expr is BinaryExpression { Left.NodeType: ExpressionType.Constant } binaryRight)
+                    expr = binaryRight.Right;
+                else
+                    break;
+            }
+            var mainProperty = (expr as MemberExpression)?.Member as PropertyInfo;
+            var unwrappedBinding = binding.DeriveBinding(expr);
+
+            return new(
+                mainProperty,
+                allProperties.ToArray(),
+                unwrappedBinding
+            );
         }
     }
 }

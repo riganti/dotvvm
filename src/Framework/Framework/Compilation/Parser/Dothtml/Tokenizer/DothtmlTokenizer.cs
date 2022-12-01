@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
@@ -12,21 +13,36 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
     /// </summary>
     public class DothtmlTokenizer : TokenizerBase<DothtmlToken, DothtmlTokenType>
     {
-
-        private static readonly HashSet<char> AllowedAttributeFirstChars = new HashSet<char>()
+        public DothtmlTokenizer() : base(DothtmlTokenType.Text, DothtmlTokenType.WhiteSpace)
         {
-            '_', '[', '('
-        };
+        }
 
-        private static readonly HashSet<char> AllowedAttributeChars = new HashSet<char>()
+        private static bool IsAllowedAttributeFirstChar(char ch)
         {
-            ':', '_', '-', '.', '[', ']', '(', ')'
-        };
+            return ch == '_' | ch == '[' | ch == '(';
+        }
 
-        private static readonly HashSet<char> AllowedIdentifierChars = new HashSet<char>()
+        private static bool IsAllowedAttributeChar(char ch)
         {
-            ':', '_', '-', '.'
-        };
+            // codegolfing at this point... nvm, this is a fast way to check if small (< 64) integer is in a set
+            // * create a bit mask for the target set
+            //     - when needed, shift the integer by an offset to make it fit into the 64 bits
+            // ...would be nice if C# did this optimization automatically, but it doesn't
+            const int shift = '('; // 40
+            Debug.Assert(shift - '_' < 64);
+            const ulong magicBitMask = (1L << ':' - shift | 1L << '_' - shift | 1L << '-' - shift | 1L << '.' - shift | 1L << '[' - shift | 1L << ']' - shift | 1L << '(' - shift | 1L << ')' - shift);
+            uint c = (uint)ch - shift;
+            return c < 63 & 0 != ((1UL << (int)c) & magicBitMask);
+        }
+
+        private static bool IsAllowedIdentifierChar(char ch)
+        {
+            const int shift = '('; // 40
+            Debug.Assert(shift - '_' < 64);
+            const ulong magicBitMask = (1L << ':' - shift | 1L << '_' - shift | 1L << '-' - shift | 1 << '.' - shift);
+            uint c = (uint)ch - shift;
+            return c < 63 & 0 != ((1UL << (int)c) & magicBitMask);
+        }
 
 
         public override void Tokenize(string sourceText)
@@ -45,22 +61,6 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                 Assert((Tokens.LastOrDefault()?.Length ?? 0) > 0);
                 return true;
             });
-        }
-
-        /// <summary>
-        /// Gets the type of the text token.
-        /// </summary>
-        protected override DothtmlTokenType TextTokenType
-        {
-            get { return DothtmlTokenType.Text; }
-        }
-
-        /// <summary>
-        /// Gets the type of the white space token.
-        /// </summary>
-        protected override DothtmlTokenType WhiteSpaceTokenType
-        {
-            get { return DothtmlTokenType.WhiteSpace; }
         }
 
         /// <summary>
@@ -136,10 +136,10 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
 
             // the directive started
             Read();
-            CreateToken(DothtmlTokenType.DirectiveStart);
+            CreateToken(DothtmlTokenType.DirectiveStart, "@");
 
             // identifier
-            if (!ReadIdentifier(DothtmlTokenType.DirectiveName, '\r', '\n'))
+            if (!ReadIdentifier(DothtmlTokenType.DirectiveName))
             {
                 CreateToken(DothtmlTokenType.DirectiveName, errorProvider: t => CreateTokenError(t, DothtmlTokenType.DirectiveStart, DothtmlTokenizerErrors.DirectiveNameExpected));
             }
@@ -166,16 +166,18 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
         /// <summary>
         /// Reads the identifier.
         /// </summary>
-        private bool ReadIdentifier(DothtmlTokenType tokenType, params char[] stopChars)
+        private bool ReadIdentifier(DothtmlTokenType tokenType, char stopChar = '\0')
         {
+            var ch = Peek();
             // read first character
-            if ((!char.IsLetter(Peek()) && Peek() != '_') || stopChars.Contains(Peek()))
+            if ((!char.IsLetter(ch) && ch != '_') | stopChar == ch)
                 return false;
 
             // read identifier
-            while ((Char.IsLetterOrDigit(Peek()) || AllowedIdentifierChars.Contains(Peek())) && !stopChars.Contains(Peek()))
+            while ((Char.IsLetterOrDigit(ch) | IsAllowedIdentifierChar(ch)) & stopChar != ch)
             {
                 Read();
+                ch = Peek();
             }
             CreateToken(tokenType);
             return true;
@@ -184,16 +186,18 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
         /// <summary>
         /// Reads the attribute name.
         /// </summary>
-        private bool ReadAttributeName(DothtmlTokenType tokenType, params char[] stopChars)
+        private bool ReadAttributeName(DothtmlTokenType tokenType, char stopChar)
         {
+            var ch = Peek();
             // read first character
-            if ((!char.IsLetter(Peek()) && !AllowedAttributeFirstChars.Contains(Peek())) || stopChars.Contains(Peek()))
+            if ((!char.IsLetter(ch) && !IsAllowedAttributeFirstChar(ch)) | stopChar == ch)
                 return false;
 
             // read identifier
-            while ((Char.IsLetterOrDigit(Peek()) || AllowedAttributeChars.Contains(Peek())) && !stopChars.Contains(Peek()))
+            while ((Char.IsLetterOrDigit(ch) | IsAllowedAttributeChar(ch)) & stopChar != ch)
             {
                 Read();
+                ch = Peek();
             }
             CreateToken(tokenType);
             return true;
@@ -214,24 +218,26 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                 Read();
             }
 
-            if (Peek() == '!' || Peek() == '?' || Peek() == '%')
+            var firstChar = Peek();
+
+            if (firstChar == '!' | firstChar == '?' | firstChar == '%')
             {
                 return ReadHtmlSpecial(true);
             }
 
-            if (!char.IsLetterOrDigit(Peek()) && Peek() != '/' && Peek() != ':')
+            if (!char.IsLetterOrDigit(firstChar) & firstChar != '/' & firstChar != ':')
             {
                 CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, "'<' char is not allowed in normal text"));
                 return ReadElementType.Error;
             }
 
-            CreateToken(DothtmlTokenType.OpenTag);
+            CreateToken(DothtmlTokenType.OpenTag, "<");
 
-            if (Peek() == '/')
+            if (firstChar == '/')
             {
                 // it is a closing tag
                 Read();
-                CreateToken(DothtmlTokenType.Slash);
+                CreateToken(DothtmlTokenType.Slash, "/");
                 isClosingTag = true;
             }
 
@@ -282,7 +288,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             {
                 // self closing tag
                 Read();
-                CreateToken(DothtmlTokenType.Slash);
+                CreateToken(DothtmlTokenType.Slash, "/");
             }
             if (Peek() != '>')
             {
@@ -292,7 +298,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             }
 
             Read();
-            CreateToken(DothtmlTokenType.CloseTag);
+            CreateToken(DothtmlTokenType.CloseTag, ">");
             return ReadElementType.ValidTag;
         }
 
@@ -351,10 +357,10 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
 
         private ReadElementType ReadComment()
         {
-            CreateToken(DothtmlTokenType.OpenComment);
+            CreateToken(DothtmlTokenType.OpenComment, "<!--");
             if (ReadTextUntil(DothtmlTokenType.CommentBody, "-->", false))
             {
-                CreateToken(DothtmlTokenType.CloseComment);
+                CreateToken(DothtmlTokenType.CloseComment, "-->");
                 return ReadElementType.Comment;
             }
             else
@@ -367,10 +373,10 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
 
         private ReadElementType ReadServerComment()
         {
-            CreateToken(DothtmlTokenType.OpenServerComment);
+            CreateToken(DothtmlTokenType.OpenServerComment, "<%--");
             if (ReadTextUntil(DothtmlTokenType.CommentBody, "--%>", false, nestString: "<%--"))
             {
-                CreateToken(DothtmlTokenType.CloseComment);
+                CreateToken(DothtmlTokenType.CloseComment, "--%>");
                 return ReadElementType.ServerComment;
             }
             else
@@ -426,12 +432,12 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
         /// </summary>
         private bool ReadTagOrAttributeName(bool isAttributeName)
         {
-            var readIdentifierFunc = isAttributeName ? (Func<DothtmlTokenType, char[], bool>)ReadAttributeName : (Func<DothtmlTokenType, char[], bool>)ReadIdentifier;
+            var readIdentifierFunc = isAttributeName ? (Func<DothtmlTokenType, char, bool>)ReadAttributeName : (Func<DothtmlTokenType, char, bool>)ReadIdentifier;
 
             if (Peek() != ':')
             {
                 // read the identifier
-                if (!readIdentifierFunc(DothtmlTokenType.Text, new[] { ':' }))
+                if (!readIdentifierFunc(DothtmlTokenType.Text, ':'))
                 {
                     return false;
                 }
@@ -445,9 +451,9 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             if (Peek() == ':')
             {
                 Read();
-                CreateToken(DothtmlTokenType.Colon);
+                CreateToken(DothtmlTokenType.Colon, ":");
 
-                if (!readIdentifierFunc(DothtmlTokenType.Text, new char[] { }))
+                if (!readIdentifierFunc(DothtmlTokenType.Text, '\0'))
                 {
                     CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.MissingTagName));
                     return true;
@@ -473,7 +479,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             {
                 // equals sign
                 Read();
-                CreateToken(DothtmlTokenType.Equals);
+                CreateToken(DothtmlTokenType.Equals, "=");
                 SkipWhitespace();
 
                 // attribute value
@@ -533,7 +539,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             var quotes = Peek();
             var quotesToken = quotes == '\'' ? DothtmlTokenType.SingleQuote : DothtmlTokenType.DoubleQuote;
             Read();
-            CreateToken(quotesToken);
+            CreateToken(quotesToken, quotesToken == DothtmlTokenType.SingleQuote ? "'" : "\"");
 
             // read value
             if (Peek() == '{')
@@ -566,7 +572,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             else
             {
                 Read();
-                CreateToken(quotesToken);
+                CreateToken(quotesToken, quotesToken == DothtmlTokenType.SingleQuote ? "'" : "\"");
                 SkipWhitespace();
             }
             return true;
@@ -585,7 +591,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                 doubleCloseBrace = true;
                 Read();
             }
-            CreateToken(DothtmlTokenType.OpenBinding);
+            CreateToken(DothtmlTokenType.OpenBinding, doubleCloseBrace ? "{{" : "{");
             SkipWhitespace();
 
             // read binding name
@@ -617,15 +623,23 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             }
             else
             {
-                char ch;
-                while ((ch = Peek()) != '}')
+                char current;
+                while ((current = Peek()) != '}')
                 {
-                    if (ch == '\'' || ch == '"')
+                    char next = Peek(delta: 1);
+                    if (current == '$' && (next == '"' || next == '\''))
+                    {
+                        // interpolated string
+                        // -- we may need to ignore some curly brackets
+                        // -- additionally also some quotes might be ignored
+                        BindingTokenizer.ReadInterpolatedString(Peek, Read, out _);
+                    }
+                    else if (current == '\'' || current == '"')
                     {
                         // string literal - ignore curly braces inside
                         BindingTokenizer.ReadStringLiteral(Peek, Read, out _);
                     }
-                    else if (ch == NullChar)
+                    else if (current == NullChar)
                     {
                         CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError());
                         CreateToken(DothtmlTokenType.CloseBinding, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenBinding, DothtmlTokenizerErrors.BindingNotClosed));
@@ -656,7 +670,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                 }
                 Read();
             }
-            CreateToken(DothtmlTokenType.CloseBinding);
+            CreateToken(DothtmlTokenType.CloseBinding, doubleCloseBrace ? "}}" : "}");
         }
 
         protected override DothtmlToken NewToken(string text, DothtmlTokenType type, int lineNumber, int columnNumber, int length, int startPosition)

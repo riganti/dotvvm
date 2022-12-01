@@ -26,7 +26,6 @@
     </div>
     <dot:ValidationSummary IncludeErrorsFromChildren="true" />
     <dot:Button Text="ValidationTarget = root" Click="{command: 5}" Validation.Enabled="true" Validation.Target="{value: _root}" />
-    <dot:Button Text="ValidationTarget = null" Click="{command: 5}" Validation.Enabled="true" Validation.Target="{value: NullObject}" />
     <dot:Button Text="ValidationTarget = some object" Click="{command: 5}" Validation.Enabled="true" Validation.Target="{value: RealObject}" />
 </body>
 </html>

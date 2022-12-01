@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty HeaderRowDecoratorsProperty =
             DotvvmProperty.Register<List<Decorator>?, GridView>(c => c.HeaderRowDecorators);
-        
+
         /// <summary>
         /// Gets or sets a list of decorators that will be applied on each row in edit mode.
         /// </summary>
@@ -228,10 +228,10 @@ namespace DotVVM.Framework.Controls
         {
             var dataSource = this.DataSource;
             if (dataSource is null)
-                throw new DotvvmControlException(this, "Can not execute sort command, DataSource is null");
+                throw new DotvvmControlException(this, "Cannot execute sort command, DataSource is null");
             var sortOptions = (dataSource as ISortableGridViewDataSet)?.SortingOptions;
             if (sortOptions is null)
-                throw new DotvvmControlException(this, "Can not execute sort command, DataSource does not have sorting options");
+                throw new DotvvmControlException(this, "Cannot execute sort command, DataSource does not have sorting options");
             if (sortOptions.SortExpression == expr)
             {
                 sortOptions.SortDescending ^= true;
@@ -336,7 +336,7 @@ namespace DotVVM.Framework.Controls
                 var editMode = isInEditMode && column.IsEditable;
 
                 var cell = new HtmlGenericControl("td");
-                cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
+                cell.SetDataContextType(column.GetDataContextType());
                 SetCellAttributes(column, cell, false);
                 var decoratedCell = Decorator.ApplyDecorators(cell, editMode ? column.EditCellDecorators : column.CellDecorators);
                 row.Children.Add(decoratedCell);
@@ -409,7 +409,7 @@ namespace DotVVM.Framework.Controls
                 var editMode = isInEditMode && column.IsEditable;
 
                 var cell = new HtmlGenericControl("td");
-                cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
+                cell.SetDataContextType(column.GetDataContextType());
                 SetCellAttributes(column, cell, false);
                 var decoratedCell = Decorator.ApplyDecorators(cell, editMode ? column.EditCellDecorators : column.CellDecorators);
                 row.Children.Add(decoratedCell);
@@ -461,7 +461,7 @@ namespace DotVVM.Framework.Controls
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
+                    placeholder.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
                     writer.WriteKnockoutDataBindComment("if", "!$gridViewDataSetHelper.isInEditMode($context)");
                     CreateTemplates(context, placeholder);
                     Children.Add(placeholder);
@@ -471,7 +471,7 @@ namespace DotVVM.Framework.Controls
                     var placeholderEdit = new DataItemContainer { DataContext = null };
                     placeholderEdit.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
                     placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
+                    placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
                     writer.WriteKnockoutDataBindComment("if", "$gridViewDataSetHelper.isInEditMode($context)");
                     CreateTemplates(context, placeholderEdit, true);
                     Children.Add(placeholderEdit);
@@ -483,7 +483,7 @@ namespace DotVVM.Framework.Controls
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
+                    placeholder.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
                     Children.Add(placeholder);
                     CreateRowWithCells(context, placeholder);
                     placeholder.Render(writer, context);
@@ -535,7 +535,7 @@ namespace DotVVM.Framework.Controls
             var userColumnMappingService = context.Services.GetRequiredService<UserColumnMappingCache>();
             var mapping = userColumnMappingService.GetMapping(itemType!);
             var mappingJson = JsonConvert.SerializeObject(mapping);
-            
+
             writer.AddKnockoutDataBind("dotvvm-gridviewdataset", $"{{'mapping':{mappingJson},'dataSet':{GetDataSourceBinding().GetKnockoutBindingExpression(this, unwrapped: true)}}}");
             base.AddAttributesToRender(writer, context);
         }
@@ -544,7 +544,11 @@ namespace DotVVM.Framework.Controls
 
         public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
         {
-            return base.GetLogicalChildren().Concat(Columns).Concat(RowDecorators);
+            return base.GetLogicalChildren().Concat(
+                Columns ?? Enumerable.Empty<GridViewColumn>()
+            ).Concat(
+                RowDecorators ?? Enumerable.Empty<Decorator>()
+            );
         }
     }
 }

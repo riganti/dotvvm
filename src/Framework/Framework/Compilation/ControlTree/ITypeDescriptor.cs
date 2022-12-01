@@ -1,3 +1,4 @@
+using System;
 using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -11,6 +12,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         string? Assembly { get; }
 
         string FullName { get; }
+        /// <summary> Returns type name with generic arguments in the C# style. Does not include namespaces. </summary>
+        string CSharpName { get; }
+        /// <summary> Returns type name including namespace with generic arguments in the C# style. </summary>
+        string CSharpFullName { get; }
 
         bool IsAssignableTo(ITypeDescriptor typeDescriptor);
 
@@ -19,6 +24,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         ControlMarkupOptionsAttribute? GetControlMarkupOptionsAttribute();
 
         bool IsEqualTo(ITypeDescriptor other);
+        bool IsEqualTo(Type other);
 
         ITypeDescriptor? TryGetArrayElementOrIEnumerableType();
 

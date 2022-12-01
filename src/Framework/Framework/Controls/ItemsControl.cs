@@ -12,6 +12,8 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Linq.Expressions;
+using DotVVM.Framework.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
 {
@@ -46,7 +48,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="ItemsControl"/> class.
         /// </summary>
-        public ItemsControl(string tagName) : base(tagName)
+        public ItemsControl(string tagName) : base(tagName, false)
         {
         }
 
@@ -88,8 +90,32 @@ namespace DotVVM.Framework.Controls
 
             control.SetProperty(new ResolvedPropertyBinding(Internal.CurrentIndexBindingProperty,
                 new ResolvedBinding(bindingService, new Compilation.BindingParserOptions(typeof(ValueBindingExpression)), dataContext,
-                parsedExpression: Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(
-                    new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter())))));
+                parsedExpression: CreateIndexBindingExpression(dataContext))));
+        }
+
+        private static ParameterExpression CreateIndexBindingExpression(DataContextStack dataContext) =>
+            Expression.Parameter(typeof(int), "_index")
+                .AddParameterAnnotation(new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter()));
+
+        protected IBinding GetIndexBinding(IDotvvmRequestContext context)
+        {
+            var result = GetValueRaw(Internal.CurrentIndexBindingProperty) as IBinding;
+            if (result is {})
+            {
+                return result;
+            }
+            else
+            {
+                // slower path: create the _index binding at runtime
+                var bindingService = context.Services.GetRequiredService<BindingCompilationService>();
+                var dataContext = GetDataSourceBinding().GetProperty<CollectionElementDataContextBindingProperty>().DataContext;
+                return bindingService.Cache.CreateCachedBinding("_index", new object[] { dataContext }, () =>
+                    new ValueBindingExpression<int>(bindingService, new object?[] {
+                        dataContext,
+                        new ParsedExpressionBindingProperty(CreateIndexBindingExpression(dataContext))
+                    }));
+            }
+
         }
     }
 }

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
@@ -52,22 +53,14 @@ namespace DotVVM.Framework.Compilation.Static
                 return ImmutableArray.Create<CompilationReport>();
             }
 
-            var namespaceName = DefaultControlBuilderFactory.GetNamespaceFromFileName(
-                file.FileName,
-                file.LastWriteDateTimeUtc);
-            var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "ControlBuilder";
-            var fullClassName = namespaceName + "." + className;
-            var sourceCode = file.ContentsReaderFactory();
+            var sourceCode = file.ReadContent();
 
             try
             {
                 var compiler = configuration.ServiceProvider.GetRequiredService<IViewCompiler>();
                 var (_, builderFactory) = compiler.CompileView(
                     sourceCode: sourceCode,
-                    fileName: viewPath,
-                    assemblyName: $"{fullClassName}.Compiled",
-                    namespaceName: namespaceName,
-                    className: className);
+                    fileName: viewPath);
                 _ = builderFactory();
                 // TODO: Reporting compiler errors solely through exceptions is dumb. I have no way of getting all of
                 //       the parser errors at once because they're reported through exceptions one at a time. We need

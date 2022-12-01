@@ -1,26 +1,48 @@
 {
-  "applicationPhysicalPath": "/opt/myApp",
-  "markup": {
-    "importedNamespaces": [
-      {
-        "namespace": "DotVVM.Framework.Binding.HelperNamespace"
-      },
-      {
-        "namespace": "System.Linq"
+  "dotvvmVersion": "*.*.*.*",
+  "config": {
+    "applicationPhysicalPath": "/opt/myApp",
+    "markup": {
+      "importedNamespaces": [
+        {
+          "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+        },
+        {
+          "namespace": "System.Linq"
+        }
+      ],
+      "ViewCompilation": {
+        "compileInParallel": true
       }
-    ],
-    "ViewCompilation": {
-      "compileInParallel": true
+    },
+    "resources": {},
+    "security": {
+      "xssProtectionHeader": {
+        "enabled": true
+      },
+      "contentTypeOptionsHeader": {
+        "enabled": true
+      },
+      "verifySecFetchForPages": {
+        "enabled": true
+      },
+      "verifySecFetchForCommands": {
+        "enabled": true
+      },
+      "referrerPolicy": {
+        "enabled": true
+      }
+    },
+    "runtime": {},
+    "defaultCulture": "cs-CZ",
+    "clientSideValidation": false,
+    "experimentalFeatures": {},
+    "debug": true,
+    "diagnostics": {
+      "compilationPage": {},
+      "perfWarnings": {
+        "bigViewModelBytes": 5242880.0
+      }
     }
-  },
-  "resources": {},
-  "security": {},
-  "runtime": {},
-  "defaultCulture": "cs-CZ",
-  "clientSideValidation": false,
-  "experimentalFeatures": {},
-  "debug": true,
-  "diagnostics": {
-    "compilationPage": {}
   }
 }

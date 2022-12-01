@@ -24,13 +24,17 @@ namespace DotVVM.Framework.Utils
 #endif
                  IReadOnlyDictionary<TKey, TValue> dictionary,
             TKey key,
+            TValue? defaultValue = default(TValue),
             // even if we make this method an extension, this parameter will prevent the ambiguity with the standard GetValueOrDefault
             // since C# compiler will prefer a variant without this optional parameter
             bool justAddAParameterSoCsharpDoesNotPreferThisMethodOverStandard = false)
             where TKey: notnull
         {
-            dictionary.TryGetValue(key, out var value);
-            return value;
+            if (dictionary.TryGetValue(key, out var value))
+            {
+                return value;
+            }
+            return defaultValue;
         }
 
         public static TTarget ApplyAction<TTarget>(this TTarget target, Action<TTarget> outerAction)
@@ -85,8 +89,46 @@ namespace DotVVM.Framework.Utils
         public static IEnumerable<(int, T)> Indexed<T>(this IEnumerable<T> enumerable) =>
             enumerable.Select((a, b) => (b, a));
 
-        public static T NotNull<T>(this T? target, string message = "Unexpected null value.")
+        public static int FindIndex<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate)
+        {
+            int i = 0;
+            foreach (var x in enumerable)
+            {
+                if (predicate(x)) return i;
+                i++;
+            }
+            return -1;
+        }
+
+        public static T NotNull<T>([NotNull] this T? target, string message = "Unexpected null value.")
             where T : class =>
             target ?? throw new Exception(message);
+
+        public static SortedDictionary<K, V> ToSorted<K, V>(this IDictionary<K, V> d, IComparer<K>? c = null)
+            where K: notnull =>
+            new(d, c ?? Comparer<K>.Default);
+    }
+
+    sealed class ObjectWithComparer<T> : IEquatable<ObjectWithComparer<T>>, IEquatable<T>
+        where T: notnull
+    {
+        public ObjectWithComparer(T @object, IEqualityComparer<T> comparer)
+        {
+            Object = @object;
+            Comparer = comparer;
+        }
+
+        public IEqualityComparer<T> Comparer { get; }
+        public T Object { get; }
+
+        public bool Equals(ObjectWithComparer<T>? other) => other != null && Comparer.Equals(Object, other.Object);
+
+        public bool Equals(T? other) => other != null && Comparer.Equals(Object, other);
+
+        public override bool Equals(object? obj) =>
+            obj is ObjectWithComparer<T> objC ? Equals(objC) :
+            obj is T objT ? Equals(objT) :
+            false;
+        public override int GetHashCode() => Comparer.GetHashCode(Object);
     }
 }

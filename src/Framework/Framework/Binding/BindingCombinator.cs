@@ -25,13 +25,19 @@ namespace DotVVM.Framework.Binding
 
         static IBinding CreateAndAlsoCombination(IBinding a, IBinding b) =>
             a.DeriveBinding(
-                new ParsedExpressionBindingProperty(
-                    Expression.AndAlso(
-                        a.GetProperty<ParsedExpressionBindingProperty>().Expression,
-                        b.GetProperty<ParsedExpressionBindingProperty>().Expression
-                    )
+                Expression.AndAlso(
+                    a.GetProperty<ParsedExpressionBindingProperty>().Expression,
+                    b.GetProperty<ParsedExpressionBindingProperty>().Expression
                 )
             );
+        static IBinding CreateOrElseCombination(IBinding a, IBinding b) =>
+            a.DeriveBinding(
+                Expression.OrElse(
+                    a.GetProperty<ParsedExpressionBindingProperty>().Expression,
+                    b.GetProperty<ParsedExpressionBindingProperty>().Expression
+                )
+            );
+        public static readonly BindingCombinatorDescriptor OrElseCombination = new BindingCombinatorDescriptor(CreateOrElseCombination);
         public static readonly BindingCombinatorDescriptor AndAlsoCombination = new BindingCombinatorDescriptor(CreateAndAlsoCombination);
         public static void AndAssignProperty(this DotvvmBindableObject obj, DotvvmProperty property, object value)
         {

@@ -11,6 +11,7 @@ namespace DotVVM.Samples.Tests.Feature
     {
         [Fact]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling))]
+        [Trait("Category", "dev-only")] // relies on iframe from error page to check the behavior
         public void Feature_ActionFilterErrorHandling_ActionFilterErrorHandling_CommandException()
         {
             RunInAllBrowsers(browser => {
@@ -31,6 +32,7 @@ namespace DotVVM.Samples.Tests.Feature
 
         [Fact]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling))]
+        [Trait("Category", "dev-only")] // relies on something from error page to check the behavior
         public void Feature_ActionFilterErrorHandling_ActionFilterErrorHandling_PageException()
         {
             RunInAllBrowsers(browser => {

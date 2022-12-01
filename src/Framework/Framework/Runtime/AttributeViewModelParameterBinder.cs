@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -16,13 +17,8 @@ namespace DotVVM.Framework.Runtime
     public class AttributeViewModelParameterBinder : IViewModelParameterBinder
     {
 
-        private readonly ConcurrentDictionary<Type, Action<IDotvvmRequestContext, object>?> cache = new ConcurrentDictionary<Type, Action<IDotvvmRequestContext, object>?>();
-        private readonly MethodInfo setPropertyMethod;
-
-        public AttributeViewModelParameterBinder()
-        {
-            setPropertyMethod = typeof(AttributeViewModelParameterBinder).GetMethod(nameof(SetProperty), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
-        }
+        private static readonly ConcurrentDictionary<Type, Action<IDotvvmRequestContext, object>?> cache = new ConcurrentDictionary<Type, Action<IDotvvmRequestContext, object>?>();
+        private static readonly MethodInfo setPropertyMethod = typeof(AttributeViewModelParameterBinder).GetMethod(nameof(SetProperty), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
 
         /// <summary>
         /// Performs the parameter binding.
@@ -36,7 +32,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Builds a lambda expression which performs the parameter binding for a specified viewmodel type.
         /// </summary>
-        private Action<IDotvvmRequestContext, object>? BuildParameterBindingMethod(Type type)
+        private static Action<IDotvvmRequestContext, object>? BuildParameterBindingMethod(Type type)
         {
             var properties = FindPropertiesWithParameterBinding(type).ToList();
             if (!properties.Any())
@@ -50,13 +46,13 @@ namespace DotVVM.Framework.Runtime
 
 
             var lambda = Expression.Lambda<Action<IDotvvmRequestContext, object>>(Expression.Block(statements), contextParameter, viewModelParameter);
-            return lambda.Compile();
+            return lambda.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
         /// <summary>
         /// Looks up for all properties to be bound.
         /// </summary>
-        private Dictionary<PropertyInfo, ParameterBindingAttribute> FindPropertiesWithParameterBinding(Type type)
+        private static Dictionary<PropertyInfo, ParameterBindingAttribute> FindPropertiesWithParameterBinding(Type type)
         {
             return (from prop in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                     let attribute = prop.GetCustomAttribute<ParameterBindingAttribute>()
@@ -67,7 +63,7 @@ namespace DotVVM.Framework.Runtime
                     .ToDictionary(p => p.writableProp, p => p.attribute);
         }
 
-        private PropertyInfo TryFindWritableSetter(PropertyInfo propertyInfo)
+        private static PropertyInfo TryFindWritableSetter(PropertyInfo propertyInfo)
         {
             // when the property is declared in the base class and has private set, we need to find the property on the base class to see the SetMethod
             if (propertyInfo.CanWrite)
@@ -84,7 +80,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Generates an expression which calls the <see cref="SetProperty{T}"/> method to perform the parameter binding.
         /// </summary>
-        private Expression GenerateParameterBindStatement(Type viewModelType, Expression viewModelParameter, Expression contextParameter, KeyValuePair<PropertyInfo, ParameterBindingAttribute> property)
+        private static Expression GenerateParameterBindStatement(Type viewModelType, Expression viewModelParameter, Expression contextParameter, KeyValuePair<PropertyInfo, ParameterBindingAttribute> property)
         {
             var propAccess = Expression.Property(Expression.Convert(viewModelParameter, viewModelType), property.Key);
             var methodCall = Expression.Call(null, setPropertyMethod.MakeGenericMethod(property.Key.PropertyType), contextParameter, Expression.Constant(property.Value), propAccess);
@@ -101,6 +97,15 @@ namespace DotVVM.Framework.Runtime
                 return result;
             }
             return defaultValue;
+        }
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+            {
+                cache.TryRemove(t, out _);
+            }
         }
     }
 }

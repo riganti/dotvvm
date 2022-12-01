@@ -5,6 +5,7 @@ import { lastSetErrorSymbol, StateManager } from "../state-manager";
 import { serialize } from "../serialization/serialize";
 import { deserialize } from "../serialization/deserialize";
 import { serializeDate } from "../serialization/date";
+import { areObjectTypesEqual } from "../metadata/typeMap";
 
 require('./stateManagement.data')
 
@@ -439,20 +440,118 @@ test("push on observable array - automatic coercion happens", () => {
 
 })
 
-test("update of element in array that stops existing", () => {
+test("push on observable array - state is updated immediately", () => {
 
     vm.Array([
         { Id: 1 },
         { Id: 3 }
+    ]);
+    s.doUpdateNow();
+    expect(vm.Array().length).toEqual(2);
+    
+    vm.Array.push({ Id: 4 });
+    expect(vm.Array().length).toEqual(3);
+    expect(vm.Array.state.length).toEqual(3);
+})
+
+test("remove on observable array - state is updated immediately", () => {
+
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 },
+        { Id: 4 },
     ])
+    s.doUpdateNow();
+    expect(vm.Array().length).toEqual(3)
+    
+    vm.Array.remove((i: any) => i().Id() % 2 === 0);
+    expect(vm.Array().length).toEqual(2)
     expect(vm.Array.state.length).toEqual(2)
-    const a = vm.Array()[1]()
-    a.Id(10)
-    expect(vm.Array.state[1].Id).toEqual(10)
-    vm.Array([ { Id: 1 } ])
-    expect(vm.Array.state.length).toEqual(1)
-    a.Id(10)
-    expect(vm.Array.state.length).toEqual(1)
-    expect(vm.Array.state[0]).toEqual({ $type: "t2", Id: 1 })
 
 })
+
+test("are dynamic types the same - empty objects", () => {
+    expect(areObjectTypesEqual({}, {})).toBe(true);
+});
+test("are dynamic types the same - dynamic vs typed", () => {
+    expect(areObjectTypesEqual({}, { $type: "t1" })).toBe(false);
+});
+test("are dynamic types the same - different property count", () => {
+    expect(areObjectTypesEqual({}, { a: "a" })).toBe(false);
+});
+test("are dynamic types the same - same property count", () => {
+    expect(areObjectTypesEqual({ b: "b" }, { a: "a" })).toBe(false);
+});
+test("are dynamic types the same - same properties", () => {
+    expect(areObjectTypesEqual({ a: "b" }, { a: "a" })).toBe(true);
+});
+test("are dynamic types the same - subset", () => {
+    expect(areObjectTypesEqual({ a: "b" }, { a: "a", b: "b" })).toBe(false);
+});
+test("are dynamic types the same - superset", () => {
+    expect(areObjectTypesEqual({ a: "b", b: "a" }, { a: "a" })).toBe(false);
+});
+
+test("changing dynamic type property doesn't notify when dynamic types are the same - primitive value", () => {
+    vm.Dynamic({ a: "a" });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: "x" });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(0);
+});
+
+test("changing dynamic type property doesn't notify when dynamic types are the same - child object", () => {
+    vm.Dynamic({ a: { b: "b" } });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: { b: "a", c: "a" } });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(0);
+});
+
+test("changing dynamic type property notifies when dynamic types are different - primitive value", () => {
+    vm.Dynamic({ a: "a" });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: "a", b: "b" });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(1);
+});
+
+test("changing dynamic type property notifies when dynamic types are different - child object", () => {
+    vm.Dynamic({ a: { b: "b" } });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: { b: "b" }, b: "b" });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(1);
+});

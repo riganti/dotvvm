@@ -9,6 +9,7 @@ using System.Text;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
@@ -20,22 +21,34 @@ namespace DotVVM.Framework.ViewModel.Validation
 {
     public static class ValidationErrorFactory
     {
-        public static ViewModelValidationError AddModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string message)
-            where T : class, IDotvvmViewModel =>
-            AddModelError(vm, expr, message, vm.Context);
+        /// <summary>
+        /// Adds a new validation error with the given message and attaches it to the provided viewmodel. 
+        /// The target viewmodel must be reachable from the root viewmodel, otherwise the error won't be attached.
+        /// </summary>
+        /// <param name="vm">Viewmodel</param>
+        /// <param name="message">Validation error message</param>
+        public static ViewModelValidationError AddModelError<T>(this T vm, string message)
+            where T : class, IDotvvmViewModel
+            => vm.Context.AddModelError(vm, a => a, message);
 
-        public static ViewModelValidationError AddModelError<T, TProp>(T vm, Expression<Func<T, TProp>> expr, string message, IDotvvmRequestContext context)
-            where T: class
+        /// <summary>
+        /// Adds a new validation error with the given message and attaches it to the property determined by the provided expression. 
+        /// The target property must be reachable from the root viewmodel, otherwise the error won't be attached.
+        /// </summary>
+        /// <param name="vm">Viewmodel or one of its descendant (reachable objects)</param>
+        /// <param name="expr">Expression that determines the target property from the provided object</param>
+        /// <param name="message">Validation error message</param>
+        public static ViewModelValidationError AddModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string message)
+            where T : IDotvvmViewModel
         {
-            if (context.ModelState.ValidationTarget != vm) throw new NotSupportedException($"ValidationTarget ({context.ModelState.ValidationTarget?.GetType().Name ?? "null"}) must be equal to specified view model ({vm.GetType().Name}).");
-            var error = CreateModelError(context.Configuration, expr, message);
-            context.ModelState.Errors.Add(error);
+            var error = CreateModelError(vm.Context.Configuration, vm, expr, message);
+            vm.Context.ModelState.ErrorsInternal.Add(error);
             return error;
         }
 
         public static ViewModelValidationError CreateModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string error)
             where T : IDotvvmViewModel =>
-            CreateModelError(vm.Context.Configuration, expr, error);
+            CreateModelError(vm.Context.Configuration, vm, expr, error);
 
         public static ValidationResult CreateValidationResult<T>(this T vm, string error, params Expression<Func<T, object>>[] expressions)
             where T : IDotvvmViewModel =>
@@ -57,17 +70,14 @@ namespace DotVVM.Framework.ViewModel.Validation
             return new ValidationResult ( error, expressions.Select(expr => GetPathFromExpression(defaultJavaScriptTranslator, expr)) );
         }
 
-        public static ViewModelValidationError CreateModelError<T, TProp>(DotvvmConfiguration config, Expression<Func<T, TProp>> expr, string error) =>
-            CreateModelError(config, (LambdaExpression)expr, error);
+        public static ViewModelValidationError CreateModelError<T, TProp>(DotvvmConfiguration config, object? obj, Expression<Func<T, TProp>> expr, string error) =>
+            CreateModelError(config, obj, (LambdaExpression)expr, error);
 
         public static ValidationResult CreateValidationResult<T>(DotvvmConfiguration config, string error, params Expression<Func<T, object>>[] expressions) =>
             CreateValidationResult(config, error, (LambdaExpression[])expressions);
 
-        public static ViewModelValidationError CreateModelError(DotvvmConfiguration config, LambdaExpression expr, string error) =>
-            new ViewModelValidationError {
-                ErrorMessage = error,
-                PropertyPath = GetPathFromExpression(config, expr)
-            };
+        public static ViewModelValidationError CreateModelError(DotvvmConfiguration config, object? obj, LambdaExpression expr, string error) =>
+            new ViewModelValidationError(error, GetPathFromExpression(config, expr), obj);
 
         public static ValidationResult CreateValidationResult(DotvvmConfiguration config, string error, LambdaExpression[] expr) =>
             new ValidationResult(
@@ -90,8 +100,10 @@ namespace DotVVM.Framework.ViewModel.Validation
                 var dataContext = DataContextStack.Create(e.expression.Parameters.Single().Type);
                 var expression = ExpressionUtils.Replace(e.expression, BindingExpressionBuilder.GetParameters(dataContext).First(p => p.Name == "_this"));
                 var jsast = translator.CompileToJavascript(expression, dataContext);
-                var pcode = BindingPropertyResolvers.FormatJavascript(jsast, niceMode: isDebug, nullChecks: false);
-                return JavascriptTranslator.FormatKnockoutScript(pcode, allowDataGlobal: true);
+
+                var visitor = new PropertyPathExtractingVisitor();
+                jsast.AcceptVisitor(visitor);
+                return visitor.GetPropertyPath();
             });
         }
 
@@ -107,13 +119,13 @@ namespace DotVVM.Framework.ViewModel.Validation
                 return base.VisitMember(node);
             }
 
-            private object? Expand(Expression current)
+            private object? Expand(Expression? current)
             {
                 if (current is ConstantExpression constant)
                 {
                     return constant.Value;
                 }
-                if (!(current is MemberExpression member))
+                if (current is not MemberExpression member)
                 {
                     return null;
                 }

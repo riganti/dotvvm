@@ -13,6 +13,9 @@ namespace DotVVM.Framework.Tests.ViewModel
     [TestClass]
     public class PropertyPathTests
     {
+        public Action MyProperty { get; set; } = () => { };
+
+
         [TestMethod]
         public void PropertyPath_GetPropertyPath()
         {
@@ -27,9 +30,9 @@ namespace DotVVM.Framework.Tests.ViewModel
 
             viewModel.Context.ModelState.ValidationTarget = viewModel;
 
-            var error = viewModel.AddModelError(vm => vm.Users[0].Post.PostText, "Testing validation error.");
+            var error = ValidationErrorFactory.AddModelError(viewModel, vm => vm.Users[0].Post.PostText, "Testing validation error.");
 
-            Assert.AreEqual("Users()[0].Post().PostText", error.PropertyPath);
+            Assert.AreEqual("Users/0/Post/PostText", error.PropertyPath);
         }
 
         public class SampleViewModel : DotvvmViewModelBase

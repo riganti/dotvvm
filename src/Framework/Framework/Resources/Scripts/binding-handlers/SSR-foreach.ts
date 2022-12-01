@@ -18,14 +18,14 @@ export default {
             let isInitial = true;
             ko.computed(() => {
                 const rawValue = valueAccessor().data;
-                ko.unwrap(rawValue); // we have to touch the observable in the binding so that the `getDependenciesCount` call knows about this dependency. If would be unwrapped only later (in the makeContextCallback) we would not have the savedNodes.
+                const unwrappedValue = ko.unwrap(rawValue); // we have to touch the observable in the binding so that the `getDependenciesCount` call knows about this dependency. If would be unwrapped only later (in the makeContextCallback) we would not have the savedNodes.
 
                 // save a copy of the inner nodes on the initial update, but only if we have dependencies.
                 if (isInitial && ko.computedContext.getDependenciesCount()) {
                     savedNodes = ko.utils.cloneNodes(ko.virtualElements.childNodes(element), true /* shouldCleanNodes */);
                 }
 
-                if (rawValue != null) {
+                if (unwrappedValue != null) {
                     if (!isInitial) {
                         ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes!));
                     }
@@ -46,8 +46,8 @@ export default {
             }
 
             const collection = (bindingContext as any)[foreachCollectionSymbol]
-            if (!collection) {
-                throw new Error();
+            if (compileConstants.debug && !collection) {
+                throw new Error(`dotvvm-SSR-item is used in a context without $foreachCollectionSymbol. This is most likely a bug in DotVVM, please report it.`);
             }
 
             const innerBindingContext = bindingContext.createChildContext(() => {

@@ -45,8 +45,10 @@
         var RequestLog = ko.observable("");
         
         var origFetch = window.fetch;
-        window.fetch = function(url, req) {            
-            RequestLog(RequestLog() + ((req && req.method) || "GET") + " " + url + "\r\n");
+        window.fetch = function (url, req) {
+            if (typeof url === "string" && url.indexOf("negotiate") < 0) {
+                RequestLog(RequestLog() + ((req && req.method) || "GET") + " " + url + "\r\n");
+            }
             return origFetch.apply(this, arguments);
         };
     </dot:InlineScript>

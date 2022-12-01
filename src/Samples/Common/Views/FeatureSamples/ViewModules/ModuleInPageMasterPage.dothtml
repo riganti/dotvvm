@@ -2,6 +2,9 @@
 @masterPage Views/FeatureSamples/ViewModules/ModuleMasterPage.dotmaster
 @js FeatureSamples_Resources_TestViewModule2
 
+<dot:Content ContentPlaceHolderID="TitleContent">
+    Test title
+</dot:Content>
 <dot:Content ContentPlaceHolderID="MainContent">
 
     <div DataContext="{value: Page2}" class="page">

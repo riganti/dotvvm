@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Api;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
+using static DotVVM.Samples.Tests.UITestUtils;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -24,43 +26,50 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // click the first button (ID = 11)
                 browser.WaitFor(() => {
-                    browser.First(".id-company[data-company-id='11'] input[type=button]").Click()
-                        .Wait();
+                    browser.First(".id-company[data-company-id='11'] input[type=button]").Click();
                 }, 30000, "Cannot find CompanyID = 11. Probably data are not loaded. (The page did not load in 5s.)");
 
                 // ensure that orders have been loaded
-                var orders = browser.FindElements(".id-order");
-                AssertUI.Any(orders).Attribute("data-order-id", "6");
+                WaitForIgnoringStaleElements(() => {
+                    AssertUI.Any(browser.FindElements(".id-order"), waitForOptions: WaitForOptions.Disabled).Attribute("data-order-id", "6");
+                });
 
-                var idToDelete = orders[2].GetAttribute("data-order-id");       // every order has two elements (read-only and edit)
+                var idToDelete = browser.FindElements(".id-order")[2].GetAttribute("data-order-id");       // every order has two elements (read-only and edit)
 
                 // delete order (ID = 7)
-                browser.First($".id-order[data-order-id='{idToDelete}'] input[type=button][value=Delete]").Click().Wait();
-                orders = browser.FindElements(".id-order");
-                AssertUI.Any(orders).Attribute("data-order-id", "6");
-                AssertUI.All(orders).Attribute("data-order-id", s => s != idToDelete);
+                browser.First($".id-order[data-order-id='{idToDelete}'] input[type=button][value=Delete]").Click();
+                WaitForIgnoringStaleElements(() => {
+                    AssertUI.Any(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", "6");
+                    AssertUI.All(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", s => s != idToDelete);
+                });
 
                 // click the second button (ID = 12)
-                browser.First(".id-company[data-company-id='12'] input[type=button]").Click().Wait();
+                browser.First(".id-company[data-company-id='12'] input[type=button]").Click();
+
 
                 // ensure that orders have been loaded
-                orders = browser.FindElements(".id-order");
-                AssertUI.Any(orders).Attribute("data-order-id", "2");
-                AssertUI.Any(orders).Attribute("data-order-id", "9");
+                WaitForIgnoringStaleElements(() => {
+                    AssertUI.Any(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", "2");
+                    AssertUI.Any(browser.FindElements(".id-order"), WaitForOptions.Disabled).Attribute("data-order-id", "9");
+                });
 
                 // edit order (ID = 2)
-                browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click().Wait();
+                browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click();
                 browser.First(".id-order.id-edit input[type=text]").Clear().SendKeys("2000-01-01");
-                browser.First(".id-order.id-edit input[type=button][value=Apply]").Click().Wait();
-                browser.First(".id-order.id-edit input[type=button][value=Exit]").Click().Wait();
+                browser.First(".id-order.id-edit input[type=button][value=Apply]").Click();
+                WaitForIgnoringStaleElements(() => {
+                    browser.First(".id-order.id-edit input[type=button][value=Exit]").Click();
+                });
 
                 AssertUI.TextEquals(browser.First(".id-order[data-order-id='2'] .id-date"), "2000-01-01");
 
                 // change the order (ID = 2) date back so the test can be run once again
-                browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click().Wait();
+                browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click();
                 browser.First(".id-order.id-edit input[type=text]").Clear().SendKeys("2010-01-01");
-                browser.First(".id-order.id-edit input[type=button][value=Apply]").Click().Wait();
-                browser.First(".id-order.id-edit input[type=button][value=Exit]").Click().Wait();
+                browser.First(".id-order.id-edit input[type=button][value=Apply]").Click();
+                WaitForIgnoringStaleElements(() => {
+                    browser.First(".id-order.id-edit input[type=button][value=Exit]").Click();
+                });
 
                 AssertUI.TextEquals(browser.First(".id-order[data-order-id='2'] .id-date"), "2010-01-01");
             });
@@ -147,7 +156,7 @@ namespace DotVVM.Samples.Tests.Feature
                 {
                     r.First("input[type=checkbox]").Click();
                 }
-                browser.First(".form-grid input[type=button]").Click().Wait();
+                browser.First(".form-grid input[type=button]").Click();
                 browser.ElementAt(".form-create input[type=button]", 1).Click();
 
                 // make sure it disappeared
@@ -157,7 +166,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [Fact(Skip = "Doesn't work on OWIN because it relies on _apiCore.")]
+        [Fact]
         public void Feature_Api_BindingSharing()
         {
             RunInAllBrowsers(browser => {
@@ -234,6 +243,143 @@ namespace DotVVM.Samples.Tests.Feature
                 Assert.Single(requests, r => r.EndsWith("BindingSharing/post?category=1"));
                 Assert.Single(requests, r => r.EndsWith("BindingSharing/post?category=2"));
                 Assert.Single(requests, r => r.EndsWith("BindingSharing/post?category=3"));
+            });
+        }
+
+        [Fact]
+        public void Feature_Api_ApiRefresh()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_ApiRefresh);
+                
+                browser.Single("not-updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(0);
+                browser.Single("updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(0);
+                AssertUI.TextEquals(browser.Single("number", SelectByDataUi), "1");
+
+                browser.Single("input[type=text]").SendKeys(Keys.Backspace).SendKeys("11").SendKeys(Keys.Tab);
+
+                browser.Single("not-updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(0);
+                browser.Single("updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(10);
+
+                AssertUI.TextEquals(browser.Single("number", SelectByDataUi), "2");
+
+                browser.Single("input[type=text]").SendKeys(Keys.Backspace).SendKeys(Keys.Backspace).SendKeys("12").SendKeys(Keys.Tab);
+
+                browser.Single("not-updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(0);
+                browser.Single("updating", SelectByDataUi)
+                    .FindElements("td")
+                    .ThrowIfDifferentCountThan(6);
+
+                AssertUI.TextEquals(browser.Single("number", SelectByDataUi), "3");
+            });
+        }
+
+        [Fact]
+        [Trait("Category", "owin-only")]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Api_ApiInSpa_PageA))]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Api_ApiInSpa_PageB))]
+        public void Feature_Api_ApiInSpa()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_ApiInSpa_PageA);
+
+                // ensure data is reset
+                browser.Single("reset-button", SelectByDataUi).Click();
+
+                // check that the list of orders is loaded
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20"
+                );
+                var grid = browser.Single("table");
+                grid.FindElements("tr").ThrowIfDifferentCountThan(11);
+
+                // open detail of the order
+                grid.ElementAt("tr", 1).Single("a").Click();
+
+                // check that order detail is loaded
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/6"
+                );
+                var input = browser.Single("input[type=text]");
+                AssertUI.Value(input, "2010-01-10");
+
+                // check that the update is done when the button is clicked while the input is focused
+                input.Clear().SendKeys("2012-01-10");
+                browser.Single("update-button", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/6",
+                    "PUT /api/orders/6",
+                    "GET /api/orders/6"
+                );
+
+                // return to the list and make sure it is refreshed
+                browser.Single("return-link", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/6",
+                    "PUT /api/orders/6",
+                    "GET /api/orders/6",
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20"
+                );
+                grid = browser.Single("table");
+                grid.FindElements("tr").ThrowIfDifferentCountThan(11);
+
+                // open detail of the order
+                grid.ElementAt("tr", 2).Single("a").Click();
+
+                // delete the order
+                input = browser.Single("input[type=text]");
+                AssertUI.Value(input, "2011-04-11");
+                browser.Single("delete-button", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/6",
+                    "PUT /api/orders/6",
+                    "GET /api/orders/6",
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/7",
+                    "DELETE /api/orders/delete/7",
+                    "GET /api/orders/7"
+                );
+
+                // return to the list and make sure it is refreshed
+                browser.Single("return-link", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/6",
+                    "PUT /api/orders/6",
+                    "GET /api/orders/6",
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20",
+                    "GET /api/orders/7",
+                    "DELETE /api/orders/delete/7",
+                    "GET /api/orders/7",
+                    "GET /api/orders?companyId=11&pageIndex=0&pageSize=20"
+                );
+                grid = browser.Single("table");
+                grid.FindElements("tr").ThrowIfDifferentCountThan(10);
+
+                void CheckRequests(params string[] expected)
+                {
+                    var items = browser.FindElements("#request-log li");
+                    items.ThrowIfDifferentCountThan(expected.Length);
+
+                    for (var i = 0; i < expected.Length; i++)
+                    {
+                        AssertUI.TextEquals(items[i], expected[i]);
+                    }
+                }
             });
         }
 

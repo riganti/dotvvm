@@ -83,6 +83,8 @@ namespace DotVVM.Framework.Security
             var originalHttpContext = context.GetAspNetCoreContext();
             var sessionIdCookieName = GetSessionIdCookieName(context);
             if (string.IsNullOrWhiteSpace(sessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
+            if (context.HttpContext.Request.IsHttps)
+                sessionIdCookieName = "__Host-" + sessionIdCookieName;
             
             // Construct protector with purposes
             var protector = this.protectionProvider.CreateProtector(PURPOSE_SID);
@@ -109,6 +111,8 @@ namespace DotVVM.Framework.Security
                 }
             }
 
+            var canUseSameSite = !context.Configuration.Security.FrameOptionsCrossOrigin.IsEnabledForAnyRoute();
+
             // No SID - generate and protect new one
 
             if(canGenerate)
@@ -128,7 +132,7 @@ namespace DotVVM.Framework.Security
                     {
                         HttpOnly = true,                                // Don't allow client script access
                         Secure = context.HttpContext.Request.IsHttps,   // If request goes trough HTTPS, mark as secure only
-                        SameSite = SameSiteMode.Lax
+                        SameSite = canUseSameSite ? SameSiteMode.Lax : SameSiteMode.None
                     });
 
                 // Return newly generated SID

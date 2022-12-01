@@ -8,12 +8,14 @@ using Xunit;
 using Xunit.Abstractions;
 using Riganti.Selenium.DotVVM;
 using OpenQA.Selenium;
+using System.Net.Http;
 
 namespace DotVVM.Samples.Tests
 {
+    [Trait("Category", "dev-only")]
     public class ErrorsTests : AppSeleniumTest
     {
-        
+
         [Fact]
         public void Error_MissingViewModel()
         {
@@ -217,7 +219,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
-                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Can not translate field"));
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Cannot translate field"));
                 AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{{value: SomeField}}"));
             });
         }
@@ -312,7 +314,9 @@ namespace DotVVM.Samples.Tests
                 var query = link.Substring(startQuery + 2);
                 //Log("query: " + query);
                 var specificLink = "https://referencesource.microsoft.com/api/symbols/?symbol=" + query;
+#pragma warning disable SYSLIB0014 // obsolete warning, they can't remove this anyway :)
                 using (var wc = new System.Net.WebClient())
+#pragma warning restore SYSLIB0014
                 {
                     var downloadedString = wc.DownloadString(specificLink);
                     if (downloadedString.IndexOf("No results found", StringComparison.OrdinalIgnoreCase) != -1)
@@ -363,7 +367,9 @@ namespace DotVVM.Samples.Tests
                 var link = browser.FindElements("div.exceptionStackTrace  span.docLinks  a")
                     .First(s => s.Children.Any(c => c.GetTagName() == "img" && ((c.GetAttribute("src")?.IndexOf("github", StringComparison.OrdinalIgnoreCase) ?? -1) > -1)))
                     .GetAttribute("href");
+#pragma warning disable SYSLIB0014 // obsolete warning
                 var wr = (System.Net.HttpWebRequest)System.Net.WebRequest.CreateHttp(link);
+#pragma warning restore SYSLIB0014
 
                 using (var response = wr.GetResponse())
                 {
@@ -384,7 +390,7 @@ namespace DotVVM.Samples.Tests
                 AssertUI.TextEquals(browser.First("exceptionType", By.ClassName),
                     "DotVVM.Framework.Compilation.DotvvmCompilationException");
                 AssertUI.TextEquals(browser.First("exceptionMessage", By.ClassName),
-                    "DotVVM.InvalidNamespace.NonExistingService is not a valid type.");
+                    "Could not resolve type 'DotVVM.InvalidNamespace.NonExistingService'.");
             });
         }
 
@@ -407,7 +413,7 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_ResourceCircularDependency);
 
                 AssertUI.TextEquals(browser.First("exceptionType", By.ClassName),
-                    "DotVVM.Framework.ResourceManagement.DotvvmResourceException");
+                    "DotVVM.Framework.ResourceManagement.DotvvmCyclicResourceDependencyException");
                 AssertUI.TextEquals(browser.First("exceptionMessage", By.ClassName),
                     "Resource \"Errors_ResourceCircularDependency\" has a cyclic dependency: Errors_ResourceCircularDependency --> Errors_ResourceCircularDependency");
             });
@@ -450,6 +456,34 @@ namespace DotVVM.Samples.Tests
                 AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
                 AssertUI.TextEquals(browser.First(".exceptionMessage"), "Validation error in RouteLink at line 18: RouteName \"NonExistingRouteName\" does not exist.",
                    failureMessage: "Exception should contain information about the undefined route name");
+            });
+        }
+
+        [Fact]
+        public void Error_ExceptionInRender()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ExceptionInRender);
+
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("ExceptionThrower"));
+                browser.First("label[for=menu_radio_stack_trace]").Click();
+
+                AssertUI.InnerText(browser.First(".exceptionAdditionalInfo"), s => s.Contains("<strong />"));
+                AssertUI.InnerText(browser.First(".exceptionAdditionalInfo"), s => s.Contains("ExceptionInRender.dothtml"));
+            });
+        }
+
+        [Fact]
+        public void Error_ExceptionInLifecycle()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ExceptionInLifecycle);
+
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("ExceptionThrower"));
+                browser.First("label[for=menu_radio_stack_trace]").Click();
+
+                AssertUI.InnerText(browser.First(".exceptionAdditionalInfo"), s => s.Contains("<strong />"));
+                AssertUI.InnerText(browser.First(".exceptionAdditionalInfo"), s => s.Contains("ExceptionInLifecycle.dothtml"));
             });
         }
 

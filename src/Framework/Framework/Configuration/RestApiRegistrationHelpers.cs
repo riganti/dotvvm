@@ -127,10 +127,11 @@ namespace DotVVM.Framework.Configuration
                                 new JsFunctionExpression(new[] { new JsIdentifier("args") }, new JsBlockStatement(new JsReturnStatement(
                                     new JsArrayExpression(!isRead ? autoRefreshKeyExpression.Clone() : null)
                                 ))),
-                                isRead ? (JsExpression)new JsLiteral(null) : new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter, new CodeParameterAssignment("$element", OperatorPrecedence.Max)),
+                                isRead ? (JsExpression)new JsLiteral(null) : new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter, new CodeParameterAssignment("$element", OperatorPrecedence.Max)),
                                 new JsFunctionExpression(new[] { new JsIdentifier("args") }, new JsBlockStatement(new JsReturnStatement(
                                     isRead ? sharingKeyExpression.Clone() : new JsLiteral(Guid.NewGuid().ToString())
-                                )))
+                                ))),
+                                new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter, new CodeParameterAssignment("$element", OperatorPrecedence.Max))
                             ).WithAnnotation(ResultIsObservableAnnotation.Instance)
                              .WithAnnotation(MayBeNullAnnotation.Instance)
                              .WithAnnotation(new ViewModelInfoAnnotation(method.ReturnType))
@@ -225,7 +226,7 @@ namespace DotVVM.Framework.Configuration
 
         private static void RegisterApiDependencies(DotvvmConfiguration configuration, string identifier, string jsApiClientFile, JsNode jsinitializer, ApiGroupDescriptor descriptor)
         {
-            configuration.Resources.Register("apiClient" + identifier, new ScriptResource(location: new FileResourceLocation(jsApiClientFile)));
+            configuration.Resources.RegisterScript("apiClient" + identifier, new FileResourceLocation(jsApiClientFile));
             configuration.Resources.Register("apiInit" + identifier, new InlineScriptResource(defer: true, code: jsinitializer.FormatScript(niceMode: configuration.Debug)) { Dependencies = new[] { "dotvvm", "apiClient" + identifier } });
 
             configuration.Markup.DefaultExtensionParameters.Add(new ApiExtensionParameter(identifier, descriptor));

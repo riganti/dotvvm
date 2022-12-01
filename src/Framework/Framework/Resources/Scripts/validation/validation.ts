@@ -4,15 +4,15 @@ import { allErrors, detachAllErrors, ValidationError, getErrors } from "./error"
 import { DotvvmEvent } from '../events'
 import * as spaEvents from '../spa/events'
 import { postbackHandlers } from "../postback/handlers"
-import { DotvvmValidationContext, ErrorsPropertyName } from "./common"
+import { DotvvmValidationContext, errorsSymbol } from "./common"
 import { isPrimitive, keys } from "../utils/objects"
 import { elementActions } from "./actions"
 import { DotvvmPostbackError } from "../shared-classes"
 import { getObjectTypeInfo } from "../metadata/typeMap"
 import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
-import { lastSetErrorSymbol } from "../state-manager"
-import { logError } from "../utils/logging"
+import { currentStateSymbol, lastSetErrorSymbol } from "../state-manager"
+import { logError, logWarning } from "../utils/logging"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -21,7 +21,7 @@ type ValidationSummaryBinding = {
     hideWhenValid: boolean
 }
 
-type DotvvmValidationErrorsChangedEventArgs = PostbackOptions & {
+type DotvvmValidationErrorsChangedEventArgs = Partial<PostbackOptions> & {
     readonly allErrors: ValidationError[]
 }
 
@@ -32,38 +32,55 @@ export const events = {
 };
 
 export const globalValidationObject = {
+    /** Dictionary of client-side validation rules. Add new items to this object if you want to add support for new validation rules */
     rules: validators,
+    /** List of all currently active errors */
     errors: allErrors,
-    events
+    events,
+    /** Add the specified list of validation errors. `dotvvm.validation.addErrors([ { errorMessage: "test error", propertyPath: "/LoginForm/Name" } ])` */
+    addErrors,
+    /** Removes errors from the specified properties.
+     *  The errors are removed recursively, so calling `dotvvm.validation.removeErrors("/")` removes all errors in the page,
+     *  `dotvvm.validation.removeErrors("/Detail")` removes all errors from the object in property root.Detail */
+    removeErrors
 }
 
-const createValidationHandler = (path: string) => ({
+const createValidationHandler = (pathFunction: (context: KnockoutBindingContext) => any, pathId: string) => ({
     name: "validate",
     execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
-        if (path) {
-            options.validationTargetPath = path;
+        if (pathFunction) {
+            options.validationTargetPath = pathId
             // resolve target
-            const context = ko.contextFor(options.sender);
-            const validationTarget = evaluator.evaluateOnViewModel(context, path);
+            const context = ko.contextFor(options.sender!);
+            const validationTarget = pathFunction(context);
 
-            watchAndTriggerValidationErrorChanged(options, () => {
-                detachAllErrors();
-                validateViewModel(validationTarget);
-            });
+            runClientSideValidation(validationTarget, options);
 
             if (allErrors.length > 0) {
                 logError("validation", "Validation failed: postback aborted; errors: ", allErrors);
                 return Promise.reject(new DotvvmPostbackError({ type: "handler", handlerName: "validation", message: "Validation failed" }))
             }
         }
-        return callback()
+        return callback();
     }
 })
 
+const runClientSideValidation = (validationTarget: any, options: PostbackOptions) => {
+
+    watchAndTriggerValidationErrorChanged(options,
+        () => {
+            detachAllErrors();
+            const root = dotvvm.state;
+            const target = ko.unwrap(validationTarget)[currentStateSymbol];
+            const path = evaluator.findPathToChildObject(root, target, "")!;
+            validateViewModel(validationTarget, path);
+        });
+}
+
 export function init() {
-    postbackHandlers["validate"] = (opt) => createValidationHandler(opt.path);
-    postbackHandlers["validate-root"] = () => createValidationHandler("dotvvm.viewModelObservables['root']");
-    postbackHandlers["validate-this"] = () => createValidationHandler("$data");
+    postbackHandlers["validate"] = (opt) => createValidationHandler(opt.fn, opt.path);
+    postbackHandlers["validate-root"] = () => createValidationHandler(c => dotvvm.viewModelObservables.root, "/");
+    postbackHandlers["validate-this"] = () => createValidationHandler(c => c.$data, "_this");
 
     if (compileConstants.isSpa) {
         spaEvents.spaNavigating.subscribe(args => {
@@ -89,6 +106,7 @@ export function init() {
     ko.bindingHandlers["dotvvm-validationSummary"] = {
         init: (element: HTMLElement, valueAccessor: () => ValidationSummaryBinding) => {
             const binding = valueAccessor();
+
             validationErrorsChanged.subscribe(_ => {
                 element.innerHTML = "";
                 const errors = getValidationErrors(
@@ -110,7 +128,7 @@ export function init() {
     }
 }
 
-function validateViewModel(viewModel: any): void {
+function validateViewModel(viewModel: any, path: string): void {
     if (ko.isObservable(viewModel)) {
         viewModel = ko.unwrap(viewModel);
     }
@@ -139,33 +157,34 @@ function validateViewModel(viewModel: any): void {
         const propertyValue = observable();
 
         // run validators
+        const propertyPath = path + "/" + propertyName;
         const propInfo = typeInfo?.properties[propertyName];
     
         if (propInfo?.validationRules) {
-            validateProperty(viewModel, observable, propertyValue, propInfo.validationRules);
+            validateProperty(viewModel, observable, propertyValue, propertyPath, propInfo.validationRules);
         }
-        
-        validateRecursive(propertyName, observable, propertyValue, propInfo?.type || { type: "dynamic" });
+
+        validateRecursive(observable, propertyValue, propInfo?.type || { type: "dynamic" }, propertyPath);
     }
 }
 
-function validateRecursive(propertyName: string, observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition) {
+function validateRecursive(observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition, propertyPath: string) {
     const lastSetError: CoerceResult = (observable as any)[lastSetErrorSymbol];
     if (lastSetError && lastSetError.isError) {
-        ValidationError.attach(lastSetError.message, observable);
+        ValidationError.attach(lastSetError.message, propertyPath, observable);
     }
     
     if (Array.isArray(type)) {
         if (!propertyValue) return;
         let i = 0;
         for (const item of propertyValue) {
-            validateRecursive("[" + i + "]", item, ko.unwrap(item), type[0]);
+            validateRecursive(item, ko.unwrap(item), type[0], `${propertyPath}/[${i}]`);
             i++;
         }
         
     } else if (typeof type === "string") {
         if (!(type in primitiveTypes)) {
-            validateViewModel(propertyValue);
+            validateViewModel(propertyValue, propertyPath);
         }
 
     } else if (typeof type === "object") {
@@ -174,15 +193,15 @@ function validateRecursive(propertyName: string, observable: KnockoutObservable<
             if (Array.isArray(propertyValue)) {
                 let i = 0;
                 for (const item of propertyValue) {
-                    validateRecursive("[" + i + "]", item, ko.unwrap(item), { type: "dynamic" });
+                    validateRecursive(item, ko.unwrap(item), { type: "dynamic" }, `${propertyPath}/[${i}]`);
                     i++;
                 }
             } else if (propertyValue && typeof propertyValue === "object") {
                 if (propertyValue["$type"]) {
-                    validateViewModel(propertyValue);
+                    validateViewModel(propertyValue, propertyPath);
                 } else {
                     for (const k of keys(propertyValue)) {
-                        validateRecursive(k, ko.unwrap(propertyValue[k]), propertyValue[k], { type: "dynamic" });
+                        validateRecursive(ko.unwrap(propertyValue[k]), propertyValue[k], { type: "dynamic" }, propertyPath + "/" + k);
                     }
                 }
             }
@@ -191,15 +210,8 @@ function validateRecursive(propertyName: string, observable: KnockoutObservable<
     }
 }
 
-function validateArray(propertyValue: any[], type: TypeDefinition) {
-    // handle collections
-    for (const item of propertyValue) {
-        validateViewModel(item);
-    }
-}
-
 /** validates the specified property in the viewModel */
-function validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, propertyRules: PropertyValidationRuleInfo[]) {
+function validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, propertyPath: string, propertyRules: PropertyValidationRuleInfo[]) {
     for (const rule of propertyRules) {
         // validate the rules
         const validator = validators[rule.ruleName];
@@ -210,7 +222,7 @@ function validateProperty(viewModel: any, property: KnockoutObservable<any>, val
         };
 
         if (!validator.isValid(value, context, property)) {
-            ValidationError.attach(rule.errorMessage, property);
+            ValidationError.attach(rule.errorMessage, propertyPath, property);
         }
     }
 }
@@ -233,10 +245,10 @@ function getValidationErrors<T>(
 
     let errors: ValidationError[] = [];
 
-    if (includeErrorsFromTarget && ko.isObservable(targetObservable) && ErrorsPropertyName in targetObservable) {
-        errors = errors.concat(targetObservable[ErrorsPropertyName]);
+    if (includeErrorsFromTarget && ko.isObservable(targetObservable) && (targetObservable as any)[errorsSymbol] != null) {
+        errors = errors.concat((targetObservable as any)[errorsSymbol]);
     }
-
+     
     if (!includeErrorsFromChildren) {
         return errors;
     }
@@ -276,31 +288,74 @@ function getValidationErrors<T>(
     return errors;
 }
 
+export type ValidationErrorDescriptor = {
+    /** Error to be displayed to the user */
+    errorMessage: string
+    /** Path in the view model to the annotated property, for example `/LoginPage/Name` */
+    propertyPath: string
+}
+
+export type AddErrorsOptions = {
+    /** Root object from which are the property paths resolved. By default it's the root view model of the page */
+    root?: KnockoutObservable<any> | any
+    /** When set to false, the validationErrorsChanged is not triggered. By default it's true -> the error is triggered.
+     *  The validationErrorsChanged event controls the `Validator`s in the DotHTML page, so when it's not triggered, the change won't be visible. */
+    triggerErrorsChanged?: false
+}
+
+export function removeErrors(...paths: string[]) {
+    function pathStartsWith(prefixPath: string, path: string) {
+        // normalize paths = append / to each path and remove duplicated slashes
+        const normRegex = /(\/+)/g
+        prefixPath = (prefixPath + "/").replace(normRegex, "/")
+        path = (path + "/").replace(normRegex, "/")
+
+        return prefixPath == path || path.startsWith(prefixPath)
+    }
+
+    let changed = false;
+
+    const errorsCopy = Array.from(allErrors)
+    errorsCopy.reverse()
+    for (const e of errorsCopy) {
+        if (paths.some(p => pathStartsWith(p, e.propertyPath))) {
+            e.detach();
+            changed = true;
+        }
+    }
+
+    if (changed)
+        validationErrorsChanged.trigger({ allErrors })
+}
+
+
+export function addErrors(errors: ValidationErrorDescriptor[], options: AddErrorsOptions = {}): void {
+    const root = options.root ?? dotvvm.viewModelObservables.root
+    for (const prop of errors) {
+        const propertyPath = prop.propertyPath;
+        try {
+            // find the property
+            const property = evaluator.traverseContext(root, propertyPath);
+            ValidationError.attach(prop.errorMessage, propertyPath, property);
+        } catch (err) {
+            logWarning("validation", err);
+        }
+    }
+
+    if (options.triggerErrorsChanged !== false && errors.length > 0) {
+        validationErrorsChanged.trigger({ allErrors });
+    }
+}
+
 /**
  * Adds validation errors from the server to the appropriate arrays
  */
-export function showValidationErrorsFromServer(dataContext: any, path: string, serverResponseObject: any, options: PostbackOptions) {
+export function showValidationErrorsFromServer(serverResponseObject: any, options: PostbackOptions) {
     watchAndTriggerValidationErrorChanged(options, () => {
         detachAllErrors()
-        // resolve validation target
-        const validationTarget = <KnockoutObservable<any>> evaluator.evaluateOnViewModel(
-            dataContext,
-            path!);
-        if (!validationTarget) {
-            return;
-        }
 
         // add validation errors
-        for (const prop of serverResponseObject.modelState) {
-            // find the property
-            const propertyPath = prop.propertyPath;
-            const property =
-                propertyPath ?
-                evaluator.evaluateOnViewModel(ko.unwrap(validationTarget), propertyPath) :
-                validationTarget;
-
-            ValidationError.attach(prop.errorMessage, property);
-        }
+        addErrors(serverResponseObject.modelState, { triggerErrorsChanged: false })
     });
 }
 

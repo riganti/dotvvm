@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsBlockStatement : JsStatement
+    public sealed class JsBlockStatement : JsStatement
     {
         public static JsTreeRole<JsStatement> BodyRole = new JsTreeRole<JsStatement>("Body");
         public JsNodeCollection<JsStatement> Body => new JsNodeCollection<JsStatement>(this, BodyRole);

@@ -1,9 +1,7 @@
 ﻿using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ViewModel;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -61,7 +59,7 @@ namespace DotVVM.Framework.Routing
                     invalidRoutes.Add(new DotvvmConfigurationAssertResult<RouteBase>(route, DotvvmConfigurationAssertReason.MissingFile));
                 }
             }
-            var validControls = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            var validControls = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var control in config.Markup.Controls)
             {
 

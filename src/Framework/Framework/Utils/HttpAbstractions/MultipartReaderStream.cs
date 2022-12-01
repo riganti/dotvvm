@@ -303,7 +303,7 @@ namespace Microsoft.AspNet.WebUtilities
                 int countLimit = segment1.Offset - matchOffset + segment1.Count;
                 for (matchCount = 0; matchCount < matchBytes.Length && matchCount < countLimit; matchCount++)
                 {
-                    if (matchBytes[matchCount] != segment1.Array[matchOffset + matchCount])
+                    if (matchBytes[matchCount] != segment1.Array![matchOffset + matchCount])
                     {
                         matchCount = 0;
                         break;

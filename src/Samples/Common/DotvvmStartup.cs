@@ -29,10 +29,11 @@ using DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation;
 using DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.Views.ControlSamples.TemplateHost;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Samples.BasicSamples
 {
-    public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
+    public class DotvvmStartup : IDotvvmStartup
     {
         public const string GitHubTokenEnvName = "GITHUB_TOKEN";
         public const string GitHubTokenConfigName = "githubApiToken";
@@ -57,11 +58,13 @@ namespace DotVVM.Samples.BasicSamples
             // new GithubApiClient.GithubApiClient().Repos.GetIssues()
 
             config.RegisterApiGroup(typeof(Common.Api.Owin.TestWebApiClientOwin), "http://localhost:61453/", "Scripts/TestWebApiClientOwin.js", "_apiOwin");
-            config.RegisterApiClient(typeof(Common.Api.AspNetCore.TestWebApiClientAspNetCore), "http://localhost:5001/", "Scripts/TestWebApiClientAspNetCore.js", "_apiCore");
+            config.RegisterApiClient(typeof(Common.Api.AspNetCore.TestWebApiClientAspNetCore), "http://localhost:50001/", "Scripts/TestWebApiClientAspNetCore.js", "_apiCore");
 
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
 
             LoadSampleConfiguration(config, applicationPath);
+
+            config.Resources.RegisterStylesheetFile("bulma", "node_modules/bulma/css/bulma.css");
 
             config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(typeof(JavascriptTranslationTestMethods),
                     nameof(JavascriptTranslationTestMethods.Unwrap),
@@ -195,6 +198,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater", "Views/FeatureSamples/PostBack/RecursiveTextRepeater.dotcontrol");
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater2", "Views/FeatureSamples/PostBack/RecursiveTextRepeater2.dotcontrol");
             config.Markup.AddMarkupControl("cc", "ModuleControl", "Views/FeatureSamples/ViewModules/ModuleControl.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "LinkModuleControl", "Views/FeatureSamples/ViewModules/LinkModuleControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "Incrementer", "Views/FeatureSamples/ViewModules/Incrementer.dotcontrol");
             config.Markup.AddMarkupControl("cc", "TemplatedListControl", "Views/ControlSamples/TemplateHost/TemplatedListControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "TemplatedMarkupControl", "Views/ControlSamples/TemplateHost/TemplatedMarkupControl.dotcontrol");
@@ -206,9 +210,5 @@ namespace DotVVM.Samples.BasicSamples
 
         }
 
-        public void ConfigureServices(IDotvvmServiceCollection options)
-        {
-            CommonConfiguration.ConfigureServices(options);
-        }
     }
 }

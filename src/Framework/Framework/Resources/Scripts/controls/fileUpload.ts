@@ -11,7 +11,7 @@ export function showUploadDialog(sender: HTMLElement) {
 export function reportProgress(inputControl: HTMLInputElement, isBusy: boolean, progress: number, result: DotvvmStaticCommandResponse<DotvvmFileUploadData[]> | string): void {
     // find target control viewmodel
     const targetControl = <HTMLDivElement> inputControl.parentElement!;
-    const viewModel = <DotvvmFileUploadCollection> ko.dataFor(targetControl.firstChild);
+    const viewModel = <DotvvmFileUploadCollection> ko.dataFor(targetControl.firstChild!);
 
     // determine the status
     if (typeof result === "string") {
@@ -21,9 +21,13 @@ export function reportProgress(inputControl: HTMLInputElement, isBusy: boolean, 
         // files were uploaded successfully
         viewModel.Error("");
         updateTypeInfo(result.typeMetadata);
-        for (let i = 0; i < result.result.length; i++) {
-            viewModel.Files.push(wrapObservable(deserialize(result.result[i])));
-        }
+
+        // if multiple files are allowed, we append to the collection
+        // if it's not, we replace the collection with the one new file
+        const allowMultiple = inputControl.multiple
+        const filesObservable = viewModel.Files as DotvvmObservable<any>;
+        const newFiles = allowMultiple ? [...filesObservable.state, ...result.result] : result.result;
+        filesObservable.setState!(newFiles)
 
         // call the handler
         if (((<any> targetControl.attributes)["data-dotvvm-upload-completed"] || { value: null }).value) {

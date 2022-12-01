@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             foreach (var c in node.Children)
             {
-                if (c.HasAnnotation<ShouldBeObservableAnnotation>() ||
+                if (c.HasAnnotation(ShouldBeObservableAnnotation.Instance) ||
                     c.Parent is JsAssignmentExpression && c.Role == JsAssignmentExpression.LeftRole)
                 {
                     // This method or assignment expects observable, so we stop prefering state for the subtree
@@ -49,12 +49,12 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
             }
 
-            if (node.Annotation<VMPropertyInfoAnnotation>() is { MemberInfo: {} member } propAnnotation)
+            if (node.Annotation<VMPropertyInfoAnnotation>() is { MemberInfo: var member } propAnnotation)
             {
                 var target = node.GetChildByRole(JsTreeRoles.TargetExpression)!;
-                if (target.HasAnnotation<ObservableUnwrapInvocationAnnotation>())
+                if (target.HasAnnotation(ObservableUnwrapInvocationAnnotation.Instance))
                     target = target.GetChildByRole(JsTreeRoles.TargetExpression);
-                else if (target.HasAnnotation<ObservableSetterInvocationAnnotation>())
+                else if (target.HasAnnotation(ObservableSetterInvocationAnnotation.Instance))
                     throw new NotImplementedException();
 
                 var propertyType = propAnnotation.ResultType;
@@ -69,14 +69,14 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
                 if (propAnnotation.SerializationMap is ViewModelPropertyMap propertyMap)
                 {
-                    if (propertyMap.ViewModelProtection == ViewModel.ProtectMode.EncryptData) throw new Exception($"Property {member.Name} is encrypted and cannot be used in JS.");
+                    if (propertyMap.ViewModelProtection == ViewModel.ProtectMode.EncryptData) throw new Exception($"Property {member?.Name} is encrypted and cannot be used in JS.");
                     if (node is JsMemberAccessExpression memberAccess && propertyMap.Name != memberAccess.MemberName)
                     {
                         memberAccess.MemberName = propertyMap.Name;
                     }
                 }
                 else if (member is FieldInfo)
-                    throw new NotSupportedException($"Can not translate field '{member}' to Javascript");
+                    throw new NotSupportedException($"Cannot translate field '{member}' to Javascript");
 
                 annotation.ContainsObservables ??= !this.preferUsingState; // we don't know -> guess what is the current preference
 
@@ -111,20 +111,20 @@ namespace DotVVM.Framework.Compilation.Javascript
                     expr.WithAnnotation(ShouldBeObservableAnnotation.Instance)
                         .Member("state")
                         .WithAnnotation(new ViewModelInfoAnnotation(typeAnnotation.Type, typeAnnotation.IsControl, typeAnnotation.ExtensionParameter, containsObservables: false))
-                        .WithAnnotation(expr.Annotation<MayBeNullAnnotation>())
+                        .WithConditionalAnnotation(expr.HasAnnotation(MayBeNullAnnotation.Instance), MayBeNullAnnotation.Instance)
                 );
             }
             DefaultVisit(expr);
 
             // by some luck, we got an observable into the tree -> replace the property with Prop.state to get rid of it
-            if (preferUsingState && expr.HasAnnotation<ResultIsObservableAnnotation>())
+            if (preferUsingState && expr.HasAnnotation(ResultIsObservableAnnotation.Instance))
             {
                 var typeAnnotation = expr.Annotation<ViewModelInfoAnnotation>().NotNull();
                 expr.ReplaceWith(_ =>
                     expr.WithAnnotation(ShouldBeObservableAnnotation.Instance)
                         .Member("state")
                         .WithAnnotation(new ViewModelInfoAnnotation(typeAnnotation.Type, typeAnnotation.IsControl, typeAnnotation.ExtensionParameter, containsObservables: false))
-                        .WithAnnotation(expr.Annotation<MayBeNullAnnotation>())
+                        .WithConditionalAnnotation(expr.HasAnnotation(MayBeNullAnnotation.Instance), MayBeNullAnnotation.Instance)
                 );
             }
         }
@@ -143,8 +143,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     vmType.ContainsObservables = false;
                     newExpr = (JsExpression)expr.ReplaceWith(_ =>
-                        JavascriptTranslator.GetKnockoutContextParameter(vmSymbol.ParentIndex).ToExpression()
-                            .Member("$rawData")
+                        JavascriptTranslator.GetKnockoutViewModelParameter(vmSymbol.ParentIndex, returnsObservable: true).ToExpression()
                             .Member("state").WithAnnotation(vmType));
                 }
                 else

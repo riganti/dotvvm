@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
@@ -660,6 +661,17 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
         [Fact]
+        public void Feature_Lambda_Expression_Static_Command_List_Contains()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_LambdaExpressions_StaticCommands);
+                var textbox = browser.First("[data-ui=textbox]");
+
+                browser.First($"//input[@value='Is there green in the list']", By.XPath).Click();
+                AssertUI.InnerTextEquals(textbox, "true");
+            });
+        }
+        [Fact]
         public void Feature_List_Translation_Add_Item()
         {
             RunInAllBrowsers(browser => {
@@ -780,7 +792,10 @@ namespace DotVVM.Samples.Tests.Feature
 
                 var rows = GetSortedRow(browser, "RemoveRange (2,5)");
                 var column = GetColumnContent(rows, 0);
-                browser.WaitFor(() => Assert.Equal(5, column.Count), 500);
+                browser.WaitFor(() => {
+                    column = GetColumnContent(SelectRows(browser), 0);
+                    Assert.Equal(5, column.Count);
+                }, 500);
                 Assert.Equal(new List<string> { "1", "2", "8", "9", "10" }, column);
             });
         }
@@ -802,11 +817,17 @@ namespace DotVVM.Samples.Tests.Feature
         {
             var orderByBtn = browser.First($"//input[@value='{btn}']", By.XPath);
             orderByBtn.Click();
+            return SelectRows(browser);
+        }
+
+        private static IElementWrapperCollection<IElementWrapper, IBrowserWrapper> SelectRows(IBrowserWrapper browser)
+        {
             var filteredGrid = browser.First("[data-ui=grid]");
             var rows = filteredGrid.FindElements("tbody tr", By.CssSelector);
             return rows;
         }
-        protected List<string> RowContent(IElementWrapperCollection<IElementWrapper,IBrowserWrapper> rows, int trIndex, ICollection<int> cols)
+
+        protected List<string> RowContent(IElementWrapperCollection<IElementWrapper, IBrowserWrapper> rows, int trIndex, ICollection<int> cols)
         {
             return RowContent(rows.ElementAt(trIndex), cols);
         }
@@ -822,16 +843,18 @@ namespace DotVVM.Samples.Tests.Feature
 
             return content;
         }
-        public List<string> GetColumnContent(IElementWrapperCollection<IElementWrapper, IBrowserWrapper> rows, int column)
+        public List<string> GetColumnContent(IElementWrapperCollection<IElementWrapper, IBrowserWrapper> rows, int column, int retries = 10)
         {
-            var content = new List<string>();
-
-            foreach (var row in rows)
+            // stale element are way too common here :/
+            try
             {
-                content.Add(row.FindElements("td").ElementAt(column).GetInnerText());
+                return rows.Select(row => row.FindElements("td").ElementAt(column).GetInnerText()).ToList();
             }
-
-            return content;
+            catch (StaleElementReferenceException) when (retries > 0)
+            {
+                Thread.Sleep(100);
+                return GetColumnContent(rows, column, retries - 1);
+            }
         }
     }
 }

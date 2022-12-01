@@ -1,0 +1,22 @@
+<html>
+	<head></head>
+	<body>
+		async static command with arg                 
+		<!-- ko dotvvm-named-command: { viewIdOrElement: "p0", name: "1", command: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.viewModules.call("p0", "myCmd", [args[0]]),$element,[],args,$context)) } -->
+		<!-- /ko -->                 async static command with Invoke&lt;Task&gt;                 
+		<!-- ko dotvvm-named-command: { viewIdOrElement: "p0", name: "1", command: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.viewModules.call("p0", "myCmd", [args[0]]),$element,[],args,$context)) } -->
+		<!-- /ko -->                 Command with arg                 
+		<!-- ko dotvvm-named-command: { viewIdOrElement: "p0", name: "2", command: (...args)=>(dotvvm.postBack($element,[],"yRBKC1vu64PakIw5","",$context,[],args,undefined)) } -->
+		<!-- /ko -->                 sync static command with argument                 
+		<!-- ko dotvvm-named-command: { viewIdOrElement: "p0", name: "3", command: (...args)=>(dotvvm.applyPostbackHandlers((options) => options.viewModel.int(args[0]).int(),$element,[],args,$context)) } -->
+		<!-- /ko -->                 Just command                 
+		<!-- ko dotvvm-named-command: { viewIdOrElement: "p0", name: "4", command: ()=>(dotvvm.postBack($element,[],"mG+gjNG3qwd9ds35","",$context,[],[],undefined)) } -->
+		<!-- /ko -->                 async static command                 
+		<!-- ko dotvvm-named-command: { viewIdOrElement: "p0", name: "5", command: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.viewModules.call("p0", "myCmd", []),$element,[],args,$context)) } -->
+		<!-- /ko -->                 sync static command                 
+		<!-- ko dotvvm-named-command: { viewIdOrElement: "p0", name: "6", command: (...args)=>(dotvvm.applyPostbackHandlers((options) => {
+	0;
+},$element,[],args,$context)) } -->
+		<!-- /ko -->
+	</body>
+</html>

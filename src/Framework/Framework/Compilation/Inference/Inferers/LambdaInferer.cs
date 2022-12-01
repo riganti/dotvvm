@@ -87,10 +87,10 @@ namespace DotVVM.Framework.Compilation.Inference
         {
             parameters = null;
 
-            if (!ReflectionUtils.IsDelegate(delegateType))
+            if (!delegateType.IsDelegate(out var invokeMethod))
                 return false;
 
-            var delegateParameters = delegateType.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance).GetParameters();
+            var delegateParameters = invokeMethod.GetParameters();
             if (delegateParameters.Length != argsCount)
                 return false;
 

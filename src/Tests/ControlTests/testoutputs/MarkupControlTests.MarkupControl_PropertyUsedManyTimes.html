@@ -1,0 +1,21 @@
+<html>
+	<head></head>
+	<body>
+		<div data-bind="dotvvm-with-control-properties: { Another: int }">
+			
+			<!-- ko text: $control.Another -->
+			<!-- /ko -->  10000000 
+			<!-- ko text: $control.Another -->
+			<!-- /ko -->
+			<span class="x" data-bind="css: { x: $control.Another() > 10 }"></span>
+		</div>
+		<div data-bind="dotvvm-with-control-properties: { Another: 10 }">
+			
+			<!-- ko text: $control.Another -->
+			<!-- /ko -->  10 
+			<!-- ko text: $control.Another -->
+			<!-- /ko -->
+			<span data-bind="css: { x: $control.Another() > 10 }"></span>
+		</div>
+	</body>
+</html>

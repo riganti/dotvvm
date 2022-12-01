@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsObjectExpression: JsExpression
+    public sealed class JsObjectExpression: JsExpression
     {
         public static JsTreeRole<JsObjectProperty> PropertyRole = new JsTreeRole<JsObjectProperty>("Property");
         public JsNodeCollection<JsObjectProperty> Properties => new JsNodeCollection<JsObjectProperty>(this, PropertyRole);
@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitObjectExpression(this);
     }
 
-    public class JsObjectProperty: JsNode
+    public sealed class JsObjectProperty: JsNode
     {
         public JsIdentifier Identifier
         {

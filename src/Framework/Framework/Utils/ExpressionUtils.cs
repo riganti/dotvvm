@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using DotVVM.Framework.Compilation.ControlTree;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Utils
 {
@@ -35,7 +36,23 @@ namespace DotVVM.Framework.Utils
         public static BinaryExpression UpdateType(this BinaryExpression expr, ExpressionType type) =>
             Expression.MakeBinary(type, expr.Left, expr.Right);
 
-        public static Expression Replace(LambdaExpression ex, params Expression[] parameters)
+        public static Expression WrapException(Expression expr, Action<Exception> wrapException)
+        {
+            var p = Expression.Parameter(typeof(Exception), "ex");
+            return Expression.TryCatch(
+                expr,
+                Expression.Catch(
+                    p,
+                    Expression.Block(
+                        Expression.Invoke(Expression.Constant(wrapException), p),
+                        Expression.Rethrow(expr.Type)
+                    )
+                )
+            );
+        }
+
+        /// <summary> Substitutes arguments in the LambdaExpression with the specified expressions. </summary>
+        public static Expression Replace(this LambdaExpression ex, params Expression[] parameters)
         {
             var visitor = new ReplaceVisitor();
             for (int i = 0; i < parameters.Length; i++)
@@ -49,6 +66,10 @@ namespace DotVVM.Framework.Utils
 
         #region Replace overloads
 
+        public static Expression Replace<TRes>(Expression<Func<TRes>> ex)
+        {
+            return Replace(ex as LambdaExpression);
+        }
         public static Expression Replace<T1, TRes>(Expression<Func<T1, TRes>> ex, Expression p1)
         {
             return Replace(ex as LambdaExpression, p1);
@@ -143,21 +164,21 @@ namespace DotVVM.Framework.Utils
             public Action<PropertyInfo>? PropertyInfoAction { get; set; }
             public Action<MethodInfo>? MethodInfoAction { get; set; }
 
-            private void Invoke(MethodInfo method)
+            private void Invoke(MethodInfo? method)
             {
                 if (method == null) return;
                 if (MethodInfoAction != null) MethodInfoAction(method);
                 if (MemberInfoAction != null) MemberInfoAction(method);
             }
 
-            private void Invoke(PropertyInfo property)
+            private void Invoke(PropertyInfo? property)
             {
                 if (property == null) return;
                 if (PropertyInfoAction != null) PropertyInfoAction(property);
                 if (MemberInfoAction != null) MemberInfoAction(property);
             }
 
-            private void Invoke(MemberInfo memberInfo)
+            private void Invoke(MemberInfo? memberInfo)
             {
                 if (memberInfo == null) return;
                 if (memberInfo is PropertyInfo propInfo) Invoke(propInfo);
@@ -219,7 +240,7 @@ namespace DotVVM.Framework.Utils
                 if (node.Member.MemberType == MemberTypes.Property)
                 {
                     var i = Visit(node.Expression);
-                    if (i.NodeType == ExpressionType.Constant)
+                    if (i is { NodeType: ExpressionType.Constant })
                     {
                         var ce = (ConstantExpression)i;
                         var prop = ce.Type.GetProperty(node.Member.Name)!;
@@ -231,7 +252,7 @@ namespace DotVVM.Framework.Utils
                 else if (node.Member.MemberType == MemberTypes.Field)
                 {
                     var i = Visit(node.Expression);
-                    if (i.NodeType == ExpressionType.Constant)
+                    if (i is { NodeType: ExpressionType.Constant })
                     {
                         var ce = (ConstantExpression)i;
                         var f = (FieldInfo)node.Member;
@@ -251,7 +272,7 @@ namespace DotVVM.Framework.Utils
                 if (lc != null && rc != null)
                 {
                     if (node.Method != null)
-                        return Expression.Constant(node.Method.Invoke(null, new object[] { lc.Value, rc.Value }));
+                        return Expression.Constant(node.Method.Invoke(null, new [] { lc.Value, rc.Value }), node.Type);
                     else return node;
                 }
                 else return base.VisitBinary(node);
@@ -260,10 +281,10 @@ namespace DotVVM.Framework.Utils
             protected override Expression VisitUnary(UnaryExpression node)
             {
                 var op = Visit(node.Operand);
-                if (op is ConstantExpression constantExpression)
+                if (op is ConstantExpression constantExpression && node.Method != null)
                 {
                     return Expression.Constant(
-                        node.Method.Invoke(null, new object[] { constantExpression.Value }), node.Type);
+                        node.Method.Invoke(null, new [] { constantExpression.Value }), node.Type);
                 }
                 else return base.VisitUnary(node);
             }
@@ -282,9 +303,10 @@ namespace DotVVM.Framework.Utils
             }
 
             public Func<Expression, Expression> Replacer { get; }
-            public override Expression Visit(Expression expr)
+            [return: NotNullIfNotNull("expr")]
+            public override Expression? Visit(Expression? expr)
             {
-                return Replacer(base.Visit(expr));
+                return base.Visit(expr)?.Apply(Replacer);
             }
         }
     }

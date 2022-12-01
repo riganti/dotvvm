@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<object?, SelectorItem>(t => t.Value, null);
 
         public SelectorItem()
-            : base("option")
+            : base("option", false)
         {
         }
 
@@ -40,6 +40,13 @@ namespace DotVVM.Framework.Controls
         {
             Text = text;
             Value = value;
+        }
+
+        public SelectorItem(ValueOrBinding<string> text, ValueOrBinding<object> value)
+            : this()
+        {
+            this.SetValue(TextProperty, text);
+            this.SetValue(ValueProperty, value);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)

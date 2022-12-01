@@ -1,3 +1,4 @@
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -33,6 +34,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the property in the control metadata.
         /// </summary>
-        IPropertyDescriptor? FindProperty(IControlResolverMetadata controlMetadata, string name);
+        IPropertyDescriptor? FindProperty(IControlResolverMetadata controlMetadata, string name, MappingMode requiredMode);
     }
 }

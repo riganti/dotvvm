@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -28,6 +29,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		/// Gets property groups available on this control (list is ordered - longer prefix goes first)
 		/// </summary>
 		IReadOnlyList<PropertyGroupMatcher> PropertyGroups { get; }
+
+        ControlPrecompilationMode PrecompilationMode { get; }
 
         DataContextChangeAttribute[] DataContextChangeAttributes { get; }
 		DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; }

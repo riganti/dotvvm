@@ -3,12 +3,15 @@
 import { createArray, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
 import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
-import { getObjectTypeInfo } from "./metadata/typeMap";
+import { areObjectTypesEqual, getObjectTypeInfo } from "./metadata/typeMap";
 import { coerce } from "./metadata/coercer";
 import { patchViewModel } from "./postback/updater";
 import { wrapObservable } from "./utils/knockout";
 import { logWarning } from "./utils/logging";
 import { observable } from "knockout";
+import {ValidationError} from "./validation/error";
+import { errorsSymbol } from "./validation/common";
+
 
 export const currentStateSymbol = Symbol("currentState")
 export const notifySymbol = Symbol("notify")
@@ -81,26 +84,28 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         this.rerender(performance.now());
     }
 
-    private startTime: number | null = null
     private rerender(time: number) {
-        if (this.startTime === null) this.startTime = time
-        const realStart = performance.now()
         this._isDirty = false
 
-        this.stateUpdateEvent.trigger(this._state)
-        isViewModelUpdating = true
-        ko.delaySync.pause()
         try {
-            this.stateObservable[notifySymbol as any](this._state)
+            isViewModelUpdating = true
+            ko.delaySync.pause()
+
+            this.stateUpdateEvent.trigger(this._state);
+
+            (this.stateObservable as any)[notifySymbol as any](this._state)
         } finally {
-            isViewModelUpdating = false
-            ko.delaySync.resume()
+            try {
+                ko.delaySync.resume()
+            } finally {
+                isViewModelUpdating = false
+            }
         }
         //logInfoVerbose("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart);
     }
 
     public setState(newState: DeepReadonly<TViewModel>): DeepReadonly<TViewModel> {
-        if (newState == null) throw new Error("State can't be null or undefined.")
+        if (compileConstants.debug && newState == null) throw new Error("State can't be null or undefined.")
         if (newState === this._state) return newState
 
         const type = newState.$type || this._state.$type
@@ -122,6 +127,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
 
 class FakeObservableObject<T extends object> implements UpdatableObjectExtensions<T> {
     public [currentStateSymbol]: T
+    public [errorsSymbol]: Array<ValidationError>
     public [updateSymbol]: UpdateDispatcher<T>
     public [notifySymbol](newValue: T) {
         console.assert(newValue)
@@ -147,14 +153,13 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
             return Object.freeze({ ...vm, [propName]: newValue }) as any
         })
     }
-
     constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
         this[currentStateSymbol] = initialValue
         this[updateSymbol] = updater
-
+        this[errorsSymbol] = []
         for (const p of keys(typeInfo?.properties || {}).concat(additionalProperties)) {
             this[internalPropCache][p] = null
-        
+
             Object.defineProperty(this, p, {
                 enumerable: true,
                 configurable: false,
@@ -226,7 +231,7 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
     let typeInfo;
     if (typeId && !(typeId.hasOwnProperty("type") && typeId["type"] === "dynamic")) {
         typeInfo = getObjectTypeInfo(typeId)
-    } 
+    }
 
     const pSet = new Set();         // IE11 doesn't support constructor with arguments
     if (typeInfo) {
@@ -265,7 +270,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
             triggerLastSetErrorUpdate(this);
-            logWarning("state-manager", `Can not update observable to ${newValue}:`, err)
+            logWarning("state-manager", `Cannot update observable to ${newValue}:`, err)
             throw err
         }
     }
@@ -276,9 +281,9 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
     function notify(newVal: any) {
         const currentValue = obs[currentStateSymbol]
 
-        if (newVal === currentValue) { 
-            return 
-        } 
+        if (newVal === currentValue) {
+            return
+        }
 
         const observableWasSetFromOutside = updatedObservable
         updatedObservable = false
@@ -322,7 +327,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                     if (newContents[index] && newContents[index][notifySymbol as any]) {
                         continue
                     }
-                    if (newContents[index]) {
+                    if (compileConstants.debug && newContents[index]) {
                         logWarning("state-manager", `Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, unmapKnockoutObservables(newContents[index]))
                     }
                     const indexForClosure = index
@@ -351,7 +356,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                 return
             }
         }
-        else if (!observableWasSetFromOutside && oldContents && oldContents[notifySymbol] && currentValue["$type"] && currentValue["$type"] === newVal["$type"]) {
+        else if (!observableWasSetFromOutside && oldContents && oldContents[notifySymbol] && areObjectTypesEqual(currentValue, newVal)) {
             // smart object, supports the notification by itself
             oldContents[notifySymbol as any](newVal)
 
@@ -399,3 +404,4 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
     });
     return obs
 }
+

@@ -4,22 +4,37 @@ type LogLevel = "normal" | "verbose";
 
 export const level = getLogLevel();
 
-export function logInfoVerbose(area: string, ...args: any[]) {
-    if (level === "verbose") {
-        console.log(`%c${area}`, "background-color: #7fdbff", ...args);
+export type DotvvmLoggingArea = (
+    | "debug"
+    | "configuration"
+    | "postback"
+    | "spa"
+    | "static-command"
+    | "binding-handler"
+    | "resource-loader"
+    | "coercer"
+    | "state-manager"
+    | "validation"
+    | "events"
+    | "rest-api"
+)
+
+export function logInfoVerbose(area: DotvvmLoggingArea, ...args: any[]) {
+    if (compileConstants.debug && level === "verbose") {
+        console.log(`%c${area}`, ...args);
     }
 }
 
-export function logInfo(area: string, ...args: any[]) {
-    console.log(`%c${area}`, "background-color: #f0f0f0", ...args);
+export function logInfo(area: DotvvmLoggingArea, ...args: any[]) {
+    console.log(area, ...args);
 }
 
-export function logWarning(area: string, ...args: any[]) {
-    console.warn(`%c${area}`, "background-color: #ff851b", ...args);
+export function logWarning(area: DotvvmLoggingArea, ...args: any[]) {
+    console.warn(area, ...args);
 }
 
-export function logError(area: string, ...args: any[]) {
-    console.error(`%c${area}`, "background-color: #ff4136; color: white", ...args);
+export function logError(area: DotvvmLoggingArea, ...args: any[]) {
+    console.error(area, ...args);
 }
 
 export function logPostBackScriptError(err: any) {
@@ -30,10 +45,21 @@ export function logPostBackScriptError(err: any) {
 }
 
 function getLogLevel() : LogLevel {
-    var logLevel = window.localStorage.getItem("dotvvm-loglevel");
-    if (!logLevel) return "normal";
-    if (logLevel === "normal" || logLevel === "verbose") return logLevel;
-    
-    logWarning("log", "Invalid value of 'dotvvm-loglevel' config value! Supported values: 'normal', 'verbose'");
+    if (compileConstants.debug) {
+        var logLevel = window.localStorage.getItem("dotvvm-loglevel");
+        if (!logLevel) return "normal";
+        if (logLevel === "normal" || logLevel === "verbose") return logLevel;
+
+        logWarning("configuration", "Invalid value of 'dotvvm-loglevel' config value! Supported values: 'normal', 'verbose'");
+    }
     return "normal";
+}
+
+/** puts the string in quotes, escaping weird characters if it is more complex than just letters */
+export function debugQuoteString(s: string) {
+    if (/[\w-_]/.test(s)) {
+        return s;
+    } else {
+        return JSON.stringify(s);
+    }
 }

@@ -1,4 +1,4 @@
-import { parseDate, serializeDate } from '../serialization/date'
+import { parseDate, parseDateOnly, parseTimeOnly, serializeDate, serializeDateOnly, serializeTimeOnly } from '../serialization/date'
 import * as globalize from '../DotVVM.Globalize'
 import { DotvvmValidationElementMetadata, DotvvmValidationObservableMetadata, getValidationMetadata } from '../validation/common';
 import { lastSetErrorSymbol } from '../state-manager';
@@ -18,16 +18,16 @@ export default {
                 domNodeDisposal: false,
                 elementValidationState: true
             }
-            
+
             // add metadata for validation
             let metadata = [] as DotvvmValidationObservableMetadata
             if (ko.isObservable(obs)) {
-                if (!obs.dotvvmMetadata) {
-                    obs.dotvvmMetadata = [elmMetadata];
+                if (!(obs as any).dotvvmMetadata) {
+                    (obs as any).dotvvmMetadata = [elmMetadata];
                 } else {
-                    obs.dotvvmMetadata.push(elmMetadata);
+                    (obs as any).dotvvmMetadata.push(elmMetadata);
                 }
-                metadata = obs.dotvvmMetadata;
+                metadata = (obs as any).dotvvmMetadata;
             }
             setTimeout(() => {
                 // remove element from collection when its removed from dom
@@ -40,7 +40,7 @@ export default {
                     }
                 });
             }, 0);
-            
+
             const valueUpdateHandler = () => {
                 const obs = valueAccessor();
                 if (!ko.isObservable(obs)) {
@@ -48,23 +48,26 @@ export default {
                 }
 
                 // parse the value
-                let result;
-                let isEmpty;
                 let newValue;
                 if (elmMetadata.dataType === "datetime") {
                     // parse date
-                    let currentValue = obs();
-                    if (currentValue != null) {
-                        currentValue = parseDate(currentValue);
-                    }
-                    result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
-                    isEmpty = result == null;
-                    newValue = isEmpty ? null : serializeDate(result, false);
+                    let currentValue = parseDate(obs());
+                    const result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
+                    newValue = !result ? null : serializeDate(result, false);
                 } else if (elmMetadata.dataType === "number") {
                     // parse number
-                    result = globalize.parseNumber(element.value);
-                    isEmpty = result === null || isNaN(result);
-                    newValue = isEmpty ? null : result;
+                    const result = globalize.parseNumber(element.value);
+                    newValue = result == null || isNaN(result) ? null : result;
+                } else if (elmMetadata.dataType === "dateonly") {
+                    // parse dateonly
+                    let currentValue = parseDateOnly(obs());
+                    const result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
+                    newValue = !result ? null : serializeDateOnly(result);
+                } else if (elmMetadata.dataType === "timeonly") {
+                    // parse timeonly
+                    let currentValue = parseTimeOnly(obs());
+                    const result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
+                    newValue = !result ? null : serializeTimeOnly(result);
                 } else {
                     // string
                     newValue = element.value;
@@ -80,7 +83,7 @@ export default {
                     element.setAttribute("data-dotvvm-value-type-valid", "true");
                     elmMetadata.elementValidationState = true;
                 }
-            
+
                 const originalElementValue = element.value;
                 try {
                     if (obs.peek() === newValue) {
@@ -91,9 +94,11 @@ export default {
                             (obs as any)[lastSetErrorSymbol] = void 0;
                         }
                     } else {
-                        obs(newValue);
+                        if (element.validity.valid || element.value !== '') {
+                            obs(newValue);
+                        }
                     }
-                } catch (err) { 
+                } catch (err) {
                     // observable may throw an exception if there is a validation error
                     // but subscribers will be notified anyway so it's not a problem
                     elmMetadata.elementValidationState = false;
@@ -105,7 +110,7 @@ export default {
                 }
             };
 
-            element.addEventListener(valueUpdate, valueUpdateHandler);            
+            element.addEventListener(valueUpdate, valueUpdateHandler);
         },
         update(element: HTMLInputElement, valueAccessor: () => any) {
             const obs = valueAccessor();
@@ -116,7 +121,7 @@ export default {
             // apply formatting
             const format = element.getAttribute("data-dotvvm-format");
             if (format) {
-                value = globalize.formatString(format, value);
+                value = globalize.formatString(format, value, element.getAttribute("data-dotvvm-value-type"));
             }
 
             const invalidValue = element.getAttribute("data-invalid-value");

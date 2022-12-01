@@ -1,14 +1,14 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Directives;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -35,6 +35,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
         public static IServiceCollection RegisterDotVVMServices(IServiceCollection services)
         {
+            // init dotvvm controls in the background, they will be needed no matter what
+            DefaultControlResolver.InvokeStaticConstructorsOnDotvvmControls();
+
             services.AddOptions();
 
             services.TryAddSingleton<CompiledAssemblyCache>();
@@ -52,6 +55,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
             services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();
             services.TryAddSingleton<UserColumnMappingCache>();
+            services.TryAddSingleton<IValidationErrorPathExpander, ValidationErrorPathExpander>();
             services.TryAddSingleton<IViewModelValidator, ViewModelValidator>();
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
             services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();
@@ -61,12 +65,14 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IControlBuilderFactory, DefaultControlBuilderFactory>();
             services.TryAddSingleton<IControlResolver, DefaultControlResolver>();
             services.TryAddSingleton<IControlTreeResolver, DefaultControlTreeResolver>();
+            services.TryAddSingleton<IMarkupDirectiveCompilerPipeline, MarkupDirectiveCompilerPipeline>();
             services.TryAddSingleton<IAbstractTreeBuilder, ResolvedTreeBuilder>();
             services.TryAddSingleton<Func<ControlUsageValidationVisitor>>(s => () => ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(s));
             services.TryAddSingleton<IViewCompiler, DefaultViewCompiler>();
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
             services.TryAddSingleton<BindingCompilationService, BindingCompilationService>();
+            services.TryAddSingleton<DirectiveCompilationService, DirectiveCompilationService>();
             services.TryAddSingleton<DataPager.CommonBindings>();
             services.TryAddSingleton<IControlUsageValidator, DefaultControlUsageValidator>();
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
@@ -76,7 +82,14 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
             services.TryAddSingleton<IExpressionToDelegateCompiler, DefaultExpressionToDelegateCompiler>();
 
+            services.AddScoped<IRequestTracer>(s => {
+                var config = s.GetRequiredService<DotvvmConfiguration>();
+                return (config.Diagnostics.PerfWarnings.IsEnabled ? (IRequestTracer)s.GetService<PerformanceWarningTracer>() : null) ?? NullRequestTracer.Instance;
+            });
+            services.TryAddSingleton<JsonSizeAnalyzer>();
+            services.TryAddScoped<PerformanceWarningTracer>();
             services.TryAddScoped<RuntimeWarningCollector>();
+            services.AddTransient<IDotvvmWarningSink, AspNetCoreLoggerWarningSink>();
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
             services.TryAddSingleton<StaticCommandMethodTranslator>();
@@ -99,10 +112,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<StylingVisitor>(s));
                 var requiredResourceControl = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
                 o.TreeVisitors.Add(() => new StyleTreeShufflingVisitor(controlResolver));
+                o.TreeVisitors.Add(() => new ControlPrecompilationVisitor(s));
+                o.TreeVisitors.Add(() => new LiteralOptimizationVisitor());
                 o.TreeVisitors.Add(() => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl));
                 var requiredGlobalizeControl = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(GlobalizeResource)));
                 o.TreeVisitors.Add(() => new GlobalizeResourceVisitor((ControlResolverMetadata)requiredGlobalizeControl));
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<DataContextPropertyAssigningVisitor>(s));
+                o.TreeVisitors.Add(() => new UsedPropertiesFindingVisitor());
                 o.TreeVisitors.Add(() => new LifecycleRequirementsAssigningVisitor());
             });
 
@@ -110,6 +126,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<DotvvmErrorPageRenderer>();
             services.AddSingleton<IDotvvmViewCompilationService, DotvvmViewCompilationService>();
             services.AddSingleton<CompilationPageApiPresenter>();
+
 
             return services;
         }

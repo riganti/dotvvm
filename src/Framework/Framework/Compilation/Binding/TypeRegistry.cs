@@ -12,9 +12,9 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         private readonly CompiledAssemblyCache compiledAssemblyCache;
         private readonly ImmutableDictionary<string, Expression> registry;
-        private readonly ImmutableList<Func<string, Expression?>> resolvers;
+        private readonly ImmutableArray<Func<string, Expression?>> resolvers;
 
-        public TypeRegistry(CompiledAssemblyCache compiledAssemblyCache, ImmutableDictionary<string, Expression> registry, ImmutableList<Func<string, Expression?>> resolvers)
+        public TypeRegistry(CompiledAssemblyCache compiledAssemblyCache, ImmutableDictionary<string, Expression> registry, ImmutableArray<Func<string, Expression?>> resolvers)
         {
             this.compiledAssemblyCache = compiledAssemblyCache;
             this.registry = registry;
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         public TypeRegistry AddSymbols(IEnumerable<ParameterExpression> symbols) =>
-            AddSymbols(symbols.Select(s => new KeyValuePair<string, Expression>(s.Name, s)));
+            AddSymbols(symbols.Select(s => new KeyValuePair<string, Expression>(s.Name!, s)));
 
         public TypeRegistry AddSymbols(IEnumerable<KeyValuePair<string, Expression>> symbols)
         {
@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return type == null ? null : new StaticClassIdentifierExpression(type);
         }
 
-        public static TypeRegistry Default(CompiledAssemblyCache compiledAssemblyCache) => new TypeRegistry(compiledAssemblyCache,
+        private static readonly ImmutableDictionary<string, Expression> predefinedTypes =
             ImmutableDictionary<string, Expression>.Empty
                 .Add("object", CreateStatic(typeof(Object)))
                 .Add("bool", CreateStatic(typeof(Boolean)))
@@ -88,44 +88,39 @@ namespace DotVVM.Framework.Compilation.Binding
                 .Add("Decimal", CreateStatic(typeof(Decimal)))
                 .Add("Double", CreateStatic(typeof(Double)))
                 .Add("Single", CreateStatic(typeof(Single)))
-                .Add("String", CreateStatic(typeof(String))),
-            ImmutableList<Func<string, Expression?>>.Empty
-                .Add(type => CreateStatic(compiledAssemblyCache.FindType(type)))
-                .Add(type => CreateStatic(compiledAssemblyCache.FindType("System." + type)))
-            );
+                .Add("String", CreateStatic(typeof(String)));
+
+        public static TypeRegistry Default(CompiledAssemblyCache compiledAssemblyCache) => new TypeRegistry(compiledAssemblyCache,
+            predefinedTypes,
+            ImmutableArray.Create<Func<string, Expression?>>(
+                type => CreateStatic(compiledAssemblyCache.FindType(type)),
+                type => CreateStatic(compiledAssemblyCache.FindType("System." + type))
+            ));
 
         public static TypeRegistry DirectivesDefault(CompiledAssemblyCache compiledAssemblyCache, string? assemblyName = null) => new TypeRegistry(compiledAssemblyCache,
-           ImmutableDictionary<string, Expression>.Empty
-               .Add("object", CreateStatic(typeof(Object)))
-               .Add("bool", CreateStatic(typeof(Boolean)))
-               .Add("byte", CreateStatic(typeof(Byte)))
-               .Add("char", CreateStatic(typeof(Char)))
-               .Add("short", CreateStatic(typeof(Int16)))
-               .Add("int", CreateStatic(typeof(Int32)))
-               .Add("long", CreateStatic(typeof(Int64)))
-               .Add("ushort", CreateStatic(typeof(UInt16)))
-               .Add("uint", CreateStatic(typeof(UInt32)))
-               .Add("ulong", CreateStatic(typeof(UInt64)))
-               .Add("decimal", CreateStatic(typeof(Decimal)))
-               .Add("double", CreateStatic(typeof(Double)))
-               .Add("float", CreateStatic(typeof(Single)))
-               .Add("string", CreateStatic(typeof(String)))
-               .Add("Object", CreateStatic(typeof(Object)))
-               .Add("Boolean", CreateStatic(typeof(Boolean)))
-               .Add("Byte", CreateStatic(typeof(Byte)))
-               .Add("Char", CreateStatic(typeof(Char)))
-               .Add("Int16", CreateStatic(typeof(Int16)))
-               .Add("Int32", CreateStatic(typeof(Int32)))
-               .Add("Int64", CreateStatic(typeof(Int64)))
-               .Add("UInt16", CreateStatic(typeof(UInt16)))
-               .Add("UInt32", CreateStatic(typeof(UInt32)))
-               .Add("UInt64", CreateStatic(typeof(UInt64)))
-               .Add("Decimal", CreateStatic(typeof(Decimal)))
-               .Add("Double", CreateStatic(typeof(Double)))
-               .Add("Single", CreateStatic(typeof(Single)))
-               .Add("String", CreateStatic(typeof(String))),
-           ImmutableList<Func<string, Expression?>>.Empty
-               .Add(type => CreateStatic(compiledAssemblyCache.FindType(type + (assemblyName != null ? $", {assemblyName}" : ""))))
-           );
+           predefinedTypes,
+           ImmutableArray.Create<Func<string, Expression?>>(
+               type => CreateStatic(compiledAssemblyCache.FindType(type + (assemblyName != null ? $", {assemblyName}" : "")))
+           ));
+
+        public TypeRegistry AddImportedTypes(CompiledAssemblyCache compiledAssemblyCache, ImmutableArray<NamespaceImport> importNamespaces)
+                => AddSymbols(importNamespaces.Select(ns => CreateTypeLoader(ns, compiledAssemblyCache)));
+
+        private static Func<string, Expression?> CreateTypeLoader(NamespaceImport import, CompiledAssemblyCache compiledAssemblyCache)
+        {
+            if (import.Alias is not null)
+                return t => {
+                    if (t.Length >= import.Alias.Length && t.StartsWith(import.Alias, StringComparison.Ordinal))
+                    {
+                        string name;
+                        if (t == import.Alias) name = import.Namespace;
+                        else if (t.Length > import.Alias.Length + 1 && t[import.Alias.Length] == '.') name = import.Namespace + "." + t.Substring(import.Alias.Length + 1);
+                        else return null;
+                        return TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(name));
+                    }
+                    else return null;
+                };
+            else return t => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(import.Namespace + "." + t));
+        }
     }
 }

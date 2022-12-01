@@ -4,7 +4,7 @@ using DotVVM.Framework.Binding;
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     [DebuggerDisplay("{Property}='{{Binding}}'")]
-    public class ResolvedPropertyBinding : ResolvedPropertySetter, IAbstractPropertyBinding
+    public sealed class ResolvedPropertyBinding : ResolvedPropertySetter, IAbstractPropertyBinding
     {
         public ResolvedBinding Binding { get; set; }
 
@@ -12,6 +12,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             Binding = binding;
             binding.Parent = this;
+            DothtmlNode = binding.DothtmlNode;
         }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)

@@ -348,7 +348,7 @@ namespace DotVVM.Framework.Tests.Routing
         {
             var route = new DotvvmRoute("myPage/{Id}/edit", null, null, null, configuration);
 
-            var ex = Assert.ThrowsException<Exception>(() => {
+            var ex = Assert.ThrowsException<DotvvmRouteException>(() => {
                 route.BuildUrl(new Dictionary<string, object> { ["Id"] = null });
             });
             Assert.IsInstanceOfType(ex.InnerException, typeof(ArgumentNullException));
@@ -367,23 +367,26 @@ namespace DotVVM.Framework.Tests.Routing
         [TestMethod]
         public void DotvvmRoute_BuildUrl_InvariantCulture()
         {
-            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("cs-CZ");
-            var route = new DotvvmRoute("RR-{p}", null, null, null, configuration);
+            CultureUtils.RunWithCulture("cs-CZ", () =>
+            {
+                var route = new DotvvmRoute("RR-{p}", null, null, null, configuration);
 
-            var result = route.BuildUrl(new { p = 1.1});
+                var result = route.BuildUrl(new { p = 1.1 });
 
-            Assert.AreEqual("~/RR-1.1", result);
+                Assert.AreEqual("~/RR-1.1", result);
+            });
         }
 
         [TestMethod]
         public void DotvvmRoute_BuildUrl_UrlEncode()
         {
-            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("cs-CZ");
-            var route = new DotvvmRoute("RR-{p}", null, null, null, configuration);
+            CultureUtils.RunWithCulture("cs-CZ", () => {
+                var route = new DotvvmRoute("RR-{p}", null, null, null, configuration);
 
-            var result = route.BuildUrl(new { p = 1.1});
+                var result = route.BuildUrl(new { p = 1.1});
 
-            Assert.AreEqual("~/RR-1.1", result);
+                Assert.AreEqual("~/RR-1.1", result);
+            });
         }
 
         [TestMethod]

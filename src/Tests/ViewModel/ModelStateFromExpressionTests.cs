@@ -46,13 +46,13 @@ namespace DotVVM.Framework.Tests.ViewModel
         [TestMethod]
         public void ModelState_NestedViewModelExpression()
         {
-            Assert.AreEqual("AnotherProperty().StringProp", ValidationErrorFactory.CreateModelError(viewModel, v => v.AnotherProperty.StringProp, "").PropertyPath);
+            Assert.AreEqual("AnotherProperty/StringProp", ValidationErrorFactory.CreateModelError(viewModel, v => v.AnotherProperty.StringProp, "").PropertyPath);
         }
 
         [TestMethod]
         public void ModelState_ArrayAccessExpression()
         {
-            Assert.AreEqual("AnotherProperty().TestViewModel2().Collection()[0]().StringValue", ValidationErrorFactory.CreateModelError(viewModel, v => v.AnotherProperty.TestViewModel2.Collection[0].StringValue, "").PropertyPath);
+            Assert.AreEqual("AnotherProperty/TestViewModel2/Collection/0/StringValue", ValidationErrorFactory.CreateModelError(viewModel, v => v.AnotherProperty.TestViewModel2.Collection[0].StringValue, "").PropertyPath);
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var result = viewModel.Validate(null).ToArray();
             var memberNames = result[0].MemberNames.ToArray();
-            Assert.AreEqual(memberNames[0], "AnotherProperty().EnumProperty");
+            Assert.AreEqual(memberNames[0], "AnotherProperty/EnumProperty");
             Assert.AreEqual(memberNames[1], "rp");
         }
 

@@ -11,6 +11,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Configuration;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Controls
 {
@@ -18,7 +19,15 @@ namespace DotVVM.Framework.Controls
     {
         public static void WriteRouteLinkHrefAttribute(RouteLink control, IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            EnsureUsesOnlyDefinedParameters(control, context);
+            var routeName = control.RouteName;
+            if (string.IsNullOrEmpty(routeName))
+            {
+                if (control.HasBinding(RouteLink.RouteNameProperty))
+                    throw new DotvvmControlException(control, $"RouteName property is set to a binding {control.GetBinding(RouteLink.RouteNameProperty)} which evaluates to null. If you have placed the RouteLink in a Repeater, use server rendering - client-side rendering of variable RouteName is not supported.");
+                else
+                    throw new DotvvmControlException(control, "RouteName property is set to null.");
+            }
+            EnsureUsesOnlyDefinedParameters(routeName, control, context);
 
             // Render client-side knockout expression only if there exists a parameter with value binding
             var containsBinding =
@@ -29,13 +38,13 @@ namespace DotVVM.Framework.Controls
             if (containsBinding)
             {
                 var group = new KnockoutBindingGroup();
-                group.Add("href", GenerateKnockoutHrefExpression(control.RouteName, control, context));
+                group.Add("href", GenerateKnockoutHrefExpression(routeName, control, context));
                 writer.AddKnockoutDataBind("attr", group);
             }
 
             try
             {
-                writer.AddAttribute("href", EvaluateRouteUrl(control.RouteName, control, context));
+                writer.AddAttribute("href", EvaluateRouteUrl(routeName, control, context));
             }
             catch when (!control.RenderOnServer && containsBinding)
             {
@@ -43,18 +52,21 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private static void EnsureUsesOnlyDefinedParameters(RouteLink control, IDotvvmRequestContext context)
+        private static void EnsureUsesOnlyDefinedParameters(string routeName, RouteLink control, IDotvvmRequestContext context)
         {
             var parameterReferences = control.Params;
-            var parameterDefinitions = context.Configuration.RouteTable[control.RouteName].ParameterNames;           
+            var route = context.Configuration.RouteTable[routeName];
+            var parameterDefinitions = route.ParameterNames;
 
             var invalidReferences = parameterReferences.Where(param =>
-                !parameterDefinitions.Contains(param.Key, StringComparer.InvariantCultureIgnoreCase));
+                !parameterDefinitions.Contains(param.Key, StringComparer.OrdinalIgnoreCase));
 
             if (invalidReferences.Any())
             {
-                var parameters = string.Join(", ", invalidReferences.Select(kv => kv.Key));
-                throw new DotvvmRouteException($"The following parameters are not present in route {control.RouteName}: {parameters}");
+                var parameters = invalidReferences.Select(kv => kv.Key).ToImmutableArray();
+                throw new RouteMissingParametersException(route, parameters) {
+                    RelatedControl = control
+                };
             }
         }
 
@@ -79,10 +91,15 @@ namespace DotVVM.Framework.Controls
             var parameters = ComposeNewRouteParameters(control, context, route);
 
             // evaluate bindings on server
-            foreach (var param in parameters.Where(p => p.Value is IStaticValueBinding).ToList())
+            foreach (var param in parameters
+#if !DotNetCore
+// .NET framework does not allow dictionary modification while it's being enumerated.
+                .ToArray()
+#endif
+            )
             {
-                EnsureValidBindingType((IBinding)param.Value!);
-                parameters[param.Key] = ((IValueBinding)param.Value!).Evaluate(control);   // TODO: see below
+                if (param.Value is IStaticValueBinding binding)
+                    parameters[param.Key] = binding.Evaluate(control);
             }
 
             // generate the URL

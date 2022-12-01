@@ -38,26 +38,31 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        bool hasViewModule = false;
+
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             base.RenderBeginTag(writer, context);
 
             var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
-            if (viewModule is object)
+            // some users put ContentPlaceHolder into the <head> element, but knockout comments maybe cause problems in there
+            // we rather check if we are in head and ignore the @js directive there 
+            var isInHead = this.GetAllAncestors().OfType<HtmlGenericControl>().Any(c => "head".Equals(c.TagName,StringComparison.OrdinalIgnoreCase));
+            if (viewModule is object && !isInHead)
             {
+                hasViewModule = true;
                 var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
 
                 writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
-                    $"{{ viewIdOrElement: {KnockoutHelper.MakeStringLiteral(viewModule.ViewId)}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
+                    $"{{ viewId: {KnockoutHelper.MakeStringLiteral(viewModule.ViewId)}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
                 );
             }
         }
 
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
-            if (viewModule is object)
+            if (hasViewModule)
             {
                 writer.WriteKnockoutDataBindEndComment();
             }

@@ -44,21 +44,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, Literal>(c => c.FormatString, "");
 
         /// <summary>
-        /// Gets or sets the type of value being formatted - Number or DateTime.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
-        public FormatValueType ValueType
-        {
-            get { return (FormatValueType)GetValue(ValueTypeProperty)!; }
-            set { SetValue(ValueTypeProperty, value); }
-        }
-
-        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
-        public static readonly DotvvmProperty ValueTypeProperty =
-            DotvvmProperty.Register<FormatValueType, Literal>(t => t.ValueType);
-
-        /// <summary>
         /// Gets or sets whether the literal should render the wrapper span HTML element.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
@@ -74,19 +59,25 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
         /// </summary>
-        public Literal(bool allowImplicitLifecycleRequirements = true) : base("span")
+        public Literal() : base("span", false)
         {
-            if (allowImplicitLifecycleRequirements) LifecycleRequirements = ControlLifecycleRequirements.PreRender;
+            LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
         /// </summary>
-        public Literal(string text, bool allowImplicitLifecycleRequirements = true) : base("span", false)
+        public Literal(string text, bool renderSpan = false) : base("span", false)
         {
             Text = text;
-            RenderSpanElement = false;
-            if (allowImplicitLifecycleRequirements) LifecycleRequirements = ControlLifecycleRequirements.None;
+            RenderSpanElement = renderSpan;
+            LifecycleRequirements = ControlLifecycleRequirements.None;
+        }
+
+        public Literal(ValueOrBinding<string> text, bool renderSpan = false): this()
+        {
+            SetValue(TextProperty, text);
+            RenderSpanElement = renderSpan;
         }
 
         public Literal(ValueOrBinding text, bool renderSpan = false): this()
@@ -104,7 +95,8 @@ namespace DotVVM.Framework.Controls
         public static bool NeedsFormatting(IValueBinding? binding)
         {
             bool isFormattedType(Type? type) =>
-                type != null && (type == typeof(float) || type == typeof(double) || type == typeof(decimal) || type == typeof(DateTime) || isFormattedType(Nullable.GetUnderlyingType(type)));
+                type != null && (type == typeof(float) || type == typeof(double) || type == typeof(decimal) ||
+                type == typeof(DateTime) || type == typeof(DateOnly) || type == typeof(TimeOnly) || isFormattedType(Nullable.GetUnderlyingType(type)));
 
             bool isFormattedTypeOrObj(Type? type) => type == typeof(object) || isFormattedType(type);
 
@@ -115,9 +107,6 @@ namespace DotVVM.Framework.Controls
 
         public bool IsFormattingRequired =>
             !string.IsNullOrEmpty(FormatString) ||
-#pragma warning disable
-            ValueType != FormatValueType.Text ||
-#pragma warning restore
             NeedsFormatting(GetValueBinding(TextProperty));
 
         private new struct RenderState
@@ -136,9 +125,7 @@ namespace DotVVM.Framework.Controls
                 r.Text = value;
             else if (prop == RenderSpanElementProperty)
                 r.RenderSpanElement = (bool)EvalPropertyValue(RenderSpanElementProperty, value)!;
-#pragma warning disable CS0618
-            else if (prop == FormatStringProperty || prop == ValueTypeProperty)
-#pragma warning restore CS0618
+            else if (prop == FormatStringProperty)
                 r.HasFormattingStuff = true;
             else if (base.TouchProperty(prop, value, ref r.HtmlState)) { }
             else if (DotvvmControl.TouchProperty(prop, value, ref r.BaseState)) { }
@@ -165,7 +152,7 @@ namespace DotVVM.Framework.Controls
 
             // render Knockout data-bind
             string? expression = null;
-            if (textBinding != null && !r.HtmlState.RenderOnServer(this))
+            if (textBinding != null)
             {
                 expression = textBinding.GetKnockoutBindingExpression(this);
                 if (isFormattingRequired)
@@ -173,7 +160,13 @@ namespace DotVVM.Framework.Controls
                     // almost always the Literal will be rendered before script resources are, so requesting the resource in render should be safe. In case it's not, user can always add it manually (the error message should be quite clear).
                     context.ResourceManager.AddCurrentCultureGlobalizationResource();
 
-                    expression = "dotvvm.globalize.formatString(" + JsonConvert.ToString(FormatString) + ", " + expression + ")";
+                    // get value binding type and unwrap if it is nullable
+                    var valueBindingType = GetValueBinding(TextProperty)?.ResultType;
+                    if (valueBindingType != null && valueBindingType.IsNullable())
+                        valueBindingType = valueBindingType.UnwrapNullableType();
+
+                    var formattedType = $"\"{valueBindingType?.Name.ToLowerInvariant()}\"";
+                    expression = "dotvvm.globalize.formatString(" + JsonConvert.ToString(FormatString) + ", " + expression + ", " + formattedType + ")";
                 }
 
                 if (r.RenderSpanElement)
@@ -192,7 +185,7 @@ namespace DotVVM.Framework.Controls
                 writer.WriteKnockoutDataBindComment("text", expression);
             }
 
-            if (expression == null)
+            if (expression == null || r.HtmlState.RenderOnServer(this))
             {
                 string textToDisplay;
                 if (isFormattingRequired)

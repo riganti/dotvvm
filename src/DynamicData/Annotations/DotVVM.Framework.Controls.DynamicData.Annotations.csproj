@@ -2,25 +2,9 @@
   <PropertyGroup>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <PackageId>DotVVM.DynamicData.Annotations</PackageId>
-    <PackageVersion>3.1.0</PackageVersion>
-    <VersionPrefix>3.1.0</VersionPrefix>
-    <Authors>RIGANTI</Authors>
-    <Description>
-      Annotation attributes for DotVVM Dynamic Data that provide additional features.
-    </Description>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx;dynamic data;annotations;metadata;ui generation</PackageTags>
-    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/riganti/dotvvm-dynamic-data</PackageProjectUrl>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <Description>Annotation attributes for DotVVM Dynamic Data that provide additional features.</Description>
+    <PackageProjectUrl>https://www.dotvvm.com/docs/3.0/pages/community-add-ons/dotvvm-dynamic-data</PackageProjectUrl>
+    <PackageTags>($PackageTags);dnx;dynamic data;annotations;metadata;ui generation</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">

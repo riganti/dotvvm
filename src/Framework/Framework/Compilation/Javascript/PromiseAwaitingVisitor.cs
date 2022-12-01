@@ -23,13 +23,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 if (onlyCheck)
                     return false;
-                throw new Exception($"Can not use async expression in synchronous context. The expression: {expression.FormatScript(isDebugString: true)}");
+                throw new Exception($"Cannot use async expression in synchronous context. The expression: {expression.FormatScript(isDebugString: true)}");
             }
             if (parentFunction is { IsAsync: false })
             {
                 if (onlyCheck)
                     return false;
-                throw new Exception($"Can not use async expression in non-async function. The expression: {expression.FormatScript(isDebugString: true)}; The function: {parentFunction.FormatScript(isDebugString: true)}");
+                throw new Exception($"Cannot use async expression in non-async function. The expression: {expression.FormatScript(isDebugString: true)}; The function: {parentFunction.FormatScript(isDebugString: true)}");
             }
             return true;
         }
@@ -66,11 +66,11 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         /// Adds annotations about the value of the expression (if it may be null, type of the expression, ...)
         private JsExpression AddAnnotations(JsExpression expr, JsExpression originalNode) =>
-            expr.WithAnnotation(originalNode.Annotation<ResultIsObservableAnnotation>(), append: false)
-                .WithAnnotation(originalNode.Annotation<ResultIsObservableArrayAnnotation>(), append: false)
-                .WithAnnotation(originalNode.Annotation<ResultMayBeObservableAnnotation>(), append: false)
+            expr.WithConditionalAnnotation(originalNode.HasAnnotation(ResultIsObservableAnnotation.Instance), ResultIsObservableAnnotation.Instance, append: false)
+                .WithConditionalAnnotation(originalNode.HasAnnotation(ResultIsObservableArrayAnnotation.Instance), ResultIsObservableArrayAnnotation.Instance, append: false)
+                .WithConditionalAnnotation(originalNode.HasAnnotation(ResultMayBeObservableAnnotation.Instance), ResultMayBeObservableAnnotation.Instance, append: false)
                 .WithAnnotation(originalNode.Annotation<VMPropertyInfoAnnotation>(), append: false)
                 .WithAnnotation(originalNode.Annotation<ViewModelInfoAnnotation>(), append: false)
-                .WithAnnotation(originalNode.Annotation<MayBeNullAnnotation>(), append: false);
+                .WithConditionalAnnotation(originalNode.HasAnnotation(MayBeNullAnnotation.Instance), MayBeNullAnnotation.Instance, append: false);
     }
 }

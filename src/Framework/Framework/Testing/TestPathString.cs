@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Testing
 
         public string? Value { get; }
 
-        public bool Equals(IPathString other) =>
+        public bool Equals(IPathString? other) =>
             other == this ||
             other != null && other.HasValue() == this.HasValue() && other.Value == this.Value;
 

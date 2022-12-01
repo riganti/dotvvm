@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 
@@ -8,30 +9,31 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         public int Changes { get; private set; } = 0;
 
-        public override void VisitBlockStatement(JsBlockStatement jsBlockStatement)
+        public override void VisitBlockStatement(JsBlockStatement block)
         {
-            base.VisitBlockStatement(jsBlockStatement);
-            foreach (var c in jsBlockStatement.Body.ToArray())
+            base.VisitBlockStatement(block);
+            var bodyArray = block.Body.ToArray();
+            foreach (var c in bodyArray)
             {
                 // break down top-level sequence operators
                 if (c is JsExpressionStatement { Expression: JsBinaryExpression { Operator: BinaryOperatorType.Sequence }  sequence })
                 {
-                    jsBlockStatement.Body.InsertBefore(c, sequence.Left.Detach().AsStatement());
-                    jsBlockStatement.Body.InsertAfter(c, sequence.Right.Detach().AsStatement());
-                    jsBlockStatement.Body.Remove(c);
+                    block.Body.InsertBefore(c, sequence.Left.Detach().AsStatement());
+                    block.Body.InsertAfter(c, sequence.Right.Detach().AsStatement());
+                    block.Body.Remove(c);
                     Changes++;
                 }
 
                 else if (c is JsReturnStatement { Expression: JsBinaryExpression { Operator: BinaryOperatorType.Sequence } sequenceR } returnStatement)
                 {
-                    jsBlockStatement.Body.InsertBefore(c, sequenceR.Left.Detach().AsStatement());
+                    block.Body.InsertBefore(c, sequenceR.Left.Detach().AsStatement());
                     returnStatement.Expression.ReplaceWith(sequenceR.Right.Detach());
                     Changes++;
                 }
 
                 else if (c is JsVariableDefStatement { Initialization: JsBinaryExpression { Operator: BinaryOperatorType.Sequence } sequenceV } variableDef)
                 {
-                    jsBlockStatement.Body.InsertBefore(c, sequenceV.Left.Detach().AsStatement());
+                    block.Body.InsertBefore(c, sequenceV.Left.Detach().AsStatement());
                     variableDef.Initialization.ReplaceWith(sequenceV.Right.Detach());
                     Changes++;
                 }
@@ -42,7 +44,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     // we found expression variable = X
                     // if there is variable def next to it, we can join these
 
-                    var varDef = jsBlockStatement.Body
+                    var varDef = bodyArray
                         .TakeWhile(v => v != c)
                         .OfType<JsVariableDefStatement>()
                         .FirstOrDefault(v => v.Name == variable.Identifier);
@@ -51,7 +53,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     {
                         // there must also be no reference to variable before this expression
                         var expressionsInBetween =
-                            jsBlockStatement.Body.SkipWhile(v => v != varDef).Skip(1)
+                            bodyArray.SkipWhile(v => v != varDef).Skip(1)
                                                  .TakeWhile(v => v != c)
                                                  .Concat<JsNode>(new [] { assignment.Right });
                         if (!expressionsInBetween
@@ -65,12 +67,25 @@ namespace DotVVM.Framework.Compilation.Javascript
                         }
                     }
                 }
+
+                // remove redundant expressions
+                else if (c is JsExpressionStatement { Expression: JsLiteral { Value: null } })
+                    c.Remove();
+            }
+
+            // remove return undefined as the last statement in the function
+            if (block.Parent is JsArrowFunctionExpression or JsFunctionExpression &&
+                block.Body.LastOrDefault() is JsReturnStatement { Expression: JsIdentifierExpression { Identifier: "undefined" } } returnUndefined)
+            {
+                returnUndefined.Remove();
             }
         }
 
         public override void VisitBinaryExpression(JsBinaryExpression binaryExpression)
         {
+            Debug.Assert(binaryExpression is { Parent: {}, Right: {}, Left: {} });
             base.VisitBinaryExpression(binaryExpression);
+            Debug.Assert(binaryExpression is { Parent: {}, Right: {}, Left: {} });
             // when merging attributes or ids, lots of unnecessary pluses are usually there
             if (binaryExpression is { Operator: BinaryOperatorType.Plus, Left: JsLiteral { Value: string leftStr }, Right: JsLiteral { Value: string rightStr } })
             {
@@ -78,7 +93,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 Changes++;
             }
             // (X + "a") + "b" -> X + "ab"
-            if (binaryExpression is {
+            else if (binaryExpression is {
                 Operator: BinaryOperatorType.Plus,
                 Left: JsBinaryExpression {
                     Operator: BinaryOperatorType.Plus,
@@ -97,7 +112,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
 
             // "a" + ("b" + X) -> "ab" + X
-            if (binaryExpression is {
+            else if (binaryExpression is {
                 Operator: BinaryOperatorType.Plus,
                 Left: JsLiteral { Value: string leftStr3 },
                 Right: JsBinaryExpression {
@@ -115,7 +130,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
 
             // (X + "a") + ("b" + Y) -> X + "ab" + Y
-            if (binaryExpression is {
+            else if (binaryExpression is {
                 Operator: BinaryOperatorType.Plus,
                 Left: JsBinaryExpression {
                     Operator: BinaryOperatorType.Plus,
@@ -137,6 +152,25 @@ namespace DotVVM.Framework.Compilation.Javascript
                     BinaryOperatorType.Plus,
                     rightExpr2.Detach()
                 ));
+                Changes++;
+            }
+            // "" + X or X + ""
+            else if (binaryExpression is {
+                Operator: BinaryOperatorType.Plus,
+                Left: var leftExpr3,
+                Right: JsLiteral { Value: "" }
+            })
+            {
+                binaryExpression.ReplaceWith(_ => leftExpr3.Detach());
+                Changes++;
+            }
+            else if (binaryExpression is {
+                Operator: BinaryOperatorType.Plus,
+                Left: JsLiteral { Value: "" },
+                Right: var rightExpr3,
+            })
+            {
+                binaryExpression.ReplaceWith(_ => rightExpr3.Detach());
                 Changes++;
             }
         }

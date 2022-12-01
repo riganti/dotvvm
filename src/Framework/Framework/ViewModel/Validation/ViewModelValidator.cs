@@ -12,12 +12,12 @@ namespace DotVVM.Framework.ViewModel.Validation
     public class ViewModelValidator : IViewModelValidator
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
-        private readonly Dictionary<object, object> validationItems;
+        private readonly Dictionary<object, object?> validationItems;
 
         public ViewModelValidator(IViewModelSerializationMapper viewModelMapper, DotvvmConfiguration dotvvmConfiguration)
         {
             this.viewModelSerializationMapper = viewModelMapper;
-            this.validationItems = new Dictionary<object, object> { { typeof(DotvvmConfiguration), dotvvmConfiguration} };
+            this.validationItems = new Dictionary<object, object?> { { typeof(DotvvmConfiguration), dotvvmConfiguration} };
         }
 
         /// <summary>
@@ -25,13 +25,13 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// </summary>
         public IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel)
         {
-            return ValidateViewModel(viewModel, "", new HashSet<object>());
+            return ValidateViewModel(viewModel, new HashSet<object>());
         }
 
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        private IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel, string pathPrefix, HashSet<object> alreadyValidated)
+        private IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel, HashSet<object> alreadyValidated)
         {
             if (viewModel == null)
             {
@@ -48,14 +48,11 @@ namespace DotVVM.Framework.ViewModel.Validation
 
             if (ReflectionUtils.IsEnumerable(viewModelType))
             {
-                if (pathPrefix.Length == 0) pathPrefix = "$data";
-                else pathPrefix += "()";
-
                 // collections
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
                 {
-                    foreach (var error in ValidateViewModel(item, pathPrefix + "[" + index + "]()", alreadyValidated))
+                    foreach (var error in ValidateViewModel(item, alreadyValidated))
                     {
                         yield return error;
                     }
@@ -69,7 +66,6 @@ namespace DotVVM.Framework.ViewModel.Validation
             foreach (var property in map.Properties.Where(p => p.TransferToServer))
             {
                 var value = property.PropertyInfo.GetValue(viewModel);
-                var path = CombinePath(pathPrefix, property.Name);
 
                 // validate the property
                 if (property.ValidationRules.Any())
@@ -81,10 +77,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                         var propertyResult = rule.SourceValidationAttribute?.GetValidationResult(value, context);
                         if (propertyResult != ValidationResult.Success)
                         {
-                            yield return new ViewModelValidationError() {
-                                PropertyPath = path,
-                                ErrorMessage = rule.ErrorMessage
-                            };
+                            yield return new ViewModelValidationError(rule.ErrorMessage, property.Name, viewModel);
                         }
                     }
                 }
@@ -95,7 +88,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                     if (ReflectionUtils.IsComplexType(property.Type))
                     {
                         // complex objects
-                        foreach (var error in ValidateViewModel(value, path, alreadyValidated))
+                        foreach (var error in ValidateViewModel(value, alreadyValidated))
                         {
                             yield return error;
                         }
@@ -111,43 +104,21 @@ namespace DotVVM.Framework.ViewModel.Validation
                     var paths = new List<string>();
                     if (error.MemberNames != null)
                     {
-                        foreach (var memberName in error.MemberNames)
+                        foreach (var memberPath in error.MemberNames)
                         {
-                            paths.Add(CombinePath(pathPrefix, memberName));
+                            paths.Add(memberPath);
                         }
                     }
                     if (!paths.Any())
                     {
-                        paths.Add(pathPrefix);
+                        paths.Add(string.Empty);
                     }
 
                     foreach (var memberPath in paths)
                     {
-                        yield return new ViewModelValidationError() {
-                            PropertyPath = memberPath,
-                            ErrorMessage = error.ErrorMessage
-                        };
+                        yield return new ViewModelValidationError(error.ErrorMessage ?? "An unknown error.", memberPath, viewModel);
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Combines the path.
-        /// </summary>
-        private string CombinePath(string prefix, string path)
-        {
-            if (string.IsNullOrEmpty(prefix))
-            {
-                return path;
-            }
-            else if (!prefix.EndsWith("()", StringComparison.Ordinal))
-            {
-                return prefix + "()." + path;
-            }
-            else
-            {
-                return prefix + "." + path;
             }
         }
     }

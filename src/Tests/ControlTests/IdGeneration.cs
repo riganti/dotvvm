@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     [TestClass]
     public class IdGeneration
     {
-        ControlTestHelper cth = new ControlTestHelper();
+        static readonly ControlTestHelper cth = new ControlTestHelper();
         // ControlTestHelper cth = new ControlTestHelper(config: config => {
         //     config.Markup.AddMarkupControl("cc", "CustomControl", "custom.dotcontrol");
         // });
@@ -44,6 +44,19 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:Repeater DataSource={value: Nested.Nested} id=myRepeater RenderSettings.Mode=Server>
                     <ItemTemplate> <span id=ssr_mySpan_item></span> </ItemTemplate>
                     <SeparatorTemplate> <span id=ssr_mySpan_sep></span> </SeparatorTemplate>
+                </dot:Repeater>
+                "
+            );
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task AutomaticIdGeneration_IdAttributeConflict()
+        {
+            var r = await cth.RunPage(typeof(TestViewModel), @"
+                <!-- we shouldn't generated the Dotvvm unique id when html:id is set explicitly -->
+                <dot:Repeater DataSource={value: Nested.Nested} RenderSettings.Mode=Server>
+                    <ItemTemplate> <span id=generated_id html:id=hardcoded_id></span> </ItemTemplate>
                 </dot:Repeater>
                 "
             );

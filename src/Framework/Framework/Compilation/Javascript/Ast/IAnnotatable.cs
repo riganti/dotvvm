@@ -31,6 +31,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         T? Annotation<T>() where T : class;
 
         /// <summary>
+        /// Uses reference comparison to determine whether the object has the annotation.
+        /// </summary>
+        bool HasAnnotation(object annotation);
+
+        /// <summary>
         /// Gets the first annotation of the specified type.
         /// Returns null if no matching annotation exists.
         /// </summary>
@@ -62,6 +67,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// The type of the annotations to remove.
         /// </param>
         void RemoveAnnotations(Type type);
+
+        /// <summary>
+        /// Removes the specified annotation
+        /// </summary>
+        void RemoveAnnotation(object annotation);
     }
 
     /// <summary>
@@ -115,7 +125,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             if (annotation == null)
                 throw new ArgumentNullException("annotation");
             retry: // Retry until successful
-            object oldAnnotation = Interlocked.CompareExchange(ref this.annotations, annotation, null);
+            object? oldAnnotation = Interlocked.CompareExchange(ref this.annotations, annotation, null);
             if (oldAnnotation == null)
             {
                 return annotation; // we successfully added a single annotation
@@ -181,6 +191,41 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     // Operation failed (some other thread wrote to this.annotations first)
                     goto retry;
                 }
+            }
+        }
+
+        public virtual void RemoveAnnotation(object annotation)
+        {
+            retry: // Retry until successful
+            var oldAnnotations = this.annotations;
+            if (oldAnnotations is AnnotationList list)
+            {
+                lock (list)
+                    list.Remove(annotation);
+            }
+            else if (oldAnnotations == annotation)
+            {
+                if (Interlocked.CompareExchange(ref this.annotations, null, oldAnnotations) != oldAnnotations)
+                {
+                    // Operation failed (some other thread wrote to this.annotations first)
+                    goto retry;
+                }
+            }
+        }
+
+        public bool HasAnnotation(object annotation)
+        {
+            var annotations = this.annotations;
+            if (annotations is AnnotationList list)
+            {
+                lock (list)
+                {
+                    return list.Contains(annotation);
+                }
+            }
+            else
+            {
+                return annotations == annotation;
             }
         }
 
@@ -260,7 +305,16 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static T WithAnnotation<T>(this T node, object? annotation, bool append = true)
             where T : class, IAnnotatable
         {
-            if (annotation != null && (append || !node.HasAnnotation<T>())) node.AddAnnotation(annotation);
+            if (annotation != null && (append || !node.HasAnnotation<T>()))
+                node.AddAnnotation(annotation);
+            return node;
+        }
+
+        public static T WithConditionalAnnotation<T>(this T node, bool condition, object? annotation, bool append = true)
+            where T : class, IAnnotatable
+        {
+            if (annotation != null && condition && (append || !node.HasAnnotation<T>()))
+                node.AddAnnotation(annotation);
             return node;
         }
 

@@ -13,9 +13,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
     public class BindingParser : ParserBase<BindingToken, BindingTokenType>
     {
-        protected override bool IsWhiteSpace(BindingToken t) => t.Type == BindingTokenType.WhiteSpace;
+        public BindingParser() : base(BindingTokenType.WhiteSpace)
+        {
+        }
 
-        public BindingParserNode ReadDirectiveValue()
+        public BindingParserNode ReadImportDirectiveValue()
         {
             var startIndex = CurrentIndex;
             var first = ReadNamespaceOrTypeName();
@@ -45,11 +47,81 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return first;
         }
 
+        public BindingParserNode ReadArrayInitializerValue()
+        {
+            var startIndex = CurrentIndex;
+            SkipWhiteSpace();
+
+            if (PeekType() == BindingTokenType.OpenArrayBrace)
+            {
+                var initializerExpressions = new List<BindingParserNode>();
+                Read();
+                SkipWhiteSpace();
+                initializerExpressions.Add(ReadArrayInitializerValue());
+                SkipWhiteSpace();
+
+                while (Peek() is BindingToken comma && comma.Type == BindingTokenType.Comma)
+                {
+                    Read();
+                    SkipWhiteSpace();
+                    initializerExpressions.Add(ReadArrayInitializerValue());
+                    SkipWhiteSpace();
+                }
+
+                if(PeekType() == BindingTokenType.CloseArrayBrace)
+                {
+                    Read();
+                    SkipWhiteSpace();
+                }
+
+                return CreateNode(new ArrayInitializerExpression(initializerExpressions), startIndex);
+            }
+
+            return CreateNode(ReadOrElseExpression(), startIndex);
+        }
+
+        public BindingParserNode ReadPropertyDirectiveValue()
+        {
+            var startIndex = CurrentIndex;
+            SkipWhiteSpace();
+
+            var propertyType = TryReadTypeReference(out var resultType)
+                ? resultType
+                : new ActualTypeReferenceBindingParserNode(new SimpleNameBindingParserNode(""));
+
+            var propertyName = ReadNamespaceOrTypeName();
+            var propertyDeclaration = new PropertyDeclarationBindingParserNode(propertyType, propertyName);
+
+            SkipWhiteSpace();
+
+            if (Peek()?.Type == BindingTokenType.AssignOperator)
+            {
+                Read();
+                SkipWhiteSpace();
+
+                propertyDeclaration.Initializer = ReadArrayInitializerValue();
+            }
+            if (Peek()?.Type == BindingTokenType.Comma)
+            {
+                Read();
+                SkipWhiteSpace();
+
+                var attributes = ReadArguments();
+
+                foreach (var attribute in attributes)
+                {
+                    propertyDeclaration.Attributes.Add(attribute);
+                }
+            }
+
+            return CreateNode(propertyDeclaration, startIndex);
+        }
+
         public BindingParserNode ReadDirectiveTypeName()
         {
             var startIndex = CurrentIndex;
             var typeName = ReadNamespaceOrTypeName();
-            if (Peek()?.Type == BindingTokenType.Comma)
+            if (PeekType() == BindingTokenType.Comma)
             {
                 Read();
                 var assemblyName = ReadNamespaceOrTypeName();
@@ -104,8 +176,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 if (lastIndex == CurrentIndex)
                 {
-                    var extraToken = Read()!;
-                    expressions.Add(CreateNode(new LiteralExpressionBindingParserNode(extraToken.Text), lastIndex, "Unexpected token"));
+                    var unexpectedToken = Read()!;
+                    expressions.Add(CreateNode(new LiteralExpressionBindingParserNode(unexpectedToken.Text) { IsUnexpectedToken = true }, lastIndex, "Unexpected token"));
                 }
 
                 lastIndex = CurrentIndex;
@@ -250,12 +322,25 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         private BindingParserNode ReadOrExpression()
         {
             var startIndex = CurrentIndex;
-            var first = ReadAndExpression();
+            var first = ReadExclusiveOrExpression();
             while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.OrOperator)
             {
                 Read();
-                var second = ReadAndExpression();
+                var second = ReadExclusiveOrExpression();
                 first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.OrOperator), startIndex);
+            }
+            return first;
+        }
+
+        private BindingParserNode ReadExclusiveOrExpression()
+        {
+            var startIndex = CurrentIndex;
+            var first = ReadAndExpression();
+            while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.ExclusiveOrOperator)
+            {
+                Read();
+                var second = ReadAndExpression();
+                first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.ExclusiveOrOperator), startIndex);
             }
             return first;
         }
@@ -357,7 +442,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 var @operator = operatorToken.Type;
                 var isOperatorUnsupported = @operator == BindingTokenType.UnsupportedOperator;
 
-                if (@operator == BindingTokenType.NotOperator || @operator == BindingTokenType.SubtractOperator || isOperatorUnsupported)
+                if (@operator == BindingTokenType.NotOperator || @operator == BindingTokenType.SubtractOperator || @operator == BindingTokenType.OnesComplementOperator || isOperatorUnsupported)
                 {
                     Read();
                     var target = ReadUnaryExpression();
@@ -373,7 +458,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             SetRestorePoint();
 
             // Try to read lambda parameters
-            if (!TryReadLambdaParametersExpression(out var parameters) || Peek()?.Type != BindingTokenType.LambdaOperator)
+            if (!TryReadLambdaParametersExpression(out var parameters) || PeekType() != BindingTokenType.LambdaOperator)
             {
                 // Fail - we should try to parse as an expression
                 Restore();
@@ -395,13 +480,13 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             var waitingForParameter = false;
             parameters = new List<LambdaParameterBindingParserNode>();
-            if (Peek()?.Type == BindingTokenType.OpenParenthesis)
+            if (PeekType() == BindingTokenType.OpenParenthesis)
             {
                 // Begin parameters parsing - read opening parenthesis
                 Read();
                 SkipWhiteSpace();
 
-                while (Peek()?.Type != BindingTokenType.CloseParenthesis)
+                while (PeekType() != BindingTokenType.CloseParenthesis)
                 {
                     // Try read parameter definition (either implicitly defined type or explicitly)
                     if (!TryReadLambdaParameterDefinition(out var typeDef, out var nameDef))
@@ -409,7 +494,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     parameters.Add(new LambdaParameterBindingParserNode(typeDef, nameDef!));
                     waitingForParameter = false;
 
-                    if (Peek()?.Type == BindingTokenType.Comma)
+                    if (PeekType() == BindingTokenType.Comma)
                     {
                         Read();
                         SkipWhiteSpace();
@@ -423,7 +508,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
 
                 // End parameters parsing - read closing parenthesis
-                if (Peek()?.Type != BindingTokenType.CloseParenthesis)
+                if (PeekType() != BindingTokenType.CloseParenthesis)
                     return false;
                 Read();
                 SkipWhiteSpace();
@@ -448,14 +533,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             name = null;
             type = null;
-            if (Peek()?.Type != BindingTokenType.Identifier)
+            if (PeekType() != BindingTokenType.Identifier)
                 return false;
 
             if (!TryReadTypeReference(out type))
                 return false;
             SkipWhiteSpace();
 
-            if (Peek()?.Type != BindingTokenType.Identifier)
+            if (PeekType() != BindingTokenType.Identifier)
             {
                 name = type;
                 type = null;
@@ -532,7 +617,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             BindingParserNode expression = onlyTypeName ? ReadIdentifierNameExpression() : ReadAtomicExpression();
 
-
             var next = Peek();
             int previousIndex = -1;
             while (next != null && previousIndex != CurrentIndex)
@@ -582,7 +666,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     }
                     else
                     {
-                        expression = CreateNode(expression, startIndex, $"Expression '{expression.ToDisplayString()}' can not be followed by an identifier. Did you intent to declare a variable using the var keyword?");
+                        expression = CreateNode(expression, startIndex, $"Expression '{expression.ToDisplayString()}' cannot be followed by an identifier. Did you intent to declare a variable using the var keyword?");
                     }
                 }
                 else
@@ -599,7 +683,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var variableName = ReadIdentifierNameExpression();
             if (!(variableName is SimpleNameBindingParserNode))
             {
-                variableName = CreateNode(variableName, variableName.StartPosition, $"Variable name can not be generic, please use the `var {variableName.Name} = X` syntax.");
+                variableName = CreateNode(variableName, variableName.StartPosition, $"Variable name cannot be generic, please use the `var {variableName.Name} = X` syntax.");
             }
 
             var incorrectEquals = IsCurrentTokenIncorrect(BindingTokenType.AssignOperator);
@@ -639,6 +723,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             // function call
             Read();
+            var arguments = ReadArguments();
+            var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
+            Read();
+            SkipWhiteSpace();
+            expression = CreateNode(new FunctionCallBindingParserNode(expression, arguments), startIndex, error ? "The ')' was expected." : null);
+            return expression;
+        }
+
+        private List<BindingParserNode> ReadArguments()
+        {
             var arguments = new List<BindingParserNode>();
             int previousInnerIndex = -1;
             while (Peek() is BindingToken operatorToken && operatorToken.Type != BindingTokenType.CloseParenthesis && previousInnerIndex != CurrentIndex)
@@ -653,11 +747,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
                 arguments.Add(ReadExpression());
             }
-            var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
-            Read();
-            SkipWhiteSpace();
-            expression = CreateNode(new FunctionCallBindingParserNode(expression, arguments), startIndex, error ? "The ')' was expected." : null);
-            return expression;
+
+            return arguments;
         }
 
         private BindingParserNode ReadAtomicExpression()
@@ -697,7 +788,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 Read();
                 SkipWhiteSpace();
 
-                var (format, arguments) = ParseInterpolatedString(token.Text, out var error);
+                var (format, arguments) = ParseInterpolatedString(token, out var error);
                 var node = CreateNode(new InterpolatedStringBindingParserNode(format, arguments), startIndex);
                 if (error != null)
                 {
@@ -804,11 +895,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     arguments.Add(argument);
                 SkipWhiteSpace();
 
-                if (Peek()?.Type != BindingTokenType.Comma) { break; }
+                if (PeekType() != BindingTokenType.Comma) { break; }
                 Read();
             }
 
-            failure |= Peek()?.Type != BindingTokenType.GreaterThanOperator;
+            failure |= PeekType() != BindingTokenType.GreaterThanOperator;
 
             if (!failure)
             {
@@ -1092,12 +1183,13 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
         }
 
-        private static (string, List<BindingParserNode>) ParseInterpolatedString(string text, out string? error)
+        private static (string, List<BindingParserNode>) ParseInterpolatedString(BindingToken token, out string? error)
         {
             error = null;
             var sb = new StringBuilder();
             var arguments = new List<BindingParserNode>();
 
+            var text = token.Text;
             var index = 2;
             while (index < text.Length - 1)
             {
@@ -1112,7 +1204,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     }
                     else if (current == '{')
                     {
-                        if (!TryParseInterpolationExpression(text, index, out var end, out var argument, out innerError))
+                        if (!TryParseInterpolationExpression(text, index, token.StartPosition, out var end, out var argument, out innerError))
                         {
                             arguments.Clear();
                             error = string.Concat(error, " Interpolation expression is malformed. ", innerError).TrimStart();
@@ -1143,9 +1235,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return (sb.ToString(), arguments);
         }
 
-        private static bool TryParseInterpolationExpression(string text, int start, out int end, out BindingParserNode? expression, out string? error)
+        private static bool TryParseInterpolationExpression(string text, int positionInToken, int tokenPositionInBinding, out int end, out BindingParserNode? expression, out string? error)
         {
-            var index = start;
+            var index = positionInToken;
             var foundEnd = false;
 
             var exprDepth = 0;
@@ -1176,7 +1268,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
 
             end = index - 1;
-            if (start == end)
+            if (positionInToken == end)
             {
                 // Provided expression is empty
                 expression = null;
@@ -1185,11 +1277,21 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
 
             error = null;
-            var rawExpression = text.Substring(start, end - start);
-            var tokenizer = new BindingTokenizer();
-            tokenizer.Tokenize(rawExpression);
-            var parser = new BindingParser() { Tokens = tokenizer.Tokens };
-            expression = parser.ReadFormattedExpression();
+            var rawExpression = text.Substring(positionInToken, end - positionInToken);
+            var innerExpressionTokenizer = new BindingTokenizer(tokenPositionInBinding + positionInToken);
+            innerExpressionTokenizer.Tokenize(rawExpression);
+            var innerExpressionParser = new BindingParser() { Tokens = innerExpressionTokenizer.Tokens };
+            expression = innerExpressionParser.ReadFormattedExpression();
+
+            // For Visual Studio extension we need to know also leading whitespaces
+            // Note that these are by default omitted by binding parser
+            if (innerExpressionTokenizer.Tokens.FirstOrDefault()?.Type == BindingTokenType.WhiteSpace)
+            {
+                var token = innerExpressionTokenizer.Tokens.First();
+                expression.StartPosition -= token.Length;
+                expression.Tokens.Insert(0, token);
+            }
+
             if (expression.HasNodeErrors)
             {
                 error = string.Join(" ", new[] { $"Error while parsing expression \"{rawExpression}\"." }.Concat(expression.NodeErrors));
@@ -1202,7 +1304,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         private T CreateNode<T>(T node, int startIndex, string? error = null) where T : BindingParserNode
         {
             node.Tokens.Clear();
-            node.Tokens.AddRange(GetTokensFrom(startIndex));
+            node.Tokens.Capacity = CurrentIndex - startIndex + 1;
+            for (int i = startIndex; i < CurrentIndex; i++)
+                node.Tokens.Add(Tokens[i]);
 
             if (startIndex < Tokens.Count)
             {
@@ -1212,7 +1316,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 node.StartPosition = Tokens[startIndex - 1].EndPosition;
             }
-            node.Length = node.Tokens.Sum(t => (int?)t.Length) ?? 0;
+            var length = 0;
+            foreach (var t in node.Tokens)
+                length += t.Length;
+            node.Length = length;
 
             if (error != null)
             {

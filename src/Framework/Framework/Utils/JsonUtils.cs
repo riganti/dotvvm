@@ -64,7 +64,11 @@ namespace DotVVM.Framework.Utils
                                 diff[item.Key] = item.Value;
                             }
                         }
-                        catch(FormatException)
+                        catch (FormatException)
+                        {
+                            diff[item.Key] = item.Value;
+                        }
+                        catch (JsonReaderException)
                         {
                             diff[item.Key] = item.Value;
                         }

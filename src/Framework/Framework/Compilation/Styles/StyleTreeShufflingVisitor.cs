@@ -25,9 +25,10 @@ namespace DotVVM.Framework.Compilation.Styles
             if (view.Properties.ContainsKey(WrappersProperty) ||
                 view.Properties.ContainsKey(AppendProperty) ||
                 view.Properties.ContainsKey(PrependProperty) ||
-                view.Properties.ContainsKey(ReplaceWithProperty))
+                view.Properties.ContainsKey(ReplaceWithProperty) ||
+                view.Properties.ContainsKey(RemoveProperty))
                 view.DothtmlNode.AddError(
-                    "Styles.Wrappers, Styles.Append, Styles.Prepend and Styles.ReplaceWith properties can not be applied to the root control.");
+                    "Styles.Wrappers, Styles.Append, Styles.Prepend, Styles.ReplaceWith, and Styles.Remove properties cannot be applied to the root control.");
 
             ProcessControlList(view.Content, view);
             base.VisitControl(view);
@@ -38,6 +39,21 @@ namespace DotVVM.Framework.Compilation.Styles
             ProcessControlList(control.Content, control);
             base.VisitControl(control);
             Debug.Assert(control.Parent != null);
+
+            foreach (var (prop, setter) in control.Properties.ToArray())
+            {
+                // remove empty properties
+
+                var isEmpty = setter switch {
+                    ResolvedPropertyControl { Control: var c } => c is null || ShouldRemove(c),
+                    ResolvedPropertyControlCollection { Controls: var c } => c.Count == 0,
+                    ResolvedPropertyTemplate { Content: var c } => c.Count == 0,
+                    _ => false
+                };
+
+                if (isEmpty)
+                    control.Properties.Remove(prop);
+            }
         }
 
         public override void VisitPropertyControl(ResolvedPropertyControl propertyControl)
@@ -48,7 +64,7 @@ namespace DotVVM.Framework.Compilation.Styles
             if (control.Properties.ContainsKey(AppendProperty) ||
                 control.Properties.ContainsKey(PrependProperty))
                 throw new Exception(
-                    $"Styles.Append and Styles.Prepend properties can not be applied to a control in property {propertyControl.Property}.");
+                    $"Styles.Append and Styles.Prepend properties cannot be applied to a control in property {propertyControl.Property}.");
             propertyControl.Control = ProcessWrapping(ProcessReplacement(control));
             propertyControl.Control.Parent = propertyControl;
             base.VisitPropertyControl(propertyControl);
@@ -73,11 +89,11 @@ namespace DotVVM.Framework.Compilation.Styles
                 list[i] = ProcessWrapping(list[i]);
                 list[i] = ProcessReplacement(list[i]);
             }
-            ProcessAppendAndPrepend(list);
+            ProcessAppendAndPrepend(list, parent);
             SetParent(list, parent);
         }
 
-        void ProcessAppendAndPrepend(List<ResolvedControl> list)
+        void ProcessAppendAndPrepend(List<ResolvedControl> list, ResolvedTreeNode parent)
         {
             var controls = list.ToArray();
             list.Clear();
@@ -86,14 +102,19 @@ namespace DotVVM.Framework.Compilation.Styles
                 if (c.Properties.TryGetValue(PrependProperty, out var prependSetter))
                 {
                     c.Properties.Remove(PrependProperty);
-                    var prepend = ((ResolvedPropertyControlCollection)prependSetter).Controls.ToArray();
+                    var prepend = ((ResolvedPropertyControlCollection)prependSetter).Controls.ToList();
+                    ProcessControlList(prepend, parent);
                     list.AddRange(prepend);
                 }
-                list.Add(c);
+                if (!ShouldRemove(c))
+                {
+                    list.Add(c);
+                }
                 if (c.Properties.TryGetValue(AppendProperty, out var appendSetter))
                 {
                     c.Properties.Remove(AppendProperty);
-                    var append = ((ResolvedPropertyControlCollection)appendSetter).Controls.ToArray();
+                    var append = ((ResolvedPropertyControlCollection)appendSetter).Controls.ToList();
+                    ProcessControlList(append, parent);
                     list.AddRange(append);
                 }
             }
@@ -132,6 +153,10 @@ namespace DotVVM.Framework.Compilation.Styles
         {
             if (!control.Properties.TryGetValue(ReplaceWithProperty, out var setter))
                 return control;
+
+            if (ShouldRemove(control))
+                return control;
+
             control.Properties.Remove(ReplaceWithProperty);
             var newControl = ((ResolvedPropertyControl)setter).Control.NotNull();
 
@@ -139,17 +164,21 @@ namespace DotVVM.Framework.Compilation.Styles
             ResolvedControlHelper.SetContent(newControl, control.Content.ToArray(), StyleOverrideOptions.Append);
 
             // copy properties
-            foreach (var p in control.Properties.Values)
+            foreach (var p in control.Properties.Values
+#if !DotNetCore
+                .ToArray()
+#endif
+                )
             {
                 control.Properties.Remove(p.Property);
 
                 // if it was an attached property, we won't translate by name
                 if (p.Property.DeclaringType.IsAssignableFrom(control.Metadata.Type))
                 {
-                    newControl.SetProperty(p);
+                    newControl.SetProperty(p, StyleOverrideOptions.Ignore, out _);
                     continue;
                 }
-                
+
                 if (p.Property is GroupedDotvvmProperty gProp)
                 {
                     var group2 =
@@ -161,7 +190,7 @@ namespace DotVVM.Framework.Compilation.Styles
                     {
                         var prop2 = group2.GetDotvvmProperty(gProp.GroupMemberName);
                         newControl.SetProperty(
-                            ResolvedControlHelper.TranslateProperty(prop2, p.GetValue(), control.DataContextTypeStack));
+                            ResolvedControlHelper.TranslateProperty(prop2, p.GetValue(), p.GetDataContextStack(parentControl: control), null));
                         continue;
                     }
                 }
@@ -171,7 +200,7 @@ namespace DotVVM.Framework.Compilation.Styles
                     if (prop2 is object)
                     {
                         newControl.SetProperty(
-                            ResolvedControlHelper.TranslateProperty(prop2, p.GetValue(), control.DataContextTypeStack));
+                            ResolvedControlHelper.TranslateProperty(prop2, p.GetValue(), p.GetDataContextStack(parentControl: control), null));
                         continue;
                     }
                 }
@@ -182,6 +211,17 @@ namespace DotVVM.Framework.Compilation.Styles
 
             // recursively replace if the new control also has the ReplaceWithProperty
             return ProcessReplacement(newControl);
+        }
+
+        static bool ShouldRemove(ResolvedControl control)
+        {
+            if (!control.TryGetProperty(RemoveProperty, out var setter))
+                return false;
+
+            if (setter is not ResolvedPropertyValue { Value: bool value })
+                throw new Exception($"The value of the {RemoveProperty} property must be a constant boolean. No bindings are allowed. Got: {setter}");
+            
+            return value;
         }
     }
 }

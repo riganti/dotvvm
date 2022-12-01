@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -16,9 +18,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         public DataContextStack? Parent { get; }
         public Type DataContextType { get; }
-        public IReadOnlyList<NamespaceImport> NamespaceImports { get; }
-        public IReadOnlyList<BindingExtensionParameter> ExtensionParameters { get; }
-        public IReadOnlyList<Delegate> BindingPropertyResolvers { get; }
+        public ImmutableArray<NamespaceImport> NamespaceImports { get; }
+        public ImmutableArray<BindingExtensionParameter> ExtensionParameters { get; }
+        public ImmutableArray<Delegate> BindingPropertyResolvers { get; }
 
         private readonly int hashCode;
 
@@ -30,9 +32,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             Parent = parent;
             DataContextType = type;
-            NamespaceImports = imports ?? parent?.NamespaceImports ?? new NamespaceImport[0];
-            ExtensionParameters = extensionParameters ?? new BindingExtensionParameter[0];
-            BindingPropertyResolvers = bindingPropertyResolvers ?? new Delegate[0];
+            NamespaceImports = imports?.ToImmutableArray() ?? parent?.NamespaceImports ?? ImmutableArray<NamespaceImport>.Empty;
+            ExtensionParameters = extensionParameters?.ToImmutableArray() ?? ImmutableArray<BindingExtensionParameter>.Empty;
+            BindingPropertyResolvers = bindingPropertyResolvers?.ToImmutableArray() ?? ImmutableArray<Delegate>.Empty;
 
             hashCode = ComputeHashCode();
         }
@@ -53,6 +55,22 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 level++;
             }
         }
+
+        public ImmutableArray<Delegate> GetAllBindingPropertyResolvers()
+        {
+            var builder = ImmutableArray.CreateBuilder<Delegate>();
+
+            var c = this;
+            while (c is {})
+            {
+                builder.AddRange(c.BindingPropertyResolvers);
+                c = c.Parent;
+            }
+
+            builder.Reverse();
+            return builder.ToImmutable();
+        }
+
 
         public IEnumerable<DataContextStack> EnumerableItems()
         {
@@ -90,9 +108,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public override bool Equals(object? obj) =>
             obj is DataContextStack other && Equals(other);
 
-        public bool Equals(DataContextStack stack)
+        public bool Equals(DataContextStack? stack)
         {
-            return ReferenceEquals(this, stack) || hashCode == stack.hashCode
+            return ReferenceEquals(this, stack) || stack is not null
+                && hashCode == stack.hashCode
                 && DataContextType == stack.DataContextType
                 && NamespaceImports.SequenceEqual(stack.NamespaceImports)
                 && ExtensionParameters.SequenceEqual(stack.ExtensionParameters)
@@ -129,11 +148,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public override string ToString()
         {
             string?[] features = new [] {
-                $"type={this.DataContextType.FullName}",
+                $"type={this.DataContextType.ToCode()}",
                 this.NamespaceImports.Any() ? "imports=[" + string.Join(", ", this.NamespaceImports) + "]" : null,
-                this.ExtensionParameters.Any() ? "ext=[" + string.Join(", ", this.ExtensionParameters.Select(e => e.Identifier + ": " + e.ParameterType.Name)) + "]" : null,
+                this.ExtensionParameters.Any() ? "ext=[" + string.Join(", ", this.ExtensionParameters.Select(e => e.Identifier + ": " + e.ParameterType.CSharpName)) + "]" : null,
                 this.BindingPropertyResolvers.Any() ? "resolvers=[" + string.Join(", ", this.BindingPropertyResolvers.Select(s => s.Method)) + "]" : null,
-                this.Parent != null ? "par=[" + string.Join(", ", this.Parents().Select(p => p.Name)) + "]" : null
+                this.Parent != null ? "par=[" + string.Join(", ", this.Parents().Select(p => p.ToCode(stripNamespace: true))) + "]" : null
             };
             return "(" + features.Where(a => a != null).StringJoin(", ") + ")";
         }

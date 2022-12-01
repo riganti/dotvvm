@@ -7,87 +7,182 @@ env:
   DOTNET_NOLOGO: 1
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
-  DOTNET_VERSION: '5.0.301'
 
 jobs:
-  build-WarnAsError:
-    name: build without warnings
+  build-published:
+    name: Build published projects without warnings
     runs-on: ubuntu-latest
-    steps:
-    - uses: actions/cache@v2
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    - name: Install dependencies
-      run: dotnet restore ci/linux/Linux.sln
-      
-    - name: Build (without warnings)
-      run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental /property:WarningLevel=0
-    - name: Build
-      run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental /WarnAsError
-    - name: Build (Debug)
-      run: dotnet build src/Framework/Framework --configuration Debug --no-restore --no-incremental /WarnAsError
-    - name: Build Hosting.AspNetCore
-      run: dotnet build src/Framework/Hosting.AspNetCore --no-incremental /WarnAsError
-    - name: Build Testing
-      run: dotnet build src/Framework/Testing --no-incremental /WarnAsError
-    - name: Build Tracing.MiniProfiler
-      run: dotnet build src/Tracing/MiniProfiler.AspNetCore --no-incremental /WarnAsError
-    - name: Build Tracing.ApplicationInsights
-      run: dotnet build src/Tracing/ApplicationInsights.AspNetCore --no-incremental /WarnAsError
-    - name: Build Dynamic Data
-      run: dotnet build src/DynamicData/DynamicData --no-incremental /WarnAsError
-    - name: Build Compiler
-      run: dotnet build src/Tools/Compiler --no-incremental /WarnAsError
-
-  unit-tests:
-    name: dotnet unit tests
-    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        configuration: [Release, Debug]
+    timeout-minutes: 20
     steps:
-    - uses: actions/cache@v2
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+    - name: Set up
+      uses: ./.github/setup
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        sln: src/DotVVM.Crossplatform.slnf
 
-    - name: Install dependencies
-      run: dotnet restore src/Tests
+    # no reason to Spam with warnings when normal build fails
+    - name: Build Framework (without /WarnAsError)
+      run: dotnet build src/Framework/Framework --configuration ${{ matrix.configuration }} --no-restore --no-incremental /property:WarningLevel=0
 
-    - name: Build framework
-      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --no-restore --no-incremental /property:WarningLevel=0
-    - name: Build Tests (Release)
-      run: dotnet build src/Tests --configuration Release --no-restore /property:WarningLevel=0
-    - name: Build Tests (Debug)
-      run: dotnet build src/Tests --configuration Debug --no-restore /property:WarningLevel=0
-    - name: Unit tests (Release)
-      run: |
-          dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration Release
-    - name: Unit tests (Debug)
-      run: |
-          dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration Debug
+    # framework
+    - name: Core
+      run: dotnet build src/Framework/Framework --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+    - name: Framework
+      run: dotnet build src/Framework/Framework --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+    - name: Testing
+      run: dotnet build src/Framework/Testing --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+
+    # hosting
+    - name: Hosting.AspNetCore
+      run: dotnet build src/Framework/Hosting.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+
+    # command-line
+    - name: CommandLine
+      run: dotnet build src/Tools/CommandLine --configuration ${{ matrix.configuration }} --no-restore --framework netcoreapp3.1 /WarnAsError
+
+    # swashbuckle
+    - name: Api.Swashbuckle.AspNetCore
+      run: dotnet build src/Api/Swashbuckle.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+
+    # hot reload
+    - name: HotReload.Common
+      run: dotnet build src/Tools/HotReload/Common --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+    - name: HotReload.AspNetCore
+      run: dotnet build src/Tools/HotReload/AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+
+    # application insights
+    - name: Tracing.ApplicationInsights
+      run: dotnet build src/Tracing/ApplicationInsights --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+    - name: Tracing.ApplicationInsights.AspNetCore
+      run: dotnet build src/Tracing/ApplicationInsights.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+
+    # miniprofiler
+    - name: Tracing.MiniProfiler.AspNetCore
+      run: dotnet build src/Tracing/MiniProfiler.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+
+    # dynamic data
+    - name: DynamicData
+      run: dotnet build src/DynamicData/DynamicData --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+
+  build-all:
+    name: Build all projects without errors
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up
+      uses: ./.github/setup
+    - name: MSBuild build
+      run: msbuild src/DotVVM.sln -v:m -t:Clean,Build -p:Configuration=Release -p:WarningLevel=0
+
+  dotnet-unit-tests:
+    name: .NET unit tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false # don't kill tests when one environment fails
+      matrix:
+        os: [ubuntu-latest, windows-2022, macOS-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up
+      uses: ./.github/setup
+      with:
+        sln: src/DotVVM.Crossplatform.slnf
+    - name: Tests (net6.0)
+      uses: ./.github/unittest
+      with:
+        project: src/Tests
+        name: framework-tests
+        title: Framework Tests
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        target-framework: net6.0
+    # - name: Tests (net7.0)
+    #   uses: ./.github/unittest
+    #   with:
+    #     project: src/Tests
+    #     name: framework-tests
+    #     title: Framework Tests
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     target-framework: net7.0
+    - name: Analyzers.Tests (net6.0)
+      uses: ./.github/unittest
+      with:
+        project: src/Analyzers/Analyzers.Tests
+        name: analyzers-tests
+        title: Analyzer Tests
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        target-framework: net6.0
+    # - name: Analyzers.Tests (net7.0)
+    #   uses: ./.github/unittest
+    #   with:
+    #     project: src/Analyzers/Analyzers.Tests
+    #     name: analyzers-tests
+    #     title: Analyzer Tests
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     target-framework: net7.0
 
   js-tests:
     runs-on: ubuntu-latest
     name: JS unit tests
+    timeout-minutes: 20
     steps:
     - uses: actions/checkout@v2
+    # Node.js
+    - uses: actions/setup-node@v2
+      with:
+        node-version: 16
+    - run: |
+        corepack enable
+        yarn set version stable
+      shell: bash
     - name: yarn install
-      run: yarn --cwd src/Framework/Framework/ install --frozen-lockfile
+      run: yarn install --immutable
+      working-directory: src/Framework/Framework/
     - name: TypeScript check
-      run: yarn --cwd src/Framework/Framework/ tsc-check
+      run: yarn tsc-check
+      working-directory: src/Framework/Framework/
     - name: yarn jest
-      run: yarn --cwd src/Framework/Framework/ jest --ci --reporters=default --reporters=jest-github-actions-reporter
-     
+      run: yarn jest --ci --reporters=default --reporters=jest-github-actions-reporter
+      working-directory: src/Framework/Framework/
+
+  ui-tests:
+    name: UI tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false # don't kill tests when one environment fails
+      matrix:
+        # specify only one config, all other configurations are included explicitly
+        browser: [chrome]
+        os: [ubuntu-latest]
+        environment: [Production]
+        include:
+          - browser: chrome
+            os: windows-2022
+            environment: Development
+          - browser: firefox
+            os: ubuntu-latest
+            environment: Development
+          - browser: firefox
+            os: ubuntu-latest
+            environment: Production
+    env:
+      SLN: "${{ matrix.os == 'windows-2022' && 'src/DotVVM.sln' || 'src/DotVVM.Crossplatform.slnf' }}"
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up
+      uses: ./.github/setup
+      with:
+        sln: ${{ env.SLN }}
+    - name: Run UI tests
+      uses: ./.github/uitest
+      with:
+        browser: ${{ matrix.browser }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        build-configuration: "${{ matrix.environment == 'Production' && 'Release' || 'Debug' }}"
+        runtime-environment: "${{ matrix.environment }}"

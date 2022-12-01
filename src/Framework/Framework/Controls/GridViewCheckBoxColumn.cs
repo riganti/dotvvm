@@ -37,12 +37,19 @@ namespace DotVVM.Framework.Controls
 
         public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
         {
+            if (EditTemplate is {} editTemplate)
+            {
+                editTemplate.BuildContent(context, container);
+                return;
+            }
             CreateControlsCore(container, enabled: true);
         }
 
         private void CreateControlsCore(DotvvmControl container, bool enabled)
         {
             var checkBox = new CheckBox { Enabled = enabled };
+            CopyProperty(UITests.NameProperty, checkBox, UITests.NameProperty);
+
             var valueBinding = GetValueBinding(ValueBindingProperty);
             checkBox.SetBinding(CheckBox.CheckedProperty, valueBinding);
             Validator.Place(checkBox, container.Children, valueBinding, ValidatorPlacement);

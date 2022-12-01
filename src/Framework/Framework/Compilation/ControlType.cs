@@ -1,10 +1,11 @@
 using System;
+using System.Diagnostics;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class ControlType : IControlType
+    public sealed class ControlType : IControlType
     {
         public Type Type { get; private set; }
 
@@ -16,9 +17,9 @@ namespace DotVVM.Framework.Compilation
 
         ITypeDescriptor? IControlType.DataContextRequirement => ResolvedTypeDescriptor.Create(DataContextRequirement);
 
-        protected static void ValidateControlClass(Type control)
+        static void ValidateControlClass(Type control)
         {
-            if (!control.IsPublic)
+            if (!control.IsPublic && !control.IsNestedPublic)
                 throw new Exception($"Control {control.FullName} is not publicly accessible. Make sure that control is not internal.");
         }
 
@@ -30,13 +31,14 @@ namespace DotVVM.Framework.Compilation
             ValidateControlClass(type);
             Type = type;
             VirtualPath = virtualPath;
-            DataContextRequirement = dataContextRequirement;
+            if (dataContextRequirement != typeof(Binding.UnknownTypeSentinel))
+                DataContextRequirement = dataContextRequirement;
         }
 
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }
@@ -44,24 +46,15 @@ namespace DotVVM.Framework.Compilation
             {
                 return true;
             }
-            if (obj.GetType() != this.GetType())
-            {
-                return false;
-            }
-            return Equals((ControlType)obj);
+            return obj is ControlType ct && Equals(ct);
         }
 
-        protected bool Equals(ControlType other)
+        public bool Equals(ControlType other)
         {
             return Equals(Type, other.Type) && VirtualPath == other.VirtualPath;
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((Type != null ? Type.GetHashCode() : 53515466) * 397) ^ (VirtualPath != null ? VirtualPath.GetHashCode() : 145132);
-            }
-        }
+        public override int GetHashCode() =>
+            (Type, VirtualPath).GetHashCode();
     }
 }

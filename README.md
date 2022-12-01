@@ -3,12 +3,10 @@
 Component-based MVVM framework for ASP.NET
 ==================
 
-[![license](https://img.shields.io/github/license/riganti/dotvvm.svg?maxAge=2592000?style=plastic)]()
-[![Join the chat at https://gitter.im/riganti/dotvvm](https://badges.gitter.im/riganti/dotvvm.svg)](https://gitter.im/riganti/dotvvm)
-
-| ASP.NET Core 2.1          | .NET 5.0                  | OWIN                |
-|---------------------------|---------------------------|---------------------|
-| [![Build status: ASP.NET Core 2.1](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20AspNet%20Core)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=122) | [![Build status: .NET 5.0](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20AspNet%20Core%20Latest)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=208) | [![Build status: OWIN](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20Owin)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=181) |
+[![License](https://img.shields.io/github/license/riganti/dotvvm)](https://github.com/riganti/dotvvm/blob/main/LICENSE)
+[![Gitter](https://badges.gitter.im/riganti/dotvvm.svg)](https://gitter.im/riganti/dotvvm)
+[![GitHub Actions](https://github.com/riganti/dotvvm/actions/workflows/main.yml/badge.svg)](https://github.com/riganti/dotvvm/actions/)
+[![NuGet](https://img.shields.io/nuget/v/DotVVM?logo=nuget)](https://www.nuget.org/packages/DotVVM/)
 
 [DotVVM](https://www.dotvvm.com) lets you build interactive web UIs with **just C# and HTML** using the **MVVM** approach.
 
@@ -69,7 +67,7 @@ public class ContactFormViewModel
 * [Server-side rendering](https://www.dotvvm.com/docs/tutorials/basics-server-side-html-generation/latest)
 * Binding to [REST APIs](https://www.dotvvm.com/docs/tutorials/basics-rest-api-bindings/latest) and [patching viewmodel using static commands](https://www.dotvvm.com/docs/tutorials/basics-static-command-services/latest)
 * Can run side-by-side with other ASP.NET frameworks (Web Forms, MVC, Razor Pages)
-* **IntelliSense and tooling for Visual Studio [2017](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVMforVisualStudio-17892), [2019](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2019) and [Code](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.dotvvm-vscode)**
+* **IntelliSense and tooling for Visual Studio [2019](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2019), [2022](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2022) and [Code](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.dotvvm-vscode)**
 
 ## Getting started with DotVVM
 
@@ -77,8 +75,8 @@ Learn the basic principles of DotVVM in our [DotVVM Academy](https://academy.dot
 
 The easiest way to start with DotVVM is to download **[DotVVM for Visual Studio](https://www.dotvvm.com/landing/dotvvm-for-visual-studio-extension)** and do **File > New > Project**.
 
-* Free extension for [Visual Studio 2017](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVMforVisualStudio-17892)
 * Free extension for [Visual Studio 2019](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2019)
+* Free extension for [Visual Studio 2022](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2022)
 
 You can also [install DotVVM in existing ASP.NET projects](https://www.dotvvm.com/docs/tutorials/how-to-start-existing-app/latest) and use it side-by-side with other ASP.NET frameworks (Web Forms, MVC, Razor Pages).
 
@@ -90,9 +88,9 @@ There is also [dotnet new template](https://www.dotvvm.com/docs/tutorials/how-to
 
 |                         | ASP.NET Core                | OWIN                  |
 |-------------------------|-----------------------------|-----------------------|
-| Current stable version  | `DotVVM.AspNetCore 3.2.0`   | `DotVVM.Owin 3.2.0`   |
+| Current stable version  | `DotVVM.AspNetCore 4.0.*`   | `DotVVM.Owin 4.0.*`   |
 | Minimum runtime version | `.NET Core 3.1`             | `.NET 4.7.2`          |
-| Minimum ASP.NET version | `ASP.NET Core 3.1`          | `OWIN 3.0.1`          |
+| Minimum ASP.NET version | `ASP.NET Core 3.1`          | `OWIN 4.2.2`          |
 
 You can find the plans for next releases in the [roadmap](roadmap.md).
 

@@ -12,7 +12,6 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CSharp.RuntimeBinder;
 
 namespace DotVVM.Framework.Compilation.Binding
@@ -23,24 +22,7 @@ namespace DotVVM.Framework.Compilation.Binding
         public static Expression RewriteTaskSequence(Expression left, Expression right)
         {
             // if the left side is a task, make the right side also a task and join them
-            Expression rightTask;
-            if (right.Type == typeof(void))
-            {
-                // return Task.CompletedTask
-                rightTask = Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.WrapAsTask),
-                    Type.EmptyTypes, Expression.Lambda(right));
-            }
-            else if (!typeof(Task).IsAssignableFrom(right.Type))
-            {
-                // wrap the right expression into Task.FromResult
-                rightTask = Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.WrapAsTask),
-                    new[] { right.Type }, Expression.Lambda(right));
-            }
-            else
-            {
-                // right side is also a task
-                rightTask = right;
-            }
+            Expression rightTask = WrapAsTask(right);
 
             // join the tasks using CommandTaskSequenceHelper
             if (rightTask.Type.IsGenericType)
@@ -51,6 +33,20 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 return Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.JoinTasks), Type.EmptyTypes, left, Expression.Lambda(rightTask));
             }
+        }
+
+        public static Expression WrapAsTask(Expression expr)
+        {
+            if (typeof(Task).IsAssignableFrom(expr.Type))
+                return expr;
+            if (expr.Type != typeof(void))
+                return Expression.Call(typeof(Task), "FromResult", new [] { expr.Type }, expr);
+            else
+                return Expression.Block(
+                    expr,
+                    ExpressionUtils.Replace(() => Task.CompletedTask)
+                );
+
         }
 
         public static Expression UnwrapNullable(this Expression expression) =>
@@ -83,9 +79,11 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public static Expression? ApplyBinder(DynamicMetaObjectBinder binder, bool throwException, params Expression[] expressions)
         {
-            var result = binder.Bind(DynamicMetaObject.Create(null, expressions[0]),
+            // This null just works and C# compiler seems to produce too, I think they have bug in the type annotations
+            //                                                vvvv
+            var result = binder.Bind(DynamicMetaObject.Create(null!, expressions[0]),
                 expressions.Skip(1).Select(e =>
-                    DynamicMetaObject.Create(null, e)).ToArray()
+                    DynamicMetaObject.Create(null!, e)).ToArray()
             );
 
             if (result.Expression.NodeType == ExpressionType.Convert)
@@ -98,7 +96,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (throwException)
                 {
                     // throw the exception
-                    Expression.Lambda(result.Expression).Compile().DynamicInvoke();
+                    Expression.Lambda(result.Expression).Compile(preferInterpretation: true).DynamicInvoke();
                 }
                 else return null;
             }

@@ -135,9 +135,12 @@ namespace DotVVM.Framework.Binding
 
         public void Set(string key, ValueOrBinding<TValue> value)
         {
-            var val = value.BindingOrDefault ?? value.BoxedValue;
-            control.properties.Set(group.GetDotvvmProperty(key), val);
+            control.properties.Set(group.GetDotvvmProperty(key), value.UnwrapToObject());
         }
+        public void Set(string key, TValue value) =>
+            control.properties.Set(group.GetDotvvmProperty(key), value);
+        public void SetBinding(string key, IBinding binding) =>
+            control.properties.Set(group.GetDotvvmProperty(key), binding);
 
         public bool ContainsKey(string key)
         {
@@ -148,20 +151,20 @@ namespace DotVVM.Framework.Binding
         {
             var merger = this.group.ValueMerger;
             if (merger is null)
-                throw new ArgumentException($"Can not Add({property.Name}, {value}) since the value is already set and merging is not enabled on this property group.");
+                throw new ArgumentException($"Cannot Add({property.Name}, {value}) since the value is already set and merging is not enabled on this property group.");
             var mergedValue = merger.MergePlainValues(property, control.properties.GetOrThrow(property), value);
-            control.properties.Set(property, value);
+            control.properties.Set(property, mergedValue);
         }
 
         public void Add(string key, ValueOrBinding<TValue> value)
         {
             var prop = group.GetDotvvmProperty(key);
-            object? val = value.BindingOrDefault ?? (object?)value.ValueOrDefault;
+            object? val = value.UnwrapToObject();
             if (!control.properties.TryAdd(prop, val))
                 AddOnConflict(prop, val);
         }
-        void IDictionary<string, TValue>.Add(string key, TValue value) =>
-            this.Add(key, value);
+        public void Add(string key, TValue value) =>
+            this.Add(key, new ValueOrBinding<TValue>(value));
 
         public void AddBinding(string key, IBinding? binding)
         {
@@ -243,14 +246,32 @@ namespace DotVVM.Framework.Binding
 
         public void Clear()
         {
+            // we want to avoid allocating the list if there is only one property
+            DotvvmProperty? toRemove = null;
+            List<DotvvmProperty>? toRemoveRest = null;
+
             foreach (var (p, _) in control.properties)
             {
                 var pg = p as GroupedDotvvmProperty;
                 if (pg != null && pg.PropertyGroup == group)
                 {
-                    control.Properties.Remove(p);
+                    if (toRemove is null)
+                        toRemove = p;
+                    else
+                    {
+                        if (toRemoveRest is null)
+                            toRemoveRest = new List<DotvvmProperty>();
+                        toRemoveRest.Add(p);
+                    }
                 }
             }
+
+            if (toRemove is {})
+                control.Properties.Remove(toRemove);
+
+            if (toRemoveRest is {})
+                foreach (var p in toRemoveRest)
+                    control.Properties.Remove(p);
         }
 
         public bool Contains(KeyValuePair<string, TValue> item)

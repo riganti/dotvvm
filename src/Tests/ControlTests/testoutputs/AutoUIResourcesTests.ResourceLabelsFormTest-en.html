@@ -1,0 +1,54 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- ko with: Entity1 -->
+		<table class="autoui-form-table">
+			<tbody>
+				<tr data-bind="dotvvm-validation: FirstName, dotvvm-validationOptions: {}">
+					<td class="autoui-label">
+						<label for="FirstName.input">First name of the person</label>
+					</td>
+					<td class="autoui-editor">
+						<input data-bind="dotvvm-textbox-text: FirstName" id="FirstName.input" type="text">
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: LastName, dotvvm-validationOptions: {}">
+					<td class="autoui-label autoui-required">
+						<label for="LastName.input">Last name of the person</label>
+					</td>
+					<td class="autoui-editor">
+						<input data-bind="dotvvm-textbox-text: LastName" id="LastName.input" required="required" type="text">
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: Email, dotvvm-validationOptions: {}">
+					<td class="autoui-label">
+						<label for="Email.input">Email</label>
+					</td>
+					<td class="autoui-editor">
+						<input data-bind="dotvvm-textbox-text: Email" id="Email.input" type="email">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- /ko -->                 
+		<!-- ko with: Entity2 -->
+		<table class="autoui-form-table">
+			<tbody>
+				<tr data-bind="dotvvm-validation: FirstName, dotvvm-validationOptions: {}">
+					<td class="autoui-label">
+						<label for="FirstName.input">Overriden first name in second entity</label>
+					</td>
+					<td class="autoui-editor">
+						<input data-bind="dotvvm-textbox-text: FirstName" id="FirstName.input" type="text">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- /ko -->
+		<br>
+		Culture: en
+		<br>
+		<input onclick="dotvvm.postBack(this,[],&quot;PxAsTzb0fn81i/mI&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Validate">
+	</body>
+</html>

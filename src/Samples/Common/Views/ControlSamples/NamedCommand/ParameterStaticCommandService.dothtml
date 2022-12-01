@@ -1,0 +1,21 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.NamedCommand.ParameterStaticCommandServiceViewModel, DotVVM.Samples.Common
+@service svc = DotVVM.Samples.Common.ViewModels.ControlSamples.NamedCommand.TestService
+@js ControlSamples_NamedCommand_ParameterStaticCommand
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <dot:TextBox Text="{value: Value}" />
+    <dot:Button Text="Test" Click="{staticCommand: _js.Invoke("callCommand", Value)}" />
+
+    <dot:NamedCommand Name="test" Command="{staticCommand: (string v) => Value = svc.Reverse(v)}" />
+
+</body>
+</html>
+
+

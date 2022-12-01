@@ -13,6 +13,7 @@ namespace DotVVM.Framework.Runtime.Filters
     /// <summary>
     /// Specifies that the class or method requires the specified authorization.
     /// </summary>
+    [Obsolete("Please use the Context.Authorize method instead. You can call it, for example, from Init or any of your commands. If you are using GlobalFilters, use AuthorizeActionFilter.")]
     public class AuthorizeAttribute : ActionFilterAttribute
     {
         /// <summary>

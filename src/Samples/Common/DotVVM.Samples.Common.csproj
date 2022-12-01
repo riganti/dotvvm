@@ -2,10 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <AssemblyName>DotVVM.Samples.Common</AssemblyName>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="compiler\resources\**\*" />
@@ -14,10 +10,22 @@
     <Content Include="**/*.dotmaster;**/*.dotcontrol;**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="Always" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="node_modules\**" />
+    <Compile Remove="script\**" />
+    <Content Remove="node_modules\**" />
+    <Content Remove="script\**" />
+    <EmbeddedResource Remove="node_modules\**" />
+    <EmbeddedResource Remove="script\**" />
+    <None Remove="node_modules\**" />
+    <None Remove="script\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="sampleConfig.json" />
+    <None Remove="tsconfig.react.json" />
+    <None Remove="Scripts\ControlSamples_NamedCommand_ParameterStaticCommand.js" />
     <None Remove="Views\ComplexSamples\NestedComboBox\InnerWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\NestedComboBox\OuterWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\default.dothtml" />
@@ -35,9 +43,11 @@
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_StringToObject.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\GridView\GridViewCellDecorators.dothtml" />
+    <None Remove="Views\ControlSamples\HierarchyRepeater\Basic.dothtml" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
+    <None Remove="Views\ControlSamples\NamedCommand\ParameterStaticCommandService.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\RadioButton_Objects.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\IndexInNestedRepeater.dothtml" />
@@ -56,16 +66,25 @@
     <None Remove="Views\ControlSamples\ValidationSummary\MessagesRendering.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\Performance.dothtml" />
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
+    <None Remove="Views\Errors\ExceptionInLifecycle.dothtml" />
+    <None Remove="Views\Errors\ExceptionInRender.dothtml" />
     <None Remove="Views\Errors\InvalidServiceDirective.dothtml" />
     <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\ApiInSpa_Master.dotmaster" />
+    <None Remove="Views\FeatureSamples\Api\ApiInSpa_PageA.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\ApiInSpa_PageB.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\ApiRefresh.dothtml" />
     <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
+    <None Remove="Views\FeatureSamples\AutoUI\AutoEditor.dothtml" />
+    <None Remove="Views\FeatureSamples\AutoUI\AutoForm.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Complex.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Complex2.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Simple.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\CompositeControls\ControlPropertyNamingConflict.dothtml" />
     <None Remove="Views\FeatureSamples\CommandActionFilter\CommandActionFilter.dothtml" />
+    <None Remove="Views\FeatureSamples\HotReload\ViewChanges.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\ArrayTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\DateTimeTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\DictionaryIndexerTranslation.dothtml" />
@@ -74,19 +93,27 @@
     <None Remove="Views\FeatureSamples\JavascriptTranslation\ListMethodTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\WebUtilityTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\StringMethodTranslations.dothtml" />
+    <None Remove="Views\FeatureSamples\JsComponentIntegration\ReactComponentIntegration.dothtml" />
     <None Remove="Views\FeatureSamples\JsDirectives\BasicSample.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\ClientSideFiltering.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\MarkupDefinedProperties.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\MarkupDefinedPropertiesControl.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\ServiceDependency\ServiceDependencyControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostbackAbortSignal\LoadAbortViewModel.dothtml" />
+    <None Remove="Views\FeatureSamples\RenderSettingsModeServer\RepeaterCollectionSetToNull.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\ByteArray.dothtml" />
+    <None Remove="Views\FeatureSamples\Serialization\DateOnlyTimeOnly.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\TimeSpan.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\EnumSerializationCoercion.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\SerializationDateTimeOffset.dothtml" />
     <None Remove="Views\FeatureSamples\StringInterpolation\StringInterpolation.dothtml" />
+    <None Remove="Views\FeatureSamples\Validation\ValidatorValueComplexExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\Incrementer.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\IncrementerInRepeater.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\InnerModuleControl.dotcontrol" />
+    <None Remove="Views\FeatureSamples\ViewModules\LinkModuleControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControl.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControlTwice.dothtml" />
@@ -122,6 +149,7 @@
     <None Remove="Views\FeatureSamples\UsageValidation\OverrideValidation.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />
+    <None Remove="Views\FeatureSamples\Validation\ValidationPropertyPathResolving.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelCache\ViewModelCache_Miss.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\OuterModuleControl.dotcontrol" />
   </ItemGroup>
@@ -130,8 +158,10 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     <Content Include="Scripts\ClientExtenders.js" />
+    <Content Include="Scripts\ControlSamples_NamedCommand_ParameterStaticCommand.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
+    <Content Include="tsconfig.react.json" />
     <Content Include="tsconfig.json" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
@@ -141,12 +171,14 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Views\FeatureSamples\ViewModules\LinkModuleControl.dotcontrol" />
     <EmbeddedResource Include="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" />
     <ProjectReference Include="../Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj" />
     <ProjectReference Include="../EmbeddedResourceControls/EmbeddedResourceControls.csproj" />
+    <ProjectReference Include="../../AutoUI/Core/DotVVM.AutoUI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
@@ -155,6 +187,11 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Resources\DynamicDataTexts.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DynamicDataTexts.resx</DependentUpon>
+    </Compile>
     <Compile Update="Resources\Resource.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -162,6 +199,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Resources\DynamicDataTexts.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DynamicDataTexts.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Resources\Resource.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
@@ -173,4 +214,36 @@
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
+    <TypescriptFile Include="Scripts/**/*.tsx;Scripts/**/*.ts" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
+  <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="script/react-app.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+
+    <PropertyGroup>
+      <EnvOverrides>NO_COLOR=1;FORCE_COLOR=0;TERM=dumb</EnvOverrides>
+    </PropertyGroup>
+
+    <!-- Check if yarn exists, so we can fallback to npm otherwise -->
+    <!-- Some Linux distros use yarnpkg as name for  -->
+    <Exec Command="yarnpkg --version" IgnoreExitCode="True" ConsoleToMsBuild="True" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)">
+      <Output TaskParameter="ExitCode" PropertyName="YarnVersionExitCode" />
+    </Exec>
+
+    <Exec Command="yarnpkg install --immutable" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="npm ci" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
+
+    <Exec Command="yarnpkg build-production" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="yarnpkg build-development" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
+
+    <Exec Command="npm run build-production" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="npm run build-development" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+  </Target>
+
 </Project>

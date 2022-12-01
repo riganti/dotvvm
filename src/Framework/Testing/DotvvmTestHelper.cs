@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Text;
+using System.Threading;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
@@ -20,6 +22,7 @@ using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
 using Microsoft.Extensions.Options;
@@ -87,7 +90,14 @@ namespace DotVVM.Framework.Testing
             services.TryAddSingleton<IViewModelProtector, FakeProtector>();
             services.TryAddSingleton<ICsrfProtector, FakeCsrfProtector>();
             services.TryAddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
+            services.AddSingleton<CompiledAssemblyCache>(s => sharedAssemblyCache.Value);
+            services.AddSingleton<ExtensionMethodsCache>(s => sharedExtensionMethodCache.Value);
         }
+
+        private static Lazy<CompiledAssemblyCache> sharedAssemblyCache =
+            new (() => new CompiledAssemblyCache(DefaultConfig));
+        private static Lazy<ExtensionMethodsCache> sharedExtensionMethodCache =
+            new (() => new ExtensionMethodsCache(sharedAssemblyCache.Value));
 
         private static Lazy<DotvvmConfiguration> _defaultConfig = new Lazy<DotvvmConfiguration>(() => {
             var config = CreateConfiguration();
@@ -99,6 +109,7 @@ namespace DotVVM.Framework.Testing
 
         public static DotvvmConfiguration CreateConfiguration(Action<IServiceCollection>? customServices = null) =>
             DotvvmConfiguration.CreateDefault(s => {
+                s.AddSingleton<ITestSingletonService, TestSingletonService>();
                 customServices?.Invoke(s);
                 RegisterMoqServices(s);
             });
@@ -172,5 +183,27 @@ namespace DotVVM.Framework.Testing
                 new CompiledAssemblyCache(DefaultConfig);
             }
         }
+
+        public static void RunInCulture(CultureInfo cultureInfo, Action action)
+        {
+            var originalCulture = Thread.CurrentThread.CurrentCulture;
+            var originalUICulture = Thread.CurrentThread.CurrentUICulture;
+
+            Thread.CurrentThread.CurrentCulture = cultureInfo;
+            Thread.CurrentThread.CurrentUICulture = cultureInfo;
+            try
+            {
+                action();
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentCulture = originalCulture;
+                Thread.CurrentThread.CurrentUICulture = originalUICulture;
+            }
+        }
+
+
+        public interface ITestSingletonService { }
+        public class TestSingletonService: ITestSingletonService { }
     }
 }

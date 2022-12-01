@@ -5,6 +5,7 @@ using System.Reflection;
 using DotVVM.Framework.Utils;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -97,7 +98,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             return CheckForNull(Visit(node.Operand), operand =>
                 Expression.MakeUnary(node.NodeType, operand, node.Type, node.Method),
-                checkReferenceTypes: node.Method == null);
+                checkReferenceTypes: node.Method == null && (node.NodeType != ExpressionType.Convert || node.Type.IsValueType));
         }
 
         protected override Expression VisitInvocation(InvocationExpression node)
@@ -114,8 +115,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (ifTrue.Type != ifFalse.Type)
                 {
                     var nullable = ifTrue.Type.IsNullable() ? ifTrue.Type : ifFalse.Type;
-                    ifTrue = TypeConversion.ImplicitConversion(ifTrue, nullable);
-                    ifFalse = TypeConversion.ImplicitConversion(ifFalse, nullable);
+                    ifTrue = TypeConversion.ImplicitConversion(ifTrue, nullable, throwException: true)!;
+                    ifFalse = TypeConversion.ImplicitConversion(ifFalse, nullable, throwException: true)!;
                 }
                 return Expression.Condition(test, ifTrue, ifFalse);
             });
@@ -136,6 +137,15 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (expr != null)
                     return expr;
             }
+
+            // If the method is an extension method, we need to check the first argument for null.
+            var nullPropagateMethod = node.Method.IsDefined(typeof(ExtensionAttribute)) || node.Method.DeclaringType == typeof(BoxingUtils);
+
+            if (nullPropagateMethod && node.Object == null && node.Arguments.Any())
+                return CheckForNull(Visit(node.Arguments.First()), target =>
+                    Expression.Call(node.Method, UnwrapNullableTypes(node.Arguments.Skip(1)).Prepend(target)),
+                    suppress: node.Arguments.First().Type.IsNullable()
+                );
 
             return CheckForNull(Visit(node.Object), target =>
                 Expression.Call(target, node.Method, UnwrapNullableTypes(node.Arguments)),
@@ -163,7 +173,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     return CheckForNull(Visit(node.Arguments.First()), index =>
                     {
-                        var convertedIndex = TypeConversion.ImplicitConversion(index, node.Method.GetParameters().First().ParameterType);
+                        var convertedIndex = TypeConversion.ImplicitConversion(index, node.Method.GetParameters().First().ParameterType, throwException: true)!;
                         return Expression.Call(target, node.Method, new[] { convertedIndex }.Concat(node.Arguments.Skip(1)));
                     });
                 }, suppress: node.Object?.Type?.IsNullable() ?? true);
@@ -174,7 +184,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitNew(NewExpression node)
         {
-            return Expression.New(node.Constructor, UnwrapNullableTypes(node.Arguments));
+            return node.Update(UnwrapNullableTypes(node.Arguments));
         }
 
         protected Expression[] UnwrapNullableTypes(IEnumerable<Expression> uncheckedArguments) =>
@@ -188,7 +198,7 @@ namespace DotVVM.Framework.Compilation.Binding
             else if (expression.Type == typeof(Nullable<>).MakeGenericType(expectedType))
             {
                 var tmp = Expression.Parameter(expression.Type);
-                var nreCtor = typeof(NullReferenceException).GetConstructor(new [] { typeof(string) });
+                var nreCtor = typeof(NullReferenceException).GetConstructor(new [] { typeof(string) })!;
                 return Expression.Block(new [] { tmp },
                     Expression.Assign(tmp, expression),
                     Expression.Condition(
@@ -203,19 +213,41 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         private int tmpCounter;
-        protected Expression CheckForNull(Expression parameter, Func<Expression, Expression> callback, bool checkReferenceTypes = true, bool suppress = false)
+        protected Expression CheckForNull(Expression? parameter, Func<Expression, Expression> callback, bool checkReferenceTypes = true, bool suppress = false)
         {
-            if (suppress || parameter == null || (parameter.Type.IsValueType && !parameter.Type.IsNullable()) || !checkReferenceTypes && !parameter.Type.IsValueType)
+            if (suppress ||
+                parameter is null or ConstantExpression { Value: not null } or ParameterExpression { Name: "vm" } ||
+                (parameter.Type.IsValueType && !parameter.Type.IsNullable()) || !checkReferenceTypes && !parameter.Type.IsValueType)
                 return callback(parameter!);
             var p2 = Expression.Parameter(parameter.Type, "tmp" + tmpCounter++);
             var eresult = callback(p2.Type.IsNullable() ? (Expression)Expression.Property(p2, "Value") : p2);
             eresult = TypeConversion.ImplicitConversion(eresult, eresult.Type.MakeNullableType())!;
-            return Expression.Block(
-                new[] { p2 },
-                Expression.Assign(p2, parameter),
-                Expression.Condition(parameter.Type.IsNullable() ? (Expression)Expression.Property(p2, "HasValue") : Expression.NotEqual(p2, Expression.Constant(null, p2.Type)),
+            var condition = parameter.Type.IsNullable() ? (Expression)Expression.Property(p2, "HasValue") : Expression.NotEqual(p2, Expression.Constant(null, p2.Type));
+            var handledResult =
+                Expression.Condition(condition,
                     eresult,
-                    Expression.Default(eresult.Type)));
+                    Expression.Default(eresult.Type));
+
+
+            if (parameter is BlockExpression block)
+            {
+                // squash blocks together to reduce load on the expression compiler (and also simplify debugging of the expressions)
+                return Expression.Block(
+                    block.Variables.Concat(new [] { p2 }),
+                    block.Expressions.Take(block.Expressions.Count - 1).Concat(new Expression[] {
+                        Expression.Assign(p2, block.Expressions[block.Expressions.Count - 1]),
+                        handledResult
+                    })
+                );
+            }
+            else
+            {
+                return Expression.Block(
+                    new[] { p2 },
+                    Expression.Assign(p2, parameter),
+                    handledResult
+                );
+            }
         }
 
         public static Expression PropagateNulls(Expression expr, Func<Expression, bool> canBeNull)

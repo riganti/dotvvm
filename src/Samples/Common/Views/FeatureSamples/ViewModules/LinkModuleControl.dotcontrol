@@ -1,0 +1,5 @@
+﻿@viewModel object
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.ViewModules.LinkModuleControl
+@js FeatureSamples_Resources_TestViewModule
+
+<a href={value: _js.Invoke<string>("buildQuery", _control.Page, _control.QueryParameters)} data-ui="test-link" InnerText={value: _control.Text}/>

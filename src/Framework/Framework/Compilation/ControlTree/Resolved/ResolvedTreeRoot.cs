@@ -4,6 +4,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using System.Linq;
 using System.Collections.Immutable;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Utils;

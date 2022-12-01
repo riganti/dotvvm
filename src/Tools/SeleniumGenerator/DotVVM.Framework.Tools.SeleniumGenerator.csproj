@@ -1,6 +1,6 @@
-﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>DotVVM.Framework.Tools.SeleniumGenerator</AssemblyName>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
@@ -11,10 +11,14 @@
     <EmbeddedResource Include="compiler\resources\**\*" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Framework/Testing.SeleniumHelpers/DotVVM.Framework.Testing.SeleniumHelpers.csproj" />
     <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" />
-    <ProjectReference Include="../../Framework/Core/DotVVM.Core.csproj">
-      <FromP2P>true</FromP2P>
-    </ProjectReference>
+    <ProjectReference Include="../../Framework/Core/DotVVM.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.21308.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

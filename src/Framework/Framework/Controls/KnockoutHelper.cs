@@ -4,30 +4,29 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Runtime;
-using Newtonsoft.Json;
-using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
-using DotVVM.Framework.ViewModel.Serialization;
-using DotVVM.Framework.Utils;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Utils;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
     public static class KnockoutHelper
     {
+        /// <summary>
+        /// Adds the data-bind attribute to the next HTML element that is being rendered. The binding expression is taken from the specified property. If in server rendering mode, the binding is also not rendered.
+        /// </summary>
+        /// <param name="nullBindingAction">Action that is executed when there is not a value binding in the specified property, or in server rendering</param>
+        /// <param name="renderEvenInServerRenderingMode">When set to true, the binding is rendered even in server rendering mode. By default, the data-bind attribute is only added in client-rendering mode.</param>
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableObject control, DotvvmProperty property, Action? nullBindingAction = null,
             string? valueUpdate = null, bool renderEvenInServerRenderingMode = false, bool setValueBack = false)
         {
             var expression = control.GetValueBinding(property);
             if (expression != null && (!control.RenderOnServer || renderEvenInServerRenderingMode))
             {
-                writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
-                if (valueUpdate != null)
-                {
-                    writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
-                }
+                writer.AddKnockoutDataBind(name, control, expression, valueUpdate);
             }
             else
             {
@@ -36,17 +35,34 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        /// <summary>
+        /// Adds the data-bind attribute to the next HTML element that is being rendered.
+        /// </summary>
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableObject control, IValueBinding expression, string? valueUpdate = null)
+        {
+            writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
+            if (valueUpdate != null)
+            {
+                writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
+            }
+        }
+
         [Obsolete("Use the AddKnockoutDataBind(this IHtmlWriter writer, string name, IValueBinding valueBinding, DotvvmControl control) or AddKnockoutDataBind(this IHtmlWriter writer, string name, string expression) overload")]
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IValueBinding valueBinding)
         {
             writer.AddKnockoutDataBind(name, valueBinding.GetKnockoutBindingExpression());
         }
-
+        /// <summary>
+        /// Adds the data-bind attribute to the next HTML element that is being rendered. The binding expression is taken from the specified value binding.
+        /// </summary>
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IValueBinding valueBinding, DotvvmBindableObject control)
         {
             writer.AddKnockoutDataBind(name, valueBinding.GetKnockoutBindingExpression(control));
         }
 
+        /// <summary>
+        /// Adds the data-bind attribute to the next HTML element that is being rendered. The binding will be of form { Key: Value }, for each entry of the <paramref name="expressions" /> collection.
+        /// </summary>
         /// <param name="property">This parameter is here for historical reasons, it's not useful for anything</param>
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableObject control, DotvvmProperty? property = null)
         {
@@ -63,14 +79,8 @@ namespace DotVVM.Framework.Controls
             writer.WriteKnockoutDataBindComment("with", binding);
         }
 
-        public static void WriteKnockoutDataBindComment(this IHtmlWriter writer, string name, string expression)
-        {
-            if (name.Contains("-->") || expression.Contains("-->"))
-                throw new Exception("Knockout data bind comment can't contain substring '-->'. If you have discovered this exception in your log, you probably have a XSS vulnerability in you website.");
-
-            writer.WriteUnencodedText($"<!-- ko { name }: { expression } -->");
-        }
-
+        /// <summary> Writes knockout virtual element (the &gt;!-- ko name: --> comment). It must be ended using <see cref="IHtmlWriter.WriteKnockoutDataBindEndComment" /> method. The binding expression is taken from a binding in the specified <paramref name="property" />. </summary>
+        /// <param name="name">The name of the binding handler.</param>
         public static void WriteKnockoutDataBindComment(this IHtmlWriter writer, string name, DotvvmBindableObject control, DotvvmProperty property)
         {
             var binding = control.GetValueBinding(property);
@@ -78,21 +88,45 @@ namespace DotVVM.Framework.Controls
             writer.WriteKnockoutDataBindComment(name, binding.GetKnockoutBindingExpression(control));
         }
 
-        public static void WriteKnockoutDataBindEndComment(this IHtmlWriter writer)
-        {
-            writer.WriteUnencodedText("<!-- /ko -->");
-        }
-
         public static void AddKnockoutForeachDataBind(this IHtmlWriter writer, string expression)
         {
             writer.AddKnockoutDataBind("foreach", expression);
         }
 
+        /// <summary> Generates a function expression that invokes the command with specified commandArguments. Creates code like `(...commandArguments) => dotvvm.postBack(...)` </summary>
+        public static string GenerateClientPostbackLambda(string propertyName, ICommandBinding command, DotvvmBindableObject control, PostbackScriptOptions? options = null)
+        {
+            options ??= new PostbackScriptOptions(
+                elementAccessor: "$element",
+                koContext: CodeParameterAssignment.FromIdentifier("$context", true)
+            );
+
+            var hasArguments = command is IStaticCommandBinding || command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter);
+            options.CommandArgs = hasArguments ? new CodeParameterAssignment(new ParametrizedCode("args", OperatorPrecedence.Max)) : default;
+            // just few commands have arguments so it's worth checking if we need to clutter the output with argument propagation
+            var call = KnockoutHelper.GenerateClientPostBackExpression(
+                propertyName,
+                command,
+                control,
+                options);
+            return hasArguments ? $"(...args)=>({call})" : $"()=>({call})";
+        }
+
+        /// <summary> Generates Javascript code which executes the specified command binding <paramref name="expression" />. </summary>
+        /// <remarks> If you want a Javascript expression which returns a promise, use the <see cref="GenerateClientPostBackExpression(string, ICommandBinding, DotvvmBindableObject, PostbackScriptOptions)" /> method. </remarks>
+        /// <param name="propertyName">Name of the property which contains this command binding. It is used for looking up postback handlers.</param>
+        /// <param name="useWindowSetTimeout">If true, the command invocation will be wrapped in window.setTimeout with timeout 0. This is necessary for some event handlers, when the handler is invoked before the change is actually applied.</param>
+        /// <param name="returnValue">Return value of the event handler. If set to false, the script will also include event.stopPropagation()</param>
+        /// <param name="isOnChange">If set to true, the command will be suppressed during updating of view model. This is necessary for certain onChange events, if we don't want to trigger the command when the view model changes.</param>
+        /// <param name="elementAccessor">Javascript variable where the sender element can be found. Set to $element when in knockout binding.</param>
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, bool useWindowSetTimeout = false,
             bool? returnValue = false, bool isOnChange = false, string elementAccessor = "this")
         {
             return GenerateClientPostBackScript(propertyName, expression, control, new PostbackScriptOptions(useWindowSetTimeout, returnValue, isOnChange, elementAccessor));
         }
+        /// <summary> Generates Javascript code which executes the specified command binding <paramref name="expression" />. </summary>
+        /// <remarks> If you want a Javascript expression which returns a promise, use the <see cref="GenerateClientPostBackExpression(string, ICommandBinding, DotvvmBindableObject, PostbackScriptOptions)" /> method. </remarks>
+        /// <param name="propertyName">Name of the property which contains this command binding. It is used for looking up postback handlers.</param>
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
         {
             var expr = GenerateClientPostBackExpression(propertyName, expression, control, options);
@@ -103,6 +137,9 @@ namespace DotVVM.Framework.Controls
                 return expr;
         }
 
+        /// <summary> Generates Javascript expression which executes the specified command binding <paramref name="expression" /> and returns Promise&lt;DotvvmAfterPostBackEventArgs>. </summary>
+        /// <remarks> If you want a JS statement that you can place into an event handler, use the <see cref="GenerateClientPostBackScript(string, ICommandBinding, DotvvmBindableObject, PostbackScriptOptions)" /> method. </remarks>
+        /// <param name="propertyName">Name of the property which contains this command binding. It is used for looking up postback handlers.</param>
         public static string GenerateClientPostBackExpression(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
         {
             var target = (DotvvmControl?)control.GetClosestControlBindingTarget();
@@ -128,19 +165,17 @@ namespace DotVVM.Framework.Controls
             {
                 if (!options.AllowPostbackHandlers) return "[]";
                 // turn validation off for static commands
-                var validationPath = expression is IStaticCommandBinding ? null : GetValidationTargetExpression(control);
+                var validationPathExpr = expression is IStaticCommandBinding ? null : GetValidationTargetExpression(control);
                 return GetPostBackHandlersScript(control, propertyName,
                     // validation handler
-                    validationPath == null ? null :
-                    validationPath == RootValidationTargetExpression ? "\"validate-root\"" :
-                    validationPath == "$data" ? "\"validate-this\"" :
-                    $"[\"validate\", {{path:{JsonConvert.ToString(validationPath)}}}]",
+                    validationPathExpr == null ? null :
+                    validationPathExpr.Value.identificationExpression == "/" ? "\"validate-root\"" :
+                    validationPathExpr.Value.identificationExpression == "_this" ? "\"validate-this\"" :
+                    $"[\"validate\", {{fn:{validationPathExpr.Value.javascriptExpression}, path:{MakeStringLiteral(validationPathExpr.Value.identificationExpression)}}}]",
 
                     // use window.setTimeout
                     options.UseWindowSetTimeout ? "\"timeout\"" : null,
-
                     options.IsOnChange ? "\"suppressOnUpdating\"" : null,
-
                     GenerateConcurrencyModeHandler(propertyName, control)
                 );
             }
@@ -149,9 +184,9 @@ namespace DotVVM.Framework.Controls
                     IStaticCommandBinding { OptionsLambdaJavascript: var optionsLambdaExpression } => (true, optionsLambdaExpression),
                     _ => (false, expression.CommandJavascript)
                 };
-            var adjustedExpression = 
+            var adjustedExpression =
                 JavascriptTranslator.AdjustKnockoutScriptContext(jsExpression,
-                    dataContextLevel: BindingHelper.FindDataContextTarget(expression, control).stepsUp);
+                    dataContextLevel: expression.FindDataContextTarget(control).stepsUp);
             // when the expression changes the dataContext, we need to override the default knockout context fo the command binding.
             CodeParameterAssignment knockoutContext;
             CodeParameterAssignment viewModel = default;
@@ -165,13 +200,13 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                knockoutContext = CodeParameterAssignment.FromIdentifier("options.knockoutContext");
+                knockoutContext = options.KoContext ?? CodeParameterAssignment.FromIdentifier("options.knockoutContext");
                 viewModel = CodeParameterAssignment.FromIdentifier("options.viewModel");
             }
             var abortSignal = options.AbortSignal ?? CodeParameterAssignment.FromIdentifier("undefined");
 
             var optionalKnockoutContext =
-                options.KoContext is object && adjustedExpression != jsExpression ?
+                options.KoContext is object ?
                 knockoutContext :
                 default;
 
@@ -211,13 +246,9 @@ namespace DotVVM.Framework.Controls
             string SubstituteArguments(ParametrizedCode parametrizedCode)
             {
                 return parametrizedCode.ToString(p =>
-                    p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
+                    p == JavascriptTranslator.CurrentElementParameter ? options.ElementAccessor :
                     p == CommandBindingExpression.CurrentPathParameter ? CodeParameterAssignment.FromIdentifier(getContextPath(control)) :
-                    p == CommandBindingExpression.ControlUniqueIdParameter ? (
-                        uniqueControlId is IValueBinding ?
-                            ((IValueBinding)uniqueControlId).GetParametrizedKnockoutExpression(control) :
-                            CodeParameterAssignment.FromIdentifier(MakeStringLiteral((string)uniqueControlId!))
-                        ) :
+                    p == CommandBindingExpression.ControlUniqueIdParameter ? uniqueControlId?.GetParametrizedJsExpression(control) ?? CodeParameterAssignment.FromLiteral("") :
                     p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
                     p == JavascriptTranslator.KnockoutViewModelParameter ? viewModel :
                     p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :
@@ -350,21 +381,40 @@ namespace DotVVM.Framework.Controls
                 return $"[{JsonConvert.ToString(handlerName)},{GenerateHandlerOptions(obj, new Dictionary<string, object?> { ["q"] = queueName })}]";
             }
         }
-
-        private const string RootValidationTargetExpression = "dotvvm.viewModelObservables['root']";
+        
+        /// <summary> Returns a lambda function taking the knockout context as its single argument, returning the result of the IValueBinding. </summary>
+        public static string GetValueBindingContextLambda(this IValueBinding binding, DotvvmBindableObject contextControl, bool unwrapped = false)
+        {
+            var expr = binding.GetParametrizedKnockoutExpression(contextControl, unwrapped);
+            var body = expr.ToString(a =>
+                a == JavascriptTranslator.KnockoutContextParameter ? new("c", OperatorPrecedence.Max) :
+                a == JavascriptTranslator.KnockoutViewModelParameter ? new("c.$data", OperatorPrecedence.Max) :
+                default);
+            return $"c => {body}";
+        }
 
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
-        public static string? GetValidationTargetExpression(DotvvmBindableObject control)
+        public static (string javascriptExpression, string identificationExpression)? GetValidationTargetExpression(DotvvmBindableObject control)
         {
             if (!(bool)control.GetValue(Validation.EnabledProperty)!)
             {
                 return null;
             }
-
-            return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ??
-                   RootValidationTargetExpression;
+            var binding = control.GetValueBinding(Validation.TargetProperty);
+            if (binding == null)
+            {
+                return ("c => dotvvm.viewModelObservables.root", "/");
+            }
+            else
+            {
+                var jsExpression = binding.GetValueBindingContextLambda(control);
+                var bindingString = binding.GetProperty<OriginalStringBindingProperty>().Code;
+                var stepsUp = binding.FindDataContextTarget(control).stepsUp;
+                var identificationExpression = stepsUp == 0 ? bindingString : $"_parent{stepsUp}:{bindingString}";
+                return (jsExpression, identificationExpression);
+            }
         }
 
         /// <summary>

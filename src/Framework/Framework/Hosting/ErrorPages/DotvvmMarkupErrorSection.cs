@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -57,10 +62,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 var bce = (BindingCompilationException)exc;
                 return ExtractSourceFromBindingCompilationException(bce);
             }
-            else if (exc is DotvvmControlException)
+            else if (exc is IDotvvmException dex)
             {
-                var controlException = (DotvvmControlException)exc;
-                return ExtractSourceFromDotvvmControlException(controlException);
+                return ExtractSourceFromDotvvmException(dex);
             }
             return null;
         }
@@ -102,9 +106,15 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return null;
         }
 
-        private SourceModel ExtractSourceFromDotvvmControlException(DotvvmControlException controlException)
+        private SourceModel? ExtractSourceFromDotvvmException(IDotvvmException exception)
         {
-            return ErrorFormatter.LoadSourcePiece(controlException.FileName, controlException.LineNumber ?? 0);
+            var location = exception.GetLocation();
+            if (location == null)
+                return null;
+            var colStart = location.Ranges?.FirstOrDefault().start;
+            var colEnd = location.Ranges?.LastOrDefault().end;
+
+            return ErrorFormatter.LoadSourcePiece(location.FileName, location.LineNumber ?? -1, errorColumn: colStart ?? 0, errorLength: colEnd - colStart ?? 0);
         }
 
         private SourceModel CreateAnonymousLine(string line, int column = 0, int length = -1, int lineNumber = 0)
@@ -121,17 +131,18 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             };
         }
 
-        public void WriteHead(IErrorWriter w)
+        public void WriteStyle(IErrorWriter w)
         { }
 
         public static DotvvmMarkupErrorSection? Create(Exception ex)
         {
-            var iex = ex;
-            while (iex != null)
-            {
-                if (iex is DotvvmCompilationException || iex is DotvvmControlException) break;
-                iex = iex.InnerException;
-            }
+            var exs = ex.AllInnerExceptions();
+            var iex =
+                exs.OfType<DotvvmCompilationException>().FirstOrDefault() ??
+                exs.OfType<IDotvvmException>()
+                   .Where(dex => dex.GetLocation() != null)
+                   .FirstOrDefault()?.TheException;
+
             if (iex != null) return new DotvvmMarkupErrorSection(ex);
             else return null;
         }

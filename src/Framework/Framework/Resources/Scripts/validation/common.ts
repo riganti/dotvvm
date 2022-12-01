@@ -13,7 +13,7 @@ export type DotvvmValidationElementMetadata = {
     elementValidationState: boolean;
 }
 
-export const ErrorsPropertyName = "validationErrors";
+export const errorsSymbol = Symbol("validationErrors");
 
 /** Checks if the value is null, undefined or a whitespace only string */
 export function isEmpty(value: any): boolean {

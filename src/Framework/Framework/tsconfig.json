@@ -15,6 +15,6 @@
     "lib": [ "dom", "es2015.promise", "es5", "es6" ],
     "module": "ES2015"
   },
-  "exclude": ["*.d.ts", "obj/**", "Resources/Scripts/tests", "node_modules/**"],
+  "exclude": ["obj/**", "Resources/Scripts/tests", "node_modules/**"],
   "compileOnSave": false
 }

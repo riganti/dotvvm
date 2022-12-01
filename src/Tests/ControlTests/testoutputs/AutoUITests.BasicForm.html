@@ -1,0 +1,44 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- ko with: Entity -->
+		<table class="autoui-form-table">
+			<tbody>
+				<tr data-bind="dotvvm-validation: Name, dotvvm-validationOptions: {}">
+					<td class="autoui-label">
+						<label for="Name__input">Name</label>
+					</td>
+					<td class="autoui-editor">
+						<input data-bind="dotvvm-textbox-text: Name" id="Name__input" onchange="dotvvm.postBack(this,[&quot;$parent.Entity&quot;],&quot;AjiQtOSjw+ymqfXh&quot;,&quot;&quot;,null,[&quot;timeout&quot;,&quot;suppressOnUpdating&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="text">
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: Email, dotvvm-validationOptions: {}">
+					<td class="autoui-label autoui-required">
+						<label for="Email__input">Email</label>
+					</td>
+					<td class="autoui-editor">
+						<input data-bind="dotvvm-textbox-text: Email" id="Email__input" required="required" type="email">
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: Sometime, dotvvm-validationOptions: {}">
+					<td class="autoui-label">
+						<label for="Sometime__input">Sometime</label>
+					</td>
+					<td class="autoui-editor">
+						Nah, I'm lazy and we don't support date times
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: Age, dotvvm-validationOptions: {}">
+					<td class="autoui-label">
+						<label for="Age__input">Age</label>
+					</td>
+					<td class="autoui-editor">
+						<input data-bind="dotvvm-textbox-text: Age" id="Age__input" max="150" min="0" type="number">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- /ko -->
+	</body>
+</html>

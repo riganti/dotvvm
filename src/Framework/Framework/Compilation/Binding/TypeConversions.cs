@@ -10,6 +10,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.HelperNamespace;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -93,9 +94,19 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (src.Type.IsValueType && src.Type != typeof(void) && destType == typeof(object))
             {
-                return Expression.Convert(src, destType);
+                return BoxToObject(src);
             }
             return null;
+        }
+
+        public static Expression BoxToObject(Expression src)
+        {
+            var type = src.Type;
+            if (type == typeof(bool) || type == typeof(bool?) || type == typeof(int) || type == typeof(int?))
+                return Expression.Call(typeof(BoxingUtils), "Box", Type.EmptyTypes, src);
+            if (src is ConstantExpression { Value: var constant })
+                return Expression.Constant(constant, typeof(object));
+            return Expression.Convert(src, typeof(object));
         }
 
         //6.1.4 Nullable Type conversions
@@ -148,6 +159,10 @@ namespace DotVVM.Framework.Compilation.Binding
             return null;
         }
 
+        //TODO: Refactor ImplicitConversion usages to EnsureImplicitConversion where applicable to take advantage of nullability 
+        public static Expression EnsureImplicitConversion(Expression src, Type destType)
+            => ImplicitConversion(src, destType, true, false)!;
+
         // 6.1 Implicit Conversions
         public static Expression? ImplicitConversion(Expression src, Type destType, bool throwException = false, bool allowToString = false)
         {
@@ -161,7 +176,8 @@ namespace DotVVM.Framework.Compilation.Binding
                   NullableConversion(src, destType) ??
                   NullLiteralConversion(src, destType) ??
                   BoxingConversion(src, destType) ??
-                  ReferenceConversion(src, destType);
+                  ReferenceConversion(src, destType) ??
+                  TaskConversion(src, destType);
             if (allowToString && destType == typeof(string) && result == null)
             {
                 result = ToStringConversion(src);
@@ -178,6 +194,10 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public static Expression? ToStringConversion(Expression src)
         {
+            if (src.Type.UnwrapNullableType().IsEnum)
+            {
+                return Expression.Call(typeof(Enums), "ToEnumString", new [] { src.Type.UnwrapNullableType() }, src);
+            }
             var toStringMethod = src.Type.GetMethod("ToString", Type.EmptyTypes);
             if (toStringMethod?.DeclaringType == typeof(object))
                 toStringMethod = null;
@@ -216,7 +236,7 @@ namespace DotVVM.Framework.Compilation.Binding
             //	A constant-expression (§7.19) of type int can be converted to type sbyte, byte, short, ushort, uint, or ulong, provided the value of the constant-expression is within the range of the destination type.
             if (src.Type == typeof(int))
             {
-                var value = (int)srcValue;
+                var value = (int)srcValue!;
                 if (destType == typeof(sbyte))
                 {
                     if (value >= SByte.MinValue && value <= SByte.MinValue)
@@ -263,7 +283,7 @@ namespace DotVVM.Framework.Compilation.Binding
             //	A constant-expression of type long can be converted to type ulong, provided the value of the constant-expression is not negative.
             if (src.Type == typeof(long))
             {
-                var value = (long)srcValue;
+                var value = (long)srcValue!;
                 if (destType == typeof(ulong))
                 {
                     if (value >= 0)
@@ -276,7 +296,7 @@ namespace DotVVM.Framework.Compilation.Binding
             // nonstandard implicit string conversions
             if (src.Type == typeof(string))
             {
-                var value = (string)srcValue;
+                var value = (string)srcValue!;
                 // to enum
                 if (destType.IsEnum)
                 {
@@ -303,13 +323,29 @@ namespace DotVVM.Framework.Compilation.Binding
         /// </summary>
         public static Expression? ImplicitNumericConversion(Expression src, Type target)
         {
-            List<Type> allowed;
-            if (ImplicitNumericConversions.TryGetValue(src.Type, out allowed))
+            if (src.Type == target)
+                return src;
+
+            if (ImplicitNumericConversions.TryGetValue(src.Type, out var allowed))
             {
                 if (allowed.Contains(target))
                 {
                     return Expression.Convert(src, target);
                 }
+            }
+            // enum -> int and int -> enum are non-standard, but we need them as long as we don't support explicit conversions
+            if (src.Type.IsEnum && target.IsEnum)
+                return null;
+
+            if (src.Type.IsEnum)
+            {
+                var enumType = src.Type.GetEnumUnderlyingType();
+                return ImplicitNumericConversion(Expression.Convert(src, enumType), target);
+            }
+            if (target.IsEnum)
+            {
+                var enumType = target.GetEnumUnderlyingType();
+                return ImplicitNumericConversion(src, enumType)?.Apply(c => Expression.Convert(c, target));
             }
             return null;
         }
@@ -319,11 +355,12 @@ namespace DotVVM.Framework.Compilation.Binding
         /// It also replaces special ExtensionParameters attached to the expression for lambda parameters
         public static Expression? MagicLambdaConversion(Expression expr, Type expectedType)
         {
-            if (expectedType.IsDelegate())
+            if (expr.Type.IsDelegate())
+                return expr;
+            if (expectedType.IsDelegate(out var invokeMethod))
             {
-                var resultType = expectedType.GetMethod("Invoke").ReturnType;
-                var delegateArgs = expectedType
-                                      .GetMethod("Invoke")
+                var resultType = invokeMethod.ReturnType;
+                var delegateArgs = invokeMethod
                                       .GetParameters()
                                       .Select(p => Expression.Parameter(p.ParameterType, p.Name))
                                       .ToArray();
@@ -347,6 +384,14 @@ namespace DotVVM.Framework.Compilation.Binding
                         delegateArgs
                     );
                 }
+            }
+            else if (expectedType == typeof(Delegate))
+            {
+                // convert to any delegate, we just wrap it to `() => { return expr; }`
+                return Expression.Lambda(
+                    body: expr,
+                    parameters: Array.Empty<ParameterExpression>()
+                );
             }
             else
                 return null;
@@ -383,7 +428,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     // return dummy completed task
                     if (expectedType == typeof(Task))
                     {
-                        return Expression.Block(expr, Expression.Call(typeof(TaskUtils), "GetCompletedTask", Type.EmptyTypes));
+                        return Expression.Block(expr, ExpressionUtils.Replace(() => Task.CompletedTask));
                     }
                     else if (expectedType.GetGenericTypeDefinition() == typeof(Task<>))
                     {

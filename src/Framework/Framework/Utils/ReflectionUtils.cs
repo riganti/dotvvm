@@ -17,6 +17,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Configuration;
+using FastExpressionCompiler;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using RecordExceptions;
 
 namespace DotVVM.Framework.Utils
 {
@@ -28,15 +33,16 @@ namespace DotVVM.Framework.Utils
         public static MemberInfo GetMemberFromExpression(Expression expression)
         {
             var originalExpression = expression;
-            if (expression is LambdaExpression lambda)
-                expression = lambda.Body;
-            if (expression is UnaryExpression unary)
+            if (expression.NodeType == ExpressionType.Lambda)
+                expression = ((LambdaExpression)expression).Body;
+
+            while (expression is UnaryExpression unary)
                 expression = unary.Operand;
 
             var body = expression as MemberExpression;
 
             if (body == null)
-                throw new NotSupportedException($"Can not get member from {originalExpression}");
+                throw new NotSupportedException($"Cannot get member from {originalExpression}");
 
             return body.Member;
         }
@@ -51,7 +57,7 @@ namespace DotVVM.Framework.Utils
             }
             catch (ReflectionTypeLoadException e)
             {
-                return e.Types.Where(t => t != null);
+                return e.Types.Where(t => t != null)!;
             }
         }
 
@@ -64,33 +70,22 @@ namespace DotVVM.Framework.Utils
                 return type.GetMembers(flags);
         }
 
+        ///<summary> Gets all methods from the type, including inherited classes, implemented interfaces and interfaces inherited by the interface </summary>
+        public static IEnumerable<MethodInfo> GetAllMethods(this Type type, BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+        {
+            if (type.IsInterface)
+                return type.GetMethods(flags).Concat(type.GetInterfaces().SelectMany(t => t.GetMethods(flags)));
+            else
+                return type.GetMethods(flags);
+        }
+
         /// <summary>
         /// Gets filesystem path of assembly CodeBase
         /// http://stackoverflow.com/questions/52797/how-do-i-get-the-path-of-the-assembly-the-code-is-in
         /// </summary>
         public static string? GetCodeBasePath(this Assembly assembly)
         {
-            var codeBase = assembly.CodeBase;
-            if (codeBase == null) return null;
-            UriBuilder uri = new UriBuilder(codeBase);
-            return Uri.UnescapeDataString(uri.Path);
-        }
-
-        /// <summary>
-        /// Gets the specified property of a given object.
-        /// </summary>
-        public static object? GetObjectPropertyValue(object? item, string propertyName, out PropertyInfo? prop)
-        {
-            prop = null;
-            if (item == null) return null;
-
-            var type = item.GetType();
-            prop = type.GetProperty(propertyName);
-            if (prop == null)
-            {
-                throw new Exception(String.Format("The object of type {0} does not have a property named {1}!", type, propertyName));     // TODO: exception handling
-            }
-            return prop.GetValue(item);
+            return assembly.Location;
         }
 
         /// <summary>
@@ -129,16 +124,23 @@ namespace DotVVM.Framework.Utils
         /// <summary>
         /// Converts a value to a specified type
         /// </summary>
+        /// <exception cref="TypeConvertException" />
         public static object? ConvertValue(object? value, Type type)
         {
             // handle null values
             if (value == null)
             {
-                if (type.IsValueType)
+                if (type == typeof(bool))
+                    return BoxingUtils.False;
+                else if (type == typeof(int))
+                    return BoxingUtils.Zero;
+                else if (type.IsValueType)
                     return Activator.CreateInstance(type);
                 else
                     return null;
             }
+
+            if (type.IsInstanceOfType(value)) return value;
 
             // handle nullable types
             if (type.IsGenericType && Nullable.GetUnderlyingType(type) is Type nullableElementType)
@@ -183,7 +185,7 @@ namespace DotVVM.Framework.Utils
                     }
                     catch (Exception ex)
                     {
-                        throw new Exception($"The enum {type} does not allow a value '{val}'!", ex); // TODO: exception handling
+                        throw new Exception($"The enum {type} does not allow a value '{val}'!", ex);
                     }
                 }
                 return result;
@@ -210,7 +212,11 @@ namespace DotVVM.Framework.Utils
             const NumberStyles numberStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent | NumberStyles.AllowLeadingSign | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
             if (value is string str2)
             {
-                if (type == typeof(double))
+                if (type == typeof(bool))
+                    return BoxingUtils.Box(bool.Parse(str2));
+                else if (type == typeof(int))
+                    return BoxingUtils.Box(int.Parse(str2, numberStyle & NumberStyles.Integer, CultureInfo.InvariantCulture));
+                else if (type == typeof(double))
                     return double.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);
                 else if (type == typeof(float))
                     return float.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);
@@ -223,7 +229,19 @@ namespace DotVVM.Framework.Utils
             }
 
             // convert
-            return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
+            try
+            {
+                return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
+            }
+            catch (Exception e)
+            {
+                throw new TypeConvertException(value, type, e);
+            }
+        }
+
+        public record TypeConvertException(object Value, Type Type, Exception InnerException): RecordException(InnerException)
+        {
+            public override string Message => $"Can not convert value '{Value}' to {Type}: {InnerException!.Message}";
         }
 
         public static Type? GetEnumerableType(this Type collectionType)
@@ -233,14 +251,16 @@ namespace DotVVM.Framework.Utils
             return ResolvedTypeDescriptor.ToSystemType(result);
         }
 
-        public static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
+        private static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
         {
             typeof(DateTime),
             typeof(DateTimeOffset),
-            typeof(TimeSpan)
+            typeof(TimeSpan),
+            typeof(DateOnly),
+            typeof(TimeOnly)
         };
 
-        public static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
+        private static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
         {
             typeof (sbyte),
             typeof (byte),
@@ -255,25 +275,43 @@ namespace DotVVM.Framework.Utils
             typeof (double),
             typeof (decimal)
         };
+        private static readonly HashSet<Type> IntegerNumericTypes = new HashSet<Type>()
+        {
+            typeof (sbyte),
+            typeof (byte),
+            typeof (short),
+            typeof (ushort),
+            typeof (int),
+            typeof (uint),
+            typeof (long),
+            typeof (ulong),
+            typeof (char),
+        };
+        private static readonly HashSet<Type> RealNumericTypes = new HashSet<Type>()
+        {
+            typeof (float),
+            typeof (double),
+            typeof (decimal)
+        };
 
-        public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
+        public static IEnumerable<Type> GetNumericTypes()
+        {
+            return NumericTypes;
+        }
+
+        private static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
             typeof(string), typeof(char),
             typeof(bool),
-            typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan),
+            typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan), typeof(DateOnly), typeof(TimeOnly),
             typeof(Guid),
             typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong),
             typeof(float), typeof(double), typeof(decimal)
         };
 
-        public static bool IsNumericType(this Type type)
-        {
-            return NumericTypes.Contains(type);
-        }
-
-        public static bool IsDateOrTimeType(this Type type)
-        {
-            return DateTimeTypes.Contains(type);
-        }
+        public static bool IsNumericType(this Type type) => NumericTypes.Contains(type);
+        public static bool IsDateOrTimeType(this Type type) => DateTimeTypes.Contains(type);
+        public static bool IsIntegerNumericType(this Type type) => IntegerNumericTypes.Contains(type);
+        public static bool IsRealNumericType(this Type type) => RealNumericTypes.Contains(type);
 
         /// <summary> Return true for Tuple, ValueTuple, KeyValuePair </summary>
         public static bool IsTupleLike(Type type) =>
@@ -317,6 +355,14 @@ namespace DotVVM.Framework.Utils
                 || type.IsEnum;
         }
 
+        public static bool IsSerializationSupported(this Type type, bool includeNullables)
+        {
+            if (includeNullables)
+                return IsPrimitiveType(type);
+
+            return PrimitiveTypes.Contains(type);
+        }
+
         public static bool IsNullableType(Type type)
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
@@ -327,25 +373,28 @@ namespace DotVVM.Framework.Utils
             return !IsPrimitiveType(type);
         }
 
-        public static bool IsDynamicOrObject(this Type type)
+        public static bool IsDelegate(this Type type) =>
+            typeof(Delegate).IsAssignableFrom(type);
+        public static bool IsDelegate(this Type type, [NotNullWhen(true)] out MethodInfo? invokeMethod)
         {
-            return type.GetInterfaces().Contains(typeof(IDynamicMetaObjectProvider)) ||
-                   type == typeof(object);
-        }
-
-        public static bool IsDelegate(this Type type)
-        {
-            return typeof(Delegate).IsAssignableFrom(type);
+            if (type.IsDelegate() && typeof(Delegate) != type)
+            {
+                invokeMethod = type.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance).NotNull("Could not find delegate Invoke method");
+                return true;
+            }
+            else
+            {
+                invokeMethod = null;
+                return false;
+            }
         }
 
         public static ParameterInfo[]? GetDelegateArguments(this Type type) =>
-            type.IsDelegate() ?
-            type.GetMethod("Invoke")!.GetParameters() :
-            null;
+            type.IsDelegate(out var m) ? m.GetParameters() : null;
 
 
         public static bool Implements(this Type type, Type ifc) => Implements(type, ifc, out var _);
-        public static bool Implements(this Type type, Type ifc, out Type concreteInterface)
+        public static bool Implements(this Type type, Type ifc, [NotNullWhen(true)] out Type? concreteInterface)
         {
             bool isInterface(Type a, Type b) => a == b || a.IsGenericType && a.GetGenericTypeDefinition() == b;
             if (isInterface(type, ifc))
@@ -375,30 +424,48 @@ namespace DotVVM.Framework.Utils
                 return type.GetGenericArguments()[0];
             else if (typeof(Task).IsAssignableFrom(type))
                 return typeof(void);
-#if NETSTANDARD2_1
             else if (type.IsGenericType && typeof(ValueTask<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
                 return type.GetGenericArguments()[0];
-#endif
             else
                 return type;
         }
 
-        public static Type UnwrapValueOrBinding(this Type type)
+        public static bool IsValueOrBinding(this Type type, [NotNullWhen(true)] out Type? elementType)
         {
             type = type.UnwrapNullableType();
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ValueOrBinding<>))
-                return type.GenericTypeArguments.Single();
+            {
+                elementType = type.GenericTypeArguments.Single();
+                return true;
+            }
             else if (typeof(ValueOrBinding).IsAssignableFrom(type))
-                return typeof(object);
+            {
+                elementType = typeof(object);
+                return true;
+            }
             else
-                return type;
+            {
+                elementType = null;
+                return false;
+            }
         }
 
-        public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
-            (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
+        public static Type UnwrapValueOrBinding(this Type type) =>
+            type.IsValueOrBinding(out var x) ? x : type;
 
-        public static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
-            attributeProvider.GetCustomAttributes(typeof(T), inherit).Cast<T>();
+        public static T? GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
+            (T?)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
+
+        public static T[] GetCustomAttributes<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true)
+        {
+            var resultObj = attributeProvider.GetCustomAttributes(typeof(T), inherit);
+            var resultT = new T[resultObj.Length];
+            for (int i = 0; i < resultObj.Length; i++)
+            {
+                resultT[i] = (T)resultObj[i];
+            }
+            return resultT;
+        }
 
 
         private static ConcurrentDictionary<Type, string> cache_GetTypeHash = new ConcurrentDictionary<Type, string>();
@@ -407,9 +474,10 @@ namespace DotVVM.Framework.Utils
             return cache_GetTypeHash.GetOrAdd(type, t => {
                 using (var sha1 = SHA1.Create())
                 {
-                    var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(t.AssemblyQualifiedName!));
+                    var typeName = t.FullName + ", " + t.Assembly.GetName().Name;
+                    var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(typeName));
 
-                    return Convert.ToBase64String(hashBytes);
+                    return Convert.ToBase64String(hashBytes, 0, 12);
                 }
             });
         }
@@ -423,7 +491,7 @@ namespace DotVVM.Framework.Utils
                     Expression.Invoke(Expression.Convert(delegateParameter, type), d.Method.GetParameters().Select((p, i) =>
                         Expression.Convert(Expression.ArrayIndex(argsParameter, Expression.Constant(i)), p.ParameterType))).ConvertToObject(),
                 delegateParameter, argsParameter)
-                .Compile())
+                .CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression))
             .Invoke(d, args);
 
         public static Type GetResultType(this MemberInfo member) =>
@@ -433,22 +501,73 @@ namespace DotVVM.Framework.Utils
             member is TypeInfo type ? type.AsType() :
             throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
 
-        public static string ToEnumString<T>(this T instance) where T : Enum
+        [return: NotNullIfNotNull("instance")]
+        public static string? ToEnumString<T>(T? instance) where T : struct, Enum
         {
-            return ToEnumString(instance.GetType(), instance.ToString());
+            if (instance == null)
+                return null;
+
+            if (!EnumInfo<T>.HasEnumMemberField)
+            {
+                return instance.ToString()!;
+            }
+            else if (EnumInfo<T>.IsFlags)
+            {
+                return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value));
+            }
+            else
+            {
+                var name = instance.ToString()!;
+                return ToEnumString(typeof(T), name);
+            }
         }
+
         public static string ToEnumString(Type enumType, string name)
         {
             var field = enumType.GetField(name);
             if (field != null)
             {
-                var attr = (EnumMemberAttribute)field.GetCustomAttributes(typeof(EnumMemberAttribute), false).SingleOrDefault();
-                if (attr != null)
+                var attr = (EnumMemberAttribute?)field.GetCustomAttributes(typeof(EnumMemberAttribute), false).SingleOrDefault();
+                if (attr is { Value: {} })
                 {
                     return attr.Value;
                 }
             }
             return name;
+        }
+
+        internal static class EnumInfo<T> where T: struct, Enum
+        {
+            internal static readonly bool HasEnumMemberField;
+            internal static readonly bool IsFlags;
+
+            static EnumInfo()
+            {
+                foreach (var field in typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static))
+                {
+                    if (field.IsDefined(typeof(EnumMemberAttribute), false))
+                    {
+                        HasEnumMemberField = true;
+                        break;
+                    }
+                }
+                IsFlags = typeof(T).IsDefined(typeof(FlagsAttribute));
+            }
+        }
+        
+        public static Type GetDelegateType(MethodInfo methodInfo)
+        {
+            return Expression.GetDelegateType(methodInfo.GetParameters().Select(a => a.ParameterType).Append(methodInfo.ReturnType).ToArray());
+        }
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+            {
+                delegateInvokeCache.TryRemove(t, out _);
+                cache_GetTypeHash.TryRemove(t, out _);
+            }
         }
     }
 }

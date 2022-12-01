@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyTitle>DotVVM.HotReload.Owin</AssemblyTitle>
+    <TargetFramework>net472</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <PackageId>DotVVM.HotReload.Owin</PackageId>
+    <Description>Hot reload support for DotVVM pages and changes in markup</Description>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Scripts\dotvvm.hotreload.js" />
+    <None Remove="Scripts\jquery.min.js" />
+    <None Remove="Scripts\jquery.signalR.min.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\dotvvm.hotreload.js" />
+    <EmbeddedResource Include="Scripts\jquery.min.js" />
+    <EmbeddedResource Include="Scripts\jquery.signalR.min.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.4.1" />
+    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>    
+    <ProjectReference Include="..\..\..\Framework\Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj" />
+    <ProjectReference Include="..\Common\DotVVM.HotReload.csproj" />
+  </ItemGroup>
+
+</Project>

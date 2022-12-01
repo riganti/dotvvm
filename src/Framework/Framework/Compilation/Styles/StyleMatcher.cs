@@ -9,6 +9,7 @@ using DotVVM.Framework.Configuration;
 using System.Linq.Expressions;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -61,7 +62,7 @@ namespace DotVVM.Framework.Compilation.Styles
             foreach (var s in Styles[type]) yield return s;
             do
             {
-                type = type.BaseType;
+                type = type.BaseType!;
 
                 foreach (var s in Styles[type])
                     if (!s.ExactTypeMatch)
@@ -77,7 +78,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 if (t.IsAssignableFrom(typeof(DotvvmBindableObject))) return ImmutableArray<IStyle>.Empty;
                 var configurationParameter = Expression.Parameter(typeof(DotvvmConfiguration));
                 var controlParameter = Expression.Parameter(typeof(ResolvedControl));
-                return GetImplicitStyles(t.BaseType).Concat(
+                return GetImplicitStyles(t.BaseType!).Concat(
                     from m in t.GetMethods(BindingFlags.Public | BindingFlags.Static)
                     where m.IsDefined(typeof(ApplyControlStyleAttribute))
                     let parameters = m.GetParameters()
@@ -91,9 +92,17 @@ namespace DotVVM.Framework.Compilation.Styles
                             new[] { p.ParameterType },
                             services)))
                     let expression = Expression.Lambda<Action<ResolvedControl, DotvvmConfiguration>>(invocationExpression, controlParameter, configurationParameter)
-                    select (IStyle)new GenericStyle(controlType, expression.Compile())
+                    select (IStyle)new GenericStyle(controlType, expression.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression))
                     ).ToImmutableArray();
             });
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+                implicitStyles.TryRemove(t, out _);
+        }
+
 
         class GenericStyle : IStyle
         {

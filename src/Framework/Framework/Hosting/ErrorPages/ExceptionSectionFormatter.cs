@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     w.WriteUnencoded("</h3>");
                     if (info.Objects != null)
                     {
-                        if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToHtmlList)
+                        if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToHtmlList || info.Display == ExceptionAdditionalInfo.DisplayMode.ToHtmlListUnencoded)
                         {
                             w.WriteUnencoded("<ul>");
                         }
@@ -66,8 +66,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                             {
                                 w.WriteUnencoded("<li>" + WebUtility.HtmlEncode(obj.ToString()) + "</li>");
                             }
+                            else if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToHtmlListUnencoded)
+                            {
+                                w.WriteUnencoded("<li>" + obj + "</li>");
+                            }
                         }
-                        if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToHtmlList)
+                        if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToHtmlList || info.Display == ExceptionAdditionalInfo.DisplayMode.ToHtmlListUnencoded)
                         {
                             w.WriteUnencoded("</ul>");
                         }
@@ -98,8 +102,11 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             w.WriteUnencoded("</div>");
         }
 
-        protected virtual string FormatMethod(MethodBase method)
+        protected virtual string FormatMethod(MethodBase? method)
         {
+            if (method == null)
+                return "Unknown method";
+
             var sb = new StringBuilder();
             if (method.DeclaringType != null)
             {
@@ -127,7 +134,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return sb.ToString();
         }
 
-        public void WriteHead(IErrorWriter w)
+        public void WriteStyle(IErrorWriter w)
         {
             w.WriteUnencoded(@"
 .exception .exceptionType:after { content: ': '; }

@@ -1,0 +1,37 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.AutoFormViewModel, DotVVM.Samples.Common
+@service statesDataProvider = DotVVM.AutoUI.Annotations.ISelectionProvider<DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.StateSelection, DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.AddressDTO>
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <dot:RequiredResource Name=bulma />
+</head>
+<body>
+
+    <h2 class="title">DynamicEntity</h2>
+
+    <div class="columns">
+        <div class="column">
+            <auto:BulmaForm
+                DataContext="{value: Address}"
+                GroupName="BasicInfo"
+                Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}">
+            </auto:BulmaForm>
+        </div>
+        <div class="column">
+            <auto:BulmaForm DataContext="{value: Address}"
+                            GroupName="ContactInfo" 
+                            Property-Something={value: _root.Something} />
+
+            <p>
+                <dot:Button Text="Validate" Click="{command: null}" />
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
+

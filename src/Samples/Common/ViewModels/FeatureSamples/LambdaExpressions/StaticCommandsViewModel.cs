@@ -23,6 +23,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.LambdaExpressions
             new CustomerData() {Id = 10, Name = "Roger", Category = (Category)(-1), RegisteredAt = DateTime.Parse("2020-12-01T06:57:57"), IsActive = false, FinishedTransactions = 27 }
         };
 
+        public List<Category> SelectedCategories { get; set; } = new List<Category> { Category.Blue, Category.Green };
+
         public List<CustomerData> FilteredCustomers { get; set; }
 
         public CustomerData SingleCustomer { get; set; }

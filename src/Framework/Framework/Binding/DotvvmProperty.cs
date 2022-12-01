@@ -14,6 +14,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using Newtonsoft.Json;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Immutable;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Binding
 {
@@ -104,6 +105,8 @@ namespace DotVVM.Framework.Binding
         public DotvvmCapabilityProperty? OwningCapability { get; internal set; }
         /// <summary> The capabilities which use this property. </summary>
         public ImmutableArray<DotvvmCapabilityProperty> UsedInCapabilities { get; internal set; } = ImmutableArray<DotvvmCapabilityProperty>.Empty;
+        IPropertyDescriptor? IControlAttributeDescriptor.OwningCapability => OwningCapability;
+        IEnumerable<IPropertyDescriptor> IControlAttributeDescriptor.UsedInCapabilities => UsedInCapabilities;
 
 
         internal void AddUsedInCapability(DotvvmCapabilityProperty? p)
@@ -141,10 +144,18 @@ namespace DotVVM.Framework.Binding
             InitializeProperty(this);
         }
 
-        public IEnumerable<T> GetAttributes<T>() =>
-            AttributeProvider.GetCustomAttributes<T>().Concat(
-                PropertyInfo?.GetCustomAttributes<T>() ?? Enumerable.Empty<T>()
-            );
+        public T[] GetAttributes<T>()
+        {
+            if (PropertyInfo == null)
+                return AttributeProvider.GetCustomAttributes<T>();
+            if (object.ReferenceEquals(AttributeProvider, PropertyInfo))
+                return PropertyInfo.GetCustomAttributes<T>();
+            var attrA = AttributeProvider.GetCustomAttributes<T>();
+            var attrB = PropertyInfo.GetCustomAttributes<T>();
+            if (attrA.Length == 0) return attrB;
+            if (attrB.Length == 0) return attrA;
+            return attrA.Concat(attrB).ToArray();
+        }
 
         public bool IsOwnedByCapability(Type capability) =>
             (this is DotvvmCapabilityProperty && this.PropertyType == capability) ||
@@ -153,6 +164,16 @@ namespace DotVVM.Framework.Binding
         public bool IsOwnedByCapability(DotvvmCapabilityProperty capability) =>
             this == capability ||
             OwningCapability?.IsOwnedByCapability(capability) == true;
+
+        private object? GetInheritedValue(DotvvmBindableObject control)
+        {
+            for (var p = control.Parent; p is not null; p = p.Parent)
+            {
+                if (p.properties.TryGet(this, out var v))
+                    return v;
+            }
+            return DefaultValue;
+        }
 
         /// <summary>
         /// Gets the value of the property.
@@ -163,9 +184,9 @@ namespace DotVVM.Framework.Binding
             {
                 return value;
             }
-            if (IsValueInherited && inherit && control.Parent != null)
+            if (IsValueInherited & inherit)
             {
-                return GetValue(control.Parent);
+                return GetInheritedValue(control);
             }
             return DefaultValue;
         }
@@ -206,7 +227,7 @@ namespace DotVVM.Framework.Binding
             var field = ReflectionUtils.GetMemberFromExpression(fieldAccessor) as FieldInfo;
             if (field == null || !field.IsStatic) throw new ArgumentException("The expression should be simple static field access", nameof(fieldAccessor));
             if (!field.Name.EndsWith("Property", StringComparison.Ordinal)) throw new ArgumentException($"DotVVM property backing field's '{field.Name}' name should end with 'Property'");
-            return Register<TPropertyType, TDeclaringType>(field.Name.Remove(field.Name.Length - "Property".Length), defaultValue, isValueInherited);
+            return Register<TPropertyType, TDeclaringType>(field.Name.Remove(field.Name.Length - "Property".Length).DotvvmInternString(trySystemIntern: true), defaultValue, isValueInherited);
         }
 
         /// <summary>
@@ -216,7 +237,7 @@ namespace DotVVM.Framework.Binding
         {
             var property = ReflectionUtils.GetMemberFromExpression(propertyAccessor) as PropertyInfo;
             if (property == null) throw new ArgumentException("The expression should be simple property access", nameof(propertyAccessor));
-            return Register<TPropertyType, TDeclaringType>(property.Name, defaultValue, isValueInherited);
+            return Register<TPropertyType, TDeclaringType>(property.Name.DotvvmInternString(trySystemIntern: true), defaultValue, isValueInherited);
         }
 
         /// <summary>
@@ -227,7 +248,7 @@ namespace DotVVM.Framework.Binding
             var field = typeof(TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             if (field == null) throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{propertyName}Property'.");
 
-            return Register(propertyName, typeof(TPropertyType), typeof(TDeclaringType), defaultValue, isValueInherited, property, field);
+            return Register(propertyName, typeof(TPropertyType), typeof(TDeclaringType), BoxingUtils.BoxGeneric(defaultValue), isValueInherited, property, field);
         }
 
         public static DotvvmProperty Register(string propertyName, Type propertyType, Type declaringType, object? defaultValue, bool isValueInherited, DotvvmProperty? property, ICustomAttributeProvider attributeProvider, bool throwOnDuplicateRegistration = true)
@@ -244,6 +265,22 @@ namespace DotVVM.Framework.Binding
             return Register(property, throwOnDuplicateRegistration);
         }
 
+        public record PropertyAlreadyExistsException(
+            DotvvmProperty OldProperty,
+            DotvvmProperty NewProperty
+        )
+            : DotvvmExceptionBase(RelatedProperty: OldProperty)
+        {
+            public override string Message { get {
+                var capabilityHelp = OldProperty.OwningCapability is {} ownerOld ? $" The existing property is declared by capability {ownerOld.Name}." : "";
+                var capabilityHelpNew = NewProperty.OwningCapability is {} ownerNew ? $" The new property is declared by capability {ownerNew.Name}." : "";
+                var message = NewProperty is DotvvmCapabilityProperty ?
+                              $"Capability {NewProperty.Name} conflicts with existing property. Consider giving the capability a different name." :
+                              $"DotVVM property is already registered: {NewProperty.FullName}";
+                return message + capabilityHelp + capabilityHelpNew;
+            } }
+        }
+
         internal static DotvvmProperty Register(DotvvmProperty property, bool throwOnDuplicateRegistration = true)
         {
             InitializeProperty(property);
@@ -252,7 +289,7 @@ namespace DotVVM.Framework.Binding
             if (!registeredProperties.TryAdd(key, property))
             {
                 if (throwOnDuplicateRegistration)
-                    throw new ArgumentException($"Property is already registered: {property.FullName}");
+                    throw new PropertyAlreadyExistsException(registeredProperties[key], property);
                 else
                     property = registeredProperties[key];
             }
@@ -339,7 +376,7 @@ namespace DotVVM.Framework.Binding
             if (!registeredProperties.TryAdd(key, propertyAlias))
             {
                 if (throwOnDuplicitRegistration)
-                    throw new ArgumentException($"Property is already registered: {propertyAlias.FullName}");
+                    throw new PropertyAlreadyExistsException(registeredProperties[key], propertyAlias);
             }
 
             if (!registeredAliases.TryAdd(key, propertyAlias))
@@ -376,9 +413,14 @@ namespace DotVVM.Framework.Binding
             property.DataContextManipulationAttribute ??=
                 property.GetAttributes<DataContextStackManipulationAttribute>().SingleOrDefault();
             if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any())
-                throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{property.FullName}'.");
+                throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} cannot be set both at property '{property.FullName}'.");
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
             property.ObsoleteAttribute = property.AttributeProvider.GetCustomAttribute<ObsoleteAttribute>();
+
+            if (property.IsBindingProperty)
+            {
+                property.MarkupOptions.AllowHardCodedValue = false;
+            }
         }
 
         public static void CheckAllPropertiesAreRegistered(Type controlType)
@@ -386,7 +428,7 @@ namespace DotVVM.Framework.Binding
             var properties =
                (from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 where !registeredProperties.ContainsKey((p.DeclaringType!, p.Name))
-                where p.GetCustomAttribute<PropertyGroupAttribute>() == null
+                where !p.IsDefined(typeof(PropertyGroupAttribute))
                 let markupOptions = p.GetCustomAttribute<MarkupOptionsAttribute>()
                 where markupOptions != null && markupOptions.MappingMode != MappingMode.Exclude
                 select p).ToArray();
@@ -401,8 +443,9 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        private static ConcurrentDictionary<(Type, string), DotvvmProperty> registeredProperties = new();
-        private static ConcurrentDictionary<(Type, string), DotvvmPropertyAlias> registeredAliases = new();
+        // TODO: figure out how to refresh on hot reload
+        private static readonly ConcurrentDictionary<(Type, string), DotvvmProperty> registeredProperties = new();
+        private static readonly ConcurrentDictionary<(Type, string), DotvvmPropertyAlias> registeredAliases = new();
 
         /// <summary>
         /// Resolves the <see cref="DotvvmProperty"/> by the declaring type and name.
@@ -441,15 +484,8 @@ namespace DotVVM.Framework.Binding
             return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToArray();
         }
 
-        public static IEnumerable<DotvvmProperty> GetRegisteredProperties()
-        {
-            return registeredProperties.Values;
-        }
-
-        public static IEnumerable<DotvvmPropertyAlias> GetRegisteredAliases()
-        {
-            return registeredAliases.Values;
-        }
+        public static IEnumerable<DotvvmProperty> AllProperties => registeredProperties.Values;
+        public static IEnumerable<DotvvmPropertyAlias> AllAliases => registeredAliases.Values;
 
         public override string ToString()
         {

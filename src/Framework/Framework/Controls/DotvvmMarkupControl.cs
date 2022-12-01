@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
@@ -32,7 +35,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupControl"/> class.
         /// </summary>
-        public DotvvmMarkupControl(string? wrapperTagName) : base(wrapperTagName)
+        public DotvvmMarkupControl(string? wrapperTagName) : base(wrapperTagName, false)
         {
             LifecycleRequirements |= ControlLifecycleRequirements.PreInit;
             SetValue(Internal.IsNamingContainerProperty, true);
@@ -41,15 +44,12 @@ namespace DotVVM.Framework.Controls
 
         internal override void OnPreInit(IDotvvmRequestContext context)
         {
-            string? wrapperTagName;
-
-            if (Directives.ContainsKey(ParserConstants.WrapperTagNameDirective) &&
-                Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
+            if (Directives.ContainsKey(ParserConstants.WrapperTagNameDirective) && Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
             {
                 throw new DotvvmControlException(this, $"Control cannot have {ParserConstants.WrapperTagNameDirective} and {ParserConstants.NoWrapperTagNameDirective} at the same time");
             }
 
-            if (Directives.TryGetValue(ParserConstants.WrapperTagNameDirective, out wrapperTagName))
+            if (Directives.TryGetValue(ParserConstants.WrapperTagNameDirective, out var wrapperTagName))
             {
                 TagName = wrapperTagName;
             }
@@ -58,8 +58,8 @@ namespace DotVVM.Framework.Controls
                 TagName = null;
             }
 
-            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
-            if (viewModule is object)
+            var viewModule = GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
+            if (viewModule is {})
             {
                 Debug.Assert(viewModule.IsMarkupControl);
                 context.ResourceManager.AddRequiredResource(viewModule.ImportResourceName);
@@ -68,32 +68,86 @@ namespace DotVVM.Framework.Controls
             base.OnPreInit(context);
         }
 
-        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
+        int knockoutCommentsToEnd = 0;
+
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            var properties =
-                GetDeclaredProperties()
-                .Where(p => !p.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
-                .Select(GetPropertySerializationInfo)
-                .Where(p => p.Js is object)
-                .Select(p => JsonConvert.ToString(p.Property.Name, '"', StringEscapeHandling.EscapeHtml) + ": " + p.Js);
+            var properties = new KnockoutBindingGroup();
+            var usedProperties = GetValue<ControlUsedPropertiesInfo>(Internal.UsedPropertiesInfoProperty);
+            foreach (var p in usedProperties?.ClientSideUsedProperties ?? GetDeclaredProperties())
+            {
+                if (p.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
+                    continue;
+
+                var pinfo = GetPropertySerializationInfo(p); // migrate to use the KnockoutBindingGroup helpers
+                if (pinfo.Js is {})
+                {
+                    properties.Add(p.Name, pinfo.Js);
+                }
+            }
+
+            foreach (var pg in usedProperties?.ClientSideUsedPropertyGroups ?? DotvvmPropertyGroup.GetPropertyGroups(this.GetType()))
+            {
+                if (pg.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
+                    continue;
+
+                var js = new StringBuilder().Append("[");
+                
+                var values = new VirtualPropertyGroupDictionary<object>(this, pg);
+                foreach (var p in values.Properties.OrderBy(p => p.GroupMemberName))
+                {
+                    var pinfo = GetPropertySerializationInfo(p); // migrate to use the KnockoutBindingGroup helpers
+                    if (pinfo.Js is {})
+                    {
+                        js.Append("{Key: ")
+                          .Append(JsonConvert.ToString(p.GroupMemberName, '"', StringEscapeHandling.EscapeHtml))
+                          .Append(", Value: ")
+                          .Append(pinfo.Js)
+                          .Append("},");
+                    }
+                }
+                js.Append("]");
+                properties.Add(pg.Name, js.ToString());
+            }
+
+            if (!properties.IsEmpty)
+            {
+                if (RendersHtmlTag)
+                    writer.AddKnockoutDataBind("dotvvm-with-control-properties", properties);
+                else
+                {
+                    writer.WriteKnockoutDataBindComment("dotvvm-with-control-properties", properties.ToString());
+                    knockoutCommentsToEnd++;
+                }
+            }
 
             var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
-
-            writer.WriteKnockoutDataBindComment("dotvvm-with-control-properties", "{ " + string.Join(", ", properties) + " }");
-            if (viewModule is object)
+            if (viewModule is {})
             {
-                var viewIdJs = ViewModuleHelpers.GetViewIdJsExpression(viewModule, this);
                 var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
-                writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
-                    $"{{ viewIdOrElement: {viewIdJs}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
-                );
+                var binding = $"{{ modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}";
+                if (RendersHtmlTag)
+                    writer.AddKnockoutDataBind("dotvvm-with-view-modules", binding);
+                else
+                {
+                    writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules", binding);
+                    knockoutCommentsToEnd++;
+                }
             }
-            base.RenderContents(writer, context);
-            writer.WriteKnockoutDataBindEndComment();
-            if (viewModule is object)
+
+
+            base.AddAttributesToRender(writer, context);
+        }
+
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            base.RenderEndTag(writer, context);
+
+            while (knockoutCommentsToEnd > 0)
             {
                 writer.WriteKnockoutDataBindEndComment();
+                knockoutCommentsToEnd--;
             }
         }
 
@@ -118,20 +172,14 @@ namespace DotVVM.Framework.Controls
             }
             else if (GetBinding(property) is ICommandBinding command)
             {
-                // just few commands have arguments so it's worth checking if we need to clutter the output with argument propagation
-                var hasArguments = command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter);
-                var call = KnockoutHelper.GenerateClientPostBackExpression(
-                    property.Name,
-                    command,
-                    this,
-                    new PostbackScriptOptions(
-                        elementAccessor: "$element",
-                        commandArgs: hasArguments ? new CodeParameterAssignment(new ParametrizedCode("commandArguments", OperatorPrecedence.Max)) : default
-                    ));
 
                 return new PropertySerializeInfo(
                     property,
-                    hasArguments ? $"(...commandArguments)=>({call})" : $"()=>({call})"
+                    KnockoutHelper.GenerateClientPostbackLambda(
+                        property.Name,
+                        command,
+                        this
+                    )
                 );
             }          
             else
@@ -153,8 +201,8 @@ namespace DotVVM.Framework.Controls
         {
             public PropertySerializeInfo(DotvvmProperty property, string? js)
             {
-                this.Js = js;
-                this.Property = property;
+                Js = js;
+                Property = property;
             }
             public string? Js { get; set; }
             public DotvvmProperty Property { get; set; }

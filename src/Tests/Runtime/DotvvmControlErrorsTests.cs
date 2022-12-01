@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var dotvvmBuilder = CreateControlRenderer(div, new object());
 
             var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
-            StringAssert.Contains(exc.Message, "The property 'DotvvmBindableObject.DataContext' cannot contain hard coded value");
+            StringAssert.Contains(exc.Message, "The property DotvvmBindableObject.DataContext cannot contain hard coded value");
         }
 
         [TestMethod]
@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var dotvvmBuilder = CreateControlRenderer(checkbox, new object());
 
             var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder()); 
-            StringAssert.Contains(exc.Message, "The property 'CheckBox.Checked' cannot contain hard coded value");
+            StringAssert.Contains(exc.Message, "The property CheckBox.Checked cannot contain hard coded value");
         }
 
         [TestMethod]
@@ -73,9 +73,8 @@ namespace DotVVM.Framework.Tests.Runtime
             var control = "<dot:ConfirmPostBackHandler Message=\"Confirmation 1\" />";
             var dotvvmBuilder = CreateControlRenderer(control, new object());
 
-            // TODO: Resolve why it throws Exception and not DotvvmCompilationException
-            var exc = Assert.ThrowsException<Exception>(() => dotvvmBuilder());
-            StringAssert.Contains(exc.Message, "cannot convert from 'DotVVM.Framework.Controls.ConfirmPostBackHandler' to 'DotVVM.Framework.Controls.DotvvmControl'");
+            var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
+            StringAssert.Contains(exc.Message, "Content control must inherit from DotvvmControl, but DotVVM.Framework.Controls.ConfirmPostBackHandler doesn't.");
         }
 
         [TestMethod]

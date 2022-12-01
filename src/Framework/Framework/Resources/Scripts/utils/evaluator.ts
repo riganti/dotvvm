@@ -1,18 +1,74 @@
 import { isObservableArray } from "./knockout";
 import { logError } from "./logging";
+import { keys } from "./objects";
 
-export function evaluateOnViewModel(context: any, expression: string): any {
-    // todo: reimplement
-    let result;
-    if (context && context.$data) {
-        result = new Function("$context", "with($context) { with ($data) { return " + expression + "; } }")(context);
-    } else {
-        result = new Function("$context", "var $data=$context; with($context) { return " + expression + "; }")(context);
+/**
+ * Traverses provided context according to given path.
+ * @example / - returns context
+ * @example "" or null - returns context
+ * @example /exampleProp/A - returns prop A located withing property exampleProp located at provided context
+ * @example /exampleProp/B/1 - returns second item from collection B located within property exampleProp located at provided context
+ * @returns found property as unwrapped object
+ */
+export function traverseContext(context: any, path: string): any {
+    if (path == null)
+        path = "";
+
+    var parts = path.split("/");
+
+    var currentLevel = context;
+    var currentPath = "";
+    for (var i = 0; i < parts.length; i++) {
+        let expressionPart = parts[i];
+        if (expressionPart === "")
+            continue;
+
+        var nextNode = ko.unwrap(currentLevel)[expressionPart];
+        if (nextNode == undefined) {
+            throw `Validation error could not been applied to property specified by propertyPath ${path}. Property with name ${expressionPart} does not exist on ${!currentPath ? "root" : currentPath}.`;
+        }
+        currentPath += `/${expressionPart}`;
+        currentLevel = nextNode;
     }
-    if (result && result.$data) {
-        result = result.$data;
+
+    return currentLevel
+}
+
+export function findPathToChildObject(vm: any, child: any, path: string): string | null {
+    if (vm == child) {
+        // We found the child
+        return path;
     }
-    return result;
+
+    if (typeof vm !== "object" || vm == null) {
+        return null;
+    }
+
+    if (Array.isArray(vm)) {
+        // Iterate over its elements
+        let index = 0;
+        for (const value of vm) {
+            let result = findPathToChildObject(value, child, path + `/[${index}]`)
+            if (result != null)
+                return result;
+            index++;
+        }
+    }
+    else {
+        // Iterate over its properties
+        for (const propertyName of keys(vm)) {
+            if (propertyName.startsWith('$')) {
+                continue;
+            }
+
+            var propertyValue = vm[propertyName];
+            let result = findPathToChildObject(propertyValue, child, path + "/" + propertyName);
+            if (result != null)
+                return result;
+        }
+    }
+
+    return null;
 }
 
 export function getDataSourceItems(viewModel: any): Array<KnockoutObservable<any>> {
@@ -31,7 +87,7 @@ export function wrapObservable(func: () => any, isArray?: boolean): KnockoutComp
 
     if (isArray) {
         for (const i of ["push", "pop", "unshift", "shift", "reverse", "sort", "splice", "slice", "replace", "indexOf", "remove", "removeAll"]) {
-            wrapper[i] = (...args: any) => updateObservableArray(func, i, args);
+            (wrapper as any)[i] = (...args: any) => updateObservableArray(func, i, args);
         }
         wrapper = wrapper.extend({ trackArrayChanges: true });
     }
@@ -43,7 +99,7 @@ function updateObservable(getObservable: () => KnockoutObservable<any>, value: a
     const result = getExpressionResult(getObservable);
 
     if (!ko.isWriteableObservable(result)) {
-        logError("evaluator", `Cannot write a value to ko.computed because the expression '${getObservable}' does not return a writable observable.`);
+        logError("validation", `Cannot write a value to ko.computed because the expression '${getObservable}' does not return a writable observable.`);
     } else {
         result(value);
     }
@@ -53,7 +109,7 @@ function updateObservableArray(getObservableArray: () => KnockoutObservableArray
     const result = getExpressionResult(getObservableArray);
 
     if (!isObservableArray(result)) {
-        logError("evaluator", `Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.`);
+        logError("validation", `Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.`);
     } else {
         result[fnName].apply(result, args);
     }
@@ -61,7 +117,7 @@ function updateObservableArray(getObservableArray: () => KnockoutObservableArray
 
 export const unwrapComputedProperty = (obs: any) =>
     ko.isComputed(obs) && "wrappedProperty" in obs ?
-    obs["wrappedProperty"]() : // workaround for dotvvm-with-control-properties handler
+    (obs as any)["wrappedProperty"]() : // workaround for dotvvm-with-control-properties handler
     obs;
 
 function getExpressionResult(func: () => any) {

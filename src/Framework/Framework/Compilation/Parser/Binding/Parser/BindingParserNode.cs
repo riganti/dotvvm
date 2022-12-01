@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             yield return this;
         }
 
-        public BindingParserNode FindNodeByPosition(int position)
+        public BindingParserNode? FindNodeByPosition(int position)
         {
             return EnumerateNodes().LastOrDefault(n => n.StartPosition <= position && position < n.EndPosition);
         }

@@ -106,17 +106,11 @@ namespace DotVVM.Framework.Configuration
         private bool _clientSideValidation = true;
 
         /// <summary>
-        /// Gets or sets whether navigation in the SPA pages should use History API. Default value is <c>true</c>.
+        /// Gets or sets whether navigation in the SPA pages should use History API. Always true
         /// </summary>
-        [JsonProperty("useHistoryApiSpaNavigation", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        [DefaultValue(true)]
+        [JsonIgnore]
         [Obsolete("The UseHistoryApiSpaNavigation property is not supported - the classic SPA mode (URLs with #/) was removed from DotVVM, and the History API is the default and only option now. See https://www.dotvvm.com/docs/3.0/pages/concepts/layout/single-page-applications-spa#changes-to-spas-in-dotvvm-30 for more details.")]
-        public bool UseHistoryApiSpaNavigation
-        {
-            get { return _useHistoryApiSpaNavigation; }
-            set { ThrowIfFrozen(); _useHistoryApiSpaNavigation = value; }
-        }
-        private bool _useHistoryApiSpaNavigation = true;
+        public bool UseHistoryApiSpaNavigation => true;
 
         /// <summary>
         /// Gets or sets the configuration for experimental features.
@@ -131,7 +125,7 @@ namespace DotVVM.Framework.Configuration
 
         /// <summary>
         /// Gets or sets whether the application should run in debug mode.
-        /// For ASP.NET Core check out <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>
+        /// For ASP.NET Core check out <see href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" />
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Include)]
         public bool Debug
@@ -350,59 +344,56 @@ namespace DotVVM.Framework.Configuration
 
         private static void RegisterResources(DotvvmConfiguration configuration)
         {
-            configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
-                new ScriptResource(location: new EmbeddedResourceLocation(
+            configuration.Resources.RegisterScript(ResourceConstants.KnockoutJSResourceName,
+                new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).Assembly,
                     "DotVVM.Framework.Resources.Scripts.knockout-latest.js",
-                    debugName: "DotVVM.Framework.Resources.Scripts.knockout-latest.debug.js")));
+                    debugName: "DotVVM.Framework.Resources.Scripts.knockout-latest.debug.js"));
 
-            configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal",
-                new ScriptModuleResource(
-                    location: new EmbeddedResourceLocation(
-                        typeof(DotvvmConfiguration).Assembly,
-                        "DotVVM.Framework.obj.javascript.root_only.dotvvm-root.js",
-                        debugName: "DotVVM.Framework.obj.javascript.root_only_debug.dotvvm-root.js")) {
-                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName }
-                });
-            configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal-spa",
-                new ScriptModuleResource(
-                    location: new EmbeddedResourceLocation(
-                        typeof(DotvvmConfiguration).Assembly,
-                        "DotVVM.Framework.obj.javascript.root_spa.dotvvm-root.js",
-                        debugName: "DotVVM.Framework.obj.javascript.root_spa_debug.dotvvm-root.js")) {
-                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName }
-                });
+            configuration.Resources.RegisterScript(ResourceConstants.DotvvmResourceName + ".internal",
+                new EmbeddedResourceLocation(
+                    typeof(DotvvmConfiguration).Assembly,
+                    "DotVVM.Framework.obj.javascript.root_only.dotvvm-root.js",
+                    debugName: "DotVVM.Framework.obj.javascript.root_only_debug.dotvvm-root.js"),
+                dependencies: new[] { ResourceConstants.KnockoutJSResourceName },
+                module: true);
+            configuration.Resources.RegisterScript(ResourceConstants.DotvvmResourceName + ".internal-spa",
+                new EmbeddedResourceLocation(
+                    typeof(DotvvmConfiguration).Assembly,
+                    "DotVVM.Framework.obj.javascript.root_spa.dotvvm-root.js",
+                    debugName: "DotVVM.Framework.obj.javascript.root_spa_debug.dotvvm-root.js"),
+                dependencies: new[] { ResourceConstants.KnockoutJSResourceName },
+                module: true);
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,
                 new InlineScriptResource(@"", ResourceRenderPosition.Anywhere, defer: true) {
                     Dependencies = new[] { ResourceConstants.DotvvmResourceName + ".internal" }
                 });
 
-            configuration.Resources.Register(ResourceConstants.DotvvmDebugResourceName,
-                new ScriptResource(location: new EmbeddedResourceLocation(
+            configuration.Resources.RegisterScript(ResourceConstants.DotvvmDebugResourceName,
+                new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).Assembly,
-                    "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js")) {
-                    Dependencies = new[] { ResourceConstants.DotvvmResourceName }
-                });
+                    "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js"),
+                dependencies: new[] { ResourceConstants.DotvvmResourceName });
 
-            configuration.Resources.Register(ResourceConstants.DotvvmFileUploadCssResourceName,
-                new StylesheetResource(new EmbeddedResourceLocation(
+            configuration.Resources.RegisterStylesheet(ResourceConstants.DotvvmFileUploadCssResourceName,
+                new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).Assembly,
-                    "DotVVM.Framework.Resources.Styles.DotVVM.FileUpload.css")));
+                    "DotVVM.Framework.Resources.Styles.DotVVM.FileUpload.css"));
 
-            configuration.Resources.Register(ResourceConstants.DotvvmInternalCssResourceName,
-                new StylesheetResource(new EmbeddedResourceLocation(
+            configuration.Resources.RegisterStylesheet(ResourceConstants.DotvvmInternalCssResourceName,
+                new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).Assembly,
-                    "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css")));
+                    "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css"));
 
             RegisterGlobalizeResources(configuration);
         }
 
         private static void RegisterGlobalizeResources(DotvvmConfiguration configuration)
         {
-            configuration.Resources.Register(ResourceConstants.GlobalizeResourceName,
-                new ScriptResource(location: new EmbeddedResourceLocation(
+            configuration.Resources.RegisterScript(ResourceConstants.GlobalizeResourceName,
+                new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).Assembly,
-                    "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js")));
+                    "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js"));
 
             configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());
         }

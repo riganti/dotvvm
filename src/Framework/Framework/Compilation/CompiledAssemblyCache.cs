@@ -20,7 +20,6 @@ namespace DotVVM.Framework.Compilation
     public class CompiledAssemblyCache
     {
 
-        private readonly ConcurrentDictionary<Assembly, MetadataReference> cachedAssemblyMetadata = new ConcurrentDictionary<Assembly, MetadataReference>();
         private readonly ConcurrentDictionary<string, Assembly> cachedAssemblies = new ConcurrentDictionary<string, Assembly>();
 
         private readonly DotvvmConfiguration configuration;
@@ -58,8 +57,8 @@ namespace DotVVM.Framework.Compilation
                 configuration.Markup.Controls.Select(c => c.Assembly)
                     .Concat(configuration.Markup.Assemblies)
                     .Distinct()
-                    .Where(s=> !string.IsNullOrWhiteSpace(s))
-                    .Select(n => Assembly.Load(new AssemblyName(n)));
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(n => Assembly.Load(new AssemblyName(n!)));
 
             var references = diAssembly.GetReferencedAssemblies().Select(Assembly.Load)
                 .Concat(markupAssemblies)
@@ -76,6 +75,7 @@ namespace DotVVM.Framework.Compilation
                     Assembly.Load(new AssemblyName("System.Private.CoreLib")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
                     Assembly.Load(new AssemblyName("System.Collections")),
+                    Assembly.Load(new AssemblyName("System.Linq")),
 #else
                     typeof(List<>).Assembly,
                     typeof(System.Net.WebUtility).Assembly
@@ -129,6 +129,8 @@ namespace DotVVM.Framework.Compilation
             return cachedAssemblies.Values.ToArray();
         }
 
+        private static readonly WeakReference<Assembly[]?> allAssembliesCache = new(null);
+
         public Assembly[] GetAllAssemblies()
         {
             if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
@@ -137,13 +139,26 @@ namespace DotVVM.Framework.Compilation
             }
             else
             {
+                if (allAssembliesCache.TryGetTarget(out var a) && a != null)
+                    return a;
+
+                // parallelism is useless in this context
+                lock (this)
+                {
+                    if (allAssembliesCache.TryGetTarget(out var a2) && a2 != null)
+                        return a2;
+                
 #if DotNetCore
-                // auto-loads all referenced assemblies recursively
-                return DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load).ToArray();
+                    // auto-loads all referenced assemblies recursively
+                    var newA = DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load).ToArray();
 #else
-                // this doesn't load new assemblies, but it is done in InvokeStaticConstructorsOnAllControls
-                return AppDomain.CurrentDomain.GetAssemblies();
+                    // this doesn't load new assemblies, but it is done in InvokeStaticConstructorsOnAllControls
+                    var newA = AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.IsDynamic).ToArray();
 #endif
+                    allAssembliesCache.SetTarget(newA);
+                    return newA;
+                }
+
             }
         }
 
@@ -152,30 +167,21 @@ namespace DotVVM.Framework.Compilation
         public bool IsAssemblyNamespace(string fullName) => cache_AllNamespaces.Value.Contains(fullName);
 
         private HashSet<string> GetAllNamespaces()
-            => new HashSet<string>(GetAllAssemblies()
-                .SelectMany(a => a.GetLoadableTypes()
-                    .Select(t => t.Namespace!)
-                    .Where(ns => ns is object))
-                .Distinct(), StringComparer.Ordinal);
-
-
-        /// <summary>
-        /// Gets the <see cref="MetadataReference"/> for the specified assembly.
-        /// </summary>
-        public MetadataReference GetAssemblyMetadata(Assembly assembly)
         {
-            return cachedAssemblyMetadata.GetOrAdd(assembly, a => MetadataReference.CreateFromFile(a.Location));
+            var result = new HashSet<string>();
+            foreach (var a in GetAllAssemblies())
+            {
+                string? lastNs = null; // namespaces come in batches, usually, so no need to hash it everytime when a quick compare says it's the same as last time
+                foreach (var type in a.ExportedTypes)
+                {
+                    var ns = type.Namespace;
+                    if (ns is null || lastNs == ns)
+                        continue;
+                    result.Add(ns);                   
+                }
+            }
+            return result;
         }
-
-        /// <summary>
-        /// Adds the assembly to the cache.
-        /// </summary>
-        internal void AddAssemblyMetadata(Assembly assembly, CompilationReference compilationReference)
-        {
-            cachedAssemblyMetadata[assembly] = compilationReference;
-        }
-
-
 
         private ConcurrentDictionary<string, Type?> cache_FindTypeHash = new ConcurrentDictionary<string, Type?>(StringComparer.Ordinal);
         private ConcurrentDictionary<string, Type?> cache_FindTypeHashIgnoreCase = new ConcurrentDictionary<string, Type?>(StringComparer.OrdinalIgnoreCase);
@@ -203,7 +209,7 @@ namespace DotVVM.Framework.Compilation
             var assemblies = GetAllAssemblies();
             if (split.Length > 1)
             {
-                var assembly = split[1];
+                var assembly = split[1].Trim();
                 return assemblies.Where(a => a.GetName().Name == assembly).Select(a => a.GetType(name))
                     .FirstOrDefault(t => t != null);
             }
@@ -214,5 +220,10 @@ namespace DotVVM.Framework.Compilation
             return assemblies.Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
         }
 
+        public Assembly? GetAssembly(string assemblyName)
+        {
+            return GetAllAssemblies()
+                .FirstOrDefault(a => a.GetName().Name == new AssemblyName(assemblyName).Name);
+        }
     }
 }

@@ -6,22 +6,16 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
-    public class ExceptionAdditionalInfo
+    public record ExceptionAdditionalInfo(
+        string Title,
+        object[]? Objects,
+        ExceptionAdditionalInfo.DisplayMode Display
+    )
     {
-        public ExceptionAdditionalInfo(string title, object[]? objects, DisplayMode display)
-        {
-            Title = title;
-            Objects = objects;
-            Display = display;
-        }
-
-        public string Title { get; set; }
-        public object[]? Objects { get; set; }
-        public DisplayMode Display { get; set; }
-
         public enum DisplayMode
         {
             ToHtmlList,
+            ToHtmlListUnencoded,
             ToString,
             ObjectBrowser,
             KVTable

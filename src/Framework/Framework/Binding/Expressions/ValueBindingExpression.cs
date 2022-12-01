@@ -12,6 +12,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -28,21 +29,50 @@ namespace DotVVM.Framework.Binding.Expressions
     [Options]
     public class ValueBindingExpression : BindingExpression, IUpdatableValueBinding, IValueBinding
     {
-        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) 
+        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object?> properties)
             : base(service, properties)
         {
             AddNullResolvers();
         }
 
-        public BindingDelegate BindingDelegate => this.GetProperty<BindingDelegate>();
+        private protected MaybePropValue<KnockoutExpressionBindingProperty> knockoutExpressions;
+        private protected MaybePropValue<ReferencedViewModelPropertiesBindingProperty> referencedPropertyExpressions;
 
-        public BindingUpdateDelegate UpdateDelegate => this.GetProperty<BindingUpdateDelegate>();
+        private protected override void StoreProperty(object p)
+        {
+            if (p is KnockoutExpressionBindingProperty knockoutExpressions)
+                this.knockoutExpressions.SetValue(new(knockoutExpressions));
+            if (p is ReferencedViewModelPropertiesBindingProperty referencedPropertyExpressions)
+                this.referencedPropertyExpressions.SetValue(new(referencedPropertyExpressions));
+            else
+                base.StoreProperty(p);
+        }
 
-        public ParametrizedCode KnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().Code;
-        public ParametrizedCode UnwrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().UnwrappedCode;
-        public ParametrizedCode WrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().WrappedCode;
+        public override object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        {
+            if (type == typeof(KnockoutExpressionBindingProperty))
+                return knockoutExpressions.GetValue(this).GetValue(errorMode, this, type);
+            if (type == typeof(ReferencedViewModelPropertiesBindingProperty))
+                return referencedPropertyExpressions.GetValue(this).GetValue(errorMode, this, type);
+            return base.GetProperty(type, errorMode);
+        }
 
-        public Type ResultType => this.GetProperty<ResultTypeBindingProperty>().Type;
+        private protected override IEnumerable<object?> GetOutOfDictionaryProperties() =>
+            base.GetOutOfDictionaryProperties().Concat(new object?[] {
+                knockoutExpressions.Value.Value
+            });
+
+        public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
+
+        public BindingUpdateDelegate UpdateDelegate => this.updateDelegate.GetValueOrThrow(this);
+
+        public KnockoutExpressionBindingProperty KnockoutExpressionBindingProperty => this.knockoutExpressions.GetValueOrThrow(this);
+
+        public ParametrizedCode KnockoutExpression => KnockoutExpressionBindingProperty.Code;
+        public ParametrizedCode UnwrappedKnockoutExpression => KnockoutExpressionBindingProperty.UnwrappedCode;
+        public ParametrizedCode WrappedKnockoutExpression => KnockoutExpressionBindingProperty.WrappedCode;
+
+        public Type ResultType => this.resultType.GetValueOrThrow(this).Type;
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
@@ -90,16 +120,16 @@ namespace DotVVM.Framework.Binding.Expressions
             });
 
         /// Crates a new value binding expression from the specified .NET delegate and Javascript expression. Note that this operation is not very cheap and the result is not cached.
-        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object?[], T> func, ParametrizedCode expression, DataContextStack? dataContext = null) =>
+        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object?[], T> func, ParametrizedCode expression, DataContextStack? dataContext = null, object?[]? additionalProperties = null) =>
             new ValueBindingExpression<T>(service, new object?[] {
                 new BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
                 new KnockoutExpressionBindingProperty(expression, expression, expression),
                 dataContext
-            });
+            }.Concat(additionalProperties ?? Array.Empty<object?>()));
 
         /// Crates a new value binding expression from the specified Linq.Expression. Note that this operation is quite expansive and the result is not cached (you are supposed to do it and NOT invoke this function for every request).
-        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Expression<Func<object?[], T>> expr, DataContextStack? dataContext)
+        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Expression<Func<object?[], T>> expr, DataContextStack? dataContext, object?[]? additionalProperties = null)
         {
             var visitor = new ViewModelAccessReplacer(expr.Parameters.Single());
             var expression = visitor.Visit(expr.Body);
@@ -109,7 +139,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 new ParsedExpressionBindingProperty(BindingHelper.AnnotateStandardContextParams(expression, dataContext).OptimizeConstants()),
                 new ResultTypeBindingProperty(typeof(T)),
                 dataContext
-            });
+            }.Concat(additionalProperties ?? Array.Empty<object?>()));
         }
 
         class ViewModelAccessReplacer : ExpressionVisitor
@@ -137,20 +167,22 @@ namespace DotVVM.Framework.Binding.Expressions
                 for (int i = 0; i < VmTypes.Count; i++, dataContext = dataContext.Parent)
                 {
                     var t = VmTypes[i];
-                    if (dataContext == null) throw new Exception($"Can not access _parent{i}, it does not exist in the data context.");
+                    if (dataContext == null) throw new Exception($"Cannot access _parent{i}, it does not exist in the data context.");
                     if (t != null && !t.IsAssignableFrom(dataContext.DataContextType))
                         throw new Exception($"_parent{i} does not have type '{t}' but '{dataContext.DataContextType}'.");
                 }
             }
 
-            public override Expression Visit(Expression node)
+            [return: NotNullIfNotNull("node")]
+            public override Expression? Visit(Expression? node)
             {
+                if (node is null) return null;
                 if (node.NodeType == ExpressionType.Convert && node is UnaryExpression unary &&
                     unary.Operand.NodeType == ExpressionType.ArrayIndex && unary.Operand is BinaryExpression indexer &&
                     indexer.Right is ConstantExpression indexConstant &&
                     indexer.Left == vmParameter)
                 {
-                    int index = (int)indexConstant.Value;
+                    int index = (int)indexConstant.Value!;
                     while (VmTypes.Count <= index) VmTypes.Add(null);
                     if (VmTypes[index]?.IsAssignableFrom(unary.Type) != true)
                     {

@@ -1,5 +1,6 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +8,35 @@ using System.Linq;
 namespace DotVVM.Framework.Controls
 {
     [DotvvmControlCapability]
-    public sealed class TextOrContentCapability
+    public sealed record TextOrContentCapability
     {
-        public ValueOrBinding<string>? Text { get; set; }
-        public List<DotvvmControl>? Content { get; set; }
+        /// <summary>
+        /// Gets or sets the text inside the control.
+        /// </summary>
+        public ValueOrBinding<string>? Text { get; init; }
+
+        /// <summary>
+        /// Gets or sets the content placed inside the control.
+        /// </summary>
+        public List<DotvvmControl>? Content { get; init; }
+
+        public TextOrContentCapability() { }
+        public TextOrContentCapability(ValueOrBinding<string> text)
+        {
+            this.Text = text;
+        }
+        public TextOrContentCapability(string text)
+        {
+            this.Text = new(text);
+        }
+        public TextOrContentCapability(IEnumerable<DotvvmControl> content)
+        {
+            this.Content = content.ToList();
+        }
+        public TextOrContentCapability(params DotvvmControl[] content)
+        {
+            this.Content = content.ToList();
+        }
 
         public static TextOrContentCapability FromChildren(DotvvmControl control, DotvvmProperty textProperty)
         {
@@ -24,7 +50,7 @@ namespace DotVVM.Framework.Controls
         public void WriteToChildren(DotvvmControl control, DotvvmProperty textProperty)
         {
             if (!control.HasOnlyWhiteSpaceContent())
-                throw new DotvvmControlException(control, "Can not set TextOrContentCapability into the control since it already has some content.");
+                throw new DotvvmControlException(control, "Cannot set TextOrContentCapability into the control since it already has some content.");
             control.SetProperty(textProperty, Text);
             control.Children.Clear();
             if (Content is not null)
@@ -33,10 +59,20 @@ namespace DotVVM.Framework.Controls
 
         public IEnumerable<DotvvmControl> ToControls()
         {
+            if (!Text.HasValue && Content == null)
+            {
+                throw new DotvvmControlException("Either Text property or Content must be set.");
+            }
+
             if (Text.HasValue)
                 return new DotvvmControl[] { new Literal(Text.Value) };
             else
                 return Content.NotNull();
+        }
+
+        public ITemplate ToTemplate()
+        {
+            return new CloneTemplate(ToControls());
         }
     }
 }

@@ -39,6 +39,14 @@ namespace DotVVM.Framework.Controls
         /// <param name="bindingGroup">A group of name-value pairs.</param>
         void AddKnockoutDataBind(string name, KnockoutBindingGroup bindingGroup);
 
+        /// <summary> Writes knockout virtual element (the &gt;!-- ko name: --> comment). It must be ended using <see cref="WriteKnockoutDataBindEndComment" /> method. </summary>
+        /// <param name="name">The name of the binding handler.</param>
+        /// <param name="expression">The binding expression.</param>
+        void WriteKnockoutDataBindComment(string name, string expression);
+
+        /// <summary> Writes `&gt;!-- /ko comment`, ending a knockout virtual element created by <see cref="WriteKnockoutDataBindComment" /></summary>
+        void WriteKnockoutDataBindEndComment();
+
         /// <summary>
         /// Renders the begin tag with attributes that were added in <see cref="HtmlWriter.AddAttribute"/> method.
         /// </summary>
@@ -52,17 +60,24 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the end tag.
         /// </summary>
+        /// <exception cref="InvalidOperationException">Thrown if some attributes were written in the HtmlWriter.</exception>
         void RenderEndTag();
 
         /// <summary>
         /// Writes the text.
         /// </summary>
+        /// <exception cref="InvalidOperationException">Thrown if some attributes were already written in the HtmlWriter.</exception>
         void WriteText(string text);
 
         /// <summary>
         /// Writes the unencoded text.
         /// </summary>
+        /// <exception cref="InvalidOperationException">Thrown if some attributes were already written in the HtmlWriter.</exception>
         void WriteUnencodedText(string text);
+        /// <summary>
+        /// Writes the unencoded text which is treated as whitespace. Does not throw an exception if there are attributes written in the writer.
+        /// </summary>
+        void WriteUnencodedWhitespace(string text);
 
         /// <summary>
         /// Writes the specified HTML attribute and value (e.g. href="myUrl"). 

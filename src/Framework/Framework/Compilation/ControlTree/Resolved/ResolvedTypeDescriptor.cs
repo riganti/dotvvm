@@ -8,10 +8,13 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
-    public class ResolvedTypeDescriptor : ITypeDescriptor
+    [JsonConverter(typeof(ResourceManagement.DotvvmTypeDescriptorJsonConverter))]
+    public sealed class ResolvedTypeDescriptor : ITypeDescriptor
     {
         private static ConcurrentDictionary<(Type, string), ResolvedTypeDescriptor?> cache = new ConcurrentDictionary<(Type, string), ResolvedTypeDescriptor?>();
         public Type Type { get; }
@@ -25,9 +28,12 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public string? Namespace => Type.Namespace;
 
-        public string? Assembly => Type.AssemblyQualifiedName;
+        public string? Assembly => Type.Assembly?.FullName;
 
-        public string FullName => string.IsNullOrEmpty(Namespace) ? Name : (Namespace + "." + Name);
+        public string FullName => Type.FullName ?? (string.IsNullOrEmpty(Namespace) ? Name : (Namespace + "." + Name));
+
+        public string CSharpName => Type.ToCode(stripNamespace: true);
+        public string CSharpFullName => Type.ToCode();
 
         public bool IsAssignableTo(ITypeDescriptor typeDescriptor)
         {
@@ -44,10 +50,24 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return Type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
         }
 
+        public bool IsEqualTo(Type other)
+        {
+            return this.Type == other;
+        }
         public bool IsEqualTo(ITypeDescriptor other)
         {
+            if (other is ResolvedTypeDescriptor { Type: var otherType })
+                return this.IsEqualTo(otherType);
             return Name == other.Name && Namespace == other.Namespace && Assembly == other.Assembly;
         }
+
+        public override bool Equals(object? obj) =>
+            obj is null ? false :
+            obj is ResolvedTypeDescriptor { Type: var otherType } ? IsEqualTo(otherType) :
+            obj is Type otherType2 ? IsEqualTo(otherType2) :
+            obj is ITypeDescriptor typeD ? IsEqualTo(typeD) :
+            false;
+        public override int GetHashCode() => Type.GetHashCode();
 
         public ITypeDescriptor? TryGetArrayElementOrIEnumerableType()
         {
@@ -58,7 +78,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             }
 
             // handle iEnumerables
-            Type iEnumerable;
+            Type? iEnumerable;
             if (Type.IsGenericType && Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
                 iEnumerable = Type;

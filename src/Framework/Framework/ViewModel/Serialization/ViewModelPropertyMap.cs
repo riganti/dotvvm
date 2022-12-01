@@ -25,8 +25,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public PropertyInfo PropertyInfo { get; set; }
 
+        /// <summary> Property name, as seen in the serialized JSON and client-side. Note that it will be different than `PropertyInfo.Name`, if `[Bind(Name = X)]` or `[JsonProperty(X)]` is used. </summary>
         public string Name { get; set; } 
 
+        /// <summary> Client extenders which will be applied to the created knockout observable. </summary>
         public List<ClientExtenderInfo> ClientExtenders { get; } = new();
 
         public ProtectMode ViewModelProtection { get; set; }
@@ -40,8 +42,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public bool TransferToClient => TransferAfterPostback || TransferFirstRequest;
         public bool TransferAfterPostback { get; set; }
         public bool TransferFirstRequest { get; set; }
+        /// <summary> When true, an existing object in this property will be preserved during deserialization. A new object will only be created if the property is null, or if we need to call the constructor to set some properties. </summary>
         public bool Populate { get; set; }
 
+        /// <summary> List of validation rules (~= validation attributes) on this property. Includes rules which can't be run client-side </summary>
         public List<ViewModelPropertyValidationRule> ValidationRules { get; } = new();
 
         public IEnumerable<ViewModelPropertyValidationRule> ClientValidationRules
@@ -50,6 +54,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         }
 
         public JsonConverter? JsonConverter { get; set; }
+
+        /// <summary> Used if the class doesn't have parameter-less constructor. This is the parameter where this property value should be when calling the constructor. Property setter will not be called, even if present </summary>
+        public ParameterInfo? ConstructorParameter { get; set; }
 
         /// <summary>
         /// Gets whether the property is transferred both ways.

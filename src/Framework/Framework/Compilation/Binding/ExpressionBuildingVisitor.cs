@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 this.currentErrors = null;
                 if (currentErrors.Count == 1)
                 {
-                    if (currentErrors[0].StackTrace == null
+                    if (currentErrors[0].TargetSite == null
                         || (currentErrors[0] is BindingCompilationException compilationException && compilationException.Tokens == null)
                         || (currentErrors[0] is AggregateException aggregateException && aggregateException.Message == null))
                         throw currentErrors[0];
@@ -153,6 +153,9 @@ namespace DotVVM.Framework.Compilation.Binding
                 case BindingTokenType.NotOperator:
                     eop = ExpressionType.Not;
                     break;
+                case BindingTokenType.OnesComplementOperator:
+                    eop = ExpressionType.OnesComplement;
+                    break;
                 default:
                     throw new NotSupportedException($"unary operator { node.Operator } is not supported");
             }
@@ -212,8 +215,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 case BindingTokenType.OrElseOperator:
                     eop = ExpressionType.OrElse;
                     break;
+                case BindingTokenType.ExclusiveOrOperator:
+                    eop = ExpressionType.ExclusiveOr;
+                    break;
                 case BindingTokenType.AssignOperator:
-                    node.FirstExpression.Annotations.Add(WriteAccessAnnotation.Instance);
                     eop = ExpressionType.Assign;
                     break;
                 default:
@@ -224,24 +229,6 @@ namespace DotVVM.Framework.Compilation.Binding
             var right = HandleErrors(node.SecondExpression, Visit);
             ThrowOnErrors();
 
-            if (eop == ExpressionType.Assign)
-            {
-                if (left is IndexExpression indexExpression)
-                {
-                    // Convert to explicit method call `set_{Indexer}(index, value)`
-                    var setMethod = indexExpression.Indexer.SetMethod;
-                    return Expression.Call(indexExpression.Object, setMethod, indexExpression.Arguments.Concat(new[] { right }));
-                }
-                else if (left is BinaryExpression arrayIndexExpression && left.NodeType == ExpressionType.ArrayIndex)
-                {
-                    // Convert to explicit method call `Array.SetValue(value, index)`
-                    var setMethod = typeof(Array).GetMethod(nameof(Array.SetValue), BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(object), typeof(int) }, null);
-                    // If we are working with array of value types then box the value
-                    var value = (right != null && right.Type.IsValueType) ? Expression.TypeAs(right, typeof(object)) : right;
-                    return Expression.Call(arrayIndexExpression.Left, setMethod, new[] { value /* value */, arrayIndexExpression.Right /* index */ });
-                }
-            }
-
             return memberExpressionFactory.GetBinaryOperator(left!, right!, eop);
         }
 
@@ -251,15 +238,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var index = HandleErrors(node.ArrayIndexExpression, Visit);
             ThrowOnErrors();
 
-            var expression = ExpressionHelper.GetIndexer(target!, index!);
-            if (expression is IndexExpression indexExpression && !node.Annotations.Contains(WriteAccessAnnotation.Instance))
-            {
-                // Convert to get_{Indexer}(index, value) call
-                var getMethod = indexExpression.Indexer.GetMethod;
-                return Expression.Call(indexExpression.Object, getMethod, indexExpression.Arguments);
-            }
-
-            return expression;
+            return ExpressionHelper.GetIndexer(target!, index!);
         }
 
         protected override Expression VisitFunctionCall(FunctionCallBindingParserNode node)
@@ -293,7 +272,7 @@ namespace DotVVM.Framework.Compilation.Binding
             inferer.EndFunctionCall();
             ThrowOnErrors();
 
-            return memberExpressionFactory.Call(target, args);
+            return memberExpressionFactory.Call(target!, args);
         }
 
         protected override Expression VisitSimpleName(SimpleNameBindingParserNode node)
@@ -326,7 +305,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 falseExpr = TypeConversion.ImplicitConversion(falseExpr, trueExpr.Type, allowToString: true) ?? falseExpr;
             }
 
-            return Expression.Condition(condition, trueExpr, falseExpr);
+            return Expression.Condition(condition!, trueExpr, falseExpr);
         }
 
         protected override Expression VisitMemberAccess(MemberAccessBindingParserNode node)
@@ -335,8 +314,8 @@ namespace DotVVM.Framework.Compilation.Binding
             var typeParameters = nameNode is GenericNameBindingParserNode
                 ? ResolveGenericArguments(nameNode.CastTo<GenericNameBindingParserNode>().TypeArguments)
                 : null;
-            var identifierName = (typeParameters?.Count() ?? 0) > 0
-                ? $"{nameNode.Name}`{typeParameters.Count()}"
+            var identifierName = (typeParameters?.Length ?? 0) > 0
+                ? $"{nameNode.Name}`{typeParameters!.Length}"
                 : nameNode.Name;
 
             var target = Visit(node.TargetExpression);
@@ -358,7 +337,7 @@ namespace DotVVM.Framework.Compilation.Binding
             // we try to resolve member access into an extension parameter
             // for example _parent._index should resolve into the _index extension parameter on the parent context
             var extensionParameter = TryResolveExtensionParameter(target, nameNode);
-            
+
             // even when we find the extension parameter, member properties should have priority (for compatibility, at least)
 
             return
@@ -372,10 +351,10 @@ namespace DotVVM.Framework.Compilation.Binding
         Expression? TryResolveExtensionParameter(Expression target, IdentifierNameBindingParserNode nameNode)
         {
             // target is _parent, _this, _root, ...
-            if (target.GetParameterAnnotation() is BindingParameterAnnotation { ExtensionParameter: null, DataContext: {} dataContext } &&
+            if (target.GetParameterAnnotation() is BindingParameterAnnotation { ExtensionParameter: null, DataContext: { } dataContext } &&
                 // name is simple (no generics)
-                nameNode is SimpleNameBindingParserNode { Name: {} name } &&
-                dataContext.ExtensionParameters.FirstOrDefault(e => e.Identifier == name) is {} parameter)
+                nameNode is SimpleNameBindingParserNode { Name: { } name } &&
+                dataContext.ExtensionParameters.FirstOrDefault(e => e.Identifier == name) is { } parameter)
             {
                 return Expression.Parameter(
                     ResolvedTypeDescriptor.ToSystemType(parameter.ParameterType) ?? typeof(UnknownTypeSentinel),
@@ -447,7 +426,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 throw new BindingCompilationException("Parameter identifiers must be unique.", node);
 
             // Make sure that parameter identifiers do not collide with existing symbols within registry
-            var collision = lambdaParameters.FirstOrDefault(param => Registry.Resolve(param.Name, false) != null);
+            var collision = lambdaParameters.FirstOrDefault(param => Registry.Resolve(param.Name!, false) != null);
             if (collision != null)
             {
                 throw new BindingCompilationException($"Identifier \"{collision.Name}\" is already in use. Choose a different " +
@@ -532,7 +511,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 return ExpressionHelper.RewriteTaskSequence(left, right);
             }
 
-            var variables = new [] { variable }.Where(x => x != null);
+            var variables = variable is null ? Array.Empty<ParameterExpression>() : new [] { variable };
             if (right is BlockExpression rightBlock)
             {
                 // flat the `(a; b; c; d; e; ...)` expression down
@@ -554,6 +533,19 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitVoid(VoidBindingParserNode node) => Expression.Default(typeof(void));
 
+        protected override Expression VisitArrayInitializer(ArrayInitializerExpression node)
+        {
+            var initializers = node.ElementInitializers.Select(e => Visit(e));
+
+            var firstInitializer = initializers.FirstOrDefault();
+
+            var firstElementType = firstInitializer?.Type ?? throw new DotvvmCompilationException($"Could not get the determine type of array element.");
+
+            var arrayElementType = initializers.All(i => i.Type.IsAssignableFrom(firstElementType)) ? firstElementType : throw new DotvvmCompilationException($"All elements of the array initializer must be of the same type.");
+
+            return Expression.NewArrayInit(arrayElementType, initializers.Select(i => Expression.Convert(i, arrayElementType)));
+        }
+
         private Expression? GetMemberOrTypeExpression(IdentifierNameBindingParserNode node, Type[]? typeParameters)
         {
             var name = node.Name;
@@ -568,7 +560,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 if (Variables.TryGetValue(name, out var variable))
                     return variable;
-                if (Scope is object && memberExpressionFactory.GetMember(Scope, node.Name, typeParameters, throwExceptions: false, onlyMemberTypes: ResolveOnlyTypeName) is Expression scopeMember)
+                if (Scope is object && memberExpressionFactory.GetMember(Scope, node.Name, typeParameters, throwExceptions: false, onlyMemberTypes: ResolveOnlyTypeName, disableExtensionMethods: true) is Expression scopeMember)
                     return scopeMember;
                 return Registry.Resolve(node.Name, throwOnNotFound: false);
             }

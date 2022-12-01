@@ -27,26 +27,27 @@ namespace DotVVM.Framework.Tests.ViewModel
                 DotvvmConfiguration.CreateDefault());
         }
 
+#if DotNetCore
         [DataTestMethod]
         [DataRow(typeof(bool), "'Boolean'")]
         [DataRow(typeof(int?), "{'type':'nullable','inner':'Int32'}")]
         [DataRow(typeof(long[][]), "[['Int64']]")]
-        [DataRow(typeof(Type), "'cH5MjuCiaO6mnhi5XcZwZcDjjzE='")]   // unknown types should produce SHA1 hash
+        [DataRow(typeof(Type), "'Av/XciKNYBmL6ZsV'")]   // unknown types should produce SHA1 hash
         [DataRow(typeof(object), "{'type':'dynamic'}")]
-        [DataRow(typeof(Dictionary<string, string>), "[\"la91iYgFuTBqaCldWgohuFgnQuY=\"]")]
-        [DataRow(typeof(IDictionary<string, string>), "[\"la91iYgFuTBqaCldWgohuFgnQuY=\"]")]
-        [DataRow(typeof(Dictionary<int, int>), "[\"Fj9UR9Ls097H7rqFancApm/DFX0=\"]")]
-        [DataRow(typeof(Dictionary<char, object>), "[\"ODlWlZZ4i8dUWuGS4ZQGfg1utAI=\"]")]
-        [DataRow(typeof(IDictionary<int, int>), "[\"Fj9UR9Ls097H7rqFancApm/DFX0=\"]")]
-        [DataRow(typeof(Dictionary<object, object>), "[\"zJFI46P9nFJ5vtQ7DF8SnVBSmPg=\"]")]
-        [DataRow(typeof(IDictionary<object, object>), "[\"zJFI46P9nFJ5vtQ7DF8SnVBSmPg=\"]")]
-        [DataRow(typeof(List<KeyValuePair<string, string>>), "[\"la91iYgFuTBqaCldWgohuFgnQuY=\"]")]
-        [DataRow(typeof(List<KeyValuePair<int, int>>), "[\"Fj9UR9Ls097H7rqFancApm/DFX0=\"]")]
-        [DataRow(typeof(List<KeyValuePair<object, object>>), "[\"zJFI46P9nFJ5vtQ7DF8SnVBSmPg=\"]")]
-        [DataRow(typeof(IList<KeyValuePair<string, string>>), "[\"la91iYgFuTBqaCldWgohuFgnQuY=\"]")]
-        [DataRow(typeof(IList<KeyValuePair<int, int>>), "[\"Fj9UR9Ls097H7rqFancApm/DFX0=\"]")]
-        [DataRow(typeof(IList<KeyValuePair<object, object>>), "[\"zJFI46P9nFJ5vtQ7DF8SnVBSmPg=\"]")]
-        // these hashes are dependent on the target framework - the latest update of hashes is updated to net50
+        [DataRow(typeof(Dictionary<string, string>), "[\"PVyTyqvI4Id5nYo+\"]")]
+        [DataRow(typeof(IDictionary<string, string>), "[\"PVyTyqvI4Id5nYo+\"]")]
+        [DataRow(typeof(Dictionary<int, int>), "[\"COeXIi+/gCnEgi6U\"]")]
+        [DataRow(typeof(Dictionary<char, object>), "[\"0AQHqpcFiaoYjUd+\"]")]
+        [DataRow(typeof(IDictionary<int, int>), "[\"COeXIi+/gCnEgi6U\"]")]
+        [DataRow(typeof(Dictionary<object, object>), "[\"y6hj7iGE5x+eLypR\"]")]
+        [DataRow(typeof(IDictionary<object, object>), "[\"y6hj7iGE5x+eLypR\"]")]
+        [DataRow(typeof(List<KeyValuePair<string, string>>), "[\"PVyTyqvI4Id5nYo+\"]")]
+        [DataRow(typeof(List<KeyValuePair<int, int>>), "[\"COeXIi+/gCnEgi6U\"]")]
+        [DataRow(typeof(List<KeyValuePair<object, object>>), "[\"y6hj7iGE5x+eLypR\"]")]
+        [DataRow(typeof(IList<KeyValuePair<string, string>>), "[\"PVyTyqvI4Id5nYo+\"]")]
+        [DataRow(typeof(IList<KeyValuePair<int, int>>), "[\"COeXIi+/gCnEgi6U\"]")]
+        [DataRow(typeof(IList<KeyValuePair<object, object>>), "[\"y6hj7iGE5x+eLypR\"]")]
+        // these hashes are dependent on the target framework - the latest update of hashes is updated to net60
         public void ViewModelTypeMetadata_TypeName(Type type, string expected)
         {
             var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
@@ -55,18 +56,22 @@ namespace DotVVM.Framework.Tests.ViewModel
             var result = typeMetadataSerializer.GetTypeIdentifier(type, dependentObjectTypes, dependentEnumTypes);
             Assert.AreEqual(expected.Replace("'", "\""), result.ToString(Formatting.None));
         }
+#endif
 
-        [TestMethod]        
+        [TestMethod]
         public void ViewModelTypeMetadata_TypeMetadata()
         {
-            var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
-            var result = typeMetadataSerializer.SerializeTypeMetadata(new[]
+            CultureUtils.RunWithCulture("en-US", () =>
             {
-                mapper.GetMap(typeof(TestViewModel))
-            });
+                var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
+                var result = typeMetadataSerializer.SerializeTypeMetadata(new[]
+                {
+                    mapper.GetMap(typeof(TestViewModel))
+                });
 
-            var checker = new OutputChecker("testoutputs");
-            checker.CheckJsonObject(result);
+                var checker = new OutputChecker("testoutputs");
+                checker.CheckJsonObject(result);
+            });
         }
 
         [Flags]

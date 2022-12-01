@@ -23,15 +23,14 @@ namespace DotVVM.Framework.Tests.Binding
     [TestClass]
     public class JavascriptCompilationTests
     {
-        private DotvvmConfiguration configuration;
-        private BindingTestHelper bindingHelper;
+        private static readonly DotvvmConfiguration configuration;
+        private static readonly BindingTestHelper bindingHelper;
 
-        [TestInitialize]
-        public void Init()
+        static JavascriptCompilationTests()
         {
-            this.configuration = DotvvmTestHelper.CreateConfiguration();
+            configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.RegisterApiClient(typeof(TestApiClient), "http://server/api", "./apiscript.js", "_testApi");
-            this.bindingHelper = new BindingTestHelper(configuration);
+            bindingHelper = new BindingTestHelper(configuration);
         }
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
         public string CompileBinding(string expression, NamespaceImport[] imports, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object), imports);
@@ -108,7 +107,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_UnwrappedObservables()
         {
             var js = CompileBinding("TestViewModel2.Collection[0].StringValue.Length + TestViewModel2.Collection[8].StringValue", new[] { typeof(TestViewModel) });
-            Assert.AreEqual("TestViewModel2().Collection()[0]().StringValue().length+TestViewModel2().Collection()[8]().StringValue()", js);
+            Assert.AreEqual("(TestViewModel2().Collection()[0]().StringValue().length??\"\")+(TestViewModel2().Collection()[8]().StringValue()??\"\")", js);
         }
 
         [TestMethod]
@@ -117,6 +116,40 @@ namespace DotVVM.Framework.Tests.Binding
             var js = CompileBinding("_parent + _parent2 + _parent0 + _parent1 + _parent3", typeof(string), typeof(string), typeof(string), typeof(string), typeof(string))
                 .Replace("(", "").Replace(")", "");
             Assert.AreEqual("$parent+$parents[1]+$data+$parent+$parents[2]", js);
+        }
+
+        [DataTestMethod]
+        [DataRow("2+2", "2+2", DisplayName = "2+2")]
+        [DataRow("2+2+2", "2+2+2", DisplayName = "2+2+2")]
+        [DataRow("(2+2)+2", "2+2+2", DisplayName = "(2+2)+2")]
+        [DataRow("2+(2+2)", "2+(2+2)", DisplayName = "2+(2+2)")]
+        [DataRow("2+(2*2)", "2+2*2", DisplayName = "2+(2*2)")]
+        [DataRow("2*(2+2)", "2*(2+2)", DisplayName = "2*(2+2)")]
+        [DataRow("IntProp & (2+2)", "IntProp()&2+2", DisplayName = "IntProp & (2+2)")]
+        [DataRow("IntProp & 2+2", "IntProp()&2+2", DisplayName = "IntProp & 2+2")]
+        [DataRow("IntProp & -1", "IntProp()&-1", DisplayName = "IntProp & -1")]
+        [DataRow("'a' + 'b'", "\"ab\"", DisplayName = "'a' + 'b'")]
+        [DataRow("IntProp ^ 1", "IntProp()^1", DisplayName = "IntProp ^ 1")]
+        [DataRow("'xx' + IntProp", "\"xx\"+IntProp()", DisplayName = "'xx' + IntProp")]
+        [DataRow("true == (IntProp == 1)", "true==(IntProp()==1)", DisplayName = "true == (IntProp == 1)")]
+        public void JavascriptCompilation_BinaryExpressions(string expr, string expectedJs)
+        {
+            var js = CompileBinding(expr, new [] { typeof(TestViewModel) });
+            Assert.AreEqual(expectedJs, js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_ExclusiveOr_ReturnsBooleanIfOperandsAreBooleans()
+        {
+            var js = CompileBinding("BoolProp = BoolProp ^ true", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("BoolProp(BoolProp()!=true).BoolProp", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_OnesComplementOperator()
+        {
+            var js = CompileBinding("IntProp = ~IntProp", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("IntProp(~IntProp()).IntProp", js);
         }
 
         [TestMethod]
@@ -192,18 +225,18 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_Api_GetFunction()
         {
             var result = CompileBinding("_testApi.GetString()");
-            Assert.AreEqual("dotvvm.api.invoke(dotvvm.api._testApi,\"getString\",function(){return [];},function(args){return [dotvvm.eventHub.get(\"DotVVM.Framework.Tests.Binding.TestApiClient/\")];},function(args){return [];},null,function(args){return \"\";})", result);
+            Assert.AreEqual("dotvvm.api.invoke(dotvvm.api._testApi,\"getString\",function(){return [];},function(args){return [dotvvm.eventHub.get(\"DotVVM.Framework.Tests.Binding.TestApiClient/\")];},function(args){return [];},null,function(args){return \"\";},$element)", result);
             var assignment = CompileBinding("StringProp = _testApi.GetString()", typeof(TestViewModel));
-            Assert.AreEqual("StringProp(dotvvm.api.invoke(dotvvm.api._testApi,\"getString\",function(){return [];},function(args){return [dotvvm.eventHub.get(\"DotVVM.Framework.Tests.Binding.TestApiClient/\")];},function(args){return [];},null,function(args){return \"\";})()).StringProp", assignment);
+            Assert.AreEqual("StringProp(dotvvm.api.invoke(dotvvm.api._testApi,\"getString\",function(){return [];},function(args){return [dotvvm.eventHub.get(\"DotVVM.Framework.Tests.Binding.TestApiClient/\")];},function(args){return [];},null,function(args){return \"\";},$element)()).StringProp", assignment);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Api_GetDate()
         {
             var result = CompileBinding("_testApi.GetCurrentTime('test')");
-            Assert.AreEqual("dotvvm.api.invoke(dotvvm.api._testApi,\"getCurrentTime\",function(){return [\"test\"];},function(args){return [dotvvm.eventHub.get(\"DotVVM.Framework.Tests.Binding.TestApiClient/\")];},function(args){return [];},null,function(args){return \"\";})", result);
+            Assert.AreEqual("dotvvm.api.invoke(dotvvm.api._testApi,\"getCurrentTime\",function(){return [\"test\"];},function(args){return [dotvvm.eventHub.get(\"DotVVM.Framework.Tests.Binding.TestApiClient/\")];},function(args){return [];},null,function(args){return \"\";},$element)", result);
             var assignment = CompileBinding("DateFrom = _testApi.GetCurrentTime('test')", typeof(TestViewModel));
-            Assert.AreEqual("DateFrom(dotvvm.serialization.serializeDate(dotvvm.api.invoke(dotvvm.api._testApi,\"getCurrentTime\",function(){return [\"test\"];},function(args){return [dotvvm.eventHub.get(\"DotVVM.Framework.Tests.Binding.TestApiClient/\")];},function(args){return [];},null,function(args){return \"\";})(),false)).DateFrom", assignment);
+            Assert.AreEqual("DateFrom(dotvvm.serialization.serializeDate(dotvvm.api.invoke(dotvvm.api._testApi,\"getCurrentTime\",function(){return [\"test\"];},function(args){return [dotvvm.eventHub.get(\"DotVVM.Framework.Tests.Binding.TestApiClient/\")];},function(args){return [];},null,function(args){return \"\";},$element)(),false)).DateFrom", assignment);
         }
 
         [TestMethod]
@@ -211,7 +244,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("_testApi.PostDateToString(DateFrom.Value)", typeof(TestViewModel));
             Assert.IsTrue(result.StartsWith("dotvvm.api.invoke(dotvvm.api._testApi,\"postDateToString\",function(){return [dotvvm.serialization.parseDate(DateFrom(),true)];},function(args){return [];},function(args){return [\"DotVVM.Framework.Tests.Binding.TestApiClient/\"];},$element,function(args){return \""));
-            Assert.IsTrue(result.EndsWith("\";})"));
+            Assert.IsTrue(result.EndsWith("\";},$element)"));
         }
 
         [TestMethod]
@@ -221,6 +254,32 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("$data", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("$rawData", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("$rawData", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingDateToString()
+        {
+            var result = bindingHelper.ValueBinding<object>("_this.ToString()", new [] { typeof(DateTime) });
+            Assert.AreEqual("dotvvm.globalize.bindingDateToString($rawData)()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("dotvvm.globalize.bindingDateToString($rawData)", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("dotvvm.globalize.bindingDateToString($rawData)", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_ParentReference()
+        {
+            var result = bindingHelper.ValueBinding<object>("_parent", new [] {typeof(TestViewModel), typeof(string) });
+            Assert.AreEqual("$parent", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("$parentContext.$rawData", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("$parentContext.$rawData", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+        [TestMethod]
+        public void JavascriptCompilation_ParentPropertyReference()
+        {
+            var result = bindingHelper.ValueBinding<object>("_parent.StringProp", new [] {typeof(TestViewModel), typeof(string) });
+            Assert.AreEqual("$parent.StringProp()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("$parent.StringProp", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("$parent.StringProp", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
 
         [TestMethod]
@@ -305,7 +364,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_LambdaWithDelegateInvocation()
         {
             var result = this.CompileBinding("arg(12) + _this", new [] { typeof(string) }, typeof(Func<Func<int, string>, string>));
-            Assert.AreEqual("(arg)=>ko.unwrap(arg)(12)+$data", result);
+            Assert.AreEqual("(arg)=>(ko.unwrap(arg)(12)??\"\")+$data", result);
         }
 
         [TestMethod]
@@ -317,6 +376,17 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(result, resultImplicit);
             Assert.AreEqual("EnumProperty", result);
         }
+
+        [DataTestMethod]
+        [DataRow("EnumProperty = IntProp", "EnumProperty(dotvvm.translations.enums.fromInt(IntProp(),\"nEayAzHQ5xyCfSP6\")).EnumProperty", DisplayName = "EnumProperty = IntProp")]
+        [DataRow("EnumProperty & TestEnum.B", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"nEayAzHQ5xyCfSP6\")&1,\"nEayAzHQ5xyCfSP6\")", DisplayName = "EnumProperty & TestEnum.B")]
+        [DataRow("EnumProperty + 1", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"nEayAzHQ5xyCfSP6\")+1,\"nEayAzHQ5xyCfSP6\")", DisplayName = "EnumProperty + 1")]
+        public void JavascriptCompilation_EnumOperations(string expr, string expectedJs)
+        {
+            var js = CompileBinding(expr, new [] { typeof(TestViewModel) });
+            Assert.AreEqual(expectedJs, js);
+        }
+
 
         [TestMethod]
         public void JsTranslator_DataContextShift()
@@ -343,7 +413,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_ArrayIndexer()
         {
             var result = CompileBinding("LongArray[1] == 3 && VmArray[0].MyProperty == 1 && VmArray.Length > 1", new [] { typeof(TestViewModel)});
-            Assert.AreEqual("LongArray()[1]==3&&(VmArray()[0].MyProperty()==1&&VmArray().length>1)", result);
+            Assert.AreEqual("LongArray()[1]()==3&&(VmArray()[0]().MyProperty()==1&&VmArray().length>1)", result);
         }
 
         [TestMethod]
@@ -351,6 +421,13 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("Array[1]", typeof(TestViewModel5));
             Assert.AreEqual("Array()[1]", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ReadOnlyArrayElement_Get()
+        {
+            var result = CompileBinding("ReadOnlyArray[1]", typeof(TestViewModel5));
+            Assert.AreEqual("ReadOnlyArray()[1]", result);
         }
 
         [TestMethod]
@@ -368,6 +445,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_ReadOnlyListIndexer_Get()
+        {
+            var result = CompileBinding("List.AsReadOnly()[1]", typeof(TestViewModel5));
+            Assert.AreEqual("List()[1]", result);
+        }
+
+        [TestMethod]
         public void JsTranslator_ListIndexer_Set()
         {
             var result = CompileBinding("List[1] = 123", new[] { typeof(TestViewModel5) }, typeof(void));
@@ -379,6 +463,13 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("Dictionary[1]", typeof(TestViewModel5));
             Assert.AreEqual("dotvvm.translations.dictionary.getItem(Dictionary(),1)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ReadOnlyDictionaryIndexer_Get()
+        {
+            var result = CompileBinding("ReadOnlyDictionary[1]", typeof(TestViewModel5));
+            Assert.AreEqual("dotvvm.translations.dictionary.getItem(ReadOnlyDictionary(),1)", result);
         }
 
         [TestMethod]
@@ -538,6 +629,17 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("LongList.InsertRange(1, LongArray)", new[] { typeof(TestViewModel) }, typeof(void), null);
             Assert.AreEqual("dotvvm.translations.array.insertRange(LongList,1,LongArray())", result);
+        }
+
+        [TestMethod]
+        [DataRow("String", "\"Hello\"", "\"Hello\"", DisplayName = "Contains call with string.")]
+        [DataRow("", "1", "1", DisplayName = "Contains call with int.")]
+        [DataRow("Enum", "TestEnum.A", "\"A\"", DisplayName = "Contains call with enum.")]
+        [DataRow("Enum", "EnumProperty", "EnumProperty()", DisplayName = "Contains call with enum property.")]
+        public void JsTranslator_ListContains(string listPrefix, string bindingValue, string jsValue)
+        {
+            var result = CompileBinding($"{listPrefix}List.Contains({bindingValue})", new[] { typeof(TestViewModel) }, typeof(bool), null);
+            Assert.AreEqual($"dotvvm.translations.array.contains({listPrefix}List(),{jsValue})", result);
         }
 
         [TestMethod]
@@ -792,13 +894,26 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("StringProp.Split('c')", "c", "None")]
+        [DataRow("Convert.ToBoolean(IntProp)", "Boolean(IntProp())")]
+        [DataRow("Convert.ToBoolean(DoubleProp)", "Boolean(DoubleProp())")]
+        [DataRow("Convert.ToDecimal(DoubleProp)", "DoubleProp")]
+        [DataRow("Convert.ToInt32(DoubleProp)", "Math.round(DoubleProp())")]
+        [DataRow("Convert.ToByte(DoubleProp)", "Math.round(DoubleProp())")]
+        [DataRow("Convert.ToDouble(IntProp)", "IntProp")]
+        [DataRow("Convert.ToDouble(DecimalProp)", "DecimalProp")]
+        public void JsTranslator_ConvertNumeric(string binding, string expected)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
         [DataRow("StringProp.Split(\"str\")", "str", "None")]
         [DataRow("StringProp.Split('c', StringSplitOptions.None)", "c", "None")]
         [DataRow("StringProp.Split('c', StringSplitOptions.RemoveEmptyEntries)", "c", "RemoveEmptyEntries")]
         public void JsTranslator_StringSplit_WithOptions(string binding, string delimiter, string options)
         {
-            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual($"dotvvm.translations.string.split(StringProp(),\"{delimiter}\",\"{options}\")", result);
         }
 
@@ -849,7 +964,41 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_DateTime_Property_Getters(string binding, string jsFunction, bool increment = false)
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
-            Assert.AreEqual($"new Date(DateTime()).{jsFunction}(){(increment ? "+1" : string.Empty)}", result);
+            Assert.AreEqual($"dotvvm.serialization.parseDate(DateTime()).{jsFunction}(){(increment ? "+1" : string.Empty)}", result);
+        }
+
+        [TestMethod]
+        [DataRow("DateOnly.ToString()", "")]
+        [DataRow("DateOnly.ToString('D')", "\"D\"")]
+        public void JsTranslator_DateOnly_ToString(string binding, string args)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.globalize.bindingDateOnlyToString(DateOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
+        }
+
+        [TestMethod]
+        [DataRow("NullableDateOnly.ToString()", "")]
+        public void JsTranslator_NullableDateOnly_ToString(string binding, string args)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.globalize.bindingDateOnlyToString(NullableDateOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
+        }
+
+        [TestMethod]
+        [DataRow("TimeOnly.ToString()", "")]
+        [DataRow("TimeOnly.ToString('T')", "\"T\"")]
+        public void JsTranslator_TimeOnly_ToString(string binding, string args)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.globalize.bindingTimeOnlyToString(TimeOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
+        }
+
+        [TestMethod]
+        [DataRow("NullableTimeOnly.ToString()", "")]
+        public void JsTranslator_NullableTimeOnly_ToString(string binding, string args)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.globalize.bindingTimeOnlyToString(NullableTimeOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
         }
 
         [TestMethod]
@@ -959,28 +1108,28 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_Variable_Property()
         {
             var result = CompileBinding("var a = _this.StringProp; var b = _this.StringProp2; StringProp2 = a + b", typeof(TestViewModel));
-            Assert.AreEqual("(()=>{let a=StringProp();let b=StringProp2();return StringProp2(a+b).StringProp2();})()", result);
+            Assert.AreEqual("(()=>{let a=StringProp();let b=StringProp2();return StringProp2(a+b).StringProp2;})()", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Variable_VM()
         {
             var result = CompileBinding("var a = _parent; var b = _this.StringProp2; StringProp2 = a + b", new [] { typeof(string), typeof(TestViewModel) });
-            Assert.AreEqual("(()=>{let a=$parent;let b=StringProp2();return StringProp2(a+b).StringProp2();})()", result);
+            Assert.AreEqual("(()=>{let a=$parent;let b=StringProp2();return StringProp2(a+b).StringProp2;})()", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_AssignAndUse()
         {
             var result = CompileBinding("StringProp2 = (_this.StringProp = _this.StringProp2 = 'lol') + 'hmm'", typeof(TestViewModel));
-            Assert.AreEqual("StringProp2(StringProp(StringProp2(\"lol\").StringProp2()).StringProp()+\"hmm\").StringProp2", result);
+            Assert.AreEqual("StringProp2((StringProp(StringProp2(\"lol\").StringProp2()).StringProp()??\"\")+\"hmm\").StringProp2", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_AssignAndUseObject()
         {
             var result = CompileBinding("StringProp2 = (_this.TestViewModel2B = _this.TestViewModel2 = _this.VmArray[3]).SomeString", typeof(TestViewModel));
-            Assert.AreEqual("StringProp2(dotvvm.serialization.deserialize(dotvvm.serialization.deserialize(VmArray()[3],TestViewModel2,true)(),TestViewModel2B,true)().SomeString()).StringProp2", result);
+            Assert.AreEqual("StringProp2(dotvvm.serialization.deserialize(dotvvm.serialization.deserialize(VmArray()[3](),TestViewModel2,true)(),TestViewModel2B,true)().SomeString()).StringProp2", result);
         }
 
         [TestMethod, Ignore] // ignored because https://github.com/dotnet/corefx/issues/33074
@@ -994,14 +1143,14 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_AssignmentExpectsObservable()
         {
             var result = CompileBinding("_api.RefreshOnChange(StringProp = StringProp2, StringProp + StringProp2)", typeof(TestViewModel));
-            Assert.AreEqual("dotvvm.api.refreshOn(StringProp(StringProp2()).StringProp,ko.pureComputed(()=>StringProp()+StringProp2()))", result);
+            Assert.AreEqual("dotvvm.api.refreshOn(StringProp(StringProp2()).StringProp,ko.pureComputed(()=>(StringProp()??\"\")+(StringProp2()??\"\")))", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_ApiRefreshOn()
         {
             var result = CompileBinding("_api.RefreshOnChange('here would be the API invocation', StringProp + StringProp2)", typeof(TestViewModel));
-            Assert.AreEqual("dotvvm.api.refreshOn(\"here would be the API invocation\",ko.pureComputed(()=>StringProp()+StringProp2()))", result);
+            Assert.AreEqual("dotvvm.api.refreshOn(\"here would be the API invocation\",ko.pureComputed(()=>(StringProp()??\"\")+(StringProp2()??\"\")))", result);
         }
 
         [DataTestMethod]
@@ -1031,20 +1180,29 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("StringProp.EndsWith('test',StringComparison.InvariantCultureIgnoreCase)",
             "dotvvm.translations.string.endsWith(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.Trim()", "StringProp().trim()")]
+        [DataRow("StringProp.PadLeft(1)", "StringProp().padStart(1)")]
+        [DataRow("StringProp.PadRight(2)", "StringProp().padEnd(2)")]
+        [DataRow("StringProp.PadLeft(1,'#')", "StringProp().padStart(1,\"#\")")]
+        [DataRow("StringProp.PadRight(2,'#')", "StringProp().padEnd(2,\"#\")")]
+        [DataRow("string.IsNullOrEmpty(StringProp)", "!(StringProp()?.length>0)")]
+        [DataRow("string.IsNullOrWhiteSpace(StringProp)", "!(StringProp()?.trim().length>0)")]
+#if DotNetCore
         [DataRow("StringProp.Trim('0')", "dotvvm.translations.string.trimEnd(dotvvm.translations.string.trimStart(StringProp(),\"0\"),\"0\")")]
         [DataRow("StringProp.TrimStart()", "StringProp().trimStart()")]
         [DataRow("StringProp.TrimStart('0')", "dotvvm.translations.string.trimStart(StringProp(),\"0\")")]
         [DataRow("StringProp.TrimEnd()", "StringProp().trimEnd()")]
         [DataRow("StringProp.TrimEnd('0')", "dotvvm.translations.string.trimEnd(StringProp(),\"0\")")]
-        [DataRow("StringProp.PadLeft(1)", "StringProp().padStart(1)")]
-        [DataRow("StringProp.PadRight(2)", "StringProp().padEnd(2)")]
-        [DataRow("StringProp.PadLeft(1,'#')", "StringProp().padStart(1,\"#\")")]
-        [DataRow("StringProp.PadRight(2,'#')", "StringProp().padEnd(2,\"#\")")]
-        [DataRow("string.IsNullOrEmpty(StringProp)", "StringProp()==null||StringProp()===\"\"")]
-        [DataRow("string.IsNullOrWhiteSpace(StringProp)", "StringProp()==null||StringProp().trim()===\"\"")]
+#endif
+#if !DotNetCore
+        [DataRow("StringProp.Trim('0')", "dotvvm.translations.string.trimEnd(dotvvm.translations.string.trimStart(StringProp(),[\"0\"][0]),[\"0\"][0])")]
+        [DataRow("StringProp.TrimStart()", "dotvvm.translations.string.trimStart(StringProp(),[][0])")]
+        [DataRow("StringProp.TrimStart('0')", "dotvvm.translations.string.trimStart(StringProp(),[\"0\"][0])")]
+        [DataRow("StringProp.TrimEnd()", "dotvvm.translations.string.trimEnd(StringProp(),[][0])")]
+        [DataRow("StringProp.TrimEnd('0')", "dotvvm.translations.string.trimEnd(StringProp(),[\"0\"][0])")]
+#endif
         public void JavascriptCompilation_StringFunctions(string input, string expected)
         {
-            var result = CompileBinding(input, typeof(TestViewModel));
+            var result = CompileBinding(input, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, typeof(TestViewModel));
             Assert.AreEqual(expected, result);
         }
     }

@@ -29,26 +29,27 @@ namespace DotVVM.Framework.Compilation.Binding
             javascriptTranslator = new JavascriptTranslator(configForStaticCommands, serializationMapper);
         }
 
-        /// Replaces delegate arguments with commandArgs reference
-        private static Expression ReplaceCommandArgs(Expression expression) =>
-            expression.ReplaceAll(e =>
-                e?.GetParameterAnnotation()?.ExtensionParameter is TypeConversion.MagicLambdaConversionExtensionParameter extensionParam ?
-                    Expression.Parameter(ResolvedTypeDescriptor.ToSystemType(extensionParam.ParameterType), $"commandArgs['{extensionParam.Identifier}']")
-                    .AddParameterAnnotation(new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(
-                        _ => new JsSymbolicParameter(CommandBindingExpression.CommandArgumentsParameter)
-                             .Indexer(new JsLiteral(extensionParam.ArgumentIndex))
-                    ))) :
-                e!
-            );
-
         public JsExpression CompileToJavascript(DataContextStack dataContext, Expression expression)
         {
-            expression = ReplaceCommandArgs(expression);
+            var expressionWithVariableResolved = TranslateVariableDeclaration(expression);
+            var jsExpression = CreateCommandExpression(dataContext, expressionWithVariableResolved);
 
-            return TranslateVariableDeclaration(expression, e => CreateCommandExpression(dataContext, e));
+            if (jsExpression is JsArrowFunctionExpression wrapperFunction)
+            {
+                // the function expects command variables
+                var args = wrapperFunction.Parameters.Select((p, i) =>
+                    new JsTemporaryVariableParameter(
+                        CommandBindingExpression.CommandArgumentsParameter.ToExpression()
+                            .Indexer(new JsLiteral(i)),
+                        preferredName: p.Name
+                    ).ToExpression());
+                jsExpression = wrapperFunction.SubstituteArguments(args.ToArray());
+            }
+
+            return jsExpression;
         }
 
-        private JsExpression TranslateVariableDeclaration(Expression expression, Func<Expression, JsExpression> core)
+        private Expression TranslateVariableDeclaration(Expression expression)
         {
             expression = VariableHoistingVisitor.HoistVariables(expression);
             if (expression is BlockExpression block && block.Variables.Any())
@@ -61,16 +62,16 @@ namespace DotVVM.Framework.Compilation.Binding
                     variables.Select(v => {
                         var tmpVar = new JsTemporaryVariableParameter();
                         return Expression.Parameter(v.Type, v.Name).AddParameterAnnotation(new BindingParameterAnnotation(extensionParameter:
-                            new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsSymbolicParameter(tmpVar), v.Name, new ResolvedTypeDescriptor(v.Type))
+                            new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsSymbolicParameter(tmpVar), v.Name!, new ResolvedTypeDescriptor(v.Type))
                         ));
                     }).ToArray()
                 );
 
-                return core(replacedVariables);
+                return replacedVariables;
             }
             else
             {
-                return core(expression);
+                return expression;
             }
         }
 
@@ -79,12 +80,12 @@ namespace DotVVM.Framework.Compilation.Binding
             var knockoutContext =
                 new JsSymbolicParameter(
                     JavascriptTranslator.KnockoutContextParameter,
-                    defaultAssignment: new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter)).FormatParametrizedScript()
+                    defaultAssignment: new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter)).FormatParametrizedScript()
                 );
 
             var currentContextVariable = new JsTemporaryVariableParameter(knockoutContext, preferredName: "cx");
             var currentViewModelVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter), preferredName: "vm");
-            var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), preferredName: "sender");
+            var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter), preferredName: "sender");
 
             var invocationRewriter = new InvocationRewriterExpressionVisitor();
             expression = invocationRewriter.Visit(expression);
@@ -96,7 +97,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return (JsExpression)jsExpression.AssignParameters(symbol =>
                 symbol == JavascriptTranslator.KnockoutContextParameter ? currentContextVariable.ToExpression() :
                 symbol == JavascriptTranslator.KnockoutViewModelParameter ? currentViewModelVariable.ToExpression() :
-                symbol == CommandBindingExpression.SenderElementParameter ? senderVariable.ToExpression() :
+                symbol == JavascriptTranslator.CurrentElementParameter ? senderVariable.ToExpression() :
                 default
             );
         }

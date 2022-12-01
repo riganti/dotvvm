@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
-    public class UnknownStaticClassIdentifierExpression: Expression
+    public sealed class UnknownStaticClassIdentifierExpression: Expression
     {
         public UnknownStaticClassIdentifierExpression(string name)
         {
@@ -33,5 +33,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public Exception Error()
             => new Exception($"Could not resolve identifier '{Name}'.");
+
+        public override string ToString() => $"[unknown identifier {Name}]";
     }
 }

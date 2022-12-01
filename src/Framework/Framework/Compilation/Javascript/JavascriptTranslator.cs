@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
@@ -19,17 +20,30 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class JavascriptTranslator
     {
-        public static readonly CodeSymbolicParameter KnockoutContextParameter = new ContextSymbolicParameter(0, "");
-        public static readonly CodeSymbolicParameter ParentKnockoutContextParameter = new ContextSymbolicParameter(1, "Parent");
-        public static readonly CodeSymbolicParameter KnockoutViewModelParameter = new ViewModelSymbolicParameter(0, "", "$data");
-        public static readonly CodeSymbolicParameter ParentKnockoutViewModelParameter = new ViewModelSymbolicParameter(1, "Parent", "$parent");
+        /// <summary> Parameter representing the current knockout context (`$context`) </summary>
+        public static readonly ContextSymbolicParameter KnockoutContextParameter = new ContextSymbolicParameter(0, "");
+        /// <summary> Parameter representing the parent knockout context (`$parentContext`) </summary>
+        public static readonly ContextSymbolicParameter ParentKnockoutContextParameter = new ContextSymbolicParameter(1, "Parent");
+        /// <summary> Parameter representing the current view model (`$data`). The view model itself is not an ko.observable, but all it's properties are. </summary>
+        public static readonly ViewModelSymbolicParameter KnockoutViewModelParameter = new ViewModelSymbolicParameter(0, "", false);
+        /// <summary> Parameter representing the current view model in ko.observable (`$rawData`). </summary>
+        public static readonly ViewModelSymbolicParameter KnockoutViewModelObservableParameter = new ViewModelSymbolicParameter(0, "", true);
+        /// <summary> Parameter representing the parent view model (`$parent`). The view model itself is not an ko.observable, but all it's properties are. </summary>
+        public static readonly ViewModelSymbolicParameter ParentKnockoutViewModelParameter = new ViewModelSymbolicParameter(1, "Parent", false);
+        /// <summary> Gets the HTML element where this binding is being evaluated. In knockout bindings, this translates to `$element`, in command bindings (i.e. JS event handlers), it translates to `this` </summary>
+        public static readonly CodeSymbolicParameter CurrentElementParameter = new CodeSymbolicParameter("CurrentElement",
+            new CodeParameterAssignment("$element", OperatorPrecedence.Max)
+        );
 
-        public static CodeSymbolicParameter GetKnockoutViewModelParameter(int parentIndex) => parentIndex switch {
-            0 => KnockoutViewModelParameter,
-            1 => ParentKnockoutViewModelParameter,
-            _ => new ViewModelSymbolicParameter(parentIndex, $"Parent{parentIndex}", null)
+        public static ViewModelSymbolicParameter GetKnockoutViewModelParameter(int parentIndex, bool returnsObservable = false) => (parentIndex, returnsObservable) switch {
+            (< 0, _) => throw new ArgumentOutOfRangeException("parentIndex"),
+            (0, false) => KnockoutViewModelParameter,
+            (0, true) => KnockoutViewModelObservableParameter,
+            (1, false) => ParentKnockoutViewModelParameter,
+            _ => new ViewModelSymbolicParameter(parentIndex, $"Parent{parentIndex}", returnsObservable)
         };
-        public static CodeSymbolicParameter GetKnockoutContextParameter(int parentIndex) => parentIndex switch {
+        public static ContextSymbolicParameter GetKnockoutContextParameter(int parentIndex) => parentIndex switch {
+            < 0 => throw new ArgumentOutOfRangeException("parentIndex"),
             0 => KnockoutContextParameter,
             1 => ParentKnockoutContextParameter,
             _ => new ContextSymbolicParameter(parentIndex, $"Parent{parentIndex}")
@@ -37,18 +51,36 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public sealed class ViewModelSymbolicParameter: CodeSymbolicParameter
         {
-            internal ViewModelSymbolicParameter(int parentIndex, string description, string? member): base(
+            internal ViewModelSymbolicParameter(int parentIndex, string description, bool returnObservable): base(
                 $"JavascriptTranslator.{description}KnockoutViewModelParameter",
                 new CodeParameterAssignment(
-                    (member is null ? KnockoutContextParameter.ToExpression().Member("$parents").Indexer(new JsLiteral(parentIndex - 1))
-                                    : KnockoutContextParameter.ToExpression().Member(member)).FormatParametrizedScript(),
+                    GetDefaultAssignment(parentIndex, returnObservable),
                     isGlobalContext: parentIndex == 0
                 )
             )
             {
                 this.ParentIndex = parentIndex;
+                this.ReturnObservable = returnObservable;
             }
+            /// <summary> Index in the knockout data context hierarchy. `ParentIndex == 0` means $data, ... </summary>
             public int ParentIndex { get; }
+            /// <summary> If the expression should return knockout observable. For `ReturnObservable == true` and `ParentIndex == 0`, it outputs `$rawData`, for false it outputs `$data`. </summary>
+            public bool ReturnObservable { get; }
+
+            internal static ParametrizedCode GetDefaultAssignment(int parentIndex, bool returnObservable)
+            {
+                return (parentIndex, returnObservable) switch {
+                    (0, _) => KnockoutContextParameter.ToExpression().Member(returnObservable ? "$rawData" : "$data").FormatParametrizedScript(),
+                    (1, false) => KnockoutContextParameter.ToExpression().Member("$parent").FormatParametrizedScript(),
+                    (_, false) => KnockoutContextParameter.ToExpression().Member("$parents").Indexer(new JsLiteral(parentIndex - 1)).FormatParametrizedScript(),
+                    (_, true) => GetKnockoutContextParameter(parentIndex).ToExpression().Member("$rawData").FormatParametrizedScript(),
+                };
+            }
+
+            public ViewModelSymbolicParameter WithIndex(int index) =>
+                index == ParentIndex ? this : JavascriptTranslator.GetKnockoutViewModelParameter(index, ReturnObservable);
+            public ViewModelSymbolicParameter WithReturnsObservable(bool returnsObservable) =>
+                returnsObservable == ReturnObservable ? this : JavascriptTranslator.GetKnockoutViewModelParameter(ParentIndex, returnsObservable);
         }
         public sealed class ContextSymbolicParameter: CodeSymbolicParameter
         {
@@ -116,6 +148,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return expression.AssignParameters(o =>
                 o is ViewModelSymbolicParameter vm ? GetKnockoutViewModelParameter(vm.ParentIndex + dataContextLevel).ToParametrizedCode() :
                 o is ContextSymbolicParameter context ? GetKnockoutContextParameter(context.ParentIndex + dataContextLevel).ToParametrizedCode() :
+                o == CommandBindingExpression.OptionalKnockoutContextParameter ? GetKnockoutContextParameter(dataContextLevel).ToParametrizedCode() :
                 default
             );
         }
@@ -161,13 +194,15 @@ namespace DotVVM.Framework.Compilation.Javascript
         public ViewModelSerializationMap? SerializationMap { get; set; }
         public bool? ContainsObservables { get; set; }
 
-        public bool Equals(ViewModelInfoAnnotation other) =>
+        public bool Equals(ViewModelInfoAnnotation? other) =>
+            object.ReferenceEquals(this, other) ||
+            other is not null &&
             Type == other.Type &&
             IsControl == other.IsControl &&
             ExtensionParameter == other.ExtensionParameter &&
             ContainsObservables == other.ContainsObservables;
 
-        public override bool Equals(object obj) => obj is ViewModelInfoAnnotation obj2 && this.Equals(obj2);
+        public override bool Equals(object? obj) => obj is ViewModelInfoAnnotation obj2 && this.Equals(obj2);
 
         public override int GetHashCode() => (Type, ExtensionParameter, IsControl, ContainsObservables).GetHashCode();
 
@@ -198,6 +233,10 @@ namespace DotVVM.Framework.Compilation.Javascript
         public Type ResultType { get; }
         public MemberInfo? MemberInfo { get; }
         public ViewModelPropertyMap? SerializationMap { get; set; }
+
+        public static VMPropertyInfoAnnotation FromDotvvmProperty(DotvvmProperty p) =>
+            p.PropertyInfo is null ? new VMPropertyInfoAnnotation(p.PropertyType)
+                                   : new VMPropertyInfoAnnotation(p.PropertyInfo, p.PropertyType);
     }
 
     public class JavascriptTranslatorConfiguration: IJavascriptMethodTranslator
@@ -208,7 +247,6 @@ namespace DotVVM.Framework.Compilation.Javascript
         public JavascriptTranslatorConfiguration()
         {
             Translators.Add(MethodCollection = new JavascriptTranslatableMethodCollection());
-            Translators.Add(new EnumToStringMethodTranslator());
             Translators.Add(new DelegateInvokeMethodTranslator());
         }
 

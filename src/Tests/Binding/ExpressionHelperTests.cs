@@ -9,7 +9,6 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Testing;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,8 +35,10 @@ namespace DotVVM.Framework.Tests.Binding
             var cP = Expression.Parameter(typeof(DotvvmControl), "c");
             var newValueP = Expression.Parameter(typeof(object), "newValue");
             var updateExpr = memberExpressionFactory.UpdateMember(ExpressionUtils.Replace((DotvvmControl c) => c.GetValue(DotvvmBindableObject.DataContextProperty, true), cP), newValueP);
+            var convertExpression = (TestEnvironmentHelper.GetFrameworkType() == TestEnvironmentHelper.FrameworkType.Net)
+                ? "Convert(newValue, Object)" : "Convert(newValue)";
             Assert.IsNotNull(updateExpr);
-            Assert.AreEqual("c.SetValue(DotvvmBindableObject.DataContextProperty, newValue)", updateExpr.ToString());
+            Assert.AreEqual($"c.SetValueToSource(DotvvmBindableObject.DataContextProperty, {convertExpression})", updateExpr.ToString());
         }
 
         [TestMethod]
@@ -46,8 +47,10 @@ namespace DotVVM.Framework.Tests.Binding
             var vmP = Expression.Parameter(typeof(Tests.Binding.TestViewModel), "vm");
             var newValueP = Expression.Parameter(typeof(DateTime), "newValue");
             var updateExpr = memberExpressionFactory.UpdateMember(ExpressionUtils.Replace((Tests.Binding.TestViewModel c) => c.DateFrom, vmP), newValueP);
+            var convertExpression = (TestEnvironmentHelper.GetFrameworkType() == TestEnvironmentHelper.FrameworkType.Net)
+                ? "Convert(newValue, Nullable`1)" : "Convert(newValue)";
             Assert.IsNotNull(updateExpr);
-            Assert.AreEqual("(vm.DateFrom = Convert(newValue, Nullable`1))", updateExpr.ToString());
+            Assert.AreEqual($"(vm.DateFrom = {convertExpression})", updateExpr.ToString());
         }
 
         [TestMethod]

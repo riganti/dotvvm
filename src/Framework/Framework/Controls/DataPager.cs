@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Controls
         private readonly BindingCompilationService bindingService;
 
         public DataPager(CommonBindings commonBindings, BindingCompilationService bindingService)
-            : base("div")
+            : base("div", false)
         {
             this.commonBindings = commonBindings;
             this.bindingService = bindingService;

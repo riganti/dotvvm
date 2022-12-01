@@ -23,16 +23,16 @@
       "datatype": "choice",
       "choices": [
         {
-          "choice": "netcoreapp2.0",
-          "description": "Target netcoreapp2.0"
+          "choice": "net6.0",
+          "description": "Target .NET 6"
         },
-		{
-          "choice": "net451",
-          "description": "Target net451"
+        {
+          "choice": "net7.0",
+          "description": "Target .NET 7 (preview, at the time of writing)"
         }
       ],
-      "replaces": "netcoreapp2.0",
-      "defaultValue": "netcoreapp2.0"
+      "replaces": "net6.0",
+      "defaultValue": "net6.0"
     }
   },
   "primaryOutputs": [ { "path": "DotvvmApplication1.csproj" } ]

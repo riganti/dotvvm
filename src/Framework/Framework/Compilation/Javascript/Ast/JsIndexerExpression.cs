@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsIndexerExpression: JsExpression
+    public sealed class JsIndexerExpression: JsExpression
     {
         public JsExpression Target
         {

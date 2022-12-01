@@ -1,14 +1,8 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Directives;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
-using DotVVM.Framework.Configuration;
-using DotVVM.Framework.ResourceManagement;
-using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -18,18 +12,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
     /// </summary>
     public class DefaultControlTreeResolver : ControlTreeResolverBase
     {
-        private readonly IControlBuilderFactory controlBuilderFactory;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultControlTreeResolver"/> class.
         /// </summary>
-        public DefaultControlTreeResolver(IControlResolver controlResolver, IControlBuilderFactory controlBuilderFactory, IAbstractTreeBuilder treeBuilder, DotvvmResourceRepository resourceRepo)
-            : base(controlResolver, treeBuilder, resourceRepo)
+        public DefaultControlTreeResolver(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, IMarkupDirectiveCompilerPipeline direrectiveCompilerPipeline)
+            : base(controlResolver, treeBuilder, direrectiveCompilerPipeline)
         {
-            this.controlBuilderFactory = controlBuilderFactory;
         }
 
-        protected override void ResolveRootContent(DothtmlRootNode root, IAbstractContentNode view, IControlResolverMetadata viewMetadata)
+        protected override void ResolveRootContent(DothtmlRootNode root, IAbstractControl view, IControlResolverMetadata viewMetadata)
         {
             ((ResolvedTreeRoot)view).ResolveContentAction = () => base.ResolveRootContent(root, view, viewMetadata);
         }
@@ -60,20 +51,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         protected override object? ConvertValue(string value, ITypeDescriptor propertyType)
         {
             return ReflectionUtils.ConvertValue(value, ((ResolvedTypeDescriptor)propertyType).Type);
-        }
-
-        protected override IAbstractControlBuilderDescriptor? ResolveMasterPage(string currentFile, IAbstractDirective masterPageDirective)
-        {
-            try
-            {
-                return controlBuilderFactory.GetControlBuilder(masterPageDirective.Value).descriptor;
-            }
-            catch (Exception e)
-            {
-                // The resolver should not just crash on an invalid directive
-                masterPageDirective.DothtmlNode!.AddError(e.Message);
-                return null;
-            }
-        }
+        }     
     }
 }

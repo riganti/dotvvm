@@ -21,7 +21,7 @@ namespace DotVVM.Samples.BasicSamples.Views.ComplexSamples.FileUploadInRepeater
         public int FilesCount
         {
             get { return (int)GetValue(FilesCountProperty); }
-            set { SetValue(FilesCountProperty, value); }
+            set { SetValueToSource(FilesCountProperty, value); }
         }
         public static readonly DotvvmProperty FilesCountProperty
             = DotvvmProperty.Register<int, FileUploadWrapper>(c => c.FilesCount);

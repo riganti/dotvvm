@@ -25,27 +25,10 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ContentTemplateProperty
             = DotvvmProperty.Register<ITemplate?, GridViewTemplateColumn>(c => c.ContentTemplate, null);
 
-
-        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
-        public ITemplate? EditTemplate
-        {
-            get { return (ITemplate?)GetValue(EditTemplateProperty); }
-            set { SetValue(EditTemplateProperty, value); }
-        }
-        public static readonly DotvvmProperty EditTemplateProperty
-            = DotvvmProperty.Register<ITemplate?, GridViewTemplateColumn>(c => c.EditTemplate, null);
-
-
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {
             ContentTemplate.NotNull("GridViewTemplateColumn.ContentTemplate must be set")
                            .BuildContent(context, container);
-        }
-
-        public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
-        {
-            if (EditTemplate == null) throw new DotvvmControlException(this, "EditTemplate must be set when editing is allowed in a GridView.");
-            EditTemplate.BuildContent(context, container);
         }
     }
 }

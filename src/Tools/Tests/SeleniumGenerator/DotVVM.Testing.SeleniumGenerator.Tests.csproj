@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.0.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
+    <PackageReference Include="Buildalyzer" Version="3.2.3" />
+    <PackageReference Include="Buildalyzer.Workspaces" Version="3.2.3" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj" />
+    <ProjectReference Include="..\..\SeleniumGenerator\DotVVM.Framework.Tools.SeleniumGenerator.csproj" />
+  </ItemGroup>
+</Project>

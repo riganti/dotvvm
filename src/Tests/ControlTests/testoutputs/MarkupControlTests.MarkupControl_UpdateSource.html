@@ -1,0 +1,4 @@
+<input class="static-command-button" onclick="dotvvm.applyPostbackHandlers((options) => {
+	let cx = options.knockoutContext;
+	cx.$control.P(cx.$control.P.state + 20);
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">

@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public class DotvvmPropertyGroup : IPropertyGroupDescriptor
     {
-        public FieldInfo DescriptorField { get; }
+        public FieldInfo? DescriptorField { get; }
 
         public ICustomAttributeProvider AttributeProvider { get; }
 
@@ -41,11 +41,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private ConcurrentDictionary<string, GroupedDotvvmProperty> generatedProperties = new();
 
         /// <summary> The capability which declared this property. When the property is declared by an capability, it can only be used by this capability. </summary>
-        public DotvvmCapabilityProperty? OwningCapability { get; internal set; }
+        public DotvvmCapabilityProperty? OwningCapability { get; }
+        IPropertyDescriptor? IControlAttributeDescriptor.OwningCapability => OwningCapability;
         /// <summary> The capabilities which use this property. </summary>
-        public ImmutableArray<DotvvmCapabilityProperty> UsedInCapabilities { get; internal set; } = ImmutableArray<DotvvmCapabilityProperty>.Empty;
+        public ImmutableArray<DotvvmCapabilityProperty> UsedInCapabilities { get; private set; } = ImmutableArray<DotvvmCapabilityProperty>.Empty;
+        IEnumerable<IPropertyDescriptor> IControlAttributeDescriptor.UsedInCapabilities => UsedInCapabilities;
 
-        internal DotvvmPropertyGroup(PrefixArray prefixes, Type valueType, Type declaringType, FieldInfo descriptorField, ICustomAttributeProvider attributeProvider, string name, object? defaultValue)
+        internal DotvvmPropertyGroup(PrefixArray prefixes, Type valueType, Type declaringType, FieldInfo? descriptorField, ICustomAttributeProvider attributeProvider, string name, object? defaultValue, DotvvmCapabilityProperty? owningCapability = null)
         {
             this.DescriptorField = descriptorField;
             this.DeclaringType = declaringType;
@@ -56,8 +58,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             (this.MarkupOptions, this.DataContextChangeAttributes, this.DataContextManipulationAttribute, this.ObsoleteAttribute) = InitFromAttributes(attributeProvider, name);
             if (MarkupOptions.AllowValueMerging)
             {
-                ValueMerger = (IAttributeValueMerger)Activator.CreateInstance(MarkupOptions.AttributeValueMerger);
+                ValueMerger = (IAttributeValueMerger?)Activator.CreateInstance(MarkupOptions.AttributeValueMerger);
             }
+            this.OwningCapability = owningCapability;
         }
 
         private static (MarkupOptionsAttribute, DataContextChangeAttribute[], DataContextStackManipulationAttribute?, ObsoleteAttribute?)
@@ -67,9 +70,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var dataContextChange = attributeProvider.GetCustomAttributes<DataContextChangeAttribute>(true);
             var dataContextManipulation = attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>(true);
             if (dataContextManipulation != null && dataContextChange.Any()) throw new ArgumentException(
-                $"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property group '{name}'.");
+                $"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} cannot be set both at property group '{name}'.");
             var obsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
             return (markupOptions, dataContextChange.ToArray(), dataContextManipulation, obsoleteAttribute);
+        }
+
+        internal void AddUsedInCapability(DotvvmCapabilityProperty? p)
+        {
+            if (p is object)
+                lock(this)
+                {
+                    if (!UsedInCapabilities.Contains(p))
+                        UsedInCapabilities = UsedInCapabilities.Add(p);
+                }
         }
 
         IPropertyDescriptor IPropertyGroupDescriptor.GetDotvvmProperty(string name) => GetDotvvmProperty(name);
@@ -109,12 +122,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return field;
         }
 
-        public static DotvvmPropertyGroup Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, ICustomAttributeProvider attributeProvider, object? defaultValue)
+        public static DotvvmPropertyGroup Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, ICustomAttributeProvider attributeProvider, object? defaultValue, DotvvmCapabilityProperty? declaringCapability = null)
         {
             return descriptorDictionary.GetOrAdd((declaringType, name), fullName => {
                 // the field is optional, here
                 var field = declaringType.GetField(name + "GroupDescriptor", BindingFlags.Public | BindingFlags.Static);
-                return new DotvvmPropertyGroup(prefixes, valueType, declaringType, field, attributeProvider, name, defaultValue);
+                return new DotvvmPropertyGroup(prefixes, valueType, declaringType, field, attributeProvider, name, defaultValue, declaringCapability);
             });
         }
 
@@ -124,14 +137,23 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 .Where(pg => pg.DeclaringType.Name == typeName);
         }
 
-        public static IPropertyDescriptor? ResolvePropertyGroup(string name, bool caseSensitive)
+        public static IEnumerable<DotvvmPropertyGroup> AllGroups => descriptorDictionary.Values;
+
+        public static DotvvmPropertyGroup? ResolvePropertyGroup(Type declaringType, string name)
+        {
+            return descriptorDictionary.TryGetValue((declaringType, name), out var group) ? group : null;
+        }
+
+        public static IPropertyDescriptor? ResolvePropertyGroup(string name, bool caseSensitive, MappingMode requiredMode = default)
         {
             var nameParts = name.Split('.');
             var groups = FindAttachedPropertyCandidates(nameParts[0])
                 .SelectMany(g => g.Prefixes.Select(p => new { Group = g, Prefix = p }));
 
             var group = groups
-                .FirstOrDefault(g => nameParts[1].StartsWith(g.Prefix, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(g =>
+                    nameParts[1].StartsWith(g.Prefix, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase) &&
+                    g.Group.MarkupOptions.MappingMode.HasFlag(requiredMode));
             if (group != null)
             {
                 var concreteName = nameParts[1].Substring(group.Prefix.Length);
@@ -141,16 +163,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return null;
         }
 
-        static void RunClassConstructor(Type type)
-        {
-            RuntimeHelpers.RunClassConstructor(type.TypeHandle);
-            if (type.BaseType != typeof(object))
-                RunClassConstructor(type.BaseType);
-        }
-
         public static IEnumerable<DotvvmPropertyGroup> GetPropertyGroups(Type controlType)
         {
-            RunClassConstructor(controlType);
+            DefaultControlResolver.InitType(controlType);
             foreach (var pg in descriptorDictionary.Values)
             {
                 if (pg.DeclaringType.IsAssignableFrom(controlType))
@@ -159,6 +174,22 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 }
             }
         }
+
+        public static void CheckAllPropertiesAreRegistered(Type controlType)
+        {
+            var properties =
+               (from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                where !descriptorDictionary.ContainsKey((p.DeclaringType!, p.Name))
+                where p.IsDefined(typeof(PropertyGroupAttribute))
+                select p).ToArray();
+
+            if (properties.Any())
+            {
+                var deprecationHelp = " DotVVM version <= 3.x did support this, but this feature was removed as it lead to many issues. Please register the property group using DotvvmPropertyGroup.Register and then use VirtualPropertyGroupDictionary<T> to access the values.";
+                throw new NotSupportedException($"Control '{controlType.Name}' has property groups that are not registered: {string.Join(", ", properties.Select(p => p.Name))}." + deprecationHelp);
+            }
+        }
+
 
         public struct PrefixArray
         {

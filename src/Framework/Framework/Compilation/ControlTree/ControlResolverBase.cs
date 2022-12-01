@@ -24,6 +24,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		private readonly ConcurrentDictionary<IControlType, IControlResolverMetadata> cachedMetadata = new();
 
 		private readonly Lazy<IControlResolverMetadata> htmlGenericControlMetadata;
+		private readonly Lazy<IControlResolverMetadata> jsComponentMetadata;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ControlResolverBase"/> class.
@@ -38,6 +39,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
 
 			htmlGenericControlMetadata = new(() => ResolveControl(new ResolvedTypeDescriptor(typeof(HtmlGenericControl))));
+			jsComponentMetadata = new(() => ResolveControl(new ResolvedTypeDescriptor(typeof(JsComponent))));
 		}
 
 		/// <summary>
@@ -56,8 +58,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			var searchKey = GetSearchKey(tagPrefix, tagName);
 			activationParameters = null;
 			var controlType = cachedTagMappings.GetOrAdd(searchKey, _ => FindControlType(tagPrefix, tagName));
-			if (controlType == null) return null;
-			return ResolveControl(controlType);
+			if (controlType is object) return ResolveControl(controlType);
+
+			if (tagPrefix == "js")
+			{
+				activationParameters = new object[] { tagName };
+				return jsComponentMetadata.Value;
+			}
+
+			return null;
 		}
 
 		private static string GetSearchKey(string tagPrefix, string tagName)
@@ -118,7 +127,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 				rule.Validate();
 				if (!string.IsNullOrEmpty(rule.TagName))
 				{
-					return FindMarkupControl(rule.Src.NotNull());
+					return FindMarkupControl(string.Intern(rule.Src.NotNull()));
 				}
 			}
 			// then code only control
@@ -126,7 +135,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			{
 				if (string.IsNullOrEmpty(rule.TagName))
 				{
-					var compiledControl = FindCompiledControl(tagName, rule.Namespace.NotNull(), rule.Assembly.NotNull());
+					var compiledControl = FindCompiledControl(rule.TagPrefix!, tagName, rule.Namespace.NotNull(), rule.Assembly.NotNull());
 					if (compiledControl != null)
 					{
 						return compiledControl;
@@ -139,21 +148,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the property in the control metadata.
         /// </summary>
-        public IPropertyDescriptor? FindProperty(IControlResolverMetadata controlMetadata, string name)
+        public IPropertyDescriptor? FindProperty(IControlResolverMetadata controlMetadata, string name, MappingMode requiredMode)
         {
             if (name.Contains("."))
             {
                 // try to find an attached property
-                return FindGlobalPropertyOrGroup(name);
+                return FindGlobalPropertyOrGroup(name, requiredMode);
             }
             else
             {
                 // find normal property
-                return FindControlPropertyOrGroup(controlMetadata, name);
+                return FindControlPropertyOrGroup(controlMetadata, name, requiredMode);
             }
         }
 
-        private IPropertyDescriptor? FindControlPropertyOrGroup(IControlResolverMetadata controlMetadata, string name)
+        private IPropertyDescriptor? FindControlPropertyOrGroup(IControlResolverMetadata controlMetadata, string name, MappingMode requiredMode)
         {
             // try to find the property in metadata
             if (controlMetadata.TryGetProperty(name, out var property))
@@ -164,7 +173,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
             // try property group
             foreach (var group in controlMetadata.PropertyGroups)
             {
-                if (name.StartsWith(group.Prefix, StringComparison.OrdinalIgnoreCase))
+                if (name.StartsWith(group.Prefix, StringComparison.OrdinalIgnoreCase) &&
+					group.PropertyGroup.MarkupOptions.MappingMode.HasFlag(requiredMode))
                 {
                     var concreteName = name.Substring(group.Prefix.Length);
                     return group.PropertyGroup.GetDotvvmProperty(concreteName);
@@ -178,12 +188,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the DotVVM property in the global property store.
         /// </summary>
-        protected abstract IPropertyDescriptor? FindGlobalPropertyOrGroup(string name);
+        protected abstract IPropertyDescriptor? FindGlobalPropertyOrGroup(string name, MappingMode requiredMode);
 
         /// <summary>
         /// Finds the compiled control.
         /// </summary>
-        protected abstract IControlType? FindCompiledControl(string tagName, string namespaceName, string assemblyName);
+        protected abstract IControlType? FindCompiledControl(string tagPrefix, string tagName, string namespaceName, string assemblyName);
 
 		/// <summary>
 		/// Finds the markup control.

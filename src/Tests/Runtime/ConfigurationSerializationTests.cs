@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -10,6 +11,8 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -23,19 +26,47 @@ namespace DotVVM.Framework.Tests.Runtime
             DotvvmTestHelper.EnsureCompiledAssemblyCache();
         }
 
-        void checkConfig(DotvvmConfiguration config, string checkName = null, string fileExtension = "json", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)
+        void checkConfig(DotvvmConfiguration config, bool includeProperties = false, string checkName = null, string fileExtension = "json", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)
         {
-            var serialized = DotVVM.Framework.Hosting.VisualStudioHelper.SerializeConfig(config);
+            var serialized = DotVVM.Framework.Hosting.VisualStudioHelper.SerializeConfig(config, includeProperties);
+            // Unify package versions
             serialized = Regex.Replace(serialized, "Version=[0-9.]+", "Version=***");
-            check.CheckString(serialized, checkName, fileExtension, memberName, sourceFilePath);
+            serialized = Regex.Replace(serialized, "\"dotvvmVersion\": \"[0-9]\\.[0-9]\\.[0-9]\\.[0-9]\"", "\"dotvvmVersion\": \"*.*.*.*\"");
+            // Unify all occurrences of mscorlib and system.private.corelib
+            serialized = serialized.Replace("mscorlib, Version=***, Culture=neutral, PublicKeyToken=b77a5c561934e089", "CoreLibrary");
+            serialized = serialized.Replace("System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e", "CoreLibrary");
+            serialized = serialized.Replace("mscorlib", "CoreLibrary");
+            serialized = serialized.Replace("System.Private.CoreLib", "CoreLibrary");
+            // Special case - unify IServiceProvider
+            serialized = serialized.Replace("System.IServiceProvider, CoreLibrary", "System.IServiceProvider, ComponentLibrary");
+            serialized = serialized.Replace("System.IServiceProvider, System.ComponentModel, Version=***, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.IServiceProvider, ComponentLibrary");
+
+            var jobject = JObject.Parse(serialized);
+            void removeTestStuff(JToken token)
+            {
+                if (token is object)
+                    foreach (var testControl in ((JObject)token).Properties().Where(p => p.Name.Contains(".Tests.")).ToArray())
+                        testControl.Remove();
+            }
+            removeTestStuff(jobject["properties"]);
+            removeTestStuff(jobject["propertyGroups"]);
+            removeTestStuff(jobject["capabilities"]);
+            removeTestStuff(jobject["controls"]);
+            jobject["assemblies"]?.Parent.Remove(); // there are user specific paths
+            check.CheckString(jobject.ToString(), checkName, fileExtension, memberName, sourceFilePath);
         }
 
         [TestMethod]
         public void SerializeDefaultConfig()
         {
-            var c = DotvvmConfiguration.CreateDefault();
+            var c = DotvvmConfiguration.CreateDefault(s => {
+                // explicitly register AutoUI, we want to check signatures of these controls too
+                DotVVM.AutoUI.AutoUIExtensions.AddAutoUI(new DotvvmServiceCollection(s));
+            });
+            // otherwise it behaves differently on .NET framework
+            c.ExperimentalFeatures.ExplicitAssemblyLoading.Enable();
             c.DefaultCulture = "en-US";
-            checkConfig(c);
+            checkConfig(c, includeProperties: true);
         }
 
         private static DotvvmConfiguration CreateTestConfiguration()

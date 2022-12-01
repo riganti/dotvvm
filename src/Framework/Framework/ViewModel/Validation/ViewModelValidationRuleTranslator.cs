@@ -21,7 +21,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
                 var displayAttribute = property.GetCustomAttribute<DisplayAttribute>();
                 if (displayAttribute != null)
-                    validationRule.PropertyNameResolver = () => displayAttribute.GetName();
+                    validationRule.PropertyNameResolver = () => displayAttribute.GetName()!;
 
                 switch (attribute)
                 {

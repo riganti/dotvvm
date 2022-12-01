@@ -1,0 +1,20 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- static value -->
+		<div class="class-a class-d"></div>
+		
+		<!-- value binding + resource binding -->
+		<div class="class-c class-d" data-bind="class: EnumForCssClasses()+&quot; class-d&quot;"></div>
+		
+		<!-- value binding + static -->
+		<div class="class-c class-d" data-bind="class: EnumForCssClasses()+&quot; class-d&quot;"></div>
+		
+		<!-- static + value binding -->
+		<div class="class-d class-c" data-bind="class: &quot;class-d &quot;+EnumForCssClasses()"></div>
+		
+		<!-- both value bindings -->
+		<div class="class-d class-c" data-bind="class: (TrueBool() ? &quot;class-d&quot; : &quot;class-a&quot;)+&quot; &quot;+EnumForCssClasses()"></div>
+	</body>
+</html>

@@ -8,6 +8,7 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Binding.Expressions;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -88,7 +89,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
             var result = sb.ToString();
             if (allIsDefault)
-                this.evaluatedDefault = result;
+                this.evaluatedDefault = result.DotvvmInternString();
             return result;
         }
 
@@ -150,7 +151,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     var isGlobalContext = a.IsGlobalContext && parameters![i].IsSafeMemberAccess;
 
                     if (isGlobalContext)
-                        builder.Add(stringParts[1 + i].Substring(1, stringParts[i].Length - 1)); // skip `.`
+                        builder.Add(stringParts[1 + i].AsSpan(1, stringParts[i].Length - 1).DotvvmInternString()); // skip `.`
                     else
                     {
                         builder.Add(a.Code, parameters![i].OperatorPrecedence);
@@ -246,7 +247,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             public void Add(CodeParameterInfo parameter)
             {
-                stringParts.Add(lastPart.ToString());
+                stringParts.Add(lastPart.ToString().DotvvmInternString());
                 lastPart.Clear();
                 parameters.Add(parameter);
             }
@@ -261,7 +262,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             public ParametrizedCode Build(OperatorPrecedence operatorPrecedence)
             {
-                stringParts.Add(lastPart.ToString());
+                stringParts.Add(lastPart.ToString().DotvvmInternString());
                 return new ParametrizedCode(stringParts.ToArray(), parameters.ToArray(), operatorPrecedence);
             }
 
@@ -311,7 +312,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static CodeParameterInfo FromExpression(JsSymbolicParameter expression)
         {
-            return new CodeParameterInfo(expression.Symbol, JsParensFixingVisitor.OperatorLevel(expression.Parent as JsExpression), expression.Parent is JsMemberAccessExpression, expression.DefaultAssignment);
+            return new CodeParameterInfo(expression.Symbol, JsParensFixingVisitor.GetParentLevel(expression), expression.Parent is JsMemberAccessExpression, expression.DefaultAssignment);
         }
     }
 

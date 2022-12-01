@@ -425,7 +425,7 @@ test";
             Assert.AreEqual("test ", ((DothtmlLiteralNode)nodes[0]).Value);
 
             Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
-            Assert.AreEqual(@"<![CDATA[<a href=""test1"">test2</a>]]>", ((DothtmlLiteralNode)nodes[1]).Value);
+            Assert.AreEqual(@"<a href=""test1"">test2</a>", ((DothtmlLiteralNode)nodes[1]).Value);
 
             Assert.IsInstanceOfType(nodes[2], typeof(DothtmlLiteralNode));
             Assert.AreEqual(" test3 ", ((DothtmlLiteralNode)nodes[2]).Value);
@@ -720,6 +720,15 @@ test";
             Assert.AreEqual("p", pNode.TagName, "Tree is different as expected, second tier should be p.");
             Assert.AreEqual(1, pNode.NodeWarnings.Count(), "There should have been a warning about implicitly closing p element.");
             Assert.AreEqual(true, pNode.NodeWarnings.Any(w=> w.Contains("implicitly closed")));
+        }
+
+        [TestMethod]
+        public void DothtmlParser_BindingInnerInterpolatedExpression_BindingCorrectlyClosed()
+        {
+            var markup = "{{value: $'Hello {$'Innner {'Another interpolation'}'}'}}";
+            var root = ParseMarkup(markup);
+
+            Assert.AreEqual(1, root.Content.Count);
         }
 
         [TestMethod]

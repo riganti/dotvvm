@@ -11,6 +11,9 @@ using DotVVM.Framework.Compilation.Binding;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Binding.HelperNamespace;
+using DotVVM.Framework.Testing;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -26,6 +29,10 @@ namespace DotVVM.Framework.Tests.Binding
             Create((TestViewModel t) => t.VmArray),
             Create((TestViewModel t) => t.VmArray[0]),
             Create((TestViewModel2[] t, int b) => t[b & 0]),
+            Create((TestViewModel2 t) => t.Struct),
+            Create((TestViewModel2 t) => t.ToString()),
+            Create((TestViewModel2 t) => t.MyProperty),
+            Create((TestStruct t) => t.Int),
             Create((long[] t) => t.Length),
             Create((long[] t) => t[0]),
             Create((TestViewModel2 t) => t.Enum),
@@ -55,20 +62,17 @@ namespace DotVVM.Framework.Tests.Binding
             Create((DateTime d) => d.ToString()),
             Create((double a) => TimeSpan.FromSeconds(a)),
             Create((TestViewModel vm) => (TimeSpan)vm.Time),
-            Create((TestViewModel vm, TimeSpan time, int integer, double number) => new TestViewModel{ EnumProperty = TestEnum.B, BoolMethodExecuted = vm.BoolMethodExecuted, StringProp = time + ": " + vm.StringProp, StringProp2 = integer + vm.StringProp2 + number, TestViewModel2 = vm.TestViewModel2}),
+            Create((TestViewModel vm, TimeSpan time, int integer, double number, DateTime d) => new TestViewModel{ EnumProperty = TestEnum.B, BoolMethodExecuted = vm.BoolMethodExecuted, StringProp = time + ": " + vm.StringProp, StringProp2 = integer + vm.StringProp2 + number, TestViewModel2 = vm.TestViewModel2, DateFrom = d}),
         };
 
         private static LambdaExpression Create<T1, T2>(Expression<Func<T1, T2>> e) => e;
         private static LambdaExpression Create<T1, T2, T3>(Expression<Func<T1, T2, T3>> e) => e;
         private static LambdaExpression Create<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4>> e) => e;
         private static LambdaExpression Create<T1, T2, T3, T4, T5>(Expression<Func<T1, T2, T3, T4, T5>> e) => e;
+        private static LambdaExpression Create<T1, T2, T3, T4, T5, T6>(Expression<Func<T1, T2, T3, T4, T5, T6>> e) => e;
 
-        IEnumerable<Expression> FuzzExpressions(params ParameterExpression[] sources)
+        IEnumerable<Expression> FuzzExpressions(Random random, params ParameterExpression[] sources)
         {
-            var seed = (int)DateTime.Now.Ticks;
-            var random = new Random(seed);
-            Debug.WriteLine("FuzzExpressions seed = " + seed);
-
             var unusedFragments = new HashSet<LambdaExpression>(ExpressionFragments);
             var typeSources = sources.ToDictionary(s => s.Type, s => new List<Expression> { s });
 
@@ -117,7 +121,7 @@ namespace DotVVM.Framework.Tests.Binding
             while (unusedFragments.Any())
             {
                 var possibleOnes = unusedFragments.Where(f => f.Parameters.All(p => typeSources.ContainsKey(p.Type))).ToArray();
-                Assert.IsFalse(possibleOnes.Length == 0, $"Can not continue from {string.Join(", ", typeSources.Select(t => t.Key.Name))} to {string.Join(", ", unusedFragments.AsEnumerable())}");
+                Assert.IsFalse(possibleOnes.Length == 0, $"Cannot continue from {string.Join(", ", typeSources.Select(t => t.Key.Name))} to {string.Join(", ", unusedFragments.AsEnumerable())}");
                 foreach (var fragment in possibleOnes)
                 {
                     AddFragment(fragment, 4);
@@ -139,15 +143,47 @@ namespace DotVVM.Framework.Tests.Binding
             var parameter = Expression.Parameter(typeof(TestViewModel[]), "par");
             var count = 0;
             var expr = new ReplacerVisitor(originalParameter, () => Expression.ArrayIndex(parameter, Expression.Constant(count++))).Visit(expression);
+            var exprWithChecks = ExpressionNullPropagationVisitor.PropagateNulls(expr, _ => true);
 
             Func<TestViewModel[], object> compile(Expression e) =>
-                Expression.Lambda<Func<TestViewModel[], object>>(Expression.Convert(e, typeof(object)), parameter).Compile(preferInterpretation: true);
+                Expression.Lambda<Func<TestViewModel[], object>>(Expression.Convert(e, typeof(object)), parameter)
+                    // .CompileFast();
+                    .Compile(preferInterpretation: true);
 
-            var withNullChecks = compile(ExpressionNullPropagationVisitor.PropagateNulls(expr, _ => true));
+            var withNullChecks = compile(exprWithChecks);
             var withoutNullChecks = compile(expr);
 
             var args = Enumerable.Repeat(new TestViewModel { StringProp = "ll", StringProp2 = "pp", TestViewModel2 = new TestViewModel2(), DateFrom = DateTime.Parse("2020-03-29") }, count).ToArray();
             var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+            object resultWithoutChecks;
+            object resultWithChecks;
+            try
+            {
+                resultWithoutChecks = withoutNullChecks(args);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Original expression: {expr.ToCSharpString()}");
+                Console.WriteLine();
+                Console.WriteLine(expr.ToExpressionString());
+                Console.WriteLine(e.ToString());
+                Assert.Fail($"Exception {e.Message} while executing (without null-checks) {expr.ToCSharpString()}");
+                return;
+            }
+            try
+            {
+                resultWithChecks = withNullChecks(args);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Original expression: {expr.ToCSharpString()}");
+                Console.WriteLine($"Null-checked expression {expr.ToCSharpString()}");
+                Console.WriteLine();
+                Console.WriteLine(expr.ToExpressionString());
+                Console.WriteLine(e.ToString());
+                Assert.Fail($"Exception {e.Message} while executing null-checked {expr.ToCSharpString()}");
+                return;
+            }
             Assert.AreEqual(JsonConvert.SerializeObject(withNullChecks(args), settings), JsonConvert.SerializeObject(withoutNullChecks(args), settings));
 
             foreach (var i in Enumerable.Range(0, args.Length).Shuffle(rnd))
@@ -171,7 +207,7 @@ namespace DotVVM.Framework.Tests.Binding
         private object EvalExpression<T>(Expression<Func<T, object>> a, T val)
         {
             var nullChecked = ExpressionNullPropagationVisitor.PropagateNulls(a.Body, _ => true);
-            var d = a.Update(body: nullChecked, a.Parameters).Compile();
+            var d = a.Update(body: nullChecked, a.Parameters).Compile(preferInterpretation: true);
             return d(val);
         }
 
@@ -223,11 +259,13 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingNullPropagation_1()
         {
             var viewModel = Expression.Parameter(typeof(TestViewModel), "viewModel");
-            var expressions = FuzzExpressions(viewModel);
-
             var seed = (int)DateTime.Now.Ticks;
             var random = new Random(seed);
             Debug.WriteLine("FuzzExpressions seed = " + seed);
+
+            var expressions = FuzzExpressions(random, viewModel)
+                .OrderBy(e => e.ToCSharpString().Length) // shorter first - we are generating expressions by combining them, so we will fail at the first combination of some parts that fails
+                .ToArray();
 
             foreach (var expr in expressions)
             {
@@ -286,6 +324,18 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void ExtensionMethod()
+        {
+            Assert.IsNull(EvalExpression<int[]>(v => v.Where(v => v % 2 == 0).ToArray(), null));
+            Assert.IsNull(EvalExpression<int[]>(v => v.Where(v => v % 2 == 0), null));
+            Assert.IsNull(EvalExpression<int[]>(v => v.Where(v => v % 2 == 0).Count(), null));
+            Assert.AreEqual(1, EvalExpression<int[]>(v => v.Where(v => v % 2 == 0).Count(), new [] { 1, 2 }));
+            Assert.IsNull(EvalExpression<Tuple<DateTime>>(v => v.Item1.ToBrowserLocalTime(), null));
+            Assert.IsNull(EvalExpression<Tuple<DateTime?>>(v => v.Item1.ToBrowserLocalTime(), null));
+            Assert.IsNull(EvalExpression<DateTime?>(v => v.ToBrowserLocalTime(), null));
+        }
+
+        [TestMethod]
         public void IndexerArgument()
         {
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.IntArray[v.NullableIntProp.Value], new TestViewModel()));
@@ -308,7 +358,9 @@ namespace DotVVM.Framework.Tests.Binding
             var ex = Assert.ThrowsException<NullReferenceException>(() =>
                 EvalExpression<TestViewModel>(v => TimeSpan.FromSeconds(v.IntProp).TotalMilliseconds, null)
             );
-            Assert.AreEqual("Binding expression 'Convert(v.IntProp, Double)' of type 'System.Double' has evaluated to null.", ex.Message);
+            var convertExpression = (TestEnvironmentHelper.GetFrameworkType() == TestEnvironmentHelper.FrameworkType.Net)
+                ? "Convert(v.IntProp, Double)" : "Convert(v.IntProp)";
+            Assert.AreEqual($"Binding expression '{convertExpression}' of type 'System.Double' has evaluated to null.", ex.Message);
 
             Assert.AreEqual(1000d, EvalExpression<TestViewModel>(v => TimeSpan.FromSeconds(v.IntProp).TotalMilliseconds, new TestViewModel { IntProp = 1 }));
         }

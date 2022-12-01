@@ -4,11 +4,12 @@
     "noEmitOnError": true,
     "removeComments": false,
     "sourceMap": true,
-    "target": "es5",
+    "jsx": "react",
+    "target": "es6",
     "lib": [
       "dom",
       "es2015"
-    ] 
+    ]
   },
   "exclude": [
     "node_modules",

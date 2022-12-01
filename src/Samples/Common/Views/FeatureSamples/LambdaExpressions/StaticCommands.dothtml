@@ -38,16 +38,16 @@
         <dot:Button Text="OrderByDescending IsActive" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderByDescending((CustomerData c) => c.IsActive).ToList()}" />
         <dot:Button Text="OrderByDescending Transactions" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderByDescending((CustomerData c) => c.FinishedTransactions).ToList()}" />
         <dot:Button Text="OrderByDescending RegisteredAt" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderByDescending((CustomerData c) => c.RegisteredAt).ToList()}" />
-        </br>
+        <br>
         <dot:Button Text="Get all red customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Where((CustomerData c) => c.Category == Category.Red).ToList()}" />
         <dot:Button Text="Get all green customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Where((CustomerData c) => c.Category == Category.Green).ToList()}" />
         <dot:Button Text="Get all blue customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Where((CustomerData c) => c.Category == Category.Blue).ToList()}" />
         <dot:Button Text="Get all active customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Where((CustomerData c) => c.IsActive).ToList()}" />
-        </br>
+        <br>
         <dot:Button Text="Take 5 customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Take(5).ToList()}" />
         <dot:Button Text="Skip 5 customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Skip(5).ToList()}" />
         <dot:Button Text="Concat with itself" Click="{staticCommand: FilteredCustomers = SourceCustomers.Concat(SourceCustomers).ToList()}" />
-        </br>
+        <br>
         <dot:Button Text="First customer" Click="{staticCommand: (
                     SingleCustomer = SourceCustomers.FirstOrDefault();
                     FilteredCustomers = SourceCustomers.Where((CustomerData c) => c.Id == SingleCustomer.Id).ToList()
@@ -64,13 +64,14 @@
                     SingleCustomer = SourceCustomers.LastOrDefault((CustomerData c) => c.Category == Category.Red);
                     FilteredCustomers = SourceCustomers.Where((CustomerData c) => c.Id == SingleCustomer.Id).ToList()
                     )}" />
-        </br>
+        <br>
         <dot:Button Text="Are all customers active?" Click="{staticCommand: OperationResult = SourceCustomers.All((CustomerData c) => c.IsActive)}" />
         <dot:Button Text="Are all customer Ids smaller than 20?" Click="{staticCommand: OperationResult = SourceCustomers.All((CustomerData c) => c.Id < 20)}" />
         <dot:Button Text="Is there a customer named Greg?" Click="{staticCommand: OperationResult = SourceCustomers.Any((CustomerData c) => c.Name == "Greg")}" />
         <dot:Button Text="Is there a customer named Carl?" Click="{staticCommand: OperationResult = SourceCustomers.Any((CustomerData c) => c.Name == "Carl")}" />
         <dot:Button Text="Get maximum number of finished transactions" Click="{staticCommand: OperationResult = SourceCustomers.Max((CustomerData c) => c.FinishedTransactions)}" />
         <dot:Button Text="Get minimum number of finished transactions" Click="{staticCommand: OperationResult = SourceCustomers.Min((CustomerData c) => c.FinishedTransactions)}" />
+        <dot:Button Text="Is there green in the list" Click="{staticCommand: OperationResult = SelectedCategories.Contains(StaticCommandsViewModel.Category.Green)}" />
     </div>
 
     <div>

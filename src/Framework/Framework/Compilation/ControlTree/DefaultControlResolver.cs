@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Configuration;
@@ -23,7 +25,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         private static object locker = new object();
         private static bool isInitialized = false;
+        private static object dotvvmLocker = new object();
+        private static bool isDotvvmInitialized = false;
 
+        private static Dictionary<string, Type>? controlNameMappings;
 
         public DefaultControlResolver(DotvvmConfiguration configuration, IControlBuilderFactory controlBuilderFactory, CompiledAssemblyCache compiledAssemblyCache) : base(configuration.Markup)
         {
@@ -48,6 +53,20 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     }
                 }
             }
+
+            controlNameMappings = BuildControlAliasesMap();
+        }
+
+        internal static Task InvokeStaticConstructorsOnDotvvmControls()
+        {
+            if (isDotvvmInitialized) return Task.CompletedTask;
+            return Task.Run(() => {
+                if (isDotvvmInitialized) return;
+                lock(dotvvmLocker) {
+                    if (isDotvvmInitialized) return;
+                    InvokeStaticConstructorsOnAllControls(typeof(DotvvmControl).Assembly);
+                }
+            });
         }
 
         /// <summary>
@@ -55,37 +74,55 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private void InvokeStaticConstructorsOnAllControls()
         {
-            var dotvvmAssembly = typeof(DotvvmControl).Assembly.GetName().Name;
+            var dotvvmAssembly = typeof(DotvvmControl).Assembly.GetName().Name!;
+            var dotvvmInitTask = InvokeStaticConstructorsOnDotvvmControls();
 
             if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
             {
                 // use only explicitly specified assemblies from configuration
                 // and do not call GetTypeInfo to prevent unnecessary dependent assemblies from loading
-                var allTypes = compiledAssemblyCache.GetAllAssemblies()
+                var assemblies = compiledAssemblyCache.GetAllAssemblies()
                     .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
-                    .Concat(new[] { typeof(DotvvmControl).Assembly })
-                    .Distinct()
-                    .SelectMany(a => a.GetLoadableTypes()).Where(t => t.IsClass);
+                    .Distinct();
 
-                foreach (var type in allTypes)
-                {
-                    if (type.IsDefined(typeof(ContainsDotvvmPropertiesAttribute), true))
-                        InitType(type);
-                }
+                Parallel.ForEach(assemblies, a => {
+                    InvokeStaticConstructorsOnAllControls(a);
+                });
             }
             else
             {
-                var allTypes = GetAllLoadableTypes(dotvvmAssembly);
-                foreach (var type in allTypes)
-                {
-                    if (type.IsDefined(typeof(ContainsDotvvmPropertiesAttribute), true))
-                        InitType(type);
-                }
+                var assemblies = GetAllRelevantAssemblies(dotvvmAssembly);
+                Parallel.ForEach(assemblies, a => {
+                    InvokeStaticConstructorsOnAllControls(a);
+                });
+            }
+            dotvvmInitTask.Wait();
+        }
+
+        private static void InvokeStaticConstructorsOnAllControls(Assembly assembly)
+        {
+            foreach (var c in assembly.GetLoadableTypes())
+            {
+                if (!c.IsClass || c.ContainsGenericParameters)
+                    continue;
+
+                
+                InitType(c);
             }
         }
 
-        private static void InitType(Type type)
+        private static ConcurrentDictionary<Type, bool> typeInitSet = new();
+        /// <summary> Ensures that the type is initialized - run .cctor and registers all properties/capabilities. </summary>
+        internal static void InitType(Type type)
         {
+            if (!type.IsDefined(typeof(ContainsDotvvmPropertiesAttribute), true))
+                return;
+
+            // just avoid mapping the type twice.
+            // All actions following are idempotent, so it does not matter if we accidentally do it twice, but it's unnecessary waste of resources.
+            if (typeInitSet.ContainsKey(type))
+                return;
+
             if (type.BaseType != null)
                 InitType(type.BaseType);
 
@@ -93,6 +130,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             RegisterCompositeControlProperties(type);
             RegisterCapabilitiesFromInterfaces(type);
+
+            typeInitSet.TryAdd(type, true);
         }
 
         private static void RegisterCompositeControlProperties(Type type)
@@ -123,14 +162,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
-        private IEnumerable<Type> GetAllLoadableTypes(string dotvvmAssembly)
+        private IEnumerable<Assembly> GetAllRelevantAssemblies(string dotvvmAssembly)
         {
 
 #if DotNetCore
-            var allTypes = compiledAssemblyCache.GetAllAssemblies()
-                   .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
-                   .Concat(new[] { typeof(DotvvmControl).Assembly })
-                   .SelectMany(a => a.GetLoadableTypes()).Where(t => t.IsClass).ToList();
+            var assemblies = compiledAssemblyCache.GetAllAssemblies()
+                   .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly));
 #else
 
             var loadedAssemblies = compiledAssemblyCache.GetAllAssemblies()
@@ -140,14 +177,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             // ReflectionUtils.GetAllAssemblies() in netframework returns only assemblies which have already been loaded into
             // the current AppDomain, to return all assemblies we traverse recursively all referenced Assemblies
-            var allTypes = loadedAssemblies
+            var assemblies = loadedAssemblies
                 .SelectRecursively(a => a.GetReferencedAssemblies().Where(an => visitedAssemblies.Add(an.FullName)).Select(an => Assembly.Load(an)))
                 .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
-                .Distinct()
-                .Concat(new[] { typeof(DotvvmControl).Assembly })
-                .SelectMany(a => a.GetLoadableTypes()).Where(t => t.IsClass);
+                .Distinct();
 #endif
-            return allTypes;
+            return assemblies;
         }
 
         /// <summary>
@@ -155,9 +190,62 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private void ResolveAllPropertyAliases()
         {
-            foreach (var alias in DotvvmProperty.GetRegisteredAliases()) {
+            foreach (var alias in DotvvmProperty.AllAliases)
                 DotvvmPropertyAlias.Resolve(alias);
+        }
+
+        /// <summary>
+        /// After all DotvvmControls have been discovered, build a map of alternative names.
+        /// </summary>
+        private Dictionary<string, Type> BuildControlAliasesMap()
+        {
+            var mappings = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var rule in configuration.Markup.Controls)
+            {
+                if (!string.IsNullOrEmpty(rule.TagName))
+                {
+                    // markup controls are not supported
+                    continue;
+                }
+
+                // only for code-only controls
+                var assembly = compiledAssemblyCache.GetAssembly(rule.Assembly!);
+                if (assembly == null)
+                {
+                    throw new DotvvmConfigurationException($"The assembly {rule.Assembly} was not found!");
+                }
+
+                // find all control types
+                var controlTypes = assembly.GetLoadableTypes()
+                    .Where(t => t.IsClass && t.IsPublic && !t.IsAbstract)
+                    .Where(t => typeof(DotvvmBindableObject).IsAssignableFrom(t));
+
+                // add mappings for primary names and aliases
+                foreach (var controlType in controlTypes)
+                {
+                    if (controlType.GetCustomAttribute<ControlMarkupOptionsAttribute>() is { } markupOptions)
+                    {
+                        if (markupOptions.PrimaryName is {} primaryName)
+                        {
+                            mappings[$"{rule.TagPrefix}:{primaryName}"] = controlType;
+                        }
+                        if (markupOptions.AlternativeNames?.Any() == true)
+                        {
+                            foreach (var alternativeName in markupOptions.AlternativeNames)
+                            {
+                                var name = $"{rule.TagPrefix}:{alternativeName}";
+                                if (mappings.TryGetValue(name, out _))
+                                {
+                                    throw new DotvvmCompilationException($"A conflicting primary name or alternative name {alternativeName} found at control {controlType.FullName}.");
+                                }
+                                mappings[name] = controlType;
+                            }
+                        }
+                    }
+                }
             }
+            return mappings;
         }
 
         /// <summary>
@@ -173,9 +261,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the compiled control.
         /// </summary>
-        protected override IControlType? FindCompiledControl(string tagName, string namespaceName, string assemblyName)
+        protected override IControlType? FindCompiledControl(string tagPrefix, string tagName, string namespaceName, string assemblyName)
         {
-            var type = compiledAssemblyCache.FindType(namespaceName + "." + tagName + ", " + assemblyName, ignoreCase: true);
+            var type = controlNameMappings!.TryGetValue($"{tagPrefix}:{tagName}", out var mappedType)
+                ? mappedType
+                : compiledAssemblyCache.FindType($"{namespaceName}.{tagName}, {assemblyName}", ignoreCase: true);
             if (type == null)
             {
                 // the control was not found
@@ -203,7 +293,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new ControlResolverMetadata((ControlType)type);
         }
 
-        protected override IPropertyDescriptor? FindGlobalPropertyOrGroup(string name)
+        protected override IPropertyDescriptor? FindGlobalPropertyOrGroup(string name, MappingMode requiredMode)
         {
             // try to find property
             var property = DotvvmProperty.ResolveProperty(name, caseSensitive: false);
@@ -213,7 +303,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
 
             // try to find property group
-            return DotvvmPropertyGroup.ResolvePropertyGroup(name, caseSensitive: false);
+            return DotvvmPropertyGroup.ResolvePropertyGroup(name, caseSensitive: false, requiredMode);
         }
     }
 }

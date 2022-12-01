@@ -4,6 +4,9 @@ using System.Net.NetworkInformation;
 using System.Text;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using Newtonsoft.Json.Linq;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Abstractions.Attributes;
@@ -120,6 +123,8 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPageMasterPage);
 
+                Assert.Equal("Test title", browser.GetTitle());
+
                 var log = browser.Single("#log");
                 AssertLogEntry(log, "testViewModule: init");
                 AssertLogEntry(log, "testViewModule2: init");
@@ -170,6 +175,47 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_ViewModules_ModuleInMarkupControl_ValueBinding()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInMarkupControl);
+
+                var inputTextBox = browser.Single("input[data-ui=serialized-input]");
+                var resultTextBox = browser.Single("input[data-ui=serialized-result]");
+
+                AssertUI.TextEquals(inputTextBox, "Hello");
+                AssertUI.TextEquals(resultTextBox, "10, \"Hello\"");
+
+                inputTextBox.Clear();
+                inputTextBox.SendKeys("Test");
+                new Actions(browser.Driver).SendKeys(Keys.Tab).Perform();
+
+                AssertUI.TextEquals(resultTextBox, "10, \"Test\"");
+            });
+        }
+
+        [Fact]
+        public void Feature_ViewModules_ModuleInMarkupControl_Link()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInMarkupControl);
+
+                var inputTextBox = browser.Single("input[data-ui=serialized-input]");
+
+                AssertUI.TextEquals(inputTextBox, "Hello");
+
+                inputTextBox.Clear();
+                inputTextBox.SendKeys("Test1");
+                new Actions(browser.Driver).SendKeys(Keys.Tab).Perform();
+
+                var link = browser.Single("a[data-ui=test-link]");
+                var href= link.GetAttribute("href");
+
+                AssertUI.Attribute(link, "href", value => value.EndsWith("test.page?action=new&id=Test1"));
+            });
+        }
+
         private void TestModule(IBrowserWrapper browser, IElementWrapper log, IElementWrapperCollection<IElementWrapper, IBrowserWrapper> moduleButtons, IElementWrapper incrementValue, IElementWrapper result, string prefix)
         {
             moduleButtons[0].Click();
@@ -177,7 +223,7 @@ namespace DotVVM.Samples.Tests.Feature
             moduleButtons[1].Click();
             AssertLastLogEntry(log, prefix + ": commands.oneArg(10)");
             moduleButtons[2].Click();
-            AssertLastLogEntry(log, prefix + @": commands.twoArgs(10, {""Test"":""Hello"",""$type"":""4wHojaMvtyXNR6aMRsZ4cWanOvA=""})");
+            AssertLastLogEntry(log, prefix + @": commands.twoArgs(10, {""Test"":""Hello"",""$type"":""PRTO2olUzUGguKpY""})");
 
             AssertUI.InnerTextEquals(incrementValue, "0");
             moduleButtons[3].Click();
@@ -252,19 +298,19 @@ namespace DotVVM.Samples.Tests.Feature
                 // state must be persisted, ids have changed
                 incrementers = browser.FindElements(".incrementer").ThrowIfDifferentCountThan(3);
                 EnsureId(incrementers[0], "c23_0_incrementer");
-                EnsureValue(incrementers[0], "0");
+                EnsureValue(incrementers[0], "1");
                 EnsureId(incrementers[1], "c23_1_incrementer");
-                EnsureValue(incrementers[1], "1");
+                EnsureValue(incrementers[1], "2");
                 EnsureId(incrementers[2], "c23_2_incrementer");
-                EnsureValue(incrementers[2], "2");
+                EnsureValue(incrementers[2], "0");
 
                 // report state
                 incrementers[0].ElementAt("a", 1).Click();
-                AssertUI.TextEquals(browser.Single(".reportedState"), "0");
-                incrementers[1].ElementAt("a", 1).Click();
                 AssertUI.TextEquals(browser.Single(".reportedState"), "1");
-                incrementers[2].ElementAt("a", 1).Click();
+                incrementers[1].ElementAt("a", 1).Click();
                 AssertUI.TextEquals(browser.Single(".reportedState"), "2");
+                incrementers[2].ElementAt("a", 1).Click();
+                AssertUI.TextEquals(browser.Single(".reportedState"), "0");
 
                 // remove incrementer
                 buttons[1].Click();

@@ -1,0 +1,34 @@
+name: test-report
+description: |
+  Writes a short test report to GitHub Actions.
+  Heavily inspired by https://github.com/zyborg/dotnet-tests-report
+  and https://github.com/NasAmin/trx-parser.
+
+inputs:
+  trx-path:
+    required: true
+    description: Path to the TRX file.
+  report-name:
+    required: true
+    description: A filename for the report.
+  report-title:
+    required: true
+    description: Human-friendly title of the report.
+  github-token:
+    required: true
+    description: A GitHub token.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ inputs.report-name }}
+        path: ${{ inputs.trx-path }}
+    - run: Write-Host "::add-mask::${{ inputs.github-token }}" ;
+        ./.github/test-report/test-report.ps1
+          -TrxPath "${{ inputs.trx-path }}"
+          -ReportName "${{ inputs.report-name }}"
+          -ReportTitle "${{ inputs.report-title }}"
+          -GithubToken "${{ inputs.github-token }}"
+      shell: pwsh

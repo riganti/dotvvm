@@ -7,13 +7,18 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 {
     public class BindingTokenizer : TokenizerBase<BindingToken, BindingTokenType>
     {
-        private readonly ISet<char> operatorCharacters = new HashSet<char> { '+', '-', '*', '/', '^', '\\', '%', '<', '>', '=', '&', '|', '~', '!', ';' };
+        private static readonly HashSet<char> operatorCharacters = new HashSet<char> { '+', '-', '*', '/', '^', '\\', '%', '<', '>', '=', '&', '|', '~', '!', ';' };
+        private static readonly HashSet<char> unaryOperatorCharacters = new HashSet<char> { '+', '-', '~', '!' };
+        internal readonly int bindingPositionOffset;
 
-        protected override BindingTokenType TextTokenType => BindingTokenType.Identifier;
-
-        protected override BindingTokenType WhiteSpaceTokenType => BindingTokenType.WhiteSpace;
+        public BindingTokenizer(int bindingPositionOffset = 0) : base(BindingTokenType.Identifier, BindingTokenType.WhiteSpace)
+        {
+            this.bindingPositionOffset = bindingPositionOffset;
+        }
 
         public bool IsOperator(char c) => operatorCharacters.Contains(c);
+
+        public bool IsUnaryOperator(char c) => unaryOperatorCharacters.Contains(c);
 
         public override void Tokenize(string sourceText)
         {
@@ -30,52 +35,52 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                 switch (ch)
                 {
                     case '.':
-                        if (CurrentTokenChars.Length > 0 && Enumerable.Range(0, CurrentTokenChars.Length).All(i => Char.IsDigit(CurrentTokenChars[i])))
+                        if (DistanceSinceLastToken > 0 && GetCurrentTokenText().All(c => Char.IsDigit(c)))
                         {
                             // treat dot in a number as part of the number
                             Read();
                             if (!char.IsDigit(Peek()))
                             {
                                 CreateToken(BindingTokenType.Identifier, 1);
-                                CreateToken(BindingTokenType.Dot);
+                                CreateToken(BindingTokenType.Dot, ".");
                             }
                         }
                         else
                         {
                             FinishIncompleteIdentifier();
                             Read();
-                            CreateToken(BindingTokenType.Dot);
+                            CreateToken(BindingTokenType.Dot, ".");
                         }
                         break;
 
                     case ',':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.Comma);
+                        CreateToken(BindingTokenType.Comma, ",");
                         break;
 
                     case '(':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.OpenParenthesis);
+                        CreateToken(BindingTokenType.OpenParenthesis, "(");
                         break;
 
                     case ')':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.CloseParenthesis);
+                        CreateToken(BindingTokenType.CloseParenthesis, ")");
                         break;
 
                     case '[':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.OpenArrayBrace);
+                        CreateToken(BindingTokenType.OpenArrayBrace, "[");
                         break;
 
                     case ']':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.CloseArrayBrace);
+                        CreateToken(BindingTokenType.CloseArrayBrace, "]");
                         break;
 
                     case '+':
@@ -110,13 +115,13 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                     case '^':
                         FinishIncompleteIdentifier();
                         Read();
-                        EnsureUnsupportedOperator(BindingTokenType.UnsupportedOperator);
+                        EnsureUnsupportedOperator(BindingTokenType.ExclusiveOrOperator);
                         break;
 
                     case ':':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.ColonOperator);
+                        CreateToken(BindingTokenType.ColonOperator, ":");
                         break;
 
                     case '=':
@@ -210,6 +215,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         }
                         break;
 
+                    case '~':
+                        FinishIncompleteIdentifier();
+                        Read();
+                        CreateToken(BindingTokenType.OnesComplementOperator);
+                        break;
+
                     case '$':
                     case '\'':
                     case '"':
@@ -247,7 +258,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                     case ';':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.Semicolon);
+                        CreateToken(BindingTokenType.Semicolon, ";");
                         break;
 
                     default:
@@ -272,7 +283,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 
         protected override BindingToken NewToken(string text, BindingTokenType type, int lineNumber, int columnNumber, int length, int startPosition)
         {
-            return new BindingToken(text, type, lineNumber, columnNumber, length, startPosition);
+            return new BindingToken(text, type, lineNumber, columnNumber, length, startPosition + bindingPositionOffset);
         }
 
         private void FinishIncompleteIdentifier()
@@ -285,17 +296,17 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 
         internal void EnsureUnsupportedOperator(BindingTokenType preferredOperatorToken)
         {
-            if (IsOperator(Peek()))
+            if (IsUnaryOperator(Peek()) || !IsOperator(Peek()))
+            {
+                CreateToken(preferredOperatorToken);
+            }
+            else
             {
                 while (IsOperator(Peek()))
                 {
                     Read();
                 }
                 CreateToken(BindingTokenType.UnsupportedOperator);
-            }
-            else
-            {
-                CreateToken(preferredOperatorToken);
             }
         }
 

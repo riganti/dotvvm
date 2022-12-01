@@ -11,6 +11,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text;
 using DotVVM.Framework.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -19,23 +22,29 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         private readonly StringBuilder builder = new StringBuilder();
 
         public const string InternalCssResourceName = "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css";
+        public const string ErrorPageJsResourceName = "DotVVM.Framework.Resources.Scripts.DotVVM.ErrorPage.js";
 
-        public ErrorPageTemplate(
-            int errorCode,
+        public ErrorPageTemplate(int errorCode,
             string errorDescription,
             string summary,
-            IErrorSectionFormatter[] formatters)
+            IErrorSectionFormatter[] formatters,
+            Exception exception,
+            IDotvvmRequestContext? context)
         {
             ErrorCode = errorCode;
             ErrorDescription = errorDescription;
             Summary = summary;
             Formatters = formatters;
+            Exception = exception;
+            Context = context;
         }
 
         public int ErrorCode { get; }
         public string ErrorDescription { get; }
         public string Summary { get; }
         public IErrorSectionFormatter[] Formatters { get; }
+        public IDotvvmRequestContext? Context { get; }
+        public Exception Exception { get; }
 
         public void WriteText(string? str)
         {
@@ -62,7 +71,7 @@ $@"<!DOCTYPE html>
         <meta charset=UTF-8 />
         <style type=text/css>
 ");
-            using (var cssStream = typeof(DotvvmConfiguration).Assembly.GetManifestResourceStream(InternalCssResourceName))
+            using (var cssStream = typeof(DotvvmConfiguration).Assembly.GetManifestResourceStream(InternalCssResourceName)!)
             using (var cssReader = new StreamReader(cssStream))
             {
                 WriteLine(cssReader.ReadToEnd());
@@ -72,11 +81,22 @@ $@"<!DOCTYPE html>
             {
                 WriteLine($"#menu_radio_{f.Id}:checked ~ #container_{f.Id} {{ display: block; }}");
                 WriteLine($"#menu_radio_{f.Id}:checked ~ label[for='menu_radio_{f.Id}'] {{ background-color: #2980b9; }}");
-                f.WriteHead(this);
+                f.WriteStyle(this);
             }
-            Write(
-@"
+
+            Write(@"
         </style>
+");
+            
+            if (Context != null)
+            {
+                foreach (var extension in Context.Services.GetServices<IErrorPageExtension>())
+                {
+                    WriteLine(extension.GetHeadContents(Context, Exception));
+                }
+            }
+
+            Write(@"
     </head>
 ");
 
@@ -84,6 +104,9 @@ $@"<!DOCTYPE html>
             WriteUnencoded(
 $@"
     <body>
+        <div class=header-toolbox>
+            <button type=button id=save-and-share-button class=execute title='Saves the error as HTML so you can share it with your coworkers'>Save and Share</button>
+        </div>
         <h1>Server Error, HTTP {ErrorCode}: {WebUtility.HtmlEncode(ErrorDescription)}</h1>
         <p class=summary>{WebUtility.HtmlEncode(Summary)}</p>
         <hr />
@@ -113,7 +136,16 @@ $@"
         </div>
 
         <p>&nbsp;</p>
+        <script>
+");
+        using (var jsStream = typeof(DotvvmConfiguration).Assembly.GetManifestResourceStream(ErrorPageJsResourceName)!)
+        using (var jsReader = new StreamReader(jsStream))
+        {
+            WriteLine(jsReader.ReadToEnd());
+        }
 
+        Write(@"
+        </script>
     </body>
 </html>
 ");
@@ -124,8 +156,14 @@ $@"
         {
             var settings = new JsonSerializerSettings() {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
                 Converters = {
-                new ReflectionAssemblyJsonConverter()
+                new ReflectionTypeJsonConverter(),
+                new ReflectionAssemblyJsonConverter(),
+                new DotvvmTypeDescriptorJsonConverter(),
+                new Controls.DotvvmControlDebugJsonConverter(),
+                new IgnoreStuffJsonConverter(),
+                new BindingDebugJsonConverter()
             },
                 // suppress any errors that occur during serialization (getters may throw exception, ...)
                 Error = (sender, args) => {
@@ -225,7 +263,7 @@ $@"
             {
                 Write("<p class='source file'>Source File: <strong>");
                 WriteText(source.SystemFileName);
-                Write($"</strong> +{source.LineNumber}</p>");
+                Write($"</strong>:{source.LineNumber}</p>");
             }
         }
 
@@ -273,28 +311,29 @@ $@"
             Write("</pre>");
         }
 
-        public void WriteKVTable(IEnumerable keys, IEnumerable values)
+        public void WriteKVTable<K, V>(IEnumerable<KeyValuePair<K, V>> table, string className = "")
         {
-            var zip = keys.Cast<object>().Zip(values.Cast<object>(), (k, v) => new KeyValuePair<object, object>(k, v));
-
-            Write(@"
-    <table class='kvtable'>
+            Write($@"
+    <table class='kvtable {className}'>
+        <thead>
         <tr>
             <th> Variable </th>
             <th> Value </th>
-        </tr>");
-            foreach (var kvp in zip)
+        </tr>
+        </thead>
+        <tbody>");
+            foreach (var kvp in table)
             {
                 Write("<tr><td>");
                 WriteObject(kvp.Key);
                 Write("</td><td>");
                 WriteObject(kvp.Value);
-                Write("</td></tr>");
+                WriteLine("</td></tr>");
             }
-            Write("</table>");
+            Write("</tbody></table>");
         }
 
-        public void WriteObject(object obj)
+        public void WriteObject(object? obj)
         {
             if (obj is IEnumerable<string>)
                 WriteText(string.Concat((IEnumerable<string>)obj));
@@ -315,6 +354,18 @@ $@"
         {
             Write(textToAppend);
             builder.AppendLine();
+        }
+
+        class IgnoreStuffJsonConverter : JsonConverter
+        {
+            public override bool CanConvert(Type objectType) =>
+                objectType.IsDelegate();
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) =>
+                throw new NotImplementedException();
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                writer.WriteValue("<delegate>");
+            }
         }
     }
 }

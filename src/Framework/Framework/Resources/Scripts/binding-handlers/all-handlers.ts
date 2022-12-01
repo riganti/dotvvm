@@ -1,15 +1,15 @@
 import textbox from './textbox-text'
 import textboxFocus from './textbox-select-all-on-focus'
 import ssrForeach from './SSR-foreach'
-import aliases from './introduce-alias'
+import markupControls from './markup-controls'
 import columnVisible from './table-columnvisible'
 import enable from './enable'
 import checkbox from './checkbox'
 import updateProgress from './update-progress'
 import gridviewdataset from './gridviewdataset'
-import withViewModules from './with-view-modules'
 import namedCommand from './named-command'
 import fileUpload from './file-upload'
+import jsComponents from './js-component'
 
 type KnockoutHandlerDictionary = {
     [name: string]: KnockoutBindingHandler
@@ -17,16 +17,16 @@ type KnockoutHandlerDictionary = {
 const allHandlers: KnockoutHandlerDictionary = {
     ...textbox,
     ...ssrForeach,
-    ...aliases,
+    ...markupControls,
     ...textboxFocus,
     ...columnVisible,
     ...enable,
     ...checkbox,
     ...updateProgress,
     ...gridviewdataset,
-    ...withViewModules,
     ...namedCommand,
-    ...fileUpload
+    ...fileUpload,
+    ...jsComponents
 }
 
 export default allHandlers

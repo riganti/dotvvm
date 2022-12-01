@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation.Styles
         /// <param name="matcher">If this function returns true, the style will be applied, otherwise not.</param>
         /// <param name="allowDerived">Also allow classes that are derived from <typeparamref name="T"/>.</param>
         /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
-        public StyleBuilder<T> Register<T>(Func<StyleMatchContext<T>, bool>? matcher = null, bool allowDerived = true)
+        public IStyleBuilder<T> Register<T>(Func<StyleMatchContext<T>, bool>? matcher = null, bool allowDerived = true)
             where T : DotvvmBindableObject
         {
             ThrowIfFrozen();
@@ -54,10 +54,10 @@ namespace DotVVM.Framework.Compilation.Styles
         /// <param name="matcher">If this function returns true, the style will be applied, otherwise not.</param>
         /// <param name="allowDerived">Also allow classes that are derived from <paramref name="type"/>.</param>
         /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
-        public StyleBuilder<DotvvmBindableObject> Register(Type type, Func<IStyleMatchContext, bool>? matcher = null, bool allowDerived = true)
+        public IStyleBuilder<DotvvmBindableObject> Register(Type type, Func<IStyleMatchContext, bool>? matcher = null, bool allowDerived = true)
         {
             ThrowIfFrozen();
-            var styleBuilder = new StyleBuilder<DotvvmBindableObject>(matcher, allowDerived);
+            var styleBuilder = new StyleBuilder<DotvvmBindableObject>(matcher, allowDerived, type);
             Styles.Add(styleBuilder.GetStyle());
             return styleBuilder;
         }
@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Compilation.Styles
         /// <param name="tagName">The HTML tag the style is applied to.</param>
         /// <param name="matcher">If this function returns true, the style will be applied, otherwise not.</param>
         /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
-        public StyleBuilder<HtmlGenericControl> Register(string tagName, Func<StyleMatchContext<HtmlGenericControl>, bool>? matcher = null)
+        public IStyleBuilder<HtmlGenericControl> Register(string tagName, Func<StyleMatchContext<HtmlGenericControl>, bool>? matcher = null)
         {
             ThrowIfFrozen();
             if (matcher != null)
@@ -85,22 +85,29 @@ namespace DotVVM.Framework.Compilation.Styles
         /// Registers a server-side style for a root component.
         /// </summary>
         /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
-        public StyleBuilder<DotvvmControl> RegisterRoot() =>
+        public IStyleBuilder<DotvvmControl> RegisterRoot() =>
             Register<DotvvmControl>(c => c.Parent is null);
 
         /// <summary>
         /// Registers a server-side style for any component of type DotvvmControl (which is almost everything with exception of special objects like GridViewColumn)
         /// </summary>
         /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
-        public StyleBuilder<DotvvmControl> RegisterAnyControl(Func<StyleMatchContext<DotvvmControl>, bool>? matcher = null) =>
+        public IStyleBuilder<DotvvmControl> RegisterAnyControl(Func<StyleMatchContext<DotvvmControl>, bool>? matcher = null) =>
             Register<DotvvmControl>(matcher);
 
         /// <summary>
         /// Registers a server-side style for any component (including special objects like GridViewColumn)
         /// </summary>
         /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
-        public StyleBuilder<DotvvmBindableObject> RegisterAnyObject(Func<StyleMatchContext<DotvvmBindableObject>, bool>? matcher = null) =>
+        public IStyleBuilder<DotvvmBindableObject> RegisterAnyObject(Func<StyleMatchContext<DotvvmBindableObject>, bool>? matcher = null) =>
             Register<DotvvmBindableObject>(matcher);
+
+        /// <summary>
+        /// Registers a server-side style for any component that have specified Styles.Tag (including special objects like GridViewColumn)
+        /// </summary>
+        /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
+        public IStyleBuilder<DotvvmBindableObject> RegisterForTag(string tag, Func<StyleMatchContext<DotvvmBindableObject>, bool>? matcher = null) =>
+            Register<DotvvmBindableObject>(m => m.HasTag(tag) && matcher?.Invoke(m) != false);
 
         private bool isFrozen = false;
         private void ThrowIfFrozen()

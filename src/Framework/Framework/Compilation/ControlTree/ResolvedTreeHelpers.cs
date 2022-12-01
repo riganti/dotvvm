@@ -29,10 +29,28 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public static object? GetValue(this ResolvedPropertySetter setter) =>
             setter switch {
                 ResolvedPropertyValue value => value.Value,
+                ResolvedPropertyBinding binding => binding.Binding.Binding,
                 ResolvedPropertyTemplate value => value.Content,
                 ResolvedPropertyControl value => value.Control,
                 ResolvedPropertyControlCollection value => value.Controls,
+                ResolvedPropertyCapability value => value.ToCapabilityObject(throwExceptions: false),
                 _ => throw new NotSupportedException()
+            };
+
+        public static DataContextStack GetDataContextStack(this ResolvedPropertySetter setter, ResolvedControl? parentControl) =>
+            setter switch {
+                ResolvedPropertyBinding binding => binding.Binding.DataContextTypeStack,
+                ResolvedPropertyTemplate { Content: { Count: > 0 } } value => value.Content.First().DataContextTypeStack,
+                ResolvedPropertyControl { Control: {} } value => value.Control.DataContextTypeStack,
+                ResolvedPropertyControlCollection { Controls: { Count: > 0 } } value => value.Controls.First().DataContextTypeStack,
+                _ => setter.Property.GetDataContextType(parentControl ?? setter.ParentControl().NotNull("Could not get data context type from property setter without a parent control."))
+            };
+
+        public static ResolvedControl? ParentControl(this ResolvedTreeNode node) =>
+            node.Parent switch {
+                ResolvedControl control => control,
+                null => null,
+                var parentNode => parentNode.ParentControl(),
             };
 
         

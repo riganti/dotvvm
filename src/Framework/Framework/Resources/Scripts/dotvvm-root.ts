@@ -24,9 +24,9 @@ import * as viewModuleManager from './viewModules/viewModuleManager'
 import { notifyModuleLoaded } from './postback/resourceLoader'
 import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
 import * as metadataHelper from './metadata/metadataHelper'
-import * as array from './collections/arrayHelper'
-import * as dictionary from './collections/dictionaryHelper'
-import * as string from './utils/stringHelper'
+import { StateManager } from "./state-manager"
+import { DotvvmEvent } from "./events"
+import translations from './translations/translations'
 
 if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')
@@ -73,6 +73,7 @@ const dotvvmExports = {
     validation: validation.globalValidationObject,
     postBack,
     init,
+    registerGlobalComponent: viewModuleManager.registerGlobalComponent,
     isPostbackRunning,
     events: (compileConstants.isSpa ?
              { ...events, ...spaEvents } :
@@ -98,8 +99,7 @@ const dotvvmExports = {
     metadata: {
         getTypeId: metadataHelper.getTypeId,
         getTypeMetadata: metadataHelper.getTypeMetadata,
-        getEnumMetadata: metadataHelper.getEnumMetadata,
-        getEnumValue: metadataHelper.getEnumValue
+        getEnumMetadata: metadataHelper.getEnumMetadata
     },
     viewModules: {
         registerOne: viewModuleManager.registerViewModule,
@@ -118,11 +118,9 @@ const dotvvmExports = {
         logPostBackScriptError,
         level
     },
-    translations: {
-        array,
-        dictionary,
-        string
-    } as any
+    translations: translations as any,
+    StateManager,
+    DotvvmEvent,
 }
 
 if (compileConstants.isSpa) {
@@ -130,8 +128,12 @@ if (compileConstants.isSpa) {
     (dotvvmExports as any).handleSpaNavigation = handleSpaNavigation;
 }
 
+if (compileConstants.debug) {
+    (dotvvmExports as any).debug = true
+}
+
 declare global {
-    const dotvvm: typeof dotvvmExports & {isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation};
+    const dotvvm: typeof dotvvmExports & {debug?: true, isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation};
 
     interface Window {
         dotvvm: typeof dotvvmExports

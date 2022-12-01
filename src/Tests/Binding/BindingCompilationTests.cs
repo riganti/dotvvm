@@ -18,6 +18,8 @@ using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Testing;
+using System.Collections.ObjectModel;
+using System.Runtime.Serialization;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -362,8 +364,8 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("(int arg, float arg) => ;", DisplayName = "Can not use same identifier for multiple parameters")]
-        [DataRow("(object _this) => ;", DisplayName = "Can not use already used identifiers for parameters")]
+        [DataRow("(int arg, float arg) => ;", DisplayName = "Cannot use same identifier for multiple parameters")]
+        [DataRow("(object _this) => ;", DisplayName = "Cannot use already used identifiers for parameters")]
         public void BindingCompiler_Invalid_LambdaParameters(string expr)
         {
             var viewModel = new TestViewModel();
@@ -524,6 +526,18 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(ExecuteBinding("StringProp == 'abc' ? TestEnum.A : TestEnum.Underscore_hhh", viewModel), TestEnum.A);
             Assert.AreEqual(ExecuteBinding("StringProp == 'abcd' ? TestEnum.A : TestEnum.Underscore_hhh", viewModel), TestEnum.Underscore_hhh);
         }
+        [TestMethod]
+        public void BindingCompiler_EnumToStringConversion()
+        {
+            var result1 = ExecuteBinding("DotVVM.Framework.Tests.Binding.TestEnum.Underscore_hhh", new object[0], null, expectedType: typeof(string));
+            Assert.AreEqual("Underscore_hhh", result1);
+            var result2 = ExecuteBinding("DotVVM.Framework.Tests.Binding.TestEnum.SpecialField", new object[0], null, expectedType: typeof(string));
+            Assert.AreEqual("xxx", result2);
+            var result3 = ExecuteBinding("EnumProperty", new object[] { new TestViewModel { EnumProperty = TestEnum.A } }, null, expectedType: typeof(string));
+            Assert.AreEqual("A", result3);
+            var result4 = ExecuteBinding("EnumProperty", new object[] { new TestViewModel { EnumProperty = TestEnum.SpecialField } }, null, expectedType: typeof(string));
+            Assert.AreEqual("xxx", result4);
+        }
 
         [TestMethod]
         public void BindingCompiler_Invalid_EnumStringComparison()
@@ -613,6 +627,22 @@ namespace DotVVM.Framework.Tests.Binding
             var vm = new TestViewModel() { TestViewModel2 = new TestViewModel2() };
             var result = ExecuteBinding($"TestViewModel2.SomeString = '42'", vm);
             Assert.AreEqual("42", vm.TestViewModel2.SomeString);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_MemberAssignmentWithUnaryMinus()
+        {
+            var vm = new TestViewModel();
+            var result = ExecuteBinding($"IntProp=-42", vm);
+            Assert.AreEqual(-42, vm.IntProp);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_MemberAssignmentWithUnaryNegation()
+        {
+            var vm = new TestViewModel();
+            var result = ExecuteBinding($"true==!false", vm);
+            Assert.IsTrue((bool)result);
         }
 
         [TestMethod]
@@ -976,12 +1006,26 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_Errors_AssigningToType()
         {
             var aggEx = Assert.ThrowsException<BindingPropertyException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));
-            var ex = aggEx.AllInnerExceptions().Single(e => e.InnerException == null);
-            Assert.IsTrue(ex.Message.Contains("Expression must be writeable"));
+            var ex = aggEx.GetBaseException();
+            StringAssert.Contains(ex.Message, "cannot be assigned into");
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ExclusiveOrOperator()
+        {
+            Assert.AreEqual(true, ExecuteBinding("var boolVariable = BoolProp ^ true; boolVariable", new TestViewModel { BoolProp = false }));
+            Assert.AreEqual(false, ExecuteBinding("var boolVariable = BoolProp ^ true; boolVariable", new TestViewModel { BoolProp = true }));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_OnesComplementOperator()
+        {
+            Assert.AreEqual(-1025, ExecuteBinding("var intVariable = ~IntProp; intVariable", new TestViewModel { IntProp = 1024 }));
         }
     }
     class TestViewModel
     {
+        public bool BoolProp { get; set; }
         public string StringProp { get; set; }
         public int IntProp { get; set; }
         public int? NullableIntProp { get; set; }
@@ -991,22 +1035,27 @@ namespace DotVVM.Framework.Tests.Binding
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
         public DateTime DateTime { get; set; }
+        public DateOnly DateOnly { get; set; }
+        public DateOnly? NullableDateOnly { get; set; }
+        public TimeOnly TimeOnly { get; set; }
+        public TimeOnly? NullableTimeOnly { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
         public Guid GuidProp { get; set; }
         public Tuple<int, bool> Tuple { get; set; }
         public List<int> List { get; set; }
-
-        public long LongProperty { get; set; }
-
-        public long[] LongArray => new long[] { 1, 2, long.MaxValue };
+        public List<TestEnum> EnumList { get; set; }
+        public List<string> StringList { get; set; }
         public List<long> LongList => new List<long>() { 1, 2, long.MaxValue };
+        public long LongProperty { get; set; }
+        public long[] LongArray => new long[] { 1, 2, long.MaxValue };
         public string[] StringArray => new string[] { "Hello ", "DotVVM" };
         public Dictionary<string, TestViewModel2> StringVmDictionary = new() { { "a", new TestViewModel2() }, { "b", new TestViewModel2() } };
         public Dictionary<int?, TestViewModel2> NullableIntVmDictionary = new() { { 0, new TestViewModel2() }, { 1, new TestViewModel2() } };
         public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
         public int[] IntArray { get; set; }
+        public decimal DecimalProp { get; set; }
 
         public string SetStringProp(string a, int b)
         {
@@ -1123,6 +1172,15 @@ namespace DotVVM.Framework.Tests.Binding
             { 3, 33 }
         };
 
+        public ReadOnlyDictionary<int, int> ReadOnlyDictionary { get; set; } = new ReadOnlyDictionary<int, int>(new Dictionary<int, int>()
+        {
+            { 1, 11 },
+            { 2, 22 },
+            { 3, 33 }
+        });
+
+        public ReadOnlyCollection<int> ReadOnlyArray { get; set; } = new ReadOnlyCollection<int>(new[] { 1, 2, 3 });
+
         public List<int> List { get; set; } = new List<int>() { 1, 2, 3 };
         public int[] Array { get; set; } = new int[] { 1, 2, 3 };
     }
@@ -1142,7 +1200,9 @@ namespace DotVVM.Framework.Tests.Binding
         B,
         C,
         D,
-        Underscore_hhh
+        Underscore_hhh,
+        [EnumMember(Value = "xxx")]
+        SpecialField
     }
 
 

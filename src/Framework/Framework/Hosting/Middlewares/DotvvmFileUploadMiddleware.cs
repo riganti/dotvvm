@@ -18,8 +18,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class DotvvmFileUploadMiddleware : IMiddleware
     {
-        private static readonly Regex baseMimeTypeRegex = new Regex(@"/.*$");
-        private static readonly Regex wildcardMimeTypeRegex = new Regex(@"/\*$");
+        private static readonly Regex baseMimeTypeRegex = new Regex(@"/.*$", RegexOptions.CultureInvariant);
+        private static readonly Regex wildcardMimeTypeRegex = new Regex(@"/\*$", RegexOptions.CultureInvariant);
         private readonly IOutputRenderer outputRenderer;
         private readonly IUploadedFileStorage fileStorage;
         private readonly IViewModelSerializer viewModelSerializer;
@@ -61,22 +61,23 @@ namespace DotVVM.Framework.Hosting.Middlewares
         {
             var context = request.HttpContext;
 
-            // verify the request
-            var isPost = context.Request.Method == "POST";
-            if (isPost && !context.Request.ContentType!.StartsWith("multipart/form-data", StringComparison.Ordinal))
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return;
-            }
-
             var uploadedFiles = new List<UploadedFile>();
             var errorMessage = "";
+            var isPost = context.Request.Method == "POST";
             if (isPost)
             {
+                var contentType = context.Request.ContentType;
+                if (contentType is null || !contentType.StartsWith("multipart/form-data", StringComparison.Ordinal))
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return;
+                }
+                // verify the request
+
                 try
                 {
                     // get the boundary
-                    var boundary = Regex.Match(context.Request.ContentType, @"boundary=""?(?<boundary>[^\n\;\"" ]*)").Groups["boundary"];
+                    var boundary = Regex.Match(contentType, @"boundary=""?(?<boundary>[^\n\;\"" ]*)", RegexOptions.CultureInvariant).Groups["boundary"];
                     if (!boundary.Success || string.IsNullOrWhiteSpace(boundary.Value))
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -110,8 +111,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 }
                 else
                 {
-                    await outputRenderer.RenderPlainTextResponse(context, errorMessage);
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    await outputRenderer.RenderPlainTextResponse(context, errorMessage);
                 }
             }
             
@@ -138,7 +139,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         private async Task<UploadedFile> StoreFile(IHttpContext context, MultipartSection section, IUploadedFileStorage fileStore)
         {
             var fileId = await fileStore.StoreFileAsync(section.Body);
-            var fileNameGroup = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase).Groups["fileName"];
+            var fileNameGroup = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Groups["fileName"];
             var fileName = fileNameGroup.Success ? fileNameGroup.Value : string.Empty;
             var mimeType = section.ContentType ?? string.Empty;
             var fileSize = section.Body.Length;

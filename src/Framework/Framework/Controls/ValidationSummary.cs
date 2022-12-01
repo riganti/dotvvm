@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(IncludeErrorsFromTargetProperty, value); }
         }
         public static readonly DotvvmProperty IncludeErrorsFromTargetProperty
-            = DotvvmProperty.Register<bool, ValidationSummary>(c => c.IncludeErrorsFromTarget, false);
+            = DotvvmProperty.Register<bool, ValidationSummary>(c => c.IncludeErrorsFromTarget, true);
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
@@ -65,11 +65,12 @@ namespace DotVVM.Framework.Controls
         {
             base.AddAttributesToRender(writer, context);
 
-            var expression = KnockoutHelper.GetValidationTargetExpression(this);
-            if(expression == null)
+            if (false.Equals(this.GetValue(Validation.EnabledProperty)))
             {
                 return;
             }
+
+            var expression = this.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(this) ?? "dotvvm.viewModelObservables.root";
 
             var group = new KnockoutBindingGroup();
             {

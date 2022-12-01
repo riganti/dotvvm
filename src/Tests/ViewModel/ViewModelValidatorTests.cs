@@ -11,6 +11,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
@@ -18,16 +19,23 @@ namespace DotVVM.Framework.Tests.ViewModel
     public class ViewModelValidatorTests
     {
         private IViewModelValidator CreateValidator() => DotvvmTestHelper.CreateConfiguration().ServiceProvider.GetRequiredService<IViewModelValidator>();
+        private IValidationErrorPathExpander CreateErrorPathExpander() => DotvvmTestHelper.CreateConfiguration().ServiceProvider.GetRequiredService<IValidationErrorPathExpander>();
 
         [TestMethod]
         public void ViewModelValidator_SimpleObject()
         {
             var testViewModel = new TestViewModel();
             var validator = CreateValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState() { ValidationTarget = testViewModel };
+
+            var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
-            Assert.AreEqual("Text", results[0].PropertyPath);
+            Assert.AreEqual("/Text", results[0].PropertyPath);
         }
 
         [TestMethod]
@@ -44,13 +52,19 @@ namespace DotVVM.Framework.Tests.ViewModel
                 Child = new TestViewModel2() {  Code = "123" }
             };
             var validator = CreateValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState() { ValidationTarget = testViewModel };
+
+            var errors = validator.ValidateViewModel(testViewModel);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(4, results.Count);
-            Assert.AreEqual("Child().Id", results[0].PropertyPath);
-            Assert.AreEqual("Children()[0]().Id", results[1].PropertyPath);
-            Assert.AreEqual("Children()[1]().Code", results[2].PropertyPath);
-            Assert.AreEqual("Text", results[3].PropertyPath);
+            Assert.AreEqual("/Child/Id", results[0].PropertyPath);
+            Assert.AreEqual("/Children/0/Id", results[1].PropertyPath);
+            Assert.AreEqual("/Children/1/Code", results[2].PropertyPath);
+            Assert.AreEqual("/Text", results[3].PropertyPath);
         }
 
         [TestMethod]
@@ -58,10 +72,60 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var testViewModel = new TestViewModel3() { Email = "aaa" };
             var validator = CreateValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState() { ValidationTarget = testViewModel };
+
+            var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
-            Assert.AreEqual("Email", results[0].PropertyPath);
+            Assert.AreEqual("/Email", results[0].PropertyPath);
+        }
+
+        [TestMethod]
+        public void ViewModelValidator_WithValidationTarget_Property()
+        {
+            var testViewModel = new TestViewModel() { Child = new TestViewModel2() { Code = "5" } };
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState() { ValidationTarget = testViewModel.Child };
+
+            var errors = validator.ValidateViewModel(testViewModel.Child).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(2, results.Count);
+            Assert.AreEqual("/Child/Code", results[0].PropertyPath);
+            Assert.AreEqual("/Child/Id", results[1].PropertyPath);
+        }
+
+        [TestMethod]
+        public void ViewModelValidator_WithValidationTarget_ArrayElement()
+        {
+            var testViewModel = new TestViewModel()
+            {
+                Children = new List<TestViewModel2>()
+                {
+                    new TestViewModel2() { Code = "5" },
+                    new TestViewModel2() { Code = "6" },
+                    new TestViewModel2() { Code = "7" },
+                }
+            };
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState() { ValidationTarget = testViewModel.Children[1] };
+
+            var errors = validator.ValidateViewModel(testViewModel.Children[1]).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(2, results.Count);
+            Assert.AreEqual("/Children/1/Code", results[0].PropertyPath);
+            Assert.AreEqual("/Children/1/Id", results[1].PropertyPath);
         }
 
         [TestMethod]
@@ -69,10 +133,16 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var testViewModel = new TestViewModel4() { Child = new TestViewModel4Child() { IsChecked = true } };
             var validator = CreateValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState() { ValidationTarget = testViewModel };
+
+            var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
-            Assert.AreEqual("Child().ConditionalRequired", results[0].PropertyPath);
+            Assert.AreEqual("/Child/ConditionalRequired", results[0].PropertyPath);
         }
 
         [TestMethod]
@@ -82,10 +152,16 @@ namespace DotVVM.Framework.Tests.ViewModel
                 new TestViewModel4() { Child = new TestViewModel4Child() { IsChecked = true } }
             };
             var validator = CreateValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState() { ValidationTarget = testViewModel };
+
+            var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
-            Assert.AreEqual("$data[0]().Child().ConditionalRequired", results[0].PropertyPath);
+            Assert.AreEqual("/0/Child/ConditionalRequired", results[0].PropertyPath);
         }
 
         [TestMethod]
@@ -93,10 +169,16 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var testViewModel = new TestViewModel5() { Child = new TestViewModel5Child() { IsChecked = true } };
             var validator = CreateValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState() { ValidationTarget = testViewModel };
+
+            var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
-            Assert.AreEqual("Child().ConditionalRequired", results[0].PropertyPath);
+            Assert.AreEqual("/Child/ConditionalRequired", results[0].PropertyPath);
         }
 
         [TestMethod]
@@ -107,10 +189,16 @@ namespace DotVVM.Framework.Tests.ViewModel
                 Children = new List<TestViewModel5Child>() {new TestViewModel5Child() {IsChecked = true}}
             };
             var validator = CreateValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState() { ValidationTarget = testViewModel };
+
+            var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
-            Assert.AreEqual("Children()[0]().ConditionalRequired", results[0].PropertyPath);
+            Assert.AreEqual("/Children/0/ConditionalRequired", results[0].PropertyPath);
         }
 
         [TestMethod]
@@ -118,14 +206,213 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var testViewModel = new TestViewModel7();
             var validator = CreateValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState() { ValidationTarget = testViewModel };
+
+            var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
-            Assert.AreEqual("IsChecked", results[0].PropertyPath);
+            Assert.AreEqual("/IsChecked", results[0].PropertyPath);
+        }
+
+        [TestMethod]
+        public void ViewModelValidator_CustomModelStateErrors()
+        {
+            var testViewModel = new TestViewModel()
+            {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Child = new TestViewModel2()
+                {
+                    Id = 11,
+                    Code = "Code",
+                },
+            };
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var modelState = testViewModel.Context.ModelState;
+            var validationTarget = testViewModel;
+            modelState.ValidationTarget = validationTarget;
+
+            ValidationErrorFactory.AddModelError(testViewModel, vm => vm, "Custom root error.");
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(3, results.Count);
+            Assert.AreEqual("/", results[0].PropertyPath);
+            Assert.AreEqual("/Child/Code", results[1].PropertyPath);
+            Assert.AreEqual("/Text", results[2].PropertyPath);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ViewModelValidator_CustomModelStateErrors_OldFormatThrows()
+        {
+            var testViewModel = new TestViewModel() {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Child = new TestViewModel2() {
+                    Id = 11,
+                    Code = "Code",
+                },
+            };
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var modelState = testViewModel.Context.ModelState;
+            var validationTarget = testViewModel;
+            modelState.ValidationTarget = validationTarget;
+
+            testViewModel.Context.AddRawModelError("Child()", "Validation target path as a knockout expression");
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+        }
+
+        [TestMethod]
+        public void ViewModelValidator_CustomModelStateErrors_OutsideValidationTarget()
+        {
+            var testViewModel = new TestViewModel()
+            {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Child = new TestViewModel2()
+                {
+                    Id = 11,
+                    Code = "Code",
+                },
+                Children = new List<TestViewModel2>()
+                {
+                    new TestViewModel2() { Code = "5" },
+                    new TestViewModel2() { Code = "6" },
+                    new TestViewModel2() { Code = "7" },
+                }
+            };
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var modelState = testViewModel.Context.ModelState;
+            var validationTarget = testViewModel.Children[0];
+            modelState.ValidationTarget = validationTarget;
+
+            testViewModel.AddModelError(vm => vm, "Custom root error. Outside of validation target.");
+            testViewModel.AddModelError(vm => vm.Child, "Custom Child error. Outside of validation target.");
+            testViewModel.AddModelError(vm => vm.Children[2], "Custom Children[2] error. Outside of validation target.");
+
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(5, results.Count);
+            Assert.AreEqual("/", results[0].PropertyPath);
+            Assert.AreEqual("/Child", results[1].PropertyPath);
+            Assert.AreEqual("/Children/0/Code", results[2].PropertyPath);
+            Assert.AreEqual("/Children/0/Id", results[3].PropertyPath);
+            Assert.AreEqual("/Children/2", results[4].PropertyPath);
+        }
+
+        [TestMethod]
+        public void ViewModelValidator_CustomModelStateErrors_ArbitraryTargetObjectAndLambda()
+        {
+            var testViewModel = new TestViewModel() {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Child = new TestViewModel2() {
+                    Id = 11,
+                    Code = "Code",
+                },
+                Children = new List<TestViewModel2>()
+                {
+                    new TestViewModel2() { Code = "5" },
+                    new TestViewModel2() { Code = "6" },
+                    new TestViewModel2() { Code = "7" },
+                }
+            };
+            var context = testViewModel.Context;
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var modelState = context.ModelState;
+            var validationTarget = testViewModel.Children[1];
+            modelState.ValidationTarget = validationTarget;
+
+            context.AddModelError(testViewModel.Children[1], o => o.Code, "Custom /Children/1/Code error.");
+            context.AddModelError(testViewModel.Children, o => o[1].Code, "Custom /Children/1/Code error.");
+
+            // Add error that is unreachable from root viewmodel
+            context.AddModelError(new TestViewModel2(), o => o.Id, "Unreachable error - won't be resolved.");
+
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(4, results.Count);
+            Assert.AreEqual("/Children/1/Code", results[0].PropertyPath);
+            Assert.AreEqual("/Children/1/Code", results[1].PropertyPath);
+            Assert.AreEqual("/Children/1/Code", results[2].PropertyPath);
+            Assert.AreEqual("/Children/1/Id", results[3].PropertyPath);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ViewModelValidator_ObjectWithAttachedErrorReferencedMultipleTimes()
+        {
+            var innerViewModel = new TestViewModel2() { Code = "123" };
+            var testViewModel = new TestViewModel()
+            {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Child = new TestViewModel2()
+                {
+                    Id = 11,
+                    Code = "Code",
+                },
+                Children = new List<TestViewModel2>()
+                {
+                    innerViewModel,
+                    new TestViewModel2() { Code = "6" },
+                    innerViewModel,
+                }
+            };
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var modelState = testViewModel.Context.ModelState;
+            var validationTarget = testViewModel;
+            modelState.ValidationTarget = validationTarget;
+
+            testViewModel.AddModelError(vm => vm.Children[0], "An error on object that is found multiple times in viewmodel.");
+
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+        }
+
+        [TestMethod]
+        [DataRow("Child().Code()")]
+        [DataRow("$rawData")]
+        [DataRow("dotvvm.viewModels['root']")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ViewModelValidator_AttemptToPassOldPaths(string path)
+        {
+            var testViewModel = new TestViewModel()
+            {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null)
+            };
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var context = testViewModel.Context;
+            var modelState = context.ModelState;
+            var validationTarget = testViewModel;
+            modelState.ValidationTarget = validationTarget;
+
+            context.AddRawModelError(path, "Invalid error path");
+
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
         }
 
 
-        public class TestViewModel
+        public class TestViewModel : DotvvmViewModelBase
         {
             [Required]
             public string Text { get; set; }

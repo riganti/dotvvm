@@ -31,16 +31,4 @@ namespace DotVVM.Framework.ResourceManagement
 
         public string GetFilePath(IDotvvmRequestContext context) => FilePath;
     }
-
-    /// <summary>
-    /// Compatibility alias for FileResourceLocation.
-    /// Represents a resource located in a file in filesystem.
-    /// </summary>
-    [Obsolete("Use FileResourceLocation instead.")]
-    public class LocalFileResourceLocation : FileResourceLocation
-    {
-        public LocalFileResourceLocation(string filePath) : base(filePath)
-        {
-        }
-    }
 }

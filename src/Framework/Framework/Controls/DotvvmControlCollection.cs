@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Runtime;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Controls
 {
@@ -51,6 +54,16 @@ namespace DotVVM.Framework.Controls
         public void Add(DotvvmControl item)
         {
             Insert(controls.Count, item);
+        }
+
+        /// <summary>
+        /// Adds an item to the child collection, but does not create unique ids, does not invoke missing events, ... Intended for internal use only.
+        /// </summary>
+        internal void AddUnchecked(DotvvmControl item)
+        {
+            controls.Add(item);
+            item.Parent = parent;
+            SetLifecycleRequirements(item);
         }
 
         /// <summary>
@@ -201,11 +214,25 @@ namespace DotVVM.Framework.Controls
         {
             if (item.Parent != null && item.Parent != parent && IsInParentsChildren(item))
             {
-                throw new DotvvmControlException(parent, "The control cannot be added to the collection " +
-                    "because it already has a different parent! Remove it from the original collection first.");
+                throw new ControlUsedInAnotherTreeException(parent, item);
             }
             item.Parent = parent;
 
+
+            if (!item.properties.Contains(Internal.UniqueIDProperty) &&
+                parent.properties.TryGet(Internal.UniqueIDProperty, out var parentId) &&
+                parentId is not null)
+            {
+                AssignUniqueIds(item, parentId);
+            }
+
+            SetLifecycleRequirements(item);
+
+            ValidateParentsLifecycleEvents();
+        }
+
+        private void SetLifecycleRequirements(DotvvmControl item)
+        {
             // Iterates through all parents and ORs the LifecycleRequirements
             var updatedLastEvent = lastLifeCycleEvent;
             {
@@ -236,29 +263,31 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
-            if (!item.properties.Contains(Internal.UniqueIDProperty) && parent.properties.Contains(Internal.UniqueIDProperty))
-            {
-                AssignUniqueIds(item);
-            }
-
-            item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
-
-
-
-            ValidateParentsLifecycleEvents();
+            if (lastLifeCycleEvent > LifeCycleEventType.None)
+                item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
         }
 
-        void AssignUniqueIds(DotvvmControl item)
+        void AssignUniqueIds(DotvvmControl item, object parentId)
         {
             Debug.Assert(parent.properties.Contains(Internal.UniqueIDProperty));
             Debug.Assert(!item.properties.Contains(Internal.UniqueIDProperty));
+            Debug.Assert(parentId is string);
 
-            item.SetValue(Internal.UniqueIDProperty, parent.GetValue(Internal.UniqueIDProperty) + "a" + uniqueIdCounter);
+            // if the parent is a naming container, we don't need to duplicate it's unique id into the control
+            // when we don't do this Repeater generates different ids in server-side and client-side mode, because the
+            // UniqueIDProperty of the parent DataItemContainer is different, but the ClientIdFragment is the same
+            if (item.Parent!.properties.Contains(Internal.IsNamingContainerProperty))
+            {
+                parentId = "";
+            }
+            
+            var id = parentId.ToString() + "a" + uniqueIdCounter.ToString();
             uniqueIdCounter++;
-            foreach (var c in item.Children)
+            item.properties.Set(Internal.UniqueIDProperty, id);
+            foreach (var c in item.Children.controls)
             {
                 if (!c.properties.Contains(Internal.UniqueIDProperty))
-                    item.Children.AssignUniqueIds(c);
+                    item.Children.AssignUniqueIds(c, id);
             }
         }
 
@@ -270,6 +299,19 @@ namespace DotVVM.Framework.Controls
                 throw new Exception("Internal bug in Lifecycle events.");
         }
 
+        private IDotvvmRequestContext? GetContext()
+        {
+            DotvvmBindableObject? c = parent;
+            while (c != null)
+            {
+                if (c.properties.TryGet(Internal.RequestContextProperty, out var context))
+                    return (IDotvvmRequestContext?)context;
+                c = c.Parent;
+            }
+            // when not found, fallback to this slow method:
+            return (IDotvvmRequestContext?)parent.GetValue(Internal.RequestContextProperty);
+        }
+
         /// <summary>
         /// Invokes missed page life cycle events on the control.
         /// </summary>
@@ -278,7 +320,7 @@ namespace DotVVM.Framework.Controls
             // just a quick check to save GetValue call
             if (lastLifeCycleEvent >= targetEventType || parent.LifecycleRequirements == ControlLifecycleRequirements.None) return;
 
-            var context = (IDotvvmRequestContext?)parent.GetValue(Internal.RequestContextProperty);
+            var context = GetContext();
             if (context == null)
                 throw new DotvvmControlException(parent, "InvokeMissedPageLifeCycleEvents must be called on a control rooted in a view.");
 
@@ -293,7 +335,20 @@ namespace DotVVM.Framework.Controls
             }
             catch (Exception ex)
             {
-                throw new DotvvmControlException(lastProcessedControl, "Unhandled exception occurred while executing page lifecycle event.", ex);
+                if (ex is IDotvvmException { RelatedControl: not null })
+                    throw;
+                if (ex is DotvvmExceptionBase dotvvmException)
+                {
+                    dotvvmException.RelatedControl = lastProcessedControl;
+                    throw;
+                }
+                else
+                {
+                    var eventType = lastLifeCycleEvent + 1;
+                    var baseException = ex.GetBaseException();
+                    var controlType = lastProcessedControl.GetType().Name;
+                    throw new DotvvmControlException(lastProcessedControl, $"Unhandled {baseException.GetType().Name} occurred in {controlType}.{eventType}: {baseException.Message}", ex);
+                }
             }
         }
 
@@ -310,6 +365,7 @@ namespace DotVVM.Framework.Controls
                 // abort when control does not require that
                 if ((parent.LifecycleRequirements & (ControlLifecycleRequirements)reqflag) == 0)
                 {
+                    lastLifeCycleEvent = eventType;
                     continue;
                 }
 
@@ -383,5 +439,13 @@ namespace DotVVM.Framework.Controls
             }
             return true;
         }
+
+        public record ControlUsedInAnotherTreeException(DotvvmControl ParentControl, DotvvmControl AddedControl):
+            DotvvmExceptionBase(RelatedControl: AddedControl)
+        {
+            public override string Message => $"The control {AddedControl.GetType().ToCode(stripNamespace: true)} cannot be added to {ParentControl.GetType().ToCode(stripNamespace: true)}.Controls, " +
+                "because it already has a different parent! Remove it from the original collection first or clone the control.";
+        }
+
     }
 }

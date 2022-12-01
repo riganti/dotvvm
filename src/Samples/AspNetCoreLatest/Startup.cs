@@ -50,6 +50,8 @@ namespace DotVVM.Samples.BasicSamples
             services.AddAuthentication("Scheme3")
                 .AddCookie("Scheme3");
 
+            services.AddHealthChecks();
+
             services.AddLocalization(o => o.ResourcesPath = "Resources");
 
             services.AddDotVVM<DotvvmServiceConfigurator>();
@@ -65,6 +67,7 @@ namespace DotVVM.Samples.BasicSamples
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseRouting();
             app.UseAuthentication();
 
             var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env), modifyConfiguration: c => {
@@ -77,12 +80,19 @@ namespace DotVVM.Samples.BasicSamples
                 }
             });
 
-
 #if AssertConfiguration
             // this compilation symbol is set by CI server
             config.AssertConfigurationIsValid();
 #endif
+            app.UseRouting();
+            app.UseEndpoints(endpoints => {
+                endpoints.MapHealthChecks("/health");
+            });
             app.UseStaticFiles();
+
+            app.UseEndpoints(endpoints => {
+                endpoints.MapDotvvmHotReload();
+            });
         }
 
         private string GetApplicationPath(IWebHostEnvironment env)

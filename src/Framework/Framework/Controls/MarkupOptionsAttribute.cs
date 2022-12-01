@@ -13,12 +13,12 @@ namespace DotVVM.Framework.Controls
     {
 
         /// <summary>
-        /// Gets or sets whether the data-binding can be used on this property.
+        /// Gets or sets whether client-side data-bindings can be used on this property (`value` and `controlProperty`).
         /// </summary>
         public bool AllowBinding { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets whether the hard-coded value in markup can be used on this property.
+        /// Gets or sets whether the server-side value in markup can be used on this property. Allows both value hard-coded in markup and `resource` binding, which is always evaluated server-side.
         /// </summary>
         public bool AllowHardCodedValue { get; set; } = true;
 
@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Controls
         public string? Name { get; set; }
 
         /// <summary>
-        /// Determines if multiple property assignments can be merged into one value
+        /// Determines if multiple property assignments can be merged into one value. For example `&lt;div class='x' class='y' ...` is equivalent to `&lt;div class='x y'` because of the merging.
         /// </summary>
         public bool AllowValueMerging { get; set; }
 
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Controls
         public Type AttributeValueMerger { get; set; } = typeof(DefaultAttributeValueMerger);
 
         /// <summary>
-        /// Gets or sets the mapping mode.
+        /// Gets or sets the mapping mode - whether the property is used as an attribute or inner element (or both are allowed).
         /// </summary>
         public MappingMode MappingMode { get; set; } = MappingMode.Attribute;
 
@@ -47,6 +47,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public bool AllowAttributeWithoutValue { get; set; }
 
+        /// <summary> Whether the property must always be specified on this control. It is also allowed to set the property using server-side styles. </summary>
         public bool Required { get; set; }
     }
 }

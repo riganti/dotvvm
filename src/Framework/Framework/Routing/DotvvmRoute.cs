@@ -130,11 +130,16 @@ namespace DotVVM.Framework.Routing
 
                         return strVal == null ? null : Uri.EscapeDataString(strVal);
                     },
-                    StringComparer.InvariantCultureIgnoreCase
+                    StringComparer.OrdinalIgnoreCase
                 );
             try
             {
-                var url = string.Concat(urlBuilders.Select(b => b(convertedValues)));
+                var parts = new string[urlBuilders.Count];
+                for (int i = 0; i < urlBuilders.Count; i++)
+                {
+                    parts[i] = urlBuilders[i](convertedValues);
+                }
+                var url = string.Concat(parts);
 
                 if (url == "~")
                     return "~/";
@@ -143,7 +148,7 @@ namespace DotVVM.Framework.Routing
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not build URL for route '{ this.Url }' with values {{{ string.Join(", ", values.Select(kvp => kvp.Key + ": " + kvp.Value)) }}}", ex);
+                throw new DotvvmRouteException($"Could not build URL for route '{ this.Url }' with values {{{ string.Join(", ", values.Select(kvp => kvp.Key + ": " + kvp.Value)) }}}", this, ex);
             }
         }
 

@@ -107,15 +107,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<TextBoxType, TextBox>(c => c.Type, TextBoxType.Normal);
 
         /// <summary>
-        /// Gets or sets whether the viewmodel property will be updated after the key is pressed. 
-        /// By default, the viewmodel is updated after the control loses its focus.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        [Obsolete("Use `UpdateTextOnInput` instead.")]
-        public static readonly DotvvmProperty UpdateTextAfterKeydownProperty =
-            DotvvmProperty.Register<bool, TextBox>("UpdateTextAfterKeydown", false);
-        
-        /// <summary>
         /// Gets or sets whether the viewmodel property will be updated immediately after change. 
         /// By default, the viewmodel is updated after the control loses its focus.
         /// </summary>
@@ -126,33 +117,23 @@ namespace DotVVM.Framework.Controls
             set { SetValue(UpdateTextOnInputProperty, value); }
         }
         public static readonly DotvvmProperty UpdateTextOnInputProperty =
-            DotvvmPropertyWithFallback.Register<bool, TextBox>(
+            DotvvmProperty.Register<bool, TextBox>(
                 nameof(UpdateTextOnInput),
-#pragma warning disable CS0618
-                UpdateTextAfterKeydownProperty,
-#pragma warning restore CS0618
                 isValueInherited: true);
-
-        /// <summary>
-        /// Gets or sets the type of value being formatted - Number or DateTime.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
-        public FormatValueType ValueType
-        {
-            get { return (FormatValueType)GetValue(ValueTypeProperty)!; }
-            set { SetValue(ValueTypeProperty, value); }
-        }
-
-        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
-        public static readonly DotvvmProperty ValueTypeProperty =
-            DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
 
         public static FormatValueType ResolveValueType(IValueBinding? binding)
         {
             if (binding?.ResultType == typeof(DateTime) || binding?.ResultType == typeof(DateTime?))
             {
                 return FormatValueType.DateTime;
+            }
+            else if (binding != null && (binding.ResultType == typeof(DateOnly) || binding.ResultType == typeof(DateOnly?)))
+            {
+                return FormatValueType.DateOnly;
+            }
+            else if (binding != null && (binding.ResultType == typeof(TimeOnly) || binding.ResultType == typeof(TimeOnly?)))
+            {
+                return FormatValueType.TimeOnly;
             }
             else if (binding != null && (binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType)?.IsNumericType() == true))
             {
@@ -172,16 +153,7 @@ namespace DotVVM.Framework.Controls
 
             if (!isTypeImplicitlyFormatted || implicitFormatString != null)
             {
-#pragma warning disable
-                if (ValueType != FormatValueType.Text)
-                {
-                    resolvedValueType = ValueType;
-                }
-#pragma warning restore
-                else
-                {
-                    resolvedValueType = ResolveValueType(GetValueBinding(TextProperty));
-                }
+                resolvedValueType = ResolveValueType(GetValueBinding(TextProperty));
             }
 
             if (resolvedValueType != FormatValueType.Text)
@@ -248,9 +220,8 @@ namespace DotVVM.Framework.Controls
                 var formatString = FormatString;
                 if (string.IsNullOrEmpty(formatString))
                 {
-                    formatString = implicitFormatString ?? "G";
+                    formatString = implicitFormatString;
                 }
-                writer.AddAttribute("data-dotvvm-format", formatString);
 
                 if (resolvedValueType == FormatValueType.DateTime)
                 {
@@ -260,6 +231,18 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.AddAttribute("data-dotvvm-value-type", "number");
                 }
+                else if (resolvedValueType == FormatValueType.DateOnly)
+                {
+                    writer.AddAttribute("data-dotvvm-value-type", "dateonly");
+                    formatString ??= "D";
+                }
+                else if (resolvedValueType == FormatValueType.TimeOnly)
+                {
+                    writer.AddAttribute("data-dotvvm-value-type", "timeonly");
+                    formatString ??= "T";
+                }
+
+                writer.AddAttribute("data-dotvvm-format", formatString ?? "G");
             }
         }
 
@@ -288,13 +271,13 @@ namespace DotVVM.Framework.Controls
             const string KoBindingName = "dotvvm-textbox-select-all-on-focus";
             switch (this.GetValueRaw(SelectAllOnFocusProperty))
             {
-                case bool value when !value:
+                case false:
                     break;
                 case IValueBinding valueBinding:
                     writer.AddKnockoutDataBind(KoBindingName, valueBinding.GetKnockoutBindingExpression(this));
                     break;
-                default:
-                    writer.AddKnockoutDataBind(KoBindingName, JsonConvert.ToString(SelectAllOnFocus));
+                case object _ when SelectAllOnFocus:
+                    writer.AddKnockoutDataBind(KoBindingName, "true");
                     break;
             }
         }

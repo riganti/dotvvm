@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsArrayExpression : JsExpression
+    public sealed class JsArrayExpression : JsExpression
     {
         public JsNodeCollection<JsExpression> Arguments => new JsNodeCollection<JsExpression>(this, JsTreeRoles.Argument);
 

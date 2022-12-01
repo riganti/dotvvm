@@ -18,6 +18,7 @@ using DotVVM.Framework.Routing;
 using DotVVM.Framework.Hosting;
 using DotVVM.Core.Storage;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.ViewModel.Validation;
 
 public static class DotvvmRequestContextExtensions
 {
@@ -156,6 +157,7 @@ public static class DotvvmRequestContextExtensions
     /// </summary>
     public static void FailOnInvalidModelState(this IDotvvmRequestContext context)
     {
+        context.PreprocessModelState();
         if (!context.ModelState.IsValid)
         {
             context.HttpContext.Response.ContentType = "application/json";
@@ -165,6 +167,15 @@ public static class DotvvmRequestContextExtensions
             //   ^ we just wait for this Task. This API never was async and the response size is small enough that we can't quite safely wait for the result
             //     .GetAwaiter().GetResult() preserves stack traces across async calls, thus I like it more than .Wait()
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ModelValidationFailed, "The ViewModel contains validation errors!");
+        }
+    }
+
+    private static void PreprocessModelState(this IDotvvmRequestContext context)
+    {
+        if (!context.ModelState.IsValid)
+        {
+            var modelStateErrorExpander = context.Services.GetRequiredService<IValidationErrorPathExpander>();
+            modelStateErrorExpander.Expand(context.ModelState, context.ViewModel);
         }
     }
 
@@ -209,13 +220,26 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
+    [Obsolete("Use ReturnFileAsync() instead")]
     public static void ReturnFile(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
         context.ReturnFile(new MemoryStream(bytes), fileName, mimeType, additionalHeaders, attachmentDispositionType);
 
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
-    public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null)
+    [Obsolete("Use ReturnFileAsync() instead")]
+    public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
+        context.ReturnFileAsync(stream, fileName, mimeType, additionalHeaders, attachmentDispositionType).GetAwaiter().GetResult();
+    /// <summary>
+    /// Redirects the client to the specified file.
+    /// </summary>
+    public static Task ReturnFileAsync(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
+        context.ReturnFileAsync(new MemoryStream(bytes), fileName, mimeType, additionalHeaders, attachmentDispositionType);
+
+    /// <summary>
+    /// Redirects the client to the specified file.
+    /// </summary>
+    public static async Task ReturnFileAsync(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null)
     {
         var returnedFileStorage = context.Services.GetService<IReturnedFileStorage>();
 
@@ -233,9 +257,22 @@ public static class DotvvmRequestContextExtensions
             AttachmentDispositionType = attachmentDispositionType ?? "attachment"
         };
 
-        var generatedFileId = returnedFileStorage.StoreFileAsync(stream, metadata).Result;
+        var generatedFileId = await returnedFileStorage.StoreFileAsync(stream, metadata).ConfigureAwait(false);
         context.SetRedirectResponse(context.TranslateVirtualPath("~/dotvvmReturnedFile?id=" + generatedFileId));
         throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
+    }
+
+    internal static async Task RejectRequest(this IDotvvmRequestContext context, string message, int statusCode = 403)
+    {
+        // push it as a warning to ILogger
+        var msg = "request rejected: " + message;
+        context.Services
+            .GetRequiredService<RuntimeWarningCollector>()
+            .Warn(new DotvvmRuntimeWarning(msg));
+        context.HttpContext.Response.StatusCode = statusCode;
+        context.HttpContext.Response.ContentType = "text/plain";
+        await context.HttpContext.Response.WriteAsync(msg);
+        throw new DotvvmInterruptRequestExecutionException(InterruptReason.RequestRejected, msg);
     }
 
     public static void DebugWarning(this IDotvvmRequestContext context, string message, Exception? relatedException = null, DotvvmBindableObject? relatedControl = null)

@@ -25,14 +25,14 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any) 
         if (updatedControl) {
             const wrapper = document.createElement(updatedControls[id].parent.tagName || "div");
             wrapper.innerHTML = resultObject.updatedControls[id];
-            if (wrapper.childElementCount > 1) {
-                throw new Error("Postback.Update control can not render more than one element");
+            if (compileConstants.debug && wrapper.childElementCount > 1) {
+                throw new Error("Postback.Update control cannot render more than one element");
             }
             const element = wrapper.firstElementChild;
-            if (element.id == null) {
+            if (compileConstants.debug && element.id == null) {
                 throw new Error("Postback.Update control always has to render id attribute.");
             }
-            if (element.id !== updatedControls[id].control.id) {
+            if (compileConstants.debug && element.id !== updatedControls[id].control.id) {
                 logInfoVerbose("postback", `Postback.Update control changed id from '${updatedControls[id].control.id}' to '${element.id}'`);
             }
             wrapper.removeChild(element);

@@ -11,8 +11,6 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Runtime.CompilerServices;
 using System.Reflection.Emit;
 using DotVVM.Framework.Configuration;
@@ -20,7 +18,9 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls;
 using System.Diagnostics;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -30,28 +30,44 @@ namespace DotVVM.Framework.Compilation
         public static readonly ParameterExpression ViewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
 
         protected readonly DotvvmConfiguration configuration;
+        protected readonly BindingCompilationService bindingService;
 
-        public BindingCompiler(DotvvmConfiguration configuration)
+        public BindingCompiler(DotvvmConfiguration configuration, BindingCompilationService bindingService)
         {
             this.configuration = configuration;
+            this.bindingService = bindingService;
         }
 
-        public static Expression ReplaceParameters(Expression expression, DataContextStack dataContext, bool assertAllReplaced = true) =>
+        public static Expression ReplaceParameters(Expression expression, DataContextStack? dataContext, bool assertAllReplaced = true) =>
             new ParameterReplacementVisitor(dataContext, assertAllReplaced).Visit(expression);
 
         class ParameterReplacementVisitor: ExpressionVisitor
         {
             private readonly Dictionary<DataContextStack, int> ContextMap;
+            private readonly DataContextStack? DataContext;
             private readonly bool AssertAllReplaced;
             private readonly HashSet<ParameterExpression> contextParameters = new HashSet<ParameterExpression>();
 
-            public ParameterReplacementVisitor(DataContextStack dataContext, bool assertAllReplaced = true)
+            public ParameterReplacementVisitor(DataContextStack? dataContext, bool assertAllReplaced = true)
             {
-                this.ContextMap = dataContext.EnumerableItems().Select((a, i) => (a, i)).ToDictionary(a => a.Item1, a => a.Item2);
+                this.DataContext = dataContext;
+                this.ContextMap =
+                    (dataContext?.EnumerableItems() ?? Enumerable.Empty<DataContextStack>())
+                        .Select((a, i) => (a, i))
+                        .ToDictionary(a => a.Item1, a => a.Item2);
                 this.AssertAllReplaced = assertAllReplaced;
             }
 
-            public override Expression Visit(Expression node)
+            private int FindContext(DataContextStack context)
+            {
+                if (this.ContextMap.TryGetValue(context, out var result))
+                    return result;
+
+                throw new InvalidOperationException($"Cannot find data context of a binding parameter: {context}. Binding data context is {this.DataContext?.ToString() ?? "null"}");
+            }
+
+            [return: NotNullIfNotNull("node")]
+            public override Expression? Visit(Expression? node)
             {
                 if (node?.GetParameterAnnotation() is BindingParameterAnnotation ann)
                 {
@@ -60,7 +76,7 @@ namespace DotVVM.Framework.Compilation
                         // handle data context hierarchy
                         var friendlyIdentifier = $"extension parameter {ann.ExtensionParameter.Identifier}";
                         var targetControl =
-                            ann.DataContext is null || ContextMap[ann.DataContext] == 0
+                            ann.DataContext is null || FindContext(ann.DataContext) == 0
                                 ? CurrentControlParameter
                                 : ExpressionUtils.Replace(
                                     (DotvvmBindableObject control) => BindingHelper.FindDataContextTarget(control, ann.DataContext, friendlyIdentifier).target,
@@ -72,7 +88,7 @@ namespace DotVVM.Framework.Compilation
                     else
                     {
                         var dc = ann.DataContext.NotNull("Invalid BindingParameterAnnotation");
-                        return Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(ContextMap[dc])), dc.DataContextType);
+                        return Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(FindContext(dc))), dc.DataContextType);
                     }
                 }
                 return base.Visit(node);
@@ -113,27 +129,50 @@ namespace DotVVM.Framework.Compilation
             return new KeyValuePair<string, Expression>(name, Expression.Convert(Expression.ArrayIndex(vmArray, Expression.Constant(index)), parents[index]));
         }
 
-        public virtual IBinding CreateMinimalClone(ResolvedBinding binding)
+        public virtual IBinding CreateMinimalClone(IBinding binding)
         {
-            var properties = GetMinimalCloneProperties(binding.Binding);
-            return (IBinding)Activator.CreateInstance(binding.BindingType, new object[] {
-                binding.BindingService,
+            object?[] properties = GetMinimalCloneProperties(binding).ToArray();
+
+            for (int i = 0; i < properties.Length; i++)
+            {
+                var p = properties[i];
+                if (p is null) continue;
+
+                if (p is DataSourceAccessBinding dataSource)
+                    properties[i] = cloneNestedBinding(dataSource.Binding)?.Apply(b => new DataSourceAccessBinding(b));
+                if (p is DataSourceLengthBinding dataLength)
+                    properties[i] = cloneNestedBinding(dataLength.Binding)?.Apply(b => new DataSourceLengthBinding(b));
+                if (p is DataSourceCurrentElementBinding collectionElement)
+                    properties[i] = cloneNestedBinding(collectionElement.Binding)?.Apply(b => new DataSourceCurrentElementBinding(b));
+                if (p is SelectorItemBindingProperty selectorItem)
+                    properties[i] = cloneNestedBinding(selectorItem.Expression)?.Apply(b => new SelectorItemBindingProperty(b));
+                if (p is ThisBindingProperty thisBinding)
+                    properties[i] = cloneNestedBinding(thisBinding.binding)?.Apply(b => new ThisBindingProperty(b));
+            }
+
+            return (IBinding)Activator.CreateInstance(binding.GetType(), new object[] {
+                bindingService,
                 properties
-            });
+            })!;
+
+            T? cloneNestedBinding<T>(T b)
+                where T: class, IBinding =>
+                b == binding ? null : // it it's self, then we can just recreate it at runtime
+                (T)CreateMinimalClone(b);
         }
 
-        public static IEnumerable<object> GetMinimalCloneProperties(IBinding binding)
+        public IEnumerable<object> GetMinimalCloneProperties(IBinding binding)
         {
-            var requirements = binding.GetProperty<BindingCompilationService>().GetRequirements(binding);
+            var requirements = bindingService.GetRequirements(binding);
             return requirements.Required.Concat(requirements.Optional)
-                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty), typeof(BindingParserOptions), typeof(BindingCompilationRequirementsAttribute), typeof(ExpectedTypeBindingProperty), typeof(AssignedPropertyBindingProperty) })
+                    .Concat(new[] { typeof(ParsedExpressionBindingProperty), typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(DotvvmLocationInfo), typeof(BindingParserOptions), typeof(BindingCompilationRequirementsAttribute), typeof(ExpectedTypeBindingProperty), typeof(AssignedPropertyBindingProperty) })
                     .Select(p => binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
                     .Where(p => p != null).ToArray()!;
         }
 
-        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
+        public virtual Expression EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
         {
-            var newbinding = CreateMinimalClone(binding);
+            var newbinding = CreateMinimalClone(binding.Binding);
             return emitter.EmitValue(newbinding);
         }
 
