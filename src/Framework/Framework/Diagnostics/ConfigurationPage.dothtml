@@ -4,14 +4,14 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>DotVVM Configuration Status Page</title>
+    <title>DotVVM Configuration Page</title>
     <dot:RequiredResource Name="dotvvm.internal-css" />
 </head>
 <body ClientIDMode="Static">
-    <h1>Configuration Status Page</h1>
+    <h1>Configuration Page</h1>
     <hr />
     <nav>
-        <dot:Button Click="{staticCommand: ActiveTab = 0}"
+        <%--<dot:Button Click="{staticCommand: ActiveTab = 0}"
                     Text="Tab 0"
                     class="nav"
                     Class-active="{value: ActiveTab == 0}" />
@@ -22,21 +22,30 @@
         <dot:Button Click="{staticCommand: ActiveTab = 2}"
                     Text="Tab 2"
                     class="nav"
-                    Class-active="{value: ActiveTab == 2}" />
+                    Class-active="{value: ActiveTab == 2}" />--%>
     </nav>
     <hr />
     <main>
-        <section Visible="{value: ActiveTab == 0}">
-            <h2>Tab 0</h2>
+        <section>
+            <dot:HierarchyRepeater DataSource="{value: RootSections}"
+                                   ItemChildrenBinding="{value: Subsections}"
+                                   RenderSettings.Mode="Server">
+                <dot:Repeater DataSource="{value: Settings}" style="padding-left: 1rem">
+                    <div>
+                        <strong>{{value: Name}}:</strong>
+                        <span>{{value: Value}}</span>
+                    </div>
+                </dot:Repeater>
+            </dot:HierarchyRepeater>
         </section>
 
-        <section Visible="{value: ActiveTab == 1}">
+        <%--<section Visible="{value: ActiveTab == 1}">
             <h2>Tab 1</h2>
         </section>
 
         <section Visible="{value: ActiveTab == 2}">
             <h2>Tab 2</h2>
-        </section>
+        </section>--%>
     </main>
     <hr />
 </body>

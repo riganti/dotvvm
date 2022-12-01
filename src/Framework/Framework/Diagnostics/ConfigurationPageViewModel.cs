@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ViewModel;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Diagnostics
 {
@@ -14,53 +16,95 @@ namespace DotVVM.Framework.Diagnostics
     {
         public int ActiveTab { get; set; } = 0;
 
-        public Section RootSection { get; set; } = new();
+        public List<Section> RootSections { get; set; } = new();
 
         public override Task Load()
         {
-            RootSection = GetSection("Root", Context.Configuration);
+            RootSections = new List<Section> { GetSection(Context.Configuration) };
             return base.Load();
         }
 
-        private static string GetSettingString<TSetting>(TSetting setting)
+        private static string? GetSettingString(object? setting)
         {
             if (setting is null)
             {
-                return "null";
+                return null;
             }
 
-            if (setting is string
-                || typeof(TSetting).IsPrimitive
-                || typeof(TSetting).GetMethod(
-                    nameof(ToString),
-                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly) is not null)
+            return setting.ToString();
+        }
+
+        private static Section GetSection(object config)
+        {
+            var configType = config.GetType();
+
+            var section = new Section {
+                Name = configType.Name
+            };
+
+            var props = configType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var prop in props)
             {
-                return setting.ToString();
+                if (IsSetting(prop))
+                {
+                    section.Settings.Add(new Setting {
+                        Name = prop.Name,
+                        Value = GetSettingString(prop.GetValue(config))
+                    });
+                }
+                else if (IsSubsection(prop))
+                {
+                    var subsection = prop.GetValue(config);
+                    if (subsection is not null)
+                    {
+                        section.Subsections.Add(GetSection(subsection));
+                    }
+                }
             }
 
-            throw new NotImplementedException();
+            if (configType.GetInterfaces()
+                    .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+            {
+                foreach (var subsection in (IEnumerable<object>)config)
+                {
+                    section.Subsections.Add(GetSection(subsection));
+                }
+            }
+            return section;
         }
 
-        private static Section GetSection<TConfig>(string name, TConfig config)
+        private static bool IsSubsection(PropertyInfo prop)
         {
-            throw new NotImplementedException();
+            return prop.GetCustomAttribute<JsonIgnoreAttribute>() is null
+                && prop.GetIndexParameters().Length == 0
+                && prop.PropertyType.IsClass
+                && prop.PropertyType.Assembly == typeof(DotvvmConfiguration).Assembly;
         }
 
-        private static IEnumerable<Section> GetSubsections<TConfig>(TConfig config)
+        private static bool IsSetting(PropertyInfo prop)
         {
-            return typeof(TConfig).GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.PropertyType.Assembly == typeof(TConfig).Assembly
-                    || p.PropertyType.GetInterfaces().Contains(typeof(IEnumerable<>)))
-                .Select(p => GetSection(p.Name, p.GetValue(config)));
+            return prop.GetCustomAttribute<JsonIgnoreAttribute>() is null
+                && prop.GetIndexParameters().Length == 0
+                && (prop.PropertyType.IsPrimitive
+                || prop.PropertyType.IsEnum
+                || prop.PropertyType == typeof(string));
         }
 
+        [DebuggerDisplay("Section {Name} [{Settings.Count}, {Subsections.Count}]")]
         public class Section
         {
             public string? Name { get; set; }
 
-            public List<(string key, string value)> Settings { get; set; } = new List<(string key, string value)>();
+            public List<Setting> Settings { get; set; } = new();
 
-            public List<Section> Subsections { get; set; } = new List<Section>();
+            public List<Section> Subsections { get; set; } = new();
+        }
+
+        [DebuggerDisplay("Setting {Name}: {Value}")]
+        public class Setting
+        {
+            public string? Name { get; set; }
+            public string? Value { get; set; }
         }
     }
 }
