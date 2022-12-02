@@ -70,7 +70,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Creates the constructor for this object.
         /// </summary>
-        private Expression CallConstructor(Expression services, Dictionary<PropertyInfo, ParameterExpression> propertyVariables)
+        private Expression CallConstructor(Expression services, Dictionary<PropertyInfo, ParameterExpression> propertyVariables, bool throwImmediately = false)
         {
             if (constructorFactory != null)
                 return Convert(Invoke(Constant(constructorFactory), services), Type);
@@ -120,7 +120,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // Since the old serializer didn't care about constructor problems until it was actually needed,
             // we can't throw exception during compilation, so we wait until this code will run.
             Expression jitException(string message) =>
-                Properties.Any(p => p.ConstructorParameter is {})
+                throwImmediately
                     ? throw new Exception(message)
                     : Expression.Throw(Expression.New(
                         typeof(Exception).GetConstructor(new [] { typeof(string) })!,
@@ -155,7 +155,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var alwaysCallConstructor = Properties.Any(p => p.TransferToServer && (
                 p.ConstructorParameter is {} ||
                 true == p.PropertyInfo?.SetMethod?.ReturnParameter?.GetRequiredCustomModifiers().Any(t => t == typeof(System.Runtime.CompilerServices.IsExternalInit))));
-            var constructorCall = CallConstructor(servicesParameter, propertyVars);
+            var constructorCall = CallConstructor(servicesParameter, propertyVars, throwImmediately: alwaysCallConstructor);
 
             // curly brackets are used for variables and methods from the context of this factory method
             // value = ({Type})valueParam;
