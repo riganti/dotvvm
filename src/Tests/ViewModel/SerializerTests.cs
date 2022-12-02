@@ -380,6 +380,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             private DotvvmTestHelper.ITestSingletonService Service { get; }
             public DotvvmTestHelper.ITestSingletonService GetService() => Service;
 
+            [JsonConstructor]
             public ViewModelWithService(string property1, DotvvmTestHelper.ITestSingletonService service)
             {
                 Property1 = property1;
@@ -397,6 +398,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         public class ViewModelWithUnmatchedConstuctorProperty1
         {
+            [JsonConstructor]
             public ViewModelWithUnmatchedConstuctorProperty1(string x) { }
         }
 
@@ -410,6 +412,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         public class ViewModelWithUnmatchedConstuctorProperty2
         {
+            [JsonConstructor]
             public ViewModelWithUnmatchedConstuctorProperty2(TestViewModelWithByteArray x) { }
         }
 

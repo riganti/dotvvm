@@ -82,10 +82,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
 
             if (Constructor is null && (Type.IsInterface || Type.IsAbstract))
-                throw new Exception($"Can not deserialize {Type.ToCode()} because it's abstract. Please avoid using abstract types in view model. If you really mean it, you can add a static factory method and mark it with [JsonConstructor] attribute.");
+                return jitException($"Can not deserialize {Type.ToCode()} because it's abstract. Please avoid using abstract types in view model. If you really mean it, you can add a static factory method and mark it with [JsonConstructor] attribute.");
 
             if (Constructor is null)
-                throw new Exception($"Can not deserialize {Type.ToCode()}, no constructor or multiple constructors found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.");
+                return jitException($"Can not deserialize {Type.ToCode()}, no parameterless constructor found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.");
 
             var parameters = Constructor.GetParameters().Select(p => {
                 var prop = Properties.FirstOrDefault(pp => pp.ConstructorParameter == p);
@@ -116,6 +116,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     Call(m, parameters),
                 _ => throw new NotSupportedException()
             };
+
+            // Since the old serializer didn't care about constructor problems until it was actually needed,
+            // we can't throw exception during compilation, so we wait until this code will run.
+            Expression jitException(string message) =>
+                Properties.Any(p => p.ConstructorParameter is {})
+                    ? throw new Exception(message)
+                    : Expression.Throw(Expression.New(
+                        typeof(Exception).GetConstructor(new [] { typeof(string) })!,
+                        Expression.Constant(message)
+                    ), this.Type);
         }
 
         /// <summary>
