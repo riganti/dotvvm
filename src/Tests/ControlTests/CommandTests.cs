@@ -4,6 +4,7 @@ using DotVVM.Framework.Testing;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -32,7 +33,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         
-        public class ViewModel1
+        public class ViewModel1: DotvvmViewModelBase
         {
             // don't ask me why people do this...
             // on one project, 4.1 upgrade did not work, because they try to inject
@@ -43,6 +44,34 @@ namespace DotVVM.Framework.Tests.ControlTests
             {
                 NestedVM = nestedVM;
             }
+
+            private bool calledInit, calledLoad;
+
+            public override Task Init()
+            {
+                if (Context is null)
+                    throw new System.Exception("Context is null in Init");
+                calledInit = true;
+                return base.Init();
+            }
+            public override Task Load()
+            {
+                if (Context is null)
+                    throw new System.Exception("Context is null in Load");
+                if (!calledInit)
+                    throw new System.Exception("Init was not called");
+                calledLoad = true;
+                return base.Load();
+            }
+            public override Task PreRender()
+            {
+                if (Context is null)
+                    throw new System.Exception("Context is null in PreRender");
+                if (!calledLoad)
+                    throw new System.Exception("Load was not called");
+                return base.PreRender();
+            }
+
 
             public OmgViewModelWithIsAlsoAService NestedVM { get; }
 
