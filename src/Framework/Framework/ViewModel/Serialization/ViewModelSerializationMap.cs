@@ -151,14 +151,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     p => Expression.Variable(p.Type, "prop_" + p.Name)
                 );
 
-            var hasConstructorProperties = Properties.Any(p => p.ConstructorParameter is {});
+            // If we have constructor property or if we have { get; init; } property, we always create new instance
+            var alwaysCallConstructor = Properties.Any(p => p.TransferToServer && (
+                p.ConstructorParameter is {} ||
+                true == p.PropertyInfo?.SetMethod?.ReturnParameter?.GetRequiredCustomModifiers().Any(t => t == typeof(System.Runtime.CompilerServices.IsExternalInit))));
             var constructorCall = CallConstructor(servicesParameter, propertyVars);
 
             // curly brackets are used for variables and methods from the context of this factory method
             // value = ({Type})valueParam;
             block.Add(Assign(value,
                 Condition(Equal(valueParam, Constant(null)),
-                    hasConstructorProperties
+                    alwaysCallConstructor
                         ? Default(Type)
                         : constructorCall,
                     Convert(valueParam, Type)
@@ -179,7 +182,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // add current object to encrypted values, this is needed because one property can potentially contain more objects (is a collection)
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
-
 
             // if the reader is in an invalid state, throw an exception
             // TODO: Change exception type, just Exception is not exactly descriptive
@@ -333,7 +335,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
 
             // call the constructor
-            if (hasConstructorProperties)
+            if (alwaysCallConstructor)
             {
                 block.Add(Assign(value, constructorCall));
             }
