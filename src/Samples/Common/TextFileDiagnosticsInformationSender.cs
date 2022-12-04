@@ -39,7 +39,7 @@ namespace DotVVM.Samples.Common
                 File.AppendAllText(logFilePath, messages);
             }
 
-            return TaskUtils.GetCompletedTask();
+            return Task.CompletedTask;
         }
 
         private string FormatUnwrittenMessages(DiagnosticsInformation information)

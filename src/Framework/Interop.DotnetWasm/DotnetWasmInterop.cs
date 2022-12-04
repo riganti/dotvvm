@@ -15,7 +15,12 @@ internal static partial class DotnetWasmInterop
         var type = Type.GetType(typeName, true);
         var context = new ViewModuleContext(typeName, instanceName, serializer);
 
-        var instance = Activator.CreateInstance(type, context);
+        var constructor = type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, new[] { typeof(IViewModuleContext) });
+        if (constructor == null)
+        {
+            throw new Exception($"The type {type} referenced in the @dotnet directive must have one public constructor accepting a parameter of type {typeof(IViewModuleContext)}.");
+        }
+        var instance = constructor.Invoke(new object[] { context });
         instances.Add(new ViewModuleInstanceKey(typeName, instanceName), instance);
     }
 

@@ -216,6 +216,8 @@ try {
             "$testDir", `
             "--configuration", `
             "$config", `
+			"--filter", `
+			"Category!=aspnetcore-only", `
             "--no-restore", `
             "--logger", `
             "trx;LogFileName=$TrxName", `

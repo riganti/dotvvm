@@ -91,14 +91,16 @@ namespace DotVVM.Samples.BasicSamples
                 endpoints.MapHealthChecks("/health");
             });
 
+            var wasmOutputPath = Path.GetFullPath(Path.Combine(env.ContentRootPath, "../Samples/CSharpClient/bin/Debug/net7.0/browser-wasm/AppBundle"));
             var contentTypeProvider = new FileExtensionContentTypeProvider();
             contentTypeProvider.Mappings.Add(".dll", "application/octet-stream");
             contentTypeProvider.Mappings.Add(".symbols", "application/octet-stream");
             contentTypeProvider.Mappings.Add(".blat", "application/octet-stream");
             contentTypeProvider.Mappings.Add(".dat", "application/octet-stream");
-            app.UseStaticFiles(new StaticFileOptions() {
+            app.UseStaticFiles(new StaticFileOptions()
+            {
                 RequestPath = new PathString("/dotvvmResource/dotvvm--interop--dotnet-wasm"),
-                FileProvider = new PhysicalFileProvider("D:\\Work\\Dotvvm\\src\\Samples\\CSharpClient\\bin\\Debug\\net7.0\\browser-wasm\\AppBundle"),
+                FileProvider = new PhysicalFileProvider(wasmOutputPath),
                 ContentTypeProvider = contentTypeProvider
             });
             app.UseStaticFiles();
