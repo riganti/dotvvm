@@ -61,10 +61,7 @@ namespace DotVVM.Framework.Controls
 
         public static DotvvmProperty ReferencedViewModuleInfoProperty =
             DotvvmProperty.Register<ViewModuleReferenceInfo, Internal>(() => ReferencedViewModuleInfoProperty);
-
-        public static DotvvmProperty ReferencedCSharpViewModuleInfoProperty =
-            DotvvmProperty.Register<ViewModuleReferenceInfo, Internal>(() => ReferencedCSharpViewModuleInfoProperty);
-
+        
         public static DotvvmProperty UsedPropertiesInfoProperty =
             DotvvmProperty.Register<ControlUsedPropertiesInfo, Internal>(() => UsedPropertiesInfoProperty);
 

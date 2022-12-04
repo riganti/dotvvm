@@ -8,6 +8,7 @@ using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.HelperNamespace;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
@@ -248,6 +249,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             Translators.Add(MethodCollection = new JavascriptTranslatableMethodCollection());
             Translators.Add(new DelegateInvokeMethodTranslator());
+            Translators.Add(new DotnetViewModuleMethodTranslator());
         }
 
         public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method) =>

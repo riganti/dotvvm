@@ -22,7 +22,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ActionFilterErro
         {
             context.IsPageExceptionHandled = true;
             context.RedirectToUrl("/error500");
-            return TaskUtils.GetCompletedTask();
+            return Task.CompletedTask;
         }
     }
 }

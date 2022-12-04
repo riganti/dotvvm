@@ -190,6 +190,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling = "FeatureSamples/ActionFilterErrorHandling/ActionFilterErrorHandling";
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling = "FeatureSamples/ActionFilterErrorHandling/ActionFilterPageErrorHandling";
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect = "FeatureSamples/ActionFilterErrorHandling/ActionFilterRedirect";
+        public const string FeatureSamples_Api_ApiInSpa_PageA = "FeatureSamples/Api/ApiInSpa_PageA";
+        public const string FeatureSamples_Api_ApiInSpa_PageB = "FeatureSamples/Api/ApiInSpa_PageB";
         public const string FeatureSamples_Api_ApiRefresh = "FeatureSamples/Api/ApiRefresh";
         public const string FeatureSamples_Api_AzureFunctionsApi = "FeatureSamples/Api/AzureFunctionsApi";
         public const string FeatureSamples_Api_AzureFunctionsApiTable = "FeatureSamples/Api/AzureFunctionsApiTable";
@@ -225,6 +227,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_CompositeControls_BasicSample = "FeatureSamples/CompositeControls/BasicSample";
         public const string FeatureSamples_CompositeControls_ControlPropertyNamingConflict = "FeatureSamples/CompositeControls/ControlPropertyNamingConflict";
         public const string FeatureSamples_ConditionalCssClasses_ConditionalCssClasses = "FeatureSamples/ConditionalCssClasses/ConditionalCssClasses";
+        public const string FeatureSamples_CsharpClient_CSharpClient = "FeatureSamples/CsharpClient/CSharpClient";
+        public const string FeatureSamples_CsharpClient_Marshalling = "FeatureSamples/CsharpClient/Marshalling";
         public const string FeatureSamples_CustomResponseProperties_SimpleExceptionFilter = "FeatureSamples/CustomResponseProperties/SimpleExceptionFilter";
         public const string FeatureSamples_DateTimeSerialization_DateTimeSerialization = "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
         public const string FeatureSamples_DependencyInjection_ViewModelScopedService = "FeatureSamples/DependencyInjection/ViewModelScopedService";

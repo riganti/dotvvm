@@ -29,9 +29,9 @@ public class TestCsharpModule
         context.PatchViewModel(new { Value = newValue });
     }
 
-    public async Task<int> CallNamedCommand(int value)
+    public async Task CallNamedCommand(int value)
     {
-        return await context.NamedCommands["TestCommand"].InvokeAsync<int>(value);
+        await context.InvokeNamedCommandAsync("TestCommand", value);
     }
 
 }

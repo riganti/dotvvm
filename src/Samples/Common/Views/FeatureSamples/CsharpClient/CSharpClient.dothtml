@@ -1,5 +1,5 @@
 ﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CsharpClient.CSharpClientViewModel, DotVVM.Samples.Common
-@csharp DotVVM.Samples.BasicSamples.CSharpClient.TestCsharpModule, DotVVM.Samples.BasicSamples.CSharpClient
+@dotnet DotVVM.Samples.BasicSamples.CSharpClient.TestCsharpModule, DotVVM.Samples.BasicSamples.CSharpClient
 
 <!DOCTYPE html>
 
@@ -7,28 +7,42 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <script type="module" src="/wasm/main.js"></script>
 </head>
 <body>
 
     <p>
-        Value: <dot:TextBox Text="{value: Value}" />
+        Value: <dot:TextBox data-ui="value" Text="{value: Value}" />
     </p>
 
     <p>
-        <dot:Button Text="Hello" Click="{staticCommand: _csharp.Hello()}" />
+        <dot:Button data-ui="hello" Text="Hello" Click="{staticCommand: _dotnet.Hello()}" />
     </p>
 
     <p>
-        <dot:Button Text="Test viewmodel access" Click="{staticCommand: ReadResult = _csharp.TestViewModelAccess()}" />
-        {{value: ReadResult}}
+        <dot:Button data-ui="read-vm" Text="Test viewmodel access" Click="{staticCommand: ReadResult = _dotnet.TestViewModelAccess()}" />
+        <span data-ui="read-vm-result">{{value: ReadResult}}</span>
     </p>
 
     <p>
-        <dot:Button Text="Call named command" Click="{staticCommand: NamedCommandResult = _csharp.CallNamedCommand(Value)}" />
-        {{value: NamedCommandResult}}
+        <dot:Button data-ui="patch-vm" Text="Patch view model" Click="{staticCommand: _dotnet.PatchViewModel(30)}" />
+    </p>
+
+    <p>
+        <dot:Button data-ui="named-command" Text="Call named command" Click="{staticCommand: _dotnet.CallNamedCommand(Value)}" />
     </p>
     <dot:NamedCommand Name="TestCommand" Command="{staticCommand: Value = Value * 2}" />
+
+    <p>
+        Last console entry: <span data-ui="console">{{value: LastConsole}}</span>
+    </p>
+
+    <script type="text/javascript">
+    const origConsoleLog = console.log;
+    console.log = function (...args) {
+        dotvvm.patchState({ LastConsole: args.join(", ") });
+        origConsoleLog(...args);
+    }
+    </script>
 
 </body>
 </html>

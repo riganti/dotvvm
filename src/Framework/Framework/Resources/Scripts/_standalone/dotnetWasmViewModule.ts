@@ -1,4 +1,4 @@
-﻿// DO NOT IMPORT THIS MODULE - it is not a part of DotVVM bundle, it is distributed separately at /dotvvmStaticResource/dotnetWasmInterop.js
+﻿// This module is not a part of the DotVVM bundle, it is distributed separately at /dotvvmResource/dotnetWasmInterop.js
 
 // @ts-ignore 
 import { dotnet } from "./dotnet.js";
@@ -8,12 +8,12 @@ let interop: any;
 async function initDotnet() {
     const { setModuleImports, getAssemblyExports, getConfig } = await dotnet.withDiagnosticTracing(true).create();
 
-    setModuleImports("/dotvvmStaticResource/dotnetWasmInterop.js", {
+    setModuleImports("dotvvmResource/dotvvm--interop--dotnet-wasm/dotvvm--interop--dotnet-wasm", {
         callNamedCommand: async (typeName: string, instanceName: string, commandName: string, args: string[]) => {
             const viewIdOrElement = instanceMap[instanceName];
             const argValues = args.map(a => JSON.parse(a));
-            const result = await dotvvm.viewModules.call(viewIdOrElement, "dotnetWasmInvoke", argValues, true);
-            return JSON.stringify(result);
+            const result = await dotvvm.viewModules.call(viewIdOrElement, "dotnetWasmCallNamedCommand", [commandName, ...argValues], true);
+            return JSON.stringify(result || null);
         },
         getViewModelSnapshot: () => {
             return JSON.stringify(dotvvm.state);
@@ -25,8 +25,7 @@ async function initDotnet() {
 
     const config = getConfig();
     const exports = await getAssemblyExports("DotVVM.Framework.Interop.DotnetWasm");
-    await dotnet.run();
-
+    
     interop = exports.DotVVM.Framework.Interop.DotnetWasm.DotnetWasmInterop;
 }
 const initPromise: Promise<void> = initDotnet();
@@ -42,11 +41,12 @@ class DotnetWasmModule {
         this.moduleType = this.context.instanceArgs![0];
         this.moduleInstanceId = "dotnet-wasm-" + (instanceCounter++);
         instanceMap[this.moduleInstanceId] = context.viewIdOrElement;
+        this.init();
     }
 
     private async init() {
         await initPromise;
-        interop.CreateViewModuleInstance(this.moduleType, this.moduleInstanceId, ["TestCommand"]);
+        interop.CreateViewModuleInstance(this.moduleType, this.moduleInstanceId);
     }
 
     async dotnetWasmInvoke(method: string, ...args: any[]) {
@@ -58,7 +58,16 @@ class DotnetWasmModule {
         return JSON.parse(result);
     }
 
-    $dispose() {
+    async dotnetWasmCallNamedCommand(name: string, ...args: any[]) {
+        const command = this.context.namedCommands[name];
+        if (!command) {
+            throw `NamedCommand control with name '${name}' not found.`;
+        }
+        return await command(...args);
+    }
+
+    async $dispose() {
+        await initPromise;
         interop.DisposeViewModuleInstance(this.moduleType, this.moduleInstanceId);
         delete instanceMap[this.moduleInstanceId];
     }

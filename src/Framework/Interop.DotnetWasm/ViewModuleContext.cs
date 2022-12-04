@@ -2,9 +2,9 @@
 {
     public class ViewModuleContext : IViewModuleContext
     {
+        private readonly string typeName;
+        private readonly string instanceName;
         private readonly DotvvmClientSerializer serializer;
-
-        public IReadOnlyDictionary<string, IViewModuleCommand> NamedCommands { get; }
 
         public T? GetViewModelSnapshot<T>()
         {
@@ -18,12 +18,20 @@
             DotnetWasmInterop.PatchViewModelSnapshot(json);
         }
 
-        public ViewModuleContext(string typeName, string instanceName, IEnumerable<string> namedCommandNames, DotvvmClientSerializer serializer)
-        {
-            this.serializer = serializer;
+        public Task InvokeNamedCommandAsync(string commandName, params object[] args) => InvokeNamedCommandAsync<object>(commandName, args);
 
-            NamedCommands = namedCommandNames
-                .ToDictionary(c => c, c => (IViewModuleCommand)new ViewModuleCommand(typeName, instanceName, c, serializer));
+        public async Task<T?> InvokeNamedCommandAsync<T>(string commandName, params object[] args)
+        {
+            var argValues = args.Select(serializer.Serialize).ToArray();
+            var json = await DotnetWasmInterop.CallNamedCommand(typeName, instanceName, commandName, argValues);
+            return (T?)serializer.Deserialize(typeof(T), json);
+        }
+
+        public ViewModuleContext(string typeName, string instanceName, DotvvmClientSerializer serializer)
+        {
+            this.typeName = typeName;
+            this.instanceName = instanceName;
+            this.serializer = serializer;
         }
     }
 }

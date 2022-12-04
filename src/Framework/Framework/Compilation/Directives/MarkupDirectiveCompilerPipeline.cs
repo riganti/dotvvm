@@ -62,14 +62,14 @@ namespace DotVVM.Framework.Compilation.Directives
             var viewModuleResult = viewModuleDirectiveCompiler.Compile();
             resolvedDirectives.AddIfAny(viewModuleDirectiveCompiler.DirectiveName, viewModuleResult.Directives);
 
-            var csharpViewModuleDirectiveCompiler = new CsharpViewModuleDirectiveCompiler(
+            var dotnetViewModuleDirectiveCompiler = new DotnetViewModuleDirectiveCompiler(
                 directivesByName,
                 treeBuilder,
                 masterPage,
                 !baseType.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))),
                 imports);
-            var csharpViewModuleResult = csharpViewModuleDirectiveCompiler.Compile();
-            resolvedDirectives.AddIfAny(csharpViewModuleDirectiveCompiler.DirectiveName, csharpViewModuleResult.Directives);
+            var dotnetViewModuleResult = dotnetViewModuleDirectiveCompiler.Compile();
+            resolvedDirectives.AddIfAny(dotnetViewModuleDirectiveCompiler.DirectiveName, dotnetViewModuleResult.Directives);
 
             var propertyDirectiveCompiler = new PropertyDeclarationDirectiveCompiler(directivesByName, treeBuilder, baseType, imports);
             var propertyResult = propertyDirectiveCompiler.Compile();
@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Compilation.Directives
                 baseType,
                 viewModelType.TypeDescriptor,
                 viewModuleResult.Artefact,
-                csharpViewModuleResult.Artefact,
+                dotnetViewModuleResult.Artefact,
                 propertyResult.Artefact);
         }
     }

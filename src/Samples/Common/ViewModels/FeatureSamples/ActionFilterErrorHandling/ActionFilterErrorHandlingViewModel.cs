@@ -29,7 +29,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ActionFilterErro
         {
             ((ActionFilterErrorHandlingViewModel)context.ViewModel).Result = "error was handled";
             context.IsCommandExceptionHandled = true;
-            return TaskUtils.GetCompletedTask();
+            return Task.CompletedTask;
         }
     }
 }

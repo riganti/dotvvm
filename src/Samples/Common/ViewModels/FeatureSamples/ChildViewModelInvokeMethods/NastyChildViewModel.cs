@@ -13,19 +13,19 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ChildViewModelIn
         public override Task Init()
         {
             InitCount++;
-            return TaskUtils.GetCompletedTask();
+            return Task.CompletedTask;
         }
 
         public override Task Load()
         {
             LoadCount++;
-            return TaskUtils.GetCompletedTask();
+            return Task.CompletedTask;
         }
 
         public override Task PreRender()
         {
             PreRenderCount++;
-            return TaskUtils.GetCompletedTask();
+            return Task.CompletedTask;
         }
     }
 }

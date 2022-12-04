@@ -6,6 +6,8 @@ public interface IViewModuleContext
 
     void PatchViewModel(object data);
 
-    IReadOnlyDictionary<string, IViewModuleCommand> NamedCommands { get; }
+    Task InvokeNamedCommandAsync(string commandName, params object[] args);
+
+    Task<T?> InvokeNamedCommandAsync<T>(string commandName, params object[] args);
 
 }

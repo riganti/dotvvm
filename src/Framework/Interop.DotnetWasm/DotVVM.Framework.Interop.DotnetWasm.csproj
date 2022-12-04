@@ -8,4 +8,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Framework\Utils\TaskUtils.cs" Link="TaskUtils.cs" />
+  </ItemGroup>
+
 </Project>

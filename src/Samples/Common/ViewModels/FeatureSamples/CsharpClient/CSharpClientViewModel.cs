@@ -13,8 +13,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CsharpClient
 
         public int? ReadResult { get; set; }
 
-        public int? NamedCommandResult { get; set; }
-
+        public string LastConsole { get; set; }
     }
 }
 

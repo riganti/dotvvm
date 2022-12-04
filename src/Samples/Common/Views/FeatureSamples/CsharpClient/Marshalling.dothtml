@@ -1,0 +1,197 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CsharpClient.MarshallingViewModel, DotVVM.Samples.Common
+@dotnet DotVVM.Samples.BasicSamples.CSharpClient.TypeMarshallingModule, DotVVM.Samples.BasicSamples.CSharpClient
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <p data-ui="MarshallByte">
+        <dot:Button Text="MarshallByte" Click="{staticCommand: ByteValue = _dotnet.MarshallByte(ByteValue)}" />
+        <span>{{value: ByteValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableByte">
+        <dot:Button Text="MarshallNullableByte" Click="{staticCommand: NullableByteValue = _dotnet.MarshallNullableByte(NullableByteValue)}" />
+        <span>{{value: NullableByteValue}}</span>
+    </p>
+    <p data-ui="MarshallSByte">
+        <dot:Button Text="MarshallSByte" Click="{staticCommand: SByteValue = _dotnet.MarshallSByte(SByteValue)}" />
+        <span>{{value: SByteValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableSByte">
+        <dot:Button Text="MarshallNullableSByte" Click="{staticCommand: NullableSByteValue = _dotnet.MarshallNullableSByte(NullableSByteValue)}" />
+        <span>{{value: NullableSByteValue}}</span>
+    </p>
+    <p data-ui="MarshallShort">
+        <dot:Button Text="MarshallShort" Click="{staticCommand: ShortValue = _dotnet.MarshallShort(ShortValue)}" />
+        <span>{{value: ShortValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableShort">
+        <dot:Button Text="MarshallNullableShort" Click="{staticCommand: NullableShortValue = _dotnet.MarshallNullableShort(NullableShortValue)}" />
+        <span>{{value: NullableShortValue}}</span>
+    </p>
+    <p data-ui="MarshallUShort">
+        <dot:Button Text="MarshallUShort" Click="{staticCommand: UShortValue = _dotnet.MarshallUShort(UShortValue)}" />
+        <span>{{value: UShortValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableUShort">
+        <dot:Button Text="MarshallNullableUShort" Click="{staticCommand: NullableUShortValue = _dotnet.MarshallNullableUShort(NullableUShortValue)}" />
+        <span>{{value: NullableUShortValue}}</span>
+    </p>
+    <p data-ui="MarshallInt">
+        <dot:Button Text="MarshallInt" Click="{staticCommand: IntValue = _dotnet.MarshallInt(IntValue)}" />
+        <span>{{value: IntValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableInt">
+        <dot:Button Text="MarshallNullableInt" Click="{staticCommand: NullableIntValue = _dotnet.MarshallNullableInt(NullableIntValue)}" />
+        <span>{{value: NullableIntValue}}</span>
+    </p>
+    <p data-ui="MarshallUInt">
+        <dot:Button Text="MarshallUInt" Click="{staticCommand: UIntValue = _dotnet.MarshallUInt(UIntValue)}" />
+        <span>{{value: UIntValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableUInt">
+        <dot:Button Text="MarshallNullableUInt" Click="{staticCommand: NullableUIntValue = _dotnet.MarshallNullableUInt(NullableUIntValue)}" />
+        <span>{{value: NullableUIntValue}}</span>
+    </p>
+    <p data-ui="MarshallLong">
+        <dot:Button Text="MarshallLong" Click="{staticCommand: LongValue = _dotnet.MarshallLong(LongValue)}" />
+        <span>{{value: LongValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableLong">
+        <dot:Button Text="MarshallNullableLong" Click="{staticCommand: NullableLongValue = _dotnet.MarshallNullableLong(NullableLongValue)}" />
+        <span>{{value: NullableLongValue}}</span>
+    </p>
+    <p data-ui="MarshallULong">
+        <dot:Button Text="MarshallULong" Click="{staticCommand: ULongValue = _dotnet.MarshallULong(ULongValue)}" />
+        <span>{{value: ULongValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableULong">
+        <dot:Button Text="MarshallNullableULong" Click="{staticCommand: NullableULongValue = _dotnet.MarshallNullableULong(NullableULongValue)}" />
+        <span>{{value: NullableULongValue}}</span>
+    </p>
+    <p data-ui="MarshallFloat">
+        <dot:Button Text="MarshallFloat" Click="{staticCommand: FloatValue = _dotnet.MarshallFloat(FloatValue)}" />
+        <span>{{value: FloatValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableFloat">
+        <dot:Button Text="MarshallNullableFloat" Click="{staticCommand: NullableFloatValue = _dotnet.MarshallNullableFloat(NullableFloatValue)}" />
+        <span>{{value: NullableFloatValue}}</span>
+    </p>
+    <p data-ui="MarshallDouble">
+        <dot:Button Text="MarshallDouble" Click="{staticCommand: DoubleValue = _dotnet.MarshallDouble(DoubleValue)}" />
+        <span>{{value: DoubleValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableDouble">
+        <dot:Button Text="MarshallNullableDouble" Click="{staticCommand: NullableDoubleValue = _dotnet.MarshallNullableDouble(NullableDoubleValue)}" />
+        <span>{{value: NullableDoubleValue}}</span>
+    </p>
+    <p data-ui="MarshallDecimal">
+        <dot:Button Text="MarshallDecimal" Click="{staticCommand: DecimalValue = _dotnet.MarshallDecimal(DecimalValue)}" />
+        <span>{{value: DecimalValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableDecimal">
+        <dot:Button Text="MarshallNullableDecimal" Click="{staticCommand: NullableDecimalValue = _dotnet.MarshallNullableDecimal(NullableDecimalValue)}" />
+        <span>{{value: NullableDecimalValue}}</span>
+    </p>
+    <p data-ui="MarshallDateTime">
+        <dot:Button Text="MarshallDateTime" Click="{staticCommand: DateTimeValue = _dotnet.MarshallDateTime(DateTimeValue)}" />
+        <span>{{value: DateTimeValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableDateTime">
+        <dot:Button Text="MarshallNullableDateTime" Click="{staticCommand: NullableDateTimeValue = _dotnet.MarshallNullableDateTime(NullableDateTimeValue)}" />
+        <span>{{value: NullableDateTimeValue}}</span>
+    </p>
+    <p data-ui="MarshallDateOnly">
+        <dot:Button Text="MarshallDateOnly" Click="{staticCommand: DateOnlyValue = _dotnet.MarshallDateOnly(DateOnlyValue)}" />
+        <span>{{value: DateOnlyValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableDateOnly">
+        <dot:Button Text="MarshallNullableDateOnly" Click="{staticCommand: NullableDateOnlyValue = _dotnet.MarshallNullableDateOnly(NullableDateOnlyValue)}" />
+        <span>{{value: NullableDateOnlyValue}}</span>
+    </p>
+    <p data-ui="MarshallTimeOnly">
+        <dot:Button Text="MarshallTimeOnly" Click="{staticCommand: TimeOnlyValue = _dotnet.MarshallTimeOnly(TimeOnlyValue)}" />
+        <span>{{value: TimeOnlyValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableTimeOnly">
+        <dot:Button Text="MarshallNullableTimeOnly" Click="{staticCommand: NullableTimeOnlyValue = _dotnet.MarshallNullableTimeOnly(NullableTimeOnlyValue)}" />
+        <span>{{value: NullableTimeOnlyValue}}</span>
+    </p>
+    <p data-ui="MarshallTimeSpan">
+        <dot:Button Text="MarshallTimeSpan" Click="{staticCommand: TimeSpanValue = _dotnet.MarshallTimeSpan(TimeSpanValue)}" />
+        <span>{{value: TimeSpanValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableTimeSpan">
+        <dot:Button Text="MarshallNullableTimeSpan" Click="{staticCommand: NullableTimeSpanValue = _dotnet.MarshallNullableTimeSpan(NullableTimeSpanValue)}" />
+        <span>{{value: NullableTimeSpanValue}}</span>
+    </p>
+    <p data-ui="MarshallChar">
+        <dot:Button Text="MarshallChar" Click="{staticCommand: CharValue = _dotnet.MarshallChar(CharValue)}" />
+        <span>{{value: CharValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableChar">
+        <dot:Button Text="MarshallNullableChar" Click="{staticCommand: NullableCharValue = _dotnet.MarshallNullableChar(NullableCharValue)}" />
+        <span>{{value: NullableCharValue}}</span>
+    </p>
+    <p data-ui="MarshallGuid">
+        <dot:Button Text="MarshallGuid" Click="{staticCommand: GuidValue = _dotnet.MarshallGuid(GuidValue)}" />
+        <span>{{value: GuidValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableGuid">
+        <dot:Button Text="MarshallNullableGuid" Click="{staticCommand: NullableGuidValue = _dotnet.MarshallNullableGuid(NullableGuidValue)}" />
+        <span>{{value: NullableGuidValue}}</span>
+    </p>
+    <p data-ui="MarshallString">
+        <dot:Button Text="MarshallString" Click="{staticCommand: StringValue = _dotnet.MarshallString(StringValue)}" />
+        <span>{{value: StringValue}}</span>
+    </p>
+    <p data-ui="MarshallEnum">
+        <dot:Button Text="MarshallEnum" Click="{staticCommand: EnumValue = _dotnet.MarshallEnum(EnumValue)}" />
+        <span>{{value: EnumValue}}</span>
+    </p>
+    <p data-ui="MarshallNullableEnum">
+        <dot:Button Text="MarshallNullableEnum" Click="{staticCommand: NullableEnumValue = _dotnet.MarshallNullableEnum(NullableEnumValue)}" />
+        <span>{{value: NullableEnumValue}}</span>
+    </p>
+    <p data-ui="MarshallObject">
+        <dot:Button Text="MarshallObject" Click="{staticCommand: ObjectValue = _dotnet.MarshallObject(ObjectValue)}" />
+        <span>{{value: ObjectValue.Int}}, {{value: ObjectValue.String}}</span>
+    </p>
+    <p data-ui="MarshallRecord">
+        <dot:Button Text="MarshallRecord" Click="{staticCommand: RecordValue = _dotnet.MarshallRecord(RecordValue)}" />
+        <span>{{value: RecordValue.Int}}, {{value: RecordValue.String}}</span>
+    </p>
+    <p data-ui="MarshallObjectArray">
+        <dot:Button Text="MarshallObjectArray" Click="{staticCommand: ObjectArrayValue = _dotnet.MarshallObjectArray(ObjectArrayValue)}" />
+        <span>{{value: ObjectArrayValue[0].Int}}, {{value: ObjectArrayValue[0].String}}; {{value: ObjectArrayValue[1].Int}}, {{value: ObjectArrayValue[1].String}}</span>
+    </p>
+    <p data-ui="MarshallRecordArray">
+        <dot:Button Text="MarshallRecordArray" Click="{staticCommand: RecordArrayValue = _dotnet.MarshallRecordArray(RecordArrayValue)}" />
+        <span>{{value: RecordArrayValue[0].Int}}, {{value: RecordArrayValue[0].String}}; {{value: RecordArrayValue[1].Int}}, {{value: RecordArrayValue[1].String}}</span>
+    </p>
+    <p data-ui="MarshallIntArray">
+        <dot:Button Text="MarshallIntArray" Click="{staticCommand: IntArrayValue = _dotnet.MarshallIntArray(IntArrayValue)}" />
+        <span>{{value: IntArrayValue[0]}}; {{value: IntArrayValue[1]}}</span>
+    </p>
+    <p data-ui="MarshallNullableDoubleArray">
+        <dot:Button Text="MarshallNullableDoubleArray" Click="{staticCommand: NullableDoubleArrayValue = _dotnet.MarshallNullableDoubleArray(NullableDoubleArrayValue)}" />
+        <span>{{value: NullableDoubleArrayValue[0]}}; {{value: NullableDoubleArrayValue[1]}}</span>
+    </p>
+    <p data-ui="MarshallStringArray">
+        <dot:Button Text="MarshallStringArray" Click="{staticCommand: StringArrayValue = _dotnet.MarshallStringArray(StringArrayValue)}" />
+        <span>{{value: StringArrayValue[0]}}; {{value: StringArrayValue[1]}}</span>
+    </p>
+    <p data-ui="MarshallTask">
+        <dot:Button Text="MarshallTask" Click="{staticCommand: TaskValue = _dotnet.MarshallTask(TaskValue).Result}" />
+        <span>{{value: TaskValue[0].Int}}, {{value: TaskValue[0].String}}; {{value: TaskValue[1].Int}}, {{value: TaskValue[1].String}}</span>
+    </p>
+    <p data-ui="MarshallException">
+        <dot:Button Text="MarshallException" Click="{staticCommand: _dotnet.MarshallException()}" />
+    </p>
+</body>
+</html>
+
+

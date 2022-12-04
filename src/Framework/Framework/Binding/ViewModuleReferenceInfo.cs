@@ -25,8 +25,6 @@ namespace DotVVM.Framework.Binding
         /// <summary> Whether control id should be used instead of ViewId to identify the modules. </summary>
         public bool IsMarkupControl { get; }
 
-        public string?[] ModuleInstanceArgs { get; }
-
         public ViewModuleReferenceInfo(string viewId, ViewModuleReferencedModule[] referencedModules, bool isMarkupControl)
         {
             this.ViewId = viewId;

@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Controls
         {
             if (!control.TreeRoot.TryGetProperty(Internal.ReferencedViewModuleInfoProperty, out var _))
             {
-                yield return new ControlUsageError("The NamedCommand control can be used only in pages or controls that have the @js directive.");
+                yield return new ControlUsageError("The NamedCommand control can be used only in pages or controls that have the @js or @csharp directive.");
             }
         }
 

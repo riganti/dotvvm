@@ -1,4 +1,4 @@
-import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager } from "./dotvvm-base"
+import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager, getVirtualDirectory } from "./dotvvm-base"
 import * as events from './events'
 import * as spa from "./spa/spa"
 import * as validation from './validation/validation'
@@ -107,6 +107,7 @@ const dotvvmExports = {
         call: viewModuleManager.callViewModuleCommand,
         registerMany: viewModuleManager.registerViewModules
     },
+    get virtualDirectory() { return getVirtualDirectory() },
     resourceLoader: {
         notifyModuleLoaded
     },

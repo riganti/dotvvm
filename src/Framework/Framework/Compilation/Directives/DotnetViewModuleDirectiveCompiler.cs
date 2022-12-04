@@ -11,13 +11,13 @@ using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Compilation.Directives;
 
-public class CsharpViewModuleDirectiveCompiler : DirectiveCompiler<IAbstractCsharpViewModuleDirective, CSharpViewModuleCompilationResult?>
+public class DotnetViewModuleDirectiveCompiler : DirectiveCompiler<IAbstractDotnetViewModuleDirective, DotnetViewModuleCompilationResult?>
 {
     private readonly IAbstractControlBuilderDescriptor? masterPage;
     private readonly bool isMarkupControl;
     private readonly ImmutableList<NamespaceImport> imports;
 
-    public CsharpViewModuleDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, IAbstractControlBuilderDescriptor? masterPage, bool isMarkupControl, ImmutableList<NamespaceImport> imports)
+    public DotnetViewModuleDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, IAbstractControlBuilderDescriptor? masterPage, bool isMarkupControl, ImmutableList<NamespaceImport> imports)
         : base(directiveNodesByName, treeBuilder)
     {
         this.masterPage = masterPage;
@@ -27,13 +27,13 @@ public class CsharpViewModuleDirectiveCompiler : DirectiveCompiler<IAbstractCsha
 
     public override string DirectiveName => ParserConstants.CsharpViewModuleDirective;
 
-    protected override CSharpViewModuleCompilationResult? CreateArtefact(IReadOnlyList<IAbstractCsharpViewModuleDirective> resolvedDirectives)
+    protected override DotnetViewModuleCompilationResult? CreateArtefact(IReadOnlyList<IAbstractDotnetViewModuleDirective> resolvedDirectives)
     {
         var id = AssignViewModuleId(masterPage);
         return ResolveImportedViewModules(resolvedDirectives, id);
     }
 
-    private CSharpViewModuleCompilationResult? ResolveImportedViewModules(IReadOnlyList<IAbstractCsharpViewModuleDirective> moduleDirectives, string id)
+    private DotnetViewModuleCompilationResult? ResolveImportedViewModules(IReadOnlyList<IAbstractDotnetViewModuleDirective> moduleDirectives, string id)
     {
         if (moduleDirectives.Count == 0)
         {
@@ -42,7 +42,7 @@ public class CsharpViewModuleDirectiveCompiler : DirectiveCompiler<IAbstractCsha
 
         if (moduleDirectives.Count > 1)
         {
-            moduleDirectives[1].DothtmlNode!.AddError("There can be only one @csharp directive in the page!");
+            moduleDirectives[1].DothtmlNode!.AddError("There can be only one @dotnet directive in the page!");
             return null;
         }
 
@@ -58,7 +58,7 @@ public class CsharpViewModuleDirectiveCompiler : DirectiveCompiler<IAbstractCsha
             new[] { new ViewModuleReferencedModule(ResourceConstants.DotvvmDotnetWasmInteropResourceName, new[] { x.ModuleType.FullName + ", "+ x.ModuleType.Assembly }) },
             isMarkupControl);
 
-        return new CSharpViewModuleCompilationResult(new CSharpExtensionParameter(id, isMarkupControl, moduleDirectives[0].ModuleType), info);
+        return new DotnetViewModuleCompilationResult(new DotnetExtensionParameter(id, isMarkupControl, moduleDirectives[0].ModuleType), info);
     }
 
     protected virtual string AssignViewModuleId(IAbstractControlBuilderDescriptor? masterPage)
@@ -72,6 +72,6 @@ public class CsharpViewModuleDirectiveCompiler : DirectiveCompiler<IAbstractCsha
         return "p" + numberOfMasterPages;
     }
 
-    protected override IAbstractCsharpViewModuleDirective Resolve(DothtmlDirectiveNode directiveNode) =>
-        TreeBuilder.BuildCsharpViewModuleDirective(directiveNode, ParseDirective(directiveNode, p => p.ReadDirectiveTypeName()), imports);
+    protected override IAbstractDotnetViewModuleDirective Resolve(DothtmlDirectiveNode directiveNode) =>
+        TreeBuilder.BuildDotnetViewModuleDirective(directiveNode, ParseDirective(directiveNode, p => p.ReadDirectiveTypeName()), imports);
 }

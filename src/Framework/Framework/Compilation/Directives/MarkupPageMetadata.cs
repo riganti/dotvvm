@@ -14,6 +14,6 @@ namespace DotVVM.Framework.Compilation.Directives
            ITypeDescriptor BaseType,
            ITypeDescriptor? ViewModelType,
            ViewModuleCompilationResult? ViewModuleResult,
-           CSharpViewModuleCompilationResult? CSharpViewModuleResult,
+           DotnetViewModuleCompilationResult? DotnetViewModuleResult,
            ImmutableList<DotvvmProperty> Properties);
 }
