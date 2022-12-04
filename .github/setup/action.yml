@@ -43,3 +43,7 @@ runs:
   - if: ${{ runner.os != 'Windows' }}
     run: dotnet restore ${{ inputs.sln }}
     shell: bash
+    
+  # install workloads
+  - run: |
+      dotnet workload install wasm-tools
