@@ -49,5 +49,5 @@ runs:
     shell: bash
     
   # install workloads
-  - run: |
-      dotnet workload install wasm-tools
+  - run: dotnet workload install wasm-tools
+    shell: pwsh
