@@ -1,4 +1,4 @@
-﻿// DO NOT IMPORT THIS MODULE - it is not a part of DotVVM bundle, it is distributed separately at /dotvvmStaticResource/dotnetWasmInterop.js
+﻿// This module is not a part of the DotVVM bundle, it is distributed separately at /dotvvmResource/dotnetWasmInterop.js
 
 // @ts-ignore 
 import { dotnet } from "./dotnet.js";
@@ -12,8 +12,8 @@ async function initDotnet() {
         callNamedCommand: async (typeName: string, instanceName: string, commandName: string, args: string[]) => {
             const viewIdOrElement = instanceMap[instanceName];
             const argValues = args.map(a => JSON.parse(a));
-            const result = await dotvvm.viewModules.call(viewIdOrElement, "callNamedCommand", [commandName, ...argValues], true);
-            return JSON.stringify(result);
+            const result = await dotvvm.viewModules.call(viewIdOrElement, "dotnetWasmCallNamedCommand", [commandName, ...argValues], true);
+            return JSON.stringify(result || null);
         },
         getViewModelSnapshot: () => {
             return JSON.stringify(dotvvm.state);
@@ -46,7 +46,7 @@ class DotnetWasmModule {
 
     private async init() {
         await initPromise;
-        interop.CreateViewModuleInstance(this.moduleType, this.moduleInstanceId, ["TestCommand"]);
+        interop.CreateViewModuleInstance(this.moduleType, this.moduleInstanceId);
     }
 
     async dotnetWasmInvoke(method: string, ...args: any[]) {
@@ -58,7 +58,7 @@ class DotnetWasmModule {
         return JSON.parse(result);
     }
 
-    async callNamedCommand(name: string, ...args: any[]) {
+    async dotnetWasmCallNamedCommand(name: string, ...args: any[]) {
         const command = this.context.namedCommands[name];
         if (!command) {
             throw `NamedCommand control with name '${name}' not found.`;

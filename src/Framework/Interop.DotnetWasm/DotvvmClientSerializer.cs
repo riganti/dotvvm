@@ -4,7 +4,7 @@ namespace DotVVM.Framework.Interop.DotnetWasm;
 
 public class DotvvmClientSerializer
 {
-    public string Serialize(object value)
+    public string Serialize(object? value)
     {
         return JsonSerializer.Serialize(value);
     }

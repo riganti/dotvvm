@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices.JavaScript;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Interop.DotnetWasm;
 
@@ -9,18 +10,17 @@ internal static partial class DotnetWasmInterop
     private static DotvvmClientSerializer serializer = new();
 
     [JSExport]
-    internal static void CreateViewModuleInstance(string typeName, string instanceName, string[] namedCommandNames)
+    internal static void CreateViewModuleInstance(string typeName, string instanceName)
     {
         var type = Type.GetType(typeName, true);
-        var context = new ViewModuleContext(typeName, instanceName, namedCommandNames, serializer);
+        var context = new ViewModuleContext(typeName, instanceName, serializer);
 
         var instance = Activator.CreateInstance(type, context);
         instances.Add(new ViewModuleInstanceKey(typeName, instanceName), instance);
     }
 
     [JSExport]
-    [return: JSMarshalAs<JSType.Any>]
-    internal static object? CallViewModuleCommand(string typeName, string instanceName, string methodName, string[] args)
+    internal static async Task<string> CallViewModuleCommand(string typeName, string instanceName, string methodName, string[] args)
     {
         var instance = GetInstance(typeName, instanceName);
         var method = instance.GetType().GetMethod(methodName);
@@ -36,7 +36,13 @@ internal static partial class DotnetWasmInterop
 
         try
         {
-            return method.Invoke(instance, argValues);
+            var result = method.Invoke(instance, argValues);
+            if (result is Task taskResult)
+            {
+                await taskResult;
+                result = TaskUtils.GetResult(taskResult);
+            }
+            return serializer.Serialize(result);
         }
         catch (TargetInvocationException ex)
         {
