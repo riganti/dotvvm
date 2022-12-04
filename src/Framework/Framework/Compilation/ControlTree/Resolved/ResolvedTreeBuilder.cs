@@ -97,8 +97,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public IAbstractViewModuleDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName) =>
             new ResolvedViewModuleDirective(directiveNode, modulePath, resourceName);
 
-        public IAbstractCsharpViewModuleDirective BuildCsharpViewModuleDirective(DothtmlDirectiveNode directiveNode, BindingParserNode typeName, ImmutableList<NamespaceImport> imports) =>
-            new ResolvedCsharpViewModuleDirective(directiveService, directiveNode, typeName, imports);
+        public IAbstractDotnetViewModuleDirective BuildDotnetViewModuleDirective(DothtmlDirectiveNode directiveNode, BindingParserNode typeName, ImmutableList<NamespaceImport> imports) =>
+            new ResolvedDotnetViewModuleDirective(directiveService, directiveNode, typeName, imports);
 
         public IAbstractPropertyDeclarationDirective BuildPropertyDeclarationDirective(
             DothtmlDirectiveNode directive,

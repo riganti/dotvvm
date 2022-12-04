@@ -12,7 +12,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
-    public class CsharpViewModuleMethodTranslator : IJavascriptMethodTranslator
+    public class DotnetViewModuleMethodTranslator : IJavascriptMethodTranslator
     {
         public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method)
         {
@@ -22,9 +22,9 @@ namespace DotVVM.Framework.Compilation.Binding
                 return null;
             }
 
-            // check whether we have the annotation - otherwise the type is not used in the _csharp context and will not be translated
+            // check whether we have the annotation - otherwise the type is not used in the _dotnet context and will not be translated
             var target = context.JsExpression();
-            if (target.Annotation<CSharpExtensionParameter.ViewModuleAnnotation>() is not { } annotation)
+            if (target.Annotation<DotnetExtensionParameter.ViewModuleAnnotation>() is not { } annotation)
             {
                 return null;
             }
@@ -32,15 +32,15 @@ namespace DotVVM.Framework.Compilation.Binding
             // check that the method is callable
             if (!method.IsPublic)
             {
-                throw new DotvvmCompilationException($"Cannot call non-public method {method.DeclaringType.FullName}.{method.Name} on a @csharp module!");
+                throw new DotvvmCompilationException($"Cannot call non-public method {method.DeclaringType.FullName}.{method.Name} on a @dotnet module!");
             }
             if (method.IsAbstract)
             {
-                throw new DotvvmCompilationException($"Cannot call abstract method {method.DeclaringType.FullName}.{method.Name} on a @csharp module!");
+                throw new DotvvmCompilationException($"Cannot call abstract method {method.DeclaringType.FullName}.{method.Name} on a @dotnet module!");
             }
             if (method.IsGenericMethod || method.IsGenericMethodDefinition)
             {
-                throw new DotvvmCompilationException($"Cannot call generic method {method.DeclaringType.FullName}.{method.Name} on a @csharp module!");
+                throw new DotvvmCompilationException($"Cannot call generic method {method.DeclaringType.FullName}.{method.Name} on a @dotnet module!");
             }
 
             // check that there are not more overloads
@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 .Where(m => m.Name == method.Name && m.IsPublic);
             if (allOverloads.Count() > 1)
             {
-                throw new DotvvmCompilationException($"There are multiple methods named {method.Name} on a @csharp module {context.OriginalExpression.Type}! Overloads are not supported on @csharp modules.");
+                throw new DotvvmCompilationException($"There are multiple methods named {method.Name} on a @dotnet module {context.OriginalExpression.Type}! Overloads are not supported on @dotnet modules.");
             }
 
             // translate the method

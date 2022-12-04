@@ -1,5 +1,5 @@
 ﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CsharpClient.CSharpClientViewModel, DotVVM.Samples.Common
-@csharp DotVVM.Samples.BasicSamples.CSharpClient.TestCsharpModule, DotVVM.Samples.BasicSamples.CSharpClient
+@dotnet DotVVM.Samples.BasicSamples.CSharpClient.TestCsharpModule, DotVVM.Samples.BasicSamples.CSharpClient
 
 <!DOCTYPE html>
 
@@ -15,20 +15,20 @@
     </p>
 
     <p>
-        <dot:Button Text="Hello" Click="{staticCommand: _csharp.Hello()}" />
+        <dot:Button Text="Hello" Click="{staticCommand: _dotnet.Hello()}" />
     </p>
 
     <p>
-        <dot:Button Text="Test viewmodel access" Click="{staticCommand: ReadResult = _csharp.TestViewModelAccess()}" />
+        <dot:Button Text="Test viewmodel access" Click="{staticCommand: ReadResult = _dotnet.TestViewModelAccess()}" />
         {{value: ReadResult}}
     </p>
 
     <p>
-        <dot:Button Text="Patch view model" Click="{staticCommand: _csharp.PatchViewModel(30)}" />
+        <dot:Button Text="Patch view model" Click="{staticCommand: _dotnet.PatchViewModel(30)}" />
     </p>
 
     <p>
-        <dot:Button Text="Call named command" Click="{staticCommand: _csharp.CallNamedCommand(Value)}" />
+        <dot:Button Text="Call named command" Click="{staticCommand: _dotnet.CallNamedCommand(Value)}" />
     </p>
     <dot:NamedCommand Name="TestCommand" Command="{staticCommand: Value = Value * 2}" />
 

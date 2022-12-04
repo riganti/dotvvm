@@ -57,23 +57,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 new BindingApiExtensionParameter()
             }.Concat(directiveMetadata.InjectedServices)
              .Concat(directiveMetadata.ViewModuleResult is null ? new BindingExtensionParameter[0] : new[] { directiveMetadata.ViewModuleResult.ExtensionParameter })
-             .Concat(directiveMetadata.CSharpViewModuleResult is null ? new BindingExtensionParameter[0] : new[] { directiveMetadata.CSharpViewModuleResult.ExtensionParameter }).ToArray());
+             .Concat(directiveMetadata.DotnetViewModuleResult is null ? new BindingExtensionParameter[0] : new[] { directiveMetadata.DotnetViewModuleResult.ExtensionParameter }).ToArray());
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directiveMetadata.Directives, directiveMetadata.MasterPage);
             view.FileName = fileName;
 
-            if (directiveMetadata.ViewModuleResult is { } || directiveMetadata.CSharpViewModuleResult is { })
+            if (directiveMetadata.ViewModuleResult is { } || directiveMetadata.DotnetViewModuleResult is { })
             {
-                var firstReference = directiveMetadata.ViewModuleResult?.Reference ?? directiveMetadata.CSharpViewModuleResult?.Reference;
-                var reference = new ViewModuleReferenceInfo(
-                    firstReference!.ViewId,
-                    Enumerable.Concat(
-                        directiveMetadata.ViewModuleResult?.Reference.ReferencedModules ?? Enumerable.Empty<ViewModuleReferencedModule>(),
-                        directiveMetadata.CSharpViewModuleResult?.Reference.ReferencedModules ?? Enumerable.Empty<ViewModuleReferencedModule>()
-                    ).ToArray(),
-                    firstReference.IsMarkupControl
-                );
-
+                var reference = BuildViewModuleReferenceInfo(directiveMetadata);
                 treeBuilder.AddProperty(
                     view,
                     treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, reference, null),
@@ -84,7 +75,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
             ResolveRootContent(root, view, viewMetadata);
 
             return view;
-        }     
+        }
+
+        private static ViewModuleReferenceInfo BuildViewModuleReferenceInfo(MarkupPageMetadata directiveMetadata)
+        {
+            var firstReference = directiveMetadata.ViewModuleResult?.Reference ?? directiveMetadata.DotnetViewModuleResult?.Reference;
+            var reference = new ViewModuleReferenceInfo(
+                firstReference!.ViewId,
+                Enumerable.Concat(
+                    directiveMetadata.ViewModuleResult?.Reference.ReferencedModules ?? Enumerable.Empty<ViewModuleReferencedModule>(),
+                    directiveMetadata.DotnetViewModuleResult?.Reference.ReferencedModules ?? Enumerable.Empty<ViewModuleReferencedModule>()
+                ).ToArray(),
+                firstReference.IsMarkupControl
+            );
+            return reference;
+        }
 
         /// <summary>
         /// Resolves the content of the root node.
