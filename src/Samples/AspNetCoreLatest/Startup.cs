@@ -91,7 +91,7 @@ namespace DotVVM.Samples.BasicSamples
                 endpoints.MapHealthChecks("/health");
             });
 
-            var wasmOutputPath = Path.GetFullPath(Path.Combine(env.ContentRootPath, "../Samples/CSharpClient/bin/Debug/net7.0/browser-wasm/AppBundle"));
+            var wasmOutputPath = Path.GetFullPath(Path.Combine(env.ContentRootPath, "../CSharpClient/bin/Debug/net7.0/browser-wasm/AppBundle"));
             var contentTypeProvider = new FileExtensionContentTypeProvider();
             contentTypeProvider.Mappings.Add(".dll", "application/octet-stream");
             contentTypeProvider.Mappings.Add(".symbols", "application/octet-stream");
