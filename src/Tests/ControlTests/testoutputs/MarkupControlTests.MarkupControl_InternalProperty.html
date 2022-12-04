@@ -1,7 +1,7 @@
 <html>
 	<head></head>
 	<body>
-		<div data-bind="dotvvm-with-control-properties: { Something: [{&quot;Key&quot;:&quot;test&quot;,&quot;Value&quot;:&quot;test&quot;},{&quot;Key&quot;:&quot;x&quot;,&quot;Value&quot;:&quot;y&quot;}], PropGroup: [{Key: &quot;const&quot;, Value: &quot;AA&quot;},{Key: &quot;resource&quot;, Value: &quot;XX10000000&quot;},{Key: &quot;value&quot;, Value: dotvvm.globalize.bindingNumberToString(int)},] }, dotvvm-with-view-modules: { modules: [&quot;somemodule&quot;] }">
+		<div data-bind="dotvvm-with-control-properties: { Something: [{&quot;Key&quot;:&quot;test&quot;,&quot;Value&quot;:&quot;test&quot;},{&quot;Key&quot;:&quot;x&quot;,&quot;Value&quot;:&quot;y&quot;}], PropGroup: [{Key: &quot;const&quot;, Value: &quot;AA&quot;},{Key: &quot;resource&quot;, Value: &quot;XX10000000&quot;},{Key: &quot;value&quot;, Value: dotvvm.globalize.bindingNumberToString(int)},] }, dotvvm-with-view-modules: [{&quot;module&quot;:&quot;somemodule&quot;,&quot;args&quot;:null}]">
 			<input onclick="dotvvm.applyPostbackHandlers((options) => {
 	dotvvm.viewModules.call(this, &quot;xx&quot;, [options.knockoutContext.$control.Something.state], false);
 },this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">

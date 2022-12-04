@@ -233,12 +233,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 throw new DotvvmCompilationException($"The type {type} referenced in the @dotnet directive must have exactly one public constructor with one parameter of IViewModuleContext!");
             }
             // TODO: check parameter type
-            return Expression.New(constructors[0], Expression.Constant(null, typeof(object)));
+            return Expression.New(constructors[0], Expression.Constant(null, typeof(object)))
+                .AddParameterAnnotation(new BindingParameterAnnotation(extensionParameter: this));
         }
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            return new JsIdentifierExpression("dotvvm").Member("viewModules").WithAnnotation(new ViewModuleAnnotation(Id, IsMarkupControl, ResolvedTypeDescriptor.ToSystemType(this.Type)));
+            return new JsIdentifierExpression("dotvvm").Member("viewModules")
+                .WithAnnotation(new ViewModuleAnnotation(Id, IsMarkupControl, ResolvedTypeDescriptor.ToSystemType(this.Type)));
         }
 
         public class ViewModuleAnnotation

@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Binding
         private string GenerateModuleBatchUniqueId()
         {
             using var sha = SHA256.Create();
-            return Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(string.Join("\0", this.ReferencedModules.Select(r => r.ModuleName + "\0" + r.InitArguments != null ? string.Join("\0", r.InitArguments!) : "")))))
+            return Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(string.Join("\0", this.ReferencedModules.Select(r => r.ModuleName + "\0" + (r.InitArguments != null ? string.Join("\0", r.InitArguments) : ""))))))
                 .Replace("/", "_").Replace("+", "-").Replace("=", "");
         }
     }

@@ -1,7 +1,7 @@
 <html>
 	<head></head>
 	<body>
-		<div data-bind="dotvvm-with-control-properties: { SomeProperty: &quot;Test&quot; }, dotvvm-with-view-modules: { modules: [&quot;somemodule&quot;] }">
+		<div data-bind="dotvvm-with-control-properties: { SomeProperty: &quot;Test&quot; }, dotvvm-with-view-modules: [{&quot;module&quot;:&quot;somemodule&quot;,&quot;args&quot;:null}]">
 			<span data-bind="text: dotvvm.viewModules.call($element, &quot;jsfn&quot;, [$control.SomeProperty()], false)"></span>
 		</div>
 	</body>

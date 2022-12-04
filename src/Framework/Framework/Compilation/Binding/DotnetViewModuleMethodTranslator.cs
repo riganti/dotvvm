@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
@@ -23,8 +24,8 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             // check whether we have the annotation - otherwise the type is not used in the _dotnet context and will not be translated
-            var target = context.JsExpression();
-            if (target.Annotation<DotnetExtensionParameter.ViewModuleAnnotation>() is not { } annotation)
+            var annotation = context.OriginalExpression.GetParameterAnnotation();
+            if (annotation is null || annotation.ExtensionParameter is not DotnetExtensionParameter extensionParameter)
             {
                 return null;
             }
@@ -53,7 +54,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             // translate the method
-            var viewIdOrElementExpr = annotation.IsMarkupControl ? new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter) : (JsExpression)new JsLiteral(annotation.Id);
+            var viewIdOrElementExpr = extensionParameter.IsMarkupControl ? new JsSymbolicParameter(JavascriptTranslator.CurrentElementParameter) : (JsExpression)new JsLiteral(extensionParameter.Id);
 
             return new JsIdentifierExpression("dotvvm").Member("viewModules").Member("call")
                 .Invoke(
