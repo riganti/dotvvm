@@ -6,10 +6,10 @@
         private readonly string instanceName;
         private readonly DotvvmClientSerializer serializer;
 
-        public T? GetViewModelSnapshot<T>()
+        public T GetViewModelSnapshot<T>()
         {
             var json = DotnetWasmInterop.GetViewModelSnapshot();
-            return (T?)serializer.Deserialize(typeof(T), json);
+            return (T)serializer.Deserialize(typeof(T), json)!;
         }
 
         public void PatchViewModel(object data)

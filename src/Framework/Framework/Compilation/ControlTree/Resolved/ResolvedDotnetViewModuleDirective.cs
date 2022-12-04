@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved;
 public class ResolvedDotnetViewModuleDirective : ResolvedDirective, IAbstractDotnetViewModuleDirective
 {
     /// <summary>Full .NET type of the module</summary>
-    public ITypeDescriptor ModuleType { get; }
+    public ITypeDescriptor? ModuleType { get; }
         
     public ResolvedDotnetViewModuleDirective(DirectiveCompilationService directiveCompilationService, DothtmlDirectiveNode node, BindingParserNode typeName, ImmutableList<NamespaceImport> imports)
         : base(node)

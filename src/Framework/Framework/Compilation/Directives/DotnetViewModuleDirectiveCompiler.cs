@@ -58,7 +58,7 @@ public class DotnetViewModuleDirectiveCompiler : DirectiveCompiler<IAbstractDotn
             new[] { new ViewModuleReferencedModule(ResourceConstants.DotvvmDotnetWasmInteropResourceName, new[] { x.ModuleType.FullName + ", "+ x.ModuleType.Assembly }) },
             isMarkupControl);
 
-        return new DotnetViewModuleCompilationResult(new DotnetExtensionParameter(id, isMarkupControl, moduleDirectives[0].ModuleType), info);
+        return new DotnetViewModuleCompilationResult(new DotnetExtensionParameter(id, isMarkupControl, moduleDirectives[0].ModuleType!), info);
     }
 
     protected virtual string AssignViewModuleId(IAbstractControlBuilderDescriptor? masterPage)

@@ -68,7 +68,7 @@ namespace DotVVM.Samples.BasicSamples.CSharpClient
     {
         public int Int { get; set; }
 
-        public string String { get; set; }
+        public string String { get; set; } = null!;
     }
 
     public record ChildRecord(int Int, string String);

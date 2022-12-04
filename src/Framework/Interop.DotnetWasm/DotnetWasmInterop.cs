@@ -12,7 +12,7 @@ internal static partial class DotnetWasmInterop
     [JSExport]
     internal static void CreateViewModuleInstance(string typeName, string instanceName)
     {
-        var type = Type.GetType(typeName, true);
+        var type = Type.GetType(typeName, true)!;
         var context = new ViewModuleContext(typeName, instanceName, serializer);
 
         var constructor = type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, new[] { typeof(IViewModuleContext) });

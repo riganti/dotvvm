@@ -32,15 +32,15 @@ namespace DotVVM.Framework.Compilation.Binding
             // check that the method is callable
             if (!method.IsPublic)
             {
-                throw new DotvvmCompilationException($"Cannot call non-public method {method.DeclaringType.FullName}.{method.Name} on a @dotnet module!");
+                throw new DotvvmCompilationException($"Cannot call non-public method {method.DeclaringType!.FullName}.{method.Name} on a @dotnet module!");
             }
             if (method.IsAbstract)
             {
-                throw new DotvvmCompilationException($"Cannot call abstract method {method.DeclaringType.FullName}.{method.Name} on a @dotnet module!");
+                throw new DotvvmCompilationException($"Cannot call abstract method {method.DeclaringType!.FullName}.{method.Name} on a @dotnet module!");
             }
             if (method.IsGenericMethod || method.IsGenericMethodDefinition)
             {
-                throw new DotvvmCompilationException($"Cannot call generic method {method.DeclaringType.FullName}.{method.Name} on a @dotnet module!");
+                throw new DotvvmCompilationException($"Cannot call generic method {method.DeclaringType!.FullName}.{method.Name} on a @dotnet module!");
             }
 
             // check that there are not more overloads

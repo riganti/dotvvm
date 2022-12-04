@@ -2,7 +2,7 @@
 
 public interface IViewModuleContext
 {
-    T? GetViewModelSnapshot<T>();
+    T GetViewModelSnapshot<T>();
 
     void PatchViewModel(object data);
 
