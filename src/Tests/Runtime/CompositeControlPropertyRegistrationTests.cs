@@ -47,14 +47,22 @@ namespace DotVVM.Framework.Tests.Runtime
             var template1 = DotvvmProperty.ResolveProperty(typeof(Control_BasicPropertyAttributes), "Template1").NotNull();
             Assert.AreEqual(typeof(ITemplate), template1.PropertyType);
             Assert.AreEqual(MappingMode.InnerElement, template1.MarkupOptions.MappingMode);
+            Assert.IsTrue(template1.MarkupOptions.Required);
 
             var template2 = DotvvmProperty.ResolveProperty(typeof(Control_BasicPropertyAttributes), "Template2").NotNull();
             Assert.AreEqual(typeof(HtmlGenericControl), template2.PropertyType);
             Assert.AreEqual(MappingMode.InnerElement, template2.MarkupOptions.MappingMode);
+            Assert.AreEqual("Template2-ChangedName", template2.MarkupOptions.Name);
+            Assert.IsTrue(template2.MarkupOptions.Required);
 
             var template3 = DotvvmProperty.ResolveProperty(typeof(Control_BasicPropertyAttributes), "Template3").NotNull();
             Assert.AreEqual(typeof(IEnumerable<GridView>), template3.PropertyType);
             Assert.AreEqual(MappingMode.InnerElement, template3.MarkupOptions.MappingMode);
+            Assert.IsFalse(template3.MarkupOptions.Required);
+
+            var requiredInnerElementProperty = DotvvmProperty.ResolveProperty(typeof(Control_BasicPropertyAttributes), "RequiredInnerElementProperty").NotNull();
+            Assert.AreEqual(MappingMode.Both, requiredInnerElementProperty.MarkupOptions.MappingMode);
+            Assert.IsTrue(requiredInnerElementProperty.MarkupOptions.Required);
         }
 
         [TestMethod]
@@ -80,11 +88,13 @@ namespace DotVVM.Framework.Tests.Runtime
                 DotvvmProperty.Register<string, Control_BasicPropertyAttributes>(nameof(AnotherHiddenProperty));
 
             public DotvvmControl GetContents(
+                [MarkupOptions(MappingMode = MappingMode.Both)]
+                string requiredInnerElementProperty,
                 int valueOnlyProperty,
                 IValueBinding<string> bindingOnlyProperty,
                 ValueOrBinding<string> property,
                 ITemplate template1,
-                // [MarkupOptions(Name = "Template2-ChangedName")]
+                [MarkupOptions(Name = "Template2-ChangedName", Required = true)]
                 HtmlGenericControl template2 = null,
                 IEnumerable<GridView> template3 = null,
                 ITemplate template = null,
