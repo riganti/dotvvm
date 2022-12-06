@@ -619,17 +619,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotvvm-jscomponent-react@file:../../Framework/JsComponent.React::locator=dotvvm.samples.common%40workspace%3A.":
-  version: 4.0.0-experimental-0004
-  resolution: "dotvvm-jscomponent-react@file:../../Framework/JsComponent.React#../../Framework/JsComponent.React::hash=4b90cf&locator=dotvvm.samples.common%40workspace%3A."
+"dotvvm-jscomponent-react@portal:../../Framework/JsComponent.React::locator=dotvvm.samples.common%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "dotvvm-jscomponent-react@portal:../../Framework/JsComponent.React::locator=dotvvm.samples.common%40workspace%3A."
   dependencies:
     dotvvm-types: ^4.1.0-preview10-final
   peerDependencies:
     react: ^17.0.2
     react-dom: ^17.0.2
-  checksum: e43c4be78bde498d01b88346aeb40468b0743e7a7e338a92aa9d8de1775c98fadce473c6dfa2604b8f1ebf9f6de30e2fe48ca9bbeb182f7e6116d676310437af
   languageName: node
-  linkType: hard
+  linkType: soft
 
 "dotvvm-types@npm:^4.1.0-preview10-final":
   version: 4.1.0-preview14-final
@@ -654,7 +653,7 @@ __metadata:
     "@types/react": ^17.0.25
     "@types/react-dom": ^17.0.9
     bulma: ^0.9.3
-    dotvvm-jscomponent-react: "file:../../Framework/JsComponent.React"
+    dotvvm-jscomponent-react: "portal:../../Framework/JsComponent.React"
     react: ^17.0.2
     react-dom: ^17.0.2
     recharts: ^2.1.4
