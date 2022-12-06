@@ -38,13 +38,13 @@ namespace DotVVM.Framework.Controls
         [ControlPropertyBindingDataContextChange(nameof(DataSource))]
         [CollectionElementDataContextChange(1)]
         [BindingCompilationRequirements(required: new[]{ typeof(SelectorItemBindingProperty) })]
-        public IValueBinding? ItemTextBinding
+        public IValueBinding<string>? ItemTextBinding
         {
-            get { return (IValueBinding?)GetValue(ItemTextBindingProperty); }
+            get { return (IValueBinding<string>?)GetValue(ItemTextBindingProperty); }
             set { SetValue(ItemTextBindingProperty, value); }
         }
         public static readonly DotvvmProperty ItemTextBindingProperty =
-            DotvvmProperty.Register<IValueBinding?, SelectorBase>(nameof(ItemTextBinding));
+            DotvvmProperty.Register<IValueBinding<string>?, SelectorBase>(nameof(ItemTextBinding));
 
         /// <summary>
         /// The expression of DataSource item that will be passed to the SelectedValue property when the item is selected.
@@ -94,16 +94,6 @@ namespace DotVVM.Framework.Controls
                 if (!t.IsPrimitiveTypeDescriptor())
                 {
                     yield return new ControlUsageError("Return type of ItemValueBinding has to be a primitive type!", valueBinding.DothtmlNode);
-                }
-            }
-
-            if (control.GetValue(SelectorBase.ItemTextBindingProperty) is ResolvedPropertyBinding textBinding)
-            {
-                // TODO: just change the property type to IValueBinding<string>?
-                var t = textBinding.Binding.ResultType;
-                if (!t.IsPrimitiveTypeDescriptor())
-                {
-                    yield return new ControlUsageError("Return type of ItemTextBinding should be string or other primitive type!", textBinding.DothtmlNode);
                 }
             }
         }
