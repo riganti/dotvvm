@@ -139,6 +139,46 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void BitMoreComplexCapability_GetterAndSetter()
         {
+            var c = new TestControl6();
+            Assert.AreEqual(null, c.GetValue<int?>("Nullable"));
+            Assert.AreEqual(30, c.GetValue<int?>("NotNullable"));
+            var defaultValues = c.GetCapability<BitMoreComplexCapability>();
+            Assert.AreEqual(null, defaultValues.BindingOnly);
+            Assert.AreEqual(null, defaultValues.ValueOrBinding.GetValue());
+            Assert.AreEqual(null, defaultValues.ValueOrBindingNullable);
+            Assert.AreEqual(null, defaultValues.Nullable);
+            Assert.AreEqual(30, defaultValues.NotNullable);
+
+            c.SetCapability(new BitMoreComplexCapability {
+                NotNullable = 1,
+                Nullable = 1,
+                ValueOrBinding = new (1),
+                ValueOrBindingNullable = new (1),
+            });
+
+            Assert.AreEqual(1, c.GetValue<int?>("Nullable"));
+            Assert.AreEqual(1, c.GetValue<int?>("NotNullable"));
+            Assert.AreEqual(1, c.GetValue<int?>("ValueOrBinding"));
+            Assert.AreEqual(1, c.GetValue<int?>("ValueOrBindingNullable"));
+
+            c.SetCapability(new BitMoreComplexCapability {
+                NotNullable = 2,
+                Nullable = null,
+                ValueOrBinding = new((int?)null),
+                ValueOrBindingNullable = null,
+            });
+
+            var values = c.GetCapability<BitMoreComplexCapability>();
+            Assert.AreEqual(null, values.ValueOrBinding.GetValue());
+            Assert.IsFalse(c.properties.Contains(c.GetDotvvmProperty("ValueOrBindingNullable")));
+            Assert.AreEqual(null, values.ValueOrBindingNullable?.ValueOrDefault);
+            Assert.AreEqual(2, values.NotNullable);
+            Assert.AreEqual(null, values.Nullable);
+        }
+ 
+        [TestMethod]
+        public void BitMoreComplexCapability_WeirdProperties_GetterAndSetter()
+        {
             var config = DotvvmTestHelper.DefaultConfig;
             var bindingService = config.ServiceProvider.GetRequiredService<BindingCompilationService>();
 
@@ -223,11 +263,11 @@ namespace DotVVM.Framework.Tests.Runtime
             IObjectWithCapability<TestNestedCapabilityWithPrefix>
         {       
         }
-        // public class TestControl6:
-        //     HtmlGenericControl,
-        //     IObjectWithCapability<BitMoreComplexCapability>
-        // {       
-        // }
+        public class TestControl6:
+            HtmlGenericControl,
+            IObjectWithCapability<BitMoreComplexCapability>
+        {       
+        }
         public class TestControlFallbackProps:
             HtmlGenericControl,
             IObjectWithCapability<BitMoreComplexCapability>
