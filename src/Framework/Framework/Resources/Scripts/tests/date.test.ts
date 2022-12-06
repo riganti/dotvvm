@@ -1,4 +1,12 @@
-﻿import { parseDate } from "../serialization/date"
+﻿import { parseDate, parseDateOnly, parseDateTimeOffset, parseTimeOnly, parseTimeSpan, serializeDate, serializeDateOnly, serializeTimeOnly } from "../serialization/date"
+
+test("Date invalid", () => {
+    expect(parseDate("")).toBe(null);
+    expect(parseDate("2021-01-40T12:12:12")).toBe(null);
+    expect(parseDate("2020-01-01T12:12:12.")).toBe(null);
+    expect(parseDate("2020-01-01T12:12:12.grrrr")).toBe(null);
+    expect(parseDate("blablabla2020-01-01T12:12:12")).toBe(null);
+})
 
 test("Date 6:58:10.500001 PM 8/10/2022", () => {
     testDateIsSameAfterParse("2022-08-10T18:58:10.501000");
@@ -67,4 +75,56 @@ function testDateIsSameAfterParse(dateInputString: string, expectedOutputDateStr
     expectedOutputDateString = expectedOutputDateString ?? dateInputString;
 
     expect(outputDateString).toBe(expectedOutputDateString);
+
+    const serializedDate = serializeDate(date, false)!;
+    expect(serializedDate.replace(/0+$/, "")).toBe(expectedOutputDateString.replace(/0+$/, ""));
 }
+
+
+test("date parse null propagation", () => {
+    expect(parseDate(null)).toBe(null)
+    expect(parseDate(undefined)).toBe(null)
+    expect(parseDateOnly(null)).toBe(null)
+    expect(parseDateOnly(undefined)).toBe(null)
+    expect(parseTimeOnly(null)).toBe(null)
+    expect(parseTimeOnly(undefined)).toBe(null)
+    expect(parseTimeSpan(null)).toBe(null)
+    expect(parseTimeSpan(undefined)).toBe(null)
+    expect(parseDateTimeOffset(null)).toBe(null)
+    expect(parseDateTimeOffset(undefined)).toBe(null)
+})
+
+
+test("DateTimeOffset parse", () => {
+    const d = parseDateTimeOffset("2021-06-28T15:28:31.000000+02:00")
+    // we only know the UTC time of d, toLocalString() would be in local time of whoever is running the test
+    expect(d?.toISOString()).toBe("2021-06-28T13:28:31.000Z")
+})
+test("DateTimeOffset invalid", () => {
+    expect(parseDateTimeOffset("")).toBe(null)
+    expect(parseDateTimeOffset("2021-01-40T15:28:31.000000+02:00")).toBe(null)
+})
+
+test("DateOnly serialize", () => {
+    expect(serializeDateOnly(new Date(2020, 1, 29))).toBe("2020-02-29")
+})
+
+test("DateOnly parse", () => {
+    const d = parseDateOnly("2020-01-10")
+    expect(d?.toLocaleString('sv')).toBe("2020-01-10 00:00:00")
+
+    expect(serializeDateOnly(d!)).toBe("2020-01-10")
+})
+
+test("TimeOnly serialize", () => {
+    expect(serializeTimeOnly(new Date(0, 0, 1, 10, 10, 10, 123))).toBe("10:10:10.1230000")
+})
+
+test("TimeOnly parse", () => {
+    const d = parseTimeOnly("18:58:10.501")
+    expect(d?.toLocaleTimeString('sv')).toBe("18:58:10")
+    expect(d?.getHours()).toBe(18)
+    expect(d?.getMilliseconds()).toBe(501)
+
+    expect(serializeTimeOnly(d!)).toBe("18:58:10.5010000")
+})

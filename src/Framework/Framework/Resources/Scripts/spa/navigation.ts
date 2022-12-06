@@ -10,6 +10,7 @@ import { handleRedirect } from '../postback/redirect';
 import * as gate from '../postback/gate';
 import { DotvvmPostbackError } from '../shared-classes';
 import { replaceTypeInfo } from '../metadata/typeMap';
+import { clearApiCachedValues } from '../api/api';
 
 let lastStartedNavigation = -1
 
@@ -53,6 +54,9 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
         await loadResourceList(response.result.resources);
 
         if (response.result.action === "successfulCommand") {
+            if (compileConstants.isSpa) {
+                clearApiCachedValues();
+            }
             replaceTypeInfo(response.result.typeMetadata);
             updater.updateViewModelAndControls(response.result);
             isSpaReady(true);

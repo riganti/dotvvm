@@ -190,6 +190,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling = "FeatureSamples/ActionFilterErrorHandling/ActionFilterErrorHandling";
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling = "FeatureSamples/ActionFilterErrorHandling/ActionFilterPageErrorHandling";
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect = "FeatureSamples/ActionFilterErrorHandling/ActionFilterRedirect";
+        public const string FeatureSamples_Api_ApiInSpa_PageA = "FeatureSamples/Api/ApiInSpa_PageA";
+        public const string FeatureSamples_Api_ApiInSpa_PageB = "FeatureSamples/Api/ApiInSpa_PageB";
         public const string FeatureSamples_Api_ApiRefresh = "FeatureSamples/Api/ApiRefresh";
         public const string FeatureSamples_Api_AzureFunctionsApi = "FeatureSamples/Api/AzureFunctionsApi";
         public const string FeatureSamples_Api_AzureFunctionsApiTable = "FeatureSamples/Api/AzureFunctionsApiTable";

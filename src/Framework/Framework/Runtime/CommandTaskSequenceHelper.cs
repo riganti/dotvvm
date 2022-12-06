@@ -8,28 +8,17 @@ namespace DotVVM.Framework.Runtime
 {
     public static class CommandTaskSequenceHelper
     {
-
-        // do not change these methods - they are used by binding compiler to support async methods
-
-        public static Task JoinTasks(Task first, Func<Task> second)
+        // do not change signatures of these methods - they are used by binding compiler to support async methods
+        public static async Task JoinTasks(Task first, Func<Task> second)
         {
-            return first.ContinueWith(t => second()).Unwrap();
+            await first;
+            await second();
         }
 
-        public static Task<TResult> JoinTasks<TResult>(Task first, Func<Task<TResult>> second)
+        public static async Task<TResult> JoinTasks<TResult>(Task first, Func<Task<TResult>> second)
         {
-            return first.ContinueWith(t => second()).Unwrap();
-        }
-
-        public static Task WrapAsTask(Action action)
-        {
-            action();
-            return TaskUtils.GetCompletedTask();
-        }
-
-        public static Task<T> WrapAsTask<T>(Func<T> action)
-        {
-            return Task.FromResult(action());
+            await first;
+            return await second();
         }
     }
 }
