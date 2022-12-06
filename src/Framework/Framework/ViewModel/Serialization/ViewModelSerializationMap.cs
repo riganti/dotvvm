@@ -154,7 +154,18 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // If we have constructor property or if we have { get; init; } property, we always create new instance
             var alwaysCallConstructor = Properties.Any(p => p.TransferToServer && (
                 p.ConstructorParameter is {} ||
-                true == p.PropertyInfo?.SetMethod?.ReturnParameter?.GetRequiredCustomModifiers().Any(t => t == typeof(System.Runtime.CompilerServices.IsExternalInit))));
+                p.PropertyInfo.IsInitOnly()));
+            
+            // We don't want to clone IDotvvmViewModel automatically, because the user is likely to register this specific instance somewhere
+            if (alwaysCallConstructor && typeof(IDotvvmViewModel).IsAssignableFrom(Type) && Constructor is {} && Constructor.IsDefined(typeof(JsonConstructorAttribute)))
+            {
+                var cloneReason =
+                    Properties.FirstOrDefault(p => p.TransferToServer && p.PropertyInfo.IsInitOnly()) is {} initProperty
+                        ? $"init-only property {initProperty.Name} is transferred client → server" :
+                    Properties.FirstOrDefault(p => p.TransferToServer && p.ConstructorParameter is {}) is {} ctorProperty
+                        ? $"property {ctorProperty.Name} must be injected into constructor parameter {ctorProperty.ConstructorParameter!.Name}" : "internal bug";
+                throw new Exception($"Deserialization of {Type.ToCode()} is not allowed, because it implements IDotvvmViewModel and {cloneReason}. To allow cloning the object on deserialization, mark a constructor with [JsonConstructor].");
+            }
             var constructorCall = CallConstructor(servicesParameter, propertyVars, throwImmediately: alwaysCallConstructor);
 
             // curly brackets are used for variables and methods from the context of this factory method

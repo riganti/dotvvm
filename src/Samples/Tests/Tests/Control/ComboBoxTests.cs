@@ -230,7 +230,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error);
 
-                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("System.String") && s.Contains("not assignable") && s.Contains("System.Int32"));
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("string") && s.Contains("not assignable") && s.Contains("System.Int32"));
                 AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
                 AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{value: SelectedInt}"));
             });
