@@ -39,10 +39,20 @@ Optionally, you can use the `viewModel` or `getChildContext` property to set a d
     }
     $: setNewViewModel(viewModel)
 
+    // We don't let knockout initialize the Svelte elements, so we need to get the context from the parent element
+    function getKnockoutContext(element: HTMLElement) {
+        while (element) {
+            const cx = ko.contextFor(element)
+            if (cx) return cx
+            element = element.parentElement
+        }
+        throw new Error("Could not find knockout context")
+    }
+
 
     function initializeTemplate() {
         const e = wrapperElement
-        let context: KnockoutBindingContext = ko.contextFor(e)
+        let context: KnockoutBindingContext = getKnockoutContext(e)
         if (getChildContext) {
             context = getChildContext(context)
         }
@@ -55,9 +65,7 @@ Optionally, you can use the `viewModel` or `getChildContext` property to set a d
     }
 
     onMount(() => {
-        // we need to delay the template initialization, because knockout data context does not exist at the time when onMount is invoked
-        // it's added some moments later
-        setTimeout(() => initializeTemplate(), 5)
+        initializeTemplate()
     })
 </script>
 
