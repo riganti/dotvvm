@@ -429,12 +429,19 @@ namespace DotVVM.Framework.Controls
             DotvvmControl? result = this;
             for (var i = 0; i < parts.Length; i++)
             {
-                result = result.GetAllDescendants(c => !IsNamingContainer(c))
-                    .SingleOrDefault(c => c.GetValue(Internal.UniqueIDProperty) as string == parts[i]);
-                if (result == null)
+                var results = result.GetAllDescendants(c => !IsNamingContainer(c))
+                    .Where(c => c.GetValue(Internal.UniqueIDProperty) as string == parts[i]).ToArray();
+                if (results.Length == 0)
                 {
                     return null;
                 }
+                if (results.Length > 1)
+                {
+                    throw new DotvvmControlException(results[0], $"Multiple controls with the same UniqueID '{string.Join('_', parts.Take(i + 1))}' were found:" +
+                        string.Concat(results.Take(20).Select(c => "\n * " + c.DebugString(multiline: false))));
+                }
+
+                result = results[0];
             }
             return result;
         }
