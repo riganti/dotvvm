@@ -245,6 +245,7 @@ namespace DotVVM.Framework.Controls
             var itemWrapper = ItemWrapperCapability.GetWrapper();
             c.Add(itemWrapper);
             var dataItem = new DataItemContainer { DataItemIndex = index };
+            dataItem.SetValue(Internal.UniqueIDProperty, index.ToString() + "L"); // must be different from sibling HierarchyRepeaterLevel
             itemWrapper.Children.Add(dataItem);
             dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
             // NB: the placeholder is needed because during data context resolution DataItemContainers are looked up
@@ -287,6 +288,7 @@ namespace DotVVM.Framework.Controls
                 .Member("$indexPath")
                 .Member("map").Invoke(new JsIdentifierExpression("ko.unwrap"))
                 .Member("join").Invoke(new JsLiteral("_"))
+                .Binary(BinaryOperatorType.Plus, new JsLiteral("L"))
                 .FormatParametrizedScript();
 
         private DotvvmControl AddClientItemTemplate(IList<DotvvmControl> c, IDotvvmRequestContext context)
