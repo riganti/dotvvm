@@ -84,6 +84,9 @@ export default {
                 component.dispose()
                 newState.unsubscribe(update)
             })
+
+            // No need to evaluate data-bind attributes inside the component
+            return { controlsDescendantBindings: true }
         }
     }
 }

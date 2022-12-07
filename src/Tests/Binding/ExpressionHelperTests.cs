@@ -12,12 +12,15 @@ using DotVVM.Framework.Testing;
 using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using CheckTestOutput;
+using DotVVM.Framework.Tests.Runtime;
 
 namespace DotVVM.Framework.Tests.Binding
 {
     [TestClass]
     public class ExpressionHelperTests
     {
+        OutputChecker check = new CheckTestOutput.OutputChecker("testoutputs");
         public TestContext TestContext { get; set; }
         private MemberExpressionFactory memberExpressionFactory;
 
@@ -278,6 +281,20 @@ namespace DotVVM.Framework.Tests.Binding
             Call_FindOverload_Generic(typeof(MethodsParamsArgumentsGenericResolvingSampleObject),
                 MethodsParamsArgumentsGenericResolvingSampleObject.MethodName, argTypes, resultIdentifierType, expectedArgsTypes);
         }
+
+        [TestMethod]
+        [DataRow("PrivateField", "Instance member 'System.String PrivateField' is private, please make it public to use it in the binding.")]
+        [DataRow("PrivateProperty", "Instance member 'System.String PrivateProperty' is private, please make it public to use it in the binding.")]
+        [DataRow("StaticProperty", "Member 'System.String StaticProperty' is static.")]
+        public void Error_MemberPrivate(string memberName, string error)
+        {
+            var ex = Assert.ThrowsException<Exception>(() =>
+                memberExpressionFactory.GetMember(
+                    Expression.Parameter(typeof(ErrorSampleObject), "vm"),
+                    memberName
+                ));
+            Assert.AreEqual(error, ex.Message);
+        }
     }
     public static class MethodsParamsArgumentsGenericResolvingSampleObject
     {
@@ -335,6 +352,13 @@ namespace DotVVM.Framework.Tests.Binding
     public class GenericModelSampleObject<T>
     {
         public T Prop { get; set; }
+    }
+
+    public class ErrorSampleObject
+    {
+        private string PrivateField;
+        private string PrivateProperty { get; }
+        public static string StaticProperty { get; }
     }
 
     public class GenericTestResult1 { }

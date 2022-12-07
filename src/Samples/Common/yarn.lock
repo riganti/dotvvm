@@ -198,6 +198,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/knockout@npm:^3.4.69":
+  version: 3.4.72
+  resolution: "@types/knockout@npm:3.4.72"
+  checksum: cd5aff55f44808a3fbf0930e6f8f24213be8bd3e0150575c40216118f11de4f58a4950fe1c7619a652c06cdc4f9ec4ef67f19d8083e2d50bd3fe6a203ed847ef
+  languageName: node
+  linkType: hard
+
 "@types/knockout@npm:^3.4.71":
   version: 3.4.71
   resolution: "@types/knockout@npm:3.4.71"
@@ -612,13 +619,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotvvm-jscomponent-react@npm:4.0.0-experimental-0004":
-  version: 4.0.0-experimental-0004
-  resolution: "dotvvm-jscomponent-react@npm:4.0.0-experimental-0004"
+"dotvvm-jscomponent-react@portal:../../Framework/JsComponent.React::locator=dotvvm.samples.common%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "dotvvm-jscomponent-react@portal:../../Framework/JsComponent.React::locator=dotvvm.samples.common%40workspace%3A."
+  dependencies:
+    dotvvm-types: ^4.1.0-preview10-final
   peerDependencies:
     react: ^17.0.2
     react-dom: ^17.0.2
-  checksum: 4a35efa623ccad956a528ec88778577a4fe7de3d1aca7bc703a3c60aab1ef2de4e25a3c6733ec96f909037e8966f5f01c950edeacb26386be613286ed005aaec
+  languageName: node
+  linkType: soft
+
+"dotvvm-types@npm:^4.1.0-preview10-final":
+  version: 4.1.0-preview14-final
+  resolution: "dotvvm-types@npm:4.1.0-preview14-final"
+  dependencies:
+    "@types/knockout": ^3.4.69
+  checksum: 8c09b675cf835dcd5001dee39d20d5771d727933695671ecc01f293a14be8f1feeb82277847d8bc792c4b0a732af0bd910543aa4241facbcb8e524255aa8784e
   languageName: node
   linkType: hard
 
@@ -636,7 +653,7 @@ __metadata:
     "@types/react": ^17.0.25
     "@types/react-dom": ^17.0.9
     bulma: ^0.9.3
-    dotvvm-jscomponent-react: 4.0.0-experimental-0004
+    dotvvm-jscomponent-react: "portal:../../Framework/JsComponent.React"
     react: ^17.0.2
     react-dom: ^17.0.2
     recharts: ^2.1.4

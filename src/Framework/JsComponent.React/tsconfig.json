@@ -10,7 +10,9 @@
       "dom",
       "ES6"
     ],
+    "moduleResolution": "node",
     "declaration": true,
+    "outDir": "dist",
     "declarationDir": "dist/declarations",
     "typeRoots": [
       "./node_modules/@types", 

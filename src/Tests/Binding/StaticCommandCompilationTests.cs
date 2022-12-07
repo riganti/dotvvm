@@ -414,7 +414,7 @@ namespace DotVVM.Framework.Tests.Binding
 
             var result = Assert.ThrowsException<BindingPropertyException>(() => CompileBinding("TestViewModel.GetCharCode", false, typeof(TestViewModel)));
 
-            Assert.AreEqual("Static method 'TestViewModel.GetCharCode' not found, but an instance method exists.", result.GetBaseException().Message);
+            Assert.AreEqual("Member 'Int32 GetCharCode(Char)' is not static.", result.GetBaseException().Message);
         }
 
         public void AreEqual(string expected, string actual)

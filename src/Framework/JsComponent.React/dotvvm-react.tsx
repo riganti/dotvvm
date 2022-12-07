@@ -21,6 +21,16 @@ export type KnockoutTemplateReactComponent_Props = {
     viewModel?: any
 }
 
+// We don't let knockout initialize the React elements, so we need to get the context from the parent element
+function getKnockoutContext(element: HTMLElement) {
+    while (element) {
+        const cx = ko.contextFor(element)
+        if (cx) return cx
+        element = element.parentElement
+    }
+    throw new Error("Could not find knockout context")
+}
+
 /** React wrapper for knockout `ko.renderTemplate` function.
  * Specify the `templateName` property to select which template should be rendered.
  * Optionally, you can use the `viewModel` or `getChildContext` property to set a data context for the template. */
@@ -36,11 +46,11 @@ export class KnockoutTemplateReactComponent extends React.Component<KnockoutTemp
     // componentWillUnmount() {
     // }
     componentDidMount() {
-        setTimeout(() => this.initializeTemplate(), 5)
+        this.initializeTemplate()
     }
     initializeTemplate() {
         const e = this.wrapRef.current
-        let context: KnockoutBindingContext = ko.contextFor(e)
+        let context: KnockoutBindingContext = getKnockoutContext(e)
         if (this.props.getChildContext) {
             context = this.props.getChildContext(context)
         }
