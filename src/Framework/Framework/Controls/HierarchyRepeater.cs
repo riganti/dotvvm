@@ -8,6 +8,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
@@ -280,6 +281,14 @@ namespace DotVVM.Framework.Controls
             return itemWrapper;
         }
 
+        private static ParametrizedCode indexPathExpression =
+            JavascriptTranslator.KnockoutContextParameter
+                .ToExpression()
+                .Member("$indexPath")
+                .Member("map").Invoke(new JsIdentifierExpression("ko.unwrap"))
+                .Member("join").Invoke(new JsLiteral("_"))
+                .FormatParametrizedScript();
+
         private DotvvmControl AddClientItemTemplate(IList<DotvvmControl> c, IDotvvmRequestContext context)
         {
             var bindingService = context.Services.GetRequiredService<BindingCompilationService>();
@@ -291,7 +300,7 @@ namespace DotVVM.Framework.Controls
             var clientIdFragmentProperty = ValueBindingExpression.CreateBinding<string?>(
                 bindingService.WithoutInitialization(),
                 h => null,
-                new ParametrizedCode("$indexPath.map(ko.unwrap).join(\"_\")", OperatorPrecedence.Max),
+                indexPathExpression,
                 dataItem.GetDataContextType());
             dataItem.SetValue(Internal.ClientIDFragmentProperty, clientIdFragmentProperty);
             c.Add(dataItem);
