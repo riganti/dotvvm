@@ -35,9 +35,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             }
             w.WriteUnencoded("<div class='exception'><span class='exceptionType'>");
             w.WriteText(model.TypeName);
-            w.WriteUnencoded("</span><span class='exceptionMessage'>");
+            w.WriteUnencoded("</span><pre class='exceptionMessage'>");
             w.WriteText(model.Message);
-            w.WriteUnencoded("</span><hr />");
+            w.WriteUnencoded("</pre><hr />");
             if (model.AdditionalInfo != null && model.AdditionalInfo.Length > 0)
             {
                 w.WriteUnencoded("<div class='exceptionAdditionalInfo'>");
