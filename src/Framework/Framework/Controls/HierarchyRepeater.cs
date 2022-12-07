@@ -258,6 +258,7 @@ namespace DotVVM.Framework.Controls
                 Internal.PathFragmentProperty,
                 $"{GetPathFragmentExpression()}{parentSegment}/[{index}]");
             placeholder.SetValue(Internal.UniqueIDProperty, "item");
+            placeholder.SetDataContextTypeFromDataSource(GetDataSourceBinding()); // DataContext type has to be duplicated on the placeholder, because BindingHelper.FindDataContextTarget (in v4.1)
             dataItem.Children.Add(placeholder);
             ItemTemplate.BuildContent(context, placeholder);
 
