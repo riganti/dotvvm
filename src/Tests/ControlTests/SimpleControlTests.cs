@@ -408,6 +408,25 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task MultiSelect()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- hardcoded -->
+                <dot:MultiSelect SelectedValues={value: IntArray}>
+                    <dot:SelectorItem Text='A' Value=0 />
+                    <dot:SelectorItem Text='X Y Z' Value=1 />
+                </dot:MultiSelect>
+
+                <!-- bound -->
+                <dot:MultiSelect SelectedValues={value: IntArray}
+                                 DataSource={value: Customers}
+                                 ItemTextBinding={value: Name}
+                                 ItemValueBinding={value: Id} />
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
         public async Task CurlyBraceEscaping()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
@@ -436,6 +455,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             public string Label { get; } = "My Label";
 
             public string NullableString { get; } = null;
+
+            public int[] IntArray { get; set; }
 
             public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>() {
                 RowEditOptions = {

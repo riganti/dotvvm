@@ -1350,7 +1350,7 @@
         "defaultValue": true
       },
       "ItemTextBinding": {
-        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding`1[[System.String, CoreLibrary]], DotVVM.Framework",
         "dataContextChange": [
           {
             "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
