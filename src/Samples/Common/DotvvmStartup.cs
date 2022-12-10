@@ -155,6 +155,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("Default", "", "Views/Default.dothtml");
 
             config.RouteTable.Add("ComplexSamples_SPARedirect_home", "ComplexSamples/SPARedirect", "Views/ComplexSamples/SPARedirect/home.dothtml");
+            config.RouteTable.Add("ComplexSamples_ViewModelDependencyInjection_Sample", "ComplexSamples/ViewModelDependencyInjection", "Views/ComplexSamples/ViewModelDependencyInjection/Sample.dothtml");
 
             config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA", "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder_HistoryApi/PageA.dothtml", new { Id = 0 });
             config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_HistoryApi", "ControlSamples/SpaContentPlaceHolder_HistoryApi", "Views/ControlSamples/SpaContentPlaceHolder_HistoryApi/SpaMaster.dotmaster");
