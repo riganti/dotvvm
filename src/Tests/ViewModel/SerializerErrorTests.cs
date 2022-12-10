@@ -59,5 +59,69 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             public string Property { get; init; }
         }
+
+        [TestMethod]
+        public void Error_ConstructorNotAllowed()
+        {
+            var obj = new ViewModelWithConstructor("test");
+            var ex = Assert.ThrowsException<Exception>(() => SerializerTests.SerializeAndDeserialize(obj));
+
+            Assert.AreEqual("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerErrorTests.ViewModelWithConstructor, no parameterless constructor found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.", ex.Message);
+        }
+
+        public class ViewModelWithConstructor
+        {
+            public string Property { get; set; }
+
+            public ViewModelWithConstructor(string property)
+            {
+                Property = property;
+            }
+        }
+
+        [TestMethod]
+        public void Error_ConstructorMismatch()
+        {
+            var obj = new ViewModelWithConstructorMismatch("test");
+            var ex = Assert.ThrowsException<Exception>(() => SerializerTests.SerializeAndDeserialize(obj));
+
+            Assert.AreEqual("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerErrorTests.ViewModelWithConstructorMismatch, constructor parameter something is not mapped to any property.", ex.Message);
+        }
+
+        public class ViewModelWithConstructorMismatch
+        {
+            public string Property { get; set; }
+
+            [JsonConstructor]
+            public ViewModelWithConstructorMismatch(string something)
+            {
+                Property = something;
+            }
+        }
+        [TestMethod]
+        public void Error_ConstructorMismatch2()
+        {
+            // Error handling is different if the mismatched parameter could a service
+            var obj = new ViewModelWithConstructorMismatch2(new ThisCouldBeAService { Property = "test" });
+            var ex = Assert.ThrowsException<Exception>(() => SerializerTests.SerializeAndDeserialize(obj));
+
+            Assert.AreEqual("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerErrorTests.ViewModelWithConstructorMismatch2, constructor parameter s is not mapped to any property and service SerializerErrorTests.ThisCouldBeAService was not found in ServiceProvider.", ex.Message);
+        }
+
+        public class ViewModelWithConstructorMismatch2
+        {
+            public string Property { get; set; }
+
+            [JsonConstructor]
+            public ViewModelWithConstructorMismatch2(ThisCouldBeAService s)
+            {
+                Property = s.Property;
+            }
+        }
+
+        public class ThisCouldBeAService
+        {
+            public string Property { get; set; }
+        }
     }
 }
