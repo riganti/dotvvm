@@ -42,20 +42,28 @@ namespace DotVVM.Framework.Tests.ViewModel
             return output.ToString();
         }
 
-        static T Populate<T>(string json, JObject encryptedValues = null)
+        static T Deserialize<T>(string json, JObject encryptedValues = null)
         {
             var settings = DefaultSerializerSettingsProvider.Instance.Settings;
             var serializer = JsonSerializer.Create(settings);
             serializer.Converters.Add(CreateConverter(true, encryptedValues));
 
-            //serializer.Populate(new StringReader(json), viewModel);
             return serializer.Deserialize<T>(new JsonTextReader(new StringReader(json)));
         }
 
-        static (T vm, JObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
+        static T PopulateViewModel<T>(string json, T existingValue, JObject encryptedValues = null)
+        {
+            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+            var serializer = JsonSerializer.Create(settings);
+            var dotvvmConverter = CreateConverter(true, encryptedValues);
+            serializer.Converters.Add(dotvvmConverter);
+            return (T)dotvvmConverter.Populate(new JsonTextReader(new StringReader(json)), serializer, existingValue);
+        }
+
+        internal static (T vm, JObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
         {
             var json = Serialize<T>(viewModel, out var encryptedValues, isPostback);
-            var viewModel2 = Populate<T>(json, encryptedValues);
+            var viewModel2 = Deserialize<T>(json, encryptedValues);
             return (viewModel2, JObject.Parse(json));
         }
 
@@ -87,7 +95,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             };
 
             var serialized = Serialize(obj, out var encryptedValues, false);
-            var deserialized = Populate<TestViewModelWithNestedProtectedData>(serialized, encryptedValues);
+            var deserialized = Deserialize<TestViewModelWithNestedProtectedData>(serialized, encryptedValues);
             Assert.AreEqual(serialized, Serialize(deserialized, out var _, false));
         }
 
@@ -104,7 +112,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             };
 
             var serialized = Serialize(obj, out var encryptedValues, false);
-            var deserialized = Populate<TestViewModelWithCollectionOfNestedProtectedData>(serialized, encryptedValues);
+            var deserialized = Deserialize<TestViewModelWithCollectionOfNestedProtectedData>(serialized, encryptedValues);
             Assert.AreEqual(serialized, Serialize(deserialized, out var _, false));
         }
 
@@ -132,7 +140,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             };
 
             var serialized = Serialize(obj, out var encryptedValues, false);
-            var deserialized = Populate<TestViewModelWithCollectionOfNestedProtectedData>(serialized, encryptedValues);
+            var deserialized = Deserialize<TestViewModelWithCollectionOfNestedProtectedData>(serialized, encryptedValues);
             Assert.AreEqual(serialized, Serialize(deserialized, out var _, false));
         }
 
@@ -152,7 +160,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             };
 
             var serialized = Serialize(obj, out var encryptedValues, false);
-            var deserialized = Populate<TestViewModelWithNestedProtectedData>(serialized, encryptedValues);
+            var deserialized = Deserialize<TestViewModelWithNestedProtectedData>(serialized, encryptedValues);
             Assert.AreEqual(serialized, Serialize(deserialized, out var _, false));
         }
 
@@ -231,6 +239,48 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("default", obj2.P4.b.ServerToClient);
             Assert.AreEqual("default", obj2.P4.b.ClientToServer);
         }
+
+        [TestMethod]
+        public void DoesNotCloneSettableRecord()
+        {
+            var obj = new TestViewModelWithRecords() {
+                Primitive = 10
+            };
+            var json = Serialize(obj, out var ev, false);
+            var obj2 = new TestViewModelWithRecords() { Primitive = 100 };
+            var obj3 = PopulateViewModel(json, obj2, ev);
+            Assert.AreEqual(10, obj3.Primitive);
+            Assert.IsTrue(ReferenceEquals(obj2, obj3), "The deserialized object TestViewModelWithRecords is not referenced equal to the existingValue");
+            Assert.AreEqual(10, obj2.Primitive);
+        }
+
+        [TestMethod]
+        public void ClonesInitOnlyClass()
+        {
+            var obj = new TestInitOnlyClass() { X = 10, Y = "A" };
+            var json = Serialize(obj, out var ev, false);
+            var obj2 = new TestInitOnlyClass() { X = 20, Y = "B" };
+            var obj3 = PopulateViewModel(json, obj2, ev);
+            Assert.AreEqual(10, obj3.X);
+            Assert.AreEqual("A", obj3.Y);
+            Assert.AreEqual(20, obj2.X, "The deserializer didn't clone TestInitOnlyClass and used the init-only setter at runtime.");
+            Assert.IsFalse(ReferenceEquals(obj2, obj3), "The deserializer didn't clone TestInitOnlyClass");
+            Assert.AreEqual("B", obj2.Y, "The deserializer used TestInitOnlyClass.Y setter at runtime, but then returned another instance.");
+        }
+        [TestMethod]
+        public void ClonesInitOnlyRecord()
+        {
+            var obj = new TestInitOnlyRecord() { X = 10, Y = "A" };
+            var json = Serialize(obj, out var ev, false);
+            var obj2 = new TestInitOnlyRecord() { X = 20, Y = "B" };
+            var obj3 = PopulateViewModel(json, obj2, ev);
+            Assert.AreEqual(10, obj3.X);
+            Assert.AreEqual("A", obj3.Y);
+            Assert.AreEqual(20, obj2.X, "The deserializer didn't clone TestInitOnlyRecord and used the init-only setter at runtime.");
+            Assert.IsFalse(ReferenceEquals(obj2, obj3), "The deserializer didn't clone TestInitOnlyRecord");
+            Assert.AreEqual("B", obj2.Y, "The deserializer used TestInitOnlyRecord.Y setter at runtime, but then returned another instance.");
+        }
+
 
         [TestMethod]
         public void SupportBasicRecord()
@@ -380,6 +430,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             private DotvvmTestHelper.ITestSingletonService Service { get; }
             public DotvvmTestHelper.ITestSingletonService GetService() => Service;
 
+            [JsonConstructor]
             public ViewModelWithService(string property1, DotvvmTestHelper.ITestSingletonService service)
             {
                 Property1 = property1;
@@ -397,6 +448,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         public class ViewModelWithUnmatchedConstuctorProperty1
         {
+            [JsonConstructor]
             public ViewModelWithUnmatchedConstuctorProperty1(string x) { }
         }
 
@@ -410,6 +462,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         public class ViewModelWithUnmatchedConstuctorProperty2
         {
+            [JsonConstructor]
             public ViewModelWithUnmatchedConstuctorProperty2(TestViewModelWithByteArray x) { }
         }
 
@@ -499,6 +552,17 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         public record WithDataset(GridViewDataSet<string> Dataset);
+    }
+
+    public class TestInitOnlyClass
+    {
+        public int X { get; init; }
+        public string Y { get; set; }
+    }
+    public class TestInitOnlyRecord
+    {
+        public int X { get; init; }
+        public string Y { get; set; }
     }
 
     public class TestViewModelWithSignedDictionary
