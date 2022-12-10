@@ -13,5 +13,6 @@
                         Click="{command: DoSomething()}"
                         data-ui="command" />
     </p>
+    <p class="result">{{value: Result}}</p>
 </body>
 </html>

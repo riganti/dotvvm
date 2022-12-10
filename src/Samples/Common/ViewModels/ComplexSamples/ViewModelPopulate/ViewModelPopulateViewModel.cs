@@ -15,7 +15,7 @@ namespace DotVVM.Samples.Common.ViewModels.ComplexSamples.ViewModelPopulate
 
         public void DoSomething()
         {
-
+            NonDeserializableObject.Test = NonDeserializableObject.Test + "success";
         }
     }
 

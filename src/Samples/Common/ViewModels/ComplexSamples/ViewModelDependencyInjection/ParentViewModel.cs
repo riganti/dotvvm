@@ -7,6 +7,8 @@ namespace DotVVM.Samples.Common.ViewModels.ComplexSamples.ViewModelDependencyInj
 public class ParentViewModel : DotvvmViewModelBase
 {
     public ChildViewModel ChildViewModel { get; set; }
+    public bool Result { get; set; }
+
 
     public ParentViewModel(ChildViewModel childViewModel)
     {
@@ -35,5 +37,6 @@ public class ParentViewModel : DotvvmViewModelBase
 
     public void DoSomething()
     {
+        Result = true;
     }
 }
