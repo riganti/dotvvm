@@ -14,7 +14,7 @@
                  ItemTextBinding="{value: Text}"
                  ItemValueBinding="{value: Value}"
                  ItemTitleBinding="{value: Title}"
-                 Size="3" />
+                 Size="4" />
 
     Selected: <span data-ui="result" InnerText="{value: SelectedValue}"></span>
 
@@ -23,7 +23,7 @@
                  ItemTextBinding="{value: Text}"
                  ItemValueBinding="{value: Value}"
                  ItemTitleBinding="{value: Title}"
-                 Size="3" />
+                 Size="4" />
 
     Selected:
     <dot:Repeater WrapperTagName="ul" DataSource={value: SelectedValues}>

@@ -24,7 +24,7 @@ namespace DotVVM.Samples.Tests.Control
                 var result = browser.Single("[data-ui=result]");
                 AssertUI.InnerTextEquals(result, "0");
 
-                AssertUI.Attribute(browser.Single("select[data-ui=single]"), "size", "3");
+                AssertUI.Attribute(browser.Single("select[data-ui=single]"), "size", "4");
 
                 var firstOption = browser.ElementAt("select[data-ui=single] option", 0);
 
