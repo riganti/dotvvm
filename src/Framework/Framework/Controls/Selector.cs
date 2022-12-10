@@ -39,26 +39,21 @@ namespace DotVVM.Framework.Controls
             if (control.GetValue(ItemValueBindingProperty) is ResolvedPropertySetter itemValueBinding)
             {
                 var to = selectedValueBinding.GetResultType();
-                var nonNullableTo = to?.UnwrapNullableType();
                 var from = itemValueBinding.GetResultType();
 
-                if (to != null && from != null
-                    && !to.IsAssignableFrom(from) && !nonNullableTo!.IsAssignableFrom(from))
+                if (!IsValueAssignable(from, to))
                 {
-                    yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.DothtmlNode);
+                    yield return CreateSelectedValueTypeError(selectedValueBinding, to, from);
                 }
             }
             else if (control.GetValue(DataSourceProperty) is ResolvedPropertySetter dataSourceBinding)
             {
                 var to = selectedValueBinding.GetResultType();
-                var nonNullableTo = to?.UnwrapNullableType();
                 var from = dataSourceBinding.GetResultType()?.UnwrapNullableType()?.GetEnumerableType();
 
-                if (to != null && from != null
-                    && !to.IsAssignableFrom(from) && !nonNullableTo!.IsAssignableFrom(from)
-                    && !(to.IsEnum && from == typeof(string)) && !(to.UnwrapNullableType().IsEnum && from == typeof(string)))
+                if (!IsDataSourceItemAssignable(from, to))
                 {
-                    yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.DothtmlNode);
+                    yield return CreateSelectedValueTypeError(selectedValueBinding, to, from);
                 }
             }
         }

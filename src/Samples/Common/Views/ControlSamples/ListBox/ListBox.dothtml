@@ -8,14 +8,27 @@
     <title></title>
 </head>
 <body>
-    <dot:ListBox DataSource="{value: List}"
+    <dot:ListBox data-ui="single"
+                 DataSource="{value: List}"
                  SelectedValue="{value: SelectedValue}"
                  ItemTextBinding="{value: Text}"
                  ItemValueBinding="{value: Value}"
                  ItemTitleBinding="{value: Title}"
-                 Size="3"/>
+                 Size="3" />
 
     Selected: <span data-ui="result" InnerText="{value: SelectedValue}"></span>
+
+    <dot:MultiSelect data-ui="multiple" DataSource="{value: List}"
+                 SelectedValues="{value: SelectedValues}"
+                 ItemTextBinding="{value: Text}"
+                 ItemValueBinding="{value: Value}"
+                 ItemTitleBinding="{value: Title}"
+                 Size="3" />
+
+    Selected:
+    <dot:Repeater WrapperTagName="ul" DataSource={value: SelectedValues}>
+        <li InnerText={value: _this} />
+    </dot:Repeater>
 </body>
 </html>
 
