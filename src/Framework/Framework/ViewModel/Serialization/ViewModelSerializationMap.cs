@@ -157,7 +157,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 p.PropertyInfo.IsInitOnly()));
             
             // We don't want to clone IDotvvmViewModel automatically, because the user is likely to register this specific instance somewhere
-            if (alwaysCallConstructor && typeof(IDotvvmViewModel).IsAssignableFrom(Type) && Constructor is {} && Constructor.IsDefined(typeof(JsonConstructorAttribute)))
+            if (alwaysCallConstructor && typeof(IDotvvmViewModel).IsAssignableFrom(Type) && Constructor is {} && !Constructor.IsDefined(typeof(JsonConstructorAttribute)))
             {
                 var cloneReason =
                     Properties.FirstOrDefault(p => p.TransferToServer && p.PropertyInfo.IsInitOnly()) is {} initProperty
