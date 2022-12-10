@@ -349,7 +349,7 @@ namespace DotVVM.Framework.Binding
                     if (typeof(IDotvvmObjectLike).IsAssignableFrom(type) ||
                         typeof(ITemplate).IsAssignableFrom(type) ||
                         typeof(IEnumerable<IDotvvmObjectLike>).IsAssignableFrom(type))
-                        dotvvmProperty.MarkupOptions._mappingMode = MappingMode.InnerElement;
+                        dotvvmProperty.MarkupOptions._mappingMode ??= MappingMode.InnerElement;
 
                     DotvvmProperty.Register(dotvvmProperty);
                 }
