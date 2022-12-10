@@ -131,7 +131,7 @@ namespace DotVVM.Framework.Controls
         {
             var urlSuffixBase =
                 control.GetValueBinding(RouteLink.UrlSuffixProperty)
-                ?.Apply(binding => binding.GetKnockoutBindingExpression(control))
+                ?.Apply(binding => binding.GetKnockoutBindingExpression(control, unwrapped: true))
                 ?? KnockoutHelper.MakeStringLiteral(control.UrlSuffix ?? "");
             var queryParamsArray = control.QueryParameters.RawValues.ToArray();
             Array.Sort(queryParamsArray, (a, b) => a.Key.CompareTo(b.Key)); // deterministic order of query params
