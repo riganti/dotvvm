@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             return (T)dotvvmConverter.Populate(new JsonTextReader(new StringReader(json)), serializer, existingValue);
         }
 
-        static (T vm, JObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
+        internal static (T vm, JObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
         {
             var json = Serialize<T>(viewModel, out var encryptedValues, isPostback);
             var viewModel2 = Deserialize<T>(json, encryptedValues);
