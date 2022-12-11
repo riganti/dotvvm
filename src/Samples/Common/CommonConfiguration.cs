@@ -14,6 +14,7 @@ using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Resources;
 using DotVVM.Samples.Common.Utilities;
+using DotVVM.Samples.Common.ViewModels.ComplexSamples.ViewModelDependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI;
@@ -78,6 +79,8 @@ namespace DotVVM.Samples.Common
             services.AddTransient<ISelectionProvider<ProductSelection>, ProductSelectionProvider>();
             services.AddTransient<ISelectionProvider<CountrySelection>, CountrySelectionProvider>();
             services.AddTransient<ISelectionProvider<StateSelection, AddressDTO>, StateSelectorDataProvider>();
+
+            services.AddTransient<ChildViewModel>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)

@@ -17,12 +17,13 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
         {
             var selectorConfiguration = property.SelectionConfiguration!;
             var selectorDataSourceBinding = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selectorConfiguration.SelectionType);
+            var nestedDataContext = context.CreateChildDataContextStack(selectorConfiguration.SelectionType);
 
             return new ComboBox()
                 .SetCapability(props.Html)
                 .SetProperty(c => c.DataSource, selectorDataSourceBinding)
-                .SetProperty(c => c.ItemTextBinding, context.CreateValueBinding("DisplayName", selectorConfiguration.SelectionType))
-                .SetProperty(c => c.ItemValueBinding, context.CreateValueBinding("Value", selectorConfiguration.SelectionType))
+                .SetProperty(c => c.ItemTextBinding, context.BindingService.Cache.CreateValueBinding<string>("DisplayName", nestedDataContext))
+                .SetProperty(c => c.ItemValueBinding, context.BindingService.Cache.CreateValueBinding("Value", nestedDataContext))
                 .SetProperty(c => c.SelectedValue, props.Property)
                 .SetProperty(c => c.Enabled, props.Enabled)
                 .SetProperty(c => c.SelectionChanged, props.Changed);

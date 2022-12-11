@@ -70,7 +70,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Creates the constructor for this object.
         /// </summary>
-        private Expression CallConstructor(Expression services, Dictionary<PropertyInfo, ParameterExpression> propertyVariables)
+        private Expression CallConstructor(Expression services, Dictionary<PropertyInfo, ParameterExpression> propertyVariables, bool throwImmediately = false)
         {
             if (constructorFactory != null)
                 return Convert(Invoke(Constant(constructorFactory), services), Type);
@@ -82,10 +82,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
 
             if (Constructor is null && (Type.IsInterface || Type.IsAbstract))
-                throw new Exception($"Can not deserialize {Type.ToCode()} because it's abstract. Please avoid using abstract types in view model. If you really mean it, you can add a static factory method and mark it with [JsonConstructor] attribute.");
+                return jitException($"Can not deserialize {Type.ToCode()} because it's abstract. Please avoid using abstract types in view model. If you really mean it, you can add a static factory method and mark it with [JsonConstructor] attribute.");
 
             if (Constructor is null)
-                throw new Exception($"Can not deserialize {Type.ToCode()}, no constructor or multiple constructors found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.");
+                return jitException($"Can not deserialize {Type.ToCode()}, no parameterless constructor found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.");
 
             var parameters = Constructor.GetParameters().Select(p => {
                 var prop = Properties.FirstOrDefault(pp => pp.ConstructorParameter == p);
@@ -116,6 +116,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     Call(m, parameters),
                 _ => throw new NotSupportedException()
             };
+
+            // Since the old serializer didn't care about constructor problems until it was actually needed,
+            // we can't throw exception during compilation, so we wait until this code will run.
+            Expression jitException(string message) =>
+                throwImmediately
+                    ? throw new Exception(message)
+                    : Expression.Throw(Expression.New(
+                        typeof(Exception).GetConstructor(new [] { typeof(string) })!,
+                        Expression.Constant(message)
+                    ), this.Type);
         }
 
         /// <summary>
@@ -141,14 +151,28 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     p => Expression.Variable(p.Type, "prop_" + p.Name)
                 );
 
-            var hasConstructorProperties = Properties.Any(p => p.ConstructorParameter is {});
-            var constructorCall = CallConstructor(servicesParameter, propertyVars);
+            // If we have constructor property or if we have { get; init; } property, we always create new instance
+            var alwaysCallConstructor = Properties.Any(p => p.TransferToServer && (
+                p.ConstructorParameter is {} ||
+                p.PropertyInfo.IsInitOnly()));
+            
+            // We don't want to clone IDotvvmViewModel automatically, because the user is likely to register this specific instance somewhere
+            if (alwaysCallConstructor && typeof(IDotvvmViewModel).IsAssignableFrom(Type) && Constructor is {} && !Constructor.IsDefined(typeof(JsonConstructorAttribute)))
+            {
+                var cloneReason =
+                    Properties.FirstOrDefault(p => p.TransferToServer && p.PropertyInfo.IsInitOnly()) is {} initProperty
+                        ? $"init-only property {initProperty.Name} is transferred client → server" :
+                    Properties.FirstOrDefault(p => p.TransferToServer && p.ConstructorParameter is {}) is {} ctorProperty
+                        ? $"property {ctorProperty.Name} must be injected into constructor parameter {ctorProperty.ConstructorParameter!.Name}" : "internal bug";
+                throw new Exception($"Deserialization of {Type.ToCode()} is not allowed, because it implements IDotvvmViewModel and {cloneReason}. To allow cloning the object on deserialization, mark a constructor with [JsonConstructor].");
+            }
+            var constructorCall = CallConstructor(servicesParameter, propertyVars, throwImmediately: alwaysCallConstructor);
 
             // curly brackets are used for variables and methods from the context of this factory method
             // value = ({Type})valueParam;
             block.Add(Assign(value,
                 Condition(Equal(valueParam, Constant(null)),
-                    hasConstructorProperties
+                    alwaysCallConstructor
                         ? Default(Type)
                         : constructorCall,
                     Convert(valueParam, Type)
@@ -169,7 +193,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // add current object to encrypted values, this is needed because one property can potentially contain more objects (is a collection)
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
-
 
             // if the reader is in an invalid state, throw an exception
             // TODO: Change exception type, just Exception is not exactly descriptive
@@ -323,7 +346,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
 
             // call the constructor
-            if (hasConstructorProperties)
+            if (alwaysCallConstructor)
             {
                 block.Add(Assign(value, constructorCall));
             }

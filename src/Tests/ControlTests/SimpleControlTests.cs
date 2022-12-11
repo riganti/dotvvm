@@ -33,6 +33,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:RouteLink RenderSettings.Mode=Client RouteName=Simple Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- client rendering, no params, text binding -->
                 <dot:RouteLink RenderSettings.Mode=Client RouteName=Simple Text={value: Label} />
+                <!-- client rendering, dynamic suffix -->
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=Simple Text='Click me' UrlSuffix={value: UrlSuffix} />
 
                 <!-- server rendering, no params -->
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=Simple Text='Click me' />
@@ -40,22 +42,23 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=Simple Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- server rendering, no params, text binding -->
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=Simple Text={value: Label} />
+                <!-- server rendering, dynamic suffix -->
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=Simple Text='Click me' UrlSuffix={value: UrlSuffix} />
 
                 <!-- client rendering, static params -->
                 <dot:RouteLink RenderSettings.Mode=Client RouteName={resource: 'WithParams'} Param-A=A Param-B={resource: 1} Text='Click me' />
                 <!-- client rendering, static params, query and suffix -->
                 <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B={resource: 1} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- client rendering, dynamic params, query and suffix -->
-                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A={value: Label} Param-B={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A={value: Label} Param-B={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix={value: UrlSuffix} />
                 <!-- client rendering, static params, text binding -->
                 <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text={value: Label} />
-
                 <!-- server rendering, static params -->
                 <dot:RouteLink RenderSettings.Mode=Server RouteName={resource: 'WithParams'} Param-A=A Param-B={resource: 1} Text='Click me' />
                 <!-- server rendering, static params, query and suffix -->
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-a=A Param-B={resource: 1} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- server rendering, dynamic params, query and suffix -->
-                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A={value: Label} Param-b={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A={value: Label} Param-b={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix={value: UrlSuffix} />
                 <!-- server rendering, static params, text binding -->
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A=A Param-B=1 Text={value: Label} />
                 "
@@ -408,6 +411,25 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task MultiSelect()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- hardcoded -->
+                <dot:MultiSelect SelectedValues={value: IntArray}>
+                    <dot:SelectorItem Text='A' Value=0 />
+                    <dot:SelectorItem Text='X Y Z' Value=1 />
+                </dot:MultiSelect>
+
+                <!-- bound -->
+                <dot:MultiSelect SelectedValues={value: IntArray}
+                                 DataSource={value: Customers}
+                                 ItemTextBinding={value: Name}
+                                 ItemValueBinding={value: Id} />
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
         public async Task CurlyBraceEscaping()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
@@ -436,6 +458,10 @@ namespace DotVVM.Framework.Tests.ControlTests
             public string Label { get; } = "My Label";
 
             public string NullableString { get; } = null;
+
+            public int[] IntArray { get; set; }
+
+            public string UrlSuffix { get; set; } = "#something";
 
             public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>() {
                 RowEditOptions = {

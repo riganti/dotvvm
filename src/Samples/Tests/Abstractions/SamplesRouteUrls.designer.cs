@@ -39,6 +39,8 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_SPAViewModelReapplication_pageB = "ComplexSamples/SPAViewModelReapplication/pageB";
         public const string ComplexSamples_TaskList_ServerRenderedTaskList = "ComplexSamples/TaskList/ServerRenderedTaskList";
         public const string ComplexSamples_TaskList_TaskListAsyncCommands = "ComplexSamples/TaskList/TaskListAsyncCommands";
+        public const string ComplexSamples_ViewModelDependencyInjection_Sample = "ComplexSamples/ViewModelDependencyInjection/Sample";
+        public const string ComplexSamples_ViewModelPopulate_ViewModelPopulate = "ComplexSamples/ViewModelPopulate/ViewModelPopulate";
         public const string ControlSamples_AuthenticatedView_AuthenticatedViewTest = "ControlSamples/AuthenticatedView/AuthenticatedViewTest";
         public const string ControlSamples_Button_Button = "ControlSamples/Button/Button";
         public const string ControlSamples_Button_ButtonEnabled = "ControlSamples/Button/ButtonEnabled";

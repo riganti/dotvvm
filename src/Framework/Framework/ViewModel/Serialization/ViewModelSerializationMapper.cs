@@ -41,8 +41,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual ViewModelSerializationMap CreateMap(Type type)
         {
-            var constructor = GetConstructor(type);
-            return new ViewModelSerializationMap(type, GetProperties(type, constructor), constructor, configuration);
+            // constructor which takes properties as parameters
+            // if it exists, we always need to recreate the viewmodel
+            var valueConstructor = GetConstructor(type);
+            return new ViewModelSerializationMap(type, GetProperties(type, valueConstructor), valueConstructor, configuration);
         }
 
         protected virtual MethodBase? GetConstructor(Type type)
@@ -50,17 +52,49 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (ReflectionUtils.IsPrimitiveType(type) || ReflectionUtils.IsEnumerable(type))
                 return null;
 
-            if (type.GetConstructors().FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))) is {} ctor)
-                return ctor;
             if (type.GetMethods(BindingFlags.Static | BindingFlags.Public).FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))) is {} factory)
                 return factory;
+
+            if (type.IsAbstract)
+                return null;
+
+            if (type.GetConstructors().FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))) is {} ctor)
+                return ctor;
             
             if (type.GetConstructor(Type.EmptyTypes) is {} emptyCtor)
                 return emptyCtor;
-            var constructors = type.GetConstructors();
+            return GetRecordConstructor(type);
+        }
+
+        protected static MethodBase? GetRecordConstructor(Type t)
+        {
+            if (t.IsAbstract)
+                return null;
+            // https://sharplab.io/#v2:EYLgxg9gTgpgtADwGwBYA0AbEAzAzmgFxCgFcA7AHwgAcYyACAZQE9cCYBbAWACga6mrdhwB0AGQCWZAI68CzWvQDC9ALz0A3vQBCIelIIBuZXoPGwpsgXoBfOQpj0AqmvoANehXoBNehGz6Vry81FAG2AwARACCkcE8GDDW1urytP4APEoAfPGJ1gCGBARQrgQiAOJJSiRsEBzRxWHAJOy4ACJFBQAUAJQi0WTM3djk9AX0cNnjA00SLewAKg4iAGIkGBgAcgUcjuqRALISYFAQuP7lq4wAFgVQ1CJK0DBP9dQSGEUSEGSHBdQPmQAOaNErzVowSL0ABkMOUvwAbjAoOVFhAAJJWADMACZugU3mQ2KQwARoNEoMCSHsrLgANoABgAuiIAGoFDAkGC9Vy43ohMJWCL0SJFEp6ACksXGTSAA=
+            // F# record or single case discriminated union (multi case is abstract)
+            if (t.GetCustomAttributesData().Any(a => a.AttributeType.FullName == "Microsoft.FSharp.Core.CompilationMappingAttribute" && Convert.ToInt32(a.ConstructorArguments[0].Value) is 1 or 2))
+            {
+                return t.GetConstructors().Single();
+            }
+            // TODO: F# normal type, it's not possible AFAIK to add attribute to the default constructor
+
+            // find constructor which matches Deconstruct method
+            var deconstruct = t.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(m => m.Name == "Deconstruct").ToArray();
+            if (deconstruct.Length == 0)
+                return null;
+            var constructors =
+               (from c in t.GetConstructors()
+                from d in deconstruct
+                where c.GetParameters().Select(p => p.Name).SequenceEqual(d.GetParameters().Select(p => p.Name)) &&
+                      c.GetParameters().Select(p => unwrapByRef(p.ParameterType)).SequenceEqual(d.GetParameters().Select(p => unwrapByRef(p.ParameterType)))
+                select c).ToArray();
+
             if (constructors.Length == 1)
                 return constructors[0];
+
             return null;
+
+            static Type unwrapByRef(Type t) => t.IsByRef ? t.GetElementType()! : t;
         }
 
         /// <summary>

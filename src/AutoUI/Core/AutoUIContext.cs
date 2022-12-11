@@ -63,13 +63,6 @@ namespace DotVVM.AutoUI
             });
         }
 
-        public IValueBinding CreateValueBinding(string expression, params Type[] nestedDataContextTypes)
-        {
-            var dataContextStack = CreateChildDataContextStack(DataContextStack, nestedDataContextTypes);
-
-            return BindingService.Cache.CreateValueBinding(expression, dataContextStack);
-        }
-
         public DataContextStack CreateChildDataContextStack(DataContextStack dataContextStack, params Type[] nestedDataContextTypes)
         {
             foreach (var type in nestedDataContextTypes)
@@ -78,6 +71,9 @@ namespace DotVVM.AutoUI
             }
             return dataContextStack;
         }
+
+        public DataContextStack CreateChildDataContextStack(params Type[] nestedDataContextTypes) =>
+            CreateChildDataContextStack(DataContextStack, nestedDataContextTypes);
 
         public IViewContext CreateViewContext()
         {

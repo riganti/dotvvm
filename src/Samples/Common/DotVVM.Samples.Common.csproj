@@ -31,6 +31,7 @@
     <None Remove="Views\ComplexSamples\SPAErrorReporting\default.dothtml" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\site.dotmaster" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\test.dothtml" />
+    <None Remove="Views\ComplexSamples\ViewModelPopulate\ViewModelPopulate.dothtml" />
     <None Remove="Views\ControlSamples\CheckBox\CheckBox_Objects.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\BindingCTValidation_StringToEnum.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\HeavilyNested.dothtml" />
