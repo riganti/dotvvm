@@ -70,7 +70,7 @@ namespace DotVVM.AutoUI.Metadata
                     {
                         new ParsedExpressionBindingProperty(
                             ExpressionUtils.Replace(
-                                (ClaimsPrincipal p) => p.Identity.IsAuthenticated == isAuthenticated,
+                                (ClaimsPrincipal p) => p.Identity is object && p.Identity.IsAuthenticated == isAuthenticated,
                                 currentUserParam
                             )
                         ),

@@ -31,6 +31,7 @@
     <None Remove="Views\ComplexSamples\SPAErrorReporting\default.dothtml" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\site.dotmaster" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\test.dothtml" />
+    <None Remove="Views\ComplexSamples\ViewModelPopulate\ViewModelPopulate.dothtml" />
     <None Remove="Views\ControlSamples\CheckBox\CheckBox_Objects.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\BindingCTValidation_StringToEnum.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\HeavilyNested.dothtml" />
@@ -71,6 +72,9 @@
     <None Remove="Views\Errors\InvalidServiceDirective.dothtml" />
     <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\ApiInSpa_Master.dotmaster" />
+    <None Remove="Views\FeatureSamples\Api\ApiInSpa_PageA.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\ApiInSpa_PageB.dothtml" />
     <None Remove="Views\FeatureSamples\Api\ApiRefresh.dothtml" />
     <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoEditor.dothtml" />

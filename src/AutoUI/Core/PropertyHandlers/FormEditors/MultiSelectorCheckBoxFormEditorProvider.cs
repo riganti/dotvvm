@@ -18,6 +18,7 @@ public class MultiSelectorCheckBoxFormEditorProvider : FormEditorProviderBase
     {
         var selectorConfiguration = property.SelectionConfiguration!;
         var selectorDataSourceBinding = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selectorConfiguration.SelectionType);
+        var nestedDataContext = context.CreateChildDataContextStack(selectorConfiguration.SelectionType);
 
         return new Repeater()
             .SetCapability(props.Html)
@@ -25,11 +26,11 @@ public class MultiSelectorCheckBoxFormEditorProvider : FormEditorProviderBase
             .SetProperty(c => c.DataSource, selectorDataSourceBinding)
             .SetProperty(c => c.ItemTemplate, new CloneTemplate(
                 new HtmlGenericControl("li")
-                    .SetProperty(Internal.DataContextTypeProperty, context.CreateChildDataContextStack(context.DataContextStack, selectorConfiguration.SelectionType))
+                    .SetProperty(Internal.DataContextTypeProperty, nestedDataContext)
                     .AppendChildren(
                         new CheckBox()
-                            .SetProperty(c => c.Text, context.CreateValueBinding("DisplayName", selectorConfiguration.SelectionType))
-                            .SetProperty(c => c.CheckedValue, context.CreateValueBinding("Value", selectorConfiguration.SelectionType))
+                            .SetProperty(c => c.Text, context.BindingService.Cache.CreateValueBinding<string>("DisplayName", nestedDataContext))
+                            .SetProperty(c => c.CheckedValue, context.BindingService.Cache.CreateValueBinding("Value", nestedDataContext))
                             .SetProperty(c => c.CheckedItems, props.Property)
                             .SetProperty(c => c.Enabled, props.Enabled)
                             .SetProperty(c => c.Changed, props.Changed)

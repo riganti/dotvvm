@@ -605,6 +605,9 @@ namespace DotVVM.Framework.Utils
                 cache_GetTypeHash.TryRemove(t, out _);
             }
         }
-        
+
+        internal static bool IsInitOnly(this PropertyInfo prop) =>
+            prop.SetMethod is { ReturnParameter: {} returnParameter } &&
+            returnParameter.GetRequiredCustomModifiers().Any(t => t == typeof(System.Runtime.CompilerServices.IsExternalInit));
     }
 }
