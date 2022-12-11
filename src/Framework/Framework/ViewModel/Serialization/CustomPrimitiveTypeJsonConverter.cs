@@ -22,7 +22,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 or JsonToken.Float
                 or JsonToken.Date)
             {
-                var registration = ReflectionUtils.CustomPrimitiveTypes[objectType];
+                var registration = ReflectionUtils.CustomPrimitiveTypes[objectType]!;
                 return registration.ConvertToServerSideType(reader.Value);
             }
             else if (reader.TokenType == JsonToken.Null)
