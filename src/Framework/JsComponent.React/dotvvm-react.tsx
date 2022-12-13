@@ -6,6 +6,9 @@ export type KnockoutTemplateReactComponent_Props = {
     /** HTML element name which will contain the knockout template. By default a `<div>` wrapper tag is used. */
     wrapperTag: string
 
+    /** HTML attributes of the wrapper element. */
+    wrapperAttributes?: React.HTMLAttributes<HTMLElement>
+
     /** ID of the knockout template to be rendered, knockout will search for a matching `<template id="...">` element.
      * You can get this ID in a DotVVM JsComponent as a property when you use inner element in the dothtml markup. */
     templateName: string
@@ -73,8 +76,7 @@ export class KnockoutTemplateReactComponent extends React.Component<KnockoutTemp
         }
     }
     render() {
-        
-        return React.createElement(this.props.wrapperTag, { ref: this.wrapRef })
+        return React.createElement(this.props.wrapperTag, { ref: this.wrapRef, ...this.props.wrapperAttributes })
     }
 }
 

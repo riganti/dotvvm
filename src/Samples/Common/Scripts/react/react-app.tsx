@@ -30,6 +30,7 @@ function TemplateSelector(props) {
     return <div>
         <KnockoutTemplateReactComponent
             wrapperTag="p"
+            wrapperAttributes={{ className: props.condition ? "template1" : "template2" }}
             templateName={props.condition ? props.template1 : props.template2}
             getChildContext={c => c.extend({ $kokos: 1 })} />
     </div>
