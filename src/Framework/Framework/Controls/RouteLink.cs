@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, RouteLink>(c => c.RouteName);
 
         /// <summary>
-        /// Gets or sets a value indicating whether the button is enabled and can be clicked on.
+        /// Gets or sets a value indicating whether the link is enabled and can be clicked on.
         /// </summary>
         public bool Enabled
         {
