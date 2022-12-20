@@ -254,7 +254,7 @@ type TypeMetadata = ObjectTypeMetadata | EnumTypeMetadata;
 type PropertyMetadata = {
     type: TypeDefinition;
     post?: "always" | "pathOnly" | "no";
-    update?: "always" | "firstRequest" | "no";
+    update?: "always" | "no";
     validationRules?: PropertyValidationRuleInfo[];
     clientExtenders?: ClientExtenderInfo[]
 }
