@@ -13,6 +13,7 @@ import { DotvvmPostbackError } from '../shared-classes';
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { isPrimitive } from '../utils/objects';
 import * as stateManager from '../state-manager'
+import { mapUpdatableProperties } from '../serialization/deserialize';
 
 let lastStartedPostbackId: number;
 
@@ -135,7 +136,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
     let isSuccess = false;
     if (result.action == "successfulCommand") {
         updateTypeInfo(result.typeMetadata)
-        result.viewModel = updater.patchViewModel(getState(), result.viewModel)
+        result.viewModel = updater.patchViewModel(getState(), mapUpdatableProperties(result.viewModel))
         updater.updateViewModelAndControls(result);
         events.postbackViewModelUpdated.trigger({
             ...options,
