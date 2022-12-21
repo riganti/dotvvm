@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, RouteLink>(c => c.RouteName);
 
         /// <summary>
-        /// Gets or sets a value indicating whether the link is enabled and can be clicked on.
+        /// Gets or sets a value indicating whether the link is enabled and can be clicked on. Please note that the HTML hyperlinks don't support the disabled state, so setting this property to "false" will still produce the "click" event in JavaScript. If the link is disabled, DotVVM will not perform the navigation.
         /// </summary>
         public bool Enabled
         {
