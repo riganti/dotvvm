@@ -195,24 +195,12 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
     }
 }
 
-export function unmapKnockoutObservables(viewModel: any): any {
-    const options = { 
-        shouldLogWarning: false
-    };
-    const result = unmapKnockoutObservablesCore(viewModel, options);
-    if (compileConstants.debug && options.shouldLogWarning) {
-        logWarning("state-manager", `Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, ko.toJS(viewModel))
-    }
-    return result;
-}
-
-function unmapKnockoutObservablesCore(viewModel: any, options: { shouldLogWarning: boolean }): any {
+/**
+ * Recursively unwraps knockout observables from the object / array hierarchy. When nothing needs to be unwrapped, the original object is returned.
+ * @param allowStateUnwrap Allows accessing [currentStateSymbol], which makes it faster, but doesn't register in the knockout dependency tracker
+*/
+export function unmapKnockoutObservables(viewModel: any, allowStateUnwrap: boolean = false): any {
     const value = ko.unwrap(viewModel)
-
-    if (viewModel !== value && !viewModel[notifySymbol]) {
-        // we've found custom observable
-        options.shouldLogWarning = true;
-    }
 
     if (isPrimitive(value)) {
         return value
@@ -223,24 +211,34 @@ function unmapKnockoutObservablesCore(viewModel: any, options: { shouldLogWarnin
         return value
     }
 
-    // This is a bad idea as it does not register in the knockout dependency tracker and the caller is not triggered on change
-
-    // if (currentStateSymbol in value) {
-    //     return value[currentStateSymbol]
-    // }
-
-    if (value instanceof Array) {
-        return value.map(i => unmapKnockoutObservablesCore(i, options))
+    if (allowStateUnwrap && currentStateSymbol in value) {
+        return value[currentStateSymbol]
     }
 
-    const result: any = {};
+    if (value instanceof Array) {
+        let result: any = null
+        for (let i = 0; i < value.length; i++) {
+            const unwrappedItem = unmapKnockoutObservables(ko.unwrap(value[i]), allowStateUnwrap)
+            if (unwrappedItem !== value[i]) {
+                result ??= [...value]
+                result[i] = unwrappedItem
+            }
+        }
+        return result ?? value
+    }
+
+    let result: any = null;
     for (const prop of keys(value)) {
         const v = ko.unwrap(value[prop])
         if (typeof v != "function") {
-            result[prop] = unmapKnockoutObservablesCore(value[prop], options)
+            const unwrappedProp = unmapKnockoutObservables(v, allowStateUnwrap)
+            if (unwrappedProp !== value[prop]) {
+                result ??= { ...value }
+                result[prop] = unwrappedProp
+            }
         }
     }
-    return result
+    return result ?? value
 }
 
 function createObservableObject<T extends object>(initialObject: T, typeHint: TypeDefinition | undefined, update: ((updater: StateUpdate<any>) => void)) {
@@ -250,10 +248,7 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
         typeInfo = getObjectTypeInfo(typeId)
     }
 
-    const pSet = new Set();         // IE11 doesn't support constructor with arguments
-    if (typeInfo) {
-        keys(typeInfo.properties).forEach(p => pSet.add(p));
-    }
+    const pSet = new Set(keys(typeInfo?.properties ?? {}));
     const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
     return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutObservableObject<T>
