@@ -115,6 +115,38 @@ export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, com
     }
 }
 
+export function callNamedCommand(viewIdOrElement: string | HTMLElement, commandName: string, args: any[], allowAsync: boolean = true) {
+    if (compileConstants.debug && commandName == null) { throw new Error("commandName has to have a value"); }
+    if (compileConstants.debug && !(args instanceof Array)) { throw new Error("args must be an array"); }
+
+    const foundModules: ModuleContext[] = [];
+
+    for (let context of getModules(viewIdOrElement)) {
+        if (commandName in context.namedCommands && typeof context.namedCommands[commandName] === "function") {
+            foundModules.push(context);
+        }
+    }
+
+    if (compileConstants.debug && !foundModules.length) {
+        throw new Error(`Named command ${commandName} could not be found in view ${viewIdOrElement}.`);
+    }
+
+    if (compileConstants.debug && foundModules.length > 1) {
+        throw new Error(`Conflict: There were multiple named commands ${commandName} in view ${viewIdOrElement}.`);
+    }
+
+    try {
+        var result = foundModules[0].namedCommands[commandName](...args.map(v => serialize(v)));
+        if (!allowAsync && result instanceof Promise) {
+            throw compileConstants.debug ? `Named command returned Promise even though it was called through _js.Invoke("${commandName}", ...). Use the _js.InvokeAsync method to call commands which (may) return a promise.` : "Command returned Promise";
+        }
+        return result
+    }
+    catch (e: unknown) {
+        throw new Error(`While executing command ${commandName}(${args.map(v => JSON.stringify(serialize(v)))}), an error occurred. ${e}`);
+    }
+}
+
 const globalComponent: { [key: string]: DotvvmJsComponentFactory } = {}
 
 export function findComponent(
@@ -254,7 +286,7 @@ function mapCommandResult(result: any) {
 }
 
 export class ModuleContext {
-    private readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> } = {};
+    readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> } = {};
     public module: any;
     
     constructor(
