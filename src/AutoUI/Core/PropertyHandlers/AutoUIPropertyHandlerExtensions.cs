@@ -8,7 +8,7 @@ namespace DotVVM.AutoUI.PropertyHandlers;
 public static class AutoUIPropertyHandlerExtensions
 {
 
-    public static T FindBestProvider<T>(this IEnumerable<T> providers, PropertyDisplayMetadata property, AutoUIContext context)
+    public static T? FindBestProvider<T>(this IEnumerable<T> providers, PropertyDisplayMetadata property, AutoUIContext context)
         where T : class, IAutoUIPropertyHandler
     {
         providers = providers.Where(p => p.CanHandleProperty(property, context));

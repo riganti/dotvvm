@@ -10,6 +10,7 @@ import ts from 'typescript'
 const production = !process.env.ROLLUP_WATCH;
 export default [{
     input: './Scripts/react/react-app.tsx',
+    preserveSymlinks: true,
     output: {
         format: 'esm',
         file: './script/react-app.js',
@@ -21,15 +22,14 @@ export default [{
             typescript: ts
         }),
         resolve({ browser: true }),
-        commonjs({
-            include: 'node_modules/**'
-        }),
+        commonjs(),
         replace({
             'process.env.NODE_ENV': JSON.stringify('production')
         })
     ]
 },{
     input: './Scripts/svelte/svelte-app.ts',
+    preserveSymlinks: true,
     output: {
         format: 'esm',
         file: './script/svelte-app.js',
@@ -44,9 +44,7 @@ export default [{
             preprocess: sveltePreprocess(),
         }),
         resolve({ browser: true, dedupe: ['svelte'] }),
-        commonjs({
-            include: 'node_modules/**'
-        }),
+        commonjs(),
         typescript({
             tsconfig: "tsconfig.svelte.json",
             typescript: ts

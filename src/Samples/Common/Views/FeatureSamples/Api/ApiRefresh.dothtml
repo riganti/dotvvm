@@ -32,6 +32,8 @@
         Number of requests: <span data-ui="number">{{value: NumberOfRequests}}</span>
     </p>
 
+    <button>button because of firefox</button>
+
     <script type="text/javascript">
         var fetchBackup = window.fetch;
         window.fetch = function (url, init) {

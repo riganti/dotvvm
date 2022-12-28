@@ -24,12 +24,21 @@ namespace DotVVM.Framework.Binding
                     x = p.DefaultValue;
                 return ValueOrBinding<T>.FromBoxedValue(x);
             }
+            public static ValueOrBinding<T>? GetOptionalValueOrBindingSlow<T>(DotvvmBindableObject c, DotvvmProperty p)
+            {
+                if (c.IsPropertySet(p))
+                    return ValueOrBinding<T>.FromBoxedValue(c.GetValue(p));
+                else return null;
+            }
+            public static ValueOrBinding<T> GetValueOrBindingSlow<T>(DotvvmBindableObject c, DotvvmProperty p)
+            {
+                return ValueOrBinding<T>.FromBoxedValue(c.GetValue(p));
+            }
             public static void SetOptionalValueOrBinding<T>(DotvvmBindableObject c, DotvvmProperty p, ValueOrBinding<T>? val)
             {
                 if (val.HasValue)
                 {
-                    var v = val.GetValueOrDefault();
-                    c.properties.Set(p, v.UnwrapToObject());
+                    SetValueOrBinding<T>(c, p, val.GetValueOrDefault());
                 }
                 else
                 {
@@ -38,9 +47,65 @@ namespace DotVVM.Framework.Binding
             }
             public static void SetValueOrBinding<T>(DotvvmBindableObject c, DotvvmProperty p, ValueOrBinding<T> val)
             {
-                // TODO: remove the property in case of default value?
                 var boxedVal = val.UnwrapToObject();
-                c.properties.Set(p, boxedVal);
+                SetValueDirect(c, p, boxedVal);
+            }
+            public static void SetOptionalValueOrBindingSlow<T>(DotvvmBindableObject c, DotvvmProperty p, ValueOrBinding<T>? val)
+            {
+                if (val.HasValue)
+                {
+                    SetValueOrBindingSlow<T>(c, p, val.GetValueOrDefault());
+                }
+                else
+                {
+                    c.SetValue(p, p.DefaultValue); // set to default value, just in case this property is backed in a different place than c.properties[p]
+                    c.properties.Remove(p);
+                }
+            }
+            public static void SetValueOrBindingSlow<T>(DotvvmBindableObject c, DotvvmProperty p, ValueOrBinding<T> val)
+            {
+                var boxedVal = val.UnwrapToObject();
+                if (Object.Equals(boxedVal, p.DefaultValue) && c.IsPropertySet(p))
+                {
+                    // setting to default value and the property is not set -> do nothing
+                }
+                else
+                {
+                    c.SetValue(p, boxedVal);
+                }
+            }
+
+            public static object? GetValueRawDirect(DotvvmBindableObject c, DotvvmProperty p)
+            {
+                if (c.properties.TryGet(p, out var x))
+                {
+                    return x;
+                }
+                else return p.DefaultValue;
+            }
+            public static T? GetStructValueDirect<T>(DotvvmBindableObject c, DotvvmProperty p)
+                where T: struct
+            {
+                if (c.properties.TryGet(p, out var x))
+                {
+                    if (x is null)
+                        return null;
+                    if (x is T xValue)
+                        return xValue;
+                    return (T?)c.EvalPropertyValue(p, x);
+                }
+                else return (T?)p.DefaultValue;
+            }
+            public static void SetValueDirect(DotvvmBindableObject c, DotvvmProperty p, object? value)
+            {
+                if (Object.Equals(p.DefaultValue, value) && !c.properties.Contains(p))
+                {
+                    // setting to default value and the property is not set -> do nothing
+                }
+                else
+                {
+                    c.properties.Set(p, value);
+                }
             }
 
             public static Type GetDictionaryElement(Type type)

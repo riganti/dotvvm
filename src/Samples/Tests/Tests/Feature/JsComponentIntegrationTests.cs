@@ -70,15 +70,17 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // T1 - OK, T2 - NOK 
                 var template1 = browser.WaitFor(s => s.First("template1", SelectByDataUi));
-                browser.FindElements("template2").ThrowIfDifferentCountThan(0);
                 AssertUI.IsDisplayed(template1);
+                browser.FindElements("template2", SelectByDataUi).ThrowIfDifferentCountThan(0);
+                browser.FindElements("template-selector", SelectByDataUi).FindElements("p.template1", SelectBy.CssSelector).ThrowIfDifferentCountThan(1);
 
 
                 // T1 - NOK, T2 - OK 
                 browser.First("template-condition").Click();
-                browser.FindElements("template1").ThrowIfDifferentCountThan(0);
+                browser.FindElements("template1", SelectByDataUi).ThrowIfDifferentCountThan(0);
                 var template2 = browser.WaitFor(s => s.First("template2", SelectByDataUi));
                 AssertUI.IsDisplayed(template2);
+                browser.FindElements("template-selector", SelectByDataUi).FindElements("p.template2", SelectBy.CssSelector).ThrowIfDifferentCountThan(1);
 
                 // T1 - OK, T2 - NOK 
                 browser.First("template-condition").Click();
@@ -109,7 +111,6 @@ namespace DotVVM.Samples.Tests.Feature
                 result = null;
                 browser.WaitFor(() => result = getResult(), 8000);
                 AssertUI.TextEquals(result, "ServerStaticCommandInvoked");
-
             });
         }
     }

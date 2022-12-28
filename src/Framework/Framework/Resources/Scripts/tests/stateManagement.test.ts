@@ -5,6 +5,7 @@ import { lastSetErrorSymbol, StateManager } from "../state-manager";
 import { serialize } from "../serialization/serialize";
 import { deserialize } from "../serialization/deserialize";
 import { serializeDate } from "../serialization/date";
+import { areObjectTypesEqual } from "../metadata/typeMap";
 
 require('./stateManagement.data')
 
@@ -571,3 +572,89 @@ test("push on observable array - keep warning when the new item contains observa
     expect(warnMock).toHaveBeenCalled();
     expect(warnMock.mock.calls[0][2]).toContain("Replacing old knockout observable with a new one");
 })
+
+test("are dynamic types the same - empty objects", () => {
+    expect(areObjectTypesEqual({}, {})).toBe(true);
+});
+test("are dynamic types the same - dynamic vs typed", () => {
+    expect(areObjectTypesEqual({}, { $type: "t1" })).toBe(false);
+});
+test("are dynamic types the same - different property count", () => {
+    expect(areObjectTypesEqual({}, { a: "a" })).toBe(false);
+});
+test("are dynamic types the same - same property count", () => {
+    expect(areObjectTypesEqual({ b: "b" }, { a: "a" })).toBe(false);
+});
+test("are dynamic types the same - same properties", () => {
+    expect(areObjectTypesEqual({ a: "b" }, { a: "a" })).toBe(true);
+});
+test("are dynamic types the same - subset", () => {
+    expect(areObjectTypesEqual({ a: "b" }, { a: "a", b: "b" })).toBe(false);
+});
+test("are dynamic types the same - superset", () => {
+    expect(areObjectTypesEqual({ a: "b", b: "a" }, { a: "a" })).toBe(false);
+});
+
+test("changing dynamic type property doesn't notify when dynamic types are the same - primitive value", () => {
+    vm.Dynamic({ a: "a" });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: "x" });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(0);
+});
+
+test("changing dynamic type property doesn't notify when dynamic types are the same - child object", () => {
+    vm.Dynamic({ a: { b: "b" } });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: { b: "a", c: "a" } });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(0);
+});
+
+test("changing dynamic type property notifies when dynamic types are different - primitive value", () => {
+    vm.Dynamic({ a: "a" });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: "a", b: "b" });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(1);
+});
+
+test("changing dynamic type property notifies when dynamic types are different - child object", () => {
+    vm.Dynamic({ a: { b: "b" } });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: { b: "b" }, b: "b" });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(1);
+});

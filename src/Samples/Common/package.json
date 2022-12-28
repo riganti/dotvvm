@@ -11,7 +11,7 @@
     "@sveltejs/pancake": "^0.0.18",
     "@tsconfig/svelte": "^3.0.0",
     "bulma": "^0.9.3",
-    "dotvvm-jscomponent-react": "4.0.0-experimental-0004",
+    "dotvvm-jscomponent-react": "portal:../../Framework/JsComponent.React",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "recharts": "^2.1.4",
@@ -30,7 +30,8 @@
   "scripts": {
     "build": "npm run build-production && npm run build-development",
     "build-development": "rollup -c",
-    "build-production": "rollup -c --environment BUILD:production"
+    "build-production": "rollup -c --environment BUILD:production",
+    "install": "npm ci --prefix node_modules/dotvvm-jscomponent-react && npm run prepack --prefix node_modules/dotvvm-jscomponent-react"
   },
   "author": "RIGANTI s.r.o.",
   "license": "Apache-2.0"

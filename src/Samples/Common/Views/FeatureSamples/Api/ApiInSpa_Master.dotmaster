@@ -1,0 +1,37 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.ApiInSpa_MasterViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>REST API Bindings in SPA</h1>
+
+    <dot:SpaContentPlaceHolder ID="MainContent" />
+
+
+
+    <h3>Request log</h3>
+    <ol ID="request-log" ClientIDMode="Static">        
+    </ol>
+
+    <script type="text/javascript">
+        var fetchBackup = window.fetch;
+        window.fetch = function (url, init) {
+            if (typeof url === "string" && url.indexOf("/api/orders") >= 0) {
+                var ol = document.getElementById("request-log");
+                var li = document.createElement("li");
+                li.innerText = init.method + " " + url.substring(url.indexOf("/api/orders"));
+                ol.appendChild(li);
+            }
+            return fetchBackup.apply(window, arguments);
+        };
+    </script>
+</body>
+</html>
+
+

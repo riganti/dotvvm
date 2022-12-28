@@ -4,7 +4,7 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding
 {
-    public class DotvvmPropertyAlias : DotvvmProperty
+    public sealed class DotvvmPropertyAlias : DotvvmProperty
     {
         private DotvvmProperty? aliased;
 
