@@ -14,8 +14,14 @@ const s = getStateManager() as StateManager<any>
 s.doUpdateNow()
 
 var warnMock: any;
+var printTheWarning = false
 beforeEach(() => {
-    warnMock = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    printTheWarning = false
+    warnMock = jest.spyOn(console, 'warn').mockImplementation((...args) => {
+        if (printTheWarning) {
+            throw new Error("Unexpected warning: " + args.map(a => a instanceof Error || typeof a != "object" ? a : JSON.stringify(a)).join(" "))
+        }
+    });
 });
 afterEach(() => {
     warnMock.mockRestore();
@@ -54,6 +60,7 @@ test("Dirty flag", () => {
 })
 
 test("Upgrade null to observableArray", () => {
+    printTheWarning = true
     s.update(x => ({ ...x, ArrayWillBe: [{ $type: "t5", B: "ahoj" }] }))
     s.doUpdateNow()
 
@@ -66,6 +73,7 @@ test("Upgrade null to observableArray", () => {
 })
 
 test("Change observableArray to object", () => {
+    printTheWarning = true
     // this should not happen IRL, but can when property of type `object` is used in viewModel
 
     s.update(x => ({ ...x, Array: { $type: "t4", P: "P" } }))
@@ -86,6 +94,7 @@ test("Change observableArray to object", () => {
 })
 
 test("Add and remove type properties", () => {
+    printTheWarning = true
     s.update(x => ({ ...x, Inner: { $type: "t3_a", P1: 5, P2: null } }))
     s.doUpdateNow()
 
@@ -122,6 +131,7 @@ test("Add and remove type properties", () => {
 })
 
 test("Should not change object reference", () => {
+    printTheWarning = true
     const innerObs = vm.Inner
     const innerObj = vm.Inner()
 
@@ -142,6 +152,7 @@ test("Should not change object reference", () => {
 })
 
 test("Should not change array reference", () => {
+    printTheWarning = true
     s.setState({ ...s.state, Array: [{ $type: "t2", Id: 1 }] })
     s.doUpdateNow()
 
@@ -163,6 +174,7 @@ test("Should not change array reference", () => {
 })
 
 test("Should change array reference when length changes", () => {
+    printTheWarning = true
     // this behavior is not strictly needed, we could do with one array
     // However, the changed variable MUST be set to true
 
@@ -189,6 +201,7 @@ test("Should change array reference when length changes", () => {
 })
 
 test("Propagate knockout observable change", () => {
+    printTheWarning = true
 
     vm.Inner(null)
     vm.Int(745)
@@ -218,7 +231,7 @@ test("Propagate knockout object assignment", () => {
     expect(vm.Inner().P2()).toBe(5)
     
     expect(warnMock).toHaveBeenCalled();
-    expect(warnMock.mock.calls[0][2]).toContain("Replacing old knockout observable with a new one");
+    expect(warnMock.mock.calls[0][1]).toContain("Replacing old knockout observable with a new one");
 })
 
 test("Propagate knockout array assignment", () => {
@@ -237,10 +250,11 @@ test("Propagate knockout array assignment", () => {
     expect(s.state.ArrayWillBe).toStrictEqual([{ $type: "t5", B: "hmm2" }])
     
     expect(warnMock).toHaveBeenCalled();
-    expect(warnMock.mock.calls[0][2]).toContain("Replacing old knockout observable with a new one");
+    expect(warnMock.mock.calls[0][1]).toContain("Replacing old knockout observable with a new one");
 })
 
 test("Propagate Date assignment", () => {
+    printTheWarning = true
     const val = new Date(2000, 3, 3, 3, 3, 3)
     vm.DateTime(val)
 
@@ -253,6 +267,7 @@ test("Propagate Date assignment", () => {
 })
 
 test("Serialized computed updates on changes", () => {
+    printTheWarning = true
     if (ko.options.deferUpdates) {
         // This test won't work this way (i.e. synchronously) with deferUpdate
         return
@@ -289,8 +304,8 @@ test("lastSetError flag", () => {
     expect(vm.Int[lastSetErrorSymbol]).toBeUndefined();
 
     expect(warnMock).toHaveBeenCalledTimes(2);
-    expect(warnMock.mock.calls[0][2]).toContain("Cannot update observable to null");
-    expect(warnMock.mock.calls[1][2]).toContain("Cannot update observable to ");
+    expect(warnMock.mock.calls[0][1]).toContain("Cannot update observable to null");
+    expect(warnMock.mock.calls[1][1]).toContain("Cannot update observable to ");
 })
 
 test("lastSetError flag - changed back to the original value", () => {
@@ -307,7 +322,7 @@ test("lastSetError flag - changed back to the original value", () => {
     expect(vm.Int[lastSetErrorSymbol]).toBeDefined();
 
     expect(warnMock).toHaveBeenCalled();
-    expect(warnMock.mock.calls[0][2]).toContain("Cannot update observable to null");
+    expect(warnMock.mock.calls[0][1]).toContain("Cannot update observable to null");
 })
 
 test("lastSetError flag - triggers observable change even if the value hasn't really changed", () => {
@@ -342,8 +357,8 @@ test("lastSetError flag - triggers observable change even if the value hasn't re
     }
 
     expect(warnMock).toHaveBeenCalledTimes(2);
-    expect(warnMock.mock.calls[0][2]).toContain("Cannot update observable to aaa");
-    expect(warnMock.mock.calls[1][2]).toContain("Cannot update observable to aaa");
+    expect(warnMock.mock.calls[0][1]).toContain("Cannot update observable to aaa");
+    expect(warnMock.mock.calls[1][1]).toContain("Cannot update observable to aaa");
 });
 
 test("coercion happens before assigning to the observable", () => {
@@ -360,10 +375,11 @@ test("coercion happens before assigning to the observable", () => {
     expect(() => vm.Int({})).toThrow();
 
     expect(warnMock).toHaveBeenCalledTimes(1);
-    expect(warnMock.mock.calls[0][2]).toContain("Cannot update observable to [object Object]");
+    expect(warnMock.mock.calls[0][1]).toContain("Cannot update observable to [object Object]");
 })
 
 test("coercion on assigning to observable doesn't unwrap objects", () => {
+    printTheWarning = true
 
     deserialize({
         P1: 13,
@@ -394,6 +410,7 @@ test("coercion on assigning to observable doesn't unwrap objects", () => {
 })
 
 test("state on the observable", () => {
+    printTheWarning = true
 
     vm.Inner({ P1: 1, P3: 2 });
     s.doUpdateNow();
@@ -419,6 +436,7 @@ test("state on the observable", () => {
 })
 
 test("patchState on the observable", () => {
+    printTheWarning = true
 
     vm.Inner({ P1: 1, P3: 2 });
     s.doUpdateNow();
@@ -447,6 +465,7 @@ test("patchState on the observable", () => {
 })
 
 test("setState on the observable", () => {
+    printTheWarning = true
 
     vm.Inner({ P1: 1, P3: 2 });
     s.doUpdateNow();
@@ -473,6 +492,7 @@ test("setState on the observable", () => {
 })
 
 test("push on observable array - automatic coercion happens", () => {
+    printTheWarning = true
 
     vm.Array([
         { Id: 1 },
@@ -496,6 +516,7 @@ test("push on observable array - automatic coercion happens", () => {
 })
 
 test("push on observable array - state is updated immediately", () => {
+    printTheWarning = true
 
     vm.Array([
         { Id: 1 },
@@ -512,6 +533,7 @@ test("push on observable array - state is updated immediately", () => {
 })
 
 test("remove on observable array - state is updated immediately", () => {
+    printTheWarning = true
 
     vm.Array([
         { Id: 1 },
@@ -529,6 +551,7 @@ test("remove on observable array - state is updated immediately", () => {
 })
 
 test("push on observable array - no warning when the new item is not observable", () => {
+    printTheWarning = true
     vm.Array([
         { Id: 1 },
         { Id: 3 },
@@ -552,7 +575,7 @@ test("push on observable array - keep warning when the new item is observable", 
     
     vm.Array.push(ko.observable({ Id: ko.observable(5) }));
     expect(warnMock).toHaveBeenCalled();
-    expect(warnMock.mock.calls[0][2]).toContain("Replacing old knockout observable with a new one");
+    expect(warnMock.mock.calls[0][1]).toContain("Replacing old knockout observable with a new one");
 })
 
 test("push on observable array - keep warning when the new item contains observable", () => {
@@ -570,7 +593,7 @@ test("push on observable array - keep warning when the new item contains observa
         B: ko.observable("hmm")
     });
     expect(warnMock).toHaveBeenCalled();
-    expect(warnMock.mock.calls[0][2]).toContain("Replacing old knockout observable with a new one");
+    expect(warnMock.mock.calls[0].join(" ")).toBe("state-manager Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects with knockout observables into the knockout tree directly. Observable is at /1/$type, value = t5");
 })
 
 test("are dynamic types the same - empty objects", () => {

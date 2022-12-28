@@ -254,6 +254,35 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
     return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutObservableObject<T>
 }
 
+/** Informs that we cloned an ko.observable, so updating it won't work */
+function logObservableCloneWarning(value: any) {
+    function findClonedObservable(value: any, path: string): [string, any] | undefined {
+        // find observable not created by dotvvm
+        if (!value[notifySymbol] && ko.isObservable(value)) {
+            return [path, value]
+        }
+        value = ko.unwrap(value)
+        if (isPrimitive(value)) return;
+        if (value instanceof Array) {
+            for (let i = 0; i < value.length; i++) {
+                const result = findClonedObservable(value[i], path + "/" + i)
+                if (result) return result
+            }
+        }
+        if (typeof value == "object") {
+            for (const p of keys(value)) {
+                const result = findClonedObservable(value[p], path + "/" + p)
+                if (result) return result
+            }
+        }
+    }
+
+    const foundObservable = findClonedObservable(value, "")
+    if (foundObservable) {
+        logWarning("state-manager", `Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects with knockout observables into the knockout tree directly. Observable is at ${foundObservable[0]}, value =`, unmapKnockoutObservables(foundObservable[1], true))
+    }
+}
+
 function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutObservable<T> {
 
     let isUpdating = false
@@ -271,6 +300,10 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
             (this as any)[lastSetErrorSymbol] = void 0;
 
             const unmappedValue = unmapKnockoutObservables(newValue);
+            if (compileConstants.debug && unmappedValue !== newValue) {
+                logObservableCloneWarning(newValue)
+            }
+
             const oldValue = obs[currentStateSymbol];
             const coerceResult = coerce(unmappedValue, typeHint || { type: "dynamic" }, oldValue);
 
