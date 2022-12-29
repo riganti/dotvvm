@@ -172,13 +172,13 @@ namespace DotVVM.Framework.Compilation
                     Expression.Label(returnLabel, defaultValue: expression));
             }
 
+            static readonly PropertyInfo BindableObject_Parent = typeof(DotvvmBindableObject).GetProperty(nameof(DotvvmBindableObject.Parent))!;
+
             /// <summary> Generates block which initializes the needed data context parameters (<see cref="IntroducedVariables" />) </summary>
             public BlockExpression GenerateInitializer(IBinding contextObject, Expression returnNull)
             {
                 var result = new List<Expression>();
                 var tempVariables = new List<ParameterExpression>();
-                var contexts =
-                    viewModelParameters.Keys.Concat(controlParameters.Keys).Distinct().OrderBy(cx => FindIndex(cx) ?? -1).ToList();
 
                 ParameterExpression tempVariable(string name, Expression init)
                 {
@@ -197,67 +197,70 @@ namespace DotVVM.Framework.Compilation
                     result.Add(Expression.Assign(vmVariable, Expression.Field(tuple, "Item2")));
                 }
 
+                var contexts = viewModelParameters.Keys.Concat(controlParameters.Keys).Distinct().ToArray();
+
+                // bindings without DataContext set
+                // this should be rare, so we can just use BindingHelper.FindDataContextTarget for each data context
+                foreach (var cx in contexts.Where(cx => FindIndex(cx) is null))
+                {
+                    var controlExpression = ExpressionUtils.Replace(
+                            (DotvvmBindableObject control) => BindingHelper.FindDataContextTarget(control, cx, contextObject).target,
+                            CurrentControlParameter
+                        ).OptimizeConstants();
+
+                    var controlVariable = controlParameters.GetValueOrDefault(cx);
+                    var viewModelVariable = viewModelParameters.GetValueOrDefault(cx);
+                    if (controlVariable is {})
+                        result.Add(Expression.Assign(controlVariable, controlExpression));
+
+                    if (viewModelVariable is {})
+                    {
+                        var control = controlVariable ?? controlExpression;
+                        var tuple = tempVariable("tuple_" + cx.DataContextType.Name, getContextAndControl(0, control, cx));
+                        assignViewModel(viewModelVariable, tuple);
+                    }
+                }
+
                 var lastContextIndex = -1;
-                Expression? lastContextControl = null;
+                Expression lastContextControl = CurrentControlParameter;
                 foreach (var cx in contexts)
                 {
-                    var cxIndex = FindIndex(cx);
-                    Debug.Assert(cxIndex != lastContextIndex);
+                    if (FindIndex(cx) is not int index) continue; // handled by loop above
+
+                    Debug.Assert(index != lastContextIndex);
                     var controlVariable = controlParameters.GetValueOrDefault(cx);
                     var viewModelVariable = viewModelParameters.GetValueOrDefault(cx);
 
-                    if (cxIndex == null)
+                    // We aim to build a chain of GetContextControl / GetContextAndControl invocations.
+                    // This should traverse the DataContext hierarchy only once, and only to the required depth.
+                    // The binding in DataContext property evaluated only if the data context is used in the current binding.
+                    var skip = lastContextIndex == -1 ? index : index - lastContextIndex - 1;
+                    // for controls, it's better to use control_at(index-1).Parent --
+                    // -- the deepest control with the matching data context, rather than the top-most control
+                    if (controlVariable is {})
                     {
-                        // bindings without DataContext set
-                        // this should be rare, so we can just use BindingHelper.FindDataContextTarget for each data context
-                        var controlExpression = ExpressionUtils.Replace(
-                                (DotvvmBindableObject control) => BindingHelper.FindDataContextTarget(control, cx, contextObject).target,
-                                CurrentControlParameter
-                            ).OptimizeConstants();
+                        if (skip > 0)
+                        { // skip N-1 levels + control.Parent to get to the desired control, 
+                            var control = getContextControl(skip - 1, lastContextControl, cx);
+                            control = Expression.Property(control, BindableObject_Parent);
+                            result.Add(Expression.Assign(controlVariable, control));
 
-                        if (controlVariable is {})
-                            result.Add(Expression.Assign(controlVariable, controlExpression));
-
-                        if (viewModelVariable is {})
-                        {
-                            var control = controlVariable ?? controlExpression;
-                            var tuple = tempVariable("tuple_" + cx.DataContextType.Name, getContextAndControl(0, control, cx));
-                            assignViewModel(viewModelVariable, tuple);
-                        }
-                    }
-                    else
-                    {
-                        // We aim to build a chain of GetContextControl / GetContextAndControl invocations.
-                        // This should traverse the DataContext hierarchy only once, and only to the required depth.
-                        // The binding in DataContext property evaluated only if the data context is used in the current binding.
-                        var (baseControl, skip) = lastContextControl switch {
-                            null => (CurrentControlParameter, cxIndex.Value),
-                            _ => (
-                                (Expression)Expression.Property(lastContextControl, "Parent"),
-                                cxIndex.Value - lastContextIndex - 1
-                            )
-                        };
-                        lastContextIndex = cxIndex.Value;
-                        if (viewModelVariable is null)
-                        {
-                            var control = getContextControl(skip, baseControl, cx);
-                            result.Add(Expression.Assign(controlVariable.NotNull(), control));
+                            skip = 0;
                             lastContextControl = controlVariable;
+                            lastContextIndex = index - 1;
                         }
                         else
-                        {
-                            var tuple = tempVariable("tuple" + cxIndex, getContextAndControl(skip, baseControl, cx));
-                            assignViewModel(viewModelVariable, tuple);
-                            if (controlVariable is {})
-                            {
-                                result.Add(Expression.Assign(controlVariable, Expression.Field(tuple, "Item1")));
-                                lastContextControl = controlVariable;
-                            }
-                            else
-                            {
-                                lastContextControl = Expression.Field(tuple, "Item1");
-                            }
+                        { // otherwise it's lastControl.Parent
+                            result.Add(Expression.Assign(controlVariable, lastContextControl));
                         }
+                    }
+
+                    if (viewModelVariable is {})
+                    {
+                        var tuple = tempVariable("tuple" + index, getContextAndControl(skip, lastContextControl, cx));
+                        assignViewModel(viewModelVariable, tuple);
+                        lastContextControl = Expression.Property(Expression.Field(tuple, "Item1"), BindableObject_Parent);
+                        lastContextIndex = index;
                     }
                 }
                 return Expression.Block(tempVariables, result);
@@ -286,18 +289,6 @@ namespace DotVVM.Framework.Compilation
 
             static class CodegenHelpers
             {
-                // public static DotvvmBindableObject GetContextControl(DotvvmBindableObject? control, ErrorInfo errorInfo, DotvvmBindableObject evaluatingControl)
-                // {
-                //     while (control != null)
-                //     {
-                //         if (control.properties.Contains(DotvvmBindableObject.DataContextProperty))
-                //             return control;
-                //         control = control.Parent;
-                //     }
-                //     ThrowNotEnoughDataContexts(errorInfo, evaluatingControl);
-                //     return null!;
-                // }
-
                 /// <summary> Returns the nearest ancestor control with DataContext property set, after skipping `skip` such ancestors. </summary>
                 public static DotvvmBindableObject GetContextControl(int skip, DotvvmBindableObject? control, ErrorInfo errorInfo, DotvvmBindableObject evaluatingControl)
                 {

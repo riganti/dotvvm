@@ -33,6 +33,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             config.Markup.AddMarkupControl("cc", "CustomControlWithInternalProperty", "CustomControlWithInternalProperty.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithResourceProperty", "CustomControlWithResourceProperty.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithJsInvoke", "CustomControlWithJsInvoke.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "DataContextChangeControl", "DataContextChangeControl.dotcontrol");
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
         }, services: s => {
             s.Services.AddSingleton<TestService>();
@@ -229,6 +230,32 @@ namespace DotVVM.Framework.Tests.ControlTests
             );
 
             check.CheckString(p.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task DataContextChange()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                    <cc:DataContextChangeControl DataContext={value: _this} Something=321 RenderSettings.Mode=Server />
+                """,
+                directives: $"@service s = {typeof(TestService)}",
+                markupFiles: new Dictionary<string, string> {
+                    ["DataContextChangeControl.dotcontrol"] = """
+                        @viewModel DotVVM.Framework.Tests.ControlTests.MarkupControlTests.BasicTestViewModel
+                        @property int Something
+                        
+                        <div DataContext={value: Collection}>
+                            <dot:Repeater DataSource={value: _this}>
+                                {{value: _this}}
+
+                                <span data-x={value: _control.Something} />
+                            </dot:Repeater>
+                        </div>
+                        """
+                }
+            );
+
+            check.CheckString(r.OutputString, fileExtension: "html");
         }
 
 
