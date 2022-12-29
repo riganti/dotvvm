@@ -230,6 +230,9 @@ namespace DotVVM.Framework.Binding
         public static object? Evaluate(this ICommandBinding binding, DotvvmBindableObject control, params Func<Type, object>[] args)
         {
             var action = binding.GetCommandDelegate(control);
+            if (action is null)
+                // only if data context is null will our compiler return null instead of command delegate
+                throw new DotvvmControlException(control, $"Cannot invoke {binding}, a referenced data context is null") { RelatedBinding = binding }; 
             if (action is Command command) return command();
             if (action is Action actionDelegate) { actionDelegate(); return null; }
             if (action is Func<Task> command2) return command2();
