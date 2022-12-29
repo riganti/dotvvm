@@ -62,6 +62,8 @@ namespace DotVVM.Framework.Compilation.Binding
             expr = ExpressionUtils.ConvertToObject(expr);
             expr = replacementVisitor.WrapExpression(expr, contextObject: binding);
             var l = Expression.Lambda<BindingDelegate>(expr, BindingCompiler.CurrentControlParameter);
+            // Console.WriteLine(new string('-', 80));
+            // Console.WriteLine(binding.ToString());
             // Console.WriteLine(l.ToCSharpString());
             return l;
         }
@@ -88,6 +90,8 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 return null;
             }
+            // return void
+            body = Expression.Block(body, Expression.Default(typeof(void)));
             body = replacementVisitor.WrapExpression(body, contextObject: binding);
 
             return Expression.Lambda<BindingUpdateDelegate>(

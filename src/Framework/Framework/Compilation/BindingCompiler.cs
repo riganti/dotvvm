@@ -92,10 +92,10 @@ namespace DotVVM.Framework.Compilation
 
                 var name = FindIndex(context) switch {
                     
-                    0 => "_this",
-                    1 => "_parent",
-                    int n => "_parent" + n,
-                    null => "viewModel_" + context.DataContextType.Name
+                    0 => "vm_this",
+                    1 => "vm_parent",
+                    int n => "vm_parent" + n,
+                    null => "vm_" + context.DataContextType.Name
                 };
                 return viewModelParameters[context] = Expression.Parameter(context.DataContextType, name);
             }
@@ -158,18 +158,44 @@ namespace DotVVM.Framework.Compilation
                 var variables = IntroducedVariables.ToArray();
                 if (variables.Length == 0)
                     return expression;
-                
-                var initializer = GenerateInitializer(contextObject);
-                return Expression.Block(variables, initializer, expression);
+
+                // we only use this function after ConvertToObject or in update delegate which returns void
+                Debug.Assert(expression.Type == typeof(void) || !expression.Type.IsValueType);
+
+                var returnLabel = Expression.Label(expression.Type);
+                var returnNull = Expression.Goto(returnLabel, Expression.Default(expression.Type));
+
+                var initializer = GenerateInitializer(contextObject, returnNull);
+                return Expression.Block(
+                    variables,
+                    initializer,
+                    Expression.Label(returnLabel, defaultValue: expression));
             }
 
             /// <summary> Generates block which initializes the needed data context parameters (<see cref="IntroducedVariables" />) </summary>
-            public BlockExpression GenerateInitializer(IBinding contextObject)
+            public BlockExpression GenerateInitializer(IBinding contextObject, Expression returnNull)
             {
                 var result = new List<Expression>();
                 var tempVariables = new List<ParameterExpression>();
                 var contexts =
                     viewModelParameters.Keys.Concat(controlParameters.Keys).Distinct().OrderBy(cx => FindIndex(cx) ?? -1).ToList();
+
+                ParameterExpression tempVariable(string name, Expression init)
+                {
+                    var v = Expression.Variable(init.Type, name);
+                    tempVariables.Add(v);
+                    result.Add(Expression.Assign(v, init));
+                    return v;
+                }
+
+                void assignViewModel(ParameterExpression vmVariable, ParameterExpression tuple)
+                {
+                    result.Add(Expression.IfThen(
+                        Expression.Field(tuple, "Item3"),
+                        returnNull
+                    ));
+                    result.Add(Expression.Assign(vmVariable, Expression.Field(tuple, "Item2")));
+                }
 
                 var lastContextIndex = -1;
                 Expression? lastContextControl = null;
@@ -195,8 +221,8 @@ namespace DotVVM.Framework.Compilation
                         if (viewModelVariable is {})
                         {
                             var control = controlVariable ?? controlExpression;
-                            var tuple = getContextAndControl(0, control, cx);
-                            result.Add(Expression.Assign(viewModelVariable, Expression.Field(tuple, "Item2")));
+                            var tuple = tempVariable("tuple_" + cx.DataContextType.Name, getContextAndControl(0, control, cx));
+                            assignViewModel(viewModelVariable, tuple);
                         }
                     }
                     else
@@ -220,19 +246,16 @@ namespace DotVVM.Framework.Compilation
                         }
                         else
                         {
-                            var tuple = getContextAndControl(skip, baseControl, cx);
-                            var tupleVariable = Expression.Variable(tuple.Type, "tuple" + cxIndex);
-                            tempVariables.Add(tupleVariable);
-                            result.Add(Expression.Assign(tupleVariable, tuple));
-                            result.Add(Expression.Assign(viewModelVariable, Expression.Field(tupleVariable, "Item2")));
+                            var tuple = tempVariable("tuple" + cxIndex, getContextAndControl(skip, baseControl, cx));
+                            assignViewModel(viewModelVariable, tuple);
                             if (controlVariable is {})
                             {
-                                result.Add(Expression.Assign(controlVariable, Expression.Field(tupleVariable, "Item1")));
+                                result.Add(Expression.Assign(controlVariable, Expression.Field(tuple, "Item1")));
                                 lastContextControl = controlVariable;
                             }
                             else
                             {
-                                lastContextControl = Expression.Field(tupleVariable, "Item1");
+                                lastContextControl = Expression.Field(tuple, "Item1");
                             }
                         }
                     }
@@ -294,7 +317,7 @@ namespace DotVVM.Framework.Compilation
 
 
                 /// <summary> Returns the nearest ancestor control with DataContext property set, after skipping `skip` such ancestors. Includes the DataContext value </summary>
-                public static (DotvvmBindableObject, T) GetContextAndControl<T>(int skip, DotvvmBindableObject? control, ErrorInfo errorInfo, DotvvmBindableObject evaluatingControl)
+                public static (DotvvmBindableObject control, T context, bool isNull) GetContextAndControl<T>(int skip, DotvvmBindableObject? control, ErrorInfo errorInfo, DotvvmBindableObject evaluatingControl)
                 {
                     while (control != null)
                     {
@@ -303,8 +326,10 @@ namespace DotVVM.Framework.Compilation
                             if (skip == 0)
                             {
                                 var context = control.EvalPropertyValue(DotvvmBindableObject.DataContextProperty, contextRaw);
-                                if (context is T result)
-                                    return (control, result);
+                                if (context is T contextT)
+                                    return (control, contextT, false);
+                                if (context is null)
+                                    return (control, default!, true);
                                 ThrowWrongContextType(errorInfo, context, evaluatingControl);
                             }
                             skip--;

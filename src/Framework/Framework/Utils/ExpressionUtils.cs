@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.Utils
 {
@@ -25,7 +26,7 @@ namespace DotVVM.Framework.Utils
         {
             if (expr.Type == typeof(object)) return expr;
             else if (expr.Type == typeof(void)) return WrapInReturnNull(expr);
-            else return Expression.Convert(expr, typeof(object));
+            else return TypeConversion.BoxToObject(expr);
         }
 
         public static Expression WrapInReturnNull(Expression expr)
