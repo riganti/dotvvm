@@ -11,13 +11,16 @@
 @property Command AddCommand
 @property Func<int, int> AddOne = (int index) => index = index+1
 @property int Counter = 0
+@property ITemplate ItemTemplate, MarkupOptionsAttribute.MappingMode = MappingMode.InnerElement, ControlPropertyBindingDataContextChangeAttribute.PropertyName = "Items", ControlPropertyBindingDataContextChangeAttribute.Order = 1, CollectionElementDataContextChangeAttribute.Order = 1
 
 <h1>{{value: _control.Heading}}</h1>
 
 <section>
     <h2>Collections</h2>
     <dot:Repeater data-ui="list" WrapperTagName="ol" DataSource="{value: _control.Items }">
-        <li data-ui="list-item">{{value: _this}}</li>
+        <li data-ui="list-item">
+            <dot:TemplateHost Template="{resource: _control.ItemTemplate}" />
+        </li>
     </dot:Repeater>
 
     <dot:Button data-ui="add-item" Click="{command: _control.AddCommand()}" Text="Add item" />

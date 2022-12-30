@@ -12,7 +12,15 @@
         <label>New item:</label>
         <dot:TextBox data-ui=item-name Text="{value: Name}" />
     </div>
-    <sample:MarkupDefinedPropertiesControl Heading="Buildings" Items="{value: Buildings}" Counter={value: Counter} AddCommand="{command: AddBuilding()}"/>
+
+    <sample:MarkupDefinedPropertiesControl Heading="Buildings"
+                                           Items="{value: Buildings}"
+                                           Counter={value: Counter}
+                                           AddCommand="{command: AddBuilding()}">
+        <ItemTemplate>
+            {{value: _this}}
+        </ItemTemplate>
+    </sample:MarkupDefinedPropertiesControl>
 
 </body>
 </html>
