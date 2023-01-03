@@ -1,4 +1,4 @@
-﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -785,14 +785,18 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void BindingCompiler_Parents()
+        [DataRow("54554321", "_this.StringProp + _parent.StringProp + StringProp + _parent0.StringProp + _parent1.StringProp + _parent2.StringProp + _parent3.StringProp + _parent4.StringProp")]
+        [DataRow("315", "_parent2.StringProp + _root.StringProp + _this.StringProp")] // different order could break it
+        [DataRow("3", "_this.StringProp.Length + MethodWithOverloads(_parent2.StringProp.Length, _parent1.StringProp.Length)")] // different order could break it
+        public void BindingCompiler_Parents(string expected, string expression)
         {
-            var result = ExecuteBinding("_this.StringProp + _parent.StringProp + StringProp + _parent0.StringProp + _parent1.StringProp + _parent2.StringProp + _parent3.StringProp + _parent4.StringProp", new[] { new TestViewModel { StringProp = "1" },
+            var contexts = new[] { new TestViewModel { StringProp = "1" },
                 new TestViewModel { StringProp = "2" },
                 new TestViewModel { StringProp = "3" },
                 new TestViewModel { StringProp = "4" },
-                new TestViewModel { StringProp = "5" }});
-            Assert.AreEqual("54554321", result);
+                new TestViewModel { StringProp = "5" }};
+            var result = ExecuteBinding(expression, contexts, expectedType: typeof(string));
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]

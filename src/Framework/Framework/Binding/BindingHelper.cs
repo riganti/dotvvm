@@ -19,6 +19,7 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Runtime;
 using FastExpressionCompiler;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Binding
 {
@@ -149,9 +150,12 @@ namespace DotVVM.Framework.Binding
             DotvvmBindableObject? c = contextControl;
             while (c != null)
             {
-                // PERF: O(h^2) because GetValue calls another GetDataContexts
+                // this has O(h^2) complexity because GetValue calls another GetDataContexts,
+                // but this function is used rarely - for exceptions, manually created bindings, ...
+                // Normal bindings have specialized code generated in BindingCompiler
                 if (c.IsPropertySet(DotvvmBindableObject.DataContextProperty, inherit: false))
                 {
+                    Debug.Assert(c.properties.Contains(DotvvmBindableObject.DataContextProperty), "Control claims that DataContextProperty is set, but it's not present in the properties dictionary.");
                     yield return c.GetValue(DotvvmBindableObject.DataContextProperty);
                     count--;
                 }

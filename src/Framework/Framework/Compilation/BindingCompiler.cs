@@ -169,6 +169,7 @@ namespace DotVVM.Framework.Compilation
                 return Expression.Block(
                     variables,
                     initializer,
+                    Expression.Goto(returnLabel, expression),
                     Expression.Label(returnLabel, defaultValue: expression));
             }
 
@@ -223,10 +224,12 @@ namespace DotVVM.Framework.Compilation
 
                 var lastContextIndex = -1;
                 Expression lastContextControl = CurrentControlParameter;
-                foreach (var cx in contexts)
+                foreach (var (cx, index) in (from cx in contexts
+                                             let index = FindIndex(cx)
+                                             where index is not null
+                                             orderby index ascending
+                                             select (cx, index.Value)))
                 {
-                    if (FindIndex(cx) is not int index) continue; // handled by loop above
-
                     Debug.Assert(index != lastContextIndex);
                     var controlVariable = controlParameters.GetValueOrDefault(cx);
                     var viewModelVariable = viewModelParameters.GetValueOrDefault(cx);
@@ -361,10 +364,10 @@ namespace DotVVM.Framework.Compilation
             sealed record WrongDataContextTypeException(DataContextStack ExpectedDataContext, Type? ReceivedType, int? DataContextIndex, IBinding RelatedBinding, DotvvmBindableObject RelatedControl): DotvvmExceptionBase(RelatedBinding: RelatedBinding, RelatedControl: RelatedControl)
             {
                 public override string Message => $"Could not evaluate binding {RelatedBinding!.ToString()}, " + 
-                    $"data context {DataContextIndex switch { null => "?", 0 => "_this", 1 => "_parent", var n => "_parent"+n }}: {ExpectedDataContext.DataContextType.ToCode()} was expected, but got {ReceivedType?.ToCode() ?? "null"}. " +
+                    $"data context {DataContextIndex switch { null => "?", 0 => "_this", 1 => "_parent", var n => "_parent"+n }}: " +
+                    $"{ExpectedDataContext.DataContextType.ToCode()} was expected, but got {ReceivedType?.ToCode() ?? "null"}. " +
                     $"Control has the following contexts: {string.Join(", ", RelatedControl!.GetDataContexts().Select(c => c?.GetType().ToCode(stripNamespace: true) ?? "?"))}";
             }
-
         }
 
         public virtual IBinding CreateMinimalClone(IBinding binding)
