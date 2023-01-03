@@ -5,52 +5,32 @@
     <h1><code>HierarchyRepeater</code> with Markup Controls</h1>
 
     <h2>Server Rendering</h2>
-    <dot:HierarchyRepeater DataSource="{value: Roots}"
-                           ItemChildrenBinding="{value: Children}"
+    <dot:HierarchyRepeater DataSource={value: Roots}
+                           ItemChildrenBinding={value: Children}
                            LevelWrapperTagName="ul"
                            LevelClass="level"
                            ItemWrapperTagName="li"
                            ItemClass="item"
                            RenderSettings.Mode="Server"
-                           PostBack.Update="true">
-        <cc:NodeControl DataContext="{value: _this}" />
+                           PostBack.Update="true"
+                           data-ui='HR-Server'>
+        <cc:NodeControl DataContext={value: _this} />
     </dot:HierarchyRepeater>
 
     <h2>Client Rendering</h2>
-    <dot:HierarchyRepeater DataSource="{value: Roots}"
-                           ItemChildrenBinding="{value: Children}"
+    <dot:HierarchyRepeater DataSource={value: Roots}
+                           ItemChildrenBinding={value: Children}
                            LevelWrapperTagName="ul"
                            LevelClass="level"
                            ItemWrapperTagName="li"
                            ItemClass="item"
-                           RenderSettings.Mode="Client">
-        <cc:NodeControl DataContext="{value: _this}" />
-    </dot:HierarchyRepeater>
-
-    <h2>No Item and Level Tags</h2>
-    <dot:HierarchyRepeater DataSource="{value: Roots}"
-                           ItemChildrenBinding="{value: Children}"
-                           RenderSettings.Mode="Client">
-        <p title={value: _root.GlobalLabel}>{{value: Name}}</p>
-    </dot:HierarchyRepeater>
-
-    <h2>Empty</h2>
-    <dot:HierarchyRepeater DataSource="{value: Empty}"
-                           ItemChildrenBinding="{value: Children}"
-                           LevelTagName="ul"
-                           ItemTagName="li">
-        <ItemTemplate>
-            <span title={value: _root.GlobalLabel}>{{value: Name}}</span>
-        </ItemTemplate>
-        <EmptyDataTemplate>
-            <strong>There are no nodes.</strong>
-        </EmptyDataTemplate>
+                           RenderSettings.Mode="Client"
+                           data-ui='HR-Client'>
+        <cc:NodeControl DataContext={value: _this} />
     </dot:HierarchyRepeater>
 
     <h2>Repeater</h2>
-    <dot:Repeater DataSource="{value: Roots}">
-        <cc:NodeControl DataContext="{value: _this}" />
+    <dot:Repeater DataSource={value: Roots} data-ui=Repeater>
+        <cc:NodeControl DataContext={value: _this} />
     </dot:Repeater>
-
-    <p>Prefix of all node <code>title</code> attributes: <dot:TextBox Text={value: GlobalLabel} /> </p>
 </dot:Content>
