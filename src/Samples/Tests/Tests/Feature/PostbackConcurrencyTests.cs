@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
@@ -119,6 +119,30 @@ namespace DotVVM.Samples.Tests.Feature
                     AssertUI.InnerTextEquals(postbackIndexSpan, "1");
                     AssertUI.InnerTextEquals(lastActionSpan, "long");
                 }, 6000);
+            });
+        }
+
+        [Theory]
+        [InlineData("input[data-ui=long-action-button]")]
+        [InlineData("input[data-ui=short-action-button]")]
+        [InlineData("input[data-ui=long-static-action-button]")]
+        public void Feature_PostbackConcurrency_UnrelatedProperty(string actionSelector)
+        {
+            // execute action, before it finishes update the counter, check that counter value didn't get reverted
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_DefaultMode);
+                browser.WaitUntilDotvvmInited();
+
+                browser.Single(actionSelector).Click();
+                browser.Wait(300);
+
+                browser.Single("counter", SelectByDataUi).Click();
+                browser.Single("counter", SelectByDataUi).Click();
+                AssertUI.InnerTextEquals(browser.Single("counter", SelectByDataUi), "2");
+
+                browser.Wait(6000);
+                AssertUI.InnerTextEquals(browser.Single("span[data-ui=postback-index]"), "1");
+                AssertUI.InnerTextEquals(browser.Single("counter", SelectByDataUi), "2");
             });
         }
 

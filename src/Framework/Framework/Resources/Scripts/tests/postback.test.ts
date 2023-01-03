@@ -83,7 +83,8 @@ const originalViewModel = {
     viewModel: {
         $type: "t1",
         Property1: 0,
-        Property2: 0
+        Property2: 0,
+        PropertyNotUpdated: 0
     },
     typeMetadata: {
         t1: {
@@ -94,6 +95,10 @@ const originalViewModel = {
                 },
                 Property2: {
                     type: "Int32"
+                },
+                PropertyNotUpdated: {
+                    type: "Int32",
+                    update: "no"
                 }
             }
         }
@@ -179,6 +184,40 @@ test("Postback: sanity check", async () => {
     expect(state().Property1).toBe(1)
     expect(state().Property2).toBe(0)
 })
+
+test("Postback: don't update unrelated properties", async () => {
+    // properties which aren't transferred server->client shouldn't be updated
+    getStateManager().patchState({ PropertyNotUpdated: 5 })
+    expect(state().PropertyNotUpdated).toBe(5)
+
+    let updateDone = false
+    let postbackStarted = false
+    fetchJson = async <T>(url: string, init: RequestInit) => {
+        postbackStarted = true
+        while (!updateDone) {
+            await Promise.resolve()
+        }
+        return {
+            viewModelDiff: {
+                Property1: 40404
+            },
+            action: "successfulCommand",
+            updatedControls: {}
+        } as any
+    }
+
+    const postbackPromise = postBack(window.document.body, [], "c", "", undefined, [ "validate-root" ])
+
+    while (!postbackStarted) { await Promise.resolve() }
+
+    getStateManager().patchState({ PropertyNotUpdated: 300 })
+    updateDone = true
+    await postbackPromise
+
+    expect(state().Property1).toBe(40404)
+    expect(state().PropertyNotUpdated).toBe(300)
+})
+
 
 // test("Test runAllTimers", () => {
 //     // check that https://github.com/facebook/jest/pull/6876 is not an issue

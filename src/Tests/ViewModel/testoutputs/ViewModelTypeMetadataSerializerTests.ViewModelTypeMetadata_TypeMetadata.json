@@ -5,11 +5,11 @@
 			"ChildFirstRequest": {
 				"type": "5PrhilQGdc+tT1tU",
 				"post": "no",
-				"update": "firstRequest"
+				"update": "no"
 			},
 			"ClientToServer": {
 				"type": "String",
-				"update": "firstRequest"
+				"update": "no"
 			},
 			"NestedList": {
 				"type": [
