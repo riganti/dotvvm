@@ -21,7 +21,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_MissingViewModel);
-                AssertUI.InnerText(browser.First("p.summary")
+                AssertUI.InnerText(browser.First(".summary")
                       ,
                           s =>
                               s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
@@ -36,7 +36,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidViewModel);
-                AssertUI.InnerText(browser.First("p.summary")
+                AssertUI.InnerText(browser.First(".summary")
                     ,
                         s =>
                             s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException", StringComparison.OrdinalIgnoreCase) &&
@@ -111,7 +111,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_MissingRequiredProperty);
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("must be set"));
+                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("must be set"));
                 AssertUI.InnerText(browser.First("[class='source-errorLine']"), s => s.Contains("dot:CheckBox"));
             });
         }
@@ -121,7 +121,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_ControlAsViewModel);
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotvvmBindableObject"));
+                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("DotvvmBindableObject"));
                 AssertUI.InnerText(browser.First("[class='source-errorLine']"), s => s.Contains("viewModel"));
             });
         }
@@ -131,7 +131,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_MissingRequiredProperty2);
 
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("is missing required properties"));
+                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("is missing required properties"));
                 AssertUI.InnerText(browser.First("[class='errorUnderline']"), s => s.Contains("dot:GridViewTextColumn "));
             });
         }
@@ -189,7 +189,7 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_MasterPageRequiresDifferentViewModel);
 
                 //TODO:  !!! In error page, viewModel directive should by underlined !!!
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("The viewmodel EmptyViewModel is not assignable to the viewmodel of the master page MasterPageViewModel."));
+                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("The viewmodel EmptyViewModel is not assignable to the viewmodel of the master page MasterPageViewModel."));
                 //browser.First("[class='errorUnderline']"),s => s.Contains("DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.Common"));
             });
         }
@@ -199,7 +199,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_ControlUsageValidation);
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("Text property and inner content") && s.Contains("cannot be set at the same time"));
+                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("Text property and inner content") && s.Contains("cannot be set at the same time"));
                 AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("Click=\"{command: 5}\" Text=\"Text property\""));
             });
         }
@@ -230,7 +230,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_InputTypeButton_HtmlContentInside);
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("control cannot have inner HTML"));
+                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("control cannot have inner HTML"));
             });
         }
 
@@ -239,7 +239,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_MarkupControlInvalidViewModel);
-                AssertUI.InnerText(browser.First("p.summary")
+                AssertUI.InnerText(browser.First(".summary")
                     ,
                         s =>
                             s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
@@ -278,7 +278,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_CorruptedContentBetweenContentControls);
-                AssertUI.InnerText(browser.First("p.summary")
+                AssertUI.InnerText(browser.First(".summary")
                     ,
                     s =>
                         s.Contains("the page contains @masterpage") &&
@@ -288,7 +288,7 @@ namespace DotVVM.Samples.Tests
                 if (browser.FindElements("label").Any(l => l.GetInnerText().Contains("Features")))
                 {
                     // AggregateException prints out inner exceptions only on .NET Core
-                    AssertUI.InnerText(browser.First("p.summary")
+                    AssertUI.InnerText(browser.First(".summary")
                     ,
                     s =>
                         s.Contains("line: 13") &&
@@ -349,7 +349,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_UnknownInnerControl);
 
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("does not inherit from DotvvmControl and thus cannot be used in content"));
+                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("does not inherit from DotvvmControl and thus cannot be used in content"));
                 AssertUI.InnerText(browser.First("[class='errorUnderline']"), s => s.Contains("<dot:ConfirmPostBackHandler Message=\"Confirmation 1\" />"));
             });
         }
@@ -425,7 +425,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_ConfigurableHtmlControlValidation);
-                AssertUI.InnerText(browser.First("p.summary")
+                AssertUI.InnerText(browser.First(".summary")
                     ,
                     s =>
                         s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException", StringComparison.OrdinalIgnoreCase) &&

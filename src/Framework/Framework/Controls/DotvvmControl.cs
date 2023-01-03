@@ -437,7 +437,7 @@ namespace DotVVM.Framework.Controls
                 }
                 if (results.Length > 1)
                 {
-                    throw new DotvvmControlException(results[0], $"Multiple controls with the same UniqueID '{string.Join('_', parts.Take(i + 1))}' were found:" +
+                    throw new DotvvmControlException(results[0], $"Multiple controls with the same UniqueID '{string.Join("_", parts.Take(i + 1))}' were found:" +
                         string.Concat(results.Take(20).Select(c => "\n * " + c.DebugString(multiline: false))));
                 }
 
