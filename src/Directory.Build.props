@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Building">
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>11.0</LangVersion>
     <!-- Disable warning for missing XML doc comments. -->
     <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
     <Deterministic>true</Deterministic>
