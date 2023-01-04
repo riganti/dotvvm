@@ -125,7 +125,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 if (!property.TransferAfterPostback)
                 {
-                    prop["update"] = property.TransferFirstRequest ? "firstRequest" : "no";
+                    prop["update"] = "no";
                 }
 
                 if (property.ValidationRules.Any() && property.ClientValidationRules.Any())

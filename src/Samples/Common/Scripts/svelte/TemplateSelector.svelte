@@ -9,6 +9,7 @@
 <div>
 	<KoTemplate
 		wrapperTag="p"
+		class={condition ? 'template1' : 'template2'}
 		templateName={condition ? template1 : template2}
 		getChildContext={c => c.extend({ $kokos: 1 })} />
 

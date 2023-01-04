@@ -20,6 +20,12 @@ time, mark, audio, video, * {
     vertical-align: baseline;
 }
 
+pre {
+    /* just display whitespace, no monospace, no blocks... */
+    font-family: inherit;
+    display: inline;
+}
+
 table {
     border-collapse: collapse;
 }
@@ -163,10 +169,6 @@ table {
 
 
 /* Source code */
-pre {
-    margin: 1rem 0;
-    font-family: "Cascadia Mono", "Consolas", monospace;
-}
 
 .source .source-errorLine {
     color: #a82f23;
@@ -180,7 +182,7 @@ pre {
 }
 
 .code {
-    font-family: "Consolas", monospace;
+    font-family: var(--font-monospace);
 }
 
 .lineNumber {

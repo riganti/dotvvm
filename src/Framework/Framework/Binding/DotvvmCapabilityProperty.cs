@@ -339,20 +339,17 @@ namespace DotVVM.Framework.Binding
                     
                     var isNullable = propertyType.IsNullable() || type.IsNullable();
                     if (!defaultValue.HasValue && !isNullable)
-                        dotvvmProperty.MarkupOptions.Required = true;
+                        dotvvmProperty.MarkupOptions._required ??= true;
 
                     if (typeof(IBinding).IsAssignableFrom(propertyType))
-                        dotvvmProperty.MarkupOptions.AllowHardCodedValue = false;
+                        dotvvmProperty.MarkupOptions._allowHardCodedValue ??= false;
                     else if (!typeof(ValueOrBinding).IsAssignableFrom(propertyType.UnwrapNullableType()))
-                        dotvvmProperty.MarkupOptions.AllowBinding = false;
+                        dotvvmProperty.MarkupOptions._allowBinding ??= false;
 
-                    if (!attributeProvider.IsDefined(typeof(MarkupOptionsAttribute), true))
-                    {
-                        if (typeof(IDotvvmObjectLike).IsAssignableFrom(type) ||
-                            typeof(ITemplate).IsAssignableFrom(type) ||
-                            typeof(IEnumerable<IDotvvmObjectLike>).IsAssignableFrom(type))
-                            dotvvmProperty.MarkupOptions.MappingMode = MappingMode.InnerElement;
-                    }
+                    if (typeof(IDotvvmObjectLike).IsAssignableFrom(type) ||
+                        typeof(ITemplate).IsAssignableFrom(type) ||
+                        typeof(IEnumerable<IDotvvmObjectLike>).IsAssignableFrom(type))
+                        dotvvmProperty.MarkupOptions._mappingMode ??= MappingMode.InnerElement;
 
                     DotvvmProperty.Register(dotvvmProperty);
                 }

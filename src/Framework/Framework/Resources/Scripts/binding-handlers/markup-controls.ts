@@ -26,7 +26,7 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
     Object.defineProperty(computed, "state", {
         get: () => {
             const x = accessor() as any
-            return (x && x.state) ?? unmapKnockoutObservables(x)
+            return (x && x.state) ?? unmapKnockoutObservables(x, true)
         },
         configurable: false,
         enumerable: false

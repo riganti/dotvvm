@@ -43,6 +43,15 @@
         </div>
 
         <div>
+            <p>Client-side only counter - should be unaffected by running postbacks</p>
+            <dot:Button Text={value: ClientSideOnlyCounter}
+                        Click={staticCommand: ClientSideOnlyCounter = ClientSideOnlyCounter + 1}
+                        Postback.concurrency=Default
+                        style="width: 100px"
+                        data-ui="counter" />
+        </div>
+
+        <div>
             Concurrency Mode:
             <a href="?concurrency=None">None</a> /
             <a href="?concurrency=Queue">Queue</a> /

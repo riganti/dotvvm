@@ -3,6 +3,7 @@
 Svelte wrapper for knockout `ko.renderTemplate` function.
 Specify the `templateName` property to select which template should be rendered.
 Optionally, you can use the `viewModel` or `getChildContext` property to set a data context for the template.
+Wrapper element may be configured using the `wrapperTag` property, plus any other property will be used as an attribute.
 -->
 
 <script lang="ts">
@@ -70,5 +71,5 @@ Optionally, you can use the `viewModel` or `getChildContext` property to set a d
 </script>
 
 
-<svelte:element this={wrapperTag} bind:this={wrapperElement}>
+<svelte:element this={wrapperTag} bind:this={wrapperElement} {...$$restProps}>
 </svelte:element>

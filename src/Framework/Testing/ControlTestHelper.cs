@@ -55,12 +55,16 @@ namespace DotVVM.Framework.Testing
             Dictionary<string, string>? markupFiles = null)
         {
             if (!fileLoader.MarkupFiles.TryAdd(fileName, markup))
-                throw new Exception($"File {fileName} already exists");
+            {
+                if (fileLoader.MarkupFiles[fileName] != markup)
+                    throw new Exception($"File {fileName} already exists");
+            }
 
             if (markupFiles is object) foreach (var markupFile in markupFiles)
             {
                 if (!fileLoader.MarkupFiles.TryAdd(markupFile.Key, markupFile.Value))
-                    throw new Exception($"File {markupFile.Value} already exists");
+                    if (fileLoader.MarkupFiles[markupFile.Key] != markupFile.Value)
+                        throw new Exception($"File {markupFile.Value} already exists");
             }
 
             return controlBuilderFactory.GetControlBuilder(fileName);
@@ -365,14 +369,19 @@ namespace DotVVM.Framework.Testing
         public string? CapturedHtml { get; private set; }
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            var resourceManager = context.ResourceManager;
+            if (resourceManager.BodyRendered) return;
+            resourceManager.BodyRendered = true;  // set the flag before the resources are rendered, so they can't add more resources to the list during the render
+
+            ResourcesRenderer.RenderResources(context.ResourceManager,
+                context.ResourceManager.GetNamedResourcesInOrder().Where(r => r.Resource is TemplateResource),
+                writer, context, ResourceRenderPosition.Body);
+
             var str = new StringWriter();
             var fakeWriter = new HtmlWriter(str, context);
             base.RenderControl(fakeWriter, context);
             this.CapturedHtml = str.ToString();
 
-            ResourcesRenderer.RenderResources(context.ResourceManager,
-                context.ResourceManager.GetNamedResourcesInOrder().Where(r => r.Resource is TemplateResource),
-                writer, context, ResourceRenderPosition.Body);
         }
     }
 

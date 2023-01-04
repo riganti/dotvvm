@@ -1,0 +1,6 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.HierarchyRepeater.BasicViewModel.Node, DotVVM.Samples.Common
+
+<div style="border: 1px solid black; padding: 0.5rem;" data-ui="NodeControl">
+    <span>{{value: Name}}</span>
+    <dot:Button Click="{command: ClickNode()}" Text="{value: ClickCount}"/>
+</div>

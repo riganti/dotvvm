@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
@@ -300,6 +300,34 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.TextEquals(timeOnlyTextBox, newTimeOnlyValue);
                 AssertUI.TextEquals(timeOnlySpan, newTimeOnlyValue);
                 AssertUI.TextEquals(timeOnlyPlain, "TimeOnly: " + newTimeOnlyValue);
+            });
+        }
+
+        [Fact]
+        public void Feature_Serialization_TransferredOnlyInPath()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_TransferredOnlyInPath);
+
+                browser.Single("set_result_B", SelectByDataUi).Click();
+                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "B");
+
+                browser.Single("set_result_B", SelectByDataUi).Click();
+                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "B");
+                AssertUI.InnerTextEquals(browser.Single("count", SelectByDataUi), "4");
+
+                browser.Single("set_result_D", SelectByDataUi).Click();
+                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "D");
+
+                browser.Single("set_result_C", SelectByDataUi).Click();
+                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "C");
+
+                browser.Single("set_result_A", SelectByDataUi).Click();
+                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "A");
+
+                browser.Single("set_result_B", SelectByDataUi).Click();
+                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "B");
+                AssertUI.InnerTextEquals(browser.Single("count", SelectByDataUi), "4");
             });
         }
 
