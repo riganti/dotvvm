@@ -277,7 +277,7 @@ export class ModuleContext {
                 throw new Error('command already exists');
         }
 
-        this.namedCommands[name] = (...innerArgs) => mapCommandResult(command.apply(this, innerArgs.map(unmapKnockoutObservables)))
+        this.namedCommands[name] = (...innerArgs) => mapCommandResult(command.apply(this, innerArgs.map(a => unmapKnockoutObservables(a, true))))
     }
 
     public unregisterNamedCommand = (name: string) => {
