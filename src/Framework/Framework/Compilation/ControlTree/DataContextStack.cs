@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -17,9 +17,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
     public sealed class DataContextStack : IDataContextStack
     {
         public DataContextStack? Parent { get; }
+        /// <summary> Type of `_this` </summary>
         public Type DataContextType { get; }
+        /// <summary> Namespaces imported by data context change attributes. </summary>
         public ImmutableArray<NamespaceImport> NamespaceImports { get; }
+        /// <summary> Extension parameters added by data context change attributes (for example _index, _collection). </summary>
         public ImmutableArray<BindingExtensionParameter> ExtensionParameters { get; }
+        /// <summary> Extension property resolvers added by data context change attributes. </summary>
         public ImmutableArray<Delegate> BindingPropertyResolvers { get; }
 
         private readonly int hashCode;

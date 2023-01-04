@@ -12,6 +12,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Binding
 {
+    /// <summary> Represents a dictionary of values of <see cref="DotvvmPropertyGroup" />. </summary>
     public readonly struct VirtualPropertyGroupDictionary<TValue> : IDictionary<string, TValue>, IReadOnlyDictionary<string, TValue>
     {
         private readonly DotvvmBindableObject control;
@@ -38,6 +39,7 @@ namespace DotVVM.Framework.Binding
             }
         }
 
+        /// <summary> Lists all values. If any of the properties contains a binding, it will be automatically evaluated. </summary>
         public IEnumerable<TValue> Values
         {
             get
@@ -106,6 +108,7 @@ namespace DotVVM.Framework.Binding
 
         ICollection<TValue> IDictionary<string, TValue>.Values => Values.ToList();
 
+        /// <summary> Gets or sets value of property identified by <paramref name="key"/>. If the property contains a binding, the getter will automatically evaluate it. </summary>
         public TValue this[string key]
         {
             get
@@ -122,8 +125,11 @@ namespace DotVVM.Framework.Binding
             }
         }
 
+        /// <summary> Gets the value binding set to a specified property. Returns null if the property is not a binding, throws if the binding some kind of command. </summary>
         public IValueBinding? GetValueBinding(string key) => control.GetValueBinding(group.GetDotvvmProperty(key));
+        /// <summary> Gets the binding set to a specified property. Returns null if the property is not set or if the value is not a binding. </summary>
         public IBinding? GetBinding(string key) => control.GetBinding(group.GetDotvvmProperty(key));
+        /// <summary> Gets the value or a binding object for a specified property. </summary>
         public object? GetValueRaw(string key)
         {
             var p = group.GetDotvvmProperty(key);
@@ -133,12 +139,15 @@ namespace DotVVM.Framework.Binding
                 return p.DefaultValue!;
         }
 
+        /// <summary> Adds value or overwrites the property identified by <paramref name="key"/>. </summary>
         public void Set(string key, ValueOrBinding<TValue> value)
         {
             control.properties.Set(group.GetDotvvmProperty(key), value.UnwrapToObject());
         }
+        /// <summary> Adds value or overwrites the property identified by <paramref name="key"/> with the value. </summary>
         public void Set(string key, TValue value) =>
             control.properties.Set(group.GetDotvvmProperty(key), value);
+        /// <summary> Adds binding or overwrites the property identified by <paramref name="key"/> with the binding. </summary>
         public void SetBinding(string key, IBinding binding) =>
             control.properties.Set(group.GetDotvvmProperty(key), binding);
 
@@ -156,6 +165,7 @@ namespace DotVVM.Framework.Binding
             control.properties.Set(property, mergedValue);
         }
 
+        /// <summary> Adds the property identified by <paramref name="key"/>. If the property is already set, it tries appending the value using the group's <see cref="Compilation.IAttributeValueMerger" /> </summary>
         public void Add(string key, ValueOrBinding<TValue> value)
         {
             var prop = group.GetDotvvmProperty(key);
@@ -163,9 +173,12 @@ namespace DotVVM.Framework.Binding
             if (!control.properties.TryAdd(prop, val))
                 AddOnConflict(prop, val);
         }
+
+        /// <summary> Adds the property identified by <paramref name="key"/>. If the property is already set, it tries appending the value using the group's <see cref="Compilation.IAttributeValueMerger" /> </summary>
         public void Add(string key, TValue value) =>
             this.Add(key, new ValueOrBinding<TValue>(value));
 
+        /// <summary> Adds the property identified by <paramref name="key"/>. If the property is already set, it tries appending the value using the group's <see cref="Compilation.IAttributeValueMerger" /> </summary>
         public void AddBinding(string key, IBinding? binding)
         {
             Add(key, new ValueOrBinding<TValue>(binding!));
@@ -222,6 +235,7 @@ namespace DotVVM.Framework.Binding
             return control.Properties.Remove(group.GetDotvvmProperty(key));
         }
 
+        /// <summary> Tries getting value of property identified by <paramref name="key"/>. If the property contains a binding, it will be automatically evaluated. </summary>
 #pragma warning disable CS8767
         public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
 #pragma warning restore CS8767
@@ -239,6 +253,7 @@ namespace DotVVM.Framework.Binding
             }
         }
 
+        /// <summary> Adds the property-value pair to the dictionary. If the property is already set, it tries appending the value using the group's <see cref="Compilation.IAttributeValueMerger" /> </summary>
         public void Add(KeyValuePair<string, TValue> item)
         {
             Add(item.Key, item.Value);
@@ -303,6 +318,7 @@ namespace DotVVM.Framework.Binding
             return false;
         }
 
+        /// <summary> Enumerates all keys and values. If a property contains a binding, the it will be automatically evaluated. </summary>
         public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
         {
             foreach (var (p, value) in control.properties)
@@ -316,6 +332,7 @@ namespace DotVVM.Framework.Binding
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        /// <summary> Enumerates all keys and values, without evaluating the bindings. </summary>
         public IEnumerable<KeyValuePair<string, object>> RawValues
         {
             get
