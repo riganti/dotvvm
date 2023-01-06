@@ -37,6 +37,10 @@ runs:
   - if: ${{ runner.os == 'Windows' }}
     run: choco install dotnetcore-3.1-windowshosting -y
     shell: pwsh
+    
+  # install workloads
+  - run: dotnet workload install wasm-tools
+    shell: pwsh
 
   # restore packages
   - if: ${{ runner.os == 'Windows' }}

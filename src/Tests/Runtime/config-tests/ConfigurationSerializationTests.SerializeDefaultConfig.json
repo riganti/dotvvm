@@ -68,6 +68,17 @@
             "knockout"
           ],
           "RenderPosition": "Anywhere"
+        },
+        "dotvvm.interop.dotnet-wasm": {
+          "Defer": true,
+          "Location": {
+            "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
+            "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
+            "Name": "DotVVM.Framework.obj.javascript.dotvvmStaticResources.dotnetWasmViewModule.js",
+            "DebugName": "DotVVM.Framework.obj.javascript.dotvvmStaticResources.dotnetWasmViewModule.js"
+          },
+          "MimeType": "text/javascript",
+          "RenderPosition": "Anywhere"
         }
       },
       "scripts": {

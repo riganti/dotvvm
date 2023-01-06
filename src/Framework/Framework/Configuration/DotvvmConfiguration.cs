@@ -385,6 +385,13 @@ namespace DotVVM.Framework.Configuration
                     typeof(DotvvmConfiguration).Assembly,
                     "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css"));
 
+            configuration.Resources.RegisterScript(ResourceConstants.DotvvmDotnetWasmInteropResourceName,
+                new EmbeddedResourceLocation(
+                    typeof(DotvvmConfiguration).Assembly,
+                    "DotVVM.Framework.obj.javascript.dotvvmStaticResources.dotnetWasmViewModule.js",
+                    debugName: "DotVVM.Framework.obj.javascript.dotvvmStaticResources.dotnetWasmViewModule.js"),
+                module: true);
+
             RegisterGlobalizeResources(configuration);
         }
 

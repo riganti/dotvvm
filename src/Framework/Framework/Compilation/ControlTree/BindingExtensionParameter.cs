@@ -211,6 +211,52 @@ namespace DotVVM.Framework.Compilation.ControlTree
         }
     }
 
+    public class DotnetExtensionParameter : BindingExtensionParameter
+    {
+        public string Id { get; }
+        public bool IsMarkupControl { get; }
+        public ITypeDescriptor Type { get; }
+
+        public DotnetExtensionParameter(string id, bool isMarkupControl, ITypeDescriptor type) : base("_dotnet", type, true)
+        {
+            this.Id = id;
+            this.IsMarkupControl = isMarkupControl;
+            this.Type = type;
+        }
+
+        public override Expression GetServerEquivalent(Expression controlParameter)
+        {
+            var type = ResolvedTypeDescriptor.ToSystemType(this.Type);
+            var constructors = type.GetConstructors(BindingFlags.Public);
+            if (constructors.Length != 1 || constructors[0].GetParameters().Length != 1)
+            {
+                throw new DotvvmCompilationException($"The type {type} referenced in the @dotnet directive must have exactly one public constructor with one parameter of IViewModuleContext!");
+            }
+            // TODO: check parameter type
+            return Expression.New(constructors[0], Expression.Constant(null, typeof(object)))
+                .AddParameterAnnotation(new BindingParameterAnnotation(extensionParameter: this));
+        }
+
+        public override JsExpression GetJsTranslation(JsExpression dataContext)
+        {
+            return new JsIdentifierExpression("dotvvm").Member("viewModules")
+                .WithAnnotation(new ViewModuleAnnotation(Id, IsMarkupControl, ResolvedTypeDescriptor.ToSystemType(this.Type)));
+        }
+
+        public class ViewModuleAnnotation
+        {
+            public ViewModuleAnnotation(string id, bool isMarkupControl, Type type)
+            {
+                Id = id;
+                IsMarkupControl = isMarkupControl;
+                Type = type;
+            }
+            public string Id { get; }
+            public bool IsMarkupControl { get; }
+            public Type Type { get; }
+        }
+    }
+
     public class CurrentUserExtensionParameter : BindingExtensionParameter
     {
         public CurrentUserExtensionParameter() : base("_user", new ResolvedTypeDescriptor(typeof(ClaimsPrincipal)), true)

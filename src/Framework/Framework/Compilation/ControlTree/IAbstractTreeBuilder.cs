@@ -28,6 +28,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         IAbstractBaseTypeDirective BuildBaseTypeDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax, ImmutableList<NamespaceImport> imports);
 
         IAbstractViewModuleDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName);
+        IAbstractDotnetViewModuleDirective BuildDotnetViewModuleDirective(DothtmlDirectiveNode directiveNode, BindingParserNode moduleType, ImmutableList<NamespaceImport> imports);
         IAbstractPropertyDeclarationDirective BuildPropertyDeclarationDirective(DothtmlDirectiveNode directive, TypeReferenceBindingParserNode typeSyntax, SimpleNameBindingParserNode nameSyntax, BindingParserNode? initializer, IList<IAbstractDirectiveAttributeReference> resolvedAttributes, BindingParserNode valueSyntaxRoot, ImmutableList<NamespaceImport> imports);
         IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReference(DothtmlDirectiveNode directiveNode, IdentifierNameBindingParserNode propertyNameSyntax, ActualTypeReferenceBindingParserNode typeSyntax, LiteralExpressionBindingParserNode initializer, ImmutableList<NamespaceImport> imports);
         IAbstractPropertyBinding BuildPropertyBinding(IPropertyDescriptor property, IAbstractBinding binding, DothtmlAttributeNode? sourceAttributeNode);

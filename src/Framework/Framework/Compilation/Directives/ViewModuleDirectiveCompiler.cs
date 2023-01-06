@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Compilation.Directives
             this.resourceRepo = resourceRepo;
         }
 
-        public override string DirectiveName => ParserConstants.ViewModuleDirective;
+        public override string DirectiveName => ParserConstants.JsViewModuleDirective;
 
         protected override ViewModuleCompilationResult? CreateArtefact(IReadOnlyList<IAbstractViewModuleDirective> resolvedDirectives)
         {
@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Compilation.Directives
                             node.AddError($"The resource named '{x.ImportedResourceName}' referenced by the @js directive must be of the ScriptModuleResource type!");
                         }
                     }
-                    return x.ImportedResourceName;
+                    return new ViewModuleReferencedModule(x.ImportedResourceName);
                 })
                 .ToArray();
 
@@ -73,6 +73,5 @@ namespace DotVVM.Framework.Compilation.Directives
         }
         protected override IAbstractViewModuleDirective Resolve(DothtmlDirectiveNode directiveNode) =>
             TreeBuilder.BuildViewModuleDirective(directiveNode, modulePath: directiveNode.Value, resourceName: directiveNode.Value);
-}
-
+    }
 }

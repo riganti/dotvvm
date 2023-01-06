@@ -16,8 +16,9 @@
     "typescript": "4.7.4"
   },
   "scripts": {
-    "build": "node ./build.js",
-    "build-stats": "PRINT_STATS=true node ./build.js",
+    "build": "node ./build.js && npm run build-dotnet-wasm-module",
+    "build-dotnet-wasm-module": "tsc Resources/Scripts/_standalone/dotnetWasmViewModule.ts --outDir ./obj/javascript/dotvvmStaticResources --module es2020 --target es2020 --noResolve --typeRoots _",
+    "build-stats": "PRINT_STATS=true npm run build",
     "build-development": "rollup -c && npm run tsc-types",
     "build-rollup": "npm run build-production && npm run build-development",
     "build-production": "rollup -c --environment BUILD:production",

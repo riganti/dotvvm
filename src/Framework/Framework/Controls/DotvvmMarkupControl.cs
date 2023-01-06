@@ -126,7 +126,7 @@ namespace DotVVM.Framework.Controls
             {
                 var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
-                var binding = $"{{ modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}";
+                var binding = JsonConvert.SerializeObject(viewModule.ReferencedModules.Select(m => new { module = m.ModuleName, args = m.InitArguments }), settings);
                 if (RendersHtmlTag)
                     writer.AddKnockoutDataBind("dotvvm-with-view-modules", binding);
                 else

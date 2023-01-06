@@ -18,5 +18,6 @@ namespace DotVVM.Framework.ResourceManagement
 
         public const string DotvvmFileUploadCssResourceName = "dotvvm.fileUpload-css";
         public const string DotvvmInternalCssResourceName = "dotvvm.internal-css";
+        public const string DotvvmDotnetWasmInteropResourceName = "dotvvm.interop.dotnet-wasm";
     }
 }
