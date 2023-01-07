@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Routing;
 
 #if NET5_0_OR_GREATER
 using HostingEnv = Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
@@ -59,7 +60,7 @@ namespace Microsoft.AspNetCore.Builder
         /// if <see cref="HostEnvironmentEnvExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
         /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
-        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, IDotvvmStartup startup, string applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
+        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, IDotvvmStartup startup, string? applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
         {
             var env = app.ApplicationServices.GetRequiredService<HostingEnv>();
             var tokenMiddleware = Task.Run(() => ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(app.ApplicationServices));
@@ -72,7 +73,7 @@ namespace Microsoft.AspNetCore.Builder
             var startupTracer = app.ApplicationServices.GetRequiredService<IStartupTracer>();
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureStarted);
             config.Markup.AddAssembly(startup.GetType().Assembly);
-            startup.Configure(config, applicationRootPath);
+            startup.Configure(config, config.ApplicationPhysicalPath);
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
 
             modifyConfiguration?.Invoke(config);
@@ -103,5 +104,15 @@ namespace Microsoft.AspNetCore.Builder
 
             return config;
         }
+
+#if NET6_0
+        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string? applicationRootPath = null, bool? useErrorPages = null, Action<DotvvmConfiguration> modifyConfiguration = null)
+        {
+            var startup = app.ApplicationServices.GetRequiredService<IDotvvmStartup>();
+            var config = app.UseDotVVM(startup, applicationRootPath, useErrorPages, modifyConfiguration);
+            config.AssertConfigurationIsValid();
+            return config;
+        }
+#endif
     }
 }
