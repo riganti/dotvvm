@@ -37,12 +37,12 @@ namespace DotVVM.AutoUI.Metadata
             }
         }
 
-        public ValueOrBinding<string> ToBinding(AutoUIContext context)
+        public ValueOrBinding<string> ToBinding(BindingCompilationService bindingCompilationService)
         {
             if (IsLocalized)
             {
                 var binding = new ResourceBindingExpression<string>(
-                    context.BindingService,
+                    bindingCompilationService,
                     new object[] {
                         new ParsedExpressionBindingProperty(
                             ExpressionUtils.Replace(() => this.Localize())

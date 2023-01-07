@@ -45,7 +45,7 @@ namespace DotVVM.AutoUI.Controls
 
             if (props.HeaderTemplate is null && props.HeaderText is null)
             {
-                props = props with { HeaderText = propertyMetadata.GetDisplayName().ToBinding(context) };
+                props = props with { HeaderText = propertyMetadata.GetDisplayName().ToBinding(context.BindingService) };
             }
 
             var control = CreateColumn(context, props, propertyMetadata);

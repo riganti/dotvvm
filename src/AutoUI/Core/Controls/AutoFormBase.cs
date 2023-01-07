@@ -119,7 +119,7 @@ namespace DotVVM.AutoUI.Controls
 
             if (property.IsDefaultLabelAllowed)
             {
-                return new Label(id).AppendChildren(new Literal(property.GetDisplayName().ToBinding(autoUiContext)));
+                return new Label(id).AppendChildren(new Literal(property.GetDisplayName().ToBinding(autoUiContext.BindingService)));
             }
             return null;
         }
