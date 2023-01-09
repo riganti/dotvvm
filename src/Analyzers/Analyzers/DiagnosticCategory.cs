@@ -8,5 +8,6 @@ namespace DotVVM.Analyzers
     {
         public const string Serializability = nameof(Serializability);
         public const string StaticCommands = nameof(StaticCommands);
+        public const string ApiUsage = nameof(ApiUsage);
     }
 }
