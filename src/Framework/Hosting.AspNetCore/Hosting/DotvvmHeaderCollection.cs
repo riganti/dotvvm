@@ -55,7 +55,15 @@ namespace DotVVM.Framework.Hosting
 
         public void CopyTo(KeyValuePair<string, string[]>[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            if (array.Length - arrayIndex < OriginalHeaders.Count)
+                throw new ArgumentException("Insufficient array size");
+
+            foreach (var (key, values) in OriginalHeaders)
+            {
+                var valuesCopy = (values.Count > 0) ? new string[values.Count] : Array.Empty<string>();
+                Array.Copy(values, valuesCopy, values.Count);
+                array[arrayIndex++] = new KeyValuePair<string, string[]>(key: key, value: valuesCopy);
+            }
         }
 
         public bool Remove(KeyValuePair<string, string[]> item)
