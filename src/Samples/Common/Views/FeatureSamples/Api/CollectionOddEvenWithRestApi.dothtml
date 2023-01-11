@@ -1,0 +1,34 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.CollectionOddEvenWithRestApiViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .even {
+            background-color: yellow;
+        }
+        .odd {
+            background-color: lime;
+        }
+    </style>
+</head>
+<body>
+
+    <dot:Button Text="Refresh" Click="{staticCommand: Value = Value + 1}" />
+
+    <dot:Repeater DataSource="{value: Companies = _api.RefreshOnChange(_apiOwin.Companies.Get(), Value)}"
+                  data-ui="repeater">
+        <div class-even="{value: _collection.IsEven}"
+             class-odd="{value: _collection.IsOdd}">
+            {{value: Id}}: {{value: Name}}
+        </div>
+    </dot:Repeater>
+
+
+</body>
+</html>
+
+
