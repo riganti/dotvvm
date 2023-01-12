@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ApiUsage_UnsupportedCallSite_Description" xml:space="preserve">
-    <value>Method that declares that it should not be called on server is only meant to be invoked on client</value>
+    <value>Method that declares that it should not be called on server is only meant to be invoked on client.</value>
   </data>
   <data name="ApiUsage_UnsupportedCallSite_Message" xml:space="preserve">
     <value>Method '{0}' invocation is not supported on server</value>

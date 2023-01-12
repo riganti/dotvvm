@@ -61,7 +61,7 @@ namespace DotVVM.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Method that declares that it should not be called on server is only meant to be invoked on client.
+        ///   Looks up a localized string similar to Method that declares that it should not be called on server is only meant to be invoked on client..
         /// </summary>
         internal static string ApiUsage_UnsupportedCallSite_Description {
             get {
