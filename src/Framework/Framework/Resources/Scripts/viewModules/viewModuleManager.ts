@@ -1,6 +1,7 @@
 import { deserialize } from "../serialization/deserialize";
 import { serialize } from "../serialization/serialize";
 import { unmapKnockoutObservables } from "../state-manager";
+import { debugQuoteString } from "../utils/logging";
 import { keys } from "../utils/objects";
 
 const registeredModules: { [name: string]: ModuleHandler } = {};
@@ -86,11 +87,11 @@ export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, com
     }
 
     if (compileConstants.debug && !foundModules.length) {
-        throw new Error(`Command ${commandName} could not be found in any of the imported modules in view ${viewIdOrElement}.`);
+        throw new Error(`Command ${debugQuoteString(commandName)} could not be found in any of the imported modules in view ${viewIdOrElement}.`);
     }
 
     if (compileConstants.debug && foundModules.length > 1) {
-        throw new Error(`Conflict: There were multiple commands named ${commandName} the in imported modules in view ${viewIdOrElement}. Check modules: ${foundModules.map(m => m.moduleName).join(', ')}.`);
+        throw new Error(`Conflict: There were multiple commands named ${debugQuoteString(commandName)} the in imported modules in view ${viewIdOrElement}. Check modules: ${foundModules.map(m => m.moduleName).join(', ')}.`);
     }
     if (foundModules.length != 1) {
         // production short check
@@ -100,12 +101,17 @@ export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, com
     try {
         var result = foundModules[0].module[commandName](...args.map(v => serialize(v)));
         if (!allowAsync && result instanceof Promise) {
-            throw compileConstants.debug ? `Command returned Promise even though it was called through _js.Invoke("${commandName}", ...). Use the _js.InvokeAsync method to call commands which (may) return a promise.` : "Command returned Promise";
+            throw compileConstants.debug ? `Command returned Promise even though it was called through _js.Invoke(${JSON.stringify(commandName)}, ...). Use the _js.InvokeAsync method to call commands which (may) return a promise.` : "Command returned Promise";
         }
         return result
     }
     catch (e: unknown) {
-        throw new Error(`While executing command ${commandName}(${args.map(v => JSON.stringify(serialize(v)))}), an error occurred. ${e}`);
+        if (compileConstants.debug) {
+            throw new Error(`While executing command ${debugQuoteString(commandName)}(${args.map(v => JSON.stringify(serialize(v)))}), an error occurred. ${e}`);
+        }
+        else {
+            throw e
+        }
     }
 }
 
@@ -259,10 +265,10 @@ export class ModuleContext {
     
     public registerNamedCommand = (name: string, command: (...args: any[]) => Promise<any>) => {
         if (compileConstants.debug && (name == null || name == '' || typeof name != 'string')) {
-            throw new Error(`Command name=${name} is empty or invalid.`)
+            throw new Error(`Command name=${debugQuoteString(name)} is empty or invalid.`)
         }
         if (compileConstants.debug && typeof command != 'function') {
-            throw new Error(`Command name=${name} is not a function: ${command}.`)
+            throw new Error(`Command name=${debugQuoteString(name)} is not a function: ${command}.`)
         }
         if (this.namedCommands[name]) {
             if (compileConstants.debug)
@@ -271,7 +277,7 @@ export class ModuleContext {
                 throw new Error('command already exists');
         }
 
-        this.namedCommands[name] = (...innerArgs) => mapCommandResult(command.apply(this, innerArgs.map(unmapKnockoutObservables)))
+        this.namedCommands[name] = (...innerArgs) => mapCommandResult(command.apply(this, innerArgs.map(a => unmapKnockoutObservables(a, true))))
     }
 
     public unregisterNamedCommand = (name: string) => {

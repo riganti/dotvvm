@@ -108,7 +108,7 @@ $@"
             <button type=button id=save-and-share-button class=execute title='Saves the error as HTML so you can share it with your coworkers'>Save and Share</button>
         </div>
         <h1>Server Error, HTTP {ErrorCode}: {WebUtility.HtmlEncode(ErrorDescription)}</h1>
-        <p class=summary>{WebUtility.HtmlEncode(Summary)}</p>
+        <pre class=summary>{WebUtility.HtmlEncode(Summary)}</pre>
         <hr />
         <div>
 ");
@@ -160,6 +160,7 @@ $@"
                 Converters = {
                 new ReflectionTypeJsonConverter(),
                 new ReflectionAssemblyJsonConverter(),
+                new DotvvmTypeDescriptorJsonConverter(),
                 new Controls.DotvvmControlDebugJsonConverter(),
                 new IgnoreStuffJsonConverter(),
                 new BindingDebugJsonConverter()

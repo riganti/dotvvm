@@ -14,6 +14,7 @@ using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Resources;
 using DotVVM.Samples.Common.Utilities;
+using DotVVM.Samples.Common.ViewModels.ComplexSamples.ViewModelDependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI;
@@ -73,11 +74,13 @@ namespace DotVVM.Samples.Common
                 config.PropertyDisplayNamesResourceFile = typeof(DynamicDataTexts);
                 config.PropertyMetadataRules
                     .For("IsCompany", r => r.SetDisplayName("Hello"))
-                    .For("ProductId", r => r.UseSelection<ProductSelection>());
+                    .For("ProductId", r => r.SetSelection<ProductSelection>());
             });
             services.AddTransient<ISelectionProvider<ProductSelection>, ProductSelectionProvider>();
             services.AddTransient<ISelectionProvider<CountrySelection>, CountrySelectionProvider>();
             services.AddTransient<ISelectionProvider<StateSelection, AddressDTO>, StateSelectorDataProvider>();
+
+            services.AddTransient<ChildViewModel>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)

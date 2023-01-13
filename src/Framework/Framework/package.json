@@ -8,7 +8,7 @@
     "fast-check": "2.5.0",
     "jest": "26.5.3",
     "jest-github-actions-reporter": "^1.0.3",
-    "jest-junit": "^12.2.0",
+    "jest-junit": "^14.0.1",
     "promise": "8.1.0",
     "symbol-es6": "^0.1.2",
     "systemjs": "6.7.1",
@@ -21,6 +21,7 @@
     "build-development": "rollup -c && npm run tsc-types",
     "build-rollup": "npm run build-production && npm run build-development",
     "build-production": "rollup -c --environment BUILD:production",
+    "test": "jest --silent",
     "tsc-check": "tsc -p . --noEmit",
     "tsc-types": "tsc -d -p . --outFile ./obj/typescript-types/dotvvm.d.ts --emitDeclarationOnly --skipLibCheck"
   }

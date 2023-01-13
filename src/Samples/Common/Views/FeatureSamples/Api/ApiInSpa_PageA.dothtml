@@ -1,0 +1,19 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.ApiInSpa_PageAViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/Api/ApiInSpa_Master.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <h2>Order list</h2>
+
+    <dot:Button Text="Reset data" Click="{command: Reset()}" data-ui="reset-button" />
+
+    <dot:GridView DataSource="{value: _apiOwin.Orders.Get(11, 0, 20)}">
+        <dot:GridViewTextColumn HeaderText="Order number" ValueBinding="{value: Number}" />
+        <dot:GridViewTextColumn HeaderText="Date" ValueBinding="{value: Date}" />
+        <dot:GridViewTemplateColumn>
+            <dot:RouteLink RouteName="FeatureSamples_Api_ApiInSpa_PageB" Query-id="{value: Id}" Text="Detail" />
+        </dot:GridViewTemplateColumn>
+    </dot:GridView>
+
+</dot:Content>
+

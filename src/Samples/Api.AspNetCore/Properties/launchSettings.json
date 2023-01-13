@@ -1,12 +1,4 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:5001/",
-      "sslPort": 0
-    }
-  },
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
@@ -16,7 +8,18 @@
       }
     },
     "swag": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:50001",
+      "applicationUrl": "http://localhost:50001"
+    }
+  },
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:50001/",
+      "sslPort": 0
     }
   }
 }

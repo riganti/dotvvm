@@ -8,6 +8,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
@@ -244,6 +245,7 @@ namespace DotVVM.Framework.Controls
             var itemWrapper = ItemWrapperCapability.GetWrapper();
             c.Add(itemWrapper);
             var dataItem = new DataItemContainer { DataItemIndex = index };
+            dataItem.SetValue(Internal.UniqueIDProperty, index.ToString() + "L"); // must be different from sibling HierarchyRepeaterLevel
             itemWrapper.Children.Add(dataItem);
             dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
             // NB: the placeholder is needed because during data context resolution DataItemContainers are looked up
@@ -256,6 +258,7 @@ namespace DotVVM.Framework.Controls
                 Internal.PathFragmentProperty,
                 $"{GetPathFragmentExpression()}{parentSegment}/[{index}]");
             placeholder.SetValue(Internal.UniqueIDProperty, "item");
+            placeholder.SetDataContextTypeFromDataSource(GetDataSourceBinding()); // DataContext type has to be duplicated on the placeholder, because BindingHelper.FindDataContextTarget (in v4.1)
             dataItem.Children.Add(placeholder);
             ItemTemplate.BuildContent(context, placeholder);
 
@@ -269,8 +272,9 @@ namespace DotVVM.Framework.Controls
                     .GetParametrizedKnockoutExpression(dataItem)
                     .ToString(p =>
                         p == JavascriptTranslator.KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier($"ko.unwrap($foreachCollectionSymbol)[{index}]()") :
+                        p == JavascriptTranslator.KnockoutViewModelObservableParameter ? CodeParameterAssignment.FromIdentifier($"ko.unwrap($foreachCollectionSymbol)[{index}]") :
                         p is JavascriptTranslator.ViewModelSymbolicParameter vm ?
-                            JavascriptTranslator.GetKnockoutViewModelParameter(vm.ParentIndex - 1).DefaultAssignment :
+                            vm.WithIndex(vm.ParentIndex - 1).DefaultAssignment :
                         default
                     );
 
@@ -278,6 +282,15 @@ namespace DotVVM.Framework.Controls
             }
             return itemWrapper;
         }
+
+        private static ParametrizedCode indexPathExpression =
+            JavascriptTranslator.KnockoutContextParameter
+                .ToExpression()
+                .Member("$indexPath")
+                .Member("map").Invoke(new JsIdentifierExpression("ko.unwrap"))
+                .Member("join").Invoke(new JsLiteral("_"))
+                .Binary(BinaryOperatorType.Plus, new JsLiteral("L"))
+                .FormatParametrizedScript();
 
         private DotvvmControl AddClientItemTemplate(IList<DotvvmControl> c, IDotvvmRequestContext context)
         {
@@ -290,7 +303,7 @@ namespace DotVVM.Framework.Controls
             var clientIdFragmentProperty = ValueBindingExpression.CreateBinding<string?>(
                 bindingService.WithoutInitialization(),
                 h => null,
-                new ParametrizedCode("$indexPath.map(ko.unwrap).join(\"_\")", OperatorPrecedence.Max),
+                indexPathExpression,
                 dataItem.GetDataContextType());
             dataItem.SetValue(Internal.ClientIDFragmentProperty, clientIdFragmentProperty);
             c.Add(dataItem);
@@ -310,8 +323,10 @@ namespace DotVVM.Framework.Controls
                 .ToString(p =>
                     p == JavascriptTranslator.KnockoutViewModelParameter ?
                         CodeParameterAssignment.FromIdentifier("$item()") :
+                    p == JavascriptTranslator.KnockoutViewModelObservableParameter ?
+                        CodeParameterAssignment.FromIdentifier("$item") :
                     p is JavascriptTranslator.ViewModelSymbolicParameter vm ?
-                        JavascriptTranslator.GetKnockoutViewModelParameter(vm.ParentIndex - 1).DefaultAssignment :
+                        vm.WithIndex(vm.ParentIndex - 1).DefaultAssignment :
                     default
                 );
 

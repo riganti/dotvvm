@@ -13,13 +13,14 @@
     <div data-ui="rechart-control">
         <js:recharts IncludeInPage={value: IncludeInPage}
                      data={value: Data}
-                     onMouse={staticCommand: (string n) => CurrentThing = n}>
+                     onMouse={staticCommand: (string n) => CurrentThing = n}
+                     html:class-test-class={value: true}>
         </js:recharts>
     </div>
 
 
-    <js:Button dataUI="command-regenerate" click={command: Regenerate()} text="Regenerate chart" />
-    <js:Button dataUI="command-removeDOM" click={staticCommand: IncludeInPage = false} text="Remove from DOM"  />
+    <js:Button dataUI="command-regenerate" click={command: Regenerate()} text="Regenerate chart"/>
+    <js:Button dataUI="command-removeDOM" click={staticCommand: IncludeInPage = false} text="Remove from DOM"/>
     <js:Button dataUI="command-addDOM" click={staticCommand: IncludeInPage = true} text="Add to DOM" />
 
     <p>
@@ -27,9 +28,11 @@
     </p>
 
 
+    <h3> Knockout templates rendered from React component </h3>
+
     <dot:CheckBox Checked="{value: Condition}" data-ui="template-condition" Text="Condition for template selector" />
 
-    <js:TemplateSelector condition={value: Condition}>
+    <js:TemplateSelector condition={value: Condition} html:data-ui="template-selector">
         <template1>
             <span data-ui="template1">
                 Condition == true (and IncludeInPage = {{value: IncludeInPage}})

@@ -5,6 +5,7 @@ import { lastSetErrorSymbol, StateManager } from "../state-manager";
 import { serialize } from "../serialization/serialize";
 import { deserialize } from "../serialization/deserialize";
 import { serializeDate } from "../serialization/date";
+import { areObjectTypesEqual } from "../metadata/typeMap";
 
 require('./stateManagement.data')
 
@@ -12,6 +13,19 @@ const vm = dotvvm.viewModels.root.viewModel as any
 const s = getStateManager() as StateManager<any>
 s.doUpdateNow()
 
+var warnMock: any;
+var printTheWarning = false
+beforeEach(() => {
+    printTheWarning = false
+    warnMock = jest.spyOn(console, 'warn').mockImplementation((...args) => {
+        if (printTheWarning) {
+            throw new Error("Unexpected warning: " + args.map(a => a instanceof Error || typeof a != "object" ? a : JSON.stringify(a)).join(" "))
+        }
+    });
+});
+afterEach(() => {
+    warnMock.mockRestore();
+});
 
 test("Initial knockout ViewModel", () => {
     expect(vm.Int).observable()
@@ -29,6 +43,8 @@ test("Initial knockout ViewModel", () => {
     expect(vm.Inner().P1()).toBe(1)
     expect(vm.Inner().P2()).toBe(2)
     expect(vm.Inner().P3()).toBe(3)
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("Dirty flag", () => {
@@ -39,9 +55,12 @@ test("Dirty flag", () => {
     expect(s.isDirty).toBeTruthy()
     s.doUpdateNow()
     expect(s.isDirty).toBeFalsy()
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("Upgrade null to observableArray", () => {
+    printTheWarning = true
     s.update(x => ({ ...x, ArrayWillBe: [{ $type: "t5", B: "ahoj" }] }))
     s.doUpdateNow()
 
@@ -49,9 +68,12 @@ test("Upgrade null to observableArray", () => {
     expect(vm.ArrayWillBe().length).toBe(1)
     expect(vm.ArrayWillBe()[0]().B).observable()
     expect(vm.ArrayWillBe()[0]().B()).toBe("ahoj")
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("Change observableArray to object", () => {
+    printTheWarning = true
     // this should not happen IRL, but can when property of type `object` is used in viewModel
 
     s.update(x => ({ ...x, Array: { $type: "t4", P: "P" } }))
@@ -67,9 +89,12 @@ test("Change observableArray to object", () => {
     expect(vm.Array()[0]).observable()
     expect(vm.Array()[0]().Id).observable()
     expect(vm.Array()[0]().Id()).toBe(17)
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("Add and remove type properties", () => {
+    printTheWarning = true
     s.update(x => ({ ...x, Inner: { $type: "t3_a", P1: 5, P2: null } }))
     s.doUpdateNow()
 
@@ -101,9 +126,12 @@ test("Add and remove type properties", () => {
     expect(vm.Inner().P2()).toBe(null)
     expect("P3" in vm.Inner()).toBeFalsy()
     expect("P4" in vm.Inner()).toBeFalsy()
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("Should not change object reference", () => {
+    printTheWarning = true
     const innerObs = vm.Inner
     const innerObj = vm.Inner()
 
@@ -119,9 +147,12 @@ test("Should not change object reference", () => {
     expect((dotvvm.viewModels.root.viewModel as any).Inner()).toBe(innerObj)
     expect(innerObj.P1()).toBe(1)
     expect(innerObj.P2()).toBe(null)
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("Should not change array reference", () => {
+    printTheWarning = true
     s.setState({ ...s.state, Array: [{ $type: "t2", Id: 1 }] })
     s.doUpdateNow()
 
@@ -138,9 +169,12 @@ test("Should not change array reference", () => {
     expect((dotvvm.viewModels.root.viewModel as any).Array).toBe(arrayObs)
     expect((dotvvm.viewModels.root.viewModel as any).Array()).toBe(arrayObj)
     expect(arrayObj[0]().Id()).toBe(2)
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("Should change array reference when length changes", () => {
+    printTheWarning = true
     // this behavior is not strictly needed, we could do with one array
     // However, the changed variable MUST be set to true
 
@@ -162,9 +196,12 @@ test("Should change array reference when length changes", () => {
     expect(arrayObj2.length).toBe(2)
     expect(arrayObj2[0]().Id()).toBe(3)
     expect(arrayObj2[1]().Id()).toBe(4)
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("Propagate knockout observable change", () => {
+    printTheWarning = true
 
     vm.Inner(null)
     vm.Int(745)
@@ -175,6 +212,8 @@ test("Propagate knockout observable change", () => {
     s.update(x => ({ ...x, Int: x.Int + 1 }))
     s.doUpdateNow()
     expect(vm.Int()).toBe(746)
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("Propagate knockout object assignment", () => {
@@ -190,6 +229,9 @@ test("Propagate knockout object assignment", () => {
     s.doUpdateNow()
     expect(vm.Inner().P1()).toBe(4)
     expect(vm.Inner().P2()).toBe(5)
+    
+    expect(warnMock).toHaveBeenCalled();
+    expect(warnMock.mock.calls[0][1]).toContain("Replacing old knockout observable with a new one");
 })
 
 test("Propagate knockout array assignment", () => {
@@ -206,9 +248,13 @@ test("Propagate knockout array assignment", () => {
     expect(vm.ArrayWillBe()[0]().B()).toBe("hmm")
     vm.ArrayWillBe()[0]().B("hmm2")
     expect(s.state.ArrayWillBe).toStrictEqual([{ $type: "t5", B: "hmm2" }])
+    
+    expect(warnMock).toHaveBeenCalled();
+    expect(warnMock.mock.calls[0][1]).toContain("Replacing old knockout observable with a new one");
 })
 
 test("Propagate Date assignment", () => {
+    printTheWarning = true
     const val = new Date(2000, 3, 3, 3, 3, 3)
     vm.DateTime(val)
 
@@ -216,9 +262,12 @@ test("Propagate Date assignment", () => {
     expect(s.state.DateTime).toBe(serializeDate(val, false))
     s.doUpdateNow()
     expect(vm.DateTime()).toBe(serializeDate(val, false))
+
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("Serialized computed updates on changes", () => {
+    printTheWarning = true
     if (ko.options.deferUpdates) {
         // This test won't work this way (i.e. synchronously) with deferUpdate
         return
@@ -233,6 +282,8 @@ test("Serialized computed updates on changes", () => {
     s.setState({ ...s.state, Str: "b" })
     s.doUpdateNow()
     expect(lastValue).toBe("b")
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("lastSetError flag", () => {
@@ -252,6 +303,9 @@ test("lastSetError flag", () => {
     s.doUpdateNow();
     expect(vm.Int[lastSetErrorSymbol]).toBeUndefined();
 
+    expect(warnMock).toHaveBeenCalledTimes(2);
+    expect(warnMock.mock.calls[0][1]).toContain("Cannot update observable to null");
+    expect(warnMock.mock.calls[1][1]).toContain("Cannot update observable to ");
 })
 
 test("lastSetError flag - changed back to the original value", () => {
@@ -267,6 +321,8 @@ test("lastSetError flag - changed back to the original value", () => {
     s.doUpdateNow();
     expect(vm.Int[lastSetErrorSymbol]).toBeDefined();
 
+    expect(warnMock).toHaveBeenCalled();
+    expect(warnMock.mock.calls[0][1]).toContain("Cannot update observable to null");
 })
 
 test("lastSetError flag - triggers observable change even if the value hasn't really changed", () => {
@@ -299,6 +355,10 @@ test("lastSetError flag - triggers observable change even if the value hasn't re
     } finally {
         subscription.dispose();
     }
+
+    expect(warnMock).toHaveBeenCalledTimes(2);
+    expect(warnMock.mock.calls[0][1]).toContain("Cannot update observable to aaa");
+    expect(warnMock.mock.calls[1][1]).toContain("Cannot update observable to aaa");
 });
 
 test("coercion happens before assigning to the observable", () => {
@@ -314,9 +374,12 @@ test("coercion happens before assigning to the observable", () => {
 
     expect(() => vm.Int({})).toThrow();
 
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][1]).toContain("Cannot update observable to [object Object]");
 })
 
 test("coercion on assigning to observable doesn't unwrap objects", () => {
+    printTheWarning = true
 
     deserialize({
         P1: 13,
@@ -342,9 +405,12 @@ test("coercion on assigning to observable doesn't unwrap objects", () => {
     s.doUpdateNow();
     expect(vm.Array()).toEqual(oldArrayValue);
     expect(vm.Array()[0]().Id).toEqual(oldArrayFirstObjectId);
+
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("state on the observable", () => {
+    printTheWarning = true
 
     vm.Inner({ P1: 1, P3: 2 });
     s.doUpdateNow();
@@ -365,9 +431,12 @@ test("state on the observable", () => {
     expect(state2.length).toEqual(2);
     expect(state2[0].Id).toEqual(1);
     expect(state2[1].Id).toEqual(3);
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("patchState on the observable", () => {
+    printTheWarning = true
 
     vm.Inner({ P1: 1, P3: 2 });
     s.doUpdateNow();
@@ -391,9 +460,12 @@ test("patchState on the observable", () => {
     expect(state2[0].Id).toEqual(1);
     expect(state2[1].Id).toEqual(20);
     expect(state2[2].Id).toEqual(5);
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("setState on the observable", () => {
+    printTheWarning = true
 
     vm.Inner({ P1: 1, P3: 2 });
     s.doUpdateNow();
@@ -415,9 +487,12 @@ test("setState on the observable", () => {
     expect(Array.isArray(state2)).toBeTruthy();
     expect(state2.length).toEqual(1);
     expect(state2[0].Id).toEqual(0);
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("push on observable array - automatic coercion happens", () => {
+    printTheWarning = true
 
     vm.Array([
         { Id: 1 },
@@ -436,10 +511,12 @@ test("push on observable array - automatic coercion happens", () => {
     const oldValue = vm.Array()[2];
     s.doUpdateNow();
     expect(vm.Array()[2]).toEqual(oldValue);
-
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("push on observable array - state is updated immediately", () => {
+    printTheWarning = true
 
     vm.Array([
         { Id: 1 },
@@ -451,9 +528,12 @@ test("push on observable array - state is updated immediately", () => {
     vm.Array.push({ Id: 4 });
     expect(vm.Array().length).toEqual(3);
     expect(vm.Array.state.length).toEqual(3);
+    
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
 test("remove on observable array - state is updated immediately", () => {
+    printTheWarning = true
 
     vm.Array([
         { Id: 1 },
@@ -467,4 +547,137 @@ test("remove on observable array - state is updated immediately", () => {
     expect(vm.Array().length).toEqual(2)
     expect(vm.Array.state.length).toEqual(2)
 
+    expect(warnMock).toHaveBeenCalledTimes(0);
 })
+
+test("push on observable array - no warning when the new item is not observable", () => {
+    printTheWarning = true
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 },
+        { Id: 4 },
+    ])
+    s.doUpdateNow();
+    expect(vm.Array().length).toEqual(3)
+    
+    vm.Array.push({ Id: 5 });
+    expect(warnMock).toHaveBeenCalledTimes(0);
+})
+
+test("push on observable array - keep warning when the new item is observable", () => {
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 },
+        { Id: 4 },
+    ])
+    s.doUpdateNow();
+    expect(vm.Array().length).toEqual(3)
+    
+    vm.Array.push(ko.observable({ Id: ko.observable(5) }));
+    expect(warnMock).toHaveBeenCalled();
+    expect(warnMock.mock.calls[0][1]).toContain("Replacing old knockout observable with a new one");
+})
+
+test("push on observable array - keep warning when the new item contains observable", () => {
+    vm.ArrayWillBe([
+        {
+            $type: "t5",
+            B: "hmm"
+        }
+    ])
+    s.doUpdateNow();
+    expect(vm.ArrayWillBe().length).toEqual(1)
+    
+    vm.ArrayWillBe.push({
+        $type: ko.observable("t5"),
+        B: ko.observable("hmm")
+    });
+    expect(warnMock).toHaveBeenCalled();
+    expect(warnMock.mock.calls[0].join(" ")).toBe("state-manager Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects with knockout observables into the knockout tree directly. Observable is at /1/$type, value = t5");
+})
+
+test("are dynamic types the same - empty objects", () => {
+    expect(areObjectTypesEqual({}, {})).toBe(true);
+});
+test("are dynamic types the same - dynamic vs typed", () => {
+    expect(areObjectTypesEqual({}, { $type: "t1" })).toBe(false);
+});
+test("are dynamic types the same - different property count", () => {
+    expect(areObjectTypesEqual({}, { a: "a" })).toBe(false);
+});
+test("are dynamic types the same - same property count", () => {
+    expect(areObjectTypesEqual({ b: "b" }, { a: "a" })).toBe(false);
+});
+test("are dynamic types the same - same properties", () => {
+    expect(areObjectTypesEqual({ a: "b" }, { a: "a" })).toBe(true);
+});
+test("are dynamic types the same - subset", () => {
+    expect(areObjectTypesEqual({ a: "b" }, { a: "a", b: "b" })).toBe(false);
+});
+test("are dynamic types the same - superset", () => {
+    expect(areObjectTypesEqual({ a: "b", b: "a" }, { a: "a" })).toBe(false);
+});
+
+test("changing dynamic type property doesn't notify when dynamic types are the same - primitive value", () => {
+    vm.Dynamic({ a: "a" });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: "x" });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(0);
+});
+
+test("changing dynamic type property doesn't notify when dynamic types are the same - child object", () => {
+    vm.Dynamic({ a: { b: "b" } });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: { b: "a", c: "a" } });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(0);
+});
+
+test("changing dynamic type property notifies when dynamic types are different - primitive value", () => {
+    vm.Dynamic({ a: "a" });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: "a", b: "b" });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(1);
+});
+
+test("changing dynamic type property notifies when dynamic types are different - child object", () => {
+    vm.Dynamic({ a: { b: "b" } });
+    s.doUpdateNow();
+
+    let notifyCount = 0;
+    const sub = vm.Dynamic.subscribe(() => notifyCount++);
+    try {
+        vm.Dynamic.setState({ a: { b: "b" }, b: "b" });
+        s.doUpdateNow();
+    }
+    finally {
+        sub.dispose();
+    }
+    expect(notifyCount).toBe(1);
+});

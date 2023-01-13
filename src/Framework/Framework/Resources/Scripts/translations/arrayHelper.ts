@@ -6,6 +6,7 @@ export {
     addRange,
     clear,
     distinct,
+    contains,
     firstOrDefault,
     insert,
     insertRange,

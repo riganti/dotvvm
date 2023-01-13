@@ -23,7 +23,7 @@ Options:
     --environment ENV   The runtime ASP.NET Core configuration (default = Development).
     --samples-profile   (default = \$SAMPLES_PROFILE:-seleniumconfig.aspnetcorelatest.chrome.json).
     --samples-port      (default = 16019).
-    --samples-port-api  (default = 5001).
+    --samples-port-api  (default = 50001).
     --trx-name          (default = ui-test-results.trx).
 EOF
             shift
@@ -97,7 +97,7 @@ TEST_RESULTS_DIR="$ROOT/artifacts/test"
 SAMPLES_DIR="$ROOT/src/Samples/Tests/Tests"
 SAMPLES_PROFILE="${SAMPLES_PROFILE:-seleniumconfig.aspnetcorelatest.chrome.json}"
 SAMPLES_PORT="${SAMPLES_PORT:-16019}"
-SAMPLES_PORT_API="${SAMPLES_PORT_API:-5001}"
+SAMPLES_PORT_API="${SAMPLES_PORT_API:-50001}"
 TRX_NAME="${TRX_NAME:-ui-test-results.trx}"
 
 echo "ROOT=$ROOT"
@@ -168,6 +168,7 @@ function start_samples {
     PORT=$2
     PID_VAR=$3
     dotnet run --project "$ROOT/${PROJECT}" \
+        -p:WarningLevel=0 \
         --no-restore \
         --configuration "$CONFIGURATION" \
         -- \

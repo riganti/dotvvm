@@ -31,6 +31,7 @@
     <None Remove="Views\ComplexSamples\SPAErrorReporting\default.dothtml" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\site.dotmaster" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\test.dothtml" />
+    <None Remove="Views\ComplexSamples\ViewModelPopulate\ViewModelPopulate.dothtml" />
     <None Remove="Views\ControlSamples\CheckBox\CheckBox_Objects.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\BindingCTValidation_StringToEnum.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\HeavilyNested.dothtml" />
@@ -44,6 +45,8 @@
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\GridView\GridViewCellDecorators.dothtml" />
     <None Remove="Views\ControlSamples\HierarchyRepeater\Basic.dothtml" />
+    <None Remove="Views\ControlSamples\HierarchyRepeater\NodeControl.dotcontrol" />
+    <None Remove="Views\ControlSamples\HierarchyRepeater\WithMarkupControl.dothtml" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
@@ -71,6 +74,11 @@
     <None Remove="Views\Errors\InvalidServiceDirective.dothtml" />
     <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\ApiInSpa_Master.dotmaster" />
+    <None Remove="Views\FeatureSamples\Api\ApiInSpa_PageA.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\ApiInSpa_PageB.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\ApiRefresh.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\CollectionOddEvenWithRestApi.dothtml" />
     <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoEditor.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoForm.dothtml" />
@@ -100,6 +108,7 @@
     <None Remove="Views\FeatureSamples\PostbackAbortSignal\LoadAbortViewModel.dothtml" />
     <None Remove="Views\FeatureSamples\RenderSettingsModeServer\RepeaterCollectionSetToNull.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\ByteArray.dothtml" />
+    <None Remove="Views\FeatureSamples\Serialization\DateOnlyTimeOnly.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\TimeSpan.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\EnumSerializationCoercion.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\SerializationDateTimeOffset.dothtml" />
@@ -108,6 +117,7 @@
     <None Remove="Views\FeatureSamples\ViewModules\Incrementer.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\IncrementerInRepeater.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\InnerModuleControl.dotcontrol" />
+    <None Remove="Views\FeatureSamples\ViewModules\LinkModuleControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControl.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControlTwice.dothtml" />
@@ -165,6 +175,7 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Views\FeatureSamples\ViewModules\LinkModuleControl.dotcontrol" />
     <EmbeddedResource Include="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>

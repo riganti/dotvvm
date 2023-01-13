@@ -251,14 +251,16 @@ namespace DotVVM.Framework.Utils
             return ResolvedTypeDescriptor.ToSystemType(result);
         }
 
-        public static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
+        private static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
         {
             typeof(DateTime),
             typeof(DateTimeOffset),
-            typeof(TimeSpan)
+            typeof(TimeSpan),
+            typeof(DateOnly),
+            typeof(TimeOnly)
         };
 
-        public static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
+        private static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
         {
             typeof (sbyte),
             typeof (byte),
@@ -273,25 +275,43 @@ namespace DotVVM.Framework.Utils
             typeof (double),
             typeof (decimal)
         };
+        private static readonly HashSet<Type> IntegerNumericTypes = new HashSet<Type>()
+        {
+            typeof (sbyte),
+            typeof (byte),
+            typeof (short),
+            typeof (ushort),
+            typeof (int),
+            typeof (uint),
+            typeof (long),
+            typeof (ulong),
+            typeof (char),
+        };
+        private static readonly HashSet<Type> RealNumericTypes = new HashSet<Type>()
+        {
+            typeof (float),
+            typeof (double),
+            typeof (decimal)
+        };
 
-        public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
+        public static IEnumerable<Type> GetNumericTypes()
+        {
+            return NumericTypes;
+        }
+
+        private static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
             typeof(string), typeof(char),
             typeof(bool),
-            typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan),
+            typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan), typeof(DateOnly), typeof(TimeOnly),
             typeof(Guid),
             typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong),
             typeof(float), typeof(double), typeof(decimal)
         };
 
-        public static bool IsNumericType(this Type type)
-        {
-            return NumericTypes.Contains(type);
-        }
-
-        public static bool IsDateOrTimeType(this Type type)
-        {
-            return DateTimeTypes.Contains(type);
-        }
+        public static bool IsNumericType(this Type type) => NumericTypes.Contains(type);
+        public static bool IsDateOrTimeType(this Type type) => DateTimeTypes.Contains(type);
+        public static bool IsIntegerNumericType(this Type type) => IntegerNumericTypes.Contains(type);
+        public static bool IsRealNumericType(this Type type) => RealNumericTypes.Contains(type);
 
         /// <summary> Return true for Tuple, ValueTuple, KeyValuePair </summary>
         public static bool IsTupleLike(Type type) =>
@@ -333,6 +353,14 @@ namespace DotVVM.Framework.Utils
             return PrimitiveTypes.Contains(type)
                 || (IsNullableType(type) && IsPrimitiveType(type.UnwrapNullableType()))
                 || type.IsEnum;
+        }
+
+        public static bool IsSerializationSupported(this Type type, bool includeNullables)
+        {
+            if (includeNullables)
+                return IsPrimitiveType(type);
+
+            return PrimitiveTypes.Contains(type);
         }
 
         public static bool IsNullableType(Type type)
@@ -483,7 +511,7 @@ namespace DotVVM.Framework.Utils
             {
                 return instance.ToString()!;
             }
-            else if (typeof(T).GetCustomAttribute<FlagsAttribute>() != null)
+            else if (EnumInfo<T>.IsFlags)
             {
                 return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value));
             }
@@ -511,6 +539,7 @@ namespace DotVVM.Framework.Utils
         internal static class EnumInfo<T> where T: struct, Enum
         {
             internal static readonly bool HasEnumMemberField;
+            internal static readonly bool IsFlags;
 
             static EnumInfo()
             {
@@ -522,6 +551,7 @@ namespace DotVVM.Framework.Utils
                         break;
                     }
                 }
+                IsFlags = typeof(T).IsDefined(typeof(FlagsAttribute));
             }
         }
         
@@ -539,5 +569,9 @@ namespace DotVVM.Framework.Utils
                 cache_GetTypeHash.TryRemove(t, out _);
             }
         }
+
+        internal static bool IsInitOnly(this PropertyInfo prop) =>
+            prop.SetMethod is { ReturnParameter: {} returnParameter } &&
+            returnParameter.GetRequiredCustomModifiers().Any(t => t == typeof(System.Runtime.CompilerServices.IsExternalInit));
     }
 }

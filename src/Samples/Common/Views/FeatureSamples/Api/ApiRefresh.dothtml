@@ -1,0 +1,50 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.ApiRefreshViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <p>
+        CompanyId: <dot:TextBox Text="{value: CompanyId}" />
+    </p>
+
+    <p> Not updating </p>
+
+    <%--Tohle při změně CompanyId neudělá request znovu--%>
+    <dot:GridView DataSource="{value: _apiCore.GetOrdersAll(CompanyId)}" data-ui="not-updating" ShowHeaderWhenNoData="true">
+        <dot:GridViewTextColumn HeaderText="Order number" ValueBinding="{value: Number}" />
+    </dot:GridView>
+
+
+    <p> Updating </p>
+
+    <%--Tohle taky nefunguje - tady to sice request udělá, ale v URL je pořád stará hodnota  --%>
+    <dot:GridView DataSource="{value: _api.RefreshOnChange(_apiCore.GetOrdersAll(CompanyId), CompanyId)}" data-ui="updating" ShowHeaderWhenNoData="true">
+        <dot:GridViewTextColumn HeaderText="Order number" ValueBinding="{value: Number}" />
+    </dot:GridView>
+
+    <p>
+        Number of requests: <span data-ui="number">{{value: NumberOfRequests}}</span>
+    </p>
+
+    <button>button because of firefox</button>
+
+    <script type="text/javascript">
+        var fetchBackup = window.fetch;
+        window.fetch = function (url, init) {
+            if (typeof url === "string" && url.indexOf("negotiate") < 0) {
+                dotvvm.patchState({ NumberOfRequests: dotvvm.state.NumberOfRequests + 1 });
+            }
+            return fetchBackup.apply(window, arguments);
+        };
+    </script>
+
+</body>
+</html>
+
+

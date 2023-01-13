@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Immutable;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Compilation.ViewCompiler;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -51,8 +52,9 @@ namespace DotVVM.Framework.Compilation.Styles
                     markupControl.SetProperties(templateControl);
                     foreach (var p in templateControl.properties)
                     {
+                        var propertyDC = GetPropertyDataContext(obj, p.Key, dataContext);
                         control.SetProperty(
-                            TranslateProperty(p.Key, p.Value, dataContext, config),
+                            TranslateProperty(p.Key, p.Value, propertyDC, config),
                             replace: true
                         );
                     }
@@ -79,8 +81,9 @@ namespace DotVVM.Framework.Compilation.Styles
 
             foreach (var p in obj.properties)
             {
+                var propertyDC = GetPropertyDataContext(obj, p.Key, dataContext);
                 rc.SetProperty(
-                    TranslateProperty(p.Key, p.Value, dataContext, config),
+                    TranslateProperty(p.Key, p.Value, propertyDC, config),
                     replace: true
                 );
             }
@@ -89,6 +92,44 @@ namespace DotVVM.Framework.Compilation.Styles
             DotvvmPropertyGroup.CheckAllPropertiesAreRegistered(type);
 
             return rc;
+        }
+
+        private static DataContextStack GetPropertyDataContext(DotvvmBindableObject obj, DotvvmProperty property, DataContextStack objDataContext)
+        {
+            var propDataContext = property.GetDataContextType(obj, objDataContext);
+            if (propDataContext is {})
+                return propDataContext;
+
+            var propertyValue = obj.GetValue(property);
+            if (propertyValue is not (ITemplate or IDotvvmObjectLike or IBinding))
+            {
+                // primitive value, the data context does not matter anyway
+                return objDataContext;
+            }
+
+            throw new PropertyTranslationException(property) { RelatedControl = obj };
+        }
+
+        private static DataContextStack GetPropertyDataContext(ResolvedControl obj, DotvvmProperty property, DataContextStack objDataContext)
+        {
+            var propDataContext = property.GetDataContextType(obj, objDataContext);
+            if (propDataContext is {})
+                return propDataContext;
+
+            var propertyValue = obj.GetValue(property);
+            if (propertyValue is not (ITemplate or IDotvvmObjectLike or IBinding))
+            {
+                // primitive value, the data context does not matter anyway
+                return objDataContext;
+            }
+
+            throw new PropertyTranslationException(property) { RelatedResolvedControl = obj };
+        }
+
+        public record PropertyTranslationException(DotvvmProperty property):
+            DotvvmExceptionBase(RelatedProperty: property)
+        {
+            public override string Message => $"Unable to translate property {property.Name}, because the DataContext change attributes could not be evaluated.";
         }
 
         private static Type[] ImmutableContainers = new[] {
@@ -194,7 +235,8 @@ namespace DotVVM.Framework.Compilation.Styles
             }
             else if (control.Metadata.DefaultContentProperty is {} defaultProp)
             {
-                var setter = ResolvedControlHelper.TranslateProperty(defaultProp, innerControls, control.DataContextTypeStack, null);
+                var propertyDataContext = GetPropertyDataContext(control, defaultProp, control.DataContextTypeStack);
+                var setter = ResolvedControlHelper.TranslateProperty(defaultProp, innerControls, propertyDataContext, null);
 
                 if (!control.SetProperty(setter, options, out var err))
                     throw new DotvvmCompilationException(err);

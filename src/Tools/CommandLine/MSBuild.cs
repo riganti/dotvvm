@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NuGet.Frameworks;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.CommandLine
 {
@@ -42,7 +43,7 @@ namespace DotVVM.CommandLine
 
             var startInfo = new ProcessStartInfo
             {
-                Arguments = "-property installationPath",
+                ArgumentList = { "-property",  "installationPath" },
                 RedirectStandardOutput = true,
                 FileName = vswhere.FullName,
                 UseShellExecute = false,
@@ -116,7 +117,7 @@ namespace DotVVM.CommandLine
                 startInfo.RedirectStandardOutput = true;
                 startInfo.RedirectStandardError = true;
             }
-            logger.LogDebug($"Invoking MSBuild with args: '{startInfo.Arguments}'.");
+            logger.LogDebug($"Invoking MSBuild with args: '{startInfo.ArgumentList.StringJoin(" ")}'.");
             var process = Process.Start(startInfo);
             if (!showOutput)
             {
@@ -140,7 +141,7 @@ namespace DotVVM.CommandLine
             var startInfo = GetProcessStartInfo(project, properties, targets, restore, verbosity);
             startInfo.RedirectStandardOutput = true;
             startInfo.RedirectStandardError = true;
-            logger.LogDebug($"Invoking MSBuild with args: '{startInfo.Arguments}'.");
+            logger.LogDebug($"Invoking MSBuild with args: '{startInfo.ArgumentList.StringJoin(" ")}'.");
         
             var process = Process.Start(startInfo);
             var stderrTask = Task.Run(() => process.StandardError.ReadToEnd());
@@ -171,31 +172,34 @@ namespace DotVVM.CommandLine
             bool restore = false,
             string verbosity = "minimal")
         {
-            var sb = new StringBuilder();
-            sb.Append(string.Join(" ", PrefixedArgs));
+            var p = new ProcessStartInfo
+            {
+                FileName = ExecutablePath
+            };
+            foreach (var a in PrefixedArgs)
+            {
+                p.ArgumentList.Add(a);
+            }
             if (restore)
             {
-                sb.Append(" -restore");
+                p.ArgumentList.Add("-restore");
             }
-            sb.Append($" -verbosity:{verbosity}");
+            p.ArgumentList.Add($"-verbosity:{verbosity}");
             if (properties is object)
             {
                 foreach(var property in properties)
                 {
-                    sb.Append($" -property:{property.Key}={property.Value}");
+                    p.ArgumentList.Add($"-property:{property.Key}={property.Value}");
                 }
             }
             if (targets is object)
             {
-                sb.Append($" -target:{string.Join(";", targets)}");
+                p.ArgumentList.Add($"-target:{string.Join(";", targets)}");
             }
 
-            sb.Append($" {project.FullName}");
-            return new ProcessStartInfo
-            {
-                FileName = ExecutablePath,
-                Arguments = sb.ToString()
-            };
+            p.ArgumentList.Add($"{project.FullName}");
+
+            return p;
         }
     }
 }

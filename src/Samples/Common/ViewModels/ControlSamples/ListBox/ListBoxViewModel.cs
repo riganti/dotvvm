@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
+using System;
 
 namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ListBox
 {
     public class ListBoxViewModel : DotvvmViewModelBase
     {
         public int SelectedValue { get; set; }
+        public List<int> SelectedValues { get; set; } = new List<int>();
+
         public List<ListItem> List { get; set; }
 
         public override Task Load()

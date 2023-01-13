@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Compilation
 
         static void ValidateControlClass(Type control)
         {
-            if (!control.IsPublic)
+            if (!control.IsPublic && !control.IsNestedPublic)
                 throw new Exception($"Control {control.FullName} is not publicly accessible. Make sure that control is not internal.");
         }
 

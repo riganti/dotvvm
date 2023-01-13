@@ -10,8 +10,14 @@
       "dom",
       "ES6"
     ],
+    "moduleResolution": "node",
     "declaration": true,
-    "declarationDir": "dist/declarations"
+    "outDir": "dist",
+    "declarationDir": "dist/declarations",
+    "typeRoots": [
+      "./node_modules/@types", 
+      "./node_modules/dotvvm-types"
+    ]
   },
 
   "exclude": [

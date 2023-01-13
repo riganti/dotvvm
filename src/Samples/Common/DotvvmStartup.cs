@@ -58,7 +58,7 @@ namespace DotVVM.Samples.BasicSamples
             // new GithubApiClient.GithubApiClient().Repos.GetIssues()
 
             config.RegisterApiGroup(typeof(Common.Api.Owin.TestWebApiClientOwin), "http://localhost:61453/", "Scripts/TestWebApiClientOwin.js", "_apiOwin");
-            config.RegisterApiClient(typeof(Common.Api.AspNetCore.TestWebApiClientAspNetCore), "http://localhost:5001/", "Scripts/TestWebApiClientAspNetCore.js", "_apiCore");
+            config.RegisterApiClient(typeof(Common.Api.AspNetCore.TestWebApiClientAspNetCore), "http://localhost:50001/", "Scripts/TestWebApiClientAspNetCore.js", "_apiCore");
 
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
 
@@ -198,12 +198,14 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater", "Views/FeatureSamples/PostBack/RecursiveTextRepeater.dotcontrol");
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater2", "Views/FeatureSamples/PostBack/RecursiveTextRepeater2.dotcontrol");
             config.Markup.AddMarkupControl("cc", "ModuleControl", "Views/FeatureSamples/ViewModules/ModuleControl.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "LinkModuleControl", "Views/FeatureSamples/ViewModules/LinkModuleControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "Incrementer", "Views/FeatureSamples/ViewModules/Incrementer.dotcontrol");
             config.Markup.AddMarkupControl("cc", "TemplatedListControl", "Views/ControlSamples/TemplateHost/TemplatedListControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "TemplatedMarkupControl", "Views/ControlSamples/TemplateHost/TemplatedMarkupControl.dotcontrol");
             config.Markup.AddCodeControls("cc", typeof(CompositeControlWithTemplate));
             config.Markup.AddCodeControls("cc", typeof(Loader));
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "NodeControl", "Views/ControlSamples/HierarchyRepeater/NodeControl.dotcontrol");
 
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
 

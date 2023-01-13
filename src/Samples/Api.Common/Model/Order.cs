@@ -10,11 +10,13 @@ namespace DotVVM.Samples.BasicSamples.Api.Common.Model
     {
         public int Id { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("Number")]
         [JsonProperty(PropertyName = "Number")]
         public string Number { get; set; }
 
         public DateTime Date { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("companyId")]
         [JsonProperty(PropertyName = "companyId")]
         public int CompanyId { get; set; }
 

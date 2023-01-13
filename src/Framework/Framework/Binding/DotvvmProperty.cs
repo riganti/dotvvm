@@ -135,12 +135,12 @@ namespace DotVVM.Framework.Binding
             ICustomAttributeProvider attributeProvider
         )
         {
-            this.Name = name;
-            this.PropertyType = type;
-            this.DeclaringType = declaringType;
+            this.Name = name ?? throw new ArgumentNullException(nameof(name));
+            this.PropertyType = type ?? throw new ArgumentNullException(nameof(type));
+            this.DeclaringType = declaringType ?? throw new ArgumentNullException(nameof(declaringType));
             this.DefaultValue = defaultValue;
             this.IsValueInherited = isValueInherited;
-            this.AttributeProvider = attributeProvider;
+            this.AttributeProvider = attributeProvider ?? throw new ArgumentNullException(nameof(attributeProvider));
             InitializeProperty(this);
         }
 
@@ -255,12 +255,12 @@ namespace DotVVM.Framework.Binding
         {
             if (property == null) property = new DotvvmProperty();
 
-            property.Name = propertyName;
+            property.Name = propertyName ?? throw new ArgumentNullException(nameof(propertyName));
             property.IsValueInherited = isValueInherited;
-            property.DeclaringType = declaringType;
-            property.PropertyType = propertyType;
+            property.DeclaringType = declaringType ?? throw new ArgumentNullException(nameof(declaringType));
+            property.PropertyType = propertyType ?? throw new ArgumentNullException(nameof(propertyType));
             property.DefaultValue = defaultValue;
-            property.AttributeProvider = attributeProvider;
+            property.AttributeProvider = attributeProvider ?? throw new ArgumentNullException(nameof(attributeProvider));
 
             return Register(property, throwOnDuplicateRegistration);
         }

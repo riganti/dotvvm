@@ -40,12 +40,7 @@ export function deserializePrimitive(viewModel: any, target?: any): any {
 }
 
 export function deserializeDate(viewModel: any, target?: any): any {
-    viewModel = serializeDate(viewModel);
-    if (ko.isObservable(target)) {
-        target(viewModel);
-        return target;
-    }
-    return viewModel;
+    return deserializePrimitive(serializeDate(viewModel), target);
 }
 
 export function deserializeArray(viewModel: any, target?: any, deserializeAll: boolean = false): any {
@@ -187,4 +182,32 @@ export function extendToObservableArrayIfRequired(observable: any) {
 
 function isTypeIdProperty(prop: string) {
     return prop == "$type";
+}
+
+/** Clones only updatable properties from the object.
+ *  Used after postback, to avoid updating properties which were sent to server, but weren't sent back. */
+export function mapUpdatableProperties(viewModel: any, type: TypeDefinition | undefined = undefined): any {
+    if (isPrimitive(viewModel)) {
+        return viewModel
+    }
+
+    if (Array.isArray(viewModel)) {
+        return viewModel.map(item => mapUpdatableProperties(item, (type as TypeDefinition[])?.[0]))
+    }
+
+    let result: any = {}
+    const typeMetadata = getObjectTypeInfo(viewModel["$type"] ?? type)
+    for (const prop of keys(viewModel)) {
+        let value = viewModel[prop]
+        if (!isTypeIdProperty(prop)) {
+            const propInfo = typeMetadata?.properties[prop]
+            if (propInfo?.update == "no") {
+                continue
+            }
+
+            value = mapUpdatableProperties(value, propInfo?.type)
+        }
+        result[prop] = value
+    }
+    return result
 }

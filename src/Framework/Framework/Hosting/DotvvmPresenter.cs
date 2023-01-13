@@ -361,6 +361,7 @@ namespace DotVVM.Framework.Hosting
                 context.CsrfToken = postData["$csrfToken"].Value<string>();
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
 
+                var knownTypes = postData["knownTypeMetadata"].Values<string>().ToArray();
                 var command = postData["command"].Value<string>();
                 var arguments = postData["args"] as JArray;
                 var executionPlan =
@@ -380,7 +381,7 @@ namespace DotVVM.Framework.Hosting
 
                 await OutputRenderer.WriteStaticCommandResponse(
                     context,
-                    ViewModelSerializer.BuildStaticCommandResponse(context, result));
+                    ViewModelSerializer.BuildStaticCommandResponse(context, result, knownTypes));
             }
             finally
             {
@@ -476,9 +477,15 @@ namespace DotVVM.Framework.Hosting
                 else
                 {
                     if (site == "same-origin")
-                        await context.RejectRequest($"Same site iframe are disabled in this application. If you are the developer, you can enable iframes by setting DotvvmConfiguration.Security.FrameOptionsSameOrigin.EnableForRoute(\"{route}\")");
+                        await context.RejectRequest($"""
+                            Same site iframe are disabled in this application.
+                            If you are the developer, you can enable iframes by setting DotvvmConfiguration.Security.FrameOptionsSameOrigin.EnableForRoute("{route}")
+                            """);
                     else
-                        await context.RejectRequest($"Cross site iframe are disabled in this application. If you are the developer, you can enable cross-site iframes by setting DotvvmConfiguration.Security.FrameOptionsCrossOrigin.EnableForRoute(\"{route}\"). Note that it's not recommended to enable cross-site iframes for sites / pages where security is important (due to Clickjacking)");
+                        await context.RejectRequest($"""
+                        Cross site iframe are disabled in this application.
+                        If you are the developer, you can enable cross-site iframes by setting DotvvmConfiguration.Security.FrameOptionsCrossOrigin.EnableForRoute("{route}"). Note that it's not recommended to enable cross-site iframes for sites / pages where security is important (due to Clickjacking)
+                        """);
                 }
             }
 
@@ -490,7 +497,7 @@ namespace DotVVM.Framework.Hosting
                 if (site != "same-origin")
                     await context.RejectRequest($"Cross site postbacks are disabled.");
                 if (dest != "empty")
-                    await context.RejectRequest($"postbacks must have Sec-Fetch-Dest: empty");
+                    await context.RejectRequest($"Postbacks must have Sec-Fetch-Dest: empty");
             }
             else
             {
@@ -504,12 +511,16 @@ namespace DotVVM.Framework.Hosting
                 else if (dest is "empty")
                 {
                     if (!DetermineSpaRequest(context.HttpContext))
-                        await context.RejectRequest($"Pages can not be loaded using Javascript for security reasons. If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.DisableForRoute(\"{route}\")");
+                        await context.RejectRequest($"""
+                            Pages can not be loaded using Javascript for security reasons.
+                            Try refreshing the page to get rid of the error.
+                            If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.DisableForRoute("{route}"). [dest: {dest}, site: {site}]
+                            """);
                     if (site != "same-origin")
                         await context.RejectRequest($"Cross site SPA requests are disabled.");
                 }
                 else
-                    await context.RejectRequest("Can not load a DotVVM page with this Sec-Fetch-Dest.");
+                    await context.RejectRequest($"Cannot load a DotVVM page with Sec-Fetch-Dest: {dest}.");
             }
         }
 

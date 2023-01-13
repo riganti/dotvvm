@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Binding
 {
-    public class DelegateActionProperty<TValue>: ActiveDotvvmProperty
+    public sealed class DelegateActionProperty<TValue>: ActiveDotvvmProperty
     {
         private Action<IHtmlWriter, IDotvvmRequestContext, DotvvmProperty, DotvvmControl> func;
 
