@@ -27,7 +27,21 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Determines whether this HTTP request is a postback or a classic GET request.
         /// </summary>
-        public bool IsPostBack { get; set; }
+        public bool IsPostBack
+        {
+            get => RequestType == DotvvmRequestType.Command;
+            set
+            {
+                // TODO: remove this setter
+                if (value) RequestType = DotvvmRequestType.Command;
+                else if (RequestType == DotvvmRequestType.Command) RequestType = DotvvmRequestType.Get;
+            }
+        }
+
+        /// <summary>
+        /// Determines type of the request - initial GET, command, staticCommand, ...
+        /// </summary>
+        public DotvvmRequestType RequestType { get; private set; }
 
         /// <summary>
         /// Gets the view model object for the current HTTP request.
@@ -98,7 +112,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
         /// </summary>
-        public bool IsSpaRequest => DotvvmPresenter.DetermineSpaRequest(HttpContext);
+        public bool IsSpaRequest => RequestType is DotvvmRequestType.SpaGet;
 
         /// <summary>
         /// Gets a value indicating whether this HTTP request is made from single page application and only the SpaContentPlaceHolder content will be rendered.
@@ -123,9 +137,41 @@ namespace DotVVM.Framework.Hosting
             DotvvmConfiguration configuration,
             IServiceProvider? services)
         {
+            if (httpContext is null) throw new ArgumentNullException(nameof(httpContext));
+            if (configuration is null) throw new ArgumentNullException(nameof(configuration));
+
             HttpContext = httpContext;
+            RequestType = DetermineRequestType(httpContext);
             Configuration = configuration;
             _services = services;
+        }
+
+        internal static DotvvmRequestType DetermineRequestType(IHttpContext context)
+        {
+            var method = context.Request.Method;
+            if (method == "GET")
+            {
+                if (context.Request.Headers.ContainsKey(HostingConstants.SpaContentPlaceHolderHeaderName))
+                {
+                    return DotvvmRequestType.SpaGet;
+                }
+                return DotvvmRequestType.Get;
+            }
+            if (method == "POST")
+            {
+                if (context.Request.Headers.TryGetValue("X-PostbackType", out var postbackType))
+                {
+                    if (postbackType[0] == "StaticCommand")
+                    {
+                        return DotvvmRequestType.StaticCommand;
+                    }
+                }
+                if (context.Request.Headers.ContainsKey(HostingConstants.PostBackHeaderName))
+                {
+                    return DotvvmRequestType.Command;
+                }
+            }
+            return DotvvmRequestType.Unknown;
         }
 
         /// <summary>

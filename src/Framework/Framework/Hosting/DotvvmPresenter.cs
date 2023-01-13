@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Hosting
         /// <returns></returns>
         public async Task ProcessRequestCore(IDotvvmRequestContext context)
         {
-            if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")
+            if (context.RequestType == DotvvmRequestType.Unknown)
             {
                 await context.InterruptRequestAsMethodNotAllowedAsync();
             }
@@ -123,7 +123,7 @@ namespace DotVVM.Framework.Hosting
             await ValidateSecFetchHeaders(context);
 
             var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
-            if (context.HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand")
+            if (DetermineIsStaticCommand(context))
             {
                 await ProcessStaticCommandRequest(context);
                 await requestTracer.TraceEvent(RequestTracingConstants.StaticCommandExecuted, context);
@@ -154,7 +154,7 @@ namespace DotVVM.Framework.Hosting
             try
             {
                 // run the preinit phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreInit);
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreInit, context);
                 page.DataContext = context.ViewModel;
 
                 // run OnViewModelCreated on action filters
@@ -183,7 +183,7 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 // run the init phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init, context);
                 await requestTracer.TraceEvent(RequestTracingConstants.InitCompleted, context);
 
                 object? commandResult = null;
@@ -196,7 +196,7 @@ namespace DotVVM.Framework.Hosting
                     }
 
                     // run the load phase in the page
-                    DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
+                    DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
                     await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
                 }
                 else
@@ -232,7 +232,7 @@ namespace DotVVM.Framework.Hosting
                     }
 
                     // run the load phase in the page
-                    DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
+                    DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
                     await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
 
                     // invoke the postback command
@@ -243,8 +243,21 @@ namespace DotVVM.Framework.Hosting
                         .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType()));
                     if (actionInfo.Binding?.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull) is ActionFiltersBindingProperty filters)
                         methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
-
-                    commandResult = await ExecuteCommand(actionInfo, context, methodFilters);
+                    
+                    var commandTimer = ValueStopwatch.StartNew();
+                    try
+                    {
+                        commandResult = await ExecuteCommand(actionInfo, context, methodFilters);
+                    }
+                    finally
+                    {
+                        DotvvmMetrics.CommandInvocationDuration.Record(
+                            commandTimer.ElapsedSeconds,
+                            new KeyValuePair<string, object?>("command", actionInfo.Binding!.ToString()),
+                            new KeyValuePair<string, object?>("result", context.CommandException is null ? "Ok" :
+                                                                        context.IsCommandExceptionHandled ? "Exception" :
+                                                                        "UnhandledException"));
+                    }
                     await requestTracer.TraceEvent(RequestTracingConstants.CommandExecuted, context);
                 }
 
@@ -254,10 +267,10 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 // run the prerender phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRender);
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRender, context);
 
                 // run the prerender complete phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete);
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete, context);
                 await requestTracer.TraceEvent(RequestTracingConstants.PreRenderCompleted, context);
 
                 // generate CSRF token if required
@@ -377,7 +390,21 @@ namespace DotVVM.Framework.Hosting
                     .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
                     .ToArray();
 
-                var result = await ExecuteCommand(actionInfo, context, filters);
+                var commandTimer = ValueStopwatch.StartNew();
+                object? result;
+                try
+                {
+                    result = await ExecuteCommand(actionInfo, context, filters);
+                }
+                finally
+                {
+                    DotvvmMetrics.StaticCommandInvocationDuration.Record(
+                        commandTimer.ElapsedSeconds,
+                        new KeyValuePair<string, object?>("command", executionPlan.ToString()),
+                        new KeyValuePair<string, object?>("result", context.CommandException is null ? "Ok" :
+                                                                    context.IsCommandExceptionHandled ? "Exception" :
+                                                                    "UnhandledException"));
+                }
 
                 await OutputRenderer.WriteStaticCommandResponse(
                     context,
@@ -524,9 +551,11 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
+        public static bool DetermineIsStaticCommand(IDotvvmRequestContext context) =>
+            context.HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand";
         public static bool DetermineIsPostBack(IHttpContext context)
         {
-            return context.Request.Method == "POST" && context.Request.Headers.ContainsKey(HostingConstants.SpaPostBackHeaderName);
+            return context.Request.Method == "POST" && context.Request.Headers.ContainsKey(HostingConstants.PostBackHeaderName);
         }
 
         public static bool DetermineSpaRequest(IHttpContext context)

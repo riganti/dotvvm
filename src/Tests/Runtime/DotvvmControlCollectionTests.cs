@@ -14,6 +14,7 @@ namespace DotVVM.Framework.Tests.Runtime
     [TestClass]
     public class DotvvmControlCollectionTests
     {
+        private IDotvvmRequestContext context = DotvvmTestHelper.CreateContext();
 
         [TestMethod]
         public void ControlCollection_ControlsCreatedOnInit()
@@ -34,9 +35,9 @@ namespace DotVVM.Framework.Tests.Runtime
                     });
                 }
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
+            root.SetValue(Internal.RequestContextProperty, context);
 
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Init);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Init, context);
 
             Assert.IsTrue(innerInitCalled);
         }
@@ -67,10 +68,10 @@ namespace DotVVM.Framework.Tests.Runtime
                     });
                 }
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
+            root.SetValue(Internal.RequestContextProperty, context);
 
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Init);
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Load);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Init, context);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Load, context);
 
             Assert.IsTrue(innerInitCalled);
             Assert.IsTrue(innerLoadCalled);
@@ -105,9 +106,9 @@ namespace DotVVM.Framework.Tests.Runtime
                     });
                 }
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
+            root.SetValue(Internal.RequestContextProperty, context);
 
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Init);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Init, context);
 
             Assert.IsTrue(innerInitCalled);
         }
@@ -142,9 +143,9 @@ namespace DotVVM.Framework.Tests.Runtime
                     });
                 }
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
+            root.SetValue(Internal.RequestContextProperty, context);
 
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRender);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRender, context);
 
             var index = 0;
             Action<string, LifeCycleEventType, bool> verifyAction = (name, eventType, isEntering) =>
@@ -211,9 +212,8 @@ namespace DotVVM.Framework.Tests.Runtime
                     });
                 },
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
 
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRender);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRender, context);
 
             var root_New = new ControlLifeCycleMock(eventLog, "root_New");
             root.Children.Add(root_New);
@@ -263,9 +263,8 @@ namespace DotVVM.Framework.Tests.Runtime
                 innerRoot.Children.Add(td2);
                 td2.Children.Add(secondChild);
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
 
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRenderComplete);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRenderComplete, context);
             root.Render(null, null);
 
             Assert.IsTrue(initCalled);

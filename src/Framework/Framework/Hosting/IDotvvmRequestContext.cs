@@ -55,7 +55,13 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Determines whether this HTTP request is a postback or a classic GET request.
         /// </summary>
+        [Obsolete("Use RequestType == DotvvmRequestType.Command instead.")]
         bool IsPostBack { get; set; }
+
+        /// <summary>
+        /// Determines type of the request - initial GET, command, staticCommand, ...
+        /// </summary>
+        DotvvmRequestType RequestType { get; }
 
         /// <summary>
         /// Gets the values of parameters specified in the <see cref="P:Route" /> property.
@@ -97,11 +103,13 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
         /// </summary>
+        [Obsolete("Use RequestType == DotvvmRequestType.SpaGet instead.")]
         bool IsSpaRequest { get; }
 
         /// <summary>
         /// Gets a value indicating whether this HTTP request is made from single page application and only the SpaContentPlaceHolder content will be rendered.
         /// </summary>
+        [Obsolete("Use RequestType is DotvvmRequestType.SpaGet or DotvvmRequestType.Command instead.")]
         bool IsInPartialRenderingMode { get; }
 
         /// <summary>
@@ -110,7 +118,20 @@ namespace DotVVM.Framework.Hosting
         string? ResultIdFragment { get; set; }
 
         IServiceProvider Services { get; }
-        public CustomResponsePropertiesManager CustomResponseProperties { get; }
+        CustomResponsePropertiesManager CustomResponseProperties { get; }
+    }
 
+    public enum DotvvmRequestType
+    {
+        Unknown,
+        /// <summary> Initial GET request returning html output </summary>
+        Get, // TODO: naming? Navigate?
+
+        /// <summary> Initial GET request for already loaded SPA website. Expected to return JSON with html fragments </summary>
+        SpaGet,
+        /// <summary> POST request handling a command binding invocation. </summary>
+        Command,
+        /// <summary> POST request handling a static command binding invocation. </summary>
+        StaticCommand
     }
 }

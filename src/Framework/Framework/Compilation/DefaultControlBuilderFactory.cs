@@ -76,6 +76,7 @@ namespace DotVVM.Framework.Compilation
             }
             try
             {
+                var sw = ValueStopwatch.StartNew();
                 var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ReadContent(), file.FileName);
 
                 var lazyBuilder = new Lazy<IControlBuilder>(() => {
@@ -90,12 +91,14 @@ namespace DotVVM.Framework.Compilation
                             var (import, init) = descriptor.ViewModuleReference.BuildResources(configuration.Resources);
                             configuration.Resources.RegisterViewModuleResources(import, init);
                         }
+                        DotvvmMetrics.ViewsCompiled.Add(1, new KeyValuePair<string, object?>("success", true));
 
                         compilationService.RegisterCompiledView(file.FileName, descriptor, null);
                         return result;
                     }
                     catch (DotvvmCompilationException ex)
                     {
+                        DotvvmMetrics.ViewsCompiled.Add(1, new KeyValuePair<string, object?>("success", false));
                         editCompilationException(ex);
                         compilationService.RegisterCompiledView(file.FileName, descriptor, ex);
                         throw;
@@ -105,9 +108,13 @@ namespace DotVVM.Framework.Compilation
                         compilationService.RegisterCompiledView(file.FileName, descriptor, ex);
                         throw;
                     }
+                    finally
+                    {
+                        DotvvmMetrics.ViewsCompilationTime.Add(sw.ElapsedSeconds);
+                    }
                 });
 
-                // initialize the Lazy asynchronously to speed up initialization
+                // initialize the Lazy asynchronously to speed up initialization and get reasonably accurate ViewsCompilationTime metric
                 Task.Run(() => {
                     try {
                         _ = lazyBuilder.Value;

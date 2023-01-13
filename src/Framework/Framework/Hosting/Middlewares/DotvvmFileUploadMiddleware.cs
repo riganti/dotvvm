@@ -143,6 +143,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             var fileName = fileNameGroup.Success ? fileNameGroup.Value : string.Empty;
             var mimeType = section.ContentType ?? string.Empty;
             var fileSize = section.Body.Length;
+            DotvvmMetrics.UploadedFileSize.Record(section.Body.Length);
 
             return new UploadedFile {
                 FileId = fileId,
