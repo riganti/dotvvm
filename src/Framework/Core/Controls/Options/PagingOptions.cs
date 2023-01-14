@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         [Bind(Direction.None)]
         [Obsolete("This interface was removed. If you want to provide your custom page numbers, inherit the PagingOptions class and override the GetNearPageIndexes method.", true)]
-        public INearPageIndexesProvider NearPageIndexesProvider { get; set; }
+        public INearPageIndexesProvider NearPageIndexesProvider { get; set; } = null!;
 
         /// <summary>
         /// Gets whether the <see cref="PageIndex" /> represents the first page.

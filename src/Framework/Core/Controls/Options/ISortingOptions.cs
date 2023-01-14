@@ -3,18 +3,31 @@ using System.Collections.Generic;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Represents settings for sorting.
+    /// Represents a marker interface for sorting options.
     /// </summary>
     public interface ISortingOptions
     {
     }
 
+    /// <summary>
+    /// Represents sorting options that support changing the sort expression by the user.
+    /// </summary>
     public interface ISortingSetSortExpressionCapability : ISortingOptions
     {
+        /// <summary>
+        /// Determines whether the specified property can be used for sorting.
+        /// </summary>
         bool IsSortingAllowed(string sortExpression);
+
+        /// <summary>
+        /// Modifies the options to be sorted by the specified expression.
+        /// </summary>
         void SetSortExpression(string? sortExpression);
     }
 
+    /// <summary>
+    /// Represents sorting options that can specify one sorting criterion.
+    /// </summary>
     public interface ISortingSingleCriterionCapability : ISortingOptions
     {
 
@@ -30,11 +43,20 @@ namespace DotVVM.Framework.Controls
 
     }
 
+    /// <summary>
+    /// Represents sorting options which support multiple sort criteria.
+    /// </summary>
     public interface ISortingMultipleCriteriaCapability : ISortingOptions
     {
+        /// <summary>
+        /// Gets or sets the list of sort criteria.
+        /// </summary>
         IList<SortCriterion> Criteria { get; }
     }
 
+    /// <summary>
+    /// Represents a sort criterion.
+    /// </summary>
     public sealed record SortCriterion
     {
         /// <summary>

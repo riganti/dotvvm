@@ -517,7 +517,8 @@
     },
     "DotVVM.Framework.Controls.DataPager": {
       "DataSet": {
-        "type": "DotVVM.Framework.Controls.IPageableGridViewDataSet, DotVVM.Core",
+        "type": "DotVVM.Framework.Controls.IPageableGridViewDataSet`1[[DotVVM.Framework.Controls.IPagingOptions, DotVVM.Core, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]], DotVVM.Core",
+        "required": true,
         "onlyBindings": true
       },
       "Enabled": {
@@ -1667,6 +1668,23 @@
         "onlyBindings": true,
         "isActive": true,
         "isAttached": true
+      }
+    },
+    "DotvvmMarkupControl-33jwRoNrnlbAOVpOnCErXw==": {
+      "ShowDescription": {
+        "type": "System.Boolean",
+        "defaultValue": false
+      }
+    },
+    "DotvvmMarkupControl-koCHqjx2oIk1rVwG1PzLJQ==": {
+      "Click": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework",
+        "isCommand": true
+      }
+    },
+    "DotvvmMarkupControl-YYPITyOzVEL518wclEMJZw==": {
+      "SomeProperty": {
+        "type": "System.String"
       }
     }
   },

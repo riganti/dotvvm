@@ -7,9 +7,9 @@ using DotVVM.Framework.ViewModel;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Represents settings for sorting.
+    /// Represents a default implementation of the sorting options.
     /// </summary>
-    public class SortingOptions : ISortingSingleCriterionCapability, ISortingSetSortExpressionCapability, IApplyToQueryable
+    public class SortingOptions : ISortingOptions, ISortingSingleCriterionCapability, ISortingSetSortExpressionCapability, IApplyToQueryable
     {
         /// <summary>
         /// Gets or sets whether the sort order should be descending.
@@ -21,8 +21,14 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string? SortExpression { get; set; }
 
+        /// <summary>
+        /// Determines whether the specified property can be used for sorting.
+        /// </summary>
         public virtual bool IsSortingAllowed(string sortExpression) => true;
 
+        /// <summary>
+        /// Modifies the options to be sorted by the specified expression.
+        /// </summary>
         public virtual void SetSortExpression(string? sortExpression)
         {
             if (sortExpression == null)
@@ -41,6 +47,9 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        /// <summary>
+        /// Applies the sorting options to the specified IQueryable expression.
+        /// </summary>
         public IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
         {
             return SortingImplementation.ApplySortingToQueryable(queryable, this);
