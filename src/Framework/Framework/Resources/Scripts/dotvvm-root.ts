@@ -27,6 +27,8 @@ import * as metadataHelper from './metadata/metadataHelper'
 import { StateManager } from "./state-manager"
 import { DotvvmEvent } from "./events"
 import translations from './translations/translations'
+import { loadDataSet } from './dataset/loader'
+import * as dataSetTranslations from './dataset/translations'
 
 if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')
@@ -124,6 +126,10 @@ const dotvvmExports = {
     },
     options,
     translations: translations as any,
+    dataSet: {
+        load: loadDataSet,
+        translations: dataSetTranslations
+    },
     StateManager,
     DotvvmEvent,
 }
