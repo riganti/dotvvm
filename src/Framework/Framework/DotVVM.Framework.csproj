@@ -81,6 +81,9 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>
     </None>
+    <None Update="Resources\Scripts\dataset\translations.ts">
+      <SubType>Code</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
@@ -125,6 +128,11 @@
   <ItemGroup>
     <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
     <TypescriptFile Include="Resources/Scripts/**/*.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypescriptFile Remove="Resources\Scripts\dataset\loader.ts" />
+    <TypescriptFile Remove="Resources\Scripts\dataset\translations.ts" />
   </ItemGroup>
 
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
