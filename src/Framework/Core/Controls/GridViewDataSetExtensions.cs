@@ -1,43 +1,38 @@
+﻿using System;
+using System.Linq;
+
 namespace DotVVM.Framework.Controls
 {
     public static class GridViewDataSetExtensions
     {
-        /// <summary>
-        /// Navigates to the first page.
-        /// </summary>
-        public static void GoToFirstPage(this IPageableGridViewDataSet dataSet)
-        {
-            dataSet.GoToPage(0);
-        }
 
-        /// <summary>
-        /// Navigates to the previous page if possible.
-        /// </summary>
-        public static void GoToPreviousPage(this IPageableGridViewDataSet dataSet)
+        public static void LoadFromQueryable<T>(this IGridViewDataSet<T> dataSet, IQueryable<T> queryable)
         {
-            if (!dataSet.PagingOptions.IsFirstPage)
+            if (dataSet.FilteringOptions is not IApplyToQueryable filteringOptions)
             {
-                dataSet.GoToPage(dataSet.PagingOptions.PageIndex - 1);
+                throw new ArgumentException($"The FilteringOptions of {dataSet.GetType()} must implement IApplyToQueryable!");
             }
-        }
-
-        /// <summary>
-        /// Navigates to the next page if possible.
-        /// </summary>
-        public static void GoToNextPage(this IPageableGridViewDataSet dataSet)
-        {
-            if (!dataSet.PagingOptions.IsLastPage)
+            if (dataSet.SortingOptions is not IApplyToQueryable sortingOptions)
             {
-                dataSet.GoToPage(dataSet.PagingOptions.PageIndex + 1);
+                throw new ArgumentException($"The SortingOptions of {dataSet.GetType()} must implement IApplyToQueryable!");
             }
+            if (dataSet.PagingOptions is not IApplyToQueryable pagingOptions)
+            {
+                throw new ArgumentException($"The PagingOptions of {dataSet.GetType()} must implement IApplyToQueryable!");
+            }
+
+            var filtered = filteringOptions.ApplyToQueryable(queryable);
+            var sorted = sortingOptions.ApplyToQueryable(filtered);
+            var paged = pagingOptions.ApplyToQueryable(sorted);
+            dataSet.Items = paged.ToList();
+
+            if (pagingOptions is IPagingTotalItemsCountCapability pagingTotalItemsCount)
+            {
+                pagingTotalItemsCount.TotalItemsCount = filtered.Count();
+            }
+
+            dataSet.IsRefreshRequired = false;
         }
 
-        /// <summary>
-        /// Navigates to the last page.
-        /// </summary>
-        public static void GoToLastPage(this IPageableGridViewDataSet dataSet)
-        {
-            dataSet.GoToPage(dataSet.PagingOptions.PagesCount - 1);
-        }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace DotVVM.Framework.Controls
+﻿namespace DotVVM.Framework.Controls
 {
     /// <summary>
     /// Extends the <see cref="IBaseGridViewDataSet" /> with refresh functionality.
@@ -11,7 +9,7 @@ namespace DotVVM.Framework.Controls
         /// Gets whether the data should be refreshed. This property is set to true automatically
         /// when paging, sorting or other options change.
         /// </summary>
-        bool IsRefreshRequired { get; }
+        bool IsRefreshRequired { get; set; }
 
         /// <summary>
         /// Requests to reload data into the <see cref="IRefreshableGridViewDataSet" />.

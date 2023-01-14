@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,166 +10,12 @@ namespace DotVVM.Framework.Controls
     /// Represents a collection of items with paging, sorting and row edit capabilities.
     /// </summary>
     /// <typeparam name="T">The type of the <see cref="Items" /> elements.</typeparam>
-    public class GridViewDataSet<T> : IGridViewDataSet<T>
+    public class GridViewDataSet<T>
+        : GenericGridViewDataSet<T, NoFilteringOptions, SortingOptions, PagingOptions, NoRowInsertOptions, RowEditOptions>
     {
-        /// <summary>
-        /// Gets or sets whether the data should be refreshed. This property is set to true automatically
-        /// when paging, sorting or other options change.
-        /// </summary>
-        public bool IsRefreshRequired { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets the items for the current page.
-        /// </summary>
-        public IList<T> Items { get; set; } = new List<T>();
-
-        IList IBaseGridViewDataSet.Items => Items is List<T> list ? list : Items.ToList();
-
-        /// <summary>
-        /// Gets or sets the settings for paging.
-        /// </summary>
-        public IPagingOptions PagingOptions { get; set; } = new PagingOptions();
-
-        /// <summary>
-        /// Gets or sets the settings for row (item) edit feature.
-        /// </summary>
-        public IRowEditOptions RowEditOptions { get; set; } = new RowEditOptions();
-
-        /// <summary>
-        /// Gets or sets the settings for sorting.
-        /// </summary>
-        public ISortingOptions SortingOptions { get; set; } = new SortingOptions();
-
-        /// <summary>
-        /// Navigates to the specific page.
-        /// </summary>
-        /// <param name="index">The zero-based index of the page to navigate to.</param>
-        public void GoToPage(int index)
+        public GridViewDataSet()
+            : base(new NoFilteringOptions(), new SortingOptions(), new PagingOptions(), new NoRowInsertOptions(), new RowEditOptions())
         {
-            PagingOptions.PageIndex = index;
-            RequestRefresh();
-        }
-
-        /// <summary>
-        /// Loads data into the <see cref="GridViewDataSet{T}" /> from the given <see cref="IQueryable{T}" /> source.
-        /// </summary>
-        /// <param name="source">The source to load data from.</param>
-        public void LoadFromQueryable(IQueryable<T> source)
-        {
-            source = ApplyFilteringToQueryable(source);
-            Items = ApplyOptionsToQueryable(source).ToList();
-            PagingOptions.TotalItemsCount = source.Count();
-            IsRefreshRequired = false;
-        }
-
-        /// <summary>
-        /// Requests to reload data into the <see cref="GridViewDataSet{T}" />.
-        /// </summary>
-        public virtual void RequestRefresh()
-        {
-            IsRefreshRequired = true;
-        }
-
-        /// <summary>
-        /// Sets the sort expression. If the specified expression is already set, switches the sort direction.
-        /// </summary>
-        [Obsolete("This method has strange side-effects, assign the expression yourself and reload the DataSet.")]
-        public virtual void SetSortExpression(string expression)
-        {
-            if (SortingOptions.SortExpression == expression)
-            {
-                SortingOptions.SortDescending = !SortingOptions.SortDescending;
-            }
-            else
-            {
-                SortingOptions.SortExpression = expression;
-                SortingOptions.SortDescending = false;
-            }
-
-            GoToPage(0);
-        }
-
-        /// <summary>
-        /// Applies filtering to the <paramref name="queryable" /> before the total number
-        /// of items is retrieved.
-        /// </summary>
-        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
-        public virtual IQueryable<T> ApplyFilteringToQueryable(IQueryable<T> queryable)
-        {
-            return queryable;
-        }
-
-        /// <summary>
-        /// Applies options to the <paramref name="queryable" /> after the total number
-        /// of items is retrieved.
-        /// </summary>
-        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
-        public virtual IQueryable<T> ApplyOptionsToQueryable(IQueryable<T> queryable)
-        {
-            queryable = ApplySortingToQueryable(queryable);
-            queryable = ApplyPagingToQueryable(queryable);
-            return queryable;
-        }
-
-        /// <summary>
-        /// Applies sorting to the <paramref name="queryable" /> after the total number
-        /// of items is retrieved.
-        /// </summary>
-        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
-        public virtual IQueryable<T> ApplySortingToQueryable(IQueryable<T> queryable)
-        {
-            if (SortingOptions?.SortExpression == null)
-            {
-                return queryable;
-            }
-
-            var parameterExpression = Expression.Parameter(typeof(T), "p");
-            Expression sortByExpression = parameterExpression;
-            foreach (var prop in (SortingOptions.SortExpression ?? "").Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                var property = sortByExpression.Type.GetTypeInfo().GetProperty(prop);
-                if (property == null)
-                {
-                    throw new Exception($"Could not sort by property '{prop}', since it does not exists.");
-                }
-                if (property.GetCustomAttribute<BindAttribute>() is BindAttribute bind && bind.Direction == Direction.None)
-                {
-                    throw new Exception($"Cannot sort by an property '{prop}' that has [Bind(Direction.None)].");
-                }
-                if (property.GetCustomAttribute<ProtectAttribute>() is ProtectAttribute protect && protect.Settings == ProtectMode.EncryptData)
-                {
-                    throw new Exception($"Cannot sort by an property '{prop}' that is encrypted.");
-                }
-
-                sortByExpression = Expression.Property(sortByExpression, property);
-            }
-            if (sortByExpression == parameterExpression) // no sorting
-            {
-                return queryable;
-            }
-            var lambdaExpression = Expression.Lambda(sortByExpression, parameterExpression);
-            var methodCallExpression = Expression.Call(typeof(Queryable), GetSortingMethodName(),
-                new[] { parameterExpression.Type, sortByExpression.Type },
-                queryable.Expression,
-                Expression.Quote(lambdaExpression));
-            return queryable.Provider.CreateQuery<T>(methodCallExpression);
-        }
-
-        /// <summary>
-        /// Applies paging to the <paramref name="queryable" /> after the total number
-        /// of items is retrieved.
-        /// </summary>
-        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
-        public virtual IQueryable<T> ApplyPagingToQueryable(IQueryable<T> queryable)
-        {
-            return PagingOptions != null && PagingOptions.PageSize > 0 ?
-                queryable.Skip(PagingOptions.PageSize * PagingOptions.PageIndex).Take(PagingOptions.PageSize) :
-                queryable;
-        }
-
-        private string GetSortingMethodName()
-        {
-            return SortingOptions.SortDescending ? "OrderByDescending" : "OrderBy";
         }
     }
 }

@@ -30,11 +30,11 @@ namespace DotVVM.Framework.Controls
 
             public CommonBindings(BindingCompilationService service)
             {
-                GoToNextPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToNextPage(), "__$DataPager_GoToNextPage");
-                GoToThisPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[1]).GoToPage((int)h[0]), "__$DataPager_GoToThisPage");
-                GoToPrevPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToPreviousPage(), "__$DataPager_GoToPrevPage");
-                GoToFirstPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToFirstPage(), "__$DataPager_GoToFirstPage");
-                GoToLastPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToLastPage(), "__$DataPager_GoToLastPage");
+                GoToNextPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingNextPageCapability>)h[0]).PagingOptions.GoToNextPage(), "__$DataPager_GoToNextPage");
+                GoToThisPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingPageIndexCapability>)h[1]).PagingOptions.GoToPage((int)h[0]), "__$DataPager_GoToThisPage");
+                GoToPrevPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingPreviousPageCapability>)h[0]).PagingOptions.GoToPreviousPage(), "__$DataPager_GoToPrevPage");
+                GoToFirstPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingFirstPageCapability>)h[0]).PagingOptions.GoToFirstPage(), "__$DataPager_GoToFirstPage");
+                GoToLastPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingLastPageCapability>)h[0]).PagingOptions.GoToLastPage(), "__$DataPager_GoToLastPage");
             }
         }
 
@@ -51,14 +51,14 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the GridViewDataSet object in the viewmodel.
         /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false)]
-        public IPageableGridViewDataSet? DataSet
+        [MarkupOptions(AllowHardCodedValue = false, Required = true)]
+        public IPageableGridViewDataSet<IPagingOptions>? DataSet
         {
-            get { return (IPageableGridViewDataSet?)GetValue(DataSetProperty); }
+            get { return (IPageableGridViewDataSet<IPagingOptions>?)GetValue(DataSetProperty); }
             set { SetValue(DataSetProperty, value); }
         }
         public static readonly DotvvmProperty DataSetProperty =
-            DotvvmProperty.Register<IPageableGridViewDataSet?, DataPager>(c => c.DataSet);
+            DotvvmProperty.Register<IPageableGridViewDataSet<IPagingOptions>?, DataPager>(c => c.DataSet);
 
         /// <summary>
         /// Gets or sets the template of the button which moves the user to the first page.
@@ -166,7 +166,8 @@ namespace DotVVM.Framework.Controls
         {
             Children.Clear();
 
-            var dataContextType = DataContextStack.Create(typeof(IPageableGridViewDataSet), this.GetDataContextType());
+            var dataSetBinding = GetValueBinding(DataSetProperty)!;
+            var dataContextType = DataContextStack.Create(dataSetBinding.ResultType, this.GetDataContextType());
             ContentWrapper = CreateWrapperList(dataContextType);
             Children.Add(ContentWrapper);
 
@@ -174,43 +175,57 @@ namespace DotVVM.Framework.Controls
 
             object enabledValue = GetValueRaw(EnabledProperty)!;
 
-            GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, enabledValue, bindings.GoToFirstPageCommand,context);
-            ContentWrapper.Children.Add(GoToFirstPageButton);
-
-            GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate, enabledValue, bindings.GoToPrevPageCommand,context);
-            ContentWrapper.Children.Add(GoToPreviousPageButton);
-
-            // number fields
-            NumberButtonsPlaceHolder = new PlaceHolder();
-            ContentWrapper.Children.Add(NumberButtonsPlaceHolder);
-
-            var dataSet = DataSet;
-            if (dataSet != null)
+            if (typeof(IPageableGridViewDataSet<IPagingFirstPageCapability>).IsAssignableFrom(dataContextType.DataContextType))
             {
-                var i = 0;
-                foreach (var number in dataSet.PagingOptions.NearPageIndexes)
-                {
-                    var li = new HtmlGenericControl("li");
-                    li.SetBinding(DataContextProperty, GetNearIndexesBinding(context, i, dataContextType));
-                    if (number == dataSet.PagingOptions.PageIndex)
-                    {
-                        li.Attributes.Set("class", ActiveItemCssClass);
-                    }
-                    var link = new LinkButton() { Text = (number + 1).ToString() };
-                    link.SetBinding(ButtonBase.ClickProperty, bindings.GoToThisPageCommand);
-                    if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
-                    li.Children.Add(link);
-                    NumberButtonsPlaceHolder.Children.Add(li);
+                GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, enabledValue, bindings.GoToFirstPageCommand, context);
+                ContentWrapper.Children.Add(GoToFirstPageButton);
+            }
 
-                    i++;
+            if (typeof(IPageableGridViewDataSet<IPagingPreviousPageCapability>).IsAssignableFrom(dataContextType.DataContextType))
+            {
+                GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate, enabledValue, bindings.GoToPrevPageCommand, context);
+                ContentWrapper.Children.Add(GoToPreviousPageButton);
+            }
+
+            if (typeof(IPageableGridViewDataSet<IPagingPageIndexCapability>).IsAssignableFrom(dataContextType.DataContextType))
+            {
+                // number fields
+                NumberButtonsPlaceHolder = new PlaceHolder();
+                ContentWrapper.Children.Add(NumberButtonsPlaceHolder);
+
+                if (DataSet is IPageableGridViewDataSet<IPagingPageIndexCapability> dataSet)
+                {
+                    var i = 0;
+                    foreach (var number in dataSet.PagingOptions.NearPageIndexes)
+                    {
+                        var li = new HtmlGenericControl("li");
+                        li.SetBinding(DataContextProperty, GetNearIndexesBinding(context, i, dataContextType));
+                        if (number == dataSet.PagingOptions.PageIndex)
+                        {
+                            li.Attributes.Set("class", ActiveItemCssClass);
+                        }
+                        var link = new LinkButton() { Text = (number + 1).ToString() };
+                        link.SetBinding(ButtonBase.ClickProperty, bindings.GoToThisPageCommand);
+                        if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
+                        li.Children.Add(link);
+                        NumberButtonsPlaceHolder.Children.Add(li);
+
+                        i++;
+                    }
                 }
             }
 
-            GoToNextPageButton = CreateNavigationButton("»", NextPageTemplate, enabledValue, bindings.GoToNextPageCommand, context);
-            ContentWrapper.Children.Add(GoToNextPageButton);
+            if (typeof(IPageableGridViewDataSet<IPagingNextPageCapability>).IsAssignableFrom(dataContextType.DataContextType))
+            {
+                GoToNextPageButton = CreateNavigationButton("»", NextPageTemplate, enabledValue, bindings.GoToNextPageCommand, context);
+                ContentWrapper.Children.Add(GoToNextPageButton);
+            }
 
-            GoToLastPageButton = CreateNavigationButton("»»", LastPageTemplate, enabledValue, bindings.GoToLastPageCommand, context);
-            ContentWrapper.Children.Add(GoToLastPageButton);
+            if (typeof(IPageableGridViewDataSet<IPagingLastPageCapability>).IsAssignableFrom(dataContextType.DataContextType))
+            {
+                GoToLastPageButton = CreateNavigationButton("»»", LastPageTemplate, enabledValue, bindings.GoToLastPageCommand, context);
+                ContentWrapper.Children.Add(GoToLastPageButton);
+            }
         }
 
         protected virtual HtmlGenericControl CreateWrapperList(DataContextStack dataContext)
@@ -255,7 +270,7 @@ namespace DotVVM.Framework.Controls
                 .GetOrAdd(i, _ =>
                     ValueBindingExpression.CreateBinding(
                         bindingService.WithoutInitialization(),
-                        h => ((IPageableGridViewDataSet)h[0]!).PagingOptions.NearPageIndexes[i],
+                        h => ((IPageableGridViewDataSet<IPagingPageIndexCapability>)h[0]!).PagingOptions.NearPageIndexes[i],
                         dataContext));
         }
 
