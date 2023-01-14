@@ -30,11 +30,11 @@ namespace DotVVM.Framework.Controls
 
             public CommonBindings(BindingCompilationService service)
             {
-                GoToNextPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingNextPageCapability>)h[0]).PagingOptions.GoToNextPage(), "__$DataPager_GoToNextPage");
-                GoToThisPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingPageIndexCapability>)h[1]).PagingOptions.GoToPage((int)h[0]), "__$DataPager_GoToThisPage");
-                GoToPrevPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingPreviousPageCapability>)h[0]).PagingOptions.GoToPreviousPage(), "__$DataPager_GoToPrevPage");
-                GoToFirstPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingFirstPageCapability>)h[0]).PagingOptions.GoToFirstPage(), "__$DataPager_GoToFirstPage");
-                GoToLastPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingLastPageCapability>)h[0]).PagingOptions.GoToLastPage(), "__$DataPager_GoToLastPage");
+                GoToNextPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingNextPageCapability>)h[0]).GoToNextPageAndRefresh(), "__$DataPager_GoToNextPage");
+                GoToThisPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingPageIndexCapability>)h[1]).GoToPageAndRefresh((int)h[0]), "__$DataPager_GoToThisPage");
+                GoToPrevPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingPreviousPageCapability>)h[0]).GoToPreviousPageAndRefresh(), "__$DataPager_GoToPrevPage");
+                GoToFirstPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingFirstPageCapability>)h[0]).GoToFirstPageAndRefresh(), "__$DataPager_GoToFirstPage");
+                GoToLastPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingLastPageCapability>)h[0]).GoToLastPageAndRefresh(), "__$DataPager_GoToLastPage");
             }
         }
 

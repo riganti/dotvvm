@@ -34,5 +34,34 @@ namespace DotVVM.Framework.Controls
             dataSet.IsRefreshRequired = false;
         }
 
+        public static void GoToFirstPageAndRefresh(this IPageableGridViewDataSet<IPagingFirstPageCapability> dataSet)
+        {
+            dataSet.PagingOptions.GoToFirstPage();
+            (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
+        }
+
+        public static void GoToLastPageAndRefresh(this IPageableGridViewDataSet<IPagingLastPageCapability> dataSet)
+        {
+            dataSet.PagingOptions.GoToLastPage();
+            (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
+        }
+
+        public static void GoToPreviousPageAndRefresh(this IPageableGridViewDataSet<IPagingPreviousPageCapability> dataSet)
+        {
+            dataSet.PagingOptions.GoToPreviousPage();
+            (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
+        }
+
+        public static void GoToNextPageAndRefresh(this IPageableGridViewDataSet<IPagingNextPageCapability> dataSet)
+        {
+            dataSet.PagingOptions.GoToNextPage();
+            (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
+        }
+
+        public static void GoToPageAndRefresh(this IPageableGridViewDataSet<IPagingPageIndexCapability> dataSet, int pageIndex)
+        {
+            dataSet.PagingOptions.GoToPage(pageIndex);
+            (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
+        }
     }
 }
