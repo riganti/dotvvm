@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
+using Generic = DotVVM.Framework.Compilation.Javascript.MethodFindingHelper.Generic;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -59,6 +61,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
 
             AddMethodsCore(methods.ToArray(), translator, allowMultipleMethods);
+        }
+
+        public void AddMethodTranslator<T>(Expression<Func<T>> methodCall, IJavascriptMethodTranslator translator)
+        {
+            var method = (MethodInfo)MethodFindingHelper.GetMethodFromExpression(methodCall);
+            AddMethodTranslator(method, translator);
         }
 
         public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, int parameterCount, bool allowMultipleMethods = false, Func<ParameterInfo[], bool>? parameterFilter = null)
@@ -118,12 +126,13 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void AddDefaultMethodTranslators()
         {
             var lengthMethod = new GenericMethodCompiler(a => a[0].Member("length"));
-            AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
-            AddPropertyGetterTranslator(typeof(ICollection), nameof(ICollection.Count), lengthMethod);
-            AddPropertyGetterTranslator(typeof(ICollection<>), nameof(ICollection.Count), lengthMethod);
-            AddPropertyGetterTranslator(typeof(IReadOnlyCollection<>), nameof(ICollection.Count), lengthMethod);
-            AddPropertyGetterTranslator(typeof(string), nameof(string.Length), lengthMethod);
-            AddMethodTranslator(typeof(Enums), "GetNames", new EnumGetNamesMethodTranslator(), 0);
+            // AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
+            AddMethodTranslator(() => default(Array)!.Length, lengthMethod);
+            AddMethodTranslator(() => default(ICollection)!.Count, lengthMethod);
+            AddMethodTranslator(() => default(ICollection<Generic>)!.Count, lengthMethod);
+            AddMethodTranslator(() => default(IReadOnlyCollection<Generic>)!.Count, lengthMethod);
+            AddMethodTranslator(() => "".Length, lengthMethod);
+            AddMethodTranslator(() => Enums.GetNames<Generic>(), new EnumGetNamesMethodTranslator());
             var identityTranslator = new GenericMethodCompiler(a => a[1]);
             AddMethodTranslator(typeof(BoxingUtils), "Box", identityTranslator, new [] { typeof(bool) });
             AddMethodTranslator(typeof(BoxingUtils), "Box", identityTranslator, new [] { typeof(bool?) });

@@ -7,6 +7,7 @@ namespace DotVVM.Framework.Binding.HelperNamespace
     public static class Enums
     {
         public static string[] GetNames<TEnum>()
+            where TEnum : struct, Enum
         {
             return Enum.GetNames(typeof(TEnum));
         }
