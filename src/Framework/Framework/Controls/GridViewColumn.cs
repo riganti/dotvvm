@@ -234,13 +234,15 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? sortableGridViewDataSet, IValueBinding dataSourceBinding)
+        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? gridViewDataSet, IValueBinding dataSourceBinding)
         {
-            if (sortableGridViewDataSet != null)
+            // TODO: support multiple criteria
+            if (gridViewDataSet is ISortableGridViewDataSet<ISortingSingleCriterionCapability> sortableGridViewDataSet)
             {
                 var cellAttributes = cell.Attributes;
                 if (!RenderOnServer)
                 {
+                    // TODO: change how the css class binding is generated
                     var gridViewDataSetExpr = dataSourceBinding.GetKnockoutBindingExpression(cell, unwrapped: true);
                     cellAttributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ({gridViewDataSetExpr}).SortingOptions().SortExpression() == '{GetSortExpression()}' && ({gridViewDataSetExpr}).SortingOptions().SortDescending(), '{SortAscendingHeaderCssClass}': ({gridViewDataSetExpr}).SortingOptions().SortExpression() == '{GetSortExpression()}' && !({gridViewDataSetExpr}).SortingOptions().SortDescending()}}";
                 }

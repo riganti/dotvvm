@@ -236,19 +236,13 @@ namespace DotVVM.Framework.Controls
             var dataSource = this.DataSource;
             if (dataSource is null)
                 throw new DotvvmControlException(this, "Cannot execute sort command, DataSource is null");
-            var sortOptions = (dataSource as ISortableGridViewDataSet)?.SortingOptions;
-            if (sortOptions is null)
+
+            var sortOptions = (dataSource as ISortableGridViewDataSet<ISortingSetSortExpressionCapability>)?.SortingOptions;
+            if (sortOptions is null || (expr != null && !sortOptions.IsSortingAllowed(expr)))
                 throw new DotvvmControlException(this, "Cannot execute sort command, DataSource does not have sorting options");
-            if (sortOptions.SortExpression == expr)
-            {
-                sortOptions.SortDescending ^= true;
-            }
-            else
-            {
-                sortOptions.SortExpression = expr;
-                sortOptions.SortDescending = false;
-            }
-            (dataSource as IPageableGridViewDataSet)?.GoToFirstPage();
+            sortOptions.SetSortExpression(expr);
+            (dataSource as IPageableGridViewDataSet<IPagingFirstPageCapability>)?.PagingOptions.GoToFirstPage();
+            (dataSource as IRefreshableGridViewDataSet)?.RequestRefresh();
         }
 
         protected virtual void CreateHeaderRow(IDotvvmRequestContext context, Action<string?>? sortCommand)
