@@ -89,8 +89,8 @@ function SignPackages() {
                 --timestamp-rfc3161 http://timestamp.digicert.com `
                 --timestamp-digest sha256 `
                 --azure-key-vault-url "$signKeyVaultUrl" `
-                --azure-key-vault-client-id "$signClientId" ` 
-                --azure-key-vault-tenant-id "$signTenantId" ` 
+                --azure-key-vault-client-id "$signClientId" `
+                --azure-key-vault-tenant-id "$signTenantId" `
                 --azure-key-vault-client-secret "$signSecret" `
                 --azure-key-vault-certificate-name "$signCertificateName" `
                 | Out-Host
@@ -129,8 +129,8 @@ function SignTemplates() {
           --timestamp-rfc3161 http://timestamp.digicert.com `
           --timestamp-digest sha256 `
           --azure-key-vault-url "$signKeyVaultUrl" `
-          --azure-key-vault-client-id "$signClientId" ` 
-          --azure-key-vault-tenant-id "$signTenantId" ` 
+          --azure-key-vault-client-id "$signClientId" `
+          --azure-key-vault-tenant-id "$signTenantId" `
           --azure-key-vault-client-secret "$signSecret" `
           --azure-key-vault-certificate-name "$signCertificateName" `
           | Out-Host
