@@ -92,7 +92,7 @@ function SignPackages() {
                 --azure-key-vault-client-id "$signClientId" `
                 --azure-key-vault-tenant-id "$signTenantId" `
                 --azure-key-vault-client-secret "$signSecret" `
-                --azure-key-vault-certificate-name "$signCertificateName" `
+                --azure-key-vault-certificate "$signCertificateName" `
                 | Out-Host
         }
     }
@@ -132,7 +132,7 @@ function SignTemplates() {
           --azure-key-vault-client-id "$signClientId" `
           --azure-key-vault-tenant-id "$signTenantId" `
           --azure-key-vault-client-secret "$signSecret" `
-          --azure-key-vault-certificate-name "$signCertificateName" `
+          --azure-key-vault-certificate "$signCertificateName" `
           | Out-Host
     }
 }
