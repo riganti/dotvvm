@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         public async Task<bool> Handle(IDotvvmRequestContext request)
         {
-            var sw = ValueStopwatch.StartNew();
+            var sw = ValueStopwatch.StartNew(isActive: DotvvmMetrics.ResourceServeDuration.Enabled);
             var resource = urlManager.FindResource(request.HttpContext.Request.Url.ToString(), request, out var mimeType);
             if (resource != null)
             {

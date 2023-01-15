@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
@@ -91,14 +92,14 @@ namespace DotVVM.Framework.Compilation
                             var (import, init) = descriptor.ViewModuleReference.BuildResources(configuration.Resources);
                             configuration.Resources.RegisterViewModuleResources(import, init);
                         }
-                        DotvvmMetrics.ViewsCompiled.Add(1, new KeyValuePair<string, object?>("success", true));
+                        Interlocked.Increment(ref DotvvmMetrics.BareCounters.ViewsCompiledOk);
 
                         compilationService.RegisterCompiledView(file.FileName, descriptor, null);
                         return result;
                     }
                     catch (DotvvmCompilationException ex)
                     {
-                        DotvvmMetrics.ViewsCompiled.Add(1, new KeyValuePair<string, object?>("success", false));
+                        Interlocked.Increment(ref DotvvmMetrics.BareCounters.ViewsCompiledFailed);
                         editCompilationException(ex);
                         compilationService.RegisterCompiledView(file.FileName, descriptor, ex);
                         throw;
@@ -110,7 +111,7 @@ namespace DotVVM.Framework.Compilation
                     }
                     finally
                     {
-                        DotvvmMetrics.ViewsCompilationTime.Add(sw.ElapsedSeconds);
+                        Interlocked.Add(ref DotvvmMetrics.BareCounters.ViewsCompilationTime, sw.ElapsedTicks);
                     }
                 });
 

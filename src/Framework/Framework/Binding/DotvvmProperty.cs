@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Immutable;
 using DotVVM.Framework.Runtime;
+using System.Threading;
 
 namespace DotVVM.Framework.Binding
 {
@@ -396,6 +397,7 @@ namespace DotVVM.Framework.Binding
             if (property.DeclaringType is null || property.PropertyType is null)
                 throw new Exception($"DotvvmProperty {property.DeclaringType?.Name}.{property.Name} must have PropertyType and DeclaringType.");
 
+            Interlocked.Increment(ref Hosting.DotvvmMetrics.BareCounters.DotvvmPropertyInitialized);
 
             property.PropertyInfo ??= property.DeclaringType.GetProperty(property.Name);
             property.AttributeProvider ??=

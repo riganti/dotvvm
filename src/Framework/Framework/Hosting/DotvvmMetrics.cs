@@ -12,13 +12,26 @@ namespace DotVVM.Framework.Hosting
         public static readonly Meter Meter = new Meter("dotvvm");
 
         /// <summary> Labeled with success=true/false </summary>
-        public static readonly Counter<long> ViewsCompiled =
-            Meter.CreateCounter<long>("view_compiled_total", description: "Number of dothtml pages that were compiled. It should reach a steady state shortly after startup.");
-        public static readonly Counter<double> ViewsCompilationTime =
-            Meter.CreateCounter<double>("view_compilation_seconds_total", unit: "seconds", description: "CPU time spent in dothtml page compilation (in seconds).");
+        public static readonly ObservableCounter<long> ViewsCompiled =
+            Meter.CreateObservableCounter<long>("view_compiled_total",
+                description: "Number of dothtml pages that were compiled. It should reach a steady state shortly after startup.",
+                observeValues:  () => {
+                    return new [] {
+                        new Measurement<long>(BareCounters.ViewsCompiledFailed, new KeyValuePair<string, object?>("success", false)),
+                        new Measurement<long>(BareCounters.ViewsCompiledOk, new KeyValuePair<string, object?>("success", true))
+                    };
+                });
+        public static readonly ObservableCounter<double> ViewsCompilationTime =
+            Meter.CreateObservableCounter<double>("view_compilation_seconds_total",
+                unit: "seconds", description: "CPU time spent in dothtml page compilation (in seconds).",
+                observeValue: () => BareCounters.ViewsCompilationTime * ValueStopwatch.TimestampToSeconds
+            );
 
-        public static readonly Counter<long> DotvvmPropertyInitialized =
-            Meter.CreateCounter<long>("property_initialized_total", description: "Number of DotvvmProperties that were initialized.");
+        public static readonly ObservableCounter<long> DotvvmPropertyInitialized =
+            Meter.CreateObservableCounter<long>("property_initialized_total",
+                description: "Number of DotvvmProperties that were initialized.",
+                observeValue: () => BareCounters.DotvvmPropertyInitialized
+            );
 
         /// <summary> Labeled with binding_type=value/resource/... and is_lazy_init=true/false </summary>
         public static readonly Counter<long> BindingsInitialized =
@@ -117,6 +130,17 @@ namespace DotVVM.Framework.Hosting
             return ExponentialBuckets(secStart, 2, 10);
         }
 
+        // The Counter from metrics doesn't count anything when there isn't a listener.
+        // Since the listener may be initialized after we have registered DotvvmProperties, compiled some views, ...
+        // the metrics would present incorrect data.
+        internal class BareCounters
+        {
+            public static long ViewsCompiledOk = 0;
+            public static long ViewsCompiledFailed = 0;
+            public static long ViewsCompilationTime = 0;
+            public static long DotvvmPropertyInitialized = 0;
+        }
+
         internal static double[] ExponentialBuckets(double start, double factor, double end)
         {
             return Enumerable.Range(0, 1000)
@@ -124,31 +148,6 @@ namespace DotVVM.Framework.Hosting
                 .TakeWhile(b => b <= end)
                 .ToArray();
         }
-
-        // internal static CounterMeasurer MeasureTime(this Counter<double> counter)
-        // {
-        // 	var ts = Stopwatch.GetTimestamp();
-        // 	return new CounterMeasurer(counter, ts);
-        // }
-
-        // internal struct CounterMeasurer
-        // {
-        //     private Counter<double> counter;
-        //     private readonly long timestamp;
-
-        //     public CounterMeasurer(Counter<double> counter, long timestamp)
-        //     {
-        //         this.counter = counter;
-        //         this.timestamp = timestamp;
-        //     }
-
-        // 	public void Dispose()
-        // 	{
-        // 		var duration = Stopwatch.GetTimestamp() - timestamp;
-        // 		var seconds = duration / (double)Stopwatch.Frequency;
-        // 		this.counter.Add(seconds);
-        // 	}
-        // }
 
         internal static KeyValuePair<string, object?> RouteLabel(this IDotvvmRequestContext context) =>
             new("route", context.Route?.RouteName);
@@ -164,7 +163,7 @@ namespace DotVVM.Framework.Hosting
     // stolen from https://source.dot.net/#Microsoft.Extensions.Http/ValueStopwatch.cs,492ce3a1c6245cd8
     internal struct ValueStopwatch
     {
-        private static readonly double TimestampToSeconds = 1 / (double)Stopwatch.Frequency;
+        public static readonly double TimestampToSeconds = 1 / (double)Stopwatch.Frequency;
 
         private long _startTimestamp;
 
@@ -179,7 +178,7 @@ namespace DotVVM.Framework.Hosting
         public static ValueStopwatch StartNew(bool isActive) =>
             isActive ? new ValueStopwatch(Stopwatch.GetTimestamp()) : default;
 
-        public double ElapsedSeconds
+        public long ElapsedTicks
         {
             get
             {
@@ -191,9 +190,10 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 long end = Stopwatch.GetTimestamp();
-                long timestampDelta = end - _startTimestamp;
-                return TimestampToSeconds * timestampDelta;
+                return end - _startTimestamp;
             }
         }
+
+        public double ElapsedSeconds => ElapsedTicks * TimestampToSeconds;
     }
 }
