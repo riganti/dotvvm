@@ -93,11 +93,11 @@ function SignPackages() {
                 --azure-key-vault-tenant-id "$signTenantId" `
                 --azure-key-vault-client-secret "$signSecret" `
                 --azure-key-vault-certificate "$signCertificateName" `
-                "$baseDir\*.nupkg" `
+                (resolve-path "$baseDir\*.nupkg") `
                 | Out-Host
             if ($LASTEXITCODE) {
                 Write-Host "Sign command failed."
-            }           
+            }
         }
     }
 }
@@ -137,7 +137,7 @@ function SignTemplates() {
           --azure-key-vault-tenant-id "$signTenantId" `
           --azure-key-vault-client-secret "$signSecret" `
           --azure-key-vault-certificate "$signCertificateName" `
-          "$baseDir\*.nupkg" `
+          (resolve-path "$baseDir\*.nupkg") `
           | Out-Host
         if ($LASTEXITCODE) {
             Write-Host "Sign command failed."
