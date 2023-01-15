@@ -25,6 +25,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -123,13 +124,13 @@ namespace DotVVM.Framework.Hosting
             await ValidateSecFetchHeaders(context);
 
             var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
-            if (DetermineIsStaticCommand(context))
+            if (context.RequestType == DotvvmRequestType.StaticCommand)
             {
                 await ProcessStaticCommandRequest(context);
                 await requestTracer.TraceEvent(RequestTracingConstants.StaticCommandExecuted, context);
                 return;
             }
-            var isPostBack = context.IsPostBack = DetermineIsPostBack(context.HttpContext);
+            var isPostBack = context.RequestType == DotvvmRequestType.Command;
 
             // build the page view
             var page = DotvvmViewBuilder.BuildView(context);
@@ -288,13 +289,13 @@ namespace DotVVM.Framework.Hosting
 
                 ViewModelSerializer.BuildViewModel(context, commandResult);
 
-                if (!context.IsInPartialRenderingMode)
+                if (context.RequestType == DotvvmRequestType.Get)
                 {
-                    // standard get
                     await OutputRenderer.WriteHtmlResponse(context, page);
                 }
                 else
                 {
+                    Debug.Assert(context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaGet);
                     // postback or SPA content
                     var postBackUpdates = OutputRenderer.RenderPostbackUpdatedControls(context, page);
                     ViewModelSerializer.AddPostBackUpdatedControls(context, postBackUpdates);
@@ -537,7 +538,7 @@ namespace DotVVM.Framework.Hosting
                 // he'll will just get a redirect response, not anything useful
                 else if (dest is "empty")
                 {
-                    if (!DetermineSpaRequest(context.HttpContext))
+                    if (context.RequestType is DotvvmRequestType.SpaGet)
                         await context.RejectRequest($"""
                             Pages can not be loaded using Javascript for security reasons.
                             Try refreshing the page to get rid of the error.
@@ -551,22 +552,20 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
+        [Obsolete("Use context.RequestType == DotvvmRequestType.StaticCommand")]
         public static bool DetermineIsStaticCommand(IDotvvmRequestContext context) =>
-            context.HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand";
-        public static bool DetermineIsPostBack(IHttpContext context)
-        {
-            return context.Request.Method == "POST" && context.Request.Headers.ContainsKey(HostingConstants.PostBackHeaderName);
-        }
+            context.RequestType == DotvvmRequestType.StaticCommand;
+        [Obsolete("Use context.RequestType == DotvvmRequestType.Command")]
+        public static bool DetermineIsPostBack(IHttpContext context) =>
+            DotvvmRequestContext.DetermineRequestType(context) == DotvvmRequestType.Command;
 
-        public static bool DetermineSpaRequest(IHttpContext context)
-        {
-            return !string.IsNullOrEmpty(context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName]);
-        }
+        [Obsolete("Use context.RequestType == DotvvmRequestType.SpaGet")]
+        public static bool DetermineSpaRequest(IHttpContext context) =>
+            DotvvmRequestContext.DetermineRequestType(context) == DotvvmRequestType.SpaGet;
 
-        public static bool DeterminePartialRendering(IHttpContext context)
-        {
-            return DetermineIsPostBack(context) || DetermineSpaRequest(context);
-        }
+        [Obsolete("Use context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaGet")]
+        public static bool DeterminePartialRendering(IHttpContext context) =>
+            DotvvmRequestContext.DetermineRequestType(context) is DotvvmRequestType.Command or DotvvmRequestType.SpaGet;
 
         public static string? DetermineSpaContentPlaceHolderUniqueId(IHttpContext context)
         {

@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
             mockContext.Setup(m => m.Response).Returns(mockResponse.Object);
 
             var configuration = DotvvmConfiguration.CreateDefault();
-            _requestContext = new DotvvmRequestContext(mockContext.Object, configuration, configuration.ServiceProvider);
+            _requestContext = new DotvvmRequestContext(mockContext.Object, configuration, configuration.ServiceProvider, requestType: DotvvmRequestType.Get);
         }
 
 

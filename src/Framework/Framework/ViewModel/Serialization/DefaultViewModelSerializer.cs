@@ -96,6 +96,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return null;
         }
 
+        bool IsPostBack(IDotvvmRequestContext c) => c.RequestType is DotvvmRequestType.Command or DotvvmRequestType.StaticCommand;
+
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
@@ -104,7 +106,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var timer = ValueStopwatch.StartNew();
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
+            var viewModelConverter = new ViewModelJsonConverter(IsPostBack(context), viewModelMapper, context.Services);
             serializer.Converters.Add(viewModelConverter);
             var writer = new JTokenWriter();
             try
@@ -151,7 +153,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 result["resultIdFragment"] = context.ResultIdFragment;
             }
 
-            if (context.IsPostBack || context.IsSpaRequest)
+            if (context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaGet)
             {
                 result["action"] = "successfulCommand";
             }
@@ -192,7 +194,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var timer = ValueStopwatch.StartNew();
 
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
+            var viewModelConverter = new ViewModelJsonConverter(isPostback: true, viewModelMapper, context.Services);
             serializer.Converters.Add(viewModelConverter);
             var response = new JObject();
             response["result"] = WriteCommandData(result, serializer, "the static command result");
@@ -354,9 +356,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 // load encrypted values
                 var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
-                viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
+                viewModelConverter = new ViewModelJsonConverter(IsPostBack(context), viewModelMapper, context.Services, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
             }
-            else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
+            else viewModelConverter = new ViewModelJsonConverter(IsPostBack(context), viewModelMapper, context.Services);
 
             // get validation path
             context.ModelState.ValidationTargetPath = (string)data["validationTargetPath"];

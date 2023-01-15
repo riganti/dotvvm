@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Determines whether this HTTP request is a postback or a classic GET request.
         /// </summary>
-        [Obsolete("Use RequestType == DotvvmRequestType.Command instead.")]
+        [Obsolete("Use RequestType == DotvvmRequestType.Command instead.")] // TODO: remove, used too often, only for our integrity
         bool IsPostBack { get; set; }
 
         /// <summary>

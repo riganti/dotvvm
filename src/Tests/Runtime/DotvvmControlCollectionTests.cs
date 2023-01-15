@@ -212,6 +212,7 @@ namespace DotVVM.Framework.Tests.Runtime
                     });
                 },
             };
+            root.SetValue(Internal.RequestContextProperty, context);
 
             DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRender, context);
 
@@ -250,6 +251,7 @@ namespace DotVVM.Framework.Tests.Runtime
             };
 
             var root = new ControlLifeCycleMock();
+            root.SetValue(Internal.RequestContextProperty, context);
 
             root.RenderAction = (control, _) => {
                 var innerRoot = new ControlLifeCycleMock() { LifecycleRequirements = ControlLifecycleRequirements.None };

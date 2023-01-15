@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets a value indicating whether this HTTP request is made from single page application and only the SpaContentPlaceHolder content will be rendered.
         /// </summary>
-        public bool IsInPartialRenderingMode => DotvvmPresenter.DeterminePartialRendering(HttpContext);
+        public bool IsInPartialRenderingMode => RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaGet;
 
         [Obsolete("Get the IViewModelSerializer from IServiceProvider")]
         public IViewModelSerializer ViewModelSerializer => Services.GetRequiredService<IViewModelSerializer>();
@@ -135,18 +135,19 @@ namespace DotVVM.Framework.Hosting
         public DotvvmRequestContext(
             IHttpContext httpContext,
             DotvvmConfiguration configuration,
-            IServiceProvider? services)
+            IServiceProvider? services,
+            DotvvmRequestType? requestType = null)
         {
             if (httpContext is null) throw new ArgumentNullException(nameof(httpContext));
             if (configuration is null) throw new ArgumentNullException(nameof(configuration));
 
             HttpContext = httpContext;
-            RequestType = DetermineRequestType(httpContext);
+            RequestType = requestType ?? DetermineRequestType(httpContext);
             Configuration = configuration;
             _services = services;
         }
 
-        internal static DotvvmRequestType DetermineRequestType(IHttpContext context)
+        public static DotvvmRequestType DetermineRequestType(IHttpContext context)
         {
             var method = context.Request.Method;
             if (method == "GET")

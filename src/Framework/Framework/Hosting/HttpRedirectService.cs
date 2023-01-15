@@ -32,7 +32,8 @@ namespace DotVVM.Framework.Hosting
     {
         public void WriteRedirectResponse(IHttpContext httpContext, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false)
         {
-            if (!DotvvmPresenter.DeterminePartialRendering(httpContext))
+            
+            if (DotvvmRequestContext.DetermineRequestType(httpContext) is DotvvmRequestType.Get)
             {
                 httpContext.Response.Headers["Location"] = url;
                 httpContext.Response.StatusCode = statusCode;

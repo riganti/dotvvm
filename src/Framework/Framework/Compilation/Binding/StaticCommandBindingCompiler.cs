@@ -147,7 +147,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 StaticCommandParameterType.DefaultValue => "default",
                 StaticCommandParameterType.Argument => "?",
                 StaticCommandParameterType.Inject => $"service({((Type)Arg!).ToCode(stripNamespace: true)})",
-                StaticCommandParameterType.Invocation => Arg!.ToString(),
+                StaticCommandParameterType.Invocation => Arg!.ToString()!,
                 _ => "...invalid argument..."
             };
     }
