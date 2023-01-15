@@ -60,7 +60,7 @@ function RestoreSignClient() {
 
 function BuildPackages() {
     Write-Host "Build started"
-    $originDirecotry = $PWD
+    $originDirectory = $PWD
     foreach ($package in $packages) {
         cd .\$($package.Directory)
         Write-Host "Building in directory $PWD"
@@ -74,7 +74,7 @@ function BuildPackages() {
         Write-Host "Packing project in directory $PWD"
 
         & dotnet pack -p:version=$version -p:ContinuousIntegrationBuild=true -c $configuration | Out-Host
-        cd $originDirecotry
+        cd $originDirectory
     }
 }
 
@@ -84,7 +84,7 @@ function SignPackages() {
         foreach ($package in $packages) {
             $baseDir = Join-Path $currentDirectory ".\$($package.Directory)\bin\$configuration\"
             Write-Host "Signing $($package.Package + " " + $version) (Base dir: $baseDir)"
-            & dotnet NuGetKeyVaultSignTool sign "$baseDir\*.nupkg" `
+            & dotnet NuGetKeyVaultSignTool sign `
                 --file-digest sha256 `
                 --timestamp-rfc3161 http://timestamp.digicert.com `
                 --timestamp-digest sha256 `
@@ -93,7 +93,11 @@ function SignPackages() {
                 --azure-key-vault-tenant-id "$signTenantId" `
                 --azure-key-vault-client-secret "$signSecret" `
                 --azure-key-vault-certificate "$signCertificateName" `
+                "$baseDir\*.nupkg" `
                 | Out-Host
+            if ($LASTEXITCODE) {
+                Write-Host "Sign command failed."
+            }           
         }
     }
 }
@@ -124,7 +128,7 @@ function SignTemplates() {
     Write-Host "Signing templates ..."
     if ($signKeyVaultUrl -ne "") {
         $baseDir = Join-Path $currentDirectory ".\Templates\"
-        & dotnet NuGetKeyVaultSignTool sign "$baseDir\*.nupkg" `
+        & dotnet NuGetKeyVaultSignTool sign `
           --file-digest sha256 `
           --timestamp-rfc3161 http://timestamp.digicert.com `
           --timestamp-digest sha256 `
@@ -133,7 +137,11 @@ function SignTemplates() {
           --azure-key-vault-tenant-id "$signTenantId" `
           --azure-key-vault-client-secret "$signSecret" `
           --azure-key-vault-certificate "$signCertificateName" `
+          "$baseDir\*.nupkg" `
           | Out-Host
+        if ($LASTEXITCODE) {
+            Write-Host "Sign command failed."
+        }           
     }
 }
 
