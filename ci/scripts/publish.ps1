@@ -9,9 +9,12 @@ param(
     [String]$configuration,
     [String]$apiKeyInternal,
     [String]$internalServer,
-    [String]$signUser = "",
+    [String]$signKeyVaultUrl = "",
+    [String]$signClientId = "",
+    [String]$signTenantId = "",
     [String]$signSecret = "",
-    $signConfigPath = "")
+    [String]$signCertificateName = "")
+    
 $currentDirectory = $PWD
 
 ### Helper Functions
@@ -76,12 +79,21 @@ function BuildPackages() {
 }
 
 function SignPackages() {
-    if ($signUser -ne "") {
+    if ($signKeyVaultUrl -ne "") {
         Write-Host "Signing packages ..."
         foreach ($package in $packages) {
             $baseDir = Join-Path $currentDirectory ".\$($package.Directory)\bin\$configuration\"
             Write-Host "Signing $($package.Package + " " + $version) (Base dir: $baseDir)"
-            & dotnet signclient sign --baseDirectory "$baseDir" --input *.nupkg  --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "$($package.Package)" --description "$($package.Package + " " + $version)" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
+            & dotnet NuGetKeyVaultSignTool sign "$baseDir\*.nupkg" `
+                --file-digest sha256 `
+                --timestamp-rfc3161 http://timestamp.digicert.com `
+                --timestamp-digest sha256 `
+                --azure-key-vault-url "$signKeyVaultUrl" `
+                --azure-key-vault-client-id "$signClientId" ` 
+                --azure-key-vault-tenant-id "$signTenantId" ` 
+                --azure-key-vault-client-secret "$signSecret" `
+                --azure-key-vault-certificate-name "$signCertificateName" `
+                | Out-Host
         }
     }
 }
@@ -110,9 +122,18 @@ function BuildTemplates() {
 
 function SignTemplates() {
     Write-Host "Signing templates ..."
-    if ($signUser -ne "") {
+    if ($signKeyVaultUrl -ne "") {
         $baseDir = Join-Path $currentDirectory ".\Templates\"
-        & dotnet signclient sign --baseDirectory "$baseDir" --input *.nupkg --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "DotVVM.Templates" --description "DotVVM.Templates $version" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
+        & dotnet NuGetKeyVaultSignTool sign "$baseDir\*.nupkg" `
+          --file-digest sha256 `
+          --timestamp-rfc3161 http://timestamp.digicert.com `
+          --timestamp-digest sha256 `
+          --azure-key-vault-url "$signKeyVaultUrl" `
+          --azure-key-vault-client-id "$signClientId" ` 
+          --azure-key-vault-tenant-id "$signTenantId" ` 
+          --azure-key-vault-client-secret "$signSecret" `
+          --azure-key-vault-certificate-name "$signCertificateName" `
+          | Out-Host
     }
 }
 
