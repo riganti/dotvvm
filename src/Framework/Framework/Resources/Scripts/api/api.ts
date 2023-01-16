@@ -10,18 +10,39 @@ type ApiComputed<T> =
         refreshValue: () => PromiseLike<any>
     };
 
-type CachedValue = {
+class CachedValue {
     _stateManager?: StateManager<any>
     _isLoading?: boolean
     _promise?: PromiseLike<any>
-    _referenceCount: number
+    _elements: HTMLElement[] = []
+
+    constructor(public _cache: Cache) {
+    }
+
+    registerElement(element: HTMLElement, sharingKeyValue: string) {
+        if (!this._elements.includes(element)) {
+            this._elements.push(element);
+
+            ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
+                this.unregisterElement(element, sharingKeyValue);
+            });
+        }
+    }
+
+    unregisterElement(element: HTMLElement, sharingKeyValue: string) {
+        const oldElementIndex = this._elements.indexOf(element);
+        if (oldElementIndex >= 0) {
+            this._elements.splice(oldElementIndex, 1);
+        }
+        if (!this._elements.length) {
+            delete this._cache[sharingKeyValue];
+        }
+    }
 }
 
 type Cache = { [k: string]: CachedValue }
 
-const cachedValues: {
-    [key: string]: KnockoutObservable<any>
-} = {};
+const cachedValues: Cache = {};
 
 export function invoke<T>(
     target: any,
@@ -33,7 +54,7 @@ export function invoke<T>(
     sharingKeyProvider: (args: any[]) => string[],
     lifetimeElement: HTMLElement
 ): ApiComputed<T> {
-    const cache: Cache = cacheElement ? ((<any> cacheElement)["apiCachedValues"] ??= {}) : cachedValues;
+    const cache: Cache = cacheElement ? ((<any>cacheElement)["apiCachedValues"] ??= {}) : cachedValues;
     const $type: TypeDefinition = { type: "dynamic" }
 
     let args: any[];
@@ -48,17 +69,14 @@ export function invoke<T>(
         let oldKey = sharingKeyValue
         sharingKeyValue = methodName + ":" + sharingKeyProvider(args)
         const oldCached = cachedValue
-        cachedValue = cache[sharingKeyValue] ??= {_referenceCount: 0}
+        cachedValue = cache[sharingKeyValue] ??= new CachedValue(cache)
         if (cachedValue === oldCached) {
             return
         }
-        
-        cachedValue._referenceCount++
+
+        cachedValue.registerElement(lifetimeElement, sharingKeyValue);
         if (oldCached) {
-            oldCached._referenceCount--
-            if (oldCached._referenceCount <= 0) {
-                delete cache[oldKey]
-            }
+            oldCached.unregisterElement(lifetimeElement, oldKey);
         }
 
         if (cachedValue._stateManager == null)
@@ -69,6 +87,7 @@ export function invoke<T>(
         }
         stateManager(cachedValue._stateManager)
     }
+    
     function reloadApi(): PromiseLike<any> {
         if (!cachedValue._isLoading) {
             cachedValue._isLoading = true
