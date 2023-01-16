@@ -12,7 +12,7 @@ namespace DotVVM.Analyzers.ApiUsage
         private static readonly LocalizableResourceString unsupportedCallSiteTitle = new(nameof(Resources.ApiUsage_UnsupportedCallSite_Title), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString unsupportedCallSiteMessage = new(nameof(Resources.ApiUsage_UnsupportedCallSite_Message), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString unsupportedCallSiteDescription = new(nameof(Resources.ApiUsage_UnsupportedCallSite_Description), Resources.ResourceManager, typeof(Resources));
-        private const string unsupportedCallSiteAttributeMetadataName = "DotVVM.Core.CodeAnalysis.UnsupportedCallSiteAttribute";
+        private const string unsupportedCallSiteAttributeMetadataName = "DotVVM.Framework.CodeAnalysis.UnsupportedCallSiteAttribute";
         private const int callSiteTypeServerUnderlyingValue = 0;
 
         public static DiagnosticDescriptor DoNotInvokeMethodFromUnsupportedCallSite = new(

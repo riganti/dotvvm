@@ -40,7 +40,7 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             await VerifyCS.VerifyAnalyzerAsync(@"
     using System;
     using System.IO;
-    using DotVVM.Core.CodeAnalysis;
+    using DotVVM.Framework.CodeAnalysis;
 
     namespace ConsoleApplication1
     {

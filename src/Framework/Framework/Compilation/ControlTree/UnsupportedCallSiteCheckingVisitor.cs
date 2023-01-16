@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using DotVVM.Core.CodeAnalysis;
+using DotVVM.Framework.CodeAnalysis;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 

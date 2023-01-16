@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Core.CodeAnalysis
+﻿namespace DotVVM.Framework.CodeAnalysis
 {
     public enum CallSiteType
     {

@@ -1,5 +1,5 @@
 ﻿using System;
-using DotVVM.Core.CodeAnalysis;
+using DotVVM.Framework.CodeAnalysis;
 
 namespace DotVVM.Framework.Binding.HelperNamespace
 {

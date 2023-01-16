@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotVVM.Core.CodeAnalysis
+namespace DotVVM.Framework.CodeAnalysis
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false)]
     public class UnsupportedCallSiteAttribute : Attribute
