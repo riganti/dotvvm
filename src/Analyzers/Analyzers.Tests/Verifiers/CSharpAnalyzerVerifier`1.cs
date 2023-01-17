@@ -29,6 +29,7 @@ namespace DotVVM.Analyzers.Tests
             var test = new Test
             {
                 TestCode = source,
+                ReferenceAssemblies = ReferenceAssemblies.Net.Net60
             };
 
             test.ExpectedDiagnostics.AddRange(expected);

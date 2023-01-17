@@ -82,6 +82,8 @@ namespace DotVVM.Analyzers.Serializability
             cacheBuilder.Add(compilation.GetTypeByMetadataName("System.Guid")!);
             cacheBuilder.Add(compilation.GetTypeByMetadataName("System.TimeSpan")!);
             cacheBuilder.Add(compilation.GetTypeByMetadataName("System.DateTimeOffset")!);
+            cacheBuilder.Add(compilation.GetTypeByMetadataName("System.DateOnly")!);
+            cacheBuilder.Add(compilation.GetTypeByMetadataName("System.TimeOnly")!);
 
             return cacheBuilder.ToImmutableHashSet(SymbolEqualityComparer.Default);
         }
