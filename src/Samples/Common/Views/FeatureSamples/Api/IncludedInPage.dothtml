@@ -1,0 +1,51 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.IncludedInPageViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>API and IncludeInPage</h1>
+
+    <dot:Button Text="Refresh data" Click="{staticCommand: _root.RefreshCounter = _root.RefreshCounter + 1}" data-ui="refresh-counter" />
+
+    <dot:Button Text="Open dialog static command" Click="{staticCommand: _root.Visible = true}" data-ui="open-static-command" />
+    <dot:Button Text="Open dialog command" Click="{command: _root.Visible = true}" data-ui="open-command" />
+
+    <dialog IncludeInPage="{value: _root.Visible}" open="{value: _root.Visible}">
+
+        <dot:GridView DataSource="{value: _api.RefreshOnChange(_apiCore.GetOrdersAll(11), _root.RefreshCounter)}"
+                      data-ui="grid">
+            <dot:GridViewTemplateColumn>{{value: Number}}</dot:GridViewTemplateColumn>
+        </dot:GridView>
+
+        <dot:Button Text="Close dialog static command" Click="{staticCommand: _root.Visible = false}" data-ui="close-static-command" />
+        <dot:Button Text="Close dialog command" Click="{command: _root.Visible = false}" data-ui="close-command" />
+
+    </dialog>
+
+    <h3>Request log</h3>
+    <ol ID="request-log" ClientIDMode="Static">
+    </ol>
+
+    <script type="text/javascript">
+        var fetchBackup = window.fetch;
+        window.fetch = function (url, init) {
+            if (typeof url === "string" && url.indexOf("/api/Orders") >= 0) {
+                var ol = document.getElementById("request-log");
+                var li = document.createElement("li");
+                li.innerText = init.method + " " + url.substring(url.indexOf("/api/Orders"));
+                ol.appendChild(li);
+            }
+            return fetchBackup.apply(window, arguments);
+        };
+    </script>
+
+</body>
+</html>
+
+

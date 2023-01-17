@@ -31,6 +31,13 @@ runs:
       --config "${{ inputs.build-configuration }}"
       --environment "${{ inputs.runtime-environment }}"
     shell: bash
+
+  - if: ${{ runner.os == 'Windows' }}
+    run: choco install dotnet-aspnetcoremodule-v2 -y
+    shell: pwsh
+  - if: ${{ runner.os == 'Windows' }}
+    run: iisreset
+    shell: pwsh
   - if: ${{ runner.os == 'Windows' }}
     name: uitest.ps1
     run: .\.github\uitest\uitest.ps1
