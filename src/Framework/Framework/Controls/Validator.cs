@@ -99,7 +99,9 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                throw new DotvvmControlException($"Could not resolve {nameof(ValueProperty)} to a valid value binding.");
+                // Could not resolve ValueProperty to a valid value binding
+                // Note: this can sometimes happen when using AutomaticValidation in BusinessPack
+                writer.AddKnockoutDataBind(validationDataBindName, control, ValueProperty, renderEvenInServerRenderingMode: true);
             }
 
             // render options
