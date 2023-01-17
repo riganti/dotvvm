@@ -39,7 +39,10 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 // the user may have control over contents of the file and it may served from a trusted domain.
                 // if you don't like this behavior, you can return the file from your own middleware,
                 // we'll not add an option to disable this check.
-                if (site == "cross-site" || dest != "document")
+
+                // in addition to navigation, we also allow usage from JS, since it simplifies service worker implementation
+                // and there probably isn't a way to do harm (we need to prevent the files getting into script tags, styles, ...)
+                if (!(site != "cross-site" && dest is "document" or "empty"))
                     await c.RejectRequest("Returned file can only be used from same-site navigation.");
             }
         }
