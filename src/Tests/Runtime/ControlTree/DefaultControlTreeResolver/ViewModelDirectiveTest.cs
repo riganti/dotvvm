@@ -88,5 +88,16 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsFalse(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
             Assert.AreEqual(typeof(TestViewModel), root.DataContextTypeStack.DataContextType);
         }
+
+        [TestMethod]
+        [DataRow("@viewModel")]
+        [DataRow("@viewmodel")]
+        public void ResolvedTree_ViewModel_DirectiveIdentifier_CaseInsensitivity(string directive)
+        {
+            var root = ParseSource($"{directive} System.String");
+
+            Assert.IsFalse(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
+            Assert.AreEqual(typeof(string), root.DataContextTypeStack.DataContextType);
+        }
     }
 }
