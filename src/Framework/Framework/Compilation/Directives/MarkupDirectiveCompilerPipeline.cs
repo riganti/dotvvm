@@ -24,7 +24,9 @@ namespace DotVVM.Framework.Compilation.Directives
 
         public MarkupPageMetadata Compile(DothtmlRootNode dothtmlRoot, string fileName)
         {
-            var directivesByName = dothtmlRoot.Directives.GroupBy(d => d.Name, StringComparer.OrdinalIgnoreCase).ToDictionary(d => d.Key, d => (IReadOnlyList<DothtmlDirectiveNode>)d.ToList());
+            var directivesByName = dothtmlRoot.Directives
+                .GroupBy(d => d.Name, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(d => d.Key, d => (IReadOnlyList<DothtmlDirectiveNode>)d.ToList(), StringComparer.OrdinalIgnoreCase);
 
             var resolvedDirectives = new Dictionary<string, IReadOnlyList<IAbstractDirective>>();
 
