@@ -45,6 +45,8 @@
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\GridView\GridViewCellDecorators.dothtml" />
     <None Remove="Views\ControlSamples\HierarchyRepeater\Basic.dothtml" />
+    <None Remove="Views\ControlSamples\HierarchyRepeater\NodeControl.dotcontrol" />
+    <None Remove="Views\ControlSamples\HierarchyRepeater\WithMarkupControl.dothtml" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
@@ -76,6 +78,7 @@
     <None Remove="Views\FeatureSamples\Api\ApiInSpa_PageA.dothtml" />
     <None Remove="Views\FeatureSamples\Api\ApiInSpa_PageB.dothtml" />
     <None Remove="Views\FeatureSamples\Api\ApiRefresh.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\CollectionOddEvenWithRestApi.dothtml" />
     <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoEditor.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoForm.dothtml" />

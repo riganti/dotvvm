@@ -93,6 +93,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_GridView_NestedGridViewInlineEditing = "ControlSamples/GridView/NestedGridViewInlineEditing";
         public const string ControlSamples_GridView_RenamedPrimaryKey = "ControlSamples/GridView/RenamedPrimaryKey";
         public const string ControlSamples_HierarchyRepeater_Basic = "ControlSamples/HierarchyRepeater/Basic";
+        public const string ControlSamples_HierarchyRepeater_WithMarkupControl = "ControlSamples/HierarchyRepeater/WithMarkupControl";
         public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
         public const string ControlSamples_IncludeInPageProperty_IncludeInPage = "ControlSamples/IncludeInPageProperty/IncludeInPage";
         public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
@@ -198,6 +199,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Api_AzureFunctionsApi = "FeatureSamples/Api/AzureFunctionsApi";
         public const string FeatureSamples_Api_AzureFunctionsApiTable = "FeatureSamples/Api/AzureFunctionsApiTable";
         public const string FeatureSamples_Api_BindingSharing = "FeatureSamples/Api/BindingSharing";
+        public const string FeatureSamples_Api_CollectionOddEvenWithRestApi = "FeatureSamples/Api/CollectionOddEvenWithRestApi";
         public const string FeatureSamples_Api_GetCollection = "FeatureSamples/Api/GetCollection";
         public const string FeatureSamples_Api_GridViewDataSetAspNetCore = "FeatureSamples/Api/GridViewDataSetAspNetCore";
         public const string FeatureSamples_Api_GridViewDataSetOwin = "FeatureSamples/Api/GridViewDataSetOwin";
@@ -323,6 +325,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Serialization_Serialization = "FeatureSamples/Serialization/Serialization";
         public const string FeatureSamples_Serialization_SerializationDateTimeOffset = "FeatureSamples/Serialization/SerializationDateTimeOffset";
         public const string FeatureSamples_Serialization_TimeSpan = "FeatureSamples/Serialization/TimeSpan";
+        public const string FeatureSamples_Serialization_TransferredOnlyInPath = "FeatureSamples/Serialization/TransferredOnlyInPath";
         public const string FeatureSamples_ServerComments_ServerComments = "FeatureSamples/ServerComments/ServerComments";
         public const string FeatureSamples_ServerSideStyles_ServerSideStyles = "FeatureSamples/ServerSideStyles/ServerSideStyles";
         public const string FeatureSamples_ServerSideStyles_ServerSideStyles_ControlProperties = "FeatureSamples/ServerSideStyles/ServerSideStyles_ControlProperties";

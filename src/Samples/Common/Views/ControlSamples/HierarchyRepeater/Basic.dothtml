@@ -12,7 +12,8 @@
                            ItemWrapperTagName="li"
                            ItemClass="item"
                            RenderSettings.Mode="Server"
-                           PostBack.Update="true">
+                           PostBack.Update="true"
+                           data-ui='HR-Server'>
         <span RenderSettings.Mode="Client" title={value: _root.GlobalLabel}>{{value: Name}}</span>
         <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" title={value: $"{_root.GlobalLabel}: {Name}"} />
     </dot:HierarchyRepeater>
@@ -24,15 +25,17 @@
                            LevelClass="level"
                            ItemWrapperTagName="li"
                            ItemClass="item"
-                           RenderSettings.Mode="Client">
+                           RenderSettings.Mode="Client"
+                           data-ui='HR-Client'>
         <span title={value: _root.GlobalLabel}>{{value: Name}}</span>
-        <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" />
+        <dot:Button Click="{command: ClickNode()}" Text="{value: ClickCount}" />
     </dot:HierarchyRepeater>
 
     <h2>No Item and Level Tags</h2>
     <dot:HierarchyRepeater DataSource="{value: Roots}"
                            ItemChildrenBinding="{value: Children}"
-                           RenderSettings.Mode="Client">
+                           RenderSettings.Mode="Client"
+                           data-ui='HR-NoTags'>
         <p title={value: _root.GlobalLabel}>{{value: Name}}</p>
     </dot:HierarchyRepeater>
 
@@ -40,22 +43,21 @@
     <dot:HierarchyRepeater DataSource="{value: Empty}"
                            ItemChildrenBinding="{value: Children}"
                            LevelTagName="ul"
-                           ItemTagName="li">
+                           ItemTagName="li"
+                           data-ui='HR-Empty'>
         <ItemTemplate>
             <span title={value: _root.GlobalLabel}>{{value: Name}}</span>
         </ItemTemplate>
         <EmptyDataTemplate>
-            <strong>There are no nodes.</strong>
+            <strong data-ui='HR-EmptyData'>There are no nodes.</strong>
         </EmptyDataTemplate>
     </dot:HierarchyRepeater>
 
     <h2>Repeater</h2>
     <dot:Repeater DataSource="{value: Roots}">
         <span>{{value: Name}}</span>
-        <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" />
+        <dot:Button Click="{command: ClickNode()}" Text="{value: ClickCount}" />
     </dot:Repeater>
 
-
-    <p> This should be propagated to all nodes <dot:TextBox Text={value: GlobalLabel} />
+    <p>Prefix of all node <code>title</code> attributes: <dot:TextBox Text={value: GlobalLabel} data-ui=GlobalLabel /> </p>
 </dot:Content>
-

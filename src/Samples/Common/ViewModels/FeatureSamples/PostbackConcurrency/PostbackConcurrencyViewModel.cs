@@ -14,6 +14,10 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostbackConcurre
         [Bind(Direction.None)]
         public PostbackConcurrencyMode ConcurrencyMode { get; set; }
 
+
+        [Bind(Direction.ServerToClientFirstRequest | Direction.ClientToServer)]
+        public int ClientSideOnlyCounter { get; set; }
+
         public void LongAction()
         {
             Thread.Sleep(LongActionDurationInMs);

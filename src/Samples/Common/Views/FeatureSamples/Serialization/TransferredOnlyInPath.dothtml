@@ -1,0 +1,30 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization.ViewModelTransferredOnlyInPath
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+	<h1></h1>
+
+	<p> Click on Set Result, the name of the item should appear bellow.  </p>
+	<p> Only the row on which you clicked should be transferred to server, and only the Result property should be transferred back to the client. </p>
+
+	<div>Count = <dot:Literal Text={value: Collection.Count} data-ui=count /> </div>
+	<div>Result = <dot:Literal Text={value: Result} data-ui=result /> </div>
+
+	<hr />
+
+	<dot:Repeater DataSource={value: Collection}>
+		<ItemTemplate>
+			<div>
+				{{value: Name}}
+				<dot:Button Text="Set Result" data-ui={value: "set_result_" + Name} Click={command: _parent.Method(_this)} />
+			</div>
+		</ItemTemplate>
+	</dot:Repeater>
+</body>
+</html>

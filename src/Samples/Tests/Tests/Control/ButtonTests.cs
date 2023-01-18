@@ -43,7 +43,7 @@ namespace DotVVM.Samples.Tests.Control
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_InputTypeButton_HtmlContentInside);
 
-                AssertUI.InnerText(browser.First("p.summary"),
+                AssertUI.InnerText(browser.First(".summary"),
                       t =>
                           t.Trim().Contains("DotVVM.Framework.Controls.DotvvmControlException") &&
                           t.Trim().Contains("The <dot:Button> control cannot have inner HTML connect unless the 'ButtonTagName' property is set to 'button'!")

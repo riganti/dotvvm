@@ -40,9 +40,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
             w.WriteUnencoded("<div class='exception'><span class='exceptionType'>");
             w.WriteText(exc.GetType().FullName);
-            w.WriteUnencoded("</span><span class='exceptionMessage'>");
+            w.WriteUnencoded("</span><pre class='exceptionMessage'>");
             w.WriteText(exc.Message);
-            w.WriteUnencoded("</span>");
+            w.WriteUnencoded("</pre>");
             if (source != null)
             {
                 w.WriteSourceCode(source, false);

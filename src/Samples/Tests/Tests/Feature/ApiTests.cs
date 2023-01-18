@@ -383,6 +383,25 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        [Trait("Category", "owin-only")]
+        public void Feature_Api_CollectionOddEvenWithRestApi()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_CollectionOddEvenWithRestApi);
+
+                // make sure that the collection is 
+                var rows = browser
+                    .Single("repeater", SelectByDataUi)
+                    .FindElements("div")
+                    .ThrowIfDifferentCountThan(35);
+                for (var i = 0; i < rows.Count; i++)
+                {
+                    AssertUI.HasClass(rows[i], i % 2 == 0 ? "even" : "odd");
+                }
+            });
+        }
+
         public ApiTests(ITestOutputHelper output) : base(output)
         {
         }

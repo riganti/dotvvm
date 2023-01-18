@@ -22,7 +22,7 @@ export default {
                 for (const [n, v] of Object.entries(props)) {
 
                     if (ko.isObservable(v)) {
-                        result[n] = "state" in v ? (v as DotvvmObservable<any>).state : unmapKnockoutObservables(v)
+                        result[n] = "state" in v ? (v as DotvvmObservable<any>).state : unmapKnockoutObservables(v, true)
                     } else {
                         result[n] = v
                     }
