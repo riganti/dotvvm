@@ -110,6 +110,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
+        public void AddMethodTranslator(Expression<Action> methodCall, IJavascriptMethodTranslator translator)
+        {
+            var method = (MethodInfo)MethodFindingHelper.GetMethodFromExpression(methodCall);
+            AddMethodTranslator(method, translator);
+        }
+
         public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, int parameterCount, bool allowMultipleMethods = false, Func<ParameterInfo[], bool>? parameterFilter = null)
         {
             var methods = declaringType.GetMethods()
@@ -244,8 +250,9 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultMathTranslations();
             AddDefaultDateTimeTranslations();
             AddDefaultConvertTranslations();
+            AddDataSetOptionsTranslations();
         }
-
+        
         private void AddDefaultToStringTranslations()
         {
             AddMethodTranslator(typeof(object).GetMethod("ToString", Type.EmptyTypes), new PrimitiveToStringTranslator());
@@ -831,6 +838,58 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
             }
         }
+
+        private void AddDataSetOptionsTranslations()
+        {
+            // GridViewDataSetBindingProvider
+            AddMethodTranslator(typeof(GridViewDataSetBindingProvider), "DataSetClientSideLoad", new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("loadDataSet").Invoke(args[1], args[2])));
+
+            // PagingOptions
+            AddMethodTranslator(() => default(PagingOptions)!.GoToFirstPage(),new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("PagingOptions").Member("goToFirstPage")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(() => default(PagingOptions)!.GoToLastPage(), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("PagingOptions").Member("goToLastPage")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(() => default(PagingOptions)!.GoToPreviousPage(), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("PagingOptions").Member("goToPreviousPage")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(() => default(PagingOptions)!.GoToNextPage(), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("PagingOptions").Member("goToNextPage")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(() => default(PagingOptions)!.GoToPage(default(int)), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("PagingOptions").Member("goToPage")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
+
+            // NextTokenPagingOptions
+            AddMethodTranslator(() => default(NextTokenPagingOptions)!.GoToFirstPage(), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("NextTokenPagingOptions").Member("goToFirstPage")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(() => default(NextTokenPagingOptions)!.GoToNextPage(), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("NextTokenPagingOptions").Member("goToNextPage")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+
+            // NextTokenHistoryPagingOptions
+            AddMethodTranslator(() => default(NextTokenHistoryPagingOptions)!.GoToFirstPage(), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("NextTokenHistoryPagingOptions").Member("goToFirstPage")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(() => default(NextTokenHistoryPagingOptions)!.GoToPreviousPage(), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("NextTokenHistoryPagingOptions").Member("goToPreviousPage")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(() => default(NextTokenHistoryPagingOptions)!.GoToNextPage(), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("NextTokenHistoryPagingOptions").Member("goToNextPage")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(() => default(NextTokenHistoryPagingOptions)!.GoToPage(default(int)), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("NextTokenHistoryPagingOptions").Member("goToPage")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
+
+            // SortingOptions
+            AddMethodTranslator(() => default(SortingOptions)!.SetSortExpression(default(string?)), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("SortingOptions").Member("setSortExpression")
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
+        }
+
         public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] args, MethodInfo method)
         {
             {

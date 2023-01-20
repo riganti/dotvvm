@@ -56,9 +56,6 @@ export const translations = {
         goToFirstPage(options: DotvvmObservable<NextTokenHistoryPagingOptions>) {
             options.patchState({ PageIndex: 0 });
         },
-        goToLastPage(options: DotvvmObservable<NextTokenHistoryPagingOptions>) {
-            options.patchState({ PageIndex: options.state.TokenHistory.length - 1 });
-        },
         goToNextPage(options: DotvvmObservable<NextTokenHistoryPagingOptions>) {
             if (options.state.PageIndex < options.state.TokenHistory.length - 1) {
                 options.patchState({ PageIndex: options.state.PageIndex + 1 });

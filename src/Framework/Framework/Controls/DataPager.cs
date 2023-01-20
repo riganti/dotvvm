@@ -20,32 +20,17 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false)]
     public class DataPager : HtmlGenericControl
     {
-        public class CommonBindings
-        {
-            public readonly CommandBindingExpression GoToNextPageCommand;
-            public readonly CommandBindingExpression GoToThisPageCommand;
-            public readonly CommandBindingExpression GoToPrevPageCommand;
-            public readonly CommandBindingExpression GoToFirstPageCommand;
-            public readonly CommandBindingExpression GoToLastPageCommand;
+        private readonly GridViewDataSetBindingProvider gridViewDataSetBindingProvider;
+        private readonly BindingCompilationService bindingCompilationService;
 
-            public CommonBindings(BindingCompilationService service)
-            {
-                GoToNextPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingNextPageCapability>)h[0]).GoToNextPageAndRefresh(), "__$DataPager_GoToNextPage");
-                GoToThisPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingPageIndexCapability>)h[1]).GoToPageAndRefresh((int)h[0]), "__$DataPager_GoToThisPage");
-                GoToPrevPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingPreviousPageCapability>)h[0]).GoToPreviousPageAndRefresh(), "__$DataPager_GoToPrevPage");
-                GoToFirstPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingFirstPageCapability>)h[0]).GoToFirstPageAndRefresh(), "__$DataPager_GoToFirstPage");
-                GoToLastPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet<IPagingLastPageCapability>)h[0]).GoToLastPageAndRefresh(), "__$DataPager_GoToLastPage");
-            }
-        }
+        private DataPagerCommands? pagerCommands;
 
-        private readonly CommonBindings commonBindings;
-        private readonly BindingCompilationService bindingService;
 
-        public DataPager(CommonBindings commonBindings, BindingCompilationService bindingService)
+        public DataPager(GridViewDataSetBindingProvider gridViewDataSetBindingProvider, BindingCompilationService bindingCompilationService)
             : base("div", false)
         {
-            this.commonBindings = commonBindings;
-            this.bindingService = bindingService;
+            this.gridViewDataSetBindingProvider = gridViewDataSetBindingProvider;
+            this.bindingCompilationService = bindingCompilationService;
         }
 
         /// <summary>
@@ -171,19 +156,18 @@ namespace DotVVM.Framework.Controls
             ContentWrapper = CreateWrapperList(dataContextType);
             Children.Add(ContentWrapper);
 
-            var bindings = context.Services.GetRequiredService<CommonBindings>();
-
+            pagerCommands = gridViewDataSetBindingProvider.GetDataPagerCommands(dataContextType, GridViewDataSetCommandType.Command);
             object enabledValue = GetValueRaw(EnabledProperty)!;
-
+            
             if (typeof(IPageableGridViewDataSet<IPagingFirstPageCapability>).IsAssignableFrom(dataContextType.DataContextType))
             {
-                GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, enabledValue, bindings.GoToFirstPageCommand, context);
+                GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, enabledValue, pagerCommands.GoToFirstPage!, context);
                 ContentWrapper.Children.Add(GoToFirstPageButton);
             }
 
             if (typeof(IPageableGridViewDataSet<IPagingPreviousPageCapability>).IsAssignableFrom(dataContextType.DataContextType))
             {
-                GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate, enabledValue, bindings.GoToPrevPageCommand, context);
+                GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate, enabledValue, pagerCommands.GoToPreviousPage!, context);
                 ContentWrapper.Children.Add(GoToPreviousPageButton);
             }
 
@@ -205,7 +189,7 @@ namespace DotVVM.Framework.Controls
                             li.Attributes.Set("class", ActiveItemCssClass);
                         }
                         var link = new LinkButton() { Text = (number + 1).ToString() };
-                        link.SetBinding(ButtonBase.ClickProperty, bindings.GoToThisPageCommand);
+                        link.SetBinding(ButtonBase.ClickProperty, pagerCommands.GoToPage!);
                         if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
                         li.Children.Add(link);
                         NumberButtonsPlaceHolder.Children.Add(li);
@@ -217,13 +201,13 @@ namespace DotVVM.Framework.Controls
 
             if (typeof(IPageableGridViewDataSet<IPagingNextPageCapability>).IsAssignableFrom(dataContextType.DataContextType))
             {
-                GoToNextPageButton = CreateNavigationButton("»", NextPageTemplate, enabledValue, bindings.GoToNextPageCommand, context);
+                GoToNextPageButton = CreateNavigationButton("»", NextPageTemplate, enabledValue, pagerCommands.GoToNextPage!, context);
                 ContentWrapper.Children.Add(GoToNextPageButton);
             }
 
             if (typeof(IPageableGridViewDataSet<IPagingLastPageCapability>).IsAssignableFrom(dataContextType.DataContextType))
             {
-                GoToLastPageButton = CreateNavigationButton("»»", LastPageTemplate, enabledValue, bindings.GoToLastPageCommand, context);
+                GoToLastPageButton = CreateNavigationButton("»»", LastPageTemplate, enabledValue, pagerCommands.GoToLastPage!, context);
                 ContentWrapper.Children.Add(GoToLastPageButton);
             }
         }
@@ -269,7 +253,7 @@ namespace DotVVM.Framework.Controls
                 _nearIndexesBindingCache.GetOrCreateValue(context.Configuration)
                 .GetOrAdd(i, _ =>
                     ValueBindingExpression.CreateBinding(
-                        bindingService.WithoutInitialization(),
+                        bindingCompilationService.WithoutInitialization(),
                         h => ((IPageableGridViewDataSet<IPagingPageIndexCapability>)h[0]!).PagingOptions.NearPageIndexes[i],
                         dataContext));
         }
@@ -358,7 +342,7 @@ namespace DotVVM.Framework.Controls
             var currentPageTextContext = DataContextStack.Create(typeof(int), NumberButtonsPlaceHolder!.GetDataContextType());
             li.SetDataContextType(currentPageTextContext);
             li.DataContext = null;
-            var currentPageTextBinding = ValueBindingExpression.CreateBinding(bindingService.WithoutInitialization(),
+            var currentPageTextBinding = ValueBindingExpression.CreateBinding(bindingCompilationService.WithoutInitialization(),
                 vm => ((int) vm[0]! + 1).ToString(),
                 currentPageTextJs,
                 currentPageTextContext);
@@ -394,7 +378,7 @@ namespace DotVVM.Framework.Controls
             li.Children.Add(link);
             link.SetDataContextType(currentPageTextContext);
             link.SetBinding(ButtonBase.TextProperty, currentPageTextBinding);
-            link.SetBinding(ButtonBase.ClickProperty, commonBindings.GoToThisPageCommand);
+            link.SetBinding(ButtonBase.ClickProperty, pagerCommands.GoToPage!);
             object enabledValue = GetValueRaw(EnabledProperty)!;
             if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
 
@@ -409,5 +393,4 @@ namespace DotVVM.Framework.Controls
         private IValueBinding GetDataSetBinding()
             => GetValueBinding(DataSetProperty) ?? throw new DotvvmControlException(this, "The DataSet property of the dot:DataPager control must be set!");
     }
-
 }
