@@ -31,6 +31,12 @@ namespace DotVVM.Framework.Compilation.Javascript
                 e = unary.Operand;
             return e;
         }
+
+        public static MethodBase GetMethodFromExpression(Expression<Action> expression)
+        {
+            return GetMethodFromExpression((Expression)expression);
+        }
+
         static MethodBase GetMethodFromExpression(Expression expression)
         {
             var originalExpression = expression;
