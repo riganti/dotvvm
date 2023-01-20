@@ -194,6 +194,8 @@ namespace DotVVM.Analyzers.Tests.Serializability
             public object Object { get; set; }
             public string String { get; set; }
             public DateTime DateTime { get; set; }
+            public DateOnly DateOnly { get; set; }
+            public TimeOnly TimeOnly { get; set; }
             public TimeSpan TimeSpan { get; set; }
             public Guid Guid { get; set; }
         }
