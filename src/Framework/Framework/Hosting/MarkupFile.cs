@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Hosting
             };
         }
 
-        internal MarkupFile(string fileName, string fullPath, string contents)
+        public MarkupFile(string fileName, string fullPath, string contents)
         {
             FileName = fileName;
             FullPath = fullPath;
