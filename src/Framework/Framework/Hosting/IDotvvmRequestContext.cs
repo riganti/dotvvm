@@ -53,9 +53,8 @@ namespace DotVVM.Framework.Hosting
         RouteBase? Route { get; set; }
 
         /// <summary>
-        /// Determines whether this HTTP request is a postback or a classic GET request.
+        /// Determines whether this HTTP request is a command executing POST request.
         /// </summary>
-        [Obsolete("Use RequestType == DotvvmRequestType.Command instead.")] // TODO: remove, used too often, only for our integrity
         bool IsPostBack { get; set; }
 
         /// <summary>
