@@ -538,7 +538,7 @@ namespace DotVVM.Framework.Hosting
                 // he'll will just get a redirect response, not anything useful
                 else if (dest is "empty")
                 {
-                    if (context.RequestType is DotvvmRequestType.SpaGet)
+                    if (context.RequestType is not DotvvmRequestType.SpaGet)
                         await context.RejectRequest($"""
                             Pages can not be loaded using Javascript for security reasons.
                             Try refreshing the page to get rid of the error.
