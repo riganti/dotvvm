@@ -272,6 +272,35 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task BindableObjectReads()
+        {
+            var cth = createHelper(c => {
+                c.Styles.Register<GridView>(c =>
+                    c.PropertyValue(x => x.Columns).Any(c => c is GridViewTextColumn { HeaderText: "Test" }))
+                    .SetAttribute("data-headers", c => string.Join(" ; ", c.PropertyValue(c => c.Columns).Select(c => c.HeaderText ?? "?")));
+            });
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- no header attribute -->
+                <dot:GridView DataSource={value: Collection}>
+                    <Columns>
+                        <dot:GridViewCheckBoxColumn HeaderText=Test ValueBinding={value: true} />
+                    </Columns>
+                </dot:GridView>
+
+                <!-- has header attribute -->
+                <dot:GridView DataSource={value: Collection}>
+                    <Columns>
+                        <dot:GridViewTextColumn HeaderText=RealValue ValueBinding={value: _this} />
+                        <dot:GridViewTextColumn HeaderText=Test ValueBinding={value: 111} />
+                    </Columns>
+                </dot:GridView>
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+
+        [TestMethod]
         public async Task StyleBindingMapping()
         {
             var cth = createHelper(c => {

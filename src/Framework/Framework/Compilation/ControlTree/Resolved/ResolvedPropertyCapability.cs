@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public override void AcceptChildren(IResolvedControlTreeVisitor visitor) { }
 
-        public object? ToCapabilityObject(bool throwExceptions = false)
+        public object? ToCapabilityObject(IServiceProvider? services, bool throwExceptions = false)
         {
             var capability = this.Property;
 
@@ -69,7 +69,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                     else
                         return t.GetConstructor(new [] { elementType })!.Invoke(new [] { value });
                 }
-                // TODO: controls and templates
                 if (throwExceptions)
                     throw new NotSupportedException($"Can not convert {value} to {t}");
                 return null;
@@ -79,7 +78,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             foreach (var (p, dotprop) in mapping)
             {
                 if (this.Values.TryGetValue(dotprop, out var value))
-                    p.SetValue(obj, convertValue(value.GetValue(), p.PropertyType));
+                    p.SetValue(obj, convertValue(Styles.ResolvedControlHelper.ToRuntimeValue(value, services), p.PropertyType));
             }
 
             if (capability.PropertyGroupMapping is not { Length: > 0 } groupMappingList)
@@ -105,7 +104,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 {
 
                     foreach (var p in properties)
-                        dictionary.Add(p.GroupMemberName, convertValue(this.Values[p].GetValue(), dictionaryElementType));
+                        dictionary.Add(p.GroupMemberName, convertValue(Styles.ResolvedControlHelper.ToRuntimeValue(this.Values[p], services), dictionaryElementType));
                 }
                 if (propertyOriginalValue is null)
                     prop.SetValue(obj, dictionary);

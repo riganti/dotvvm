@@ -18,6 +18,7 @@ using System.Collections.Immutable;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Runtime;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -149,7 +150,18 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public static ResolvedPropertySetter TranslateProperty(DotvvmProperty property, object? value, DataContextStack dataContext, DotvvmConfiguration? config)
         {
-            if (value is ResolvedPropertySetter resolvedSetter)
+            if (value is ResolvedPropertyCapability resolvedCapability)
+            {
+                if (resolvedCapability.Property == property && resolvedCapability.GetDataContextStack(null) == dataContext)
+                    return resolvedCapability;
+                if (property is not DotvvmCapabilityProperty capabilityProperty)
+                    throw new NotSupportedException($"Property {property.Name} must capability property.");
+                if (resolvedCapability.Property.PropertyType != capabilityProperty.PropertyType)
+                    throw new NotSupportedException($"Property {property.Name} have type {resolvedCapability.Property.PropertyType.ToCode()}.");
+
+                value = resolvedCapability.ToCapabilityObject(config?.ServiceProvider);
+            }
+            else if (value is ResolvedPropertySetter resolvedSetter)
             {
                 value = resolvedSetter.GetValue();
             }
@@ -280,12 +292,36 @@ namespace DotVVM.Framework.Compilation.Styles
         static DotvvmBindableObject ToLazyRuntimeControl(this ResolvedControl c, Type expectedType, IServiceProvider services)
         {
             if (expectedType == typeof(DotvvmControl))
-                return new LazyRuntimeControl(c);
+                return new LazyRuntimeControl(c, services);
             else
                 return ToRuntimeControl(c, services);
         }
 
-        static object? ToRuntimeValue(this ResolvedPropertySetter setter, IServiceProvider services)
+        static IEnumerable<T> CreateEnumerable<T>(Type type, IEnumerable<T> items)
+        {
+            var elementType = ReflectionUtils.GetEnumerableType(type)!;
+            if (type.IsArray)
+            {
+                var array = Array.CreateInstance(elementType, items.Count());
+                foreach (var (item, i) in items.Select((item, i) => (item, i)))
+                    array.SetValue(item, i);
+                return (IEnumerable<T>)array;
+            }
+            else
+            {
+                if (type.IsInterface)
+                {
+                    // hope that List implements the interface
+                    type = typeof(List<>).MakeGenericType(elementType);
+                }
+                var list = (System.Collections.IList)Activator.CreateInstance(type)!;
+                foreach (var i in items)
+                    list.Add(i);
+                return (IEnumerable<T>)list;
+            }
+        }
+
+        public static object? ToRuntimeValue(this ResolvedPropertySetter setter, IServiceProvider? services)
         {
             if (setter is ResolvedPropertyValue valueSetter)
                 return valueSetter.Value;
@@ -295,15 +331,30 @@ namespace DotVVM.Framework.Compilation.Styles
             var expectedType = setter.Property.PropertyType;
 
             if (setter is ResolvedPropertyControl controlSetter)
+            {
+                if (services is null)
+                    throw new ArgumentNullException(nameof(services), "Cannot convert a control to a runtime value without a service provider.");
+
                 return controlSetter.Control?.ToLazyRuntimeControl(expectedType, services);
+            }
             else if (setter is ResolvedPropertyControlCollection controlCollectionSetter)
             {
+                if (services is null)
+                    throw new ArgumentNullException(nameof(services), "Cannot convert a control to a runtime value without a service provider.");
+
                 var expectedControlType = ReflectionUtils.GetEnumerableType(expectedType)!;
-                return controlCollectionSetter.Controls.Select(c => c.ToLazyRuntimeControl(expectedControlType, services)).ToList();
+                return CreateEnumerable(
+                    expectedType,
+                    controlCollectionSetter.Controls.Select(c => c.ToLazyRuntimeControl(expectedControlType, services))
+                );
             }
             else if (setter is ResolvedPropertyTemplate templateSetter)
             {
                 return new ResolvedControlTemplate(templateSetter.Content.ToArray());
+            }
+            else if (setter is ResolvedPropertyCapability capability)
+            {
+                return capability.ToCapabilityObject(services);
             }
             else
                 throw new NotSupportedException($"Property setter {setter.GetType().Name} is not supported.");
@@ -343,12 +394,15 @@ namespace DotVVM.Framework.Compilation.Styles
         public sealed class LazyRuntimeControl: DotvvmControl
         {
             public ResolvedControl ResolvedControl { get; set; }
+            readonly IServiceProvider services;
+
             private bool initialized = false;
 
-            public LazyRuntimeControl(ResolvedControl resolvedControl)
+            public LazyRuntimeControl(ResolvedControl resolvedControl, IServiceProvider services)
             {
                 ResolvedControl = resolvedControl;
                 LifecycleRequirements = ControlLifecycleRequirements.Init;
+                this.services = services;
             }
 
             void InitializeChildren(IDotvvmRequestContext? context)
@@ -359,10 +413,9 @@ namespace DotVVM.Framework.Compilation.Styles
                 {
                     if (initialized) return;
 
-                    if (context is null)
-                        throw new InvalidOperationException("Internal.RequestContextProperty property is not set.");
+                    var services = context?.Services ?? this.services;
 
-                    Children.Add((DotvvmControl)ResolvedControl.ToRuntimeControl(context.Services));
+                    Children.Add((DotvvmControl)ResolvedControl.ToRuntimeControl(services));
                     initialized = true;
                 }
             }
