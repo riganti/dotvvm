@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Hosting
             Meter.CreateHistogram<long>("uploaded_file_bytes", unit: "bytes", description: "Total size of user-uploaded files");
 
         public static readonly Histogram<long> ReturnedFileSize =
-            Meter.CreateHistogram<long>("returned_file_bytes", unit: "bytes", description: "Total size of returned files. Measured when the file is downloaded by user - if it's downloaded twice, it's counted twice; if it's not downloaded, it's not counted.");
+            Meter.CreateHistogram<long>("returned_file_bytes", unit: "bytes", description: "Total size of returned files. Measured when the file is returned, not when downloaded by the client.");
 
         /// <summary> Labeled by route=RouteName </summary>
         public static readonly Counter<long> ViewModelCacheHit =

@@ -81,8 +81,6 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
                 context.Response.StatusCode = (int)HttpStatusCode.OK;
                 await stream.CopyToAsync(context.Response.Body);
-
-                DotvvmMetrics.ReturnedFileSize.Record(context.Response.Body.Length);
             }
         }
     }
