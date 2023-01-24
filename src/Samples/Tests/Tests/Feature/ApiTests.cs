@@ -402,6 +402,102 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Api_IncludedInPage()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_IncludedInPage);
+
+                // ensure there are no requests on page load - the dialog is hidden
+                browser.Wait(5000);
+                CheckRequests();
+
+                // open the dialog
+                browser.Single("open-static-command", SelectByDataUi).Click();
+
+                // check that the list of orders is loaded
+                CheckRequests(
+                    "GET /api/Orders?companyId=11"
+                );
+                var grid = browser.Single("table");
+                grid.FindElements("tr").ThrowIfDifferentCountThan(11);
+
+                // close the dialog - no additional request should appear
+                browser.Single("close-static-command", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/Orders?companyId=11"
+                );
+
+                // open the dialog again - the view should be refreshed
+                browser.Single("open-static-command", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11"
+                );
+
+                // close the dialog - no additional request should appear
+                browser.Single("close-static-command", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11"
+                );
+
+                // do the same thing with commands
+                browser.Single("open-command", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11"
+                );
+
+                // close the dialog - no additional request should appear
+                browser.Single("close-command", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11"
+                );
+
+                // click the refresh counter - nothing should happen since the dialog is not visible
+                browser.Single("refresh-counter", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11"
+                );
+
+                // open the dialog again - the view should be refreshed
+                browser.Single("open-static-command", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11"
+                );
+
+                // click the refresh counter - now it should refresh data because the dialog is visible
+                browser.Single("refresh-counter", SelectByDataUi).Click();
+                CheckRequests(
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11",
+                    "GET /api/Orders?companyId=11"
+                );
+
+                void CheckRequests(params string[] expected)
+                {
+                    var items = browser.FindElements("#request-log li");
+                    items.ThrowIfDifferentCountThan(expected.Length);
+
+                    for (var i = 0; i < expected.Length; i++)
+                    {
+                        AssertUI.TextEquals(items[i], expected[i]);
+                    }
+                }
+            });
+        }
+
         public ApiTests(ITestOutputHelper output) : base(output)
         {
         }

@@ -79,6 +79,7 @@
     <None Remove="Views\FeatureSamples\Api\ApiInSpa_PageB.dothtml" />
     <None Remove="Views\FeatureSamples\Api\ApiRefresh.dothtml" />
     <None Remove="Views\FeatureSamples\Api\CollectionOddEvenWithRestApi.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\IncludedInPage.dothtml" />
     <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoEditor.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoForm.dothtml" />
