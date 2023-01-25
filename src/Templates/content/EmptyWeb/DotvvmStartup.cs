@@ -1,5 +1,6 @@
 using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +13,19 @@ public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
         ConfigureRoutes(config, applicationPath);
         ConfigureControls(config, applicationPath);
         ConfigureResources(config, applicationPath);
+
+        // https://www.dotvvm.com/docs/4.0/pages/concepts/configuration/explicit-assembly-loading
+        config.ExperimentalFeatures.ExplicitAssemblyLoading.Enable();
+
+        // Use this for command heavy applications
+        // - DotVVM will store the viewmodels on the server, and client will only have to send back diffs
+        // https://www.dotvvm.com/docs/4.0/pages/concepts/viewmodels/server-side-viewmodel-cache
+        // config.ExperimentalFeatures.ServerSideViewModelCache.EnableForAllRoutes();
+
+        // Use this if you are deploying to containers or slots
+        //  - DotVVM will precompile all views before it appears as ready
+        // https://www.dotvvm.com/docs/4.0/pages/concepts/configuration/view-compilation-modes
+        // config.Markup.ViewCompilation.Mode = ViewCompilationMode.DuringApplicationStart;
     }
 
     private void ConfigureRoutes(DotvvmConfiguration config, string applicationPath)

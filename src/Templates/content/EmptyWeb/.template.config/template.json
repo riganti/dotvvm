@@ -28,11 +28,11 @@
         },
         {
           "choice": "net7.0",
-          "description": "Target .NET 7 (preview, at the time of writing)"
+          "description": "Target .NET 7"
         }
       ],
-      "replaces": "net6.0",
-      "defaultValue": "net6.0"
+      "replaces": "net7.0",
+      "defaultValue": "net7.0"
     }
   },
   "primaryOutputs": [ { "path": "DotvvmApplication1.csproj" } ]
