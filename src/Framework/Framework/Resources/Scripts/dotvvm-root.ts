@@ -132,8 +132,12 @@ if (compileConstants.debug) {
     (dotvvmExports as any).debug = true
 }
 
+
+
 declare global {
-    const dotvvm: typeof dotvvmExports & {debug?: true, isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation};
+    interface DotvvmGlobalExtensions {}
+
+    const dotvvm: DotvvmGlobalExtensions & typeof dotvvmExports & {debug?: true, isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation};
 
     interface Window {
         dotvvm: typeof dotvvmExports
