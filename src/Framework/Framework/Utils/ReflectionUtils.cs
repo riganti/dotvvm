@@ -573,5 +573,19 @@ namespace DotVVM.Framework.Utils
         internal static bool IsInitOnly(this PropertyInfo prop) =>
             prop.SetMethod is { ReturnParameter: {} returnParameter } &&
             returnParameter.GetRequiredCustomModifiers().Any(t => t == typeof(System.Runtime.CompilerServices.IsExternalInit));
+
+        public static IEnumerable<Type> GetBaseTypesAndInterfaces(Type type)
+        {
+            while (type.BaseType is { } baseType)
+            {
+                yield return baseType;
+                type = baseType;
+            }
+
+            foreach (var i in type.GetInterfaces())
+            {
+                yield return i;
+            }
+        }
     }
 }
