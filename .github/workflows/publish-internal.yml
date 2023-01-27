@@ -1,5 +1,4 @@
 name: publish-internal
-run-name: Publish to internal feed
 
 on:
   workflow_dispatch:
@@ -36,7 +35,7 @@ jobs:
   read-input:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - id: read
         run: >
           PACKAGES=$(cat ./.github/workflows/nuget-packages.json);
@@ -67,7 +66,7 @@ jobs:
       matrix: ${{ fromJson(needs.read-input.outputs.packages) }}
     steps:
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up
       uses: ./.github/setup
@@ -146,7 +145,7 @@ jobs:
     runs-on: windows-2022
     needs: read-input
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up
       uses: ./.github/setup
