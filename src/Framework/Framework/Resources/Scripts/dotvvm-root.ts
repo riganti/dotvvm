@@ -140,7 +140,7 @@ declare global {
     const dotvvm: DotvvmGlobalExtensions & typeof dotvvmExports & {debug?: true, isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation};
 
     interface Window {
-        dotvvm: typeof dotvvmExports
+        dotvvm: DotvvmGlobalExtensions & typeof dotvvmExports
     }
 }
 
