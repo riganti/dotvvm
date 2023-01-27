@@ -1,4 +1,4 @@
-name: publish-internal
+name: Publish to internal feed
 
 on:
   workflow_dispatch:
@@ -46,14 +46,14 @@ jobs:
       - run: >
           if [ "${{ inputs.release-type }}" == 'InternalPreview' ]; then
             DOTVVM_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-${{ github.run-number}}";
-          else if [ "${{ inputs.release-type }}" == 'PublicPreview' ]; then
+          elif [ "${{ inputs.release-type }}" == 'PublicPreview' ]; then
             DOTVVM_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-final";
-          else if [ "${{ inputs.release-type }}" == 'Stable' ]; then
+          elif [ "${{ inputs.release-type }}" == 'Stable' ]; then
             DOTVVM_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}";
           else
             echo "Unknown release type '${{ inputs.release-type }}'.";
             exit 1;
-          fi;
+          fi
           echo "DOTVVM_VERSION=${DOTVVM_VERSION}" >> $GITHUB_ENV;
     outputs:
       packages: ${{ steps.read.outputs.packages }}
