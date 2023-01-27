@@ -32,7 +32,7 @@ on:
         required: false
 
 jobs:
-  read-nuget-packages:
+  read-input:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -45,25 +45,25 @@ jobs:
           echo "packages={\"include\":$PACKAGES}" >> $GITHUB_OUTPUT
       - run: >
           if [ "${{ inputs.release-type }}" == 'InternalPreview' ]; then
-            PACKAGE_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-${{ github.run-number}}";
+            DOTVVM_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-${{ github.run-number}}";
           else if [ "${{ inputs.release-type }}" == 'PublicPreview' ]; then
-            PACKAGE_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-final";
+            DOTVVM_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-final";
           else if [ "${{ inputs.release-type }}" == 'Stable' ]; then
-            PACKAGE_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}";
+            DOTVVM_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}";
           else
             echo "Unknown release type '${{ inputs.release-type }}'.";
             exit 1;
           fi;
-          echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV;
+          echo "DOTVVM_VERSION=${DOTVVM_VERSION}" >> $GITHUB_ENV;
     outputs:
       packages: ${{ steps.read.outputs.packages }}
 
   publish-package:
     runs-on: windows-2022
     timeout-minutes: 10
-    needs: read-nuget-packages
+    needs: read-input
     strategy:
-      matrix: ${{ fromJson(needs.read-nuget-packages.outputs.packages) }}
+      matrix: ${{ fromJson(needs.read-input.outputs.packages) }}
     steps:
 
     - uses: actions/checkout@v2
@@ -143,22 +143,9 @@ jobs:
 
   publish-dotvvm-types:
     runs-on: windows-2022
+    needs: read-input
     steps:
     - uses: actions/checkout@v2
-
-    - name: Compose version
-      run: >
-        $version = $(./.github/workflows/ComposeVersion.ps1 `
-          -major "${{ github.event.inputs.major }}" `
-          -minor "${{ github.event.inputs.minor }}" `
-          -patch "${{ github.event.inputs.patch }}" `
-          -preview "${{ github.event.inputs.preview }}" `
-          -buildNumber "${{ github.run_number }}" `
-          -additionalSuffix "${{ github.event.inputs.additional-suffix }}" `
-          -isFinalPreview ${{ format('${0}', github.event.inputs.is-final-preview) }} `
-          -useBuildNumber ${{ format('${0}', github.event.inputs.use-build-number) }}) ;
-        echo "Version is set to '$version'" ;
-        echo "DOTVVM_VERSION=$version" >> "${{ github.env }}"
 
     - name: Set up
       uses: ./.github/setup
