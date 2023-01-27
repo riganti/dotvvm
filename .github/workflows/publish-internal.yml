@@ -10,7 +10,7 @@ on:
           - PublicPreview
           - Stable
         default: InternalPreview
-        description: Type of release (determines version format)
+        description: The type of release (determines version format)
         required: false
       version-core:
         type: string
@@ -21,6 +21,14 @@ on:
         type: string
         default: preview01
         description: The prerelease suffix appended after the core version
+        required: false
+      signature-type:
+        type: choice
+        options:
+          - DotNetFoundation
+          - Riganti
+        default: DotNetFoundation
+        description: The signature to be used to sign the packages.
         required: false
 
 jobs:
@@ -34,7 +42,19 @@ jobs:
           PACKAGES="${PACKAGES//'%'/'%25'}";
           PACKAGES="${PACKAGES//$'\n'/'%0A'}";
           PACKAGES="${PACKAGES//$'\r'/'%0D'}";
-          echo "::set-output name=packages::{\"include\":$PACKAGES}"
+          echo "packages={\"include\":$PACKAGES}" >> $GITHUB_OUTPUT
+      - run: >
+          if [ "${{ inputs.release-type }}" == 'InternalPreview' ]; then
+            PACKAGE_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-${{ github.run-number}}";
+          else if [ "${{ inputs.release-type }}" == 'PublicPreview' ]; then
+            PACKAGE_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-final";
+          else if [ "${{ inputs.release-type }}" == 'Stable' ]; then
+            PACKAGE_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}";
+          else
+            echo "Unknown release type '${{ inputs.release-type }}'.";
+            exit 1;
+          fi
+          echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV;
     outputs:
       packages: ${{ steps.read.outputs.packages }}
 
@@ -48,20 +68,6 @@ jobs:
 
     - uses: actions/checkout@v2
 
-    - name: Compose version
-      run: >
-        $version = $(./.github/workflows/ComposeVersion.ps1 `
-          -major "${{ github.event.inputs.major }}" `
-          -minor "${{ github.event.inputs.minor }}" `
-          -patch "${{ github.event.inputs.patch }}" `
-          -preview "${{ github.event.inputs.preview }}" `
-          -buildNumber "${{ github.run_number }}" `
-          -additionalSuffix "${{ github.event.inputs.additional-suffix }}" `
-          -isFinalPreview ${{ format('${0}', github.event.inputs.is-final-preview) }} `
-          -useBuildNumber ${{ format('${0}', github.event.inputs.use-build-number) }}) ;
-        echo "Version is set to '$version'" ;
-        echo "DOTVVM_VERSION=$version" >> "${{ github.env }}"
-
     - name: Set up
       uses: ./.github/setup
 
@@ -70,13 +76,15 @@ jobs:
       with:
         project: ${{ matrix.project }}
 
-    - name: Prepare signclient
-      run: Write-Output "$env:SIGN_CONFIG" | Out-File "${{ github.workspace }}/signconfig.json" && dotnet tool restore
+    - name: Prepare signclient config
+      if: ${{ inputs.signature-type == 'DotNetFoundation' }}
+      run: Write-Output "$env:SIGN_CONFIG" | Out-File "${{ github.workspace }}/signconfig.json"
       env:
         SIGN_CONFIG: ${{ secrets.SIGN_CONFIG }}
       working-directory: ${{ github.workspace }}/src
 
-    - name: Sign ${{ matrix.name }}
+    - name: Sign ${{ matrix.name }} (.NET Foundation)
+      if: ${{ inputs.signature-type == 'DotNetFoundation' }}
       run: >
         dotnet signclient sign `
           --baseDirectory "${{ github.workspace}}/artifacts/packages" `
@@ -88,6 +96,20 @@ jobs:
           --description "$('${{ matrix.name }}' + " " + $env:DOTVVM_VERSION)" `
           --descriptionUrl "https://github.com/riganti/dotvvm"
       working-directory: ${{ github.workspace }}/src
+
+    - name: Sign ${{ matrix.name }} (Riganti)
+      if: ${{ inputs.signature-type == 'Riganti' }}
+      run: >
+        dotnet NuGetKeyVaultSignTool sign `
+          --file-digest sha256 `
+          --timestamp-rfc3161 http://timestamp.digicert.com `
+          --timestamp-digest sha256 `
+          --azure-key-vault-url "${{ secrets.SIGN_RIGANTI_KEYVAULT_URL }}" `
+          --azure-key-vault-client-id "${{ secrets.SIGN_RIGANTI_CLIENT_ID }}" `
+          --azure-key-vault-tenant-id "${{ secrets.SIGN_RIGANTI_TENANT_ID }}" `
+          --azure-key-vault-client-secret "${{ secrets.SIGN_RIGANTI_SECRET }}" `
+          --azure-key-vault-certificate "${{ secrets.SIGN_RIGANTI_CERTIFICATE_NAME }}" `
+          (Resolve-Path "${{ github.workspace }}/artifacts/packages/*.nupkg")`
 
     # - name: dotvvm-types
     #   run: >

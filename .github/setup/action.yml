@@ -49,3 +49,8 @@ runs:
   - if: ${{ runner.os != 'Windows' }}
     run: dotnet restore ${{ inputs.sln }}
     shell: bash
+
+  # restore dotnet tools
+  - run: dotnet tool restore
+    shell: pwsh
+    working-directory: src/
