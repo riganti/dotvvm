@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -31,5 +33,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         ITypeDescriptor? TryGetPropertyType(string propertyName);
 
         ITypeDescriptor MakeGenericType(params ITypeDescriptor[] typeArguments);
+
+        IEnumerable<ITypeDescriptor> FindGenericImplementations(Type genericType);
+
+        ITypeDescriptor[]? GetGenericArguments();
     }
 }
