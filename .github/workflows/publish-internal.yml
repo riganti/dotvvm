@@ -53,7 +53,7 @@ jobs:
           else
             echo "Unknown release type '${{ inputs.release-type }}'.";
             exit 1;
-          fi
+          fi;
           echo "DOTVVM_VERSION=${DOTVVM_VERSION}" >> $GITHUB_ENV;
     outputs:
       packages: ${{ steps.read.outputs.packages }}
