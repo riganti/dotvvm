@@ -10,13 +10,17 @@ inputs:
 runs:
   using: composite
   steps:
+
   # nuget
+  - uses: nuget/setup-nuget@v1
+    with:
+      nuget-version: '6.x'
   - uses: actions/cache@v2
+    id: nuget-cache
     with:
       path: ~/.nuget/packages
       key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-      restore-keys: |
-        ${{ runner.os }}-nuget-
+      restore-keys: ${{ runner.os }}-nuget-
 
   # Node.js
   - uses: actions/setup-node@v2
@@ -40,15 +44,10 @@ runs:
     run: choco install dotnetcore-3.1-windowshosting -y
     shell: pwsh
 
-  # restore packages
-  - if: ${{ runner.os == 'Windows' }}
-    uses: nuget/setup-nuget@v1
-  - if: ${{ runner.os == 'Windows' }}
-    run: nuget restore ${{ inputs.sln }}
+  # restore nuget packages
+  - run: nuget restore ${{ inputs.sln }}
+    if: ${{ steps.nuget-cache.outputs.cache-hit != 'true' }}
     shell: pwsh
-  - if: ${{ runner.os != 'Windows' }}
-    run: dotnet restore ${{ inputs.sln }}
-    shell: bash
 
   # restore dotnet tools
   - run: dotnet tool restore
