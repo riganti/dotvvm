@@ -3,40 +3,24 @@ name: publish-internal
 on:
   workflow_dispatch:
     inputs:
-      major:
-        type: string
-        default: "4"
-        description: Major version
-        required: true
-      minor:
-        type: string
-        default: "0"
-        description: Minor version
-        required: true
-      patch:
-        type: string
-        default: "0"
-        description: Patch version
-        required: true
-      preview:
-        type: string
-        default: ""
-        description: Preview number
+      release-type:
+        type: choice
+        options:
+          - InternalPreview
+          - PublicPreview
+          - Stable
+        default: InternalPreview
+        description: Type of release (determines version format)
         required: false
-      is-final-preview:
-        type: boolean
-        default: false
-        description: Is this a final preview version?
-        required: false
-      use-build-number:
-        type: boolean
-        default: true
-        description: Append the build number?
-        required: false
-      additional-suffix:
+      version-core:
         type: string
-        default: ""
-        description: Additional suffix
+        default: "4.1.0"
+        description: The core part of the version string
+        required: false
+      prerelease-version:
+        type: string
+        default: preview01
+        description: The prerelease suffix appended after the core version
         required: false
 
 jobs:
