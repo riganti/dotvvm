@@ -1,4 +1,5 @@
-name: Publish to internal feed
+name: publish-internal
+run-name: Publish to internal feed
 
 on:
   workflow_dispatch:
