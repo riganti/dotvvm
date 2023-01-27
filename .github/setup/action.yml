@@ -15,7 +15,7 @@ runs:
   - uses: nuget/setup-nuget@v1
     with:
       nuget-version: '6.x'
-  - uses: actions/cache@v2
+  - uses: actions/cache@v3
     id: nuget-cache
     with:
       path: ~/.nuget/packages
