@@ -76,6 +76,9 @@ namespace DotVVM.Framework.Hosting.Middlewares
                     }
                 }
 
+                if (stream.CanSeek)
+                    context.Response.Headers["Content-Length"] = stream.Length.ToString();
+
                 context.Response.StatusCode = (int)HttpStatusCode.OK;
                 await stream.CopyToAsync(context.Response.Body);
             }
