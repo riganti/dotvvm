@@ -7,7 +7,7 @@
     <PackageId>DotVVM.AutoUI.Annotations</PackageId>
     <Description>Annotation attributes for DotVVM AutoUI.</Description>
     <PackageProjectUrl>https://www.dotvvm.com/docs/3.0/pages/community-add-ons/dotvvm-dynamic-data</PackageProjectUrl>
-    <PackageTags>($PackageTags);autoui;annotations;metadata;ui generation</PackageTags>
+    <PackageTags>$(PackageTags);autoui;annotations;metadata;ui generation</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">

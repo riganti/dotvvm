@@ -1,6 +1,6 @@
 # DotVVM Auto UI
 
-Automatically generated forms, tables and more from type metadata. 
+Automatically generated forms, tables and more from type metadata.
 
 ## Data Annotations
 
@@ -29,8 +29,6 @@ It should be able to create reasonable UI from just the type information, for mo
 * `[UIHint(...)]` - currently not used by AutoUI, but can be used for matching custom providers
 
 ### Example
-
-```csharp
 
 ```csharp
 public class EmployeeDTO
@@ -67,7 +65,6 @@ public class EmployeeDTO
 ```
 
 ### Configuration API
-
 
 The metadata can be also controlled using a configuration API:
 
@@ -125,7 +122,7 @@ This will allow to provide UI metadata using the standard .NET Data Annotations 
 
 When your view model class is decorated with data annotation attributes, you can auto-generate GridView columns.
 
-DotVVM AutoUI brings the `auto:GridViewColumns` control, it is a special grid column which get's replaced by a separate column for each property.
+DotVVM AutoUI brings the `auto:GridViewColumns` control, it is a special grid column which gets replaced by a separate column for each property.
 It can be used with the built-in `dot:GridView`, and also with the `GridView`s in DotVVM component packages
 
 ```html
@@ -198,7 +195,7 @@ As with grid columns, there is a similar set of properties to customize the form
 If you want to layout the form into multiple parts, you can use the group names to render each group separately. If you specify the `GroupName` property, the `Form` will render
 only fields from this group.
 
-```
+```html
 <!-- This will render two columns. -->
 <div class="row">
     <div class="col-md-6">
