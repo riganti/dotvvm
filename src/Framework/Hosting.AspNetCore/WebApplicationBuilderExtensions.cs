@@ -8,49 +8,50 @@ namespace Microsoft.AspNetCore.Builder;
 
 public static class WebApplicationBuilderExtensions
 {
-    public static WebApplicationBuilder AddDotVVM(this WebApplicationBuilder builder, Action<IDotvvmServiceCollection>? setupServices = null, Action<DotvvmConfiguration>? setupConfiguration = null)
+    /// <summary>
+    /// Adds DotVVM services with all its dependencies including authorization and data protection to the specified <see cref="WebApplicationBuilder" />.
+    /// </summary>
+    /// <param name="builder">The <see cref="WebApplicationBuilder" /> to add services to.</param>
+    // ReSharper disable once InconsistentNaming
+    public static WebApplicationBuilder AddDotVVM<TServiceConfigurator>(this WebApplicationBuilder builder)
+        where TServiceConfigurator : IDotvvmServiceConfigurator, new()
+    {
+        AddDotvvmServiceDependencies(builder);
+        builder.Services.AddDotVVM<TServiceConfigurator>();
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds DotVVM services with all its dependencies including authorization and data protection to the specified <see cref="WebApplicationBuilder" />.
+    /// </summary>
+    /// <param name="builder">The <see cref="WebApplicationBuilder" /> to add services to.</param>
+    /// <param name="configurator">The <see cref="IDotvvmServiceConfigurator"/> instance.</param>
+    public static WebApplicationBuilder AddDotVVM(this WebApplicationBuilder builder, IDotvvmServiceConfigurator configurator)
+    {
+        AddDotvvmServiceDependencies(builder);
+        builder.Services.AddDotVVM(configurator);
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds DotVVM services with all its dependencies including authorization and data protection to the specified <see cref="WebApplicationBuilder" />.
+    /// </summary>
+    /// <param name="builder">The <see cref="WebApplicationBuilder" /> to add services to.</param>
+    // ReSharper disable once InconsistentNaming
+    public static WebApplicationBuilder AddDotVVM(this WebApplicationBuilder builder)
+    {
+        AddDotvvmServiceDependencies(builder);
+        builder.Services.AddDotVVM();
+        return builder;
+    }
+
+    private static void AddDotvvmServiceDependencies(WebApplicationBuilder builder)
     {
         builder.Services.AddDataProtection();
         builder.Services.AddAuthorization();
         builder.Services.AddWebEncoders();
         builder.Services.AddAuthentication();
         builder.Services.AddHttpContextAccessor();
-
-        builder.Services.AddDotVVM(new DelegateDotvvmServiceConfigurator(setupServices));
-        builder.Services.AddSingleton<IDotvvmStartup>(new DelegateDotvvmStartup(setupConfiguration));
-        return builder;
-    }
-}
-
-internal class DelegateDotvvmServiceConfigurator : IDotvvmServiceConfigurator
-{
-    private readonly Action<IDotvvmServiceCollection>? setupServices;
-
-    public DelegateDotvvmServiceConfigurator(Action<IDotvvmServiceCollection>? setupServices)
-    {
-        this.setupServices = setupServices;
-    }
-
-    public void ConfigureServices(IDotvvmServiceCollection options)
-    {
-        options.AddDefaultTempStorages("temp");
-
-        setupServices?.Invoke(options);
-    }
-}
-
-internal class DelegateDotvvmStartup : IDotvvmStartup
-{
-    private readonly Action<DotvvmConfiguration>? setupConfiguration;
-
-    public DelegateDotvvmStartup(Action<DotvvmConfiguration>? setupConfiguration)
-    {
-        this.setupConfiguration = setupConfiguration;
-    }
-
-    public void Configure(DotvvmConfiguration config, string applicationPath)
-    {
-        setupConfiguration?.Invoke(config);
     }
 }
 #endif

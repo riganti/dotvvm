@@ -6,14 +6,11 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
-using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Routing;
 
 #if NET5_0_OR_GREATER
 using HostingEnv = Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
@@ -104,15 +101,5 @@ namespace Microsoft.AspNetCore.Builder
 
             return config;
         }
-
-#if NET6_0
-        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string? applicationRootPath = null, bool? useErrorPages = null, Action<DotvvmConfiguration> modifyConfiguration = null)
-        {
-            var startup = app.ApplicationServices.GetRequiredService<IDotvvmStartup>();
-            var config = app.UseDotVVM(startup, applicationRootPath, useErrorPages, modifyConfiguration);
-            config.AssertConfigurationIsValid();
-            return config;
-        }
-#endif
     }
 }
