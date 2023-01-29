@@ -30,7 +30,7 @@ public class VisibleAttribute : Attribute, IConditionalFieldAttribute
     public string Roles { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the field should be visible for authenticated or non-authenticated users, or null for both kinds (default behavior).
+    /// Gets or sets whether the field should be visible for authenticated or non-authenticated users, or for both (default behavior).
     /// </summary>
     public AuthenticationMode IsAuthenticated { get; set; }
 

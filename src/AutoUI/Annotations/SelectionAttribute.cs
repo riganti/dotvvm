@@ -8,6 +8,7 @@ namespace DotVVM.AutoUI.Annotations;
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class SelectionAttribute : System.Attribute
 {
+    /// <summary> The <see cref="Selection{TKey}" /> implementation </summary>
     public Type SelectionType { get; }
 
     public SelectionAttribute(Type selectionType)
