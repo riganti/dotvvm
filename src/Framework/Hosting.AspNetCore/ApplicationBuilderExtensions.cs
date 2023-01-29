@@ -57,7 +57,7 @@ namespace Microsoft.AspNetCore.Builder
         /// if <see cref="HostEnvironmentEnvExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
         /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
-        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, IDotvvmStartup startup, string? applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
+        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, IDotvvmStartup startup, string applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
         {
             var env = app.ApplicationServices.GetRequiredService<HostingEnv>();
             var tokenMiddleware = Task.Run(() => ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(app.ApplicationServices));
