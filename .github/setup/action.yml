@@ -45,7 +45,7 @@ runs:
     shell: pwsh
 
   # restore nuget packages
-  - run: nuget restore ${{ inputs.sln }}
+  - run: msbuild -t:Restore ${{ inputs.sln }}
     shell: pwsh
 
   # restore dotnet tools
