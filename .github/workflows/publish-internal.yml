@@ -68,78 +68,42 @@ jobs:
 
     - run: echo "${{ fromJson(needs.read-input.outputs.packages) }}"
 
-    # - name: Set up
-    #   uses: ./.github/setup
+    - name: Set up
+      uses: ./.github/setup
 
-    # - name: Pack ${{ matrix.name }}
-    #   uses: ./.github/pack
-    #   with:
-    #     project: ${{ matrix.project }}
+    - name: Prepare signclient config
+      if: ${{ inputs.signature-type == 'DotNetFoundation' }}
+      run: Write-Output "$env:SIGN_CONFIG" | Out-File "${{ github.workspace }}/signconfig.json"
+      env:
+        SIGN_CONFIG: ${{ secrets.SIGN_CONFIG }}
+      working-directory: ${{ github.workspace }}/src
 
-    # - name: Prepare signclient config
-    #   if: ${{ inputs.signature-type == 'DotNetFoundation' }}
-    #   run: Write-Output "$env:SIGN_CONFIG" | Out-File "${{ github.workspace }}/signconfig.json"
-    #   env:
-    #     SIGN_CONFIG: ${{ secrets.SIGN_CONFIG }}
-    #   working-directory: ${{ github.workspace }}/src
+    - name: Publish NuGet packages (.NET Foundation)
+      if: ${{ inputs.signature-type == 'DotNetFoundation' }}
+      run: ./ci/scripts/Publish-NuGetPackages.ps1 `
+          -root "${{ github.workspace }}" `
+          -version "$env:DOTVVM_VERSION" `
+          -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
+          -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
+          -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}" `
+          -signatureType "DotNetFoundation" `
+          -dnfUser "${{ secrets.SIGN_USER }}" `
+          -dnfSecret "${{ secrets.SIGN_SECRET }}"
 
-    # - name: Sign ${{ matrix.name }} (.NET Foundation)
-    #   if: ${{ inputs.signature-type == 'DotNetFoundation' }}
-    #   run: >
-    #     dotnet signclient sign `
-    #       --baseDirectory "${{ github.workspace}}/artifacts/packages" `
-    #       --input "*.nupkg" `
-    #       --config "${{ github.workspace }}/signconfig.json" `
-    #       --user "${{ secrets.SIGN_USER }}" `
-    #       --secret "${{ secrets.SIGN_SECRET }}" `
-    #       --name "${{ matrix.name }}" `
-    #       --description "$('${{ matrix.name }}' + " " + $env:DOTVVM_VERSION)" `
-    #       --descriptionUrl "https://github.com/riganti/dotvvm"
-    #   working-directory: ${{ github.workspace }}/src
-
-    # - name: Sign ${{ matrix.name }} (Riganti)
-    #   if: ${{ inputs.signature-type == 'Riganti' }}
-    #   run: >
-    #     dotnet NuGetKeyVaultSignTool sign `
-    #       --file-digest sha256 `
-    #       --timestamp-rfc3161 http://timestamp.digicert.com `
-    #       --timestamp-digest sha256 `
-    #       --azure-key-vault-url "${{ secrets.SIGN_RIGANTI_KEYVAULT_URL }}" `
-    #       --azure-key-vault-client-id "${{ secrets.SIGN_RIGANTI_CLIENT_ID }}" `
-    #       --azure-key-vault-tenant-id "${{ secrets.SIGN_RIGANTI_TENANT_ID }}" `
-    #       --azure-key-vault-client-secret "${{ secrets.SIGN_RIGANTI_SECRET }}" `
-    #       --azure-key-vault-certificate "${{ secrets.SIGN_RIGANTI_CERTIFICATE_NAME }}" `
-    #       (Resolve-Path "${{ github.workspace }}/artifacts/packages/*.nupkg")`
-
-    # - name: dotvvm-types
-    #   run: >
-    #     cd "${{ github.workspace }}/src/Framework/Framework" && `
-    #     npm run tsc-types && `
-    #     cd "${{ github.workspace }}/ci/scripts/npm" && `
-    #     cp "${{ github.workspace }}/src/Framework/Framework/obj/typescript-types/dotvvm.d.ts" index.d.ts && `
-    #     npm version "$env:DOTVVM_VERSION" --no-git-tag-version && `
-    #     cat "${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json"
-
-    # - name: Publish ${{ matrix.name }}
-    #   run: >
-    #     dotnet nuget add source `
-    #       --username "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
-    #       --password "${{ secrets.AZURE_ARTIFACTS_PAT }}" `
-    #       --store-password-in-clear-text `
-    #       --name internal `
-    #       "${{ secrets.AZURE_ARTIFACTS_FEED }}"
-
-    #     Get-ChildItem -Path "${{ github.workspace }}/artifacts/packages" -Filter "*.nupkg" | ForEach-Object {
-    #       dotnet nuget push --api-key az --source internal "$($_.FullName)"
-    #     }
-    #   working-directory: ${{ github.workspace }}
-
-    # - name: Publish dotvvm-types to the internal feed
-    #   uses: JS-DevTools/npm-publish@v1
-    #   with:
-    #     token: ${{ secrets.NPM_TOKEN }}
-    #     package: ${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json
-    #     dry-run: true
+    - name: Publish NuGet packages (Riganti)
+      if: ${{ inputs.signature-type == 'Riganti' }}
+      run: ./ci/scripts/Publish-NuGetPackages.ps1 `
+          -root "${{ github.workspace }}" `
+          -version "$env:DOTVVM_VERSION" `
+          -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
+          -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
+          -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}" `
+          -signatureType "Riganti" `
+          -rigantiUrl "${{ secrets.SIGN_RIGANTI_KEYVAULT_URL }}" `
+          -rigantiClientId "${{ secrets.SIGN_RIGANTI_CLIENT_ID }}" `
+          -rigantiTenantId "${{ secrets.SIGN_RIGANTI_TENANT_ID }}" `
+          -rigantiSecret "${{ secrets.SIGN_RIGANTI_SECRET }}" `
+          -rigantiCertificate "${{ secrets.SIGN_RIGANTI_CERTIFICATE_NAME }}"
 
   publish-dotvvm-types:
     runs-on: windows-2022
