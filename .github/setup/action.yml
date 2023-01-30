@@ -45,8 +45,12 @@ runs:
     shell: pwsh
 
   # restore nuget packages
-  - run: nuget restore ${{ inputs.sln }}
+  - if: ${{ runner.os == 'Windows' }}
+    run: nuget restore ${{ inputs.sln }}
     shell: pwsh
+  - if: ${{ runner.os != 'Windows' }}
+    run: dotnet restore ${{ inputs.sln }}
+    shell: bash
 
   # restore dotnet tools
   - run: dotnet tool restore
