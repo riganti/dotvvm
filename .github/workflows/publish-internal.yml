@@ -48,7 +48,7 @@ jobs:
             echo "Unknown release type '${{ inputs.release-type }}'.";
             exit 1;
           fi;
-          echo "version=${VERSION}" >> $GITHUB_ENV;
+          echo "version=$VERSION" >> $GITHUB_OUTPUT;
     outputs:
       version: ${{ steps.set-version.outputs.version }}
 
