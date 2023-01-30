@@ -36,18 +36,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: >
+      - id: set-version
+        run: >
           if [ "${{ inputs.release-type }}" == 'InternalPreview' ]; then
-            DOTVVM_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-${{ github.run-number}}";
+            VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-${{ github.run-number}}";
           elif [ "${{ inputs.release-type }}" == 'PublicPreview' ]; then
-            DOTVVM_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-final";
+            VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-final";
           elif [ "${{ inputs.release-type }}" == 'Stable' ]; then
-            DOTVVM_VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}";
+            VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}";
           else
             echo "Unknown release type '${{ inputs.release-type }}'.";
             exit 1;
           fi;
-          echo "DOTVVM_VERSION=${DOTVVM_VERSION}" >> $GITHUB_ENV;
+          echo "version=${DOTVVM_VERSION}" >> $GITHUB_ENV;
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
 
   publish-nuget-packages:
     runs-on: windows-2022
@@ -71,7 +74,7 @@ jobs:
       if: ${{ inputs.signature-type == 'DotNetFoundation' }}
       run: ./ci/scripts/Publish-NuGetPackages.ps1 `
           -root "${{ github.workspace }}" `
-          -version "$env:DOTVVM_VERSION" `
+          -version "${{ needs.read-input.outputs.version }}" `
           -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
           -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
           -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}" `
@@ -83,7 +86,7 @@ jobs:
       if: ${{ inputs.signature-type == 'Riganti' }}
       run: ./ci/scripts/Publish-NuGetPackages.ps1 `
           -root "${{ github.workspace }}" `
-          -version "$env:DOTVVM_VERSION" `
+          -version "${{ needs.read-input.outputs.version }}" `
           -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
           -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
           -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}" `
@@ -116,7 +119,7 @@ jobs:
       run: >
         mkdir types;
         cp "${{ github.workspace }}/src/Framework/Framework/obj/typescript-types/dotvvm.d.ts" types/index.d.ts;
-        npm version "$env:DOTVVM_VERSION" --no-git-tag-version;
+        npm version "${{ needs.read-input.outputs.version }}" --no-git-tag-version;
         cat "${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json";
       working-directory: ci/scripts/npm/dotvvm-types
 
