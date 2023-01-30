@@ -21,8 +21,6 @@ jobs:
     - uses: actions/checkout@v3
     - name: Set up
       uses: ./.github/setup
-      with:
-        sln: src/DotVVM.Crossplatform.slnf
 
     # no reason to Spam with warnings when normal build fails
     - name: Build Framework (without /WarnAsError)
@@ -91,8 +89,6 @@ jobs:
     - uses: actions/checkout@v3
     - name: Set up
       uses: ./.github/setup
-      with:
-        sln: src/DotVVM.Crossplatform.slnf
     - name: Tests (net6.0)
       uses: ./.github/unittest
       with:
@@ -172,7 +168,7 @@ jobs:
             os: ubuntu-latest
             environment: Production
     env:
-      SLN: "${{ matrix.os == 'windows-2022' && 'src/DotVVM.sln' || 'src/DotVVM.Crossplatform.slnf' }}"
+      SLN: "src/DotVVM.sln"
     steps:
     - uses: actions/checkout@v3
     - name: Set up
