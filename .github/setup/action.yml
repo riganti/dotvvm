@@ -46,7 +46,6 @@ runs:
 
   # restore nuget packages
   - run: nuget restore ${{ inputs.sln }}
-    if: ${{ steps.nuget-cache.outputs.cache-hit != 'true' }}
     shell: pwsh
 
   # restore dotnet tools
