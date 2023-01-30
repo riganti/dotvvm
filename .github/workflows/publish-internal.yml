@@ -39,7 +39,7 @@ jobs:
       - id: set-version
         run: >
           if [ "${{ inputs.release-type }}" == 'InternalPreview' ]; then
-            VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-${{ github.run-number}}";
+            VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-${{ github.run_id }}";
           elif [ "${{ inputs.release-type }}" == 'PublicPreview' ]; then
             VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-final";
           elif [ "${{ inputs.release-type }}" == 'Stable' ]; then
