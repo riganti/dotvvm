@@ -46,7 +46,7 @@ runs:
 
   # restore nuget packages
   - if: ${{ runner.os == 'Windows' }}
-    run: nuget restore ${{ inputs.sln }}
+    run: msbuild ${{ inputs.sln }} -t:Restore
     shell: pwsh
   - if: ${{ runner.os != 'Windows' }}
     run: dotnet restore ${{ inputs.sln }}
