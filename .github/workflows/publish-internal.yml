@@ -54,7 +54,6 @@ jobs:
 
   publish-nuget-packages:
     runs-on: windows-2022
-    timeout-minutes: 10
     needs: read-input
     steps:
 
