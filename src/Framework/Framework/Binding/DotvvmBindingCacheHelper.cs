@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Binding
             this.compilationService = compilationService;
         }
 
-        /// <summary> Created a new binding using the <paramref name="factory"/>, unless an existing cache entry is found. Entries are identified using the identifier and keys. By default, the cache is LRU with size=1000 </summary>
+        /// <summary> Creates a new binding using the <paramref name="factory"/>, unless an existing cache entry is found. Entries are identified using the identifier and keys. By default, the cache is LRU with size=1000 </summary>
         public T CreateCachedBinding<T>(string identifier, object?[] keys, Func<T> factory) where T: IBinding
         {
             return this.cache.GetOrAdd(new CacheKey(typeof(T), identifier, keys), _ => {
@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Binding
             });
         }
 
-        /// <summary> Created a new binding of type <typeparamref name="T"/> with the specified properties, unless an existing cache entry is found. Entries are identified using the identifier and keys. By default, the cache is LRU with size=1000 </summary>
+        /// <summary> Creates a new binding of type <typeparamref name="T"/> with the specified properties, unless an existing cache entry is found. Entries are identified using the identifier and keys. By default, the cache is LRU with size=1000 </summary>
         public T CreateCachedBinding<T>(string identifier, object[] keys, object[] properties) where T: IBinding
         {
             return CreateCachedBinding<T>(identifier, keys, () => (T)BindingFactory.CreateBinding(this.compilationService, typeof(T), properties));

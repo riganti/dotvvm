@@ -318,7 +318,7 @@ namespace DotVVM.Framework.Binding
             return false;
         }
 
-        /// <summary> Enumerates all keys and values. If a property contains a binding, the it will be automatically evaluated. </summary>
+        /// <summary> Enumerates all keys and values. If a property contains a binding, it will be automatically evaluated. </summary>
         public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
         {
             foreach (var (p, value) in control.properties)

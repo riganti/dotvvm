@@ -5,9 +5,9 @@ using System.Linq;
 namespace DotVVM.Framework.ViewModel
 {
     ///<summary>
-    /// Specifies on which requests should the property should serialized and sent. Default is <see cref="Direction.Both">Both</see>.
+    /// Specifies on which requests should the property be serialized and sent. Default is <see cref="Direction.Both">Both</see>.
     /// Set to <see cref="Direction.None">None</see> to disable serialization of the property.
-    /// This enums is flags, the directions can be arbitrarily combined.
+    /// This enumeration can be treated as flags, the directions can be arbitrarily combined.
     ///</summary>
     [Flags]
     public enum Direction

@@ -10,7 +10,7 @@ using DotVVM.Framework.Runtime.Filters;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
-    /// <summary> The `{staticCommand: ...}` binding. It is a command, so should be used to handle events, but compared to `command`, it runs primarily client-side. Compared to `value` binding, `staticCommand`s are expected to have side effects and run asynchronously (the binding will return a Promise or a Task). </summary>
+    /// <summary> The `{staticCommand: ...}` binding. It is a command that runs primarily client-side and is well-suited to handle events. Compared to `value` binding, `staticCommand`s are expected to have side effects and run asynchronously (the binding will return a Promise or a Task). </summary>
     [BindingCompilationRequirements(
         required: new[] { typeof(StaticCommandOptionsLambdaJavascriptProperty), /*typeof(BindingDelegate)*/ }
     )]

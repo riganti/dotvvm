@@ -4,7 +4,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
-    /// <summary> Controls what happens when the binding property does not exist on this binding or when it's resolver throws an exception. </summary>
+    /// <summary> Controls what happens when the binding property does not exist on this binding or when its resolver throws an exception. </summary>
     public enum ErrorHandlingMode
     {
         /// <summary> Returns null. The null is returned even in case when resolver throws an exception, you can't distinguish between the "property does not exist", "resolver failed" states using this mode. </summary>
