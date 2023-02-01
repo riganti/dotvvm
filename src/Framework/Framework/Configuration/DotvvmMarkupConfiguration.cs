@@ -129,6 +129,15 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
+        /// <summary> Adds the assembly to the list of required assemblies. </summary>
+        public void AddAssembly(Assembly assembly)
+        {
+            if (assembly is null) throw new ArgumentNullException(nameof(assembly));
+            if (assembly.FullName is null) throw new ArgumentException("Assembly does not have a FullName", nameof(assembly));
+            AddAssembly(assembly.FullName);
+        }
+
+
         /// <summary>
         /// Registers markup control
         /// </summary>
