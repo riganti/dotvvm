@@ -70,7 +70,7 @@ namespace DotVVM.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Method &apos;{0}&apos; invocation is not supported on server.
+        ///   Looks up a localized string similar to Method &apos;{0}&apos; invocation is not supported on server {1}.
         /// </summary>
         internal static string ApiUsage_UnsupportedCallSite_Message {
             get {

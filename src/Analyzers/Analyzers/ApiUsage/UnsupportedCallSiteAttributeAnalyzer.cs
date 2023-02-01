@@ -48,11 +48,13 @@ namespace DotVVM.Analyzers.ApiUsage
                     if (attribute.ConstructorArguments.First().Value is not int callSiteType || callSiteTypeServerUnderlyingValue != callSiteType)
                         return;
 
+                    var reason = (string?)attribute.ConstructorArguments.Skip(1).First().Value;
                     context.ReportDiagnostic(
                         Diagnostic.Create(
                             DoNotInvokeMethodFromUnsupportedCallSite,
                             invocation.Syntax.GetLocation(),
-                            invocation.TargetMethod.Name));
+                            invocation.TargetMethod.Name,
+                            (reason != null) ? $"due to: \"{reason}\"" : string.Empty));
                 }
             }, OperationKind.Invocation);
         }

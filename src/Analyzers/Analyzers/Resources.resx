@@ -121,7 +121,7 @@
     <value>Method that declares that it should not be called on server is only meant to be invoked on client.</value>
   </data>
   <data name="ApiUsage_UnsupportedCallSite_Message" xml:space="preserve">
-    <value>Method '{0}' invocation is not supported on server</value>
+    <value>Method '{0}' invocation is not supported on server {1}</value>
   </data>
   <data name="ApiUsage_UnsupportedCallSite_Title" xml:space="preserve">
     <value>Unsupported call site</value>

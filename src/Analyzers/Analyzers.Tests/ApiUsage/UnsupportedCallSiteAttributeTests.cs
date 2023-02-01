@@ -60,7 +60,36 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
     }",
 
             VerifyCS.Diagnostic(UnsupportedCallSiteAttributeAnalyzer.DoNotInvokeMethodFromUnsupportedCallSite)
-                .WithLocation(0).WithArguments("Target"));
+                .WithLocation(0).WithArguments("Target", string.Empty));
+        }
+
+        [Fact]
+        public async Task Test_Warning_InvokeMethod_WithUnsupportedCallSiteAttribute_WithReason()
+        {
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using System;
+    using System.IO;
+    using DotVVM.Framework.CodeAnalysis;
+
+    namespace ConsoleApplication1
+    {
+        public class RegularClass
+        {
+            [UnsupportedCallSite(CallSiteType.ServerSide, ""REASON"")]
+            public void Target()
+            {
+
+            }
+
+            public void CallSite()
+            {
+                {|#0:Target()|};
+            }
+        }
+    }",
+
+            VerifyCS.Diagnostic(UnsupportedCallSiteAttributeAnalyzer.DoNotInvokeMethodFromUnsupportedCallSite)
+                .WithLocation(0).WithArguments("Target", "due to: \"REASON\""));
         }
     }
 }

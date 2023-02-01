@@ -6,10 +6,12 @@ namespace DotVVM.Framework.CodeAnalysis
     public class UnsupportedCallSiteAttribute : Attribute
     {
         public readonly CallSiteType Type;
+        public readonly string? Reason;
 
-        public UnsupportedCallSiteAttribute(CallSiteType type)
+        public UnsupportedCallSiteAttribute(CallSiteType type, string? reason = null)
         {
             Type = type;
+            Reason = reason;
         }
     }
 }
