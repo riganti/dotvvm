@@ -12,6 +12,7 @@ using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
+    /// <summary> A set of DotvvmProperties identified by a common prefix. For example RouteLink.Params-XX or html attributes are property groups. </summary>
     public class DotvvmPropertyGroup : IPropertyGroupDescriptor
     {
         public FieldInfo? DescriptorField { get; }

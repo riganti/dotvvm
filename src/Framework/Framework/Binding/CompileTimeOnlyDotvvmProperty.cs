@@ -7,7 +7,7 @@ using DotVVM.Framework.Utils;
 namespace DotVVM.Framework.Binding
 {
     /// <summary>
-    /// The DotvvmProperty that fallbacks to another DotvvmProperty's value.
+    /// The DotvvmProperty that can only be used at compile time (in server-side styles or precompiled CompositeControls)
     /// </summary>
     public class CompileTimeOnlyDotvvmProperty : DotvvmProperty
     {

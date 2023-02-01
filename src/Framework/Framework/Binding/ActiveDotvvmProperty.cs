@@ -10,6 +10,7 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Binding
 {
+    /// <summary> An abstract DotvvmProperty which contains code to be executed when the assigned control is being rendered. </summary>
     public abstract class ActiveDotvvmProperty : DotvvmProperty
     {
         public abstract void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmControl control);

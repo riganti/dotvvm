@@ -10,6 +10,7 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding
 {
+    /// <summary> Sets data context type to the result type of binding the specified property. </summary>
     public class ControlPropertyBindingDataContextChangeAttribute : DataContextChangeAttribute
     {
         public string PropertyName { get; set; }
