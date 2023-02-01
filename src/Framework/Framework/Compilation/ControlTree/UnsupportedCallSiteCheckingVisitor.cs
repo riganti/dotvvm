@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public override void VisitBinding(ResolvedBinding binding)
         {
             base.VisitBinding(binding);
-            if (binding.Binding is not ResourceBindingExpression)
+            if (binding.Binding is not ResourceBindingExpression and not CommandBindingExpression)
                 return;
 
             var expressionVisitor = new ExpressionInspectingVisitor();
