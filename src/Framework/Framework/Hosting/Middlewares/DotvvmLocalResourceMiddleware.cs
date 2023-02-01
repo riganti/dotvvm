@@ -33,6 +33,9 @@ namespace DotVVM.Framework.Hosting.Middlewares
                     request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "no-cache, no-store, must-revalidate" });
                 using (var body = resource.LoadResource(request))
                 {
+                    if (body.CanSeek)
+                        request.HttpContext.Response.Headers["Content-Length"] = body.Length.ToString();
+
                     await body.CopyToAsync(request.HttpContext.Response.Body);
                 }
                 return true;
