@@ -10,6 +10,7 @@
     <Description>This package contains base classes and interfaces of DotVVM that might be useful in a business layer.
     DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
     <Nullable>enable</Nullable>
+    <RootNamespace>DotVVM.Framework</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="compiler\resources\**\*" />
