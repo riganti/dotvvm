@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using DotVVM.Framework.Compilation.Styles;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.AutoUI.Controls;
+using DotVVM.AutoUI;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -27,6 +29,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                 _ = Repeater.RenderAsNamedTemplateProperty;
                 config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
                 c(config);
+            }, services: s => {
+                s.AddAutoUI();
             });
         }
 
@@ -267,6 +271,58 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <div class-z={resource: Integer > 1} />
                 <div Styles.Tag=t Visible={value: Integer > 1} />
                 <div Styles.Tag=t Visible={resource: Integer > 1} />
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task BindableObjectReads()
+        {
+            // this isn't the intended way to use styles (c.ControlProperty should be used instead), but we need it to work in some cases
+            var cth = createHelper(c => {
+                c.Styles.Register<GridView>(c =>
+                    c.PropertyValue(x => x.Columns).Any(c => c is GridViewTextColumn { HeaderText: "Test" }))
+                    .SetAttribute("data-headers", c => string.Join(" ; ", c.PropertyValue(c => c.Columns).Select(c => c.HeaderText ?? "?")));
+            });
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- no header attribute -->
+                <dot:GridView DataSource={value: Collection}>
+                    <Columns>
+                        <dot:GridViewCheckBoxColumn HeaderText=Test ValueBinding={value: true} />
+                    </Columns>
+                </dot:GridView>
+
+                <!-- has header attribute -->
+                <dot:GridView DataSource={value: Collection}>
+                    <Columns>
+                        <dot:GridViewTextColumn HeaderText=RealValue ValueBinding={value: _this} />
+                        <dot:GridViewTextColumn HeaderText=Test ValueBinding={value: 111} />
+                    </Columns>
+                </dot:GridView>
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task ContentCapabilityReads()
+        {
+            var cth = createHelper(c => {
+                c.Styles.Register<AutoEditor>(c => c.PropertyValue(c => c.GetCapability<AutoEditor.Props>())?.OverrideTemplate is not null)
+                    .SetProperty(
+                        c => c.GetCapability<AutoEditor.Props>().OverrideTemplate,
+                        c => new CloneTemplate(
+                            new HtmlGenericControl("div").AddCssClass("template-wrapper")
+                                .AppendChildren(new TemplateHost(c.PropertyValue(c => c.GetCapability<AutoEditor.Props>()).OverrideTemplate))
+                        ));
+            });
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <auto:Editor Property={value: Integer}>
+                    <OverrideTemplate>
+                        Test
+                    </OverrideTemplate>
+                </auto:Editor>
             ");
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }

@@ -1,0 +1,50 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- no header attribute -->                 
+		<!-- ko if: Collection()?.length -->
+		<table data-bind="dotvvm-gridviewdataset: {'mapping':{},'dataSet':Collection()}">
+			<thead>
+				<tr>
+					<th>
+						<span>Test</span>
+					</th>
+				</tr>
+			</thead>
+			<tbody data-bind="foreach: Collection">
+				<tr>
+					<td>
+						<input data-bind="dotvvm-CheckState: true" disabled="disabled" type="checkbox">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- /ko -->                  
+		<!-- has header attribute -->                 
+		<!-- ko if: Collection()?.length -->
+		<table data-bind="dotvvm-gridviewdataset: {'mapping':{},'dataSet':Collection()}" data-headers="RealValue ; Test">
+			<thead>
+				<tr>
+					<th>
+						<span>RealValue</span>
+					</th>
+					<th>
+						<span>Test</span>
+					</th>
+				</tr>
+			</thead>
+			<tbody data-bind="foreach: Collection">
+				<tr>
+					<td>
+						<span data-bind="text: $rawData"></span>
+					</td>
+					<td>
+						<span data-bind="text: 111"></span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- /ko -->
+	</body>
+</html>

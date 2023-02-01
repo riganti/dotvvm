@@ -110,5 +110,27 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.IsDisplayed(streetField.ParentElement.ParentElement.Single(".help"));
             });
         }
+
+        [Fact]
+        public void Feature_AutoUI_AutoGridViewColumns()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_AutoUI_AutoGridViewColumns);
+
+                var headerCells = browser.FindElements("thead tr:first-child th")
+                    .ThrowIfDifferentCountThan(4);
+                AssertUI.TextEquals(headerCells[0], "Customer id");
+                AssertUI.TextEquals(headerCells[1], "Person or company name");
+                AssertUI.TextEquals(headerCells[2], "Birth date");
+                AssertUI.TextEquals(headerCells[3], "Message received");
+
+                var cells = browser.FindElements("tbody tr:first-child td")
+                    .ThrowIfDifferentCountThan(4);
+                AssertUI.TextEquals(cells[0].Single("span"), "1");
+                AssertUI.TextEquals(cells[1].Single("h2"), "John Doe");
+                AssertUI.TextEquals(cells[2].Single("span"), "4/1/1976 12:00:00 AM");
+                AssertUI.IsNotChecked(cells[3].Single("input[type=checkbox]"));
+            });
+        }
     }
 }

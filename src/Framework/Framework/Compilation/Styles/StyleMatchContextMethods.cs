@@ -249,8 +249,13 @@ public static class StyleMatchContextExtensionMethods
         if (c.Control.GetProperty(property) is {} s)
         {
             var value = s.GetValue();
+            // If they ask for ResolvedControl, we should return it. Otherwise, try converting to runtime value (DotvvmControl or capability object)
             if (value is T or null)
                 return (T?)value;
+
+            var runtimeValue = s.ToRuntimeValue(c.Configuration.ServiceProvider);
+            if (runtimeValue is T)
+                return (T?)runtimeValue;
         }
         return GetDefault<T>(property);
     }
