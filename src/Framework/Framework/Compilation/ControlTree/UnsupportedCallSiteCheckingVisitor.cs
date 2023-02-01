@@ -16,10 +16,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
-                var callSiteAttr = node.Method.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(UnsupportedCallSiteAttribute));
-                if (callSiteAttr is not null && callSiteAttr.ConstructorArguments.Any())
+                if (node.Method.IsDefined(typeof(UnsupportedCallSiteAttribute)))
                 {
-                    if (callSiteAttr.ConstructorArguments.First().Value is int type && type == (int)CallSiteType.ServerSide)
+                    var callSiteAttr = node.Method.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(UnsupportedCallSiteAttribute))!;
+                    if (callSiteAttr.ConstructorArguments.Any() && callSiteAttr.ConstructorArguments.First().Value is int type && type == (int)CallSiteType.ServerSide)
                         InvalidCallSiteDetected?.Invoke(node.Method);
                 }
 
