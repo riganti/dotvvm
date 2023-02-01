@@ -164,12 +164,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         private IEnumerable<Assembly> GetAllRelevantAssemblies(string dotvvmAssembly)
         {
-
 #if DotNetCore
             var assemblies = compiledAssemblyCache.GetAllAssemblies()
                    .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly));
 #else
-
             var loadedAssemblies = compiledAssemblyCache.GetAllAssemblies()
                 .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly));
 
@@ -178,7 +176,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
             // ReflectionUtils.GetAllAssemblies() in netframework returns only assemblies which have already been loaded into
             // the current AppDomain, to return all assemblies we traverse recursively all referenced Assemblies
             var assemblies = loadedAssemblies
-                .SelectRecursively(a => a.GetReferencedAssemblies().Where(an => visitedAssemblies.Add(an.FullName)).Select(an => Assembly.Load(an)))
+                .SelectRecursively(a => a.GetReferencedAssemblies().Where(an => visitedAssemblies.Add(an.FullName)).Select(an => {
+                    try
+                    {
+                        return Assembly.Load(an);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"Unable to load assembly '{an.FullName}' referenced by '{a.FullName}'.", ex);
+                    }
+                }))
                 .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
                 .Distinct();
 #endif
