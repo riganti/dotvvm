@@ -67,11 +67,12 @@ namespace DotVVM.Framework.Hosting
             };
         }
 
-        public MarkupFile(string fileName, string fullPath, string contents)
+        public MarkupFile(string fileName, string fullPath, string contents, DateTime lastWriteDateTimeUtc = default)
         {
             FileName = fileName;
             FullPath = fullPath;
             ReadContent = () => contents;
+            LastWriteDateTimeUtc = lastWriteDateTimeUtc;
         }
 
         public override bool Equals(object? obj)
