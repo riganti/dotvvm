@@ -26,10 +26,13 @@ namespace DotVVM.Framework.Binding
         public List<object> TransformerClasses { get; set; } = new List<object>();
     }
 
+    /// <summary> A service used to create new bindings and compute binding properties. </summary>
     public class BindingCompilationService
     {
         private readonly IExpressionToDelegateCompiler expressionCompiler;
         private readonly Lazy<BindingCompilationService> noInitService;
+
+        /// <summary> Utilities for caching bindings created at runtime </summary>
         public DotvvmBindingCacheHelper Cache { get; }
 
         public BindingCompilationService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler, IDotvvmCacheAdapter cache)
@@ -123,7 +126,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Resolves required and optional properties
+        /// Resolves required properties of the binding. If the binding contains <see cref="BindingErrorReporterProperty" /> it will be used to report errors instead of throwing an exception.
         /// </summary>
         public virtual void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute>? bindingRequirements = null)
         {

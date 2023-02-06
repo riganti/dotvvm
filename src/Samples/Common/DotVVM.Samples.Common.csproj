@@ -83,6 +83,7 @@
     <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoEditor.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoForm.dothtml" />
+    <None Remove="Views\FeatureSamples\AutoUI\AutoGridViewColumns.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Complex.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Complex2.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Simple.dothtml" />

@@ -14,27 +14,24 @@ class CachedValue {
     _stateManager?: StateManager<any>
     _isLoading?: boolean
     _promise?: PromiseLike<any>
-    _elements: HTMLElement[] = []
+    _elements: Set<HTMLElement> = new Set()
 
     constructor(public _cache: Cache) {
     }
 
-    registerElement(element: HTMLElement, sharingKeyValue: string) {
-        if (!this._elements.includes(element)) {
-            this._elements.push(element);
+    _registerElement(element: HTMLElement, sharingKeyValue: string) {
+        if (!this._elements.has(element)) {
+            this._elements.add(element);
 
             ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
-                this.unregisterElement(element, sharingKeyValue);
+                this._unregisterElement(element, sharingKeyValue);
             });
         }
     }
 
-    unregisterElement(element: HTMLElement, sharingKeyValue: string) {
-        const oldElementIndex = this._elements.indexOf(element);
-        if (oldElementIndex >= 0) {
-            this._elements.splice(oldElementIndex, 1);
-        }
-        if (!this._elements.length) {
+    _unregisterElement(element: HTMLElement, sharingKeyValue: string) {
+        this._elements.delete(element);
+        if (!this._elements.size) {
             delete this._cache[sharingKeyValue];
         }
     }
@@ -74,9 +71,9 @@ export function invoke<T>(
             return
         }
 
-        cachedValue.registerElement(lifetimeElement, sharingKeyValue);
+        cachedValue._registerElement(lifetimeElement, sharingKeyValue);
         if (oldCached) {
-            oldCached.unregisterElement(lifetimeElement, oldKey);
+            oldCached._unregisterElement(lifetimeElement, oldKey);
         }
 
         if (cachedValue._stateManager == null)

@@ -11,5 +11,6 @@ namespace DotVVM.Analyzers
 
         public const string UseSerializablePropertiesInViewModelRuleId = "DotVVM02";
         public const string DoNotUseFieldsInViewModelRuleId = "DotVVM03";
+        public const string DoNotInvokeMethodFromUnsupportedCallSiteRuleId = "DotVVM04";
     }
 }

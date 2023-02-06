@@ -34,8 +34,8 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
                 .SetCapability(props.Html)
                 .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)
                 .SetProperty(t => t.Text, props.Property)
-                .SetAttribute("placeholder", property.Placeholder?.ToBinding(context))
-                .SetAttribute("title", property.Description?.ToBinding(context))
+                .SetAttribute("placeholder", property.Placeholder?.ToBinding(context.BindingService))
+                .SetAttribute("title", property.Description?.ToBinding(context.BindingService))
                 .SetProperty(t => t.FormatString, property.FormatString)
                 .SetProperty(t => t.Enabled, props.Enabled)
                 .SetProperty(t => t.Changed, props.Changed);

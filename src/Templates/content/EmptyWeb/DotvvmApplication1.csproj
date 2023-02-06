@@ -1,23 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <!--Include DotVVM Views, MasterPages and Controls -->
-    <Content Include="**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="**/*.dotmaster" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="**/*.dotlayout" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="**/*.dotcontrol" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="**/*.dothtml;**/*.dotmaster;**/*.dotlayout;**/*.dotcontrol" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="PreserveNewest" />
 
     <None Remove="dotvvm_serialized_config.json.tmp" />
 
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotVVM.AspNetCore" Version="4.0.*" />
+    <PackageReference Include="DotVVM.AspNetCore" Version="4.1.*" />
   </ItemGroup>
   <Target Name="CreateWWWRoot" AfterTargets="AfterPublish">
     <MakeDir Directories="$(PublishDir)wwwroot" Condition="!Exists('$(PublishDir)wwwroot')" />
