@@ -70,6 +70,9 @@ jobs:
           }
         shell: pwsh
 
+      - uses: actions/checkout@v3
+        if: steps.include-check.outputs.match == 'true'
+
       - name: Make the 'artifacts' directory
         if: steps.include-check.outputs.match == 'true'
         run: mkdir "artifacts"
@@ -78,7 +81,7 @@ jobs:
         if: steps.include-check.outputs.match == 'true'
         run: >
           ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
-            -targetDirectory "./ci/scripts/npm/dotvvm-types" `
+            -targetDirectory "." `
             -registry "${{ secrets.INTERNAL_NPM_REGISTRY }}" `
             -pat "${{ secrets.INTERNAL_NPM_PAT }}" `
             -username "${{ secrets.INTERNAL_NPM_USERNAME }}" `
@@ -101,7 +104,7 @@ jobs:
         if: steps.include-check.outputs.match == 'true'
         run: >
           ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
-            -targetDirectory "./ci/scripts/npm/dotvvm-types" `
+            -targetDirectory "." `
             -registry "https://registry.npmjs.org" `
             -pat "${{ secrets.PUBLIC_NPM_PAT }}" `
             -username "${{ secrets.PUBLIC_NPM_USERNAME }}" `
