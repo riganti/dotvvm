@@ -5,9 +5,9 @@ param(
     [string]$internalFeedName = "riganti"
 )
 
-dotnet nuget add source `
-    --username "$internalFeedUser" `
-    --password "$internalFeedPat" `
-    --store-password-in-clear-text `
-    --name "$internalFeedName" `
-    "$internalFeed"
+nuget sources add `
+    -Usename "$internalFeedUser" `
+    -Password "$internalFeedPat" `
+    -StorePasswordInClearText `
+    -Name "$internalFeedName" `
+    -Source "$internalFeed"
