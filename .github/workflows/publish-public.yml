@@ -37,7 +37,8 @@ jobs:
         working-directory: src/
 
       - name: Add internal NuGet feed
-        run: ./ci/scripts/Add-InternalNuGetFeed.ps1 `
+        run: >
+          ./ci/scripts/Add-InternalNuGetFeed.ps1 `
             -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
             -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
             -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}"

@@ -6,8 +6,8 @@ param(
 )
 
 dotnet nuget add source `
-        --username "$internalFeedUser" `
-        --password "$internalFeedPat" `
-        --store-password-in-clear-text `
-        --name "$internalFeedName" `
-        "$internalFeed"
+    --username "$internalFeedUser" `
+    --password "$internalFeedPat" `
+    --store-password-in-clear-text `
+    --name "$internalFeedName" `
+    "$internalFeed"
