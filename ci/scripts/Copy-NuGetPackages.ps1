@@ -58,6 +58,8 @@ $oldCwd = Get-Location
 Set-Location "$packagesDir"
 
 try {
+    nuget sources
+
     nuget restore `
         -DirectDownload `
         -NonInteractive `
