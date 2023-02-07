@@ -96,7 +96,8 @@ jobs:
             return;
           }
 
-          npm install "dotvvm-types@{{ $inputs.version }}"
+          npm install "dotvvm-types@{{ $inputs.version }}" ;
+          ls
         shell: pwsh
         working-directory: ./artifacts
 
