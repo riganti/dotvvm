@@ -21,7 +21,6 @@ on:
 
 jobs:
   copy:
-    name: Copy from internal to public feeds
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -42,6 +41,7 @@ jobs:
             -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
             -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
             -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}"
+        shell: pwsh
 
       - name: Add internal npm registry
         run: >
@@ -51,6 +51,7 @@ jobs:
             -internalNpmRegistryPat "${{ secrets.INTERNAL_NPM_PAT }}" `
             -internalNpmRegistryUsername "${{ secrets.INTERNAL_NPM_USERNAME }}" `
             -internalNpmRegistryEmail "${{ secrets.INTERNAL_NPM_EMAIL }}"
+        shell: pwsh
 
       - name: Publish NuGet packages
         run: >
@@ -60,3 +61,4 @@ jobs:
             -include "${{ inputs.include }}" `
             -exclude "${{ inputs.exclude }}" `
             -version "${{ inputs.version }}"
+        shell: pwsh
