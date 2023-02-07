@@ -15,11 +15,23 @@ $root = Resolve-Path "$root"
 
 $packagesDir = Join-Path "$root" "./artifacts/packages"
 
-if (-not (Test-Path -PathType Container "$packagesDir")) {
-    New-Item -ItemType Directory -Force "$packagesDir"
+if (Test-Path "$packagesDir") {
+    Remove-Item -Recurse "$packagesDir"
 }
+New-Item -ItemType Directory -Force "$packagesDir"
 
 $packages = . "$PSScriptRoot/Get-PublicProjects.ps1"
+
+$filteredPackages = $packages
+if ("$include" -ne "*") {
+    $filteredPackages = $filteredPackages `
+        | Where-Object { $_.Name -match "$include" }
+}
+
+if (-not ([string]::IsNullOrWhiteSpace($exclude))) {
+    $filteredPackages = $filteredPackages `
+        | Where-Object { $_.Name -notmatch "$exclude" }
+}
 
 if ([string]::IsNullOrWhiteSpace($version)) {
     $latestVersion = nuget list "DotVVM" -NonInteractive -PreRelease -Source riganti `
@@ -29,50 +41,38 @@ if ([string]::IsNullOrWhiteSpace($version)) {
     Write-Host "Version '$version' selected."
 }
 
+$packagesConfig = @"
+<?xml version="1.0" encoding="utf-8"?>
+<packages>
+    $($filteredPackages `
+        | Foreach-Object { return "<package id=""$($_.Name)"" version=""$version"" />" } `
+        | Join-String -Separator "`n")
+</packages>
+"@
+
+$packagesConfig | Out-File (Join-Path "$packagesDir" "packages.config")
+
 Write-Host "::group::Downloading NuGet packages from internal feed"
+
+$oldCwd = Get-Location
+Set-Location "$packagesDir"
+
 try {
-    $filteredPackages = $packages
-    if ("$include" -ne "*") {
-        $filteredPackages = $filteredPackages `
-            | Where-Object { $_.Name -match "$include" }
-    }
-
-    if (-not ([string]::IsNullOrWhiteSpace($exclude))) {
-        $filteredPackages = $filteredPackages `
-            | Where-Object { $_.Name -notmatch "$exclude" }
-    }
-
-    foreach ($package in $filteredPackages) {
-        if ($package.Type -eq "tool") {
-            dotnet tool install "$($package.Name)" `
-                --tool-path "$packagesDir" `
-                --version "$version" `
-                --add-source "$internalNuGetFeedName"
-        } elseif ($package.Type -eq "template") {
-            dotnet new install "$($package.Name)::$version" `
-                --force `
-                --nuget-source "$internalNuGetFeedName"
-            New-Item -ItemType Directory "$packagesDir/$($package.Name)"
-            Copy-Item "$env:USERPROFILE/.templateengine/dotnetcli/$($package.Name).$version.nupkg" "$packagesDir/$($package.Name)"
-        } else {
-            nuget install "$($package.Name)" `
-                -DirectDownload `
-                -NonInteractive `
-                -DependencyVersion Ignore `
-                -NoCache `
-                -PackageSaveMode nupkg `
-                -OutputDirectory "$packagesDir" `
-                -Version "$version" `
-                -Source "$internalNuGetFeedName"
-        }
-    }
+    nuget restore `
+        -DirectDownload `
+        -NonInteractive `
+        -NoCache `
+        -PackageSaveMode nupkg `
+        -PackagesDirectory "$packagesDir" `
+        -Source "$internalNuGetFeedName"
 } finally {
+    Set-Location "$oldCwd"
     Write-Host "::endgroup::"
 }
 
 Write-Host "::group::Pushing packages to NuGet.org"
 try {
-    foreach ($package in (Get-ChildItem "$packagesDir")) {
+    foreach ($package in (Get-ChildItem "$packagesDir/**/*.nupkg")) {
         nuget push "$($package.FullName)" `
             -Source "nuget.org" `
             -ApiKey "$nuGetOrgApiKey" `
