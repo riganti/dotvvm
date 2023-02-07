@@ -49,12 +49,6 @@ jobs:
             -version "${{ inputs.version }}"
         shell: pwsh
 
-
-
-      - name: Publish dotvvm-types
-        run: >
-          ./ci/
-
   copy-npm-packages:
     runs-on: ubuntu-latest
     timeout-minutes: 10
