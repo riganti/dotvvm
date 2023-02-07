@@ -77,7 +77,7 @@ jobs:
       - name: Set internal npm registry
         if: steps.include-check.outputs.match == 'true'
         run: >
-          ./ci/scripts/Set-NpmRegistry.ps1 `
+          ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
             -targetDirectory "./ci/scripts/npm/dotvvm-types" `
             -registry "${{ secrets.INTERNAL_NPM_REGISTRY }}" `
             -pat "${{ secrets.INTERNAL_NPM_PAT }}" `
@@ -100,7 +100,7 @@ jobs:
       - name: Set public npm registry
         if: steps.include-check.outputs.match == 'true'
         run: >
-          ./ci/scripts/Set-NpmRegistry.ps1 `
+          ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
             -targetDirectory "./ci/scripts/npm/dotvvm-types" `
             -registry "https://registry.npmjs.org" `
             -pat "${{ secrets.PUBLIC_NPM_PAT }}" `
