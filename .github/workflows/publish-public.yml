@@ -70,6 +70,10 @@ jobs:
           }
         shell: pwsh
 
+      - name: Make the 'artifacts' directory
+        if: steps.include-check.outputs.match == 'true'
+        run: mkdir "artifacts"
+
       - name: Set internal npm registry
         if: steps.include-check.outputs.match == 'true'
         run: >
