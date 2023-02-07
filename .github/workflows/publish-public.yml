@@ -92,13 +92,8 @@ jobs:
       - name: Download dotvvm-types
         if: steps.include-check.outputs.match == 'true'
         run: >
-          if ("dotvvm-types" -match "${{ inputs.exclude }}") {
-            return;
-          }
-
           npm install "dotvvm-types@{{ $inputs.version }}" ;
           ls
-        shell: pwsh
         working-directory: ./artifacts
 
       - name: Set public npm registry
