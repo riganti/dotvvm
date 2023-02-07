@@ -51,19 +51,11 @@ jobs:
             -internalNpmRegistryUsername "${{ secrets.INTERNAL_NPM_USERNAME }}" `
             -internalNpmRegistryEmail "${{ secrets.INTERNAL_NPM_EMAIL }}"
 
-      - name: Copy NuGet packages
+      - name: Publish NuGet packages
         run: >
-          mkdir packages
-          "${{ inputs.nuget-package-names }}".Split(",") | ForEach-Object {
-            nuget install "$_" `
-              -DirectDownload `
-              -NonInteractive `
-              -SolutionDirectory "/dev/null" `
-              -OutputDirectory packages `
-              -Version "${{ inputs.version }}" `
-              -Source internal
-            nuget push "packages/$_.${{ inputs.version }}/$_.${{ inputs.version }}.nupkg"`
-              -Source "${{ secrets.PUBLIC_NUGET_FEED }}" `
-              -ApiKey "${{ secrets.PUBLIC_NUGET_API_KEY }}" `
-              -NonInteractive
-          }
+          ./ci/scripts/Copy-NuGetPackages.ps1 `
+            -root "${{ github.workspace }} `
+            -nuGetOrgApiKey "${{ secrets.NUGET_ORG_API_KEY }}" `
+            -include "${{ inputs.include }}" `
+            -exclude "${{ inputs.exclude }}" `
+            -version "${{ inputs.version }}"
