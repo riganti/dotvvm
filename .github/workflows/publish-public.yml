@@ -31,10 +31,6 @@ jobs:
         with:
           nuget-version: '6.x'
 
-      - run: dotnet tool restore
-        shell: pwsh
-        working-directory: src/
-
       - name: Add internal NuGet feed
         run: >
           ./ci/scripts/Add-InternalNuGetFeed.ps1 `
@@ -56,7 +52,7 @@ jobs:
       - name: Publish NuGet packages
         run: >
           ./ci/scripts/Copy-NuGetPackages.ps1 `
-            -root "${{ github.workspace }} `
+            -root "${{ github.workspace }}" `
             -nuGetOrgApiKey "${{ secrets.NUGET_ORG_API_KEY }}" `
             -include '${{ inputs.include }}' `
             -exclude '${{ inputs.exclude }}' `
