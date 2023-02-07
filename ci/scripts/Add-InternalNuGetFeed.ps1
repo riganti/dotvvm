@@ -6,7 +6,7 @@ param(
 )
 
 nuget sources add `
-    -Usename "$internalFeedUser" `
+    -Username "$internalFeedUser" `
     -Password "$internalFeedPat" `
     -StorePasswordInClearText `
     -Name "$internalFeedName" `
