@@ -34,7 +34,7 @@ if (-not ([string]::IsNullOrWhiteSpace($exclude))) {
 }
 
 if ([string]::IsNullOrWhiteSpace($version)) {
-    $latestVersion = nuget list "DotVVM" -NonInteractive -PreRelease -Source riganti `
+    $latestVersion = nuget list "DotVVM" -NonInteractive -PreRelease -Source "$internalNuGetFeedName" `
         | Select-String -Pattern "^DotVVM ([\d\w\.-]+)$" `
         | Select-Object -First 1
     $version = $latestVersion.Matches.Groups[1].Value
@@ -58,8 +58,6 @@ $oldCwd = Get-Location
 Set-Location "$packagesDir"
 
 try {
-    nuget sources
-
     nuget restore `
         -DirectDownload `
         -NonInteractive `

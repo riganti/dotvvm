@@ -36,7 +36,8 @@ jobs:
           ./ci/scripts/Add-InternalNuGetFeed.ps1 `
             -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
             -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
-            -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}"
+            -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}" ;`
+          nuget sources
         shell: pwsh
 
       - name: Add internal npm registry
