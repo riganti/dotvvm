@@ -63,10 +63,10 @@ jobs:
         run: >
           if ((("${{ inputs.include }}" -eq '*') -or ("${{ inputs.include }}" -match "dotvvm-types")) -and `
             ("${{ inputs.exclude }}" -notmatch "dotvvm-types")) {
-            Write-Output "match=true" >> $GITHUB_OUTPUT
+            Write-Output "match=true" >> $env:GITHUB_OUTPUT
           } else {
             Write-Output "Skipping the publish of dotvvm-types."
-            Write-Output "match=false" >> $GITHUB_OUTPUT
+            Write-Output "match=false" >> $env:GITHUB_OUTPUT
           }
         shell: pwsh
 
