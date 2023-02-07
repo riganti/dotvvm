@@ -58,7 +58,7 @@ jobs:
           ./ci/scripts/Copy-NuGetPackages.ps1 `
             -root "${{ github.workspace }} `
             -nuGetOrgApiKey "${{ secrets.NUGET_ORG_API_KEY }}" `
-            -include "${{ inputs.include }}" `
-            -exclude "${{ inputs.exclude }}" `
+            -include '${{ inputs.include }}' `
+            -exclude '${{ inputs.exclude }}' `
             -version "${{ inputs.version }}"
         shell: pwsh
