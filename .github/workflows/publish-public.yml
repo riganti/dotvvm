@@ -92,7 +92,7 @@ jobs:
       - name: Download dotvvm-types
         if: steps.include-check.outputs.match == 'true'
         run: >
-          npm install "dotvvm-types@{{ $inputs.version }}" ;
+          npm install "dotvvm-types@${{ inputs.version }}" ;
           ls
         working-directory: ./artifacts
 
