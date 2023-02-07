@@ -3,39 +3,53 @@ name: publish-public
 on:
   workflow_dispatch:
     inputs:
-      nuget-package-names:
+      include:
         type: string
-        default: ""
-        description: NuGet packages to copy
+        default: "*"
+        description: RegEx describing packages to publish publicly
         required: false
-      npm-package-names:
+      exclude:
         type: string
         default: ""
-        description: npm packages to copy
+        description: RegEx describing packages to exclude from publishing publicly
         required: false
       version:
         type: string
         default: ""
-        description: The version of packages to copy
-        required: true
+        description: The version of the packages to publish publicly
+        required: false
 
 jobs:
   copy:
-    name: Copy
+    name: Copy from internal to public feeds
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
 
-      - uses: nuget/setup-nuget@v1
+      - uses: actions/checkout@v3
 
-      - name: Authenticate with NuGet internal feed
+      - uses: nuget/setup-nuget@v1
+        with:
+          nuget-version: '6.x'
+
+      - run: dotnet tool restore
+        shell: pwsh
+        working-directory: src/
+
+      - name: Add internal NuGet feed
+        run: ./ci/scripts/Add-InternalNuGetFeed.ps1 `
+            -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
+            -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
+            -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}"
+
+      - name: Add internal npm registry
         run: >
-          nuget add source `
-            --username "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
-            --password "${{ secrets.AZURE_ARTIFACTS_PAT }}" `
-            --store-password-in-clear-text `
-            --name internal `
-            "${{ secrets.AZURE_ARTIFACTS_FEED }}"
+          ./ci/scripts/Add-InternalNpmRegistry.ps1 `
+            -targetDirectory "./ci/scripts/npm/dotvvm-types" `
+            -internalNpmRegistry "${{ secrets.INTERNAL_NPM_REGISTRY }}" `
+            -internalNpmRegistryPat "${{ secrets.INTERNAL_NPM_PAT }}" `
+            -internalNpmRegistryUsername "${{ secrets.INTERNAL_NPM_USERNAME }}" `
+            -internalNpmRegistryEmail "${{ secrets.INTERNAL_NPM_EMAIL }}"
 
       - name: Copy NuGet packages
         run: >

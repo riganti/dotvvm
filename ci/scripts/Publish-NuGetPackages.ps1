@@ -1,9 +1,7 @@
 param(
     [string][parameter(Mandatory = $true)]$root,
     [string][parameter(Mandatory = $true)]$version,
-    [string][parameter(Mandatory = $true)]$internalFeed,
-    [string][parameter(Mandatory = $true)]$internalFeedUser,
-    [string][parameter(Mandatory = $true)]$internalFeedPat,
+    [string]$internalFeedName = "riganti",
     [string]$signatureType = "DotNetFoundation",
     [string]$dnfUser,
     [string]$dnfSecret,
@@ -33,16 +31,11 @@ if ("$signatureType" -eq "DotNetFoundation") {
 }
 
 function Get-TemplateProjects {
-    return @(
-        [PSCustomObject]@{
-            Name = "DotVVM.Templates"
-            Path = "src/Templates/DotVVM.Templates.nuspec"
-        }
-    )
+    return . "$PSScriptRoot/Get-PublicProjects.ps1" | Where-Object { $_.Type -eq "template" }
 }
 
 function Build-PublicProjectPackages {
-    $packages = . "$PSScriptRoot/Get-PublicProjects.ps1"
+    $packages = . "$PSScriptRoot/Get-PublicProjects.ps1" | Where-Object { $_.Type -ne "template" }
     foreach ($package in $packages) {
         Write-Host "::group::$($package.Name)"
         $dir = Join-Path "$root" "$($package.Path)"
@@ -120,15 +113,8 @@ function Set-AllPackageSignatures {
 }
 
 function Publish-AllPackages {
-    dotnet nuget add source `
-        --username "$internalFeedUser" `
-        --password "$internalFeedPat" `
-        --store-password-in-clear-text `
-        --name internal `
-        "$internalFeed"
-
     foreach ($package in (Get-Item "$root/artifacts/packages/*.nupkg")) {
-        dotnet nuget push --api-key az --source internal "$package"
+        dotnet nuget push --api-key az --source "$internalFeedName" "$package"
     }
 }
 

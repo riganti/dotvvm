@@ -69,14 +69,17 @@ jobs:
         SIGN_CONFIG: ${{ secrets.SIGN_CONFIG }}
       working-directory: ${{ github.workspace }}/src
 
+    - name: Add internal NuGet feed
+      run: ./ci/scripts/Add-InternalNuGetFeed.ps1 `
+          -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
+          -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
+          -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}"
+
     - name: Publish NuGet packages (.NET Foundation)
       if: ${{ inputs.signature-type == 'DotNetFoundation' }}
       run: ./ci/scripts/Publish-NuGetPackages.ps1 `
           -root "${{ github.workspace }}" `
           -version "${{ needs.read-input.outputs.version }}" `
-          -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
-          -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
-          -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}" `
           -signatureType "DotNetFoundation" `
           -dnfUser "${{ secrets.SIGN_USER }}" `
           -dnfSecret "${{ secrets.SIGN_SECRET }}"
@@ -86,9 +89,6 @@ jobs:
       run: ./ci/scripts/Publish-NuGetPackages.ps1 `
           -root "${{ github.workspace }}" `
           -version "${{ needs.read-input.outputs.version }}" `
-          -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
-          -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
-          -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}" `
           -signatureType "Riganti" `
           -rigantiUrl "${{ secrets.SIGN_RIGANTI_KEYVAULT_URL }}" `
           -rigantiClientId "${{ secrets.SIGN_RIGANTI_CLIENT_ID }}" `
@@ -122,17 +122,14 @@ jobs:
         cat "${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json";
       working-directory: ci/scripts/npm/dotvvm-types
 
-    - name: Configure internal npm registry
+    - name: Add internal npm registry
       run: >
-        $password = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("${{ secrets.INTERNAL_NPM_PAT }}"));
-        $feed = "${{ secrets.INTERNAL_NPM_REGISTRY }}".Trim("https:");
-        npm set --location project `
-          always-auth=true `
-          registry=${{ secrets.INTERNAL_NPM_REGISTRY }} `
-          ${feed}:username=${{ secrets.INTERNAL_NPM_USERNAME }} `
-          ${feed}:email=${{ secrets.INTERNAL_NPM_EMAIL }} `
-          ${feed}:_password=$password
-      working-directory: ci/scripts/npm/dotvvm-types
+        ./ci/scripts/Add-InternalNpmRegistry.ps1 `
+          -targetDirectory "./ci/scripts/npm/dotvvm-types" `
+          -internalNpmRegistry "${{ secrets.INTERNAL_NPM_REGISTRY }}" `
+          -internalNpmRegistryPat "${{ secrets.INTERNAL_NPM_PAT }}" `
+          -internalNpmRegistryUsername "${{ secrets.INTERNAL_NPM_USERNAME }}" `
+          -internalNpmRegistryEmail "${{ secrets.INTERNAL_NPM_EMAIL }}"
 
     - name: Publish dotvvm-types
       run: npm publish

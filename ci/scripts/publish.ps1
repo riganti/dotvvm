@@ -140,7 +140,7 @@ function GitPush() {
 
 ### Configuration
 
-$packages = . "$PSScriptRoot/Get-PublicProjects.ps1"
+$packages = . "$PSScriptRoot/Get-PublicProjects.ps1" | Where-Object { $_.Type -ne "template" }
 
 
 ### Publish Workflow
