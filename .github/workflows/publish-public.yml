@@ -20,16 +20,15 @@ on:
         required: false
 
 jobs:
-  copy:
+  copy-nuget-packages:
     runs-on: windows-latest
-    timeout-minutes: 60
+    timeout-minutes: 10
     steps:
-
       - uses: actions/checkout@v3
 
       - uses: nuget/setup-nuget@v1
         with:
-          nuget-version: '6.x'
+          nuget-version: "6.x"
 
       - name: Add internal NuGet feed
         run: >
@@ -40,17 +39,7 @@ jobs:
           nuget sources
         shell: pwsh
 
-      - name: Add internal npm registry
-        run: >
-          ./ci/scripts/Add-InternalNpmRegistry.ps1 `
-            -targetDirectory "./ci/scripts/npm/dotvvm-types" `
-            -internalNpmRegistry "${{ secrets.INTERNAL_NPM_REGISTRY }}" `
-            -internalNpmRegistryPat "${{ secrets.INTERNAL_NPM_PAT }}" `
-            -internalNpmRegistryUsername "${{ secrets.INTERNAL_NPM_USERNAME }}" `
-            -internalNpmRegistryEmail "${{ secrets.INTERNAL_NPM_EMAIL }}"
-        shell: pwsh
-
-      - name: Publish NuGet packages
+      - name: Publish to NuGet.org
         run: >
           ./ci/scripts/Copy-NuGetPackages.ps1 `
             -root "${{ github.workspace }}" `
@@ -59,3 +48,62 @@ jobs:
             -exclude '${{ inputs.exclude }}' `
             -version "${{ inputs.version }}"
         shell: pwsh
+
+
+
+      - name: Publish dotvvm-types
+        run: >
+          ./ci/
+
+  copy-npm-packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - id: include-check
+        run: >
+          if ((("${{ inputs.include }}" -eq '*') -or ("${{ inputs.include }}" -match "dotvvm-types")) -and `
+            ("${{ inputs.exclude }}" -notmatch "dotvvm-types")) {
+            Write-Output "match=true" >> $GITHUB_OUTPUT
+          } else {
+            Write-Output "match=false" >> $GITHUB_OUTPUT
+          }
+        shell: pwsh
+
+      - name: Set internal npm registry
+        if: steps.include-check.outputs.match == 'true'
+        run: >
+          ./ci/scripts/Set-NpmRegistry.ps1 `
+            -targetDirectory "./ci/scripts/npm/dotvvm-types" `
+            -registry "${{ secrets.INTERNAL_NPM_REGISTRY }}" `
+            -pat "${{ secrets.INTERNAL_NPM_PAT }}" `
+            -username "${{ secrets.INTERNAL_NPM_USERNAME }}" `
+            -email "${{ secrets.INTERNAL_NPM_EMAIL }}"
+        shell: pwsh
+        working-directory: ./artifacts
+
+      - name: Download dotvvm-types
+        if: steps.include-check.outputs.match == 'true'
+        run: >
+          if ("dotvvm-types" -match "${{ inputs.exclude }}") {
+            return;
+          }
+
+          npm install "dotvvm-types@{{ $inputs.version }}"
+        shell: pwsh
+        working-directory: ./artifacts
+
+      - name: Set public npm registry
+        if: steps.include-check.outputs.match == 'true'
+        run: >
+          ./ci/scripts/Set-NpmRegistry.ps1 `
+            -targetDirectory "./ci/scripts/npm/dotvvm-types" `
+            -registry "https://registry.npmjs.org" `
+            -pat "${{ secrets.PUBLIC_NPM_PAT }}" `
+            -username "${{ secrets.PUBLIC_NPM_USERNAME }}" `
+            -email "${{ secrets.PUBLIC_NPM_EMAIL }}"
+        shell: pwsh
+        working-directory: ./artifacts
+
+      - name: Publish dotvvm-types to registry.npmjs.org
+        run: npm publish
+        working-directory: ./artifacts

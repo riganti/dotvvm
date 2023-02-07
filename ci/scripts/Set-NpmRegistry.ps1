@@ -1,9 +1,9 @@
 param(
     [string]$targetDirectory,
-    [string][parameter(Mandatory = $true)]$internalNpmRegistry,
-    [string][parameter(Mandatory = $true)]$internalNpmRegistryPat,
-    [string][parameter(Mandatory = $true)]$internalNpmRegistryUsername,
-    [string][parameter(Mandatory = $true)]$internalNpmRegistryEmail
+    [string][parameter(Mandatory = $true)]$registry,
+    [string][parameter(Mandatory = $true)]$pat,
+    [string][parameter(Mandatory = $true)]$username,
+    [string][parameter(Mandatory = $true)]$email
 )
 
 $oldCwd = Get-Location
