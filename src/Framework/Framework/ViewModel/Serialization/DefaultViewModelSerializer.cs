@@ -153,7 +153,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 result["resultIdFragment"] = context.ResultIdFragment;
             }
 
-            if (context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaGet)
+            if (context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaNavigate)
             {
                 result["action"] = "successfulCommand";
             }

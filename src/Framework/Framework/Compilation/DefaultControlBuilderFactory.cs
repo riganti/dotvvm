@@ -79,10 +79,12 @@ namespace DotVVM.Framework.Compilation
             {
                 var sw = ValueStopwatch.StartNew();
                 var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ReadContent(), file.FileName);
+                var phase1Ticks = sw.ElapsedTicks;
 
                 var lazyBuilder = new Lazy<IControlBuilder>(() => {
                     try
                     {
+                        sw.Restart();
                         var result = factory();
 
                         // register the internal resource after the page is successfully compiled,
@@ -111,7 +113,7 @@ namespace DotVVM.Framework.Compilation
                     }
                     finally
                     {
-                        Interlocked.Add(ref DotvvmMetrics.BareCounters.ViewsCompilationTime, sw.ElapsedTicks);
+                        Interlocked.Add(ref DotvvmMetrics.BareCounters.ViewsCompilationTime, phase1Ticks + sw.ElapsedTicks);
                     }
                 });
 

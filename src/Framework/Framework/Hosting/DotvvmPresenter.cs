@@ -256,7 +256,7 @@ namespace DotVVM.Framework.Hosting
                             commandTimer.ElapsedSeconds,
                             new KeyValuePair<string, object?>("command", actionInfo.Binding!.ToString()),
                             new KeyValuePair<string, object?>("result", context.CommandException is null ? "Ok" :
-                                                                        context.IsCommandExceptionHandled ? "Exception" :
+                                                                        context.IsCommandExceptionHandled ? "HandledException" :
                                                                         "UnhandledException"));
                     }
                     await requestTracer.TraceEvent(RequestTracingConstants.CommandExecuted, context);
@@ -289,13 +289,13 @@ namespace DotVVM.Framework.Hosting
 
                 ViewModelSerializer.BuildViewModel(context, commandResult);
 
-                if (context.RequestType == DotvvmRequestType.Get)
+                if (context.RequestType == DotvvmRequestType.Navigate)
                 {
                     await OutputRenderer.WriteHtmlResponse(context, page);
                 }
                 else
                 {
-                    Debug.Assert(context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaGet);
+                    Debug.Assert(context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaNavigate);
                     // postback or SPA content
                     var postBackUpdates = OutputRenderer.RenderPostbackUpdatedControls(context, page);
                     ViewModelSerializer.AddPostBackUpdatedControls(context, postBackUpdates);
@@ -403,7 +403,7 @@ namespace DotVVM.Framework.Hosting
                         commandTimer.ElapsedSeconds,
                         new KeyValuePair<string, object?>("command", executionPlan.ToString()),
                         new KeyValuePair<string, object?>("result", context.CommandException is null ? "Ok" :
-                                                                    context.IsCommandExceptionHandled ? "Exception" :
+                                                                    context.IsCommandExceptionHandled ? "HandledException" :
                                                                     "UnhandledException"));
                 }
 
@@ -538,7 +538,7 @@ namespace DotVVM.Framework.Hosting
                 // he'll will just get a redirect response, not anything useful
                 else if (dest is "empty")
                 {
-                    if (context.RequestType is not DotvvmRequestType.SpaGet)
+                    if (context.RequestType is not DotvvmRequestType.SpaNavigate)
                         await context.RejectRequest($"""
                             Pages can not be loaded using Javascript for security reasons.
                             Try refreshing the page to get rid of the error.
@@ -561,11 +561,11 @@ namespace DotVVM.Framework.Hosting
 
         [Obsolete("Use context.RequestType == DotvvmRequestType.SpaGet")]
         public static bool DetermineSpaRequest(IHttpContext context) =>
-            DotvvmRequestContext.DetermineRequestType(context) == DotvvmRequestType.SpaGet;
+            DotvvmRequestContext.DetermineRequestType(context) == DotvvmRequestType.SpaNavigate;
 
         [Obsolete("Use context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaGet")]
         public static bool DeterminePartialRendering(IHttpContext context) =>
-            DotvvmRequestContext.DetermineRequestType(context) is DotvvmRequestType.Command or DotvvmRequestType.SpaGet;
+            DotvvmRequestContext.DetermineRequestType(context) is DotvvmRequestType.Command or DotvvmRequestType.SpaNavigate;
 
         public static string? DetermineSpaContentPlaceHolderUniqueId(IHttpContext context)
         {

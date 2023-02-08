@@ -27,21 +27,26 @@ namespace DotVVM.Framework.Hosting.Middlewares
             var resource = urlManager.FindResource(request.HttpContext.Request.Url.ToString(), request, out var mimeType);
             if (resource != null)
             {
-                request.HttpContext.Response.ContentType = mimeType;
-                if (!this.config.Debug)
-                    request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "public, max-age=31536000, immutable" });
-                else
-                    request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "no-cache, no-store, must-revalidate" });
-                using (var body = resource.LoadResource(request))
+                try
                 {
-                    if (body.CanSeek)
-                        request.HttpContext.Response.Headers["Content-Length"] = body.Length.ToString();
+                    request.HttpContext.Response.ContentType = mimeType;
+                    if (!this.config.Debug)
+                        request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "public, max-age=31536000, immutable" });
+                    else
+                        request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "no-cache, no-store, must-revalidate" });
+                    using (var body = resource.LoadResource(request))
+                    {
+                        if (body.CanSeek)
+                            request.HttpContext.Response.Headers["Content-Length"] = body.Length.ToString();
 
-                    await body.CopyToAsync(request.HttpContext.Response.Body);
+                        await body.CopyToAsync(request.HttpContext.Response.Body);
+                    }
+                    return true;
                 }
-
-                DotvvmMetrics.ResourceServeDuration.Record(sw.ElapsedSeconds);
-                return true;
+                finally
+                {
+                    DotvvmMetrics.ResourceServeDuration.Record(sw.ElapsedSeconds);
+                }
             }
             else
             {

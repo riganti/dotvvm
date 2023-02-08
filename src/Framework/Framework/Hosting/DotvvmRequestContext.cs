@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Hosting
             {
                 // TODO: remove this setter
                 if (value) RequestType = DotvvmRequestType.Command;
-                else if (RequestType == DotvvmRequestType.Command) RequestType = DotvvmRequestType.Get;
+                else if (RequestType == DotvvmRequestType.Command) RequestType = DotvvmRequestType.Navigate;
             }
         }
 
@@ -112,12 +112,12 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
         /// </summary>
-        public bool IsSpaRequest => RequestType is DotvvmRequestType.SpaGet;
+        public bool IsSpaRequest => RequestType is DotvvmRequestType.SpaNavigate;
 
         /// <summary>
         /// Gets a value indicating whether this HTTP request is made from single page application and only the SpaContentPlaceHolder content will be rendered.
         /// </summary>
-        public bool IsInPartialRenderingMode => RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaGet;
+        public bool IsInPartialRenderingMode => RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaNavigate;
 
         [Obsolete("Get the IViewModelSerializer from IServiceProvider")]
         public IViewModelSerializer ViewModelSerializer => Services.GetRequiredService<IViewModelSerializer>();
@@ -154,9 +154,9 @@ namespace DotVVM.Framework.Hosting
             {
                 if (context.Request.Headers.ContainsKey(HostingConstants.SpaContentPlaceHolderHeaderName))
                 {
-                    return DotvvmRequestType.SpaGet;
+                    return DotvvmRequestType.SpaNavigate;
                 }
-                return DotvvmRequestType.Get;
+                return DotvvmRequestType.Navigate;
             }
             if (method == "POST")
             {

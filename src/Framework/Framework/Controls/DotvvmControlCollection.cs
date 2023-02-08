@@ -413,7 +413,7 @@ namespace DotVVM.Framework.Controls
             }
             finally
             {
-                DotvvmMetrics.LifecycleInfocationDuration.Record(timer.ElapsedSeconds, context.RouteLabel(), new KeyValuePair<string, object?>("lifecycle_type", eventType.ToString()));
+                DotvvmMetrics.LifecycleInvocationDuration.Record(timer.ElapsedSeconds, context.RouteLabel(), new KeyValuePair<string, object?>("lifecycle_type", eventType.ToString()));
             }
         }
 

@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Hosting
             Meter.CreateHistogram<double>("viewmodel_serialization_seconds", unit: "seconds", description: "Time it took to serialize view model to JSON objects.");
 
         /// <summary> Labeled by route=RouteName and lifecycle_type=TODO </summary>
-        public static readonly Histogram<double> LifecycleInfocationDuration =
+        public static readonly Histogram<double> LifecycleInvocationDuration =
             Meter.CreateHistogram<double>("control_lifecycle_seconds", unit: "seconds", description: "Time it took to process a request on the specific route.");
 
         /// <summary> Labeled by route=RouteName, dothtml_file=filepath, request_type=GET/POST </summary>
@@ -177,6 +177,9 @@ namespace DotVVM.Framework.Hosting
         public static ValueStopwatch StartNew() => new ValueStopwatch(Stopwatch.GetTimestamp());
         public static ValueStopwatch StartNew(bool isActive) =>
             isActive ? new ValueStopwatch(Stopwatch.GetTimestamp()) : default;
+
+
+        public void Restart() => _startTimestamp = Stopwatch.GetTimestamp();
 
         public long ElapsedTicks
         {

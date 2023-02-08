@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Testing
             get => RequestType == DotvvmRequestType.Command;
             [Obsolete("Don't do this", true)] set { }
         }
-        public DotvvmRequestType RequestType { get; set; } = DotvvmRequestType.Get;
+        public DotvvmRequestType RequestType { get; set; } = DotvvmRequestType.Navigate;
         public IDictionary<string, object> Parameters { get; set; }
         public ResourceManager ResourceManager { get; set; }
         public ModelState ModelState { get; set; }
@@ -38,8 +38,8 @@ namespace DotVVM.Framework.Testing
         public bool IsCommandExceptionHandled { get; set; }
         public bool IsPageExceptionHandled { get; set; }
         public Exception CommandException { get; set; }
-        public bool IsSpaRequest => RequestType == DotvvmRequestType.SpaGet;
-        public bool IsInPartialRenderingMode => RequestType is DotvvmRequestType.SpaGet or DotvvmRequestType.Command;
+        public bool IsSpaRequest => RequestType == DotvvmRequestType.SpaNavigate;
+        public bool IsInPartialRenderingMode => RequestType is DotvvmRequestType.SpaNavigate or DotvvmRequestType.Command;
         public string ApplicationHostPath { get; set; }
         public string ResultIdFragment { get; set; }
         public DotvvmView View { get; set; }

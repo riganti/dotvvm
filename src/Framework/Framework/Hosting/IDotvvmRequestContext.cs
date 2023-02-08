@@ -124,10 +124,9 @@ namespace DotVVM.Framework.Hosting
     {
         Unknown,
         /// <summary> Initial GET request returning html output </summary>
-        Get, // TODO: naming? Navigate?
-
-        /// <summary> Initial GET request for already loaded SPA website. Expected to return JSON with html fragments </summary>
-        SpaGet,
+        Navigate,
+        /// <summary> Initial GET request for an already loaded SPA website. Expected to return JSON with html fragments </summary>
+        SpaNavigate,
         /// <summary> POST request handling a command binding invocation. </summary>
         Command,
         /// <summary> POST request handling a static command binding invocation. </summary>
