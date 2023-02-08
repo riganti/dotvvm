@@ -46,8 +46,8 @@ $LASTEXITCODE
 function CleanOldGeneratedPackages() {
     Write-Host "Cleaning old versions of nupkg ..."
     foreach ($package in $packages) {
-        del .\$($package.Directory)\bin\$configuration\*.nupkg -ErrorAction SilentlyContinue
-        del .\$($package.Directory)\bin\$configuration\*.snupkg -ErrorAction SilentlyContinue
+        del .\$($package.Path)\bin\$configuration\*.nupkg -ErrorAction SilentlyContinue
+        del .\$($package.Path)\bin\$configuration\*.snupkg -ErrorAction SilentlyContinue
     }
 }
 
@@ -59,7 +59,7 @@ function BuildPackages() {
     Write-Host "Build started"
     $originDirecotry = $PWD
     foreach ($package in $packages) {
-        cd .\$($package.Directory)
+        cd .\$($package.Path)
         Write-Host "Building in directory $PWD"
 
         if ($nugetRestoreAltSource -eq "") {
@@ -79,9 +79,9 @@ function SignPackages() {
     if ($signUser -ne "") {
         Write-Host "Signing packages ..."
         foreach ($package in $packages) {
-            $baseDir = Join-Path $currentDirectory ".\$($package.Directory)\bin\$configuration\"
-            Write-Host "Signing $($package.Package + " " + $version) (Base dir: $baseDir)"
-            & dotnet signclient sign --baseDirectory "$baseDir" --input *.nupkg  --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "$($package.Package)" --description "$($package.Package + " " + $version)" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
+            $baseDir = Join-Path $currentDirectory ".\$($package.Path)\bin\$configuration\"
+            Write-Host "Signing $($package.Name + " " + $version) (Base dir: $baseDir)"
+            & dotnet signclient sign --baseDirectory "$baseDir" --input *.nupkg  --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "$($package.Name)" --description "$($package.Name + " " + $version)" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
         }
     }
 }
@@ -89,8 +89,8 @@ function SignPackages() {
 function PushPackages() {
     Write-Host "Pushing packages ..."
     foreach ($package in $packages) {
-        & ../ci/scripts/nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
-        & ../ci/scripts/nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.snupkg -source $server -apiKey $apiKey | Out-Host
+        & ../ci/scripts/nuget.exe push .\$($package.Path)\bin\$configuration\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
+        & ../ci/scripts/nuget.exe push .\$($package.Path)\bin\$configuration\$($package.Package).$version.snupkg -source $server -apiKey $apiKey | Out-Host
     }
 }
 
@@ -140,29 +140,7 @@ function GitPush() {
 
 ### Configuration
 
-$packages = @(
-    [pscustomobject]@{ Package = "DotVVM.Core"; Directory = "Framework/Core" },
-    [pscustomobject]@{ Package = "DotVVM"; Directory = "Framework/Framework" },
-    [pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "Framework/Hosting.Owin" },
-    [pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "Framework/Hosting.AspNetCore" },
-    [pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "Tools/CommandLine" },
-    [pscustomobject]@{ Package = "DotVVM.Tools.StartupPerf"; Directory = "Tools/StartupPerfTester" },
-    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "Api/Swashbuckle.AspNetCore" },
-    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "Api/Swashbuckle.Owin" },
-    [pscustomobject]@{ Package = "DotVVM.HotReload"; Directory = "Tools/HotReload/Common" },
-    [pscustomobject]@{ Package = "DotVVM.HotReload.AspNetCore"; Directory = "Tools/HotReload/AspNetCore" },
-    [pscustomobject]@{ Package = "DotVVM.HotReload.Owin"; Directory = "Tools/HotReload/Owin" }
-    [pscustomobject]@{ Package = "DotVVM.Testing"; Directory = "Framework/Testing" },
-    [pscustomobject]@{ Package = "DotVVM.DynamicData"; Directory = "DynamicData/DynamicData" },
-    [pscustomobject]@{ Package = "DotVVM.DynamicData.Annotations"; Directory = "DynamicData/Annotations" },
-    [pscustomobject]@{ Package = "DotVVM.AutoUI"; Directory = "AutoUI/Core" },
-    [pscustomobject]@{ Package = "DotVVM.AutoUI.Annotations"; Directory = "AutoUI/Annotations" },
-    [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights"; Directory = "Tracing/ApplicationInsights" },
-    [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.AspNetCore"; Directory = "Tracing/ApplicationInsights.AspNetCore" },
-    [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.Owin"; Directory = "Tracing/ApplicationInsights.Owin" }
-    [pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.AspNetCore"; Directory = "Tracing/MiniProfiler.AspNetCore" },
-    [pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.Owin"; Directory = "Tracing/MiniProfiler.Owin" }
-)
+$packages = . "$PSScriptRoot/Get-PublicProjects.ps1" | Where-Object { $_.Type -ne "template" }
 
 
 ### Publish Workflow

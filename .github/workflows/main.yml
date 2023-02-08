@@ -1,4 +1,4 @@
-name: Github Actions
+name: Run tests
 
 on: ["push"]
 
@@ -18,7 +18,7 @@ jobs:
         configuration: [Release, Debug]
     timeout-minutes: 20
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up
       uses: ./.github/setup
       with:
@@ -73,7 +73,7 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 20
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up
       uses: ./.github/setup
     - name: MSBuild build
@@ -88,7 +88,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-2022, macOS-latest]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up
       uses: ./.github/setup
       with:
@@ -131,7 +131,7 @@ jobs:
     name: JS unit tests
     timeout-minutes: 20
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     # Node.js
     - uses: actions/setup-node@v2
       with:
@@ -174,7 +174,7 @@ jobs:
     env:
       SLN: "${{ matrix.os == 'windows-2022' && 'src/DotVVM.sln' || 'src/DotVVM.Crossplatform.slnf' }}"
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up
       uses: ./.github/setup
       with:

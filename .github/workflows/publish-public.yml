@@ -1,0 +1,108 @@
+name: publish-public
+
+on:
+  workflow_dispatch:
+    inputs:
+      include:
+        type: string
+        default: "*"
+        description: RegEx describing packages to publish publicly
+        required: false
+      exclude:
+        type: string
+        default: ""
+        description: RegEx describing packages to exclude from publishing publicly
+        required: false
+      version:
+        type: string
+        default: ""
+        description: The version of the packages to publish publicly
+        required: false
+
+jobs:
+  copy-nuget-packages:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: nuget/setup-nuget@v1
+        with:
+          nuget-version: "6.x"
+
+      - name: Add internal NuGet feed
+        run: >
+          ./ci/scripts/Add-InternalNuGetFeed.ps1 `
+            -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
+            -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
+            -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}" ;`
+          nuget sources
+        shell: pwsh
+
+      - name: Publish to NuGet.org
+        run: >
+          ./ci/scripts/Copy-NuGetPackages.ps1 `
+            -root "${{ github.workspace }}" `
+            -nuGetOrgApiKey "${{ secrets.NUGET_ORG_API_KEY }}" `
+            -include '${{ inputs.include }}' `
+            -exclude '${{ inputs.exclude }}' `
+            -version "${{ inputs.version }}"
+        shell: pwsh
+
+  copy-npm-packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - id: include-check
+        run: >
+          if ((("${{ inputs.include }}" -eq '*') -or ("${{ inputs.include }}" -match "dotvvm-types")) -and `
+            ("${{ inputs.exclude }}" -notmatch "dotvvm-types")) {
+            Write-Output "match=true" >> $env:GITHUB_OUTPUT
+          } else {
+            Write-Output "Skipping the publish of dotvvm-types."
+            Write-Output "match=false" >> $env:GITHUB_OUTPUT
+          }
+        shell: pwsh
+
+      - uses: actions/checkout@v3
+        if: steps.include-check.outputs.match == 'true'
+
+      - name: Make the 'artifacts' directory
+        if: steps.include-check.outputs.match == 'true'
+        run: mkdir "artifacts"
+
+      - name: Set internal npm registry
+        if: steps.include-check.outputs.match == 'true'
+        run: >
+          ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
+            -targetDirectory "." `
+            -registry "${{ secrets.INTERNAL_NPM_REGISTRY }}" `
+            -pat "${{ secrets.INTERNAL_NPM_PAT }}" `
+            -username "${{ secrets.INTERNAL_NPM_USERNAME }}" `
+            -email "${{ secrets.INTERNAL_NPM_EMAIL }}"
+        shell: pwsh
+        working-directory: ./artifacts
+
+      - name: Download dotvvm-types
+        if: steps.include-check.outputs.match == 'true'
+        run: >
+          npm install "dotvvm-types@${{ inputs.version }}" ;
+          ls
+        working-directory: ./artifacts
+
+      - name: Set public npm registry
+        if: steps.include-check.outputs.match == 'true'
+        run: >
+          ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
+            -targetDirectory "." `
+            -registry "https://registry.npmjs.org" `
+            -pat "${{ secrets.PUBLIC_NPM_PAT }}" `
+            -username "${{ secrets.PUBLIC_NPM_USERNAME }}" `
+            -email "${{ secrets.PUBLIC_NPM_EMAIL }}"
+        shell: pwsh
+        working-directory: ./artifacts
+
+      - name: Publish dotvvm-types to registry.npmjs.org
+        if: steps.include-check.outputs.match == 'true'
+        run: npm publish
+        working-directory: ./artifacts
