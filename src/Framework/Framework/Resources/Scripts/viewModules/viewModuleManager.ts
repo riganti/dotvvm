@@ -253,8 +253,8 @@ function mapCommandResult(result: any) {
     return result
 }
 
-export class ModuleContext {
-    private readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> } = {};
+export class ModuleContext implements DotvvmModuleContext {
+    public readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> } = {};
     public module: any;
     
     constructor(
