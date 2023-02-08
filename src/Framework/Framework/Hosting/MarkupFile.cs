@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Hosting
         }
 
         public override int GetHashCode() =>
-            HashCode.Combine(StringComparer.OrdinalIgnoreCase.GetHashCode(FullPath), LastWriteDateTimeUtc);
+            (StringComparer.OrdinalIgnoreCase.GetHashCode(FullPath), LastWriteDateTimeUtc).GetHashCode();
 
         public Func<string> ReadContent { get; private set; }
 
