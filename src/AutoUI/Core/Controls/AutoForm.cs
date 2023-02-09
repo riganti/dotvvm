@@ -12,6 +12,9 @@ namespace DotVVM.AutoUI.Controls
         {
         }
 
+        /// <summary>
+        /// Gets or sets the CSS class that will be used for the table cell with field labels.
+        /// </summary>
         public string? LabelCellCssClass
         {
             get { return (string?)GetValue(LabelCellCssClassProperty); }
@@ -20,6 +23,9 @@ namespace DotVVM.AutoUI.Controls
         public static readonly DotvvmProperty LabelCellCssClassProperty =
             DotvvmProperty.Register<string, AutoForm>(nameof(LabelCellCssClass));
 
+        /// <summary>
+        /// Gets or sets the CSS class that will be used for the table cell with editor control.
+        /// </summary>
         public string? EditorCellCssClass
         {
             get { return (string?)GetValue(EditorCellCssClassProperty); }

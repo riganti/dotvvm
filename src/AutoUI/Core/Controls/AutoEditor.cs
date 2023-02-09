@@ -60,10 +60,26 @@ namespace DotVVM.AutoUI.Controls
         [DotvvmControlCapability]
         public sealed record Props
         {
+            /// <summary>
+            /// Gets or sets the viewmodel property for which the editor should be generated.
+            /// </summary>
             public IValueBinding? Property { get; init; }
+
+            /// <summary>
+            /// Gets or sets the command that will be triggered when the value in the editor is changed.
+            /// </summary>
             public ICommandBinding? Changed { get; init; }
+
+            /// <summary>
+            /// Gets or sets whether the editor is enabled or not.
+            /// </summary>
             public ValueOrBinding<bool> Enabled { get; init; } = new(true);
+
             public HtmlCapability Html { get; init; } = new();
+
+            /// <summary>
+            /// Gets or sets the template that will be used for the editor control. This property is primarily intended to be used when the control is used within another control.
+            /// </summary>
             public ITemplate? OverrideTemplate { get; init; }
         }
     }
