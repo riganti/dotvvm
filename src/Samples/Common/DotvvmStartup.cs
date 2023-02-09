@@ -19,6 +19,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using DotVVM.AutoUI.Controls;
 using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Controls;
@@ -136,6 +137,28 @@ namespace DotVVM.Samples.BasicSamples
 
             config.Styles.Register<Button>(c => c.HasHtmlAttribute("server-side-style-attribute"))
                .SetControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler("ConfirmPostBackHandler Content"));
+
+            // Bootstrap styles
+            config.Styles.Register<BootstrapForm>(c => c.HasTag("Bootstrap3"))
+                .SetProperty(c => c.FormGroupCssClass, "form-group")
+                .SetProperty(c => c.LabelCssClass, "")
+                .SetProperty(c => c.FormControlCssClass, "form-control")
+                .SetProperty(c => c.FormSelectCssClass, "form-control")
+                .SetProperty(c => c.FormCheckCssClass, "checkbox")
+                .SetProperty(c => c.FormCheckLabelCssClass, "")
+                .SetProperty(c => c.FormCheckInputCssClass, "")
+                .SetProperty(c => c.WrapControlInDiv, true)
+                .SetDotvvmProperty(Validator.InvalidCssClassProperty, "has-error");
+
+            config.Styles.Register<BootstrapForm>(c => c.HasTag("Bootstrap4"))
+                .SetProperty(c => c.FormGroupCssClass, "form-group")
+                .SetProperty(c => c.LabelCssClass, "")
+                .SetProperty(c => c.FormControlCssClass, "form-control")
+                .SetProperty(c => c.FormSelectCssClass, "form-control")
+                .SetProperty(c => c.FormCheckCssClass, "form-check")
+                .SetProperty(c => c.FormCheckLabelCssClass, "form-check-label")
+                .SetProperty(c => c.FormCheckInputCssClass, "form-check-input")
+                .SetDotvvmProperty(Validator.InvalidCssClassProperty, "is-invalid");
         }
 
         private static void AddRedirections(DotvvmConfiguration config)

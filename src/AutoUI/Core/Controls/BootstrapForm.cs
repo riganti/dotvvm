@@ -22,7 +22,7 @@ namespace DotVVM.AutoUI.Controls
             set { SetValue(LabelCssClassProperty, value); }
         }
         public static readonly DotvvmProperty LabelCssClassProperty =
-            DotvvmProperty.Register<string, BootstrapForm>(nameof(LabelCssClass), "control-label");
+            DotvvmProperty.Register<string, BootstrapForm>(nameof(LabelCssClass), "form-label");
 
         /// <summary>
         /// Gets or sets the CSS class that will be applied to the root div element. Set this to 'form-group' if you are using Bootstrap 3 and 4.
@@ -33,7 +33,7 @@ namespace DotVVM.AutoUI.Controls
             set { SetValue(FormGroupCssClassProperty, value); }
         }
         public static readonly DotvvmProperty FormGroupCssClassProperty =
-            DotvvmProperty.Register<string, BootstrapForm>(nameof(FormGroupCssClass), "mb-4");
+            DotvvmProperty.Register<string, BootstrapForm>(nameof(FormGroupCssClass), "mb-3");
 
         /// <summary>
         /// Gets or sets the CSS class that will be applied to the rendered control elements (TextBox and other input types, except for select, checkbox and radios).
@@ -90,6 +90,18 @@ namespace DotVVM.AutoUI.Controls
         public static readonly DotvvmProperty FormCheckInputCssClassProperty
             = DotvvmProperty.Register<string?, BootstrapForm>(c => c.FormCheckInputCssClass, "form-check-input");
 
+        /// <summary>
+        /// Gets or sets whether the generated control shall be wrapped in the div element. Set this to true for Bootstrap 3.
+        /// </summary>
+        public bool WrapControlInDiv
+        {
+            get { return (bool)GetValue(WrapControlInDivProperty); }
+            set { SetValue(WrapControlInDivProperty, value); }
+        }
+        public static readonly DotvvmProperty WrapControlInDivProperty
+            = DotvvmProperty.Register<bool, BootstrapForm>(c => c.WrapControlInDiv, false);
+
+
 
         public DotvvmControl GetContents(FieldProps props)
         {
@@ -106,14 +118,10 @@ namespace DotVVM.AutoUI.Controls
                     continue;
                 }
                 // create the row
-                HtmlGenericControl labelElement, controlElement;
-                var formGroup = InitializeFormGroup(property, context, out labelElement, out controlElement);
-
-                // create the label
-                labelElement.AppendChildren(InitializeControlLabel(property, context, props));
-
-                // create the editorProvider
-                InitializeEditor(controlElement, props, property, context);
+                Label? labelElement;
+                HtmlGenericControl controlElement;
+                var formGroup = InitializeFormGroup(property, context, props, out labelElement, out controlElement);
+                
 
                 // create the validator
                 InitializeValidation(controlElement, labelElement, property, context);
@@ -124,27 +132,33 @@ namespace DotVVM.AutoUI.Controls
             return resultPlaceholder;
         }
 
-        private void InitializeEditor(HtmlGenericControl controlElement, FieldProps props, PropertyDisplayMetadata property, AutoUIContext context)
+        private void InitializeEditor(DotvvmControl editor, HtmlGenericControl controlElement)
         {
-            var editor = CreateEditor(property, context, props);
-
             if (editor.GetThisAndAllDescendants().Any(
-                d => d is CheckBox or RadioButton
-                    || d.GetValue<bool>(RequiresFormCheckCssClassProperty)))
+                    d => d is CheckBox or RadioButton
+                         || d.GetValue<bool>(RequiresFormCheckCssClassProperty)))
             {
                 controlElement.AddCssClass(FormCheckCssClass);
             }
-
-            controlElement.AppendChildren(editor);
         }
 
-        protected virtual HtmlGenericControl InitializeFormGroup(PropertyDisplayMetadata property, AutoUIContext autoUiContext, out HtmlGenericControl labelElement, out HtmlGenericControl controlElement)
+        protected virtual HtmlGenericControl InitializeFormGroup(PropertyDisplayMetadata property, AutoUIContext autoUiContext, FieldProps props, out Label? labelElement, out HtmlGenericControl controlElement)
         {
-            labelElement = new HtmlGenericControl("label")
-                .AddCssClass(LabelCssClass);
+            labelElement = InitializeControlLabel(property, autoUiContext, props);
+            labelElement?.AddCssClass(LabelCssClass);
 
-            controlElement = new HtmlGenericControl("div")
-                .AddCssClass(property.Styles?.FormControlContainerCssClass);
+            var editor = CreateEditor(property, autoUiContext, props);
+            if (!WrapControlInDiv && editor is HtmlGenericControl editorHtmlControl)
+            {
+                controlElement = editorHtmlControl;
+            }
+            else
+            {
+                controlElement = new HtmlGenericControl("div")
+                    .AddCssClass(property.Styles?.FormControlContainerCssClass)
+                    .AppendChildren(editor);
+            }
+            InitializeEditor(editor, controlElement);
 
             return
                 new HtmlGenericControl("div")
