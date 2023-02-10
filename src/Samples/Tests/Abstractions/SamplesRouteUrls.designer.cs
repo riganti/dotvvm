@@ -210,6 +210,9 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_AutoUI_AutoEditor = "FeatureSamples/AutoUI/AutoEditor";
         public const string FeatureSamples_AutoUI_AutoForm = "FeatureSamples/AutoUI/AutoForm";
         public const string FeatureSamples_AutoUI_AutoGridViewColumns = "FeatureSamples/AutoUI/AutoGridViewColumns";
+        public const string FeatureSamples_AutoUI_BootstrapForm3 = "FeatureSamples/AutoUI/BootstrapForm3";
+        public const string FeatureSamples_AutoUI_BootstrapForm4 = "FeatureSamples/AutoUI/BootstrapForm4";
+        public const string FeatureSamples_AutoUI_BootstrapForm5 = "FeatureSamples/AutoUI/BootstrapForm5";
         public const string FeatureSamples_BindableCssStyles_BindableCssStyles = "FeatureSamples/BindableCssStyles/BindableCssStyles";
         public const string FeatureSamples_BindingContexts_BindingContext = "FeatureSamples/BindingContexts/BindingContext";
         public const string FeatureSamples_BindingContexts_CollectionContext = "FeatureSamples/BindingContexts/CollectionContext";
