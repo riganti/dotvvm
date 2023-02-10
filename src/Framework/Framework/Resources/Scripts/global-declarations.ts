@@ -322,3 +322,16 @@ type DotvvmViewModule = {
 
     [commandName: DotvvmViewModuleCommandName]: (...args: any[]) => Promise<any> | any
 }
+
+type DotvvmModuleContext = {
+    /** Name of the resource defining the view module */
+    moduleName: string
+    /** Instance of the view module */
+    module: any
+    /** List of element where this module is mounted. It will be `document.body` for pages and the wrapper tag for markup controls. Most likely, only one element is in the collection. */
+    elements: HTMLElement[]
+    /** Properties of the markup control which were sent to the client */
+    properties: { [name: string]: any }
+    /** <dot:NamedCommand /> declared in the dothtml/dotcontrol view. */
+    namedCommands: { [name: string]: (...args: any[]) => Promise<any> }
+}
