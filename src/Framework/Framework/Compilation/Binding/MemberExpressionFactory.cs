@@ -360,7 +360,17 @@ namespace DotVVM.Framework.Compilation.Binding
                         else return null;
                     }
                 }
-                method = method.MakeGenericMethod(typeArgs);
+                try
+                {
+                    method = method.MakeGenericMethod(typeArgs);
+                }
+                catch (ArgumentException e) when (e.GetBaseException() is System.Security.VerificationException)
+                {
+                    // Verifies that the type constraints are satisfied by the type arguments.
+                    // We could implement partial verification using GetGenericParameterConstraints(), but
+                    // that doesn't give us (AFAIK) information about `new()`, constraint (and probably others).
+                    return null;
+                }
                 parameters = method.GetParameters();
             }
             else if (typeArguments != null) return null;

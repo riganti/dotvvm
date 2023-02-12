@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
-using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -42,6 +42,49 @@ namespace DotVVM.Framework.Tests.Binding
             var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
             Assert.AreEqual(12, result);
         }
+
+        [TestMethod]
+        public void Call_FindCustomExtensionMethodWithInheritance()
+        {
+            var p = Expression.Parameter(typeof(Literal), "dotvvmControl");
+            var target = new MethodGroupExpression(
+                p,
+                nameof(TestExtensions.ExtensionMethodInheritance)
+            );
+
+            var expression = CreateCall(target, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") });
+            var result = Expression.Lambda<Func<Literal, int>>(expression, new [] { p }).Compile().Invoke(
+                new Literal("test")
+            );
+            Assert.AreEqual(2, result);
+        }
+
+        [TestMethod]
+        public void Call_FindCustomExtensionMethod_TypeConstraint_Mismatch()
+        {
+            var target = new MethodGroupExpression(
+                Expression.Constant(1, typeof(int)),
+                nameof(TestExtensions.ExtensionMethodGeneric)
+            );
+
+            var expression = CreateCall(target, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") });
+            var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
+            Assert.AreEqual(1, result);
+        }
+
+        [TestMethod]
+        public void Call_FindCustomExtensionMethod_TypeConstraint_Match()
+        {
+            var target = new MethodGroupExpression(
+                Expression.Constant(new Literal("A")),
+                nameof(TestExtensions.ExtensionMethodGeneric)
+            );
+
+            var expression = CreateCall(target, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") });
+            var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
+            Assert.AreEqual(2, result);
+        }
+
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
@@ -143,6 +186,11 @@ namespace DotVVM.Framework.Tests.Binding
 
         public static int ExtensionMethodWithOptionalArgument(this int number, int arg = 321)
             => arg;
+
+        public static int ExtensionMethodInheritance(this DotvvmControl c) => c.properties.Count();
+        public static int ExtensionMethodGeneric<T>(this T c)
+            where T: DotvvmControl => c.properties.Count();
+        public static int ExtensionMethodGeneric(this int c) => c; // alternative overload
     }
 
     namespace AmbiguousExtensions
