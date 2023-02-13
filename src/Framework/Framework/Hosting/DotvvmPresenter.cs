@@ -465,7 +465,7 @@ namespace DotVVM.Framework.Hosting
                     var argumentIndex = parameter.Position;
                     var propertyPath = error.PropertyPath?.Trim('/');
                     var argumentPath = argumentPaths[argumentIndex]?.TrimEnd('/');
-                    error.PropertyPath = (argumentPath is not null) ? $"{argumentPath}/{error.PropertyPath}" : $"${argumentIndex}/{error.PropertyPath}".TrimEnd('/');
+                    error.PropertyPath = ((argumentPath is not null) ? $"{argumentPath}/{error.PropertyPath}" : $"${argumentIndex}/{error.PropertyPath}").TrimEnd('/');
                 }
 
                 var jObject = new JObject
@@ -475,6 +475,7 @@ namespace DotVVM.Framework.Hosting
                 };
                 var result = jObject.ToString();
 
+                context.HttpContext.Response.ContentType = "application/json";
                 await context.HttpContext.Response.WriteAsync(result);
                 throw new DotvvmInterruptRequestExecutionException(InterruptReason.ArgumentsValidationFailed, "Argument contain validation errors!");
             }
