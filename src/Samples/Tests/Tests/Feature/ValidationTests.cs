@@ -715,6 +715,22 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
+        public void Feature_Validation_CollectionAsValidationTarget_AutomaticValidation()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationTargetIsCollection);
+
+                var validateButton = browser.First("[data-ui=validation-button]");
+                var validationSummary = browser.First("[data-ui=validation-summary]");
+
+                Assert.Equal(0, validationSummary.Children.Count);
+
+                validateButton.Click();
+                Assert.Equal(2, validationSummary.Children.Count);
+            });
+        }
+
+        [Fact]
         public void Feature_Validation_EncryptedData()
         {
             RunInAllBrowsers(browser => {
