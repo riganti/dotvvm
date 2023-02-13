@@ -462,6 +462,17 @@ namespace DotVVM.Framework.Binding
         public static BindingDelegate<T> ToGeneric<T>(this BindingDelegate d) => (a, b) => (T)d(a, b)!;
         public static BindingUpdateDelegate<T> ToGeneric<T>(this BindingUpdateDelegate d) => (a, b, c) => d(a, b, c);
 
+        public static string GetBindingName(this IBinding binding) =>
+            binding switch {
+                ControlPropertyBindingExpression => "controlProperty",
+                ValueBindingExpression => "value",
+                ResourceBindingExpression => "resource",
+                ControlCommandBindingExpression => "controlCommand",
+                StaticCommandBindingExpression => "staticCommand",
+                CommandBindingExpression => "command",
+                _ => binding.GetType().Name
+            };
+
         public record InvalidDataContextTypeException(
             DotvvmBindableObject Control,
             object? ContextObject,

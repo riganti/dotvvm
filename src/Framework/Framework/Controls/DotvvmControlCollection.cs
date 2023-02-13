@@ -315,12 +315,12 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Invokes missed page life cycle events on the control.
         /// </summary>
-        private void InvokeMissedPageLifeCycleEvents(LifeCycleEventType targetEventType, bool isMissingInvoke)
+        private void InvokeMissedPageLifeCycleEvents(LifeCycleEventType targetEventType, bool isMissingInvoke, IDotvvmRequestContext? context = null)
         {
             // just a quick check to save GetValue call
             if (lastLifeCycleEvent >= targetEventType || parent.LifecycleRequirements == ControlLifecycleRequirements.None) return;
 
-            var context = GetContext();
+            context ??= GetContext();
             if (context == null)
                 throw new DotvvmControlException(parent, "InvokeMissedPageLifeCycleEvents must be called on a control rooted in a view.");
 
@@ -404,9 +404,17 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Invokes the specified method on all controls in the page control tree.
         /// </summary>
-        public static void InvokePageLifeCycleEventRecursive(DotvvmControl rootControl, LifeCycleEventType eventType)
+        public static void InvokePageLifeCycleEventRecursive(DotvvmControl rootControl, LifeCycleEventType eventType, IDotvvmRequestContext context)
         {
-            rootControl.Children.InvokeMissedPageLifeCycleEvents(eventType, isMissingInvoke: false);
+            var timer = ValueStopwatch.StartNew();
+            try
+            {
+                rootControl.Children.InvokeMissedPageLifeCycleEvents(eventType, isMissingInvoke: false, context);
+            }
+            finally
+            {
+                DotvvmMetrics.LifecycleInvocationDuration.Record(timer.ElapsedSeconds, context.RouteLabel(), new KeyValuePair<string, object?>("lifecycle_type", eventType.ToString()));
+            }
         }
 
         private static DotvvmControl? GetClosestDotvvmControlAncestor(DotvvmControl control)

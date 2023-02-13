@@ -17,6 +17,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
         {
             if (DotvvmMiddlewareBase.GetCleanRequestUrl(cx.HttpContext) == HostingConstants.CsrfTokenMatchUrl)
             {
+                DotvvmMetrics.LazyCsrfTokenGenerated.Add(1);
+
                 var token = csrfProtector.GenerateToken(cx);
                 await cx.HttpContext.Response.WriteAsync(token);
                 return true;

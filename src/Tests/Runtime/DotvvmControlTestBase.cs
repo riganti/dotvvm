@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Tests.Runtime
             view.DataContext = context.ViewModel;
             view.SetValue(Internal.RequestContextProperty, context);
 
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(view, LifeCycleEventType.PreRenderComplete);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(view, LifeCycleEventType.PreRenderComplete, context);
             using (var text = new StringWriter())
             {
                 var html = new HtmlWriter(text, context);

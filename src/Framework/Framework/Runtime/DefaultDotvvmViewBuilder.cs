@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         protected void VerifySpaRequest(IDotvvmRequestContext context, DotvvmView page)
         {
-            if (context.IsSpaRequest)
+            if (context.RequestType == DotvvmRequestType.SpaNavigate)
             {
                 var spaContentPlaceHolders = page.GetAllDescendants().OfType<SpaContentPlaceHolder>().ToList();
                 var spaContentPlaceHolderIds = context.GetSpaContentPlaceHolderUniqueId()!.Split(';');

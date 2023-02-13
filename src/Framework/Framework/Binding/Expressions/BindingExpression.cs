@@ -295,15 +295,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 // Binding.ToString is used in error handling, so it should not fail
                 value = $"Unable to get binding string due to {ex.GetType().Name}: {ex.Message}";
             }
-            var typeName = this switch {
-                ControlPropertyBindingExpression => "controlProperty",
-                ValueBindingExpression => "value",
-                ResourceBindingExpression => "resource",
-                ControlCommandBindingExpression => "controlCommand",
-                StaticCommandBindingExpression => "staticCommand",
-                CommandBindingExpression => "command",
-                _ => this.GetType().Name
-            };
+            var typeName = this.GetBindingName();
             return $"{{{typeName}: {value}}}";
         }
 

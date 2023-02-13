@@ -88,6 +88,7 @@ namespace DotVVM.Framework.Testing
 
             if (postback is object)
             {
+                context.RequestType = DotvvmRequestType.Command;
                 httpContext.Request.Method = "POST";
                 httpContext.Request.Headers["X-DotVVM-PostBack"] = new[] { "true" };
                 httpContext.Request.Body = new MemoryStream(

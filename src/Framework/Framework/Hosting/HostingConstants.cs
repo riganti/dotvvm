@@ -1,4 +1,6 @@
-﻿namespace DotVVM.Framework.Hosting
+﻿using System;
+
+namespace DotVVM.Framework.Hosting
 {
     public class HostingConstants
     {
@@ -14,7 +16,9 @@
         public const string CsrfTokenMatchUrl = "___dotvvm-create-csrf-token___";
 
         public const string SpaContentPlaceHolderHeaderName = "X-DotVVM-SpaContentPlaceHolder";
-        public const string SpaPostBackHeaderName = "X-DotVVM-PostBack";
+        public const string PostBackHeaderName = "X-DotVVM-PostBack";
+        [Obsolete("Use PostBackHeaderName instead")]
+        public const string SpaPostBackHeaderName = PostBackHeaderName;
         public const string SpaContentPlaceHolderID = "__dot_SpaContentPlaceHolder";
         public const string SpaUrlIdentifier = "___dotvvm-spa___";
 
