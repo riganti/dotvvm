@@ -376,6 +376,7 @@ namespace DotVVM.Framework.Hosting
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
 
                 var knownTypes = postData["knownTypeMetadata"].Values<string>().ToArray();
+                var argumentPaths = postData["paths"].Values<string?>().ToArray();
                 var command = postData["command"].Value<string>();
                 var arguments = postData["args"] as JArray;
                 var executionPlan =
@@ -385,14 +386,16 @@ namespace DotVVM.Framework.Hosting
                 var actionInfo = new ActionInfo(
                     binding: null,
                     () => { return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments.NotNull()), context); },
-                    false
+                    false,
+                    executionPlan.Method,
+                    argumentPaths
                 );
                 var filters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
                     .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
                     .ToArray();
 
                 var commandTimer = ValueStopwatch.StartNew();
-                object? result;
+                object? result = null;
                 try
                 {
                     result = await ExecuteCommand(actionInfo, context, filters);
@@ -446,6 +449,34 @@ namespace DotVVM.Framework.Hosting
                 }
                 
                 return commandResultOrNotYetComputedAwaitable;
+            }
+            catch (TargetInvocationException e) when (e.InnerException is DotvvmInvalidArgumentModelStateException ex)
+            {
+                var argumentModelState = ex.ArgumentModelState;
+                var argumentPaths = action.ArgumentPaths;
+                var invokedMethodParameters = action.InvokedMethod.GetParameters();
+
+                foreach (var error in argumentModelState.Errors.Where(e => !e.IsResolved))
+                {
+                    var parameter = invokedMethodParameters.FirstOrDefault(p => p.Name == error.ArgumentName);
+                    if (parameter == null)
+                        throw new ArgumentException($"Could not map argument name \"{error.ArgumentName}\" to any of {action.InvokedMethod}'s parameters.");
+
+                    var argumentIndex = parameter.Position;
+                    var propertyPath = error.PropertyPath?.Trim('/');
+                    var argumentPath = argumentPaths[argumentIndex]?.TrimEnd('/');
+                    error.PropertyPath = (argumentPath is not null) ? $"{argumentPath}/{error.PropertyPath}" : $"${argumentIndex}/{error.PropertyPath}".TrimEnd('/');
+                }
+
+                var jObject = new JObject
+                {
+                    ["modelState"] = JArray.FromObject(argumentModelState.Errors),
+                    ["action"] = "validationErrors"
+                };
+                var result = jObject.ToString();
+
+                await context.HttpContext.Response.WriteAsync(result);
+                throw new DotvvmInterruptRequestExecutionException(InterruptReason.ArgumentsValidationFailed, "Argument contain validation errors!");
             }
             catch (Exception ex)
             {

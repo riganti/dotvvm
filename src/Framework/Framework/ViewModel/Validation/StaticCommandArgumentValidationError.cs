@@ -24,24 +24,17 @@ namespace DotVVM.Framework.ViewModel.Validation
         public string? PropertyPath { get; internal set; }
 
         /// <summary>
-        /// Object affected by this validation error
-        /// </summary>
-        [JsonIgnore]
-        internal object? TargetObject { get; set; }
-
-        /// <summary>
         /// Determines whether this error is fully processed
         /// </summary>
         [JsonIgnore]
         internal bool IsResolved { get; set; }
 
         [JsonConstructor]
-        internal StaticCommandArgumentValidationError(string errorMessage, string argumentName, string? propertyPath = null, object? targetObject = null)
+        internal StaticCommandArgumentValidationError(string errorMessage, string argumentName, string? propertyPath = null)
         {
             this.PropertyPath = propertyPath;
             this.ArgumentName = argumentName;
             this.ErrorMessage = errorMessage;
-            this.TargetObject = targetObject;
         }
     }
 }

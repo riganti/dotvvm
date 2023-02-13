@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using DotVVM.Framework.ViewModel.Validation;
 
 namespace DotVVM.Framework.Hosting
@@ -31,14 +33,48 @@ namespace DotVVM.Framework.Hosting
         public StaticCommandArgumentValidationError AddArgumentError(string argumentName, string message)
         {
             var error = new StaticCommandArgumentValidationError(message, argumentName) {
-                IsResolved = false,
                 ArgumentName = argumentName,
-                ErrorMessage = message
+                ErrorMessage = message,
+                IsResolved = false
             };
 
             ErrorsInternal.Add(error);
             return error;
         }
+
+        public StaticCommandArgumentValidationError AddRawArgumentError(string argumentName, string propertyPath, string message)
+        {
+            var error = new StaticCommandArgumentValidationError(message, argumentName) {
+                PropertyPath = propertyPath,
+                ErrorMessage = message,
+                IsResolved = true
+            };
+
+            ErrorsInternal.Add(error);
+            return error;
+        }
+
+        ///// <summary>
+        ///// Adds a new validation error with the given message on the argument determined by its name
+        ///// </summary>
+        ///// <param name="argumentName">Name of argument determining where to attach error</param>
+        ///// <param name="expression">Expression that determines the target property from the provided object</param>
+        ///// <param name="message">Validation error message</param>
+        ///// <returns></returns>
+        //public StaticCommandArgumentValidationError AddArgumentError<T, TProp>(string argumentName, Expression<Func<T, TProp>> expression, string message)
+        //{
+        //    var lambdaExpression = (LambdaExpression)expression;
+        //    var propertyPath = ValidationErrorFactory.GetPathFromExpression(context.Configuration, lambdaExpression);
+
+        //    var error = new StaticCommandArgumentValidationError(message, argumentName) {
+        //        ArgumentName = argumentName,
+        //        ErrorMessage = message,
+        //        PropertyPath = propertyPath
+        //    };
+
+        //    ErrorsInternal.Add(error);
+        //    return error;
+        //}
 
         public void FailOnInvalidModelState()
         {

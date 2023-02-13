@@ -8,6 +8,7 @@ namespace DotVVM.Framework.Hosting
         RedirectPermanent,
         ReturnFile,
         ModelValidationFailed,
+        ArgumentsValidationFailed,
         CachedViewModelMissing,
         /// <summary> The request was rejected, most likely for security reasons. </summary>
         RequestRejected
