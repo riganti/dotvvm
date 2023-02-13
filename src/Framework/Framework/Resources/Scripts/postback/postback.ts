@@ -8,6 +8,7 @@ import * as gate from './gate';
 import { DotvvmPostbackError } from '../shared-classes';
 import { logError } from '../utils/logging';
 import { handleRedirect } from './redirect';
+import { showValidationErrorsFromServer } from '../validation/validation';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
@@ -165,6 +166,9 @@ export async function applyPostbackHandlers(
             var reason = err.reason;
             if (reason.type == "redirect") {
                 return await handleRedirect(options, reason.responseObject, reason.response!)
+            }
+            else if (reason.type == "validation") {
+                showValidationErrorsFromServer(reason.responseObject, options);
             }
             else if (shouldTriggerErrorEvent(reason)) {
                 // trigger error event

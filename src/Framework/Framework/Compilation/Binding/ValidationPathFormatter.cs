@@ -7,6 +7,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -24,6 +25,9 @@ namespace DotVVM.Framework.Compilation.Binding
             this.javascriptTranslator = javascriptTranslator;
         }
 
+        private bool isNull([NotNullWhen(false)] JsNode? expr) =>
+            expr is null or JsLiteral { Value: null };
+
         public JsExpression GetValidationPath(
             Expression expr,
             DataContextStack dataContext,
@@ -34,7 +38,7 @@ namespace DotVVM.Framework.Compilation.Binding
             expr = ExpressionHelper.UnwrapPassthroughOperations(expr);
 
             var baseFmt = baseFormatter?.Invoke(expr);
-            if (baseFmt is not null)
+            if (baseFmt is {})
                 return baseFmt;
 
             if (expr.GetParameterAnnotation() is {} annotation)
@@ -47,14 +51,17 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (parentIndex < 0)
                     throw new InvalidOperationException($"DataContext parameter is invalid. Current data context is {dataContext}, the parameter is not one of the ancestors: {annotation.DataContext}");
 
-                return new JsLiteral(string.Join("/", Enumerable.Repeat("..", parentIndex)));
+                if (parentIndex == 0)
+                    return new JsLiteral(".");
+                else
+                    return new JsLiteral(string.Join("/", Enumerable.Repeat("..", parentIndex)));
             }
 
             switch (expr)
             {
                 case MemberExpression m when m.Expression is {}: {
                     var targetPath = GetValidationPath(m.Expression, dataContext, baseFormatter);
-                    if (targetPath is null or JsLiteral { Value: null })
+                    if (isNull(targetPath))
                         return targetPath;
 
                     var typeMap = mapper.GetMap(m.Member.DeclaringType!);
@@ -63,16 +70,14 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (property is null)
                         return JsLiteral.Null.CommentBefore($"{m.Member.Name} is not mapped");
 
-                    return stringAppend(targetPath, "/" + property.Name);
+                    return appendPaths(targetPath, property.Name);
                 }
                 case ConditionalExpression conditional: {
                     var truePath = GetValidationPath(conditional.IfTrue, dataContext, baseFormatter);
                     var falsePath = GetValidationPath(conditional.IfFalse, dataContext, baseFormatter);
 
-                    if (truePath is null or JsLiteral { Value: null })
-                        return truePath;
-                    if (falsePath is null or JsLiteral { Value: null })
-                        return falsePath;
+                    if (isNull(truePath) || isNull(falsePath))
+                        return truePath ?? falsePath;
 
                     return new JsConditionalExpression(
                         this.javascriptTranslator.CompileToJavascript(conditional.Test, dataContext),
@@ -82,20 +87,29 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 case IndexExpression index: {
                     var targetPath = GetValidationPath(index.Object, dataContext, baseFormatter);
-                    if (targetPath is null or JsLiteral { Value: null })
+                    if (isNull(targetPath))
                         return targetPath;
                     if (index.Arguments.Count != 1 || !index.Arguments.Single().Type.IsNumericType())
                         return JsLiteral.Null.CommentBefore("Unsupported Index");
 
                     var indexPath = this.javascriptTranslator.CompileToJavascript(index.Arguments.Single(), dataContext);
                     if (indexPath is JsLiteral { Value: not null } indexLiteral)
-                        return stringAppend(targetPath, "/" + indexLiteral.Value!.ToString());
+                        return appendPaths(targetPath, indexLiteral.Value!.ToString());
+                    else if (targetPath is JsLiteral { Value: "." })
+                        return indexPath;
                     else
                         return new JsBinaryExpression(stringAppend(targetPath, "/"), BinaryOperatorType.Plus, indexPath);
                 }
                 default:
                     return JsLiteral.Null.CommentBefore($"{expr} isn't supported");
             }
+        }
+
+        static JsExpression appendPaths(JsExpression left, string right)
+        {
+            if (left is JsLiteral l && ".".Equals(l.Value))
+                return new JsLiteral(right);
+            return stringAppend(left, "/" + right);
         }
 
         static JsExpression stringAppend(JsExpression left, string right)

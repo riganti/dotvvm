@@ -63,7 +63,7 @@ function clear(observable: any): void {
 }
 
 function distinct<T>(array: T[]): T[] {
-    return Array.from(new Set(array.map(e => ko.unwrap(e))));
+    return Array.from(new Set(array.map(ko.unwrap))) as T[];
 }
 
 function contains<T>(array: T[], value: T): boolean {

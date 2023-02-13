@@ -255,7 +255,7 @@ function getValidationErrors<T>(
         return errors;
     }
 
-    const validationTarget = ko.unwrap(targetObservable);
+    const validationTarget: any = ko.unwrap(targetObservable);
     if (isPrimitive(validationTarget)) {
         return errors;
     }
@@ -275,7 +275,7 @@ function getValidationErrors<T>(
             continue;
         }
 
-        const property = (validationTarget as any)[propertyName];
+        const property = validationTarget[propertyName];
         if (!ko.isObservable(property)) {
             continue;
         }

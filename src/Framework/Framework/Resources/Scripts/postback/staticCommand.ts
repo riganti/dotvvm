@@ -4,6 +4,26 @@ import * as events from '../events';
 import * as http from './http'
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { DotvvmPostbackError } from '../shared-classes';
+import * as evaluator from '../utils/evaluator'
+
+function resolveRelativeValidationPaths(paths: string[], options: PostbackOptions) {
+    return paths?.map(p => {
+        if (p == null) {
+            return null
+        }
+        let context = options.knockoutContext
+        while (context && /^..[\/$]/.test(p)) {
+            context = context.$parentContext;
+            p = p.substring(2);
+            p = p.startsWith('/') ? p.substring(1) : ''
+        }
+        if (context == null) {
+            return null
+        }
+        const absolutePath = evaluator.findPathToChildObject(dotvvm.state, context.$rawData.state, "/")
+        return absolutePath ? absolutePath + p : null
+    })
+}
 
 export async function staticCommandPostback(command: string, args: any[], paths: string[], options: PostbackOptions): Promise<any> {
 
@@ -11,11 +31,14 @@ export async function staticCommandPostback(command: string, args: any[], paths:
     let response: http.WrappedResponse<DotvvmStaticCommandResponse>;
 
     try {
+        const absolutePaths = resolveRelativeValidationPaths(paths, options)
+
         await http.retryOnInvalidCsrfToken(async () => {
             const csrfToken = await http.fetchCsrfToken(options.abortSignal);
             data = { 
                 args: args.map(a => serialize(a)), 
                 command, 
+                paths: absolutePaths,
                 $csrfToken: csrfToken,
                 knownTypeMetadata: getKnownTypes()
             };
@@ -24,7 +47,7 @@ export async function staticCommandPostback(command: string, args: any[], paths:
         events.staticCommandMethodInvoking.trigger({
             ...options,
             methodId: command,
-            methodArgs: args,
+            methodArgs: args
         });
 
         response = await http.postJSON<DotvvmStaticCommandResponse>(
@@ -35,14 +58,21 @@ export async function staticCommandPostback(command: string, args: any[], paths:
         );
 
         if ("action" in response.result) {
-            if (response.result.action == "redirect") {
+            const action = response.result.action
+            if (action == "redirect") {
                 throw new DotvvmPostbackError({
                     type: "redirect",
                     response: response.response,
                     responseObject: response.result
                 })
+            } else if (action == "validationErrors") {
+                throw new DotvvmPostbackError({
+                    type: "validation",
+                    response: response.response,
+                    responseObject: response.result
+                })
             } else {
-                throw new Error(`Invalid action ${response.result.action}`);
+                throw new Error(`Invalid action ${action}`);
             }
         }
 
