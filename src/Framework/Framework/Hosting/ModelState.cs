@@ -28,19 +28,9 @@ namespace DotVVM.Framework.Hosting
         internal List<ViewModelValidationError> ErrorsInternal;
 
         /// <summary>
-        /// Gets a collection of validation errors for arguments (used for static commands)
-        /// </summary>
-        public IReadOnlyList<StaticCommandArgumentValidationError> ArgumentErrors => ArgumentErrorsInternal.AsReadOnly();
-        internal List<StaticCommandArgumentValidationError> ArgumentErrorsInternal;
-
-        /// <summary>
         /// Gets a value indicating whether the ModelState is valid (i.e. does not contain any errors)
         /// </summary>
-        public bool IsValid
-        {
-            get { return !Errors.Any() && !ArgumentErrors.Any(); }
-        }
-
+        public bool IsValid => !Errors.Any();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ModelState"/> class.
@@ -48,7 +38,6 @@ namespace DotVVM.Framework.Hosting
         public ModelState()
         {
             ErrorsInternal = new List<ViewModelValidationError>();
-            ArgumentErrorsInternal = new List<StaticCommandArgumentValidationError>();
             ValidationTargetPath = "/";
         }
     }

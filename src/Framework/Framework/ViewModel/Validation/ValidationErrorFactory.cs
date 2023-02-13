@@ -41,7 +41,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         public static ViewModelValidationError AddModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string message)
             where T : IDotvvmViewModel
         {
-            DotvvmRequestContextValidationExtensions.EnsurePostBackType(vm.Context, PostBackType.Command);
+            DotvvmRequestContextValidationExtensions.EnsureRequestType(vm.Context, DotvvmRequestType.Command);
 
             var error = CreateModelError(vm.Context.Configuration, vm, expr, message);
             vm.Context.ModelState.ErrorsInternal.Add(error);

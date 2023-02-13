@@ -7,53 +7,12 @@ namespace DotVVM.Framework.ViewModel.Validation
     public static class DotvvmRequestContextValidationExtensions
     {
         /// <summary>
-        /// Adds a new validation error with the given message on the 
-        /// </summary>
-        /// <param name="argumentName">Name or argument determining where to attach error</param>
-        /// <param name="expression">Expression that determines the target property from the provided argument</param>
-        /// <param name="message">Validation error message</param>
-        public static StaticCommandArgumentValidationError AddArgumentError<TArg, TArgProp>(IDotvvmRequestContext context, string argumentName, Expression<Func<TArg, TArgProp>> expression, string message)
-        {
-            EnsurePostBackType(context, PostBackType.StaticCommand);
-
-            var lambdaExpression = (LambdaExpression)expression;
-            var propertyPath = ValidationErrorFactory.GetPathFromExpression(context.Configuration, lambdaExpression);
-
-            var error = new StaticCommandArgumentValidationError(message, argumentName) {
-                IsResolved = false,
-                PropertyPath = propertyPath
-            };
-
-            context.ModelState.ArgumentErrorsInternal.Add(error);
-            return error;
-        }
-
-        /// <summary>
-        /// Adds a new validation error with the given message on the argument determined by its name
-        /// </summary>
-        /// <param name="argumentName">Name of argument determining where to attach error</param>
-        /// <param name="message">Validation error message</param>
-        /// <returns></returns>
-        public static StaticCommandArgumentValidationError AddArgumentError<TArg, TArgProp>(IDotvvmRequestContext context, string argumentName, string message)
-        {
-            EnsurePostBackType(context, PostBackType.StaticCommand);
-
-            var error = new StaticCommandArgumentValidationError(message, argumentName) {
-                IsResolved = false,
-                PropertyPath = "/"
-            };
-
-            context.ModelState.ArgumentErrorsInternal.Add(error);
-            return error;
-        }
-
-        /// <summary>
         /// Adds a new validation error with the given message and attaches it to the root viewmodel.
         /// </summary>
         /// <param name="message">Validation error message</param>
         public static ViewModelValidationError AddModelError(this IDotvvmRequestContext context, string message)
         {
-            EnsurePostBackType(context, PostBackType.Command);
+            EnsureRequestType(context, DotvvmRequestType.Command);
 
             var error = new ViewModelValidationError(message)
             {
@@ -80,7 +39,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// <param name="message">Validation error message</param>
         public static ViewModelValidationError AddRawModelError(this IDotvvmRequestContext context, string absolutePath, string message)
         {
-            EnsurePostBackType(context, PostBackType.Command);
+            EnsureRequestType(context, DotvvmRequestType.Command);
             EnsurePathIsRooted(absolutePath);
 
             var error = new ViewModelValidationError(message)
@@ -102,7 +61,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// <param name="message">Validation error message</param>
         public static ViewModelValidationError AddModelError<T, TProp>(this IDotvvmRequestContext context, T vm, Expression<Func<T, TProp>> expression, string message)
         {
-            EnsurePostBackType(context, PostBackType.Command);
+            EnsureRequestType(context, DotvvmRequestType.Command);
 
             var lambdaExpression = (LambdaExpression)expression;
             var propertyPath = ValidationErrorFactory.GetPathFromExpression(context.Configuration, lambdaExpression);
@@ -124,10 +83,10 @@ namespace DotVVM.Framework.ViewModel.Validation
                 throw new ArgumentException("Hand-written paths need to be specified from the root of viewModel! Consider passing an expression (lambda) instead.");
         }
 
-        internal static void EnsurePostBackType(IDotvvmRequestContext context, PostBackType postBackType)
+        internal static void EnsureRequestType(IDotvvmRequestContext context, DotvvmRequestType requestType)
         {
-            if (!context.PostBackType.HasValue || context.PostBackType != postBackType)
-                throw new InvalidOperationException($"This operation requires {Enum.GetName(typeof(PostBackType), postBackType)}.");
+            if (context.RequestType != requestType)
+                throw new InvalidOperationException($"This operation requires {Enum.GetName(typeof(DotvvmRequestType), requestType)}.");
         }
     }
 }
