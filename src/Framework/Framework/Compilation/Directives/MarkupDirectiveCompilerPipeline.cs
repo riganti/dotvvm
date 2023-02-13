@@ -6,6 +6,7 @@ using DotVVM.Framework.ResourceManagement;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
@@ -14,12 +15,14 @@ namespace DotVVM.Framework.Compilation.Directives
         private readonly IAbstractTreeBuilder treeBuilder;
         private readonly IControlBuilderFactory controlBuilderFactory;
         private readonly DotvvmResourceRepository resourceRepository;
+        private readonly DotvvmConfiguration configuration;
 
-        public MarkupDirectiveCompilerPipeline(IAbstractTreeBuilder treeBuilder, IControlBuilderFactory controlBuilderFactory, DotvvmResourceRepository resourceRepository)
+        public MarkupDirectiveCompilerPipeline(IAbstractTreeBuilder treeBuilder, IControlBuilderFactory controlBuilderFactory, DotvvmResourceRepository resourceRepository, DotvvmConfiguration configuration)
         {
             this.treeBuilder = treeBuilder;
             this.controlBuilderFactory = controlBuilderFactory;
             this.resourceRepository = resourceRepository;
+            this.configuration = configuration;
         }
 
         public MarkupPageMetadata Compile(DothtmlRootNode dothtmlRoot, string fileName)
@@ -50,7 +53,7 @@ namespace DotVVM.Framework.Compilation.Directives
             var injectedServicesResult = serviceCompiler.Compile();
             resolvedDirectives.AddIfAny(serviceCompiler.DirectiveName, injectedServicesResult.Directives);
 
-            var baseTypeCompiler = new BaseTypeDirectiveCompiler(directivesByName, treeBuilder, fileName, imports);
+            var baseTypeCompiler = new BaseTypeDirectiveCompiler(directivesByName, treeBuilder, fileName, imports, configuration);
             var baseTypeResult = baseTypeCompiler.Compile();
             var baseType = baseTypeResult.Artefact;
             resolvedDirectives.AddIfAny(baseTypeCompiler.DirectiveName, baseTypeResult.Directives);

@@ -7,32 +7,32 @@
 		<ul data-bind="dotvvm-SSR-foreach: { data: List }">
 			<!-- ko dotvvm-SSR-item: 0 -->
 			<li>
-				<a data-bind="text: $rawData" href="#c11_0_item">list-item1</a>
+				<a data-bind="text: $rawData" href="#c5_0_item">list-item1</a>
 			</li>
 			<!-- /ko -->
 			<!-- ko dotvvm-SSR-item: 1 -->
 			<li>
-				<a data-bind="text: $rawData" href="#c11_1_item">list-item2</a>
+				<a data-bind="text: $rawData" href="#c5_1_item">list-item2</a>
 			</li>
 			<!-- /ko -->
 		</ul>
 		<div data-bind="dotvvm-SSR-foreach: { data: List }">
 			<!-- ko dotvvm-SSR-item: 0 -->
-			<div data-bind="text: $data" id="c11_0_item">list-item1</div>
+			<div data-bind="text: $data" id="c5_0_item">list-item1</div>
 			<!-- /ko -->
 			<!-- ko dotvvm-SSR-item: 1 -->
-			<div data-bind="text: $data" id="c11_1_item">list-item2</div>
+			<div data-bind="text: $data" id="c5_1_item">list-item2</div>
 			<!-- /ko -->
 		</div>
 		
 		<!-- Client -->
 		<ul data-bind="foreach: { data: List }">
 			<li>
-				<a data-bind="text: $rawData, attr: { href: &quot;#&quot;+&quot;c16&quot;+'_'+$index()+'_'+&quot;item&quot; }"></a>
+				<a data-bind="text: $rawData, attr: { href: &quot;#&quot;+&quot;c7&quot;+'_'+$index()+'_'+&quot;item&quot; }"></a>
 			</li>
 		</ul>
 		<div data-bind="foreach: { data: List }">
-			<div data-bind="text: $data, attr: { id: &quot;c16&quot;+'_'+$index()+'_'+&quot;item&quot; }"></div>
+			<div data-bind="text: $data, attr: { id: &quot;c7&quot;+'_'+$index()+'_'+&quot;item&quot; }"></div>
 		</div>
 	</body>
 </html>

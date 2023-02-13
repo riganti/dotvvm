@@ -1,0 +1,44 @@
+
+    <!-- Resource knockout of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
+    <script src=/dotvvmResource/knockout/knockout defer></script>
+    <!-- Resource dotvvm.internal of type ScriptModuleResource. Pointing to EmbeddedResourceLocation. -->
+    <script src=/dotvvmResource/dotvvm--internal/dotvvm--internal type=module defer></script>
+    <!-- Resource dotvvm of type InlineScriptResource. -->
+    
+    <!-- Resource dotvvm.debug of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
+    <script src=/dotvvmResource/dotvvm--debug/dotvvm--debug defer></script>
+    <!-- Resource globalize of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
+    <script src=/dotvvmResource/globalize/globalize defer></script>
+    <!-- Resource globalize:en-US of type ScriptResource. Pointing to JQueryGlobalizeResourceLocation. -->
+    <script src="/dotvvmResource/globalize---en-US/globalize---en-US" defer></script>
+
+<div class=a data-bind="css: { a: int() &gt;= 0 }, text: dotvvm.globalize.bindingNumberToString(int)"></div>
+<input type=hidden id=__dot_viewmodel_root value='{
+  "viewModel": {
+    "$type": "fKoeixwzvquoS2QC",
+    "int": 10,
+    "$csrfToken": "Not a CSRF token."
+  },
+  "url": "/testpage",
+  "virtualDirectory": "",
+  "renderedResources": [
+    "knockout",
+    "dotvvm.internal",
+    "dotvvm",
+    "dotvvm.debug",
+    "globalize",
+    "globalize:en-US"
+  ],
+  "typeMetadata": {
+    "fKoeixwzvquoS2QC": {
+      "type": "object",
+      "debugName": "ResourceLinksTests.BasicTestViewModel",
+      "properties": {
+        "int": {
+          "type": "Int32",
+          "debugName": "Integer"
+        }
+      }
+    }
+  }
+}' /><script defer src="data:text/javascript;base64,d2luZG93LmRvdHZ2bS5pbml0KCJlbi1VUyIpOw=="></script>

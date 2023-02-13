@@ -20,6 +20,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
         protected int currentTemplateIndex;
         protected string? controlName;
+        int controlIdIndex = 0;
 
         public Func<IControlBuilderFactory, IServiceProvider, DotvvmControl> BuildCompiledView { get; set; }
 
@@ -247,8 +248,13 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             // RawLiterals don't need these helper properties unless in root
             if (control.Metadata.Type != typeof(RawLiteral) || control.Parent is ResolvedTreeRoot)
             {
-                // set unique id
-                emitter.EmitSetDotvvmProperty(name, Internal.UniqueIDProperty, name);
+                if (!control.Properties.ContainsKey(Internal.UniqueIDProperty))
+                {
+                    var uniqueId = "c" + controlIdIndex;
+                    controlIdIndex++;
+                    // set unique id
+                    emitter.EmitSetDotvvmProperty(name, Internal.UniqueIDProperty, uniqueId);
+                }
 
                 if (control.DothtmlNode != null && control.DothtmlNode.Tokens.Count > 0)
                 {

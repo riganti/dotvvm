@@ -11,6 +11,7 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -29,12 +30,9 @@ namespace DotVVM.Framework.Tests.Runtime
 
         protected TestDotvvmRequestContext CreateContext(object viewModel, DotvvmConfiguration configuration = null)
         {
-            configuration = configuration ?? Configuration;
-            return new TestDotvvmRequestContext() {
-                Configuration = configuration,
-                ResourceManager = new ResourceManager(configuration.Resources),
-                ViewModel = viewModel
-            };
+            var context = DotvvmTestHelper.CreateContext(configuration ?? Configuration);
+            context.ViewModel = viewModel;
+            return context;
         }
 
         protected static string InvokeLifecycleAndRender(DotvvmControl control, TestDotvvmRequestContext context)
@@ -47,6 +45,12 @@ namespace DotVVM.Framework.Tests.Runtime
 
         protected static string InvokeLifecycleAndRender(DotvvmView view, TestDotvvmRequestContext context)
         {
+            // remove resource links before rendering
+            foreach (var links in view.GetAllDescendants().ToArray())
+            {
+                ((links as BodyResourceLinks)?.Parent as DotvvmControl)?.Children.Remove(links);
+                ((links as HeadResourceLinks)?.Parent as DotvvmControl)?.Children.Remove(links);
+            }
             view.DataContext = context.ViewModel;
             view.SetValue(Internal.RequestContextProperty, context);
 

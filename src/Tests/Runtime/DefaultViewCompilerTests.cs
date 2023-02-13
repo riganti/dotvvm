@@ -35,12 +35,11 @@ test <dot:Literal Text='test' />";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.AreEqual(2, page.Children.Count);
 
-            Assert.IsInstanceOfType(page.Children[0], typeof(RawLiteral));
-            Assert.AreEqual("test ", ((RawLiteral)page.Children[0]).EncodedText);
-            Assert.IsInstanceOfType(page.Children[1], typeof(Literal));
-            Assert.AreEqual("test", ((Literal)page.Children[1]).Text);
+            var rawLiteral = page.Children.OfType<RawLiteral>().Single();
+            var literal = page.Children.OfType<Literal>().Single();
+            Assert.AreEqual("test ", rawLiteral.EncodedText);
+            Assert.AreEqual("test", literal.Text);
         }
 
         [TestMethod]
@@ -50,13 +49,13 @@ test <dot:Literal Text='test' />";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.AreEqual(2, page.Children.Count);
 
-            Assert.IsInstanceOfType(page.Children[0], typeof(RawLiteral));
-            Assert.AreEqual("test ", ((RawLiteral)page.Children[0]).EncodedText);
-            Assert.IsInstanceOfType(page.Children[1], typeof(Literal));
+            var rawLiteral = page.Children.OfType<RawLiteral>().Single();
+            var literal = page.Children.OfType<Literal>().Single();
 
-            var binding = ((Literal)page.Children[1]).GetBinding(Literal.TextProperty) as ValueBindingExpression;
+            Assert.AreEqual("test ", rawLiteral.EncodedText);
+
+            var binding = literal.GetBinding(Literal.TextProperty) as ValueBindingExpression;
             Assert.IsNotNull(binding);
             Assert.AreEqual("FirstName", binding.GetProperty<OriginalStringBindingProperty>().Code);
         }
@@ -68,13 +67,12 @@ test <dot:Literal Text='test' />";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.AreEqual(2, page.Children.Count);
+            
+            var rawLiteral = page.Children.OfType<RawLiteral>().Single();
+            var literal = page.Children.OfType<Literal>().Single();
 
-            Assert.IsInstanceOfType(page.Children[0], typeof(RawLiteral));
-            Assert.AreEqual("test ", ((RawLiteral)page.Children[0]).EncodedText);
-            Assert.IsInstanceOfType(page.Children[1], typeof(Literal));
-
-            var binding = ((Literal)page.Children[1]).GetBinding(Literal.TextProperty) as ValueBindingExpression;
+            Assert.AreEqual("test ", rawLiteral.EncodedText);
+            var binding = literal.GetBinding(Literal.TextProperty) as ValueBindingExpression;
             Assert.IsNotNull(binding);
             Assert.AreEqual("FirstName", binding.GetProperty<OriginalStringBindingProperty>().Code);
         }
@@ -87,15 +85,13 @@ test <dot:Literal Text='test' />";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.AreEqual(1, page.Children.Count);
+            var placeholder = page.Children.OfType<PlaceHolder>().Single();
 
-            Assert.IsInstanceOfType(page.Children[0], typeof(PlaceHolder));
-
-            Assert.AreEqual(2, page.Children[0].Children.Count);
-            Assert.IsTrue(page.Children[0].Children[0] is RawLiteral);
-            Assert.IsTrue(page.Children[0].Children[1] is Literal);
-            Assert.AreEqual("test ", ((RawLiteral)page.Children[0].Children[0]).EncodedText);
-            Assert.AreEqual("", ((Literal)page.Children[0].Children[1]).Text);
+            Assert.AreEqual(2, placeholder.Children.Count);
+            Assert.IsTrue(placeholder.Children[0] is RawLiteral);
+            Assert.IsTrue(placeholder.Children[1] is Literal);
+            Assert.AreEqual("test ", ((RawLiteral)placeholder.Children[0]).EncodedText);
+            Assert.AreEqual("", ((Literal)placeholder.Children[1]).Text);
         }
 
 
@@ -144,12 +140,11 @@ test <dot:Literal><a /></dot:Literal>";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.AreEqual(1, page.Children.Count, string.Join(", ", page.Children.Select(c => c.GetType().Name)));
-
-            Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
+            Assert.AreEqual(1, page.Children.Count(c => c is not BodyResourceLinks and not HeadResourceLinks), string.Join(", ", page.Children.Select(c => c.GetType().Name)));
+            var repeater = page.Children.OfType<Repeater>().Single();
 
             DotvvmControl placeholder = new PlaceHolder();
-            ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, placeholder);
+            repeater.ItemTemplate.BuildContent(context, placeholder);
 
             Assert.AreEqual(3, placeholder.Children.Count);
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)placeholder.Children[0]).EncodedText));
@@ -169,17 +164,16 @@ test <dot:Literal><a /></dot:Literal>";
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
 
-            var button1 = page.Children[0];
-            Assert.IsInstanceOfType(button1, typeof(Button));
-            Assert.IsFalse((bool)button1.GetValue(Controls.Validation.EnabledProperty));
+            var buttons = page.Children.OfType<Button>().ToList();
+            Assert.AreEqual(3, buttons.Count);
+            Assert.IsInstanceOfType(buttons[0], typeof(Button));
+            Assert.IsFalse((bool)buttons[0].GetValue(Controls.Validation.EnabledProperty));
 
-            var button2 = page.Children[1];
-            Assert.IsInstanceOfType(button2, typeof(Button));
-            Assert.IsTrue((bool)button2.GetValue(Controls.Validation.EnabledProperty));
+            Assert.IsInstanceOfType(buttons[1], typeof(Button));
+            Assert.IsTrue((bool)buttons[1].GetValue(Controls.Validation.EnabledProperty));
 
-            var button3 = page.Children[2];
-            Assert.IsInstanceOfType(button3, typeof(Button));
-            Assert.IsTrue((bool)button3.GetValue(Controls.Validation.EnabledProperty));
+            Assert.IsInstanceOfType(buttons[2], typeof(Button));
+            Assert.IsTrue((bool)buttons[2].GetValue(Controls.Validation.EnabledProperty));
         }
 
 
@@ -196,9 +190,9 @@ test <dot:Literal><a /></dot:Literal>";
             });
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.IsInstanceOfType(page.Children[0], typeof(DotvvmView));
+            var control = page.Children.OfType<DotvvmMarkupControl>().Single();
 
-            var literal = page.Children[0].Children[0];
+            var literal = control.Children.OfType<PlaceHolder>().Single().Children.OfType<Literal>().Single();
             Assert.IsInstanceOfType(literal, typeof(Literal));
             Assert.AreEqual("aaa", ((Literal)literal).Text);
         }
@@ -214,9 +208,9 @@ test <dot:Literal><a /></dot:Literal>";
             });
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.IsInstanceOfType(page.Children[0], typeof(TestControl));
+            var control = page.Children.OfType<TestControl>().Single();
 
-            var literal = page.Children[0].Children[0].Children[0];
+            var literal = control.Children[0].Children[0];
             Assert.IsInstanceOfType(literal, typeof(Literal));
             Assert.AreEqual("aaa", ((Literal)literal).Text);
         }
@@ -232,12 +226,11 @@ test <dot:Literal><a /></dot:Literal>";
             });
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.IsInstanceOfType(page.Children[0], typeof(TestMarkupDIControl));
 
-            var control = (TestMarkupDIControl)page.Children[0];
+            var control = page.Children.OfType<TestMarkupDIControl>().Single();
             Assert.IsNotNull(control.config);
 
-            var literal = page.Children[0].Children[0].Children[0];
+            var literal = control.Children[0].Children[0];
             Assert.IsInstanceOfType(literal, typeof(Literal));
             Assert.AreEqual("aaa", ((Literal)literal).Text);
         }
@@ -253,25 +246,26 @@ test <dot:Literal><a /></dot:Literal>";
 </dot:Repeater>";
             var page = CompileMarkup(markup, new Dictionary<string, string>()
             {
-                { "test3.dothtml", "@viewModel System.Char, mscorlib\r\n<dot:Literal Text='aaa' />" }
+                { "test3.dotcontrol", "@viewModel System.Char, mscorlib\r\n<dot:Literal Text='aaa' />" }
             });
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
+            var repeater = page.Children.OfType<Repeater>().Single();
 
             var container = new PlaceHolder();
-            ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, container);
+            repeater.ItemTemplate.BuildContent(context, container);
 
-            var literal1 = container.Children[0];
+            var content = container.Children;
+            var literal1 = content[0];
             Assert.IsInstanceOfType(literal1, typeof(RawLiteral));
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal1).EncodedText));
 
-            var markupControl = container.Children[1];
-            Assert.IsInstanceOfType(markupControl, typeof(DotvvmView));
-            Assert.IsInstanceOfType(markupControl.Children[0], typeof(Literal));
-            Assert.AreEqual("aaa", ((Literal)markupControl.Children[0]).Text);
+            var markupControl = content[1];
+            Assert.IsInstanceOfType(markupControl, typeof(DotvvmMarkupControl));
+            var literal = (Literal)((PlaceHolder)markupControl.Children[0]).Children[0];
+            Assert.AreEqual("aaa", literal.Text);
 
-            var literal2 = container.Children[2];
+            var literal2 = content[2];
             Assert.IsInstanceOfType(literal2, typeof(RawLiteral));
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal2).EncodedText));
         }
@@ -287,23 +281,23 @@ test <dot:Literal><a /></dot:Literal>";
 </dot:Repeater>";
             var page = CompileMarkup(markup, new Dictionary<string, string>()
             {
-                { "test4.dothtml", "@viewModel System.Char, mscorlib\r\n<dot:Literal Text='aaa' />" }
+                { "test4.dotcontrol", "@viewModel System.Char, mscorlib\r\n<dot:Literal Text='aaa' />" }
             }, compileTwice: true);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
+            var repeater = page.Children.OfType<Repeater>().Single();
 
             var container = new PlaceHolder();
-            ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, container);
+            repeater.ItemTemplate.BuildContent(context, container);
 
             var literal1 = container.Children[0];
             Assert.IsInstanceOfType(literal1, typeof(RawLiteral));
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal1).EncodedText));
 
             var markupControl = container.Children[1];
-            Assert.IsInstanceOfType(markupControl, typeof(DotvvmView));
-            Assert.IsInstanceOfType(markupControl.Children[0], typeof(Literal));
-            Assert.AreEqual("aaa", ((Literal)markupControl.Children[0]).Text);
+            Assert.IsInstanceOfType(markupControl, typeof(DotvvmMarkupControl));
+            var literal = (Literal)((PlaceHolder)markupControl.Children[0]).Children[0];
+            Assert.AreEqual("aaa", literal.Text);
 
             var literal2 = container.Children[2];
             Assert.IsInstanceOfType(literal2, typeof(RawLiteral));
@@ -488,8 +482,8 @@ test <dot:Literal><a /></dot:Literal>";
                 config.ApplicationPhysicalPath = Path.GetTempPath();
                 config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
                 config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.dothtml" });
-                config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dothtml" });
-                config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
+                config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dotcontrol" });
+                config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dotcontrol" });
                 config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test5", Src = "test5.dothtml" });
                 config.Markup.AddCodeControls("ff", typeof(TestControl));
                 config.Markup.AddAssembly(typeof(DefaultViewCompilerTests).Assembly.GetName().Name);

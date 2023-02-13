@@ -13,6 +13,7 @@ using System.Linq;
 using System.Collections.Immutable;
 using System.Security.Cryptography;
 using System.Text;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
@@ -22,15 +23,17 @@ namespace DotVVM.Framework.Compilation.Directives
 
         private readonly string fileName;
         private readonly ImmutableList<NamespaceImport> imports;
+        private readonly DotvvmConfiguration configuration;
 
         public override string DirectiveName => ParserConstants.BaseTypeDirective;
 
         public BaseTypeDirectiveCompiler(
-            IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, string fileName, ImmutableList<NamespaceImport> imports)
+            IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, string fileName, ImmutableList<NamespaceImport> imports, DotvvmConfiguration configuration)
             : base(directiveNodesByName, treeBuilder)
         {
             this.fileName = fileName;
             this.imports = imports;
+            this.configuration = configuration;
         }
 
         protected override IAbstractBaseTypeDirective Resolve(DothtmlDirectiveNode directiveNode)
@@ -113,7 +116,14 @@ namespace DotVVM.Framework.Compilation.Directives
         /// </summary>
         private ITypeDescriptor GetDefaultWrapperType()
         {
-            if (fileName.EndsWith(".dotcontrol", StringComparison.Ordinal))
+            var isControl =
+                fileName.EndsWith(".dotcontrol", StringComparison.Ordinal) ||
+                configuration.Markup.Controls.Any(c => fileName.Equals(c.Src, StringComparison.OrdinalIgnoreCase)) ||
+                this.DirectiveNodesByName.ContainsKey("property") ||
+                this.DirectiveNodesByName.ContainsKey("wrapperTag") ||
+                this.DirectiveNodesByName.ContainsKey("noWrapperTag");
+
+            if (isControl)
             {
                 return new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl));
             }

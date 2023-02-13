@@ -29,25 +29,25 @@
 		
 		<!-- client rendering - implicit id -->
 		<div data-bind="foreach: { data: Items }">
-			<div data-bind="text: dotvvm.globalize.bindingNumberToString(Number), attr: { id: &quot;c24&quot;+'_'+$index()+'_'+&quot;client-div&quot; }"></div>
+			<div data-bind="text: dotvvm.globalize.bindingNumberToString(Number), attr: { id: &quot;c10&quot;+'_'+$index()+'_'+&quot;client-div&quot; }"></div>
 		</div>
 		
 		<!-- server rendering - implicit id -->
 		<div data-bind="dotvvm-SSR-foreach: { data: Items }">
 			<!-- ko dotvvm-SSR-item: 0 -->
-			<div data-bind="text: dotvvm.globalize.bindingNumberToString(Number)" id="c31_0_server-div">1</div>
+			<div data-bind="text: dotvvm.globalize.bindingNumberToString(Number)" id="c12_0_server-div">1</div>
 			
 			<!-- /ko -->
 			<!-- ko dotvvm-SSR-item: 1 -->
-			<div data-bind="text: dotvvm.globalize.bindingNumberToString(Number)" id="c31_1_server-div">2</div>
+			<div data-bind="text: dotvvm.globalize.bindingNumberToString(Number)" id="c12_1_server-div">2</div>
 			
 			<!-- /ko -->
 			<!-- ko dotvvm-SSR-item: 2 -->
-			<div data-bind="text: dotvvm.globalize.bindingNumberToString(Number)" id="c31_2_server-div">3</div>
+			<div data-bind="text: dotvvm.globalize.bindingNumberToString(Number)" id="c12_2_server-div">3</div>
 			
 			<!-- /ko -->
 			<!-- ko dotvvm-SSR-item: 3 -->
-			<div data-bind="text: dotvvm.globalize.bindingNumberToString(Number)" id="c31_3_server-div">4</div>
+			<div data-bind="text: dotvvm.globalize.bindingNumberToString(Number)" id="c12_3_server-div">4</div>
 			
 			<!-- /ko -->
 		</div>

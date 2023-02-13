@@ -514,6 +514,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(1, e.Content.Count);
 
             var gridView = e.Content[0];
+            Assert.AreEqual(typeof(GridView), gridView.Metadata.Type);
             var columns = gridView.GetProperty(GridView.ColumnsProperty)!.GetValue() as List<ResolvedControl>;
             Assert.AreEqual(3, columns!.Count);
 

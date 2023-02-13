@@ -167,7 +167,10 @@ namespace DotVVM.Framework.Testing
             if (checkErrors) CheckForErrors(root.DothtmlNode);
             foreach (var v in visitors)
             {
-                v().VisitView(root);
+                var visitor = v();
+                if (visitor is ResourceLinksVisitor)
+                    continue; // not wanted in parser tests
+                visitor.VisitView(root);
             }
             if (checkErrors)
                 validator.VisitAndAssert(root);
