@@ -58,7 +58,7 @@ namespace DotVVM.Framework.ViewModel
             catch (ArgumentException e)
             {
                 var messageBuilder = new StringBuilder();
-                messageBuilder.AppendLine("An attempt to reuse instances of viewmodels detected.");
+                messageBuilder.AppendLine($"An attempt to reuse an instance of {viewModel.GetType()} detected.");
                 messageBuilder.Append("This is not supported. Ensure that everytime a viewmodel is requested, a new instance is created. ");
                 messageBuilder.Append($"Most commonly, this is caused by overriding the {nameof(DefaultViewModelLoader)}, creating custom ");
                 messageBuilder.Append("IoC container and registering viewmodels as singletons. Note that in some implementations, for example ");
