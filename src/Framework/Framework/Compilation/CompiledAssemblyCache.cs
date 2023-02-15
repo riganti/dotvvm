@@ -147,10 +147,10 @@ namespace DotVVM.Framework.Compilation
                 {
                     if (allAssembliesCache.TryGetTarget(out var a2) && a2 != null)
                         return a2;
-                
+
 #if DotNetCore
                     // auto-loads all referenced assemblies recursively
-                    var newA = DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load).ToArray();
+                    var newA = DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load).Distinct().ToArray();
 #else
                     // this doesn't load new assemblies, but it is done in InvokeStaticConstructorsOnAllControls
                     var newA = AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.IsDynamic).ToArray();
