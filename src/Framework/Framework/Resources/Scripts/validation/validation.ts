@@ -171,7 +171,7 @@ function validateViewModel(viewModel: any, path: string): void {
 function validateRecursive(observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition, propertyPath: string) {
     const lastSetError: CoerceResult = (observable as any)[lastSetErrorSymbol];
     if (lastSetError && lastSetError.isError) {
-        ValidationError.attach(lastSetError.message, propertyPath, observable);
+        ValidationError.attachIfNoErrors(lastSetError.message, propertyPath, observable);
     }
     
     if (Array.isArray(type)) {
