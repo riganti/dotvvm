@@ -368,6 +368,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_ValidationRulesLoadOnPostback = "FeatureSamples/Validation/ValidationRulesLoadOnPostback";
         public const string FeatureSamples_Validation_ValidationScopes = "FeatureSamples/Validation/ValidationScopes";
         public const string FeatureSamples_Validation_ValidationScopes2 = "FeatureSamples/Validation/ValidationScopes2";
+        public const string FeatureSamples_Validation_ValidationTargetIsCollection = "FeatureSamples/Validation/ValidationTargetIsCollection";
         public const string FeatureSamples_Validation_ValidatorValueComplexExpressions = "FeatureSamples/Validation/ValidatorValueComplexExpressions";
         public const string FeatureSamples_ViewModelCache_ViewModelCacheMiss = "FeatureSamples/ViewModelCache/ViewModelCacheMiss";
         public const string FeatureSamples_ViewModelDeserialization_DoesNotDropObject = "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";

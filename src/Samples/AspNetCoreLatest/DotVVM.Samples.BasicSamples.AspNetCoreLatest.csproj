@@ -14,6 +14,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="prometheus-net.AspNetCore" Version="8.0.0-pre-230102092516-2351266" />
+    <PackageReference Include="prometheus-net.DotNetRuntime" Version="4.4.0" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

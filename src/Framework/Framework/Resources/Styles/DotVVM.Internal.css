@@ -24,6 +24,7 @@ pre {
     /* just display whitespace, no monospace, no blocks... */
     font-family: inherit;
     display: inline;
+    white-space: pre-wrap;
 }
 
 table {

@@ -223,7 +223,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var testViewModel = new TestViewModel()
             {
-                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Context = DotvvmTestHelper.CreateContext(),
                 Child = new TestViewModel2()
                 {
                     Id = 11,
@@ -253,7 +253,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public void ViewModelValidator_CustomModelStateErrors_OldFormatThrows()
         {
             var testViewModel = new TestViewModel() {
-                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Context = DotvvmTestHelper.CreateContext(),
                 Child = new TestViewModel2() {
                     Id = 11,
                     Code = "Code",
@@ -276,7 +276,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var testViewModel = new TestViewModel()
             {
-                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Context = DotvvmTestHelper.CreateContext(),
                 Child = new TestViewModel2()
                 {
                     Id = 11,
@@ -316,7 +316,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public void ViewModelValidator_CustomModelStateErrors_ArbitraryTargetObjectAndLambda()
         {
             var testViewModel = new TestViewModel() {
-                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Context = DotvvmTestHelper.CreateContext(),
                 Child = new TestViewModel2() {
                     Id = 11,
                     Code = "Code",
@@ -360,7 +360,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var innerViewModel = new TestViewModel2() { Code = "123" };
             var testViewModel = new TestViewModel()
             {
-                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Context = DotvvmTestHelper.CreateContext(),
                 Child = new TestViewModel2()
                 {
                     Id = 11,
@@ -395,7 +395,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var testViewModel = new TestViewModel()
             {
-                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null)
+                Context = DotvvmTestHelper.CreateContext()
             };
             var validator = CreateValidator();
             var expander = CreateErrorPathExpander();

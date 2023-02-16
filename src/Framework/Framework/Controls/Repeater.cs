@@ -125,7 +125,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
-            if (context.IsPostBack)
+            if (context.RequestType == DotvvmRequestType.Command)
             {
                 SetChildren(context, renderClientTemplate: false, memoizeReferences: true);
             }
@@ -313,7 +313,7 @@ namespace DotVVM.Framework.Controls
                         AddSeparator(Children, context);
                     }
                     AddItem(Children, context, item, index,
-                        allowMemoizationRetrieve: context.IsPostBack && !memoizeReferences, // on GET request we are not initializing the Repeater twice
+                        allowMemoizationRetrieve: context.RequestType == DotvvmRequestType.Command && !memoizeReferences, // on GET request we are not initializing the Repeater twice
                         allowMemoizationStore: memoizeReferences
                     );
                     index++;

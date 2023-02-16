@@ -160,6 +160,11 @@ public static class DotvvmRequestContextExtensions
         context.PreprocessModelState();
         if (!context.ModelState.IsValid)
         {
+            DotvvmMetrics.ValidationErrorsReturned.Record(
+                context.ModelState.ErrorsInternal.Count,
+                context.RouteLabel(),
+                context.RequestTypeLabel()
+            );
             context.HttpContext.Response.ContentType = "application/json";
             context.HttpContext.Response
                 .WriteAsync(context.Services.GetRequiredService<IViewModelSerializer>().SerializeModelState(context))
@@ -264,6 +269,10 @@ public static class DotvvmRequestContextExtensions
 
     internal static async Task RejectRequest(this IDotvvmRequestContext context, string message, int statusCode = 403)
     {
+        DotvvmMetrics.RequestsRejected.Add(1,
+            context.RouteLabel(),
+            context.RequestTypeLabel());
+
         // push it as a warning to ILogger
         var msg = "request rejected: " + message;
         context.Services
