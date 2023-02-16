@@ -283,7 +283,7 @@
       },
       "FormGroupCssClass": {
         "type": "System.String",
-        "defaultValue": "mb-4"
+        "defaultValue": "mb-3"
       },
       "FormSelectCssClass": {
         "type": "System.String",
@@ -291,7 +291,7 @@
       },
       "LabelCssClass": {
         "type": "System.String",
-        "defaultValue": "control-label"
+        "defaultValue": "form-label"
       },
       "RequiresFormCheckCssClass": {
         "type": "System.Boolean",
@@ -307,6 +307,10 @@
         "type": "System.Boolean",
         "defaultValue": false,
         "isAttached": true
+      },
+      "WrapControlInDiv": {
+        "type": "System.Boolean",
+        "defaultValue": false
       }
     },
     "DotVVM.AutoUI.Controls.BulmaForm": {
