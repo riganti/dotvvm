@@ -96,9 +96,17 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitUnary(UnaryExpression node)
         {
+            if (node.NodeType == ExpressionType.Convert && node.Method == null)
+            {
+                // just make sure it converts to nullable type
+                if (node.Type.IsValueType && !node.Type.IsNullable())
+                    return Expression.Convert(Visit(node.Operand), typeof(Nullable<>).MakeGenericType(node.Type));
+                else
+                    return Expression.Convert(Visit(node.Operand), node.Type);
+            }
+
             return CheckForNull(Visit(node.Operand), operand =>
-                Expression.MakeUnary(node.NodeType, operand, node.Type, node.Method),
-                checkReferenceTypes: node.Method == null && (node.NodeType != ExpressionType.Convert || node.Type.IsValueType));
+                Expression.MakeUnary(node.NodeType, operand, node.Type, node.Method));
         }
 
         protected override Expression VisitInvocation(InvocationExpression node)
@@ -212,14 +220,29 @@ namespace DotVVM.Framework.Compilation.Binding
                 throw new Exception($"Type mismatch: {expectedType} was expected, got {expression.Type}");
         }
 
+        bool IsNonNull(Expression e)
+        {
+            if (e.Type.IsValueType && !e.Type.IsNullable())
+                return true;
+            return e switch {
+                ConstantExpression { Value: not null } => true,
+                ParameterExpression { Name: not null } p when p.Name == "currentControl" || p.Name == "vm" || p.Name.StartsWith("vm_") => true,
+                ConditionalExpression c => IsNonNull(c.IfTrue) && IsNonNull(c.IfFalse),
+                BlockExpression b => IsNonNull(b.Expressions.Last()),
+                BinaryExpression { NodeType: ExpressionType.Coalesce } b => IsNonNull(b.Right),
+                _ => false
+            };
+        }
+
+
         private int tmpCounter;
         protected Expression CheckForNull(Expression? parameter, Func<Expression, Expression> callback, bool checkReferenceTypes = true, bool suppress = false)
         {
-            if (suppress ||
-                parameter is null or ConstantExpression { Value: not null } or ParameterExpression { Name: "vm" } ||
-                (parameter.Type.IsValueType && !parameter.Type.IsNullable()) || !checkReferenceTypes && !parameter.Type.IsValueType)
+            if (suppress || parameter is null || IsNonNull(parameter) || !checkReferenceTypes && !parameter.Type.IsValueType)
                 return callback(parameter!);
-            var p2 = Expression.Parameter(parameter.Type, "tmp" + tmpCounter++);
+            var p2 =
+                parameter as ParameterExpression ??
+                Expression.Parameter(parameter.Type, "tmp" + tmpCounter++);
             var eresult = callback(p2.Type.IsNullable() ? (Expression)Expression.Property(p2, "Value") : p2);
             eresult = TypeConversion.ImplicitConversion(eresult, eresult.Type.MakeNullableType())!;
             var condition = parameter.Type.IsNullable() ? (Expression)Expression.Property(p2, "HasValue") : Expression.NotEqual(p2, Expression.Constant(null, p2.Type));
@@ -239,6 +262,10 @@ namespace DotVVM.Framework.Compilation.Binding
                         handledResult
                     })
                 );
+            }
+            else if (parameter == p2)
+            {
+                return handledResult;
             }
             else
             {

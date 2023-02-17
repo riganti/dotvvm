@@ -19,6 +19,7 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Runtime;
 using FastExpressionCompiler;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Binding
 {
@@ -112,9 +113,8 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static void ExecUpdateDelegate(this BindingUpdateDelegate func, DotvvmBindableObject contextControl, object? value)
         {
-            var dataContexts = GetDataContexts(contextControl);
             //var control = contextControl.GetClosestControlBindingTarget();
-            func(dataContexts.ToArray(), contextControl, value);
+            func(contextControl, value);
         }
 
         /// <summary>
@@ -122,9 +122,8 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static void ExecUpdateDelegate<T>(this BindingUpdateDelegate<T> func, DotvvmBindableObject contextControl, T value)
         {
-            var dataContexts = GetDataContexts(contextControl);
             //var control = contextControl.GetClosestControlBindingTarget();
-            func(dataContexts.ToArray(), contextControl, value);
+            func(contextControl, value);
         }
 
         /// <summary>
@@ -132,8 +131,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static object? ExecDelegate(this BindingDelegate func, DotvvmBindableObject contextControl)
         {
-            var dataContexts = GetDataContexts(contextControl);
-            return func(dataContexts.ToArray(), contextControl);
+            return func(contextControl);
         }
 
         /// <summary>
@@ -141,8 +139,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static T ExecDelegate<T>(this BindingDelegate<T> func, DotvvmBindableObject contextControl)
         {
-            var dataContexts = GetDataContexts(contextControl);
-            return func(dataContexts.ToArray(), contextControl);
+            return func(contextControl);
         }
 
         /// <summary>
@@ -153,9 +150,12 @@ namespace DotVVM.Framework.Binding
             DotvvmBindableObject? c = contextControl;
             while (c != null)
             {
-                // PERF: O(h^2) because GetValue calls another GetDataContexts
+                // this has O(h^2) complexity because GetValue calls another GetDataContexts,
+                // but this function is used rarely - for exceptions, manually created bindings, ...
+                // Normal bindings have specialized code generated in BindingCompiler
                 if (c.IsPropertySet(DotvvmBindableObject.DataContextProperty, inherit: false))
                 {
+                    Debug.Assert(c.properties.Contains(DotvvmBindableObject.DataContextProperty), "Control claims that DataContextProperty is set, but it's not present in the properties dictionary.");
                     yield return c.GetValue(DotvvmBindableObject.DataContextProperty);
                     count--;
                 }
@@ -234,6 +234,9 @@ namespace DotVVM.Framework.Binding
         public static object? Evaluate(this ICommandBinding binding, DotvvmBindableObject control, params Func<Type, object>[] args)
         {
             var action = binding.GetCommandDelegate(control);
+            if (action is null)
+                // only if data context is null will our compiler return null instead of command delegate
+                throw new DotvvmControlException(control, $"Cannot invoke {binding}, a referenced data context is null") { RelatedBinding = binding }; 
             if (action is Command command) return command();
             if (action is Action actionDelegate) { actionDelegate(); return null; }
             if (action is Func<Task> command2) return command2();
@@ -459,8 +462,8 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        public static BindingDelegate<T> ToGeneric<T>(this BindingDelegate d) => (a, b) => (T)d(a, b)!;
-        public static BindingUpdateDelegate<T> ToGeneric<T>(this BindingUpdateDelegate d) => (a, b, c) => d(a, b, c);
+        public static BindingDelegate<T> ToGeneric<T>(this BindingDelegate d) => control => (T)d(control)!;
+        public static BindingUpdateDelegate<T> ToGeneric<T>(this BindingUpdateDelegate d) => (control, val) => d(control, val);
 
         public static string GetBindingName(this IBinding binding) =>
             binding switch {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,13 +21,14 @@ using System.Diagnostics;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Utils;
 using System.Diagnostics.CodeAnalysis;
+using FastExpressionCompiler;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Compilation
 {
     public class BindingCompiler : IBindingCompiler
     {
         public static readonly ParameterExpression CurrentControlParameter = Expression.Parameter(typeof(DotvvmBindableObject), "currentControl");
-        public static readonly ParameterExpression ViewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
 
         protected readonly DotvvmConfiguration configuration;
         protected readonly BindingCompilationService bindingService;
@@ -38,15 +39,22 @@ namespace DotVVM.Framework.Compilation
             this.bindingService = bindingService;
         }
 
-        public static Expression ReplaceParameters(Expression expression, DataContextStack? dataContext, bool assertAllReplaced = true) =>
-            new ParameterReplacementVisitor(dataContext, assertAllReplaced).Visit(expression);
+        public static Expression ReplaceParameters(Expression expression, DataContextStack? dataContext, IBinding contextObject, bool assertAllReplaced = true)
+        {
+            var visitor = new ParameterReplacementVisitor(dataContext, assertAllReplaced);
+            var expression2 = visitor.Visit(expression);
+            return visitor.WrapExpression(expression2, contextObject);
+        }
 
-        class ParameterReplacementVisitor: ExpressionVisitor
+        internal class ParameterReplacementVisitor: ExpressionVisitor
         {
             private readonly Dictionary<DataContextStack, int> ContextMap;
             private readonly DataContextStack? DataContext;
             private readonly bool AssertAllReplaced;
             private readonly HashSet<ParameterExpression> contextParameters = new HashSet<ParameterExpression>();
+
+            private readonly Dictionary<DataContextStack, ParameterExpression> viewModelParameters = new();
+            private readonly Dictionary<DataContextStack, ParameterExpression> controlParameters = new();
 
             public ParameterReplacementVisitor(DataContextStack? dataContext, bool assertAllReplaced = true)
             {
@@ -58,12 +66,38 @@ namespace DotVVM.Framework.Compilation
                 this.AssertAllReplaced = assertAllReplaced;
             }
 
-            private int FindContext(DataContextStack context)
+            private int? FindIndex(DataContextStack context)
             {
                 if (this.ContextMap.TryGetValue(context, out var result))
                     return result;
+                return null;
+            }
 
-                throw new InvalidOperationException($"Cannot find data context of a binding parameter: {context}. Binding data context is {this.DataContext?.ToString() ?? "null"}");
+            private ParameterExpression GetControlParameter(DataContextStack? context)
+            {
+                if (context is null || context == this.DataContext)
+                    return CurrentControlParameter;
+
+                if (controlParameters.TryGetValue(context, out var result))
+                    return result;
+
+                var name = this.ContextMap.TryGetValue(context, out var index) ? index.ToString() : context.DataContextType.Name;
+                return controlParameters[context] = Expression.Parameter(typeof(DotvvmBindableObject), $"control{name}");
+            }
+
+            private ParameterExpression GetViewModelParameter(DataContextStack context)
+            {
+                if (viewModelParameters.TryGetValue(context, out var result))
+                    return result;
+
+                var name = FindIndex(context) switch {
+                    
+                    0 => "vm_this",
+                    1 => "vm_parent",
+                    int n => "vm_parent" + n,
+                    null => "vm_" + context.DataContextType.Name
+                };
+                return viewModelParameters[context] = Expression.Parameter(context.DataContextType, name);
             }
 
             [return: NotNullIfNotNull("node")]
@@ -73,22 +107,13 @@ namespace DotVVM.Framework.Compilation
                 {
                     if (ann.ExtensionParameter != null)
                     {
-                        // handle data context hierarchy
-                        var friendlyIdentifier = $"extension parameter {ann.ExtensionParameter.Identifier}";
-                        var targetControl =
-                            ann.DataContext is null || FindContext(ann.DataContext) == 0
-                                ? CurrentControlParameter
-                                : ExpressionUtils.Replace(
-                                    (DotvvmBindableObject control) => BindingHelper.FindDataContextTarget(control, ann.DataContext, friendlyIdentifier).target,
-                                    CurrentControlParameter
-                                ).OptimizeConstants();
-
+                        var targetControl = GetControlParameter(ann.DataContext);
                         return ann.ExtensionParameter.GetServerEquivalent(targetControl);
                     }
                     else
                     {
                         var dc = ann.DataContext.NotNull("Invalid BindingParameterAnnotation");
-                        return Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(FindContext(dc))), dc.DataContextType);
+                        return GetViewModelParameter(dc);
                     }
                 }
                 return base.Visit(node);
@@ -118,15 +143,231 @@ namespace DotVVM.Framework.Compilation
 
             protected override Expression VisitParameter(ParameterExpression node)
             {
-                if (AssertAllReplaced && node != CurrentControlParameter && node != ViewModelsParameter && !contextParameters.Contains(node))
+                if (AssertAllReplaced && node != CurrentControlParameter && !contextParameters.Contains(node))
                     throw new Exception($"Parameter {node.Name}:{node.Type.Name} could not be translated.");
                 return base.VisitParameter(node);
             }
-        }
 
-        private static KeyValuePair<string, Expression> GetParameter(int index, string name, Expression vmArray, Type[] parents)
-        {
-            return new KeyValuePair<string, Expression>(name, Expression.Convert(Expression.ArrayIndex(vmArray, Expression.Constant(index)), parents[index]));
+            /// <summary> Data context variables introduced by the visitor. The variables are all the `_parentX` and parent controls referenced in the binding. </summary>
+            public IEnumerable<ParameterExpression> IntroducedVariables => viewModelParameters.Values.Concat(controlParameters.Values);
+
+
+            /// <summary> Wraps the expression in a block which declared and initializes all the <see cref="IntroducedVariables" /> </summary>
+            public Expression WrapExpression(Expression expression, IBinding contextObject)
+            {
+                var variables = IntroducedVariables.ToArray();
+                if (variables.Length == 0)
+                    return expression;
+
+                // we only use this function after ConvertToObject or in update delegate which returns void
+                Debug.Assert(expression.Type == typeof(void) || !expression.Type.IsValueType);
+
+                var returnLabel = Expression.Label(expression.Type);
+                var returnNull = Expression.Goto(returnLabel, Expression.Default(expression.Type));
+
+                var initializer = GenerateInitializer(contextObject, returnNull);
+                return Expression.Block(
+                    variables,
+                    initializer,
+                    Expression.Goto(returnLabel, expression),
+                    Expression.Label(returnLabel, defaultValue: expression));
+            }
+
+            static readonly PropertyInfo BindableObject_Parent = typeof(DotvvmBindableObject).GetProperty(nameof(DotvvmBindableObject.Parent))!;
+
+            /// <summary> Generates block which initializes the needed data context parameters (<see cref="IntroducedVariables" />) </summary>
+            public BlockExpression GenerateInitializer(IBinding contextObject, Expression returnNull)
+            {
+                var result = new List<Expression>();
+                var tempVariables = new List<ParameterExpression>();
+
+                ParameterExpression tempVariable(string name, Expression init)
+                {
+                    var v = Expression.Variable(init.Type, name);
+                    tempVariables.Add(v);
+                    result.Add(Expression.Assign(v, init));
+                    return v;
+                }
+
+                void assignViewModel(ParameterExpression vmVariable, ParameterExpression tuple)
+                {
+                    result.Add(Expression.IfThen(
+                        Expression.Field(tuple, "Item3"),
+                        returnNull
+                    ));
+                    result.Add(Expression.Assign(vmVariable, Expression.Field(tuple, "Item2")));
+                }
+
+                var contexts = viewModelParameters.Keys.Concat(controlParameters.Keys).Distinct().ToArray();
+
+                // bindings without DataContext set
+                // this should be rare, so we can just use BindingHelper.FindDataContextTarget for each data context
+                foreach (var cx in contexts.Where(cx => FindIndex(cx) is null))
+                {
+                    var controlExpression = ExpressionUtils.Replace(
+                            (DotvvmBindableObject control) => BindingHelper.FindDataContextTarget(control, cx, contextObject).target,
+                            CurrentControlParameter
+                        ).OptimizeConstants();
+
+                    var controlVariable = controlParameters.GetValueOrDefault(cx);
+                    var viewModelVariable = viewModelParameters.GetValueOrDefault(cx);
+                    if (controlVariable is {})
+                        result.Add(Expression.Assign(controlVariable, controlExpression));
+
+                    if (viewModelVariable is {})
+                    {
+                        var control = controlVariable ?? controlExpression;
+                        var tuple = tempVariable("tuple_" + cx.DataContextType.Name, getContextAndControl(0, control, cx));
+                        assignViewModel(viewModelVariable, tuple);
+                    }
+                }
+
+                var lastContextIndex = -1;
+                Expression lastContextControl = CurrentControlParameter;
+                foreach (var (cx, index) in (from cx in contexts
+                                             let index = FindIndex(cx)
+                                             where index is not null
+                                             orderby index ascending
+                                             select (cx, index.Value)))
+                {
+                    Debug.Assert(index != lastContextIndex);
+                    var controlVariable = controlParameters.GetValueOrDefault(cx);
+                    var viewModelVariable = viewModelParameters.GetValueOrDefault(cx);
+
+                    // We aim to build a chain of GetContextControl / GetContextAndControl invocations.
+                    // This should traverse the DataContext hierarchy only once, and only to the required depth.
+                    // The binding in DataContext property evaluated only if the data context is used in the current binding.
+                    var skip = lastContextIndex == -1 ? index : index - lastContextIndex - 1;
+                    // for controls, it's better to use control_at(index-1).Parent --
+                    // -- the deepest control with the matching data context, rather than the top-most control
+                    if (controlVariable is {})
+                    {
+                        if (skip > 0)
+                        { // skip N-1 levels + control.Parent to get to the desired control, 
+                            var control = getContextControl(skip - 1, lastContextControl, cx);
+                            control = Expression.Property(control, BindableObject_Parent);
+                            result.Add(Expression.Assign(controlVariable, control));
+
+                            skip = 0;
+                            lastContextControl = controlVariable;
+                            lastContextIndex = index - 1;
+                        }
+                        else
+                        { // otherwise it's lastControl.Parent
+                            result.Add(Expression.Assign(controlVariable, lastContextControl));
+                        }
+                    }
+
+                    if (viewModelVariable is {})
+                    {
+                        var tuple = tempVariable("tuple" + index, getContextAndControl(skip, lastContextControl, cx));
+                        assignViewModel(viewModelVariable, tuple);
+                        lastContextControl = Expression.Property(Expression.Field(tuple, "Item1"), BindableObject_Parent);
+                        lastContextIndex = index;
+                    }
+                }
+                return Expression.Block(tempVariables, result);
+
+                Expression getContextAndControl(int skip, Expression control, DataContextStack x) =>
+                    Expression.Call(
+                        typeof(CodegenHelpers),
+                        nameof(CodegenHelpers.GetContextAndControl),
+                        new Type[] { x.DataContextType },
+                        Expression.Constant(skip),
+                        control,
+                        Expression.Constant(new ErrorInfo(contextObject, x, FindIndex(x))),
+                        CurrentControlParameter
+                    );
+                Expression getContextControl(int skip, Expression control, DataContextStack x) =>
+                    Expression.Call(
+                        typeof(CodegenHelpers),
+                        nameof(CodegenHelpers.GetContextControl),
+                        Type.EmptyTypes,
+                        Expression.Constant(skip),
+                        control,
+                        Expression.Constant(new ErrorInfo(contextObject, x, FindIndex(x))),
+                        CurrentControlParameter
+                    );
+            }
+
+            static class CodegenHelpers
+            {
+                /// <summary> Returns the nearest ancestor control with DataContext property set, after skipping `skip` such ancestors. </summary>
+                public static DotvvmBindableObject GetContextControl(int skip, DotvvmBindableObject? control, ErrorInfo errorInfo, DotvvmBindableObject evaluatingControl)
+                {
+                    while (control != null)
+                    {
+                        if (control.properties.Contains(DotvvmBindableObject.DataContextProperty))
+                        {
+                            if (skip == 0)
+                                return control;
+                            skip--;
+                        }
+                        control = control.Parent;
+                    }
+                    ThrowNotEnoughDataContexts(errorInfo, evaluatingControl);
+                    return null!;
+                }
+
+
+                /// <summary> Returns the nearest ancestor control with DataContext property set, after skipping `skip` such ancestors. Includes the DataContext value </summary>
+                public static (DotvvmBindableObject control, T context, bool isNull) GetContextAndControl<T>(int skip, DotvvmBindableObject? control, ErrorInfo errorInfo, DotvvmBindableObject evaluatingControl)
+                {
+                    while (control != null)
+                    {
+                        if (control.properties.TryGet(DotvvmBindableObject.DataContextProperty, out var contextRaw))
+                        {
+                            if (skip == 0)
+                            {
+                                var context = control.EvalPropertyValue(DotvvmBindableObject.DataContextProperty, contextRaw);
+                                if (context is T contextT)
+                                    return (control, contextT, false);
+                                if (context is null)
+                                    return (control, default!, true);
+                                ThrowWrongContextType(errorInfo, context, evaluatingControl);
+                            }
+                            skip--;
+                        }
+                        control = control.Parent;
+                    }
+                    ThrowNotEnoughDataContexts(errorInfo, evaluatingControl);
+                    return default;
+                }
+
+                [MethodImpl(MethodImplOptions.NoInlining), DoesNotReturn]
+                static void ThrowNotEnoughDataContexts(ErrorInfo errorInfo, DotvvmBindableObject evaluatingControl)
+                {
+                    throw new NotEnoughDataContextsException(errorInfo.DataContext, errorInfo.Index!.Value, errorInfo.Binding, evaluatingControl);
+                }
+
+                [MethodImpl(MethodImplOptions.NoInlining), DoesNotReturn]
+                static void ThrowWrongContextType(ErrorInfo errorInfo, object? receivedObject, DotvvmBindableObject evaluatingControl)
+                {
+                    throw new WrongDataContextTypeException(errorInfo.DataContext, receivedObject?.GetType(), errorInfo.Index, errorInfo.Binding, evaluatingControl);
+                }
+            }
+
+            sealed record ErrorInfo(
+                IBinding Binding,
+                DataContextStack DataContext,
+                int? Index
+            )
+            { }
+
+            sealed record NotEnoughDataContextsException(DataContextStack MissingDataContext, int DataContextIndex, IBinding RelatedBinding, DotvvmBindableObject RelatedControl): DotvvmExceptionBase(RelatedBinding: RelatedBinding, RelatedControl: RelatedControl)
+            {
+                public override string Message => $"Could not evaluate binding {RelatedBinding!.ToString()}, " + 
+                    $"data context {DataContextIndex switch { 0 => "_this", 1 => "_parent", var n => "_parent"+n }}: {MissingDataContext.DataContextType.ToCode(stripNamespace: true)} does not exist. " +
+                    $"Control has the following contexts: {string.Join(", ", RelatedControl!.GetDataContexts().Select(c => c?.GetType().ToCode(stripNamespace: true) ?? "?"))}";
+            }
+
+            sealed record WrongDataContextTypeException(DataContextStack ExpectedDataContext, Type? ReceivedType, int? DataContextIndex, IBinding RelatedBinding, DotvvmBindableObject RelatedControl): DotvvmExceptionBase(RelatedBinding: RelatedBinding, RelatedControl: RelatedControl)
+            {
+                public override string Message => $"Could not evaluate binding {RelatedBinding!.ToString()}, " + 
+                    $"data context {DataContextIndex switch { null => "?", 0 => "_this", 1 => "_parent", var n => "_parent"+n }}: " +
+                    $"{ExpectedDataContext.DataContextType.ToCode()} was expected, but got {ReceivedType?.ToCode() ?? "null"}. " +
+                    $"Control has the following contexts: {string.Join(", ", RelatedControl!.GetDataContexts().Select(c => c?.GetType().ToCode(stripNamespace: true) ?? "?"))}";
+            }
         }
 
         public virtual IBinding CreateMinimalClone(IBinding binding)

@@ -1,0 +1,2 @@
+NotEnoughDataContextsException occurred: Could not evaluate binding {resource: _parent.StringProp}, data context _parent: TestViewModel does not exist. Control has the following contexts: string
+    at void DotVVM.Framework.Compilation.BindingCompiler+ParameterReplacementVisitor+CodegenHelpers.ThrowNotEnoughDataContexts(ErrorInfo errorInfo, DotvvmBindableObject evaluatingControl)

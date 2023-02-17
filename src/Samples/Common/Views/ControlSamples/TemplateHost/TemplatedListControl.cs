@@ -44,7 +44,7 @@ namespace DotVVM.Samples.Common.Views.ControlSamples.TemplateHost
 
         public void AddItem()
         {
-            var item = OnCreateItem.BindingDelegate(this.GetDataContexts().ToArray(), this);
+            var item = OnCreateItem.BindingDelegate(this);
             ((dynamic)DataSource).Add(((dynamic)item)());
         }
 

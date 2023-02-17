@@ -72,8 +72,17 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowHardCodedValue = false)]
         public object? DataContext
         {
-            get { return GetValue(DataContextProperty); }
-            set { SetValue(DataContextProperty, value); }
+            get {
+                for (var c = this; c != null; c = c.Parent)
+                {
+                    if (c.properties.TryGet(DotvvmBindableObject.DataContextProperty, out var value))
+                    {
+                        return c.EvalPropertyValue(DotvvmBindableObject.DataContextProperty, value);
+                    }
+                }
+                return null;
+            }
+            set { this.properties.Set(DataContextProperty, value); }
         }
 
         DotvvmBindableObject IDotvvmObjectLike.Self => this;

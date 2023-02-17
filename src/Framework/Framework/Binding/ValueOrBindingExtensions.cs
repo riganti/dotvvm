@@ -192,7 +192,7 @@ public static class ValueOrBindingExtensions
                     new ParsedExpressionBindingProperty(expr),
                     new CastedExpressionBindingProperty(expr),
                     new KnockoutJsExpressionBindingProperty(JavascriptTranslationVisitor.TranslateConstant(expr)),
-                    new BindingDelegate((_, _) => constant)
+                    new BindingDelegate(_ => constant)
                 });
             });
 

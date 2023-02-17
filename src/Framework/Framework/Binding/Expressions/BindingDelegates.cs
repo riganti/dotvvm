@@ -5,8 +5,8 @@ using DotVVM.Framework.Runtime.Filters;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
-    public delegate object? BindingDelegate(object?[] dataContextHierarchy, DotvvmBindableObject rootControl);
-    public delegate T BindingDelegate<out T>(object?[] dataContextHierarchy, DotvvmBindableObject rootControl);
-    public delegate void BindingUpdateDelegate(object?[] dataContextHierarchy, DotvvmBindableObject rootControl, object? value);
-    public delegate void BindingUpdateDelegate<in T>(object?[] dataContextHierarchy, DotvvmBindableObject rootControl, T value);
+    public delegate object? BindingDelegate(DotvvmBindableObject rootControl);
+    public delegate T BindingDelegate<out T>(DotvvmBindableObject rootControl);
+    public delegate void BindingUpdateDelegate(DotvvmBindableObject rootControl, object? value);
+    public delegate void BindingUpdateDelegate<in T>(DotvvmBindableObject rootControl, T value);
 }
