@@ -204,28 +204,27 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
-        public async Task ControlWithMultipleEnumClasses()
+        [DataRow(true)]
+        [DataRow(false)]
+        public async Task ControlWithMultipleEnumClasses(bool precompile)
         {
-            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+            var r = await cth.RunPage(typeof(BasicTestViewModel), $$"""
                 <dot:Placeholder RenderSettings.Mode=Server>
-
-
                     <!-- static value -->
-                    <cc:ControlWithMultipleEnumClasses Type1=A Type2=D />
+                    <cc:ControlWithMultipleEnumClasses Precompile={{precompile}} Type1=A Type2=D />
                     <!-- value binding + resource binding -->
-                    <cc:ControlWithMultipleEnumClasses Type1={value: EnumForCssClasses} Type2={resource: TrueBool ? 'D' : 'A'} />
+                    <cc:ControlWithMultipleEnumClasses Precompile={{precompile}} Type1={value: EnumForCssClasses} Type2={resource: TrueBool ? 'D' : 'A'} />
                     <!-- value binding + static -->
-                    <cc:ControlWithMultipleEnumClasses Type1={value: EnumForCssClasses} Type2=D />
+                    <cc:ControlWithMultipleEnumClasses Precompile={{precompile}} Type1={value: EnumForCssClasses} Type2=D />
                     <!-- static + value binding -->
-                    <cc:ControlWithMultipleEnumClasses Type1=D Type2={value: EnumForCssClasses} />
+                    <cc:ControlWithMultipleEnumClasses Precompile={{precompile}} Type1=D Type2={value: EnumForCssClasses} />
                     <!-- both value bindings -->
-                    <cc:ControlWithMultipleEnumClasses Type1={value: TrueBool ? 'D' : 'A'} Type2={value: EnumForCssClasses} />
-
+                    <cc:ControlWithMultipleEnumClasses Precompile={{precompile}} Type1={value: TrueBool ? 'D' : 'A'} Type2={value: EnumForCssClasses} />
                 </dot:Placeholder>
-                "
+                """, fileName: $"ControlWithMultipleEnumClasses-{precompile}.dothtml"
             );
 
-            check.CheckString(r.FormattedHtml, fileExtension: "html");
+            check.CheckString(r.FormattedHtml, fileExtension: precompile ? "precompiled.html" : "html");
         }
 
         [TestMethod]
@@ -472,13 +471,19 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.IfPossible)]
     public class ControlWithMultipleEnumClasses: CompositeControl
     {
-        public static DotvvmControl GetContents(
+        public DotvvmControl GetContents(
             ValueOrBinding<EnumForCssClasses> type1,
-            ValueOrBinding<EnumForCssClasses> type2
+            ValueOrBinding<EnumForCssClasses> type2,
+            bool precompile = true
         )
         {
+            if (!precompile && this.GetValue(Internal.RequestContextProperty) is null)
+            {
+                throw new SkipPrecompilationException();
+            }
             return new HtmlGenericControl("div")
                 .AddAttribute("class", type1)
                 .AddAttribute("class", type2);
