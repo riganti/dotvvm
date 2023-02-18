@@ -30,6 +30,13 @@ public static partial class StyleBuilderExtensionMethods
         where T: IStyleBuilder =>
         sb.SetDotvvmProperty(Styles.RequiredResourcesProperty, resources, StyleOverrideOptions.Append);
 
+    /// <summary> Requests a resource to be included if this control is in the page. </summary>
+    public static IStyleBuilder<T> AddRequiredResource<T>(
+        this IStyleBuilder<T> sb,
+        Func<IStyleMatchContext<T>, string[]> resources)
+        where T: DotvvmBindableObject =>
+        sb.SetDotvvmProperty(Styles.RequiredResourcesProperty, resources, StyleOverrideOptions.Append);
+
     /// <summary> Replaces the matching controls with a new control while copying all properties to the new one.</summary>
     public static T ReplaceWith<T, TControl>(
         this T sb,
