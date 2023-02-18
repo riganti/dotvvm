@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class HtmlAttributeValueMerger: DefaultAttributeValueMerger
+    public class HtmlAttributeValueMerger: AttributeValueMergerBase
     {
         public static Expression MergeExpressions(GroupedDotvvmProperty property, Expression a, Expression b)
         {
