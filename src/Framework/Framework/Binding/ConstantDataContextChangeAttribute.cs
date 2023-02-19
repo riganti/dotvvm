@@ -9,6 +9,7 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding
 {
+    /// <summary> Changes the data context type to the type specified in the attribute constructor. </summary>
     public class ConstantDataContextChangeAttribute : DataContextChangeAttribute
     {
         public Type Type { get; }

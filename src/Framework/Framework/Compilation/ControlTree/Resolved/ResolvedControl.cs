@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DotVVM.Framework.Binding;
@@ -57,6 +58,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public bool SetProperty(ResolvedPropertySetter value, bool replace, [NotNullWhen(false)] out string? error)
         {
+            if (value is ResolvedPropertyCapability capability)
+                return SetCapabilityProperty(capability, replace, out error);
             error = null;
             if (!Properties.TryGetValue(value.Property, out var oldValue) || replace)
             {
@@ -82,8 +85,25 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return true;
         }
 
+        bool SetCapabilityProperty(ResolvedPropertyCapability capability, bool replace, [NotNullWhen(false)] out string? error)
+        {
+            foreach (var v in capability.Values)
+            {
+                Debug.Assert(v.Value.Property == v.Key);
+                if (!SetProperty(v.Value, replace, out var innerError))
+                {
+                    error = $"{v.Key}: {innerError}";
+                    return false;
+                }
+            }
+            error = null;
+            return true;
+        }
+
         public bool RemoveProperty(DotvvmProperty property)
         {
+            if (property is DotvvmCapabilityProperty capability)
+                throw new NotSupportedException("Cannot remove capability property, remove each of its properties manually.");
             if (Properties.TryGetValue(property, out _))
             {
                 Properties.Remove(property);
@@ -124,7 +144,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
             if (properties.Count == 0)
                 return null;
-            return new ResolvedPropertyCapability(capability, properties);
+            return new ResolvedPropertyCapability(capability, properties) { Parent = this };
         }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)

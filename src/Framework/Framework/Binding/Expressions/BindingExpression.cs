@@ -18,6 +18,9 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
+    /// <summary> Represents a data-binding in DotVVM.
+    /// This is a base class for all bindings, BindingExpression in general does not guarantee that the binding will have any property.
+    /// This class only contains the glue code which automatically calls resolvers and caches the results when <see cref="GetProperty(Type, ErrorHandlingMode)" /> is invoked. </summary>
     [BindingCompilationRequirements(optional: new[] { typeof(BindingResolverCollection) })]
     [Newtonsoft.Json.JsonConverter(typeof(BindingDebugJsonConverter))]
     public abstract class BindingExpression : IBinding, ICloneableBinding
@@ -292,15 +295,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 // Binding.ToString is used in error handling, so it should not fail
                 value = $"Unable to get binding string due to {ex.GetType().Name}: {ex.Message}";
             }
-            var typeName = this switch {
-                ControlPropertyBindingExpression => "controlProperty",
-                ValueBindingExpression => "value",
-                ResourceBindingExpression => "resource",
-                ControlCommandBindingExpression => "controlCommand",
-                StaticCommandBindingExpression => "staticCommand",
-                CommandBindingExpression => "command",
-                _ => this.GetType().Name
-            };
+            var typeName = this.GetBindingName();
             return $"{{{typeName}: {value}}}";
         }
 

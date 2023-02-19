@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Core.Storage;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 
@@ -77,6 +78,7 @@ namespace DotVVM.Framework.Storage
             using (var fs = new FileStream(dataFilePath, FileMode.Create))
             {
                 await stream.CopyToAsync(fs).ConfigureAwait(false);
+                DotvvmMetrics.ReturnedFileSize.Record(fs.Length);
             }
 
             await StoreMetadata(id, metadata);

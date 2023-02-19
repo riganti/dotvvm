@@ -25,6 +25,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -117,7 +118,7 @@ namespace DotVVM.Framework.Hosting
         /// <returns></returns>
         public async Task ProcessRequestCore(IDotvvmRequestContext context)
         {
-            if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")
+            if (context.RequestType == DotvvmRequestType.Unknown)
             {
                 await context.InterruptRequestAsMethodNotAllowedAsync();
             }
@@ -125,13 +126,13 @@ namespace DotVVM.Framework.Hosting
             await ValidateSecFetchHeaders(context);
 
             var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
-            if (context.HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand")
+            if (context.RequestType == DotvvmRequestType.StaticCommand)
             {
                 await ProcessStaticCommandRequest(context);
                 await requestTracer.TraceEvent(RequestTracingConstants.StaticCommandExecuted, context);
                 return;
             }
-            var isPostBack = context.IsPostBack = DetermineIsPostBack(context.HttpContext);
+            var isPostBack = context.RequestType == DotvvmRequestType.Command;
 
             // build the page view
             var page = DotvvmViewBuilder.BuildView(context);
@@ -156,7 +157,7 @@ namespace DotVVM.Framework.Hosting
             try
             {
                 // run the preinit phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreInit);
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreInit, context);
                 page.DataContext = context.ViewModel;
 
                 // run OnViewModelCreated on action filters
@@ -185,7 +186,7 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 // run the init phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init, context);
                 await requestTracer.TraceEvent(RequestTracingConstants.InitCompleted, context);
 
                 object? commandResult = null;
@@ -198,7 +199,7 @@ namespace DotVVM.Framework.Hosting
                     }
 
                     // run the load phase in the page
-                    DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
+                    DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
                     await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
                 }
                 else
@@ -234,7 +235,7 @@ namespace DotVVM.Framework.Hosting
                     }
 
                     // run the load phase in the page
-                    DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
+                    DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
                     await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
 
                     // invoke the postback command
@@ -245,8 +246,21 @@ namespace DotVVM.Framework.Hosting
                         .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType()));
                     if (actionInfo.Binding?.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull) is ActionFiltersBindingProperty filters)
                         methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
-
-                    commandResult = await ExecuteCommand(actionInfo, context, methodFilters);
+                    
+                    var commandTimer = ValueStopwatch.StartNew();
+                    try
+                    {
+                        commandResult = await ExecuteCommand(actionInfo, context, methodFilters);
+                    }
+                    finally
+                    {
+                        DotvvmMetrics.CommandInvocationDuration.Record(
+                            commandTimer.ElapsedSeconds,
+                            new KeyValuePair<string, object?>("command", actionInfo.Binding!.ToString()),
+                            new KeyValuePair<string, object?>("result", context.CommandException is null ? "Ok" :
+                                                                        context.IsCommandExceptionHandled ? "HandledException" :
+                                                                        "UnhandledException"));
+                    }
                     await requestTracer.TraceEvent(RequestTracingConstants.CommandExecuted, context);
                 }
 
@@ -256,10 +270,10 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 // run the prerender phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRender);
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRender, context);
 
                 // run the prerender complete phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete);
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete, context);
                 await requestTracer.TraceEvent(RequestTracingConstants.PreRenderCompleted, context);
 
                 // generate CSRF token if required
@@ -277,13 +291,13 @@ namespace DotVVM.Framework.Hosting
 
                 ViewModelSerializer.BuildViewModel(context, commandResult);
 
-                if (!context.IsInPartialRenderingMode)
+                if (context.RequestType == DotvvmRequestType.Navigate)
                 {
-                    // standard get
                     await OutputRenderer.WriteHtmlResponse(context, page);
                 }
                 else
                 {
+                    Debug.Assert(context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaNavigate);
                     // postback or SPA content
                     var postBackUpdates = OutputRenderer.RenderPostbackUpdatedControls(context, page);
                     ViewModelSerializer.AddPostBackUpdatedControls(context, postBackUpdates);
@@ -391,7 +405,21 @@ namespace DotVVM.Framework.Hosting
                     .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
                     .ToArray();
 
-                var result = await ExecuteCommand(actionInfo, context, filters);
+                var commandTimer = ValueStopwatch.StartNew();
+                object? result;
+                try
+                {
+                    result = await ExecuteCommand(actionInfo, context, filters);
+                }
+                finally
+                {
+                    DotvvmMetrics.StaticCommandInvocationDuration.Record(
+                        commandTimer.ElapsedSeconds,
+                        new KeyValuePair<string, object?>("command", executionPlan.ToString()),
+                        new KeyValuePair<string, object?>("result", context.CommandException is null ? "Ok" :
+                                                                    context.IsCommandExceptionHandled ? "HandledException" :
+                                                                    "UnhandledException"));
+                }
 
                 await OutputRenderer.WriteStaticCommandResponse(
                     context,
@@ -524,7 +552,7 @@ namespace DotVVM.Framework.Hosting
                 // he'll will just get a redirect response, not anything useful
                 else if (dest is "empty")
                 {
-                    if (!DetermineSpaRequest(context.HttpContext))
+                    if (context.RequestType is not DotvvmRequestType.SpaNavigate)
                         await context.RejectRequest($"""
                             Pages can not be loaded using Javascript for security reasons.
                             Try refreshing the page to get rid of the error.
@@ -538,20 +566,20 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        public static bool DetermineIsPostBack(IHttpContext context)
-        {
-            return context.Request.Method == "POST" && context.Request.Headers.ContainsKey(HostingConstants.SpaPostBackHeaderName);
-        }
+        [Obsolete("Use context.RequestType == DotvvmRequestType.StaticCommand")]
+        public static bool DetermineIsStaticCommand(IDotvvmRequestContext context) =>
+            context.RequestType == DotvvmRequestType.StaticCommand;
+        [Obsolete("Use context.RequestType == DotvvmRequestType.Command")]
+        public static bool DetermineIsPostBack(IHttpContext context) =>
+            DotvvmRequestContext.DetermineRequestType(context) == DotvvmRequestType.Command;
 
-        public static bool DetermineSpaRequest(IHttpContext context)
-        {
-            return !string.IsNullOrEmpty(context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName]);
-        }
+        [Obsolete("Use context.RequestType == DotvvmRequestType.SpaGet")]
+        public static bool DetermineSpaRequest(IHttpContext context) =>
+            DotvvmRequestContext.DetermineRequestType(context) == DotvvmRequestType.SpaNavigate;
 
-        public static bool DeterminePartialRendering(IHttpContext context)
-        {
-            return DetermineIsPostBack(context) || DetermineSpaRequest(context);
-        }
+        [Obsolete("Use context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaGet")]
+        public static bool DeterminePartialRendering(IHttpContext context) =>
+            DotvvmRequestContext.DetermineRequestType(context) is DotvvmRequestType.Command or DotvvmRequestType.SpaNavigate;
 
         public static string? DetermineSpaContentPlaceHolderUniqueId(IHttpContext context)
         {

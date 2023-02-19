@@ -11,8 +11,11 @@ namespace DotVVM.Framework.Binding
 {
     public class BindingPageInfo
     {
+        /// <summary> Returns true if any command or staticCommand is currently running. Always returns false on the server. </summary>
         public bool IsPostbackRunning => false;
+        /// <summary> Returns true on server and false in JavaScript. </summary>
         public bool EvaluatingOnServer => true;
+        /// <summary> Returns false on server and true in JavaScript. </summary>
         public bool EvaluatingOnClient => false;
 
         internal static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)

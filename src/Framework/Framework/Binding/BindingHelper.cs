@@ -24,8 +24,10 @@ namespace DotVVM.Framework.Binding
 {
     public static partial class BindingHelper
     {
+        /// <summary> Gets the binding property identified by the type. The result may be null, if <paramref name="errorMode"/> is <see cref="ErrorHandlingMode.ReturnNull">ReturnNul</see> This method should always return the same result and should run fast (may rely on caching, so first call might not be that fast). </summary>
         [return: MaybeNull]
-        public static T GetProperty<T>(this IBinding binding, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException) => (T)binding.GetProperty(typeof(T), errorMode)!;
+        public static T GetProperty<T>(this IBinding binding, ErrorHandlingMode errorMode) => (T)binding.GetProperty(typeof(T), errorMode)!;
+        /// <summary> Gets the binding property identified by the type. This method should always return the same result and should run fast (may rely on caching, so first call might not be that fast). </summary>
         public static T GetProperty<T>(this IBinding binding) => GetProperty<T>(binding, ErrorHandlingMode.ThrowException)!;
 
         [Obsolete]
@@ -459,6 +461,17 @@ namespace DotVVM.Framework.Binding
 
         public static BindingDelegate<T> ToGeneric<T>(this BindingDelegate d) => (a, b) => (T)d(a, b)!;
         public static BindingUpdateDelegate<T> ToGeneric<T>(this BindingUpdateDelegate d) => (a, b, c) => d(a, b, c);
+
+        public static string GetBindingName(this IBinding binding) =>
+            binding switch {
+                ControlPropertyBindingExpression => "controlProperty",
+                ValueBindingExpression => "value",
+                ResourceBindingExpression => "resource",
+                ControlCommandBindingExpression => "controlCommand",
+                StaticCommandBindingExpression => "staticCommand",
+                CommandBindingExpression => "command",
+                _ => binding.GetType().Name
+            };
 
         public record InvalidDataContextTypeException(
             DotvvmBindableObject Control,

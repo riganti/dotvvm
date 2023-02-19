@@ -61,6 +61,33 @@ namespace DotVVM.Analyzers {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Method that declares that it should not be called on server is only meant to be invoked on client..
+        /// </summary>
+        internal static string ApiUsage_UnsupportedCallSite_Description {
+            get {
+                return ResourceManager.GetString("ApiUsage_UnsupportedCallSite_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Method &apos;{0}&apos; invocation is not supported on server {1}.
+        /// </summary>
+        internal static string ApiUsage_UnsupportedCallSite_Message {
+            get {
+                return ResourceManager.GetString("ApiUsage_UnsupportedCallSite_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported call site.
+        /// </summary>
+        internal static string ApiUsage_UnsupportedCallSite_Title {
+            get {
+                return ResourceManager.GetString("ApiUsage_UnsupportedCallSite_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Fields are not supported in viewmodels. Use properties to save state of viewmodels instead..
         /// </summary>
         internal static string Serializability_DoNotUseFields_Description {

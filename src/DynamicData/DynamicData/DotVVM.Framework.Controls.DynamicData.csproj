@@ -3,7 +3,7 @@
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <PackageId>DotVVM.DynamicData</PackageId>
     <PackageProjectUrl>https://www.dotvvm.com/docs/3.0/pages/community-add-ons/dotvvm-dynamic-data</PackageProjectUrl>
-    <PackageTags>($PackageTags);dynamic data;annotations;metadata;ui generation</PackageTags>
+    <PackageTags>$(PackageTags);dynamic data;annotations;metadata;ui generation</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">

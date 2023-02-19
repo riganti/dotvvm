@@ -203,11 +203,16 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Api_GetCollection = "FeatureSamples/Api/GetCollection";
         public const string FeatureSamples_Api_GridViewDataSetAspNetCore = "FeatureSamples/Api/GridViewDataSetAspNetCore";
         public const string FeatureSamples_Api_GridViewDataSetOwin = "FeatureSamples/Api/GridViewDataSetOwin";
+        public const string FeatureSamples_Api_IncludedInPage = "FeatureSamples/Api/IncludedInPage";
         public const string FeatureSamples_AttachedProperties_AttachedProperties = "FeatureSamples/AttachedProperties/AttachedProperties";
         public const string FeatureSamples_Attribute_SpecialCharacters = "FeatureSamples/Attribute/SpecialCharacters";
         public const string FeatureSamples_Attribute_ToStringConversion = "FeatureSamples/Attribute/ToStringConversion";
         public const string FeatureSamples_AutoUI_AutoEditor = "FeatureSamples/AutoUI/AutoEditor";
         public const string FeatureSamples_AutoUI_AutoForm = "FeatureSamples/AutoUI/AutoForm";
+        public const string FeatureSamples_AutoUI_AutoGridViewColumns = "FeatureSamples/AutoUI/AutoGridViewColumns";
+        public const string FeatureSamples_AutoUI_BootstrapForm3 = "FeatureSamples/AutoUI/BootstrapForm3";
+        public const string FeatureSamples_AutoUI_BootstrapForm4 = "FeatureSamples/AutoUI/BootstrapForm4";
+        public const string FeatureSamples_AutoUI_BootstrapForm5 = "FeatureSamples/AutoUI/BootstrapForm5";
         public const string FeatureSamples_BindableCssStyles_BindableCssStyles = "FeatureSamples/BindableCssStyles/BindableCssStyles";
         public const string FeatureSamples_BindingContexts_BindingContext = "FeatureSamples/BindingContexts/BindingContext";
         public const string FeatureSamples_BindingContexts_CollectionContext = "FeatureSamples/BindingContexts/CollectionContext";
@@ -364,6 +369,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_ValidationRulesLoadOnPostback = "FeatureSamples/Validation/ValidationRulesLoadOnPostback";
         public const string FeatureSamples_Validation_ValidationScopes = "FeatureSamples/Validation/ValidationScopes";
         public const string FeatureSamples_Validation_ValidationScopes2 = "FeatureSamples/Validation/ValidationScopes2";
+        public const string FeatureSamples_Validation_ValidationTargetIsCollection = "FeatureSamples/Validation/ValidationTargetIsCollection";
         public const string FeatureSamples_Validation_ValidatorValueComplexExpressions = "FeatureSamples/Validation/ValidatorValueComplexExpressions";
         public const string FeatureSamples_ViewModelCache_ViewModelCacheMiss = "FeatureSamples/ViewModelCache/ViewModelCacheMiss";
         public const string FeatureSamples_ViewModelDeserialization_DoesNotDropObject = "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";

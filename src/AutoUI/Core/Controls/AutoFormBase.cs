@@ -119,7 +119,7 @@ namespace DotVVM.AutoUI.Controls
 
             if (property.IsDefaultLabelAllowed)
             {
-                return new Label(id).AppendChildren(new Literal(property.GetDisplayName().ToBinding(autoUiContext)));
+                return new Label(id).AppendChildren(new Literal(property.GetDisplayName().ToBinding(autoUiContext.BindingService)));
             }
             return null;
         }
@@ -147,12 +147,12 @@ namespace DotVVM.AutoUI.Controls
                 autoUiContext);
         }
 
-        protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl labelElement, PropertyDisplayMetadata property, AutoUIContext context)
+        protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl? labelElement, PropertyDisplayMetadata property, AutoUIContext context)
         {
             if (property.PropertyInfo is { } &&
                 context.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {
-                labelElement.AddCssClass("autoui-required");
+                labelElement?.AddCssClass("autoui-required");
             }
 
             validatedElement.SetValue(Validator.ValueProperty, context.CreateValueBinding(property));

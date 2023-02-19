@@ -724,6 +724,21 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
+        public void DefaultViewCompiler_UnsupportedCallSite_ResourceBinding_Warning()
+        {
+            var markup = @"
+@viewModel System.DateTime
+{{resource: _this.ToBrowserLocalTime()}}
+";
+            var literal = ParseSource(markup)
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Literal));
+
+            Assert.AreEqual(1, literal.DothtmlNode.NodeWarnings.Count());
+            Assert.AreEqual("Evaluation of method \"ToBrowserLocalTime\" on server-side may yield unexpected results.", literal.DothtmlNode.NodeWarnings.First());
+        }
+
+        [TestMethod]
         public void DefaultViewCompiler_DifferentControlPrimaryName()
         {
             var root = ParseSource(@"@viewModel System.String

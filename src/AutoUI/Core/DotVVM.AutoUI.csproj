@@ -5,8 +5,10 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.AutoUI</PackageId>
+    <Description>Annotation attributes for DotVVM AutoUI.</Description>
     <PackageProjectUrl>https://www.dotvvm.com/docs/3.0/pages/community-add-ons/dotvvm-dynamic-data</PackageProjectUrl>
-    <PackageTags>($PackageTags);autoui;annotations;metadata;ui generation</PackageTags>
+    <PackageTags>$(PackageTags);autoui;annotations;metadata;ui generation</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -16,9 +18,9 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
+    <!-- include the README.md file in the package, so it is displayed on NuGet.org -->
+    <None Include="../README.md" Pack="true" PackagePath=""/>
     <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" />

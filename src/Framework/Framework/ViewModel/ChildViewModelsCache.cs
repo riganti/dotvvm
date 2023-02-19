@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.ViewModel
 {
@@ -47,8 +49,24 @@ namespace DotVVM.Framework.ViewModel
         public static ParametrizedCode RootViewModelPath = new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter).FormatParametrizedScript();
 
         static ConditionalWeakTable<IDotvvmViewModel, ParametrizedCode> viewModelPaths = new ConditionalWeakTable<IDotvvmViewModel, ParametrizedCode>();
-        public static void SetViewModelClientPath(IDotvvmViewModel viewModel, ParametrizedCode path) =>
-            viewModelPaths.Add(viewModel, path);
+        public static void SetViewModelClientPath(IDotvvmViewModel viewModel, ParametrizedCode path)
+        {
+            try
+            {
+                viewModelPaths.Add(viewModel, path);
+            }
+            catch (ArgumentException e)
+            {
+                var messageBuilder = new StringBuilder();
+                messageBuilder.AppendLine($"An attempt to reuse an instance of {viewModel.GetType()} detected.");
+                messageBuilder.Append("This is not supported. Ensure that everytime a viewmodel is requested, a new instance is created. ");
+                messageBuilder.Append($"Most commonly, this is caused by overriding the {nameof(DefaultViewModelLoader)}, creating custom ");
+                messageBuilder.Append("IoC container and registering viewmodels as singletons. Note that in some implementations, for example ");
+                messageBuilder.Append($"Castle Windsor, singleton is the default lifestyle when registering viewmodels.");
+
+                throw new InvalidOperationException(messageBuilder.ToString(), e);
+            }
+        }
 
         public static ParametrizedCode? GetViewModelClientPath(IDotvvmViewModel viewModel) =>
             viewModelPaths.TryGetValue(viewModel, out var p) ? p : p;

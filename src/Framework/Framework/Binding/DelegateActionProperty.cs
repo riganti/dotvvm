@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Binding
 {
+    /// <summary> DotvvmProperty which calls the function passed in the Register method, when the assigned control is being rendered. </summary>
     public sealed class DelegateActionProperty<TValue>: ActiveDotvvmProperty
     {
         private Action<IHtmlWriter, IDotvvmRequestContext, DotvvmProperty, DotvvmControl> func;

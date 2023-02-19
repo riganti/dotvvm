@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            if (context.IsSpaRequest)
+            if (context.RequestType == DotvvmRequestType.SpaNavigate)
             {
                 // we need to render the HTML on postback when SPA request arrives
                 SetValue(PostBack.UpdateProperty, true);
@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (!context.IsInPartialRenderingMode)
+            if (context.RequestType == DotvvmRequestType.Navigate)
             {
                 writer.AddStyleAttribute("display", "none");
             }

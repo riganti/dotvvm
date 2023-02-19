@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using DotVVM.AutoUI;
+using DotVVM.AutoUI.Controls;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -13,13 +16,18 @@ using DotVVM.Framework.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.ViewModel;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
     [TestClass]
     public class ServerSideStyleTests
     {
-        DotvvmConfiguration config = DotvvmTestHelper.CreateConfiguration();
+        private DotvvmConfiguration config = DotvvmTestHelper.CreateConfiguration(services => {
+            new DotvvmServiceCollection(services).AddAutoUI();
+        });
         public ServerSideStyleTests()
         {
             config.Styles
@@ -39,9 +47,9 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 .AppendControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler("4"));
         }
 
-        ResolvedTreeRoot Parse(string markup, string fileName = "default.dothtml", bool checkErrors = true) =>
+        ResolvedTreeRoot Parse(string markup, string fileName = "default.dothtml", bool checkErrors = true, string viewModelType = "System.Collections.Generic.List<System.String>") =>
             DotvvmTestHelper.ParseResolvedTree(
-                "@viewModel System.Collections.Generic.List<System.String>\n" + markup, fileName, config, checkErrors);
+                "@viewModel " + viewModelType + "\n" + markup, fileName, config, checkErrors);
 
 
         [TestMethod]
@@ -492,6 +500,52 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(Repeater), e.Content[0].Metadata.Type);
             var repeater = e.Content[0];
             Assert.IsFalse(repeater.Properties.ContainsKey(Repeater.ItemTemplateProperty), "ItemTemplate should not be set");
+        }
+
+
+        [TestMethod]
+        public void TemplateInCapability()
+        {
+            var e = Parse(@"<dot:GridView DataSource='{value: Customers}'>
+    <auto:GridViewColumns>
+        <ContentTemplate-Name>{{value: Name}}</ContentTemplate-Name>
+    </auto:GridViewColumns>
+</dot:GridView>", viewModelType: "DotVVM.Framework.Tests.Runtime.ControlTree.BasicTestViewModel");
+            Assert.AreEqual(1, e.Content.Count);
+
+            var gridView = e.Content[0];
+            var columns = gridView.GetProperty(GridView.ColumnsProperty)!.GetValue() as List<ResolvedControl>;
+            Assert.AreEqual(3, columns!.Count);
+
+            var idColumn = columns.Single(c => c.GetProperty(GridViewColumn.HeaderTextProperty) is ResolvedPropertyValue { Value: "Id" });
+            Assert.AreEqual(typeof(GridViewTextColumn), idColumn.Metadata.Type);
+            Assert.IsNotNull(idColumn.GetProperty(GridViewTextColumn.ValueBindingProperty));
+
+            var nameColumn = columns.Single(c => c.GetProperty(GridViewColumn.HeaderTextProperty) is ResolvedPropertyValue { Value: "Name" });
+            Assert.AreEqual(typeof(GridViewTemplateColumn), nameColumn.Metadata.Type);
+            Assert.IsNotNull(nameColumn.GetProperty(GridViewTemplateColumn.ContentTemplateProperty));
+
+            var enabledColumn = columns.Single(c => c.GetProperty(GridViewColumn.HeaderTextProperty) is ResolvedPropertyValue { Value: "Enabled" });
+            Assert.AreEqual(typeof(GridViewCheckBoxColumn), enabledColumn.Metadata.Type);
+            Assert.IsNotNull(enabledColumn.GetProperty(GridViewCheckBoxColumn.ValueBindingProperty));
+        }
+    }
+
+    public class BasicTestViewModel : DotvvmViewModelBase
+    {
+        public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>() {
+            Items = {
+                new CustomerData() { Id = 1, Name = "One" },
+                new CustomerData() { Id = 2, Name = "Two" }
+            }
+        };
+
+        public class CustomerData
+        {
+            public int Id { get; set; }
+            [Required]
+            public string Name { get; set; }
+            public bool Enabled { get; set; }
         }
     }
 }

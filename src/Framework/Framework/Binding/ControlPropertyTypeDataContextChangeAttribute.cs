@@ -8,6 +8,7 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding
 {
+    [Obsolete("Use ControlPropertyBindingDataContextChangeAttribute instead.")]
     public class ControlPropertyTypeDataContextChangeAttribute : DataContextChangeAttribute
     {
         public string PropertyName { get; set; }

@@ -39,7 +39,7 @@ namespace DotVVM.AutoUI.Controls
                 }
 
                 var help = property.Description is { } description
-                    ? new HtmlGenericControl("div").AddCssClass("help").SetProperty(c => c.InnerText, description.ToBinding(context)!)
+                    ? new HtmlGenericControl("div").AddCssClass("help").SetProperty(c => c.InnerText, description.ToBinding(context.BindingService)!)
                     : null;
                 var validator = new Validator()
                     .AddCssClass("help is-danger")

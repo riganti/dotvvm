@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
@@ -76,11 +77,14 @@ namespace DotVVM.Framework.Compilation
             }
             try
             {
+                var sw = ValueStopwatch.StartNew();
                 var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ReadContent(), file.FileName);
+                var phase1Ticks = sw.ElapsedTicks;
 
                 var lazyBuilder = new Lazy<IControlBuilder>(() => {
                     try
                     {
+                        sw.Restart();
                         var result = factory();
 
                         // register the internal resource after the page is successfully compiled,
@@ -90,12 +94,14 @@ namespace DotVVM.Framework.Compilation
                             var (import, init) = descriptor.ViewModuleReference.BuildResources(configuration.Resources);
                             configuration.Resources.RegisterViewModuleResources(import, init);
                         }
+                        Interlocked.Increment(ref DotvvmMetrics.BareCounters.ViewsCompiledOk);
 
                         compilationService.RegisterCompiledView(file.FileName, descriptor, null);
                         return result;
                     }
                     catch (DotvvmCompilationException ex)
                     {
+                        Interlocked.Increment(ref DotvvmMetrics.BareCounters.ViewsCompiledFailed);
                         editCompilationException(ex);
                         compilationService.RegisterCompiledView(file.FileName, descriptor, ex);
                         throw;
@@ -105,9 +111,13 @@ namespace DotVVM.Framework.Compilation
                         compilationService.RegisterCompiledView(file.FileName, descriptor, ex);
                         throw;
                     }
+                    finally
+                    {
+                        Interlocked.Add(ref DotvvmMetrics.BareCounters.ViewsCompilationTime, phase1Ticks + sw.ElapsedTicks);
+                    }
                 });
 
-                // initialize the Lazy asynchronously to speed up initialization
+                // initialize the Lazy asynchronously to speed up initialization and get reasonably accurate ViewsCompilationTime metric
                 Task.Run(() => {
                     try {
                         _ = lazyBuilder.Value;

@@ -1,0 +1,136 @@
+name: publish-internal
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        type: choice
+        options:
+          - InternalPreview
+          - PublicPreview
+          - Stable
+        default: InternalPreview
+        description: The type of release (determines version format)
+        required: false
+      version-core:
+        type: string
+        default: "4.1.0"
+        description: The core part of the version string
+        required: false
+      prerelease-version:
+        type: string
+        default: preview01
+        description: The prerelease suffix appended after the core version
+        required: false
+      signature-type:
+        type: choice
+        options:
+          - DotNetFoundation
+          - Riganti
+        default: DotNetFoundation
+        description: The signature to be used to sign the packages.
+        required: false
+
+jobs:
+  read-input:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: set-version
+        run: >
+          if [ "${{ inputs.release-type }}" == 'InternalPreview' ]; then
+            VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-${{ github.run_id }}";
+          elif [ "${{ inputs.release-type }}" == 'PublicPreview' ]; then
+            VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-final";
+          elif [ "${{ inputs.release-type }}" == 'Stable' ]; then
+            VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}";
+          else
+            echo "Unknown release type '${{ inputs.release-type }}'.";
+            exit 1;
+          fi;
+          echo "version=$VERSION" >> $GITHUB_OUTPUT;
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+
+  publish-nuget-packages:
+    runs-on: windows-2022
+    needs: read-input
+    steps:
+
+    - uses: actions/checkout@v3
+
+    - name: Set up
+      uses: ./.github/setup
+
+    - name: Prepare signclient config
+      if: ${{ inputs.signature-type == 'DotNetFoundation' }}
+      run: Write-Output "$env:SIGN_CONFIG" | Out-File "${{ github.workspace }}/signconfig.json"
+      env:
+        SIGN_CONFIG: ${{ secrets.SIGN_CONFIG }}
+      working-directory: ${{ github.workspace }}/src
+
+    - name: Add internal NuGet feed
+      run: ./ci/scripts/Add-InternalNuGetFeed.ps1 `
+          -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
+          -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
+          -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}"
+
+    - name: Publish NuGet packages (.NET Foundation)
+      if: ${{ inputs.signature-type == 'DotNetFoundation' }}
+      run: ./ci/scripts/Publish-NuGetPackages.ps1 `
+          -root "${{ github.workspace }}" `
+          -version "${{ needs.read-input.outputs.version }}" `
+          -signatureType "DotNetFoundation" `
+          -dnfUser "${{ secrets.SIGN_USER }}" `
+          -dnfSecret "${{ secrets.SIGN_SECRET }}"
+
+    - name: Publish NuGet packages (Riganti)
+      if: ${{ inputs.signature-type == 'Riganti' }}
+      run: ./ci/scripts/Publish-NuGetPackages.ps1 `
+          -root "${{ github.workspace }}" `
+          -version "${{ needs.read-input.outputs.version }}" `
+          -signatureType "Riganti" `
+          -rigantiUrl "${{ secrets.SIGN_RIGANTI_KEYVAULT_URL }}" `
+          -rigantiClientId "${{ secrets.SIGN_RIGANTI_CLIENT_ID }}" `
+          -rigantiTenantId "${{ secrets.SIGN_RIGANTI_TENANT_ID }}" `
+          -rigantiSecret "${{ secrets.SIGN_RIGANTI_SECRET }}" `
+          -rigantiCertificate "${{ secrets.SIGN_RIGANTI_CERTIFICATE_NAME }}"
+
+  publish-dotvvm-types:
+    runs-on: windows-2022
+    needs: read-input
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up
+      uses: ./.github/setup
+
+    - name: Build Framework
+      uses: ./.github/pack
+      with:
+        project: src/Framework/Framework
+
+    - name: Build dotvvm-types
+      run: npm run tsc-types
+      working-directory: src/Framework/Framework
+
+    - name: Compose dotvvm-types
+      run: >
+        mkdir types;
+        cp "${{ github.workspace }}/src/Framework/Framework/obj/typescript-types/dotvvm.d.ts" types/index.d.ts;
+        npm version "${{ needs.read-input.outputs.version }}" --no-git-tag-version;
+        cat "${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json";
+      working-directory: ci/scripts/npm/dotvvm-types
+
+    - name: Set internal npm registry
+      run: >
+        ./ci/scripts/Set-NpmRegistry.ps1 `
+          -targetDirectory "./ci/scripts/npm/dotvvm-types" `
+          -registry "${{ secrets.INTERNAL_NPM_REGISTRY }}" `
+          -pat "${{ secrets.INTERNAL_NPM_PAT }}" `
+          -username "${{ secrets.INTERNAL_NPM_USERNAME }}" `
+          -email "${{ secrets.INTERNAL_NPM_EMAIL }}"
+
+    - name: Publish dotvvm-types
+      run: npm publish
+      working-directory: ci/scripts/npm/dotvvm-types

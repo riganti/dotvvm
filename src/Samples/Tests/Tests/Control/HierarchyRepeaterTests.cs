@@ -1,6 +1,7 @@
 using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium.Interactions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
@@ -20,6 +21,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_HierarchyRepeater_Basic);
+                browser.Driver.Manage().Window.Maximize();
 
                 AssertUI.InnerTextEquals(browser.First("HR-Empty", SelectByDataUi), "");
                 AssertUI.InnerTextEquals(browser.First("HR-EmptyData", SelectByDataUi), "There are no nodes.");
@@ -44,8 +46,8 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.InnerTextEquals(getNode("HR-Server", 0, 0).Single("input[type=button]"), "2");
                 AssertUI.InnerTextEquals(getNode("HR-Client", 0, 0).Single("input[type=button]"), "2");
 
-                browser.Single("GlobalLabel", SelectByDataUi).ClearInputByKeyboard().SendKeys("lalala");
-                getNode("HR-Client", 0, 0).Single("input[type=button]").Click();
+                browser.Single("GlobalLabel", SelectByDataUi).ScrollTo().ClearInputByKeyboard().SendKeys("lalala");
+                getNode("HR-Client", 0, 0).ScrollTo().Single("input[type=button]").Click();
                 AssertUI.Attribute(getNode("HR-Server", 0, 0).Single("input[type=button]"), "title", "lalala: -- 0");
             });
         }
@@ -56,6 +58,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_HierarchyRepeater_WithMarkupControl);
+                browser.Driver.Manage().Window.Maximize();
 
                 IElementWrapper getNode(string hr, params int[] index)
                 {

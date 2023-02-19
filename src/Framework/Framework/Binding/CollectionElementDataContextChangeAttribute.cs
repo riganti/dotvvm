@@ -10,6 +10,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Binding
 {
+    /// <summary> Sets data context type to the element type of current data context. </summary>
     public class CollectionElementDataContextChangeAttribute : DataContextChangeAttribute
     {
         public override int Order { get; }

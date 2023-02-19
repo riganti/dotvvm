@@ -79,9 +79,14 @@
     <None Remove="Views\FeatureSamples\Api\ApiInSpa_PageB.dothtml" />
     <None Remove="Views\FeatureSamples\Api\ApiRefresh.dothtml" />
     <None Remove="Views\FeatureSamples\Api\CollectionOddEvenWithRestApi.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\IncludedInPage.dothtml" />
     <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoEditor.dothtml" />
     <None Remove="Views\FeatureSamples\AutoUI\AutoForm.dothtml" />
+    <None Remove="Views\FeatureSamples\AutoUI\AutoGridViewColumns.dothtml" />
+    <None Remove="Views\FeatureSamples\AutoUI\BootstrapForm3.dothtml" />
+    <None Remove="Views\FeatureSamples\AutoUI\BootstrapForm4.dothtml" />
+    <None Remove="Views\FeatureSamples\AutoUI\BootstrapForm5.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Complex.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Complex2.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Simple.dothtml" />
@@ -114,6 +119,7 @@
     <None Remove="Views\FeatureSamples\Serialization\EnumSerializationCoercion.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\SerializationDateTimeOffset.dothtml" />
     <None Remove="Views\FeatureSamples\StringInterpolation\StringInterpolation.dothtml" />
+    <None Remove="Views\FeatureSamples\Validation\ValidationTargetIsCollection.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\ValidatorValueComplexExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\Incrementer.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\IncrementerInRepeater.dothtml" />

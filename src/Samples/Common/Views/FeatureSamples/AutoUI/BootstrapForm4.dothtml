@@ -1,0 +1,29 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI.BootstrapFormViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <style>
+        .is-invalid.form-check-label, .is-invalid .form-check-label {
+            color: #dc3545;
+        }
+        .is-invalid .form-check-input {
+            border-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <auto:BootstrapForm DataContext="{value: Customer}" Styles.Tag="Bootstrap4" />
+
+        <dot:Button Text="Validate" Click="{command: null}" />
+    </div>
+</body>
+</html>
+
+

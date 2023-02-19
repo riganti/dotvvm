@@ -99,7 +99,15 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                throw new DotvvmControlException($"Could not resolve {nameof(ValueProperty)} to a valid value binding.");
+                // Note: ValueProperty can sometimes contain null (BusinessPack depends on this behaviour)
+                // However, it certainly should not contain hard-coded values
+
+                var valueRaw = control.GetValueRaw(ValueProperty);
+                if (valueRaw != null)
+                {
+                    // There is a hard-coded value in the ValueProperty
+                    throw new DotvvmControlException($"{nameof(ValueProperty)} can not contain a hard-coded value.");
+                }
             }
 
             // render options

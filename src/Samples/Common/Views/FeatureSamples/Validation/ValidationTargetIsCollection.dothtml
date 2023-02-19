@@ -1,0 +1,33 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation.ValidationTargetIsCollectionViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Collection as Validation.Target</title>
+    <style>
+        .has-error {
+            background-color: #ffaaaa;
+        }
+    </style>
+</head>
+<body Validation.Target="{value: Customers}" Validator.InvalidCssClass="has-error">
+
+    <div>
+        <dot:GridView DataSource="{value: Customers}">
+            <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id }" />
+            <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name }" />
+        </dot:GridView>
+    </div>
+
+    <div>
+        <dot:Button Text="Validate" Click="{command: Method()}" data-ui="validation-button" />
+        <p>ValidationSummary: </p>
+        <dot:ValidationSummary IncludeErrorsFromChildren="True" data-ui="validation-summary" />
+    </div>
+
+</body>
+</html>
+
+

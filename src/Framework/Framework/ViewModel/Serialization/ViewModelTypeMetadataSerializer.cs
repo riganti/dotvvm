@@ -86,7 +86,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private ObjectMetadataWithDependencies GetObjectTypeMetadataCopy(ViewModelSerializationMap map)
         {
             var key = new ViewModelSerializationMapWithCulture(map, CultureInfo.CurrentUICulture.Name);
-            var obj = cachedObjectMetadata.GetOrAdd(key, BuildObjectTypeMetadata(map));
+            var obj = cachedObjectMetadata.GetOrAdd(key, _ => BuildObjectTypeMetadata(map));
             return new ObjectMetadataWithDependencies((JObject)obj.Metadata.DeepClone(), obj.DependentObjectTypes, obj.DependentEnumTypes);
         }
 
