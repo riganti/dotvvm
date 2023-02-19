@@ -2,6 +2,8 @@
 @js FeatureSamples_Resources_TestViewModule
 @import DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules
 
+@property int ControlProperty
+
 <h2>_js.Invoke</h2>
 <p>
     <dot:Button Text="noArgs" Click="{staticCommand: _js.Invoke("noArgs")}" />
@@ -25,6 +27,10 @@
 <p>
     Value: <dot:TextBox data-ui="serialized-input" Text={value: ChildObject.Test} />
     Serialized: <dot:TextBox data-ui="serialized-result" Text={value: _js.Invoke<string>("serializeArgsTest", 10, ChildObject.Test)} />
+</p>
+<p>
+    Value: {{value: Value}} ← {{value: _control.ControlProperty}}
+    <dot:Button Text="setControlProperty" Click="{staticCommand: Value = _js.InvokeAsync<int>("readControlProperty")}" />
 </p>
 
 <dot:NamedCommand Name="SetResultCommand" Command="{staticCommand: (int a1, string a2, TestObject a3) => Result = a1.ToString() + "_" + a2 + "_" + a3.Test}" />

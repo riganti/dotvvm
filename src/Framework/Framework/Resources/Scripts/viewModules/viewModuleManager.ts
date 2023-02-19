@@ -28,7 +28,7 @@ export function registerViewModules(modules: { [name: string]: any }) {
     }
 }
 
-export function initViewModule(name: string, viewIdOrElement: string | HTMLElement, rootElement: HTMLElement): ModuleContext {
+export function initViewModule(name: string, viewIdOrElement: string | HTMLElement, rootElement: HTMLElement, properties: object = {}): ModuleContext {
     if (compileConstants.debug && rootElement == null) { throw new Error("rootElement has to have a value"); }
 
     const handler = ensureModuleHandler(name);
@@ -45,11 +45,10 @@ export function initViewModule(name: string, viewIdOrElement: string | HTMLEleme
         throw new Error(`The module ${name} referenced in the @js directive must have a default export that is a function.`);
     }
 
-    const elementContext = ko.contextFor(rootElement);
     const context = new ModuleContext(
         name,
         [rootElement],
-        elementContext && elementContext.$control ? { ...elementContext.$control } : {}
+        properties
     );
     const moduleInstance = createModuleInstance(handler.module.default, context);
     context.module = moduleInstance;

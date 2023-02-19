@@ -34,13 +34,13 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
     return computed;
 }
 
-function prepareViewModuleContexts(element: HTMLElement, value: any) {
+function prepareViewModuleContexts(element: HTMLElement, value: any, properties: object) {
     if (compileConstants.debug && value.modules.length == 0) {
         throw new Error(`dotvvm-with-view-modules binding was used without any modules.`)
     }
     const contexts: any = {};
     for (const viewModuleName of value.modules) {
-        contexts[viewModuleName] = manager.initViewModule(viewModuleName, value.viewId ?? element, element);
+        contexts[viewModuleName] = manager.initViewModule(viewModuleName, value.viewId ?? element, element, properties);
     }
     if (typeof value.viewId !== "string") {
         if (compileConstants.debug && value.viewId != null) {
@@ -83,7 +83,7 @@ export default {
             const viewModuleBinding = allBindings.get('dotvvm-with-view-modules')
             if (viewModuleBinding)
             {
-                newContext.$viewModules = prepareViewModuleContexts(element, viewModuleBinding)
+                newContext.$viewModules = prepareViewModuleContexts(element, viewModuleBinding, newContext.$control)
             }
 
             const innerBindingContext = bindingContext!.extend(newContext);
@@ -96,7 +96,7 @@ export default {
             if (allBindings.has('dotvvm-with-control-properties'))
                 return;
 
-            const contexts = prepareViewModuleContexts(element, valueAccessor());
+            const contexts = prepareViewModuleContexts(element, valueAccessor(), {});
 
             const innerBindingContext = bindingContext!.extend({ $viewModules: contexts });
             ko.applyBindingsToDescendants(innerBindingContext, element);
