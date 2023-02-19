@@ -26,7 +26,7 @@ return @(
     },
     [PSCustomObject]@{
         Name = "DotVVM.Templates";
-        Path = "src/Templates";
+        Path = "src/Templates/DotVVM.Templates.nuspec";
         Type = "template"
     },
     [PSCustomObject]@{
