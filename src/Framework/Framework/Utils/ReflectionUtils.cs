@@ -22,6 +22,9 @@ using FastExpressionCompiler;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using RecordExceptions;
+using System.ComponentModel;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Utils
 {
@@ -231,6 +234,12 @@ namespace DotVVM.Framework.Utils
             // convert
             try
             {
+                // custom primitive types
+                if (CustomPrimitiveTypes.TryGetValue(type, out var registration) && registration is {})
+                {
+                    return registration.ConvertToServerSideType(value);
+                }
+
                 return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
             }
             catch (Exception e)
@@ -293,6 +302,8 @@ namespace DotVVM.Framework.Utils
             typeof (double),
             typeof (decimal)
         };
+        // mapping of server-side types to their client-side representation
+        internal static readonly ConcurrentDictionary<Type, CustomPrimitiveTypeRegistration?> CustomPrimitiveTypes = new();
 
         public static IEnumerable<Type> GetNumericTypes()
         {
@@ -348,19 +359,44 @@ namespace DotVVM.Framework.Utils
             return type != typeof(string) && IsEnumerable(type) && !IsDictionary(type);
         }
 
-        public static bool IsPrimitiveType(Type type)
+        public static bool IsPrimitiveType(this Type type)
         {
             return PrimitiveTypes.Contains(type)
                 || (IsNullableType(type) && IsPrimitiveType(type.UnwrapNullableType()))
-                || type.IsEnum;
+                || type.IsEnum
+                || CustomPrimitiveTypes.GetOrAdd(type, TryDiscoverCustomPrimitiveType) is {};
         }
 
-        public static bool IsSerializationSupported(this Type type, bool includeNullables)
+        private static CustomPrimitiveTypeRegistration? TryDiscoverCustomPrimitiveType(Type type)
         {
-            if (includeNullables)
-                return IsPrimitiveType(type);
+            var attribute = type.GetCustomAttribute<CustomPrimitiveTypeAttribute>();
+            if (attribute == null)
+            {
+                return null;
+            }
 
-            return PrimitiveTypes.Contains(type);
+            if (IsCollection(type) || IsDictionary(type))
+            {
+                throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)}, but it cannot be used as a custom primitive type. Custom primitive types cannot be collections, dictionaries, and cannot be primitive types already supported by DotVVM.");
+            }
+            if (!PrimitiveTypes.Contains(attribute.ClientSideType.UnwrapNullableType()))
+            {
+                throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)} but its {nameof(CustomPrimitiveTypeAttribute.ClientSideType)} is not valid. The client-side representation can only be one of the built-in primitive types (string, numbers, date and time types), or a nullable version of such type.");
+            }
+            if (!typeof(ICustomPrimitiveTypeConverter).IsAssignableFrom(attribute.ConverterType))
+            {
+                throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)} but its {nameof(CustomPrimitiveTypeAttribute.ConverterType)} doesn't implement the {nameof(ICustomPrimitiveTypeConverter)} interface!");
+            }
+
+            try
+            {
+                var converter = (ICustomPrimitiveTypeConverter)Activator.CreateInstance(attribute.ConverterType)!;
+                return new CustomPrimitiveTypeRegistration(type, attribute.ClientSideType, converter.ToCustomPrimitiveType, converter.FromCustomPrimitiveType);
+            }
+            catch (Exception ex)
+            {
+                throw new DotvvmCompilationException($"The converter for a custom primitive type {type} couldn't be created. Make sure the class {attribute.ConverterType} has a default constructor.", ex);
+            }
         }
 
         public static bool IsNullableType(Type type)

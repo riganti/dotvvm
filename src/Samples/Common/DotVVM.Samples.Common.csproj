@@ -93,6 +93,7 @@
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\CompositeControls\ControlPropertyNamingConflict.dothtml" />
     <None Remove="Views\FeatureSamples\CommandActionFilter\CommandActionFilter.dothtml" />
+    <None Remove="Views\FeatureSamples\CustomPrimitiveTypes\Basic.dothtml" />
     <None Remove="Views\FeatureSamples\HotReload\ViewChanges.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\ArrayTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\DateTimeTranslations.dothtml" />

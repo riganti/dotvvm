@@ -148,8 +148,21 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         internal JToken GetTypeIdentifier(Type type, HashSet<Type> dependentObjectTypes, HashSet<Type> dependentEnumTypes)
         {
-            if (type.IsSerializationSupported(includeNullables: false))
+            if (type.IsEnum)
             {
+                dependentEnumTypes.Add(type);
+                return GetEnumTypeName(type);
+            }
+            else if (ReflectionUtils.IsNullable(type))
+            {
+                return GetNullableTypeIdentifier(type, dependentObjectTypes, dependentEnumTypes);
+            }
+            else if (type.IsPrimitiveType())        // we intentionally detect this after handling enums and nullable types
+            {
+                if (ReflectionUtils.CustomPrimitiveTypes.TryGetValue(type, out var registration) && registration is {})
+                {
+                    return GetTypeIdentifier(registration.ClientSideType, dependentObjectTypes, dependentEnumTypes);
+                }
                 return GetPrimitiveTypeName(type);
             }
             else if (type == typeof(object))
@@ -161,15 +174,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var attrs = type.GetGenericArguments();
                 var keyValuePair = typeof(KeyValuePair<,>).MakeGenericType(attrs);
                 return new JArray(GetTypeIdentifier(keyValuePair, dependentObjectTypes, dependentEnumTypes));
-            }
-            else if (type.IsEnum)
-            {
-                dependentEnumTypes.Add(type);
-                return GetEnumTypeName(type);
-            }
-            else if (ReflectionUtils.IsNullable(type))
-            {
-                return GetNullableTypeIdentifier(type, dependentObjectTypes, dependentEnumTypes);
             }
             else if (ReflectionUtils.IsCollection(type))
             {

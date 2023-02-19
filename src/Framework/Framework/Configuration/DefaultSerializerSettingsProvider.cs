@@ -31,7 +31,8 @@ namespace DotVVM.Framework.Configuration
                     new DotvvmTimeOnlyConverter(),
                     new StringEnumConverter(),
                     new DotvvmDictionaryConverter(),
-                    new DotvvmByteArrayConverter()
+                    new DotvvmByteArrayConverter(),
+                    new DotvvmCustomPrimitiveTypeConverter()
                 },
                 MaxDepth = defaultMaxSerializationDepth
             };

@@ -17,11 +17,15 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("explicitAssemblyLoading")]
         public DotvvmGlobalFeatureFlag ExplicitAssemblyLoading { get; private set; } = new DotvvmGlobalFeatureFlag();
 
+        [JsonProperty("useDotvvmSerializationForStaticCommandArguments")]
+        public DotvvmGlobalFeatureFlag UseDotvvmSerializationForStaticCommandArguments { get; private set; } = new DotvvmGlobalFeatureFlag();
+
         public void Freeze()
         {
             LazyCsrfToken.Freeze();
             ServerSideViewModelCache.Freeze();
             ExplicitAssemblyLoading.Freeze();
+            UseDotvvmSerializationForStaticCommandArguments.Freeze();
         }
     }
 

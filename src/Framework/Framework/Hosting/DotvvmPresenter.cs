@@ -32,6 +32,7 @@ namespace DotVVM.Framework.Hosting
     [NotAuthorized] // DotvvmPresenter handles authorization itself, allowing authorization on it would make [NotAuthorized] attribute useless on ViewModel, since request would be interrupted earlier that VM is found
     public class DotvvmPresenter : IDotvvmPresenter
     {
+        private readonly DotvvmConfiguration configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmPresenter" /> class.
@@ -43,6 +44,7 @@ namespace DotVVM.Framework.Hosting
 #pragma warning restore CS0618
         )
         {
+            this.configuration = configuration;
             DotvvmViewBuilder = viewBuilder;
             ViewModelLoader = viewModelLoader;
             ViewModelSerializer = viewModelSerializer;
@@ -344,11 +346,23 @@ namespace DotVVM.Framework.Hosting
 #pragma warning restore CS0618
             }
         }
+        protected virtual JsonSerializer CreateJsonSerializer() => DefaultSerializerSettingsProvider.Instance.Settings.Apply(JsonSerializer.Create);
 
         private object? ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
         {
+            Func<JToken, Type, object> deserializeArg;
+            if (configuration.ExperimentalFeatures.UseDotvvmSerializationForStaticCommandArguments.Enabled)
+            {
+                var serializer = CreateJsonSerializer();
+                deserializeArg = (token, argType) => token.ToObject(argType, serializer);
+            }
+            else
+            {
+                deserializeArg = (token, argType) => token.ToObject(argType);
+            }
+
             var methodArgs = plan.Arguments.Select((a, index) =>
-                a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg!) :
+                a.Type == StaticCommandParameterType.Argument ? deserializeArg(arguments.Dequeue(), (Type)a.Arg!) :
                 a.Type == StaticCommandParameterType.Constant || a.Type == StaticCommandParameterType.DefaultValue ? a.Arg :
                 a.Type == StaticCommandParameterType.Inject ?
 #pragma warning disable CS0618
