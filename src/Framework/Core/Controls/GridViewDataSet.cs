@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Framework.Querying;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
@@ -125,36 +126,7 @@ namespace DotVVM.Framework.Controls
                 return queryable;
             }
 
-            var parameterExpression = Expression.Parameter(typeof(T), "p");
-            Expression sortByExpression = parameterExpression;
-            foreach (var prop in (SortingOptions.SortExpression ?? "").Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                var property = sortByExpression.Type.GetTypeInfo().GetProperty(prop);
-                if (property == null)
-                {
-                    throw new Exception($"Could not sort by property '{prop}', since it does not exists.");
-                }
-                if (property.GetCustomAttribute<BindAttribute>() is BindAttribute bind && bind.Direction == Direction.None)
-                {
-                    throw new Exception($"Cannot sort by an property '{prop}' that has [Bind(Direction.None)].");
-                }
-                if (property.GetCustomAttribute<ProtectAttribute>() is ProtectAttribute protect && protect.Settings == ProtectMode.EncryptData)
-                {
-                    throw new Exception($"Cannot sort by an property '{prop}' that is encrypted.");
-                }
-
-                sortByExpression = Expression.Property(sortByExpression, property);
-            }
-            if (sortByExpression == parameterExpression) // no sorting
-            {
-                return queryable;
-            }
-            var lambdaExpression = Expression.Lambda(sortByExpression, parameterExpression);
-            var methodCallExpression = Expression.Call(typeof(Queryable), GetSortingMethodName(),
-                new[] { parameterExpression.Type, sortByExpression.Type },
-                queryable.Expression,
-                Expression.Quote(lambdaExpression));
-            return queryable.Provider.CreateQuery<T>(methodCallExpression);
+            return DataSetHelpers.ApplySortExpressionToQueryable(queryable, SortingOptions.SortExpression ?? "", SortingOptions.SortDescending);
         }
 
         /// <summary>
@@ -167,11 +139,6 @@ namespace DotVVM.Framework.Controls
             return PagingOptions != null && PagingOptions.PageSize > 0 ?
                 queryable.Skip(PagingOptions.PageSize * PagingOptions.PageIndex).Take(PagingOptions.PageSize) :
                 queryable;
-        }
-
-        private string GetSortingMethodName()
-        {
-            return SortingOptions.SortDescending ? "OrderByDescending" : "OrderBy";
         }
     }
 }
