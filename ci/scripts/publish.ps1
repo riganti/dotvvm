@@ -46,8 +46,8 @@ $LASTEXITCODE
 function CleanOldGeneratedPackages() {
     Write-Host "Cleaning old versions of nupkg ..."
     foreach ($package in $packages) {
-        del .\$($package.Path)\bin\$configuration\*.nupkg -ErrorAction SilentlyContinue
-        del .\$($package.Path)\bin\$configuration\*.snupkg -ErrorAction SilentlyContinue
+        del .\$($package.Directory)\bin\$configuration\*.nupkg -ErrorAction SilentlyContinue
+        del .\$($package.Directory)\bin\$configuration\*.snupkg -ErrorAction SilentlyContinue
     }
 }
 
@@ -59,7 +59,7 @@ function BuildPackages() {
     Write-Host "Build started"
     $originDirecotry = $PWD
     foreach ($package in $packages) {
-        cd .\$($package.Path)
+        cd .\$($package.Directory)
         Write-Host "Building in directory $PWD"
 
         if ($nugetRestoreAltSource -eq "") {
@@ -79,7 +79,7 @@ function SignPackages() {
     if ($signUser -ne "") {
         Write-Host "Signing packages ..."
         foreach ($package in $packages) {
-            $baseDir = Join-Path $currentDirectory ".\$($package.Path)\bin\$configuration\"
+            $baseDir = Join-Path $currentDirectory ".\$($package.Directory)\bin\$configuration\"
             Write-Host "Signing $($package.Name + " " + $version) (Base dir: $baseDir)"
             & dotnet signclient sign --baseDirectory "$baseDir" --input *.nupkg  --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "$($package.Name)" --description "$($package.Name + " " + $version)" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
         }
@@ -89,8 +89,8 @@ function SignPackages() {
 function PushPackages() {
     Write-Host "Pushing packages ..."
     foreach ($package in $packages) {
-        & ../ci/scripts/nuget.exe push .\$($package.Path)\bin\$configuration\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
-        & ../ci/scripts/nuget.exe push .\$($package.Path)\bin\$configuration\$($package.Package).$version.snupkg -source $server -apiKey $apiKey | Out-Host
+        & ../ci/scripts/nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Name).$version.nupkg -source $server -apiKey $apiKey | Out-Host
+        & ../ci/scripts/nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Name).$version.snupkg -source $server -apiKey $apiKey | Out-Host
     }
 }
 
@@ -140,7 +140,7 @@ function GitPush() {
 
 ### Configuration
 
-$packages = . "$PSScriptRoot/Get-PublicProjects.ps1" | Where-Object { $_.Type -ne "template" }
+$packages = . "$PSScriptRoot/Get-PublicProjects.ps1" | Where-Object { $_.Type -ne "template" } | Select-Object -Property Name,Path,Type,@{ Name = "Directory"; Expression = { $_.Path.Substring("src/".Length) } }
 
 
 ### Publish Workflow
