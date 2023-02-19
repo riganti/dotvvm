@@ -16,14 +16,12 @@ if (-not ([string]::IsNullOrWhiteSpace("$targetDirectory"))) {
 }
 
 try {
-    $password = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$internalNpmRegistryPat"));
-    $feed = "$internalNpmRegistry".Trim("https:");
-    npm set --location project `
-        "always-auth=true" `
-        "registry=$internalNpmRegistry" `
-        "${feed}:username=$internalNpmRegistryUsername" `
-        "${feed}:email=$internalNpmRegistryEmail" `
-        "${feed}:_password=$password"
+    $password = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$pat"));
+    $feed = "$registry".Trim("https:");
+    npm config set --location project "registry=$registry"
+    npm config set --location project "${feed}:username=$username"
+    npm config set --location project "${feed}:email=$email"
+    npm config set --location project "${feed}:_password=$password"
 }
 finally {
     Set-Location "$oldCwd"
