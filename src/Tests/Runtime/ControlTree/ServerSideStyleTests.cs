@@ -495,11 +495,12 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(HtmlGenericControl), e.Content[0].Metadata.Type);
             Assert.AreEqual("div", e.Content[0].ConstructorParameters[0]);
 
-            e = Parse("<dot:Repeater DataSource={value: 'abcd'}><span Styles.Tag=remove /></dot:Repeater>", checkErrors: false);
+            e = Parse("<dot:Repeater DataSource={value: 'abcd'}><SeparatorTemplate><span Styles.Tag=remove /></SeparatorTemplate> <ItemTemplate></ItemTemplate></dot:Repeater>", checkErrors: false);
             Assert.AreEqual(1, e.Content.Count);
             Assert.AreEqual(typeof(Repeater), e.Content[0].Metadata.Type);
             var repeater = e.Content[0];
-            Assert.IsFalse(repeater.Properties.ContainsKey(Repeater.ItemTemplateProperty), "ItemTemplate should not be set");
+            Assert.IsFalse(repeater.Properties.ContainsKey(Repeater.SeparatorTemplateProperty), "SeparatorTemplate should not be set");
+            Assert.IsTrue(repeater.Properties.ContainsKey(Repeater.ItemTemplateProperty), "ItemTemplate shouldn't have been removed (it's required)");
         }
 
 
