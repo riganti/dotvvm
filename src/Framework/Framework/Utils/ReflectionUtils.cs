@@ -576,15 +576,15 @@ namespace DotVVM.Framework.Utils
 
         public static IEnumerable<Type> GetBaseTypesAndInterfaces(Type type)
         {
+            foreach (var i in type.GetInterfaces())
+            {
+                yield return i;
+            }
+
             while (type.BaseType is { } baseType)
             {
                 yield return baseType;
                 type = baseType;
-            }
-
-            foreach (var i in type.GetInterfaces())
-            {
-                yield return i;
             }
         }
     }
