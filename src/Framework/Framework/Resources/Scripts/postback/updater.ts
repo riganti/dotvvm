@@ -46,7 +46,7 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any) 
     }
 }
 
-export function updateViewModelAndControls(resultObject: any) {
+export function updateViewModelAndControls(resultObject: any, updateTypeInfo: (t: TypeMap) => void) {
     // store server-side cached viewmodel
     if (resultObject.viewModelCacheId) {
         updateViewModelCache(resultObject.viewModelCacheId, resultObject.viewModel);
@@ -58,6 +58,7 @@ export function updateViewModelAndControls(resultObject: any) {
     const updatedControls = cleanUpdatedControls(resultObject);
 
     // update viewmodel
+    updateTypeInfo(resultObject.typeMetadata);
     replaceViewModel(resultObject.viewModel);
 
     // remove updated controls which were previously removed from DOM
