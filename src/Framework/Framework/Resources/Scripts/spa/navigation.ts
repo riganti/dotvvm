@@ -57,8 +57,7 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
             if (compileConstants.isSpa) {
                 clearApiCachedValues();
             }
-            replaceTypeInfo(response.result.typeMetadata);
-            updater.updateViewModelAndControls(response.result);
+            updater.updateViewModelAndControls(response.result, replaceTypeInfo);
             isSpaReady(true);
         } else if (response.result.action === "redirect") {
             await handleRedirect(options, response.result, response.response!);
