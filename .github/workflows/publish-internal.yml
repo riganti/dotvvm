@@ -58,6 +58,7 @@ jobs:
             VERSION="${VERSION}-${{ inputs.prerelease-suffix }}";
           fi;
 
+          echo "$VERSION";
           echo "version=$VERSION" >> $GITHUB_OUTPUT;
     outputs:
       version: ${{ steps.set-version.outputs.version }}
