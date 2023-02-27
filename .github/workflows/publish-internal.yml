@@ -43,18 +43,18 @@ jobs:
       - uses: actions/checkout@v3
       - id: set-version
         run: >
-          if [ "${{ inputs.release-type }}" = 'InternalPreview' ]; then
+          if [[ "${{ inputs.release-type }}" == 'InternalPreview' ]]; then
             VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-${{ github.run_id }}";
-          elif [ "${{ inputs.release-type }}" = 'PublicPreview' ]; then
+          elif [[ "${{ inputs.release-type }}" == 'PublicPreview' ]]; then
             VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-final";
-          elif [ "${{ inputs.release-type }}" = 'Stable' ]; then
+          elif [[ "${{ inputs.release-type }}" == 'Stable' ]]; then
             VERSION="${{ inputs.version-core}}";
           else
             echo "Unknown release type '${{ inputs.release-type }}'.";
             exit 1;
           fi;
 
-          if [ '(' "${{ inputs.release-type }}" = 'InternalPreview' || "${{ inputs.release-type }}" = 'PublicPreview' ')' && -n "${{ inputs.prerelease-suffix }}" ]; then
+          if [[ ( "${{ inputs.release-type }}" == 'InternalPreview' || "${{ inputs.release-type }}" == 'PublicPreview' ) && -n "${{ inputs.prerelease-suffix }}" ]]; then
             VERSION="${VERSION}-${{ inputs.prerelease-suffix }}";
           fi;
 
