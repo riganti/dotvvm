@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
@@ -495,6 +496,31 @@ namespace DotVVM.Samples.Tests.Feature
                         AssertUI.TextEquals(items[i], expected[i]);
                     }
                 }
+            });
+        }
+
+        [Fact]
+        public void Feature_Api_IsLoading()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_IsLoading);
+                
+                var loading = browser.Single("loading", SelectByDataUi);
+                AssertUI.IsNotDisplayed(loading);
+
+                browser.Single("number1", SelectByDataUi).Single("input[type=button]").Click();
+                AssertUI.IsDisplayed(loading);
+
+                Thread.Sleep(500);
+                browser.Single("number2", SelectByDataUi).Single("input[type=button]").Click();
+                AssertUI.IsDisplayed(loading);
+
+                Thread.Sleep(500);
+                browser.Single("number3", SelectByDataUi).Single("input[type=button]").Click();
+                AssertUI.IsDisplayed(loading);
+
+                Thread.Sleep(3000);
+                AssertUI.IsNotDisplayed(loading);
             });
         }
 

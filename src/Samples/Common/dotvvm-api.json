@@ -1,6 +1,6 @@
 [
     {
-      "swaggerFile": "http://localhost:5001/swagger/v1/swagger.json",
+      "swaggerFile": "http://localhost:50001/swagger/v1/swagger.json",
       "csharpClient": "./TestWebApiClientAspNetCore.cs",
       "typescriptClient": "./Scripts/TestWebApiClientAspNetCore.ts",
       "namespace": "DotVVM.Samples.Common.Api.AspNetCore",

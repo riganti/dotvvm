@@ -56,6 +56,7 @@ const dotvvmExports = {
         showUploadDialog: fileUpload.showUploadDialog
     },
     api: {
+        isLoading: api.isLoading,
         invoke: api.invoke,
         refreshOn: api.refreshOn
     },
