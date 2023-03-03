@@ -135,9 +135,8 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
 
     let isSuccess = false;
     if (result.action == "successfulCommand") {
-        updateTypeInfo(result.typeMetadata)
         result.viewModel = updater.patchViewModel(getState(), mapUpdatableProperties(result.viewModel))
-        updater.updateViewModelAndControls(result);
+        updater.updateViewModelAndControls(result, updateTypeInfo);
         events.postbackViewModelUpdated.trigger({
             ...options,
             response,
