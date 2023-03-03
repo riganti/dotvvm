@@ -9,13 +9,13 @@
 </head>
 <body>
 
-    <cc:ModuleControl DataContext="{value: Page}" class="control1" />
+    <cc:ModuleControl DataContext="{value: Page}" class="control1" ControlProperty={value: _root.Page2 == null ? 11 : _root.Page2.Value + 1} />
 
     <div class="toggle">
         <dot:Button Text="Toggle Second Module" Click="{command: ToggleSecond()}" />
     </div>
 
-    <cc:ModuleControl DataContext="{value: Page2}" class="control2" />
+    <cc:ModuleControl DataContext="{value: Page2}" class="control2" ControlProperty={value: _root.Page.Value + 1} />
 
     <h2>Event log</h2>
     <pre ID="log">

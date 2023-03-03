@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Controls
             base.OnPreInit(context);
         }
 
-        int knockoutCommentsToEnd = 0;
+        bool closeKoComment = false;
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
@@ -110,14 +110,15 @@ namespace DotVVM.Framework.Controls
                 properties.Add(pg.Name, js.ToString());
             }
 
+
+            var koComment = new List<string>();
             if (!properties.IsEmpty)
             {
                 if (RendersHtmlTag)
                     writer.AddKnockoutDataBind("dotvvm-with-control-properties", properties);
                 else
                 {
-                    writer.WriteKnockoutDataBindComment("dotvvm-with-control-properties", properties.ToString());
-                    knockoutCommentsToEnd++;
+                    koComment.Add("dotvvm-with-control-properties: " + properties.ToString());
                 }
             }
 
@@ -131,9 +132,16 @@ namespace DotVVM.Framework.Controls
                     writer.AddKnockoutDataBind("dotvvm-with-view-modules", binding);
                 else
                 {
-                    writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules", binding);
-                    knockoutCommentsToEnd++;
+                    koComment.Add("dotvvm-with-view-modules: " + binding);
                 }
+            }
+
+            if (closeKoComment = koComment.Count > 0)
+            {
+                // the WriteKnockoutDataBindEndComment doesn't support multiple comments in one element, which is needed for viewmodules and properties working properly together
+                writer.WriteUnencodedText("<!-- ko ");
+                writer.WriteUnencodedText(string.Join(", ", koComment));
+                writer.WriteUnencodedText(" -->");
             }
 
 
@@ -144,10 +152,9 @@ namespace DotVVM.Framework.Controls
         {
             base.RenderEndTag(writer, context);
 
-            while (knockoutCommentsToEnd > 0)
+            if (closeKoComment)
             {
                 writer.WriteKnockoutDataBindEndComment();
-                knockoutCommentsToEnd--;
             }
         }
 
