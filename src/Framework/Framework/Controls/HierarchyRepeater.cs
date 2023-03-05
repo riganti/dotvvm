@@ -121,7 +121,7 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
-            if (context.IsPostBack)
+            if (context.RequestType == DotvvmRequestType.Command)
             {
                 SetChildren(context, renderClientTemplate: false);
             }

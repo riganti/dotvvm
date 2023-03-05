@@ -14,6 +14,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis;
@@ -85,7 +86,10 @@ namespace DotVVM.Framework.Binding
             {
                 var result = ComputeProperty(typeof(Expression<>).MakeGenericType(type), binding);
                 if (result is LambdaExpression lambda)
+                {
+                    DotvvmMetrics.BindingsCompiled.Add(1, new KeyValuePair<string, object?>("binding_type", binding.GetBindingName()));
                     return expressionCompiler.Compile(lambda);
+                }
                 else return result;
             }
             // instead of returning exception we return null since this is the most common exception
@@ -135,6 +139,8 @@ namespace DotVVM.Framework.Binding
 
         protected static void InitializeBindingCore(IBinding binding, BindingCompilationRequirementsAttribute bindingRequirements)
         {
+            DotvvmMetrics.BindingsInitialized.Add(1, new KeyValuePair<string, object?>("binding_type", binding.GetBindingName()), new KeyValuePair<string, object?>("is_lazy_init", false));
+
             var reporter = binding.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull);
             var throwException = reporter == null;
             reporter = reporter ?? new BindingErrorReporterProperty();
@@ -168,6 +174,7 @@ namespace DotVVM.Framework.Binding
 
             public override void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute>? bindingRequirements = null)
             {
+                DotvvmMetrics.BindingsInitialized.Add(1, new KeyValuePair<string, object?>("binding_type", binding.GetBindingName()), new KeyValuePair<string, object?>("is_lazy_init", true));
                 // no-op
             }
         }

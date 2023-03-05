@@ -75,6 +75,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
             //check if route exists
             if (route == null) return false;
 
+            var timer = ValueStopwatch.StartNew();
+
             context.Route = route;
             context.Parameters = parameters;
             var presenter = context.Presenter = route.GetPresenter(context.Services);
@@ -101,6 +103,14 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 }
                 await requestTracer.EndRequest(context, exception);
                 throw;
+            }
+            finally
+            {
+                DotvvmMetrics.RequestDuration.Record(
+                    timer.ElapsedSeconds,
+                    context.RouteLabel(),
+                    new KeyValuePair<string, object?>("dothtml_file", route.VirtualPath),
+                    context.RequestTypeLabel());
             }
 
             await requestTracer.EndRequest(context);

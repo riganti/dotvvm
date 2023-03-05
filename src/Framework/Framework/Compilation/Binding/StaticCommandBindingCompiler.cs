@@ -13,6 +13,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
+using FastExpressionCompiler;
 using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Compilation.Binding
@@ -121,6 +122,12 @@ namespace DotVVM.Framework.Compilation.Binding
                     foreach (var r in arg.Arg!.CastTo<StaticCommandInvocationPlan>().GetAllMethods())
                         yield return r;
         }
+
+        public override string ToString()
+        {
+            var args = Arguments.Select(arg => arg.ToString()).StringJoin(", ");
+            return $"{Method.DeclaringType.ToCode(stripNamespace: true)}{Method.Name}({args})";
+        }
     }
 
     public class StaticCommandParameterPlan
@@ -133,6 +140,16 @@ namespace DotVVM.Framework.Compilation.Binding
             this.Type = type;
             this.Arg = arg;
         }
+
+        public override string ToString() =>
+            Type switch {
+                StaticCommandParameterType.Constant => Arg?.ToString() ?? "null",
+                StaticCommandParameterType.DefaultValue => "default",
+                StaticCommandParameterType.Argument => "?",
+                StaticCommandParameterType.Inject => $"service({((Type)Arg!).ToCode(stripNamespace: true)})",
+                StaticCommandParameterType.Invocation => Arg!.ToString()!,
+                _ => "...invalid argument..."
+            };
     }
     public enum StaticCommandParameterType : byte
     {

@@ -223,3 +223,5 @@ sample.db
 
 # NPM publish dir
 /ci/scripts/npm/dotvvm-types/index.d.ts
+
+signconfig.json

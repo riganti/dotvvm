@@ -58,6 +58,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public string SerializeViewModel(IDotvvmRequestContext context)
         {
+            var timer = ValueStopwatch.StartNew();
+
             context.ViewModelJson ??= new JObject();
             if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
             {
@@ -65,7 +67,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 context.ViewModelJson.Remove("viewModel");
             }
             var result = context.ViewModelJson.ToString(JsonFormatting);
-            context.HttpContext.SetItem("dotvvm-viewmodel-size-bytes", result.Length);
+
+            context.HttpContext.SetItem("dotvvm-viewmodel-size-bytes", result.Length); // for PerformanceWarningTracer
+            var routeLabel = context.RouteLabel();
+            var requestType = context.RequestTypeLabel();
+            DotvvmMetrics.ViewModelStringificationTime.Record(timer.ElapsedSeconds, routeLabel, requestType);
+            DotvvmMetrics.ViewModelSize.Record(result.Length, routeLabel, requestType);
+
             return result;
         }
 
@@ -88,14 +96,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return null;
         }
 
+        bool IsPostBack(IDotvvmRequestContext c) => c.RequestType is DotvvmRequestType.Command or DotvvmRequestType.StaticCommand;
+
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
         public void BuildViewModel(IDotvvmRequestContext context, object? commandResult)
         {
+            var timer = ValueStopwatch.StartNew();
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
+            var viewModelConverter = new ViewModelJsonConverter(IsPostBack(context), viewModelMapper, context.Services);
             serializer.Converters.Add(viewModelConverter);
             var writer = new JTokenWriter();
             try
@@ -142,7 +153,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 result["resultIdFragment"] = context.ResultIdFragment;
             }
 
-            if (context.IsPostBack || context.IsSpaRequest)
+            if (context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaNavigate)
             {
                 result["action"] = "successfulCommand";
             }
@@ -160,6 +171,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             result["typeMetadata"] = SerializeTypeMetadata(context, viewModelConverter);
 
             context.ViewModelJson = result;
+
+            DotvvmMetrics.ViewModelSerializationTime.Record(timer.ElapsedSeconds, context.RouteLabel(), context.RequestTypeLabel());
         }
 
         private JObject SerializeTypeMetadata(IDotvvmRequestContext context, ViewModelJsonConverter viewModelJsonConverter)
@@ -178,8 +191,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public string BuildStaticCommandResponse(IDotvvmRequestContext context, object? result, string[]? knownTypeMetadata = null)
         {
+            var timer = ValueStopwatch.StartNew();
+
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
+            var viewModelConverter = new ViewModelJsonConverter(isPostback: true, viewModelMapper, context.Services);
             serializer.Converters.Add(viewModelConverter);
             var response = new JObject();
             response["result"] = WriteCommandData(result, serializer, "the static command result");
@@ -190,7 +205,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 response["typeMetadata"] = typeMetadata;
             }
             AddCustomPropertiesIfAny(context, serializer, response);
-            return response.ToString(JsonFormatting);
+            var resultJson = response.ToString(JsonFormatting);
+
+            DotvvmMetrics.ViewModelSize.Record(resultJson.Length, context.RouteLabel(), context.RequestTypeLabel());
+            DotvvmMetrics.ViewModelSerializationTime.Record(timer.ElapsedSeconds, context.RouteLabel(), context.RequestTypeLabel());
+            return resultJson;
         }
 
         private static void AddCustomPropertiesIfAny(IDotvvmRequestContext context, JsonSerializer serializer, JObject response)
@@ -337,9 +356,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 // load encrypted values
                 var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
-                viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
+                viewModelConverter = new ViewModelJsonConverter(IsPostBack(context), viewModelMapper, context.Services, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
             }
-            else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
+            else viewModelConverter = new ViewModelJsonConverter(IsPostBack(context), viewModelMapper, context.Services);
 
             // get validation path
             context.ModelState.ValidationTargetPath = (string)data["validationTargetPath"];

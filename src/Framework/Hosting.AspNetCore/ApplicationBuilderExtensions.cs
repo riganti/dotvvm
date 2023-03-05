@@ -69,7 +69,8 @@ namespace Microsoft.AspNetCore.Builder
 
             var startupTracer = app.ApplicationServices.GetRequiredService<IStartupTracer>();
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureStarted);
-            startup.Configure(config, config.ApplicationPhysicalPath);
+            config.Markup.AddAssembly(startup.GetType().Assembly);
+            startup.Configure(config, applicationRootPath);
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
 
             modifyConfiguration?.Invoke(config);

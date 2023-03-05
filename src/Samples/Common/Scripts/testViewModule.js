@@ -77,4 +77,8 @@ class Page {
         queryParameters.map(qp => { queryParamObject[qp.Key] = qp.Value; });
         return queryParamObject;
     }
+
+    readControlProperty() {
+        return ko.unwrap(this.context.properties.ControlProperty)
+    }
 }

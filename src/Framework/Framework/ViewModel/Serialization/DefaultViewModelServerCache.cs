@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -30,10 +31,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public JObject TryRestoreViewModel(IDotvvmRequestContext context, string viewModelCacheId, JObject viewModelDiffToken)
         {
             var cachedData = viewModelStore.Retrieve(viewModelCacheId);
+            var routeLabel = new KeyValuePair<string, object?>("route", context.Route!.RouteName);
             if (cachedData == null)
             {
+                DotvvmMetrics.ViewModelCacheMiss.Add(1, routeLabel);
                 throw new DotvvmInterruptRequestExecutionException(InterruptReason.CachedViewModelMissing);
             }
+
+            DotvvmMetrics.ViewModelCacheHit.Add(1, routeLabel);
+            DotvvmMetrics.ViewModelCacheBytesLoaded.Add(cachedData.Length, routeLabel);
 
             var result = UnpackViewModel(cachedData);
             JsonUtils.Patch(result, viewModelDiffToken);

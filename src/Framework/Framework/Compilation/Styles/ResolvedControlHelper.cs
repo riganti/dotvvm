@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
@@ -145,6 +145,7 @@ namespace DotVVM.Framework.Compilation.Styles
             value is ValueOrBinding vob && IsAllowedPropertyValue(vob.UnwrapToObject()) ||
             value is null ||
             ReflectionUtils.IsPrimitiveType(value.GetType()) ||
+            value is HtmlGenericControl.AttributeList ||
             IsImmutableObject(value.GetType()) ||
             value is Array && ReflectionUtils.IsPrimitiveType(value.GetType().GetElementType()!);
 

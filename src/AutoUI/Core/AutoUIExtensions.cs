@@ -82,6 +82,8 @@ namespace DotVVM.AutoUI
                 .ReplaceWith(c => AutoGridViewColumn.Replace(c));
 
             // bootstrap styles
+            s.Register<BootstrapForm>()
+                .SetDotvvmProperty(Validator.InvalidCssClassProperty, "is-invalid");
             s.Register<ComboBox>(c => c.HasAncestor<BootstrapForm>())
                 .AddClass(c => c.AncestorsOfType<BootstrapForm>().First().Property(p => p.FormSelectCssClass)!);
             s.Register<HtmlGenericControl>(c => c.HasAncestor<BootstrapForm>()

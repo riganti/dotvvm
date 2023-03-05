@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -25,6 +27,12 @@ namespace DotVVM.Samples.BasicSamples
 
         public void ConfigureServices(IServiceCollection services)
         {
+            MeterAdapter.StartListening(new MeterAdapterOptions {
+                ResolveHistogramBuckets = instrument => {
+                    return DotvvmMetrics.TryGetRecommendedBuckets(instrument) ?? MeterAdapterOptions.DefaultHistogramBuckets;
+                }
+            });
+
             services.AddAuthentication("Scheme1")
                 .AddCookie("Scheme1", o => {
                     o.LoginPath = new PathString("/ComplexSamples/Auth/Login");
@@ -92,6 +100,7 @@ namespace DotVVM.Samples.BasicSamples
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapDotvvmHotReload();
+                endpoints.MapMetrics(); // prometheus metrics on /metrics
             });
         }
 
