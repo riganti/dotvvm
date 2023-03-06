@@ -587,7 +587,7 @@ namespace DotVVM.Framework.Utils
                 if (!first)
                     sb.Append(", ");
                 first = false;
-                sb.Append(p.Name).Append(" ").Append(p.ParameterType.ToCode(stripNamespace: stripNamespace));
+                sb.Append(p.ParameterType.ToCode(stripNamespace: stripNamespace)).Append(" ").Append(p.Name);
             }
             sb.Append(")");
             if (method is MethodInfo methodInfo && methodInfo.ReturnType != typeof(void))
