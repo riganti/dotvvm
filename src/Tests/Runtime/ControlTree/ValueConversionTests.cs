@@ -30,16 +30,27 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void ValueConversion_DoubleInStrangeCulture()
         {
+            try
+            {
 
-
-#if !NETCOREAPP1_0
-            System.Threading.Thread.CurrentThread.CurrentCulture =
-            System.Threading.Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("cs-CZ");
-#else
-            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("cs-CZ");
-#endif
-            Assert.AreEqual(1.2, double.Parse("1,2"));
-            Assert.AreEqual(1.2, ReflectionUtils.ConvertValue("1.2", typeof(double)));
+    #if !NETCOREAPP1_0
+                System.Threading.Thread.CurrentThread.CurrentCulture =
+                System.Threading.Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("cs-CZ");
+    #else
+                CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("cs-CZ");
+    #endif
+                Assert.AreEqual(1.2, double.Parse("1,2"));
+                Assert.AreEqual(1.2, ReflectionUtils.ConvertValue("1.2", typeof(double)));
+            }
+            finally
+            {
+    #if !NETCOREAPP1_0
+                System.Threading.Thread.CurrentThread.CurrentCulture =
+                System.Threading.Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+    #else
+                CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+    #endif
+            }
         }
 
         [TestMethod]
