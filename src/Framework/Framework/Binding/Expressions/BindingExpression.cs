@@ -286,7 +286,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 value =
                     originalString.GetValueOrNull(this)?.Code ??
                     parsedExpression.GetValueOrNull(this)?.Expression?.ToString() ??
-                    this.GetProperty<KnockoutExpressionBindingProperty>()?.Code?.ToString(o => new Compilation.Javascript.CodeParameterAssignment($"${o.GetHashCode()}", Compilation.Javascript.OperatorPrecedence.Max)) ??
+                    this.GetProperty<KnockoutExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code?.ToString(o => new Compilation.Javascript.CodeParameterAssignment($"${o.GetHashCode()}", Compilation.Javascript.OperatorPrecedence.Max)) ??
                     this.GetProperty<KnockoutJsExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
                     "... unrepresentable binding content ...";
             }
