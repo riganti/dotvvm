@@ -111,7 +111,7 @@ function tryCoerceObject(value: any, type: string, typeInfo: ObjectTypeMetadata,
         return { value: null };
     } else if (typeof value === "undefined") {
         return { value: null, wasCoerced: true };
-    } else if (typeof value === "object") {
+    } else if (typeInfo?.type === "object") {
         if (!originalValue || originalValue.$type !== type) {
             // revalidate entire object when type is changed
             originalValue = {}
@@ -155,10 +155,13 @@ function tryCoerceDynamic(value: any, originalValue: any): CoerceResult {
     } else if (value instanceof Date) {
         value = serializeDate(value, false)
     } else if (value && typeof value === "object") {
-        let innerType = value["$type"];
+        const innerType = value["$type"];
         if (typeof innerType === "string") {
             // known object type - coerce recursively
-            return tryCoerceObject(value, innerType, getObjectTypeInfo(innerType), originalValue);
+            const innerTypeInfo = getObjectTypeInfo(innerType);
+            if (innerTypeInfo.type === "object") {
+                return tryCoerceObject(value, innerType, innerTypeInfo, originalValue);
+            }
         }
 
         // unknown object - treat every property as dynamic
