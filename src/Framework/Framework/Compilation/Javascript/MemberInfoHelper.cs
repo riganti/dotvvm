@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 };
 
             return expression switch {
-                MethodCallExpression call => call.Method,
+                MethodCallExpression call => DevirtualizeMethod(call.Method, call.Object?.Type),
                 BinaryExpression { Method: { } } binary => binary.Method,
                 BinaryExpression { NodeType: ExpressionType.Assign } assign =>
                     TryGetPropertyFromExpression(assign.Left) switch {
@@ -67,6 +67,22 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return index.Indexer;
             else
                 return null;
+        }
+
+        static MethodInfo DevirtualizeMethod(MethodInfo m, Type? type)
+        {
+            // Method call expressions of virtual method always use the least specific method
+            // "".ToString() would call object.ToString() instead of string.ToString(),
+            // so we need to find override on the object type
+            if (type == null || !m.IsVirtual || m.DeclaringType == type)
+                return m;
+
+            foreach (var overrideM in type.GetMethods((m.IsPublic ? BindingFlags.Public : BindingFlags.NonPublic) | BindingFlags.Instance))
+            {
+                if (overrideM.GetBaseDefinition() == m)
+                    return overrideM;
+            }
+            return DevirtualizeMethod(m, type.BaseType);
         }
 
         public static Type Generalize(Type t)

@@ -20,11 +20,11 @@ namespace DotVVM.Framework.Binding
 
         internal static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)
         {
-            methods.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(EvaluatingOnServer),
+            methods.AddPropertyTranslator(() => new BindingPageInfo().EvaluatingOnServer,
                 new GenericMethodCompiler(_ => new JsLiteral(false)));
-            methods.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(EvaluatingOnClient),
+            methods.AddPropertyTranslator(() => new BindingPageInfo().EvaluatingOnClient,
                 new GenericMethodCompiler(_ => new JsLiteral(true)));
-            methods.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(IsPostbackRunning),
+            methods.AddPropertyTranslator(() => new BindingPageInfo().IsPostbackRunning,
                 new GenericMethodCompiler(_ => new JsIdentifierExpression("dotvvm").Member("isPostbackRunning").Invoke()));
         }
     }

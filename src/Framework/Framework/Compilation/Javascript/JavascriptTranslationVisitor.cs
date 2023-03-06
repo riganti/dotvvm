@@ -239,7 +239,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var result = TryTranslateMethodCall(expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
-                throw new NotSupportedException($"Method { expression.Method.DeclaringType!.Name }.{ expression.Method.Name } cannot be translated to Javascript");
+                throw new NotSupportedException($"Method {ReflectionUtils.FormatMethodInfo(expression.Method)} cannot be translated to Javascript");
             return result;
         }
 

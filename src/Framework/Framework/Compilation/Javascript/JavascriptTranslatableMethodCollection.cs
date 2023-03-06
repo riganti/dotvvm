@@ -125,7 +125,10 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void AddMethodTranslator([AllowNull] MethodInfo method, IJavascriptMethodTranslator translator)
         {
             if (method is null) throw new ArgumentNullException(nameof(method));
-            MethodTranslators.Add(method, translator);
+            if (!MethodTranslators.TryAdd(method, translator))
+            {
+                throw new Exception($"Method {ReflectionUtils.FormatMethodInfo(method)} is already registered.");
+            }
             if (method.DeclaringType!.IsInterface)
                 Interfaces.Add(method.DeclaringType);
         }
@@ -159,15 +162,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             // AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
             AddMethodTranslator(() => default(Array)!.Length, lengthMethod);
             AddMethodTranslator(() => default(ICollection)!.Count, lengthMethod);
-            AddMethodTranslator(() => default(ICollection<Generic>)!.Count, lengthMethod);
-            AddMethodTranslator(() => default(IReadOnlyCollection<Generic>)!.Count, lengthMethod);
+            AddMethodTranslator(() => default(ICollection<Generic.T>)!.Count, lengthMethod);
+            AddMethodTranslator(() => default(IReadOnlyCollection<Generic.T>)!.Count, lengthMethod);
             AddMethodTranslator(() => "".Length, lengthMethod);
-            AddMethodTranslator(() => Enums.GetNames<Generic>(), new EnumGetNamesMethodTranslator());
+            AddMethodTranslator(() => Enums.GetNames<Generic.Enum>(), new EnumGetNamesMethodTranslator());
             var identityTranslator = new GenericMethodCompiler(a => a[1]);
-            AddMethodTranslator(typeof(BoxingUtils), "Box", identityTranslator, new [] { typeof(bool) });
-            AddMethodTranslator(typeof(BoxingUtils), "Box", identityTranslator, new [] { typeof(bool?) });
-            AddMethodTranslator(typeof(BoxingUtils), "Box", identityTranslator, new [] { typeof(int) });
-            AddMethodTranslator(typeof(BoxingUtils), "Box", identityTranslator, new [] { typeof(int?) });
+            AddMethodTranslator(() => BoxingUtils.Box(default(bool)), identityTranslator);
+            AddMethodTranslator(() => BoxingUtils.Box(default(int)), identityTranslator);
+            AddMethodTranslator(() => BoxingUtils.Box(default(int?)), identityTranslator);
 
             JsExpression listGetIndexer(JsExpression[] args, MethodInfo method) =>
                 BuildIndexer(args[0], args[1], method.DeclaringType!.GetProperty("Item"));
@@ -180,21 +182,16 @@ namespace DotVVM.Framework.Compilation.Javascript
             JsExpression dictionarySetIndexer(JsExpression[] args, MethodInfo method) =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("setItem").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2]);
 
-            AddMethodTranslator(typeof(IList), "get_Item", new GenericMethodCompiler(listGetIndexer));
-            AddMethodTranslator(typeof(IList<>), "get_Item", new GenericMethodCompiler(listGetIndexer));
-            AddMethodTranslator(typeof(List<>), "get_Item", new GenericMethodCompiler(listGetIndexer));
-            AddMethodTranslator(typeof(IList), "set_Item", new GenericMethodCompiler(listSetIndexer));
-            AddMethodTranslator(typeof(IList<>), "set_Item", new GenericMethodCompiler(listSetIndexer));
-            AddMethodTranslator(typeof(List<>), "set_Item", new GenericMethodCompiler(listSetIndexer));
-            AddMethodTranslator(typeof(IReadOnlyList<>), "get_Item", new GenericMethodCompiler(listGetIndexer));
-            AddMethodTranslator(typeof(Dictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
-            AddMethodTranslator(typeof(IDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
-            AddMethodTranslator(typeof(Dictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
-            AddMethodTranslator(typeof(IDictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
-            AddMethodTranslator(typeof(IReadOnlyDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
-            AddMethodTranslator(typeof(Array).GetMethod(nameof(Array.SetValue), new[] { typeof(object), typeof(int) }), new GenericMethodCompiler(arrayElementSetter));
-            AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((JsExpression[] args, MethodInfo method) => args[0]));
-            AddPropertyGetterTranslator(typeof(Nullable<>), "HasValue",
+            AddPropertyTranslator(() => default(IList)![0], new GenericMethodCompiler(listGetIndexer), new GenericMethodCompiler(listSetIndexer));
+            AddPropertyTranslator(() => default(IList<Generic.T>)![0], new GenericMethodCompiler(listGetIndexer), new GenericMethodCompiler(listSetIndexer));
+            AddPropertyTranslator(() => default(List<Generic.T>)![0], new GenericMethodCompiler(listGetIndexer), new GenericMethodCompiler(listSetIndexer));
+            AddPropertyTranslator(() => default(IReadOnlyList<Generic.T>)![0], new GenericMethodCompiler(listGetIndexer));
+            AddPropertyTranslator(() => default(Dictionary<Generic.T, Generic.T>)![null!], new GenericMethodCompiler(dictionaryGetIndexer), new GenericMethodCompiler(dictionarySetIndexer));
+            AddPropertyTranslator(() => default(IDictionary<Generic.T, Generic.T>)![null!], new GenericMethodCompiler(dictionaryGetIndexer), new GenericMethodCompiler(dictionarySetIndexer));
+            AddPropertyTranslator(() => default(IReadOnlyDictionary<Generic.T, Generic.T>)![null!], new GenericMethodCompiler(dictionaryGetIndexer));
+            AddMethodTranslator(() => default(Array)!.SetValue(null, 1), new GenericMethodCompiler(arrayElementSetter));
+            AddPropertyTranslator(() => default(Generic.Struct?)!.Value, new GenericMethodCompiler((JsExpression[] args, MethodInfo method) => args[0]));
+            AddPropertyTranslator(() => default(Generic.Struct?)!.HasValue,
                 new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
 
             JsBindingApi.RegisterJavascriptTranslations(this);
@@ -202,18 +199,18 @@ namespace DotVVM.Framework.Compilation.Javascript
             BindingPageInfo.RegisterJavascriptTranslations(this);
             BindingCollectionInfo.RegisterJavascriptTranslations(this);
 
-            AddPropertyGetterTranslator(typeof(Task<>), "Result", new GenericMethodCompiler(args => FunctionalExtensions.ApplyAction(args[0], a => a.RemoveAnnotations(typeof(ViewModelInfoAnnotation)))));
-            AddPropertyGetterTranslator(typeof(Task), "CompletedTask", new GenericMethodCompiler(_ => new JsIdentifierExpression("undefined")));
-            AddMethodTranslator(typeof(Task), "FromResult", new GenericMethodCompiler(args => args[1]));
+            AddPropertyTranslator(() => default(Task<Generic.T>)!.Result, new GenericMethodCompiler(args => FunctionalExtensions.ApplyAction(args[0], a => a.RemoveAnnotations(typeof(ViewModelInfoAnnotation)))));
+            AddPropertyTranslator(() => Task.CompletedTask, new GenericMethodCompiler(_ => new JsIdentifierExpression("undefined")));
+            AddMethodTranslator(() => Task.FromResult(default(Generic.T)), new GenericMethodCompiler(args => args[1]));
 
-            AddMethodTranslator(typeof(DotvvmBindableObject).GetMethods(BindingFlags.Instance | BindingFlags.Public).Single(m => m.Name == "GetValue" && !m.ContainsGenericParameters), new GenericMethodCompiler(
+            AddMethodTranslator(() => default(DotvvmBindableObject)!.GetValue(default(DotvvmProperty)!, true), new GenericMethodCompiler(
                 args => {
                     var dotvvmProperty = ((DotvvmProperty)((JsLiteral)args[1]).Value!);
                     return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], VMPropertyInfoAnnotation.FromDotvvmProperty(dotvvmProperty), name: dotvvmProperty.Name);
                 }
             ));
 
-            AddMethodTranslator(typeof(DotvvmBindableObject).GetMethods(BindingFlags.Instance | BindingFlags.Public).Single(m => m.Name == "SetValueToSource" && !m.ContainsGenericParameters), new GenericMethodCompiler(
+            AddMethodTranslator(() => default(DotvvmBindableObject)!.SetValueToSource(default(DotvvmProperty)!, null), new GenericMethodCompiler(
                 args => {
                     var dotvvmProperty = ((DotvvmProperty)((JsLiteral)args[1]).Value!);
                     var p = JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], VMPropertyInfoAnnotation.FromDotvvmProperty(dotvvmProperty), name: dotvvmProperty.Name);
@@ -221,9 +218,9 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
             ));
 
-            AddMethodTranslator(typeof(WebUtility), nameof(WebUtility.UrlEncode), translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => WebUtility.UrlEncode(""), translator: new GenericMethodCompiler(
                 args => new JsIdentifierExpression("encodeURIComponent").Invoke(args[1])));
-            AddMethodTranslator(typeof(WebUtility), nameof(WebUtility.UrlDecode), translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => WebUtility.UrlDecode(""), translator: new GenericMethodCompiler(
                 args => new JsIdentifierExpression("decodeURIComponent").Invoke(args[1])));
 
             AddDefaultToStringTranslations();
@@ -238,61 +235,61 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         private void AddDefaultToStringTranslations()
         {
-            AddMethodTranslator(typeof(object), "ToString", new PrimitiveToStringTranslator(), 0);
-            AddMethodTranslator(typeof(Convert), "ToString", new PrimitiveToStringTranslator(), 1, true);
+            AddMethodTranslator(typeof(object).GetMethod("ToString", Type.EmptyTypes), new PrimitiveToStringTranslator());
+            AddMethodTranslator(typeof(Convert), "ToString", new PrimitiveToStringTranslator(), parameterCount: 1, allowMultipleMethods: true);
             AddMethodTranslator(typeof(Enums), "ToEnumString", parameterCount: 1, translator: new GenericMethodCompiler(
                 args => args[1]
             ), allowMultipleMethods: true);
 
-            AddMethodTranslator(typeof(DateTime).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
+            AddMethodTranslator(() => DateTime.Now.ToString(), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
-            AddMethodTranslator(typeof(DateTime).GetMethod("ToString", new[] { typeof(string) }), new GenericMethodCompiler(
+            AddMethodTranslator(() => DateTime.Now.ToString("fmt"), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
-            AddMethodTranslator(typeof(DateTime?).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
+            AddMethodTranslator(() => default(Nullable<DateTime>).ToString(), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
-            AddMethodTranslator(typeof(DateOnly).GetMethod(nameof(DateOnly.ToString), Type.EmptyTypes), new GenericMethodCompiler(
+            AddMethodTranslator(() => default(DateOnly).ToString(), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateOnlyToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
-            AddMethodTranslator(typeof(DateOnly?).GetMethod(nameof(Nullable<DateOnly>.ToString), Type.EmptyTypes), new GenericMethodCompiler(
+            AddMethodTranslator(() => default(DateOnly?).ToString(), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateOnlyToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
-            AddMethodTranslator(typeof(DateOnly).GetMethod(nameof(DateOnly.ToString), new[] { typeof(string) }), new GenericMethodCompiler(
+            AddMethodTranslator(() => default(DateOnly).ToString("fmt"), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateOnlyToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
-            AddMethodTranslator(typeof(TimeOnly).GetMethod(nameof(TimeOnly.ToString), Type.EmptyTypes), new GenericMethodCompiler(
+            AddMethodTranslator(() => default(TimeOnly).ToString(), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingTimeOnlyToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
-            AddMethodTranslator(typeof(TimeOnly?).GetMethod(nameof(Nullable<TimeOnly>.ToString), Type.EmptyTypes), new GenericMethodCompiler(
+            AddMethodTranslator(() => default(TimeOnly?).ToString(), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingTimeOnlyToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
-            AddMethodTranslator(typeof(TimeOnly).GetMethod(nameof(TimeOnly.ToString), new[] { typeof(string) }), new GenericMethodCompiler(
+            AddMethodTranslator(() => default(TimeOnly).ToString("fmt"), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingTimeOnlyToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
@@ -325,221 +322,189 @@ namespace DotVVM.Framework.Compilation.Javascript
         private void AddDefaultStringTranslations()
         {
             // TODO: string.Format could be two-way
-            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object) }), translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => string.Format("", new object()), translator: new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2])));
-            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object), typeof(object) }), new GenericMethodCompiler(
+            AddMethodTranslator(() => string.Format("", new object(), new object()), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2], args[3])));
-            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object), typeof(object), typeof(object) }), new GenericMethodCompiler(
+            AddMethodTranslator(() => string.Format("", new object(), new object(), new object()), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2], args[3], args[4])));
-            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object[]) }), new GenericMethodCompiler(
+            AddMethodTranslator(() => string.Format("", new object[0]), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("format").Invoke(args[1], args[2])));
 
-            AddMethodTranslator(typeof(string), nameof(string.IndexOf), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".IndexOf(""), translator: new GenericMethodCompiler(
                 a => a[0].Member("indexOf").Invoke(a[1])));
-            AddMethodTranslator(typeof(string), nameof(string.IndexOf), parameters: new[] { typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".IndexOf("", StringComparison.Ordinal), translator: new GenericMethodCompiler(
                 a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("indexOf").Invoke(a[0], new JsLiteral(0), a[1], a[2])));
-            AddMethodTranslator(typeof(string), nameof(string.IndexOf), parameters: new[] { typeof(string), typeof(int) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".IndexOf("a", 1), translator: new GenericMethodCompiler(
                 a => a[0].Member("indexOf").Invoke(a[1], a[2])));
-            AddMethodTranslator(typeof(string), nameof(string.IndexOf), parameters: new[] { typeof(string), typeof(int), typeof(StringComparison) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".IndexOf("a", 1, StringComparison.Ordinal), translator: new GenericMethodCompiler(
                 a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("indexOf").Invoke(a[0], a[2], a[1], a[3])));
-            AddMethodTranslator(typeof(string), nameof(string.LastIndexOf), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".LastIndexOf("a"), translator: new GenericMethodCompiler(
                 a => a[0].Member("lastIndexOf").Invoke(a[1])));
-            AddMethodTranslator(typeof(string), nameof(string.LastIndexOf), parameters: new[] { typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".LastIndexOf("a", StringComparison.Ordinal), translator: new GenericMethodCompiler(
                 a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("lastIndexOf").Invoke(a[0], new JsLiteral(0), a[1], a[2])));
-            AddMethodTranslator(typeof(string), nameof(string.LastIndexOf), parameters: new[] { typeof(string), typeof(int) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".LastIndexOf("a", 1), translator: new GenericMethodCompiler(
                 a => a[0].Member("lastIndexOf").Invoke(a[1], a[2])));
-            AddMethodTranslator(typeof(string), nameof(string.LastIndexOf), parameters: new[] { typeof(string), typeof(int), typeof(StringComparison) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".LastIndexOf("a", 1, StringComparison.Ordinal), translator: new GenericMethodCompiler(
                 a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("lastIndexOf").Invoke(a[0], a[2], a[1], a[3])));
-            AddMethodTranslator(typeof(string), nameof(string.ToUpper), parameterCount: 0, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".ToUpper(), translator: new GenericMethodCompiler(
                 a => a[0].Member("toLocaleUpperCase").Invoke()));
-            AddMethodTranslator(typeof(string), nameof(string.ToLower), parameterCount: 0, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".ToLower(), translator: new GenericMethodCompiler(
                 a => a[0].Member("toLocaleLowerCase").Invoke()));
-            AddMethodTranslator(typeof(string), nameof(string.ToUpperInvariant), parameterCount: 0, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".ToUpperInvariant(), translator: new GenericMethodCompiler(
                 a => a[0].Member("toUpperCase").Invoke()));
-            AddMethodTranslator(typeof(string), nameof(string.ToLowerInvariant), parameterCount: 0, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".ToLowerInvariant(), translator: new GenericMethodCompiler(
                 a => a[0].Member("toLowerCase").Invoke()));
-            AddMethodTranslator(typeof(string), nameof(string.StartsWith), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".StartsWith(""), translator: new GenericMethodCompiler(
                 a => a[0].Member("startsWith").Invoke(a[1])));
-            AddMethodTranslator(typeof(string), nameof(string.StartsWith), parameters: new[] { typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".StartsWith("", StringComparison.Ordinal), translator: new GenericMethodCompiler(
                 a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("startsWith").Invoke(a[0], a[1], a[2])));
-            AddMethodTranslator(typeof(string), nameof(string.EndsWith), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".EndsWith(""), translator: new GenericMethodCompiler(
                 a => a[0].Member("endsWith").Invoke(a[1])));
-            AddMethodTranslator(typeof(string), nameof(string.EndsWith), parameters: new[] { typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".EndsWith("", StringComparison.Ordinal), translator: new GenericMethodCompiler(
                 a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("endsWith").Invoke(a[0], a[1], a[2])));
-            AddMethodTranslator(typeof(string), nameof(string.IsNullOrEmpty), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => string.IsNullOrEmpty(""), translator: new GenericMethodCompiler(
                 a => new JsBinaryExpression(a[1].Member("length", optional: true), BinaryOperatorType.Greater, new JsLiteral(0)).Unary(UnaryOperatorType.LogicalNot)
             ));
-            AddMethodTranslator(typeof(string), nameof(string.IsNullOrWhiteSpace), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => string.IsNullOrWhiteSpace(""), translator: new GenericMethodCompiler(
                 a => new JsBinaryExpression(a[1].Member("trim", optional: true).Invoke().Member("length"), BinaryOperatorType.Greater, new JsLiteral(0)).Unary(UnaryOperatorType.LogicalNot)));
 
-            var joinStringArrayMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .Where(m => m.Name == nameof(string.Join) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType == typeof(string[]) && m.GetParameters().First().ParameterType == typeof(string)).Single();
-            AddMethodTranslator(joinStringArrayMethod, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("join").Invoke(args[2], args[1])));
-            var joinStringEnumerableMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .Where(m => m.Name == nameof(string.Join) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType == typeof(IEnumerable<string>) && m.GetParameters().First().ParameterType == typeof(string)).Single();
-            AddMethodTranslator(joinStringEnumerableMethod, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("join").Invoke(args[2], args[1])));
+            AddMethodTranslator(() => string.Join("", new string[0]), translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("join").Invoke(args[2], args[1])));
+            AddMethodTranslator(() => string.Join("", Enumerable.Empty<string>()), translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("join").Invoke(args[2], args[1])));
 
-            AddMethodTranslator(typeof(string), nameof(string.Replace), parameters: new[] { typeof(string), typeof(string) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".Replace("a", "b"), translator: new GenericMethodCompiler(
                 args => args[0].Member("split").Invoke(args[1]).Member("join").Invoke(args[2])));
 
-            AddMethodTranslator(typeof(string), nameof(string.Contains), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".Contains("a"), translator: new GenericMethodCompiler(
                 a => a[0].Member("includes").Invoke(a[1])));
 
             AddFrameworkDependentSplitMehtodTranslations();
             AddFrameworkDependentContainsMehtodTranslations();
-
-
         }
 
         private void AddFrameworkDependentContainsMehtodTranslations()
         {
-            var containsMehtod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Instance).SingleOrDefault(m => m.Name == nameof(string.Contains)
-                && m.GetParameters().Length == 2 && m.GetParameters()[0].ParameterType == typeof(string) && m.GetParameters()[1].ParameterType == typeof(StringComparison));
-            if (containsMehtod != null)
-            {
-                AddMethodTranslator(typeof(string), nameof(string.Contains), parameters: new[] { typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
-                   a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("contains").Invoke(a[0], a[1], a[2])));
-            }
-            else
-            {
-                // Some overloads are not available in .NET Framework, therefore we substitute some with custom extensions
-                AddMethodTranslator(typeof(NetFrameworkExtensions), nameof(NetFrameworkExtensions.Contains), parameters: new[] { typeof(string), typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
-                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("contains").Invoke(a[1], a[2], a[3])));
-            }
+#if DotNetCore
+            AddMethodTranslator(() => "".Contains("", StringComparison.Ordinal), new GenericMethodCompiler(
+                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("contains").Invoke(a[0], a[1], a[2])));
+#else
+            // Some overloads are not available in .NET Framework, therefore we substitute some with custom extensions
+            AddMethodTranslator(() => NetFrameworkExtensions.Contains("", "", StringComparison.Ordinal), new GenericMethodCompiler(
+                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("contains").Invoke(a[1], a[2], a[3])));
+#endif
         }
 
         private void AddFrameworkDependentSplitMehtodTranslations()
         {
-            var splitMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Instance).SingleOrDefault(m => m.Name == nameof(string.Split)
-                && m.GetParameters().Length == 2 && m.GetParameters()[0].ParameterType == typeof(string) && m.GetParameters()[1].ParameterType == typeof(StringSplitOptions));
-            var isNetFramework = splitMethod == null;
-            if (isNetFramework)
-            {
-                var genericExtensionSplitCompiler = new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("split").Invoke(args[1], args[2], args[3]));
-                AddMethodTranslator(typeof(NetFrameworkExtensions), nameof(NetFrameworkExtensions.Split), parameters: new[] { typeof(string), typeof(char), typeof(StringSplitOptions) },
-                    translator: genericExtensionSplitCompiler);
-                AddMethodTranslator(typeof(NetFrameworkExtensions), nameof(NetFrameworkExtensions.Split), parameters: new[] { typeof(string), typeof(string), typeof(StringSplitOptions) },
-                    translator: genericExtensionSplitCompiler);
-            }
-            else
-            {
-                var genericSplitCompiler = new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("split").Invoke(args[0], args[1], args[2]));
-                AddMethodTranslator(typeof(string), nameof(string.Split), parameters: new[] { typeof(char), typeof(StringSplitOptions) }, translator: genericSplitCompiler);
-                AddMethodTranslator(typeof(string), nameof(string.Split), parameters: new[] { typeof(string), typeof(StringSplitOptions) }, translator: genericSplitCompiler);
-            }
-            AddMethodTranslator(typeof(string), nameof(NetFrameworkExtensions.Split), parameters: new[] { typeof(char[]) },
-                translator: new GenericMethodCompiler(args => args[0].Member("split").Invoke(args[1])));
+            var splitCompiler = new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("split").Invoke(args));
+            AddMethodTranslator(() => "".Split("", StringSplitOptions.None), translator: splitCompiler);
+            AddMethodTranslator(() => "".Split('-', StringSplitOptions.None), translator: splitCompiler);
+            AddMethodTranslator(() => "".Split(new char[0]), new GenericMethodCompiler(args => args[0].Member("split").Invoke(args[1])));
 
-            if (isNetFramework)
-            {
-                JsExpression TakeFirstElement(JsExpression array)
-                    => new JsIndexerExpression(array, new JsLiteral(0));
+#if !DotNetCore
+            AddMethodTranslator(() => "".Trim(new char[0]), new GenericMethodCompiler(
+                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(
+                    new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], a[1].Indexer(0)), a[1].Clone().Indexer(0))));
+            AddMethodTranslator(() => NetFrameworkExtensions.TrimStart(""), new GenericMethodCompiler(
+                a => a[1].Member("trimStart").Invoke()));
+            AddMethodTranslator(() => "".TrimStart(new char[0]), new GenericMethodCompiler(
+                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], a[1].Indexer(0))));
+            AddMethodTranslator(() => NetFrameworkExtensions.TrimEnd(""), new GenericMethodCompiler(
+                a => a[1].Member("trimEnd").Invoke()));
+            AddMethodTranslator(() => "".TrimEnd(new char[0]), new GenericMethodCompiler(
+                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(a[0], a[1].Indexer(0))));
+#else
+            AddMethodTranslator(() => "".Trim('-'), new GenericMethodCompiler(
+                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(
+                    new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], a[1]), a[1].Clone())));
+            AddMethodTranslator(() => "".TrimStart(), new GenericMethodCompiler(
+                a => a[0].Member("trimStart").Invoke()));
+            AddMethodTranslator(() => "".TrimStart('-'), new GenericMethodCompiler(
+                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], a[1])));
+            AddMethodTranslator(() => "".TrimEnd(), new GenericMethodCompiler(
+                a => a[0].Member("trimEnd").Invoke()));
+            AddMethodTranslator(() => "".TrimEnd('-'), new GenericMethodCompiler(
+                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(a[0], a[1])));
+#endif
 
-                AddMethodTranslator(typeof(string), nameof(string.Trim), parameters: new[] { typeof(char[]) }, translator: new GenericMethodCompiler(
-                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(
-                        new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], TakeFirstElement(a[1])), TakeFirstElement(a[1].Clone()))));
-                AddMethodTranslator(typeof(NetFrameworkExtensions), nameof(NetFrameworkExtensions.TrimStart), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
-                    a => a[1].Member("trimStart").Invoke()));
-                AddMethodTranslator(typeof(string), nameof(string.TrimStart), parameters: new[] { typeof(char[]) }, translator: new GenericMethodCompiler(
-                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], TakeFirstElement(a[1]))));
-                AddMethodTranslator(typeof(NetFrameworkExtensions), nameof(NetFrameworkExtensions.TrimEnd), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
-                    a => a[1].Member("trimEnd").Invoke()));
-                AddMethodTranslator(typeof(string), nameof(string.TrimEnd), parameters: new[] { typeof(char[]) }, translator: new GenericMethodCompiler(
-                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(a[0], TakeFirstElement(a[1]))));
-            }
-            else
-            {
-                AddMethodTranslator(typeof(string), nameof(string.Trim), parameters: new[] { typeof(char) }, translator: new GenericMethodCompiler(
-                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(
-                        new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], a[1]), a[1].Clone())));
-                AddMethodTranslator(typeof(string), nameof(string.TrimStart), parameterCount: 0, translator: new GenericMethodCompiler(
-                    a => a[0].Member("trimStart").Invoke()));
-                AddMethodTranslator(typeof(string), nameof(string.TrimStart), parameters: new[] { typeof(char) }, translator: new GenericMethodCompiler(
-                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], a[1])));
-                AddMethodTranslator(typeof(string), nameof(string.TrimEnd), parameterCount: 0, translator: new GenericMethodCompiler(
-                    a => a[0].Member("trimEnd").Invoke()));
-                AddMethodTranslator(typeof(string), nameof(string.TrimEnd), parameters: new[] { typeof(char) }, translator: new GenericMethodCompiler(
-                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(a[0], a[1])));
-            }
-
-            AddMethodTranslator(typeof(string), nameof(string.Trim), parameterCount: 0, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".Trim(), new GenericMethodCompiler(
                 a => a[0].Member("trim").Invoke()));
-            AddMethodTranslator(typeof(string), nameof(string.PadLeft), parameterCount: 1, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".PadLeft(10), new GenericMethodCompiler(
                 a => a[0].Member("padStart").Invoke(a[1])));
-            AddMethodTranslator(typeof(string), nameof(string.PadLeft), parameterCount: 2, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".PadLeft(10, '-'), new GenericMethodCompiler(
                 a => a[0].Member("padStart").Invoke(a[1], a[2])));
-            AddMethodTranslator(typeof(string), nameof(string.PadRight), parameterCount: 1, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".PadRight(10), new GenericMethodCompiler(
                 a => a[0].Member("padEnd").Invoke(a[1])));
-            AddMethodTranslator(typeof(string), nameof(string.PadRight), parameterCount: 2, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => "".PadRight(10, '-'), new GenericMethodCompiler(
                 a => a[0].Member("padEnd").Invoke(a[1], a[2])));
         }
 
         private void AddDefaultMathTranslations()
         {
-            AddMethodTranslator(typeof(Math), nameof(Math.Abs), parameters: new[] { typeof(int) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Abs(1), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("abs").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Abs), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Abs(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("abs").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Acos), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Acos(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("acos").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Asin), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Asin(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("asin").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Atan), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Atan(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("atan").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Atan2), parameters: new[] { typeof(double), typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Atan2(1.0d, 1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("atan2").Invoke(args[1], args[2])));
 
-            AddMethodTranslator(typeof(Math), nameof(Math.Ceiling), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Ceiling(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("ceil").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Cos), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Cos(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("cos").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Cosh), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Cosh(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("cosh").Invoke(args[1])));
 
-            AddMethodTranslator(typeof(Math), nameof(Math.Exp), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Exp(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("exp").Invoke(args[1])));
 
-            AddMethodTranslator(typeof(Math), nameof(Math.Floor), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Floor(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("floor").Invoke(args[1])));
 
-            AddMethodTranslator(typeof(Math), nameof(Math.Log), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Log(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("log").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Log10), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Log10(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("log10").Invoke(args[1])));
 
-            AddMethodTranslator(typeof(Math), nameof(Math.Max), parameters: new[] { typeof(int), typeof(int) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Max(1, 1), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("max").Invoke(args[1], args[2])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Max), parameters: new[] { typeof(double), typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Max(1.0d, 1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("max").Invoke(args[1], args[2])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Min), parameters: new[] { typeof(int), typeof(int) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Min(1, 1), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("min").Invoke(args[1], args[2])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Min), parameters: new[] { typeof(double), typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Min(1.0d, 1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("min").Invoke(args[1], args[2])));
 
-            AddMethodTranslator(typeof(Math), nameof(Math.Pow), parameters: new[] { typeof(double), typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Pow(1.0d, 1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("pow").Invoke(args[1], args[2])));
 
-            AddMethodTranslator(typeof(Math), nameof(Math.Round), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Round(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("round").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Round), parameters: new[] { typeof(double), typeof(int) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Round(1.0d, 1), new GenericMethodCompiler(
                 args => args[1].Member("toFixed").Invoke(args[2])));
 
-            AddMethodTranslator(typeof(Math), nameof(Math.Sign), parameters: new[] { typeof(int) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Sign(1), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("sign").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Sign), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Sign(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("sign").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Sin), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Sin(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("sin").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Sinh), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Sinh(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("sinh").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Sqrt), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Sqrt(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("sqrt").Invoke(args[1])));
 
-            AddMethodTranslator(typeof(Math), nameof(Math.Tan), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Tan(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("tan").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Tanh), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Tanh(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("tanh").Invoke(args[1])));
-            AddMethodTranslator(typeof(Math), nameof(Math.Truncate), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+            AddMethodTranslator(() => Math.Truncate(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("trunc").Invoke(args[1])));
         }
 
@@ -563,26 +528,26 @@ namespace DotVVM.Framework.Compilation.Javascript
             string GetDelegateReturnTypeHash(Type type)
                 => type.GetGenericArguments().Last().GetTypeHash();
 
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.All), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("every").Invoke(args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1].Member("some").Invoke(returnTrueFunc.Clone())));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("some").Invoke(args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Concat), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("concat").Invoke(args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1].Member("length")));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Distinct), parameterCount: 1,
-                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("distinct").Invoke(args[1]),
+            AddMethodTranslator(() => Enumerable.All(Enumerable.Empty<Generic.T>(), _ => false), new GenericMethodCompiler(args => args[1].Member("every").Invoke(args[2])));
+            AddMethodTranslator(() => Enumerable.Any(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1].Member("some").Invoke(returnTrueFunc.Clone())));
+            AddMethodTranslator(() => Enumerable.Any(Enumerable.Empty<Generic.T>(), _ => false), new GenericMethodCompiler(args => args[1].Member("some").Invoke(args[2])));
+            AddMethodTranslator(() => Enumerable.Concat(Enumerable.Empty<Generic.T>(), Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1].Member("concat").Invoke(args[2])));
+            AddMethodTranslator(() => Enumerable.Count(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1].Member("length")));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Distinct(), new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("distinct").Invoke(args[1]),
                 check: (method, target, arguments) => EnsureIsComparableInJavascript(method, ReflectionUtils.GetEnumerableType(arguments.First().Type).NotNull())));
 
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ElementAt), parameterCount: 2, parameterFilter: p => p[1].ParameterType == typeof(int),
-                translator: new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ElementAt(0),
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
 
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 1, translator: new GenericMethodCompiler((args, m) =>
-                new JsIndexerExpression(args[1], new JsLiteral(0))
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(), new GenericMethodCompiler((args, m) =>
+                args[1].Indexer(0)
                     .WithAnnotation(new VMPropertyInfoAnnotation(m.ReturnType)).WithAnnotation(MayBeNullAnnotation.Instance)));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 2, parameterFilter: p => p[1].ParameterType.IsGenericType && p[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>), translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(_ => true), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("firstOrDefault").Invoke(args[1], args[2]).WithAnnotation(MayBeNullAnnotation.Instance)));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 1, translator: new GenericMethodCompiler(args =>
+
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("lastOrDefault").Invoke(args[1], returnTrueFunc.Clone()).WithAnnotation(MayBeNullAnnotation.Instance)));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 2, parameterFilter: p => p[1].ParameterType.IsGenericType && p[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>), translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(_ => false), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("lastOrDefault").Invoke(args[1], args[2]).WithAnnotation(MayBeNullAnnotation.Instance)));
 
             foreach (var type in new[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal), typeof(int?), typeof(long?), typeof(float?), typeof(double?), typeof(decimal?) })
@@ -598,72 +563,69 @@ namespace DotVVM.Framework.Compilation.Javascript
                     new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("min").Invoke(args[1], args[2], new JsLiteral(!type.IsNullable()))));
             }
 
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderBy), parameterCount: 2,
-                translator: new GenericMethodCompiler((jArgs, dArgs) => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("orderBy")
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().OrderBy(_ => Generic.Enum.Something), new GenericMethodCompiler((jArgs, dArgs) => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("orderBy")
                     .Invoke(jArgs[1], jArgs[2], new JsLiteral((IsDelegateReturnTypeEnum(dArgs.Last().Type)) ? GetDelegateReturnTypeHash(dArgs.Last().Type) : null)),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderByDescending), parameterCount: 2,
-                translator: new GenericMethodCompiler((jArgs, dArgs) => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("orderByDesc")
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().OrderByDescending(_ => Generic.Enum.Something), new GenericMethodCompiler((jArgs, dArgs) => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("orderByDesc")
                     .Invoke(jArgs[1], jArgs[2], new JsLiteral((IsDelegateReturnTypeEnum(dArgs.Last().Type)) ? GetDelegateReturnTypeHash(dArgs.Last().Type) : null)),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
 
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Select), parameterCount: 2, parameterFilter: p => p[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>),
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Select(_ => Generic.Enum.Something),
                 translator: new GenericMethodCompiler(args => args[1].Member("map").Invoke(args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Skip), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("slice").Invoke(args[2])));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Skip(0), new GenericMethodCompiler(args => args[1].Member("slice").Invoke(args[2])));
 
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Take), parameterCount: 2, parameterFilter: p => p[1].ParameterType == typeof(int), translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Take(0), new GenericMethodCompiler(args =>
                 args[1].Member("slice").Invoke(new JsLiteral(0), args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ToArray), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1]));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ToList), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1]));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ToArray(), new GenericMethodCompiler(args => args[1]));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ToList(), new GenericMethodCompiler(args => args[1]));
 
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Where), parameterCount: 2, parameterFilter: p => p[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>),
-                translator: new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Where(_ => true), new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
         }
 
         private void AddDefaultDictionaryTranslations()
         {
-            AddMethodTranslator(typeof(Dictionary<,>), "Clear", parameterCount: 0, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => default(Dictionary<Generic.T, Generic.T>)!.Clear(), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("clear").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
             var containsKey = new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("containsKey").Invoke(args[0], args[1]));
-            AddMethodTranslator(typeof(IDictionary<,>), "ContainsKey", parameterCount: 1, translator: containsKey);
-            AddMethodTranslator(typeof(IReadOnlyDictionary<,>), "ContainsKey", parameterCount: 1, translator: containsKey);
-            AddMethodTranslator(typeof(IDictionary<,>), "Remove", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => default(IDictionary<Generic.T, Generic.T>)!.ContainsKey(null!), containsKey);
+            AddMethodTranslator(() => default(IReadOnlyDictionary<Generic.T, Generic.T>)!.ContainsKey(null!), containsKey);
+            AddMethodTranslator(() => default(IDictionary<Generic.T, Generic.T>)!.Remove(null!), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("remove").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
         }
 
         private void AddDefaultListTranslations()
         {
-            AddMethodTranslator(typeof(List<>), "Add", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => new List<Generic.T?>().Add(null), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("add").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
-            AddMethodTranslator(typeof(List<>), "AddRange", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => new List<Generic.T>().AddRange(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("addRange").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
-            AddMethodTranslator(typeof(List<>), "Clear", parameterCount: 0, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => new List<Generic.T>().Clear(), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("clear").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
-            AddMethodTranslator(typeof(List<>), "Insert", parameterCount: 2, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => new List<Generic.T?>().Insert(0, null), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("insert").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2])));
-            AddMethodTranslator(typeof(List<>), "InsertRange", parameterCount: 2, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => new List<Generic.T>().InsertRange(0, Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("insertRange").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2])));
-            AddMethodTranslator(typeof(List<>), "RemoveAt", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => new List<Generic.T>().RemoveAt(0), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeAt").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
-            AddMethodTranslator(typeof(List<>), "RemoveAll", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => new List<Generic.T>().RemoveAll(_ => true), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeAll").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
-            AddMethodTranslator(typeof(List<>), "RemoveRange", parameterCount: 2, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => new List<Generic.T>().RemoveRange(0, 10), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeRange").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2])));
-            AddMethodTranslator(typeof(List<>), "Reverse", parameterCount: 0, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => new List<Generic.T>().Reverse(), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("reverse").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
-            AddMethodTranslator(typeof(List<>), "AsReadOnly", parameterCount: 0, translator: new GenericMethodCompiler(args => args[0]));
+            AddMethodTranslator(() => new List<Generic.T>().AsReadOnly(), new GenericMethodCompiler(args => args[0]));
             AddMethodTranslator(
-               typeof(List<>), "Contains",
-               parameterCount: 1,
-               translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("contains").Invoke(args[0], args[1]).WithAnnotation(MayBeNullAnnotation.Instance),
-               check: (method, target, arguments) => target is not null && EnsureIsComparableInJavascript(method, ReflectionUtils.GetEnumerableType(target.Type).NotNull())));
+               () => new List<Generic.T?>().Contains(null),
+               new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("contains").Invoke(args[0], args[1]).WithAnnotation(MayBeNullAnnotation.Instance)));
 
             // DotVVM list extensions:
-            AddMethodTranslator(typeof(ListExtensions), "AddOrUpdate", parameterCount: 4, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("addOrUpdate").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[2], args[3], args[4])));
-            AddMethodTranslator(typeof(ListExtensions), "RemoveFirst", parameterCount: 2, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(
+                () => ListExtensions.AddOrUpdate(new List<Generic.T?>(), null, _ => false, x => x),
+                new GenericMethodCompiler(args =>
+                    new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("addOrUpdate").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[2], args[3], args[4])));
+            AddMethodTranslator(() => ListExtensions.RemoveFirst(new List<Generic.T>(), _ => true), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeFirst").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[2])));
-            AddMethodTranslator(typeof(ListExtensions), "RemoveLast", parameterCount: 2, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => ListExtensions.RemoveLast(new List<Generic.T>(), _ => true), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeLast").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[2])));
         }
 
@@ -672,24 +634,24 @@ namespace DotVVM.Framework.Compilation.Javascript
             JsExpression IncrementExpression(JsExpression left, int value)
                 => new JsBinaryExpression(left, BinaryOperatorType.Plus, new JsLiteral(value));
 
-            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Year), translator: new GenericMethodCompiler(args =>
+            AddPropertyTranslator(() => DateTime.Now.Year, new GenericMethodCompiler(args =>
                 new JsInvocationExpression(new JsIdentifierExpression("dotvvm").Member("serialization").Member("parseDate"), args[0]).Member("getFullYear").Invoke()));
-            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Month), translator: new GenericMethodCompiler(args =>
+            AddPropertyTranslator(() => DateTime.Now.Month, new GenericMethodCompiler(args =>
                 IncrementExpression(new JsInvocationExpression(new JsIdentifierExpression("dotvvm").Member("serialization").Member("parseDate"), args[0]).Member("getMonth").Invoke(), 1)));
-            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Day), translator: new GenericMethodCompiler(args =>
+            AddPropertyTranslator(() => DateTime.Now.Day, new GenericMethodCompiler(args =>
                 new JsInvocationExpression(new JsIdentifierExpression("dotvvm").Member("serialization").Member("parseDate"), args[0]).Member("getDate").Invoke()));
-            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Hour), translator: new GenericMethodCompiler(args =>
+            AddPropertyTranslator(() => DateTime.Now.Hour, new GenericMethodCompiler(args =>
                 new JsInvocationExpression(new JsIdentifierExpression("dotvvm").Member("serialization").Member("parseDate"), args[0]).Member("getHours").Invoke()));
-            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Minute), translator: new GenericMethodCompiler(args =>
+            AddPropertyTranslator(() => DateTime.Now.Minute, new GenericMethodCompiler(args =>
                 new JsInvocationExpression(new JsIdentifierExpression("dotvvm").Member("serialization").Member("parseDate"), args[0]).Member("getMinutes").Invoke()));
-            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Second), translator: new GenericMethodCompiler(args =>
+            AddPropertyTranslator(() => DateTime.Now.Second, new GenericMethodCompiler(args =>
                 new JsInvocationExpression(new JsIdentifierExpression("dotvvm").Member("serialization").Member("parseDate"), args[0]).Member("getSeconds").Invoke()));
-            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Millisecond), translator: new GenericMethodCompiler(args =>
+            AddPropertyTranslator(() => DateTime.Now.Millisecond, new GenericMethodCompiler(args =>
                 new JsInvocationExpression(new JsIdentifierExpression("dotvvm").Member("serialization").Member("parseDate"), args[0]).Member("getMilliseconds").Invoke()));
 
-            AddMethodTranslator(typeof(DateTimeExtensions), nameof(DateTimeExtensions.ToBrowserLocalTime), parameterCount: 1, parameterFilter: p => p[0].ParameterType == typeof(DateTime), translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => DateTime.UtcNow.ToBrowserLocalTime(), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dateTime").Member("toBrowserLocalTime").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance)).WithAnnotation(ResultIsObservableAnnotation.Instance)));
-            AddMethodTranslator(typeof(DateTimeExtensions), nameof(DateTimeExtensions.ToBrowserLocalTime), parameterCount: 1, parameterFilter: p => p[0].ParameterType == typeof(DateTime?), translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => default(DateTime?).ToBrowserLocalTime(), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dateTime").Member("toBrowserLocalTime").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance)).WithAnnotation(ResultIsObservableAnnotation.Instance)));
         }
 
