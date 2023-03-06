@@ -66,7 +66,37 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void AddMethodTranslator<T>(Expression<Func<T>> methodCall, IJavascriptMethodTranslator translator)
         {
             var method = (MethodInfo)MethodFindingHelper.GetMethodFromExpression(methodCall);
+            CheckNotAccidentalDefinition(method);
             AddMethodTranslator(method, translator);
+        }
+        public void AddMethodTranslator(Expression<Action> methodCall, IJavascriptMethodTranslator translator)
+        {
+            var method = (MethodInfo)MethodFindingHelper.GetMethodFromExpression(methodCall);
+            CheckNotAccidentalDefinition(method);
+            AddMethodTranslator(method, translator);
+        }
+
+        private void CheckNotAccidentalDefinition(MethodBase m)
+        {
+            if (m.DeclaringType == typeof(object))
+                throw new NotSupportedException($"Method {m} declared on System.Object cannot be registered using this overload (to prevent accidental registration of all ToString method, etc). The overload taking MethodInfo doesn't contain this check.");
+        }
+
+        public void AddPropertyTranslator<T>(Expression<Func<T>> propertyAccess, IJavascriptMethodTranslator? getter, IJavascriptMethodTranslator? setter = null)
+        {
+            var property = MethodFindingHelper.GetPropertyFromExpression(propertyAccess);
+            if (getter is {})
+            {
+                if (property.GetMethod is null)
+                    throw new NotSupportedException($"Property {property} does not have a getter");
+                AddMethodTranslator(property.GetMethod, getter);
+            }
+            if (setter is {})
+            {
+                if (property.SetMethod is null)
+                    throw new NotSupportedException($"Property {property} does not have a setter");
+                AddMethodTranslator(property.SetMethod, setter);
+            }
         }
 
         public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, int parameterCount, bool allowMultipleMethods = false, Func<ParameterInfo[], bool>? parameterFilter = null)
