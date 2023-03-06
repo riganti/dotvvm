@@ -153,11 +153,13 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
             return Object.freeze({ ...vm, [propName]: newValue }) as any
         })
     }
-    constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
+    constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | DynamicTypeMetadata | undefined, additionalProperties: string[]) {
         this[currentStateSymbol] = initialValue
         this[updateSymbol] = updater
         this[errorsSymbol] = []
-        for (const p of keys(typeInfo?.properties || {}).concat(additionalProperties)) {
+        const props = (typeInfo?.type == "object") ? typeInfo.properties : {};
+
+        for (const p of keys(props).concat(additionalProperties)) {
             this[internalPropCache][p] = null
 
             Object.defineProperty(this, p, {
@@ -170,13 +172,13 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                     const currentState = this[currentStateSymbol]
                     const newObs = createWrappedObservable(
                         currentState[p],
-                        typeInfo?.properties[p]?.type,
+                        props[p]?.type,
                         u => this[updatePropertySymbol](p, u)
                     )
 
                     const isDynamic = typeId === undefined || typeId.hasOwnProperty("type") && (typeId as any)["type"] === "dynamic";
-                    if (typeInfo && p in typeInfo.properties) {
-                        const clientExtenders = typeInfo.properties[p].clientExtenders;
+                    if (typeInfo && p in props) {
+                        const clientExtenders = props[p].clientExtenders;
                         if (clientExtenders) {
                             for (const e of clientExtenders) {
                                 (ko.extenders as any)[e.name](newObs, e.parameter)
@@ -248,7 +250,7 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
         typeInfo = getObjectTypeInfo(typeId)
     }
 
-    const pSet = new Set(keys(typeInfo?.properties ?? {}));
+    const pSet = new Set(keys((typeInfo?.type === "object") ? typeInfo.properties : {}));
     const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
     return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutObservableObject<T>
