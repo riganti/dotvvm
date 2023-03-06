@@ -125,10 +125,11 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void AddMethodTranslator([AllowNull] MethodInfo method, IJavascriptMethodTranslator translator)
         {
             if (method is null) throw new ArgumentNullException(nameof(method));
-            if (!MethodTranslators.TryAdd(method, translator))
+            if (MethodTranslators.ContainsKey(method))
             {
                 throw new Exception($"Method {ReflectionUtils.FormatMethodInfo(method)} is already registered.");
             }
+            MethodTranslators.Add(method, translator);
             if (method.DeclaringType!.IsInterface)
                 Interfaces.Add(method.DeclaringType);
         }

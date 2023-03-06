@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             if (expression is MemberExpression memberExpression)
                 return memberExpression.Member;
-            else if (expression is MethodCallExpression { Method: { IsSpecialName: true } method } && method.Name.StartsWith("get_"))
+            else if (expression is MethodCallExpression { Method: { IsSpecialName: true, DeclaringType: {} } method } && method.Name.StartsWith("get_"))
                 return method.DeclaringType.GetProperty(method.Name.Substring(4));
             else if (expression is IndexExpression index)
                 return index.Indexer;
@@ -103,6 +103,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static PropertyInfo Generalize(PropertyInfo p)
         {
+            if (p.DeclaringType is null)
+                return p;
             var newType = Generalize(p.DeclaringType);
             if (newType == p.DeclaringType)
                 return p;
@@ -119,7 +121,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             };
         public static ConstructorInfo Generalize(ConstructorInfo c)
         {
-            var newType = Generalize(c.DeclaringType);
+            var newType = Generalize(c.DeclaringType!);
             if (newType == c.DeclaringType)
                 return c;
             var constructors = newType.GetConstructors(BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
@@ -127,7 +129,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
         public static MethodInfo Generalize(MethodInfo m)
         {
-            if (m.DeclaringType.IsGenericType)
+            if (m.DeclaringType is {} && m.DeclaringType.IsGenericType)
             {
                 var newType = Generalize(m.DeclaringType);
                 if (newType != m.DeclaringType)
