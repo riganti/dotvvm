@@ -81,6 +81,7 @@ namespace DotVVM.Framework.Compilation.Inference
             var tempInstantiations = new Dictionary<string, Type>();
             foreach (var candidate in context.Target.Candidates!.Where(c => c.GetParameters().Length > index))
             {
+                tempInstantiations.Clear();
                 var parameters = candidate.GetParameters();
                 var parameterType = parameters[index].ParameterType;
 
@@ -95,7 +96,6 @@ namespace DotVVM.Framework.Compilation.Inference
                         continue;
 
                     // Try to infer instantiation based on given argument
-                    tempInstantiations.Clear();
                     var result = TryInferInstantiation(parameterType, argumentType, tempInstantiations);
                     if (!result)
                         continue;
