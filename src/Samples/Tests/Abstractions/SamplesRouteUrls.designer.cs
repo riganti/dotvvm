@@ -204,6 +204,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Api_GridViewDataSetAspNetCore = "FeatureSamples/Api/GridViewDataSetAspNetCore";
         public const string FeatureSamples_Api_GridViewDataSetOwin = "FeatureSamples/Api/GridViewDataSetOwin";
         public const string FeatureSamples_Api_IncludedInPage = "FeatureSamples/Api/IncludedInPage";
+        public const string FeatureSamples_Api_IsLoading = "FeatureSamples/Api/IsLoading";
         public const string FeatureSamples_AttachedProperties_AttachedProperties = "FeatureSamples/AttachedProperties/AttachedProperties";
         public const string FeatureSamples_Attribute_SpecialCharacters = "FeatureSamples/Attribute/SpecialCharacters";
         public const string FeatureSamples_Attribute_ToStringConversion = "FeatureSamples/Attribute/ToStringConversion";
