@@ -15,6 +15,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.AutoUI.Controls;
 using DotVVM.AutoUI;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -167,6 +168,33 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:Button Styles.Tag='a,b,c' Click={command: 0} data-msg=ahoj />
             ");
             check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task RequestResources()
+        {
+            var cth = createHelper(c => {
+                c.Resources.Register("test1", new NullResource());
+                c.Resources.Register("test2", new NullResource());
+                c.Resources.Register("test3", new NullResource());
+                c.Resources.Register("test4", new NullResource());
+                c.Styles.RegisterForTag("resource1")
+                    .AddRequiredResource("test1");
+                c.Styles.Register("div")
+                    .AddRequiredResource("test2");
+                c.Styles.RegisterForTag("resourceX")
+                    .AddRequiredResource(c => new [] { c.GetHtmlAttributeValue("data-resource") });
+            });
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <div Styles.Tag=resource1,resourceX data-resource=test3 />
+                """);
+
+            var resources = r.InitialContext.ResourceManager.RequiredResources.ToArray();
+            CollectionAssert.Contains(resources, "test1");
+            CollectionAssert.Contains(resources, "test2");
+            CollectionAssert.Contains(resources, "test3");
+            CollectionAssert.DoesNotContain(resources, "test4");
         }
 
         [TestMethod]
