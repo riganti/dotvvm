@@ -10,7 +10,10 @@ using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
+using DotVVM.Framework.ResourceManagement;
 using System.Security.Claims;
+using System.Linq;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -18,6 +21,8 @@ namespace DotVVM.Framework.Tests.ControlTests
     public class GridViewTests
     {
         static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
+            config.Resources.RegisterStylesheet("test-css", new InlineResourceLocation(""));
+            config.Markup.AddCodeControls("cc", exampleControl: typeof(FancyEditorWithResource));
         });
         OutputChecker check = new OutputChecker("testoutputs");
 
@@ -95,7 +100,25 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.IsTrue(exception.Message.Contains("Changing the DataContext property on the GridViewColumn is not supported!"));
         }
 
-        
+        [TestMethod]
+        public async Task RequiredResourceInEditTemplate()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <dot:GridView DataSource={value: EmptyCustomers} RenderSettings.Mode=Client InlineEditing=true>
+                    <Columns>
+                        <dot:GridViewTextColumn HeaderText=Id ValueBinding={value: Id} />
+                        <dot:GridViewTextColumn HeaderText=Name ValueBinding={value: Name}>
+                            <EditTemplate>
+                                <cc:FancyEditorWithResource />
+                            </EditTemplate>
+                        </dot:GridViewTextColumn>
+                    </Columns>
+                </dot:GridView>
+                """);
+            CollectionAssert.Contains(r.InitialContext.ResourceManager.RequiredResources.ToArray(), "test-css");
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
 
         public class BasicTestViewModel: DotvvmViewModelBase
         {
@@ -112,6 +135,17 @@ namespace DotVVM.Framework.Tests.ControlTests
                     new CustomerData() { Id = 2, Name = "Two" }
                 }
             };
+            public GridViewDataSet<CustomerData> AfterPreRenderCustomers { get; set; }
+            public GridViewDataSet<CustomerData> EmptyCustomers { get; set; } = new GridViewDataSet<CustomerData>();
+
+            public override Task PreRender()
+            {
+                AfterPreRenderCustomers = new GridViewDataSet<CustomerData>() {
+                    RowEditOptions = { EditRowId = 1, PrimaryKeyPropertyName = nameof(CustomerData.Id) },
+                    Items = Customers.Items.ToList()
+                };
+                return base.PreRender();
+            }
             public class CustomerData
             {
                 public int Id { get; set; }
@@ -119,6 +153,19 @@ namespace DotVVM.Framework.Tests.ControlTests
                 public string Name { get; set; }
                 public bool Enabled { get; set; }
             }
+        }
+    }
+
+    public class FancyEditorWithResource: DotvvmControl
+    {
+        protected internal override void OnInit(IDotvvmRequestContext context)
+        {
+            context.ResourceManager.AddRequiredResource("test-css");
+            base.OnInit(context);
+        }
+        protected override void RenderContents(IHtmlWriter writer, Hosting.IDotvvmRequestContext context)
+        {
+            writer.WriteText("editor");
         }
     }
 }
