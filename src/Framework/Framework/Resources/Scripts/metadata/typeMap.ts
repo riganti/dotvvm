@@ -3,7 +3,7 @@ import { keys } from "../utils/objects";
 
 let types: TypeMap = {};
 
-export function getTypeInfo(typeId: string): TypeMetadata {
+export function getTypeInfo(typeId: string | object): TypeMetadata {
 
     if (typeof typeId === "string") {
         var result = types[typeId];
