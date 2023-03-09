@@ -4,7 +4,7 @@ export function getTypeId(viewModel: object): string | undefined {
     return ko.unwrap((viewModel as any).$type);
 }
 
-export function getTypeMetadata(typeId: string): TypeMetadata {
+export function getTypeMetadata(typeId: string | object): TypeMetadata {
     return getTypeInfo(typeId);
 }
 
