@@ -11,7 +11,7 @@ export function getTypeMetadata(typeId: string | object): TypeMetadata {
 export function getEnumMetadata(enumMetadataId: string): EnumTypeMetadata {
     let metadata = getTypeInfo(enumMetadataId);
     if (metadata.type !== "enum") {
-        throw new Error("Expected enum, but received object");
+        throw new Error(`Expected enum, but received '${metadata.type}' with id '${enumMetadataId}'!`);
     }
 
     return metadata as EnumTypeMetadata;
