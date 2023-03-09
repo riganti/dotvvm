@@ -27,6 +27,9 @@ namespace DotVVM.Framework.Controls
         private EmptyData? emptyDataContainer;
         private int numberOfRows;
         private HtmlGenericControl? head;
+        private DataItemContainer? clientTemplate;
+        private DataItemContainer? clientEditTemplate;
+
 
         public GridView() : base("table")
         {
@@ -166,7 +169,11 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            DataBind(context);     // TODO: support for observable collection
+            DataBind(context);
+            if (!RenderOnServer)
+            {
+                CreateClientTemplates(context);
+            }
             base.OnPreRender(context);
         }
 
@@ -328,28 +335,7 @@ namespace DotVVM.Framework.Controls
                 isInEditMode = IsEditedRow(placeholder);
             }
 
-            var row = CreateRow(placeholder, isInEditMode);
-
-            // create cells
-            foreach (var column in Columns.NotNull("GridView.Columns must be set"))
-            {
-                var editMode = isInEditMode && column.IsEditable;
-
-                var cell = new HtmlGenericControl("td");
-                cell.SetDataContextType(column.GetDataContextType());
-                SetCellAttributes(column, cell, false);
-                var decoratedCell = Decorator.ApplyDecorators(cell, editMode ? column.EditCellDecorators : column.CellDecorators);
-                row.Children.Add(decoratedCell);
-
-                if (editMode)
-                {
-                    column.CreateEditControls(context, cell);
-                }
-                else
-                {
-                    column.CreateControls(context, cell);
-                }
-            }
+            this.CreateTemplates(context, placeholder, isInEditMode);
         }
 
         private HtmlGenericControl CreateRow(DataItemContainer placeholder, bool isInEditMode)
@@ -425,6 +411,29 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        private void CreateClientTemplates(IDotvvmRequestContext context)
+        {
+            DataItemContainer makeContainer()
+            {
+                var placeholder = new DataItemContainer { DataContext = null };
+                placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
+                placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
+                placeholder.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
+                return placeholder;
+            }
+
+            clientTemplate = makeContainer();
+            Children.Add(clientTemplate);
+            CreateTemplates(context, clientTemplate);
+
+            if (InlineEditing)
+            {
+                clientEditTemplate = makeContainer();
+                Children.Add(clientEditTemplate);
+                CreateTemplates(context, clientEditTemplate, isInEditMode: true);
+            }
+        }
+
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // render the header
@@ -447,7 +456,7 @@ namespace DotVVM.Framework.Controls
             {
                 // render on server
                 var index = 0;
-                foreach (var child in Children.Except(new[] { head!, emptyDataContainer! }))
+                foreach (var child in Children.Except(new DotvvmControl[] { head!, emptyDataContainer!, clientEditTemplate!, clientTemplate! }))
                 {
                     child.Render(writer, context);
                     index++;
@@ -458,36 +467,17 @@ namespace DotVVM.Framework.Controls
                 // render on client
                 if (InlineEditing)
                 {
-                    var placeholder = new DataItemContainer { DataContext = null };
-                    placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
-                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholder.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
                     writer.WriteKnockoutDataBindComment("if", "!$gridViewDataSetHelper.isInEditMode($context)");
-                    CreateTemplates(context, placeholder);
-                    Children.Add(placeholder);
-                    placeholder.Render(writer, context);
+                    this.clientTemplate.NotNull("unexpected null in clientTemplate").Render(writer, context);
                     writer.WriteKnockoutDataBindEndComment();
 
-                    var placeholderEdit = new DataItemContainer { DataContext = null };
-                    placeholderEdit.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
-                    placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
                     writer.WriteKnockoutDataBindComment("if", "$gridViewDataSetHelper.isInEditMode($context)");
-                    CreateTemplates(context, placeholderEdit, true);
-                    Children.Add(placeholderEdit);
-                    placeholderEdit.Render(writer, context);
+                    this.clientEditTemplate.NotNull("unexpected null in clientEditTemplate").Render(writer, context);
                     writer.WriteKnockoutDataBindEndComment();
                 }
                 else
                 {
-                    var placeholder = new DataItemContainer { DataContext = null };
-                    placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
-                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholder.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
-                    Children.Add(placeholder);
-                    CreateRowWithCells(context, placeholder);
-                    placeholder.Render(writer, context);
-
+                    this.clientTemplate.NotNull("unexpected null in clientTemplate").Render(writer, context);
                 }
             }
 
