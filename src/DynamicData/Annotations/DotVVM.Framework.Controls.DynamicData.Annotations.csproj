@@ -6,6 +6,9 @@
     <PackageProjectUrl>https://www.dotvvm.com/docs/3.0/pages/community-add-ons/dotvvm-dynamic-data</PackageProjectUrl>
     <PackageTags>$(PackageTags);dnx;dynamic data;annotations;metadata;ui generation</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
     <NoWarn>1701;1702;1591</NoWarn>
