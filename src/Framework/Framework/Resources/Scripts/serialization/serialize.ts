@@ -78,7 +78,11 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
             continue;
         }
 
-        const propInfo = typeInfo?.properties[prop];
+        let propInfo;
+        if (typeInfo?.type === "object") {
+            propInfo = typeInfo?.properties[prop];
+        }
+
         if (!opt.serializeAll && propInfo && propInfo.post == "no") {
             // continue
         } else if (!opt.serializeAll && propInfo && propInfo.post == "pathOnly" && opt.pathMatcher) {

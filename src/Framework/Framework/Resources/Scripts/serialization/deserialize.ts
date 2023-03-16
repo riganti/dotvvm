@@ -126,9 +126,12 @@ export function deserializeObject(viewModel: any, target: any, deserializeAll: b
             continue;
         }
 
-        const propInfo = typeInfo?.properties[prop];
-        if (!deserializeAll && propInfo && propInfo.update == "no") {
-            continue;
+        let propInfo;
+        if (typeInfo?.type == "object") {
+            propInfo = typeInfo?.properties[prop];
+            if (!deserializeAll && propInfo && propInfo.update == "no") {
+                continue;
+            }
         }
 
         copyProperty(value, unwrappedTarget, prop, deserializeAll, propInfo);
@@ -200,9 +203,12 @@ export function mapUpdatableProperties(viewModel: any, type: TypeDefinition | un
     for (const prop of keys(viewModel)) {
         let value = viewModel[prop]
         if (!isTypeIdProperty(prop)) {
-            const propInfo = typeMetadata?.properties[prop]
-            if (propInfo?.update == "no") {
-                continue
+            let propInfo;
+            if (typeMetadata?.type === "object") {
+                propInfo = typeMetadata?.properties[prop]
+                if (propInfo?.update == "no") {
+                    continue
+                }
             }
 
             value = mapUpdatableProperties(value, propInfo?.type)
