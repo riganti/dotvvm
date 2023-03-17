@@ -3,6 +3,7 @@ using System.Linq;
 using DotVVM.AutoUI.Configuration;
 using DotVVM.AutoUI.Controls;
 using DotVVM.AutoUI.Metadata;
+using DotVVM.AutoUI.PropertyHandlers;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel.Validation;
@@ -27,6 +28,7 @@ namespace DotVVM.AutoUI
             RegisterResourceFileProviders(services.Services, autoUiConfiguration);
 
             services.Services.Configure<DotvvmConfiguration>(AddAutoUIConfiguration);
+            services.Services.AddSingleton<ISelectorDiscoveryService, SelectorDiscoveryService>();
 
             return services;
         }

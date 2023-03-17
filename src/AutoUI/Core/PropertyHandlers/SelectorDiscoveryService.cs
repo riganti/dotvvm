@@ -10,10 +10,10 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.AutoUI.PropertyHandlers
 {
-    public class SelectorHelper
+    public class SelectorDiscoveryService : ISelectorDiscoveryService 
     {
 
-        public static IValueBinding DiscoverSelectorDataSourceBinding(AutoUIContext autoUiContext, Type propertyType)
+        public IValueBinding DiscoverSelectorDataSourceBinding(AutoUIContext autoUiContext, Type propertyType)
         {
             var viewModelType = typeof(ISelectorViewModel<>).MakeGenericType(propertyType);
 
@@ -49,7 +49,7 @@ namespace DotVVM.AutoUI.PropertyHandlers
             throw new DotvvmControlException($"No property of type {viewModelType.FullName} was found in the viewmodel {autoUiContext.DataContextStack}!");
         }
 
-        private static Expression[] FindSelectorProperties(Expression parent, Type selectorViewModelType)
+        protected virtual Expression[] FindSelectorProperties(Expression parent, Type selectorViewModelType)
         {
             var directProperties = parent.Type
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public)

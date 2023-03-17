@@ -18,9 +18,13 @@ namespace DotVVM.AutoUI.Controls
     public abstract class AutoFormBase : CompositeControl 
     {
         protected readonly IServiceProvider services;
+
+        private readonly ISelectorDiscoveryService selectorDiscoveryService;
+
         public AutoFormBase(IServiceProvider services)
         {
             this.services = services;
+            this.selectorDiscoveryService = services.GetRequiredService<ISelectorDiscoveryService>();
         }
 
 
@@ -49,6 +53,7 @@ namespace DotVVM.AutoUI.Controls
 
         public static readonly DotvvmCapabilityProperty FieldPropsProperty =
             DotvvmCapabilityProperty.RegisterCapability<FieldProps, AutoFormBase>();
+
 
         protected AutoUIContext CreateAutoUiContext()
         {
@@ -200,7 +205,7 @@ namespace DotVVM.AutoUI.Controls
             {
                 try
                 {
-                    var dataSource = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selector.SelectionType);
+                    var dataSource = selectorDiscoveryService.DiscoverSelectorDataSourceBinding(context, selector.SelectionType);
                     var nonEmptyBinding =
                         dataSource.GetProperty<DataSourceLengthBinding>().Binding.GetProperty<IsMoreThanZeroBindingProperty>().Binding;
                     field.SetValueRaw(HtmlGenericControl.VisibleProperty, nonEmptyBinding);
