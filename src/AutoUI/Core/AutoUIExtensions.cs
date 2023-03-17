@@ -7,6 +7,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace DotVVM.AutoUI
 {
@@ -21,8 +22,15 @@ namespace DotVVM.AutoUI
             configure?.Invoke(autoUiConfiguration);
             
             // add the configuration of AutoUI to the service collection
-            services.Services.AddSingleton(serviceProvider => autoUiConfiguration);
-
+            services.Services.AddSingleton(serviceProvider =>
+            {
+                foreach (var conf in serviceProvider.GetServices<IConfigureOptions<AutoUIConfiguration>>())
+                {
+                    conf.Configure(autoUiConfiguration);
+                }
+                return autoUiConfiguration;
+            });
+            
             RegisterDefaultProviders(services.Services, autoUiConfiguration);
             RegisterResourceFileProviders(services.Services, autoUiConfiguration);
 
