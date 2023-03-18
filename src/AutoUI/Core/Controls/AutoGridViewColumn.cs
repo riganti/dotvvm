@@ -56,7 +56,7 @@ namespace DotVVM.AutoUI.Controls
 
             // editor
 
-            if (props.EditTemplate is null)
+            if (props.EditTemplate is null && (props.IsEditable.HasBinding || props.IsEditable.ValueOrDefault == true))
             {
                 control.EditTemplate = new CloneTemplate(
                     AutoEditor.Build(new AutoEditor.Props()
