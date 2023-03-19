@@ -45,14 +45,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return expression switch {
                 MethodCallExpression call => DevirtualizeMethod(call.Method, call.Object?.Type),
                 BinaryExpression { Method: { } } binary => binary.Method,
-                BinaryExpression { NodeType: ExpressionType.Assign } assign =>
-                    TryGetPropertyFromExpression(assign.Left) switch {
-                        PropertyInfo {SetMethod: {}} p => p.SetMethod,
-                        null => throw new NotSupportedException($"Cannot get member from {originalExpression}"),
-                        var p => throw new NotSupportedException($"Unsupported assigned member type {p}")
-                    },
                 UnaryExpression { Method: {}} unary => unary.Method,
-                NewExpression { Constructor: { } } newExpression => newExpression.Constructor,
                 _ => throw new NotSupportedException($"Cannot get member from {originalExpression}")
             };
         }

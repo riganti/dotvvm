@@ -160,7 +160,6 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void AddDefaultMethodTranslators()
         {
             var lengthMethod = new GenericMethodCompiler(a => a[0].Member("length"));
-            // AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
             AddMethodTranslator(() => default(Array)!.Length, lengthMethod);
             AddMethodTranslator(() => default(ICollection)!.Count, lengthMethod);
             AddMethodTranslator(() => default(ICollection<Generic.T>)!.Count, lengthMethod);
@@ -169,6 +168,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(() => Enums.GetNames<Generic.Enum>(), new EnumGetNamesMethodTranslator());
             var identityTranslator = new GenericMethodCompiler(a => a[1]);
             AddMethodTranslator(() => BoxingUtils.Box(default(bool)), identityTranslator);
+            AddMethodTranslator(() => BoxingUtils.Box(default(bool?)), identityTranslator);
             AddMethodTranslator(() => BoxingUtils.Box(default(int)), identityTranslator);
             AddMethodTranslator(() => BoxingUtils.Box(default(int?)), identityTranslator);
 
@@ -191,8 +191,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyTranslator(() => default(IDictionary<Generic.T, Generic.T>)![null!], new GenericMethodCompiler(dictionaryGetIndexer), new GenericMethodCompiler(dictionarySetIndexer));
             AddPropertyTranslator(() => default(IReadOnlyDictionary<Generic.T, Generic.T>)![null!], new GenericMethodCompiler(dictionaryGetIndexer));
             AddMethodTranslator(() => default(Array)!.SetValue(null, 1), new GenericMethodCompiler(arrayElementSetter));
-            AddPropertyTranslator(() => default(Generic.Struct?)!.Value, new GenericMethodCompiler((JsExpression[] args, MethodInfo method) => args[0]));
-            AddPropertyTranslator(() => default(Generic.Struct?)!.HasValue,
+            AddPropertyTranslator(() => default(Nullable<Generic.Struct>)!.Value, new GenericMethodCompiler((JsExpression[] args, MethodInfo method) => args[0]));
+            AddPropertyTranslator(() => default(Nullable<Generic.Struct>)!.HasValue,
                 new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
 
             JsBindingApi.RegisterJavascriptTranslations(this);
@@ -266,7 +266,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
-            AddMethodTranslator(() => default(DateOnly?).ToString(), new GenericMethodCompiler(
+            AddMethodTranslator(() => default(Nullable<DateOnly>).ToString(), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateOnlyToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
@@ -284,7 +284,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
-            AddMethodTranslator(() => default(TimeOnly?).ToString(), new GenericMethodCompiler(
+            AddMethodTranslator(() => default(Nullable<TimeOnly>).ToString(), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingTimeOnlyToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
@@ -652,7 +652,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             AddMethodTranslator(() => DateTime.UtcNow.ToBrowserLocalTime(), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dateTime").Member("toBrowserLocalTime").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance)).WithAnnotation(ResultIsObservableAnnotation.Instance)));
-            AddMethodTranslator(() => default(DateTime?).ToBrowserLocalTime(), new GenericMethodCompiler(args =>
+            AddMethodTranslator(() => default(Nullable<DateTime>).ToBrowserLocalTime(), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dateTime").Member("toBrowserLocalTime").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance)).WithAnnotation(ResultIsObservableAnnotation.Instance)));
         }
 
