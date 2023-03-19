@@ -1035,6 +1035,19 @@ namespace DotVVM.Framework.Tests.Binding
         {
             Assert.AreEqual(-1025, ExecuteBinding("var intVariable = ~IntProp; intVariable", new TestViewModel { IntProp = 1024 }));
         }
+
+        [TestMethod]
+        public void BindingCompiler_NullCoalesce_ValueType()
+        {
+            var vm = new TestViewModel { NullableIntProp = null, TestViewModel2B = new TestViewModel2 { MyProperty = 1234 } };
+
+            Assert.AreEqual(null, ExecuteBinding("NullableIntProp.Value", vm));
+            Assert.AreEqual(-1, ExecuteBinding("NullableIntProp ?? -1", vm));
+            Assert.AreEqual(-1, ExecuteBinding("NullableIntProp.Value ?? -1", vm));
+            Assert.AreEqual(null, ExecuteBinding("TestViewModel2.MyProperty", vm));
+            Assert.AreEqual(-1, ExecuteBinding("TestViewModel2.MyProperty ?? -1", vm));
+            Assert.AreEqual(1234, ExecuteBinding("TestViewModel2B.MyProperty ?? -1", vm));
+        }
     }
     class TestViewModel
     {

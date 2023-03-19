@@ -642,7 +642,17 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public Expression GetBinaryOperator(Expression left, Expression right, ExpressionType operation)
         {
-            if (operation == ExpressionType.Coalesce) return Expression.Coalesce(left, right);
+            if (operation == ExpressionType.Coalesce)
+            {
+                // in bindings, most expressions will be nullable due to automatic null-propagation
+                // the null propagation visitor however runs after this, so we need to convert left to nullable
+                // to make the validation in Expression.Coalesce happy
+                var leftNullable =
+                    left.Type.IsValueType && !left.Type.IsNullable()
+                        ? Expression.Convert(left, typeof(Nullable<>).MakeGenericType(left.Type))
+                        : left;
+                return Expression.Coalesce(leftNullable, right);
+            }
             if (operation == ExpressionType.Assign)
             {
                 return UpdateMember(left, TypeConversion.ImplicitConversion(right, left.Type, true, true)!)
