@@ -1,0 +1,57 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization.ListOfObjectsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1><code>List&lt;object&gt;</code></h1>
+
+	<p style="color: red">
+		Just because you found something in the DotVVM UI tests doesn't mean it's a good idea to use it in your application.
+	</p>
+	<p>
+		Anyway, this tests that object arrays don't break too badly.
+		Clicking on More goblins should add more goblins to all arrays without crashing
+	</p>
+
+    
+	<p>
+		<span> Array of primitives:</span>
+		<dot:Repeater DataSource={value: ArrayPrimitives} WrapperTagName="span">
+			<SeparatorTemplate>, </SeparatorTemplate>
+			<ItemTemplate><dot:Literal Text={value: _this} /></ItemTemplate>
+		</dot:Repeater>
+	</p>
+	<p>
+		<span> List of primitives:</span>
+		<dot:Repeater DataSource={value: ListPrimitives} WrapperTagName="span">
+			<SeparatorTemplate>, </SeparatorTemplate>
+			<ItemTemplate><dot:Literal Text={value: _this} /></ItemTemplate>
+		</dot:Repeater>
+	</p>
+
+	<p>
+		<dot:Button Text="More goblins" Click={command: AddSomething("👺")} />
+	</p>
+
+	<p>
+		<pre id=stateDump></pre>
+	</p>
+
+	<dot:InlineScript Dependencies="dotvvm">
+		
+		dotvvm.events.newState.subscribe(() => {
+			document.getElementById("stateDump").innerText = JSON.stringify(dotvvm.state, null, 2)
+		})
+
+	</dot:InlineScript>
+
+</body>
+</html>
+
+
