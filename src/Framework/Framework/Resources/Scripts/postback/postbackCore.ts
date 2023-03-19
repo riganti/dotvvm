@@ -103,6 +103,8 @@ export async function postbackCore(
                     throw err;
                 }
                 
+                logError("postback", "Postback commit failed", err)
+
                 throw new DotvvmPostbackError({ 
                     type: "commit", 
                     args: { 
