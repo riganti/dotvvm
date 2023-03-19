@@ -14,6 +14,7 @@ import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { isPrimitive } from '../utils/objects';
 import * as stateManager from '../state-manager'
 import { mapUpdatableProperties } from '../serialization/deserialize';
+import { logError } from '../utils/logging';
 
 let lastStartedPostbackId: number;
 
@@ -102,7 +103,7 @@ export async function postbackCore(
                 if (err instanceof DotvvmPostbackError) {
                     throw err;
                 }
-                
+
                 logError("postback", "Postback commit failed", err)
 
                 throw new DotvvmPostbackError({ 
@@ -137,7 +138,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
 
     let isSuccess = false;
     if (result.action == "successfulCommand") {
-        result.viewModel = updater.patchViewModel(getState(), mapUpdatableProperties(result.viewModel))
+        result.viewModel = updater.patchViewModel(getState(), result.viewModel)
         updater.updateViewModelAndControls(result, updateTypeInfo);
         events.postbackViewModelUpdated.trigger({
             ...options,
@@ -186,7 +187,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
 function processViewModelDiff(result: PostbackResponse, postedViewModel: any) {
     // apply viewmodel diff
     if (!result.viewModel && result.viewModelDiff) {
-        result.viewModel = updater.patchViewModel(postedViewModel, result.viewModelDiff);
+        result.viewModel = updater.patchViewModel(mapUpdatableProperties(postedViewModel), result.viewModelDiff);
     }
 }
 
