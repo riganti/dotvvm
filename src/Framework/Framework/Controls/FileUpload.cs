@@ -61,6 +61,21 @@ namespace DotVVM.Framework.Controls
             = DotvvmProperty.Register<string?, FileUpload>(p => p.AllowedFileTypes);
 
         /// <summary>
+        /// Gets or sets the <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/capture">&lt;input capture="..." attribute</see>.
+        /// It specifies that, optionally, a new file should be captured, and which device should be used to capture that new media of a type defined by the <see cref="AllowedFileTypes" /> property.
+        /// Allowed values are "user" and "environment" to select if front-facing or rear-facing camera/microphone should be used.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string? Capture
+        {
+            get { return GetValue(CaptureProperty) as string; }
+            set { SetValue(CaptureProperty, value); }
+        }
+
+        public static readonly DotvvmProperty CaptureProperty
+            = DotvvmProperty.Register<string?, FileUpload>(p => p.Capture);
+
+        /// <summary>
         /// Gets or sets the maximum size of files in megabytes (MB). The size is not limited by default.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
@@ -236,6 +251,10 @@ namespace DotVVM.Framework.Controls
             if (!string.IsNullOrWhiteSpace(AllowedFileTypes))
             {
                 writer.AddAttribute("accept", AllowedFileTypes);
+            }
+            if (!string.IsNullOrWhiteSpace(Capture))
+            {
+                writer.AddAttribute("capture", Capture);
             }
 
             writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonConvert.SerializeObject(new { url = context.TranslateVirtualPath(GetFileUploadHandlerUrl()) }));

@@ -620,6 +620,10 @@
         "defaultValue": true,
         "onlyHardcoded": true
       },
+      "Capture": {
+        "type": "System.String",
+        "onlyHardcoded": true
+      },
       "MaxFileSize": {
         "type": "System.Nullable`1[[System.Int32, CoreLibrary]]",
         "onlyHardcoded": true
