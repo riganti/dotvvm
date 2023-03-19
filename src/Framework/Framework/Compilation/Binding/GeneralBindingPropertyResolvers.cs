@@ -61,11 +61,11 @@ namespace DotVVM.Framework.Compilation.Binding
             expr = new ExpressionNullPropagationVisitor(e => true).Visit(expr);
             expr = ExpressionUtils.ConvertToObject(expr);
             expr = replacementVisitor.WrapExpression(expr, contextObject: binding);
-            var l = Expression.Lambda<BindingDelegate>(expr, BindingCompiler.CurrentControlParameter);
+            var resultLambda = Expression.Lambda<BindingDelegate>(expr, BindingCompiler.CurrentControlParameter);
             // Console.WriteLine(new string('-', 80));
             // Console.WriteLine(binding.ToString());
-            // Console.WriteLine(l.ToCSharpString());
-            return l;
+            // Console.WriteLine(resultLambda.ToCSharpString());
+            return resultLambda;
         }
 
         public CastedExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty expr, ExpectedTypeBindingProperty? expectedType = null)

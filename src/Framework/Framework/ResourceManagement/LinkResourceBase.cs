@@ -41,9 +41,9 @@ namespace DotVVM.Framework.ResourceManagement
             yield return Location;
             if (LocationFallback != null)
             {
-                foreach (var l in LocationFallback.AlternativeLocations)
+                foreach (var loc in LocationFallback.AlternativeLocations)
                 {
-                    yield return l;
+                    yield return loc;
                 }
             }
         }

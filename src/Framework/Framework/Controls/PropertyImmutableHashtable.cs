@@ -13,13 +13,13 @@ namespace DotVVM.Framework.Controls
 
         public static bool ContainsKey(DotvvmProperty?[] keys, int hashSeed, DotvvmProperty p)
         {
-            var l = keys.Length;
-            if (l == 4)
+            var len = keys.Length;
+            if (len == 4)
             {
                 return keys[0] == p | keys[1] == p | keys[2] == p | keys[3] == p;
             }
 
-            var lengthMap = l - 1; // trims the hash to be in bounds of the array
+            var lengthMap = len - 1; // trims the hash to be in bounds of the array
             var hash = HashCombine(p.GetHashCode(), hashSeed) & lengthMap;
 
             var i1 = hash & -2; // hash with last bit == 0 (-2 is something like ff...fe because two's complement)
@@ -30,8 +30,8 @@ namespace DotVVM.Framework.Controls
 
         public static int FindSlot(DotvvmProperty?[] keys, int hashSeed, DotvvmProperty p)
         {
-            var l = keys.Length;
-            if (l == 4)
+            var len = keys.Length;
+            if (len == 4)
             {
                 for (int i = 0; i < 4; i++)
                 {
@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Controls
                 return -1;
             }
 
-            var lengthMap = l - 1; // trims the hash to be in bounds of the array
+            var lengthMap = len - 1; // trims the hash to be in bounds of the array
             var hash = HashCombine(p.GetHashCode(), hashSeed) & lengthMap;
 
             var i1 = hash & -2; // hash with last bit == 0 (-2 is something like ff...fe because two's complement)

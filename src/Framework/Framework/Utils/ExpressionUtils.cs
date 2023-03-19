@@ -266,14 +266,10 @@ namespace DotVVM.Framework.Utils
             }
             protected override Expression VisitBinary(BinaryExpression node)
             {
-                var l = Visit(node.Left);
-                var lc = l as ConstantExpression;
-                var r = Visit(node.Right);
-                var rc = r as ConstantExpression;
-                if (lc != null && rc != null)
+                if (Visit(node.Left) is ConstantExpression lConst && Visit(node.Right) is ConstantExpression rConst)
                 {
                     if (node.Method != null)
-                        return Expression.Constant(node.Method.Invoke(null, new [] { lc.Value, rc.Value }), node.Type);
+                        return Expression.Constant(node.Method.Invoke(null, new [] { lConst.Value, rConst.Value }), node.Type);
                     else return node;
                 }
                 else return base.VisitBinary(node);
