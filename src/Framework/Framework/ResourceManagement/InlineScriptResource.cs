@@ -65,14 +65,19 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public override void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            var code = Code;
+            RenderScript(writer, Code, Defer);
+        }
+
+        /// <summary> Renders a &lt;script&gt; element with the <paramref name="code"/> content. </summary>
+        public static void RenderScript(IHtmlWriter writer, string code, bool defer)
+        {
             if (string.IsNullOrWhiteSpace(code)) return;
 
             var needBase64Hack =
-                Defer || // browsers don't support `defer` attribute on inline script. We can overcome this limitation by using base64 data URI
+                defer || // browsers don't support `defer` attribute on inline script. We can overcome this limitation by using base64 data URI
                 InlineScriptContentGuard(code); // or, when the script is XSS-unsafe, we can do the same
 
-            if (Defer)
+            if (defer)
                 writer.AddAttribute("defer", null);
 
             if (needBase64Hack)
