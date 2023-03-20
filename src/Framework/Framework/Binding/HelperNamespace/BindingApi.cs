@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Binding.HelperNamespace
                 ));
             methods.AddPropertyGetterTranslator(typeof(BindingApi), nameof(IsLoading),
                 new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("api").Member("isLoading").Invoke()
+                    new JsIdentifierExpression("dotvvm").Member("api").Member("isLoading")
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)));
         }
     }
