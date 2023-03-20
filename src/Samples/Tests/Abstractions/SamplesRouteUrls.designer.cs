@@ -326,6 +326,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Serialization_Dictionary = "FeatureSamples/Serialization/Dictionary";
         public const string FeatureSamples_Serialization_EnumSerializationCoercion = "FeatureSamples/Serialization/EnumSerializationCoercion";
         public const string FeatureSamples_Serialization_EnumSerializationWithJsonConverter = "FeatureSamples/Serialization/EnumSerializationWithJsonConverter";
+        public const string FeatureSamples_Serialization_ListOfObject = "FeatureSamples/Serialization/ListOfObject";
         public const string FeatureSamples_Serialization_ObservableCollectionShouldContainObservables = "FeatureSamples/Serialization/ObservableCollectionShouldContainObservables";
         public const string FeatureSamples_Serialization_Serialization = "FeatureSamples/Serialization/Serialization";
         public const string FeatureSamples_Serialization_SerializationDateTimeOffset = "FeatureSamples/Serialization/SerializationDateTimeOffset";

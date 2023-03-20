@@ -307,27 +307,19 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_Serialization_TransferredOnlyInPath()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_TransferredOnlyInPath);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_ListOfObject);
 
-                browser.Single("set_result_B", SelectByDataUi).Click();
-                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "B");
+                AssertUI.InnerTextEquals(browser.Single("array-repeater", SelectByDataUi), "1, 2, str");
+                AssertUI.InnerTextEquals(browser.Single("list-repeater", SelectByDataUi), "3, str");
+                AssertUI.InnerText(browser.Single("state-dump", SelectBy.Id), s => s.Contains("🤷"));
+                AssertUI.InnerTextEquals(browser.Single("add-btn", SelectByDataUi), "More goblins");
 
-                browser.Single("set_result_B", SelectByDataUi).Click();
-                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "B");
-                AssertUI.InnerTextEquals(browser.Single("count", SelectByDataUi), "4");
+                browser.First("add-btn", SelectByDataUi).Click();
 
-                browser.Single("set_result_D", SelectByDataUi).Click();
-                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "D");
-
-                browser.Single("set_result_C", SelectByDataUi).Click();
-                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "C");
-
-                browser.Single("set_result_A", SelectByDataUi).Click();
-                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "A");
-
-                browser.Single("set_result_B", SelectByDataUi).Click();
-                AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "B");
-                AssertUI.InnerTextEquals(browser.Single("count", SelectByDataUi), "4");
+                AssertUI.InnerTextEquals(browser.Single("array-repeater", SelectByDataUi), "1, 2, str, 👺");
+                AssertUI.InnerTextEquals(browser.Single("list-repeater", SelectByDataUi), "3, str, 👺");
+                AssertUI.InnerText(browser.Single("state-dump", SelectBy.Id), t => t.Contains("AnotherAnonymousObject"));
+                AssertUI.InnerTextEquals(browser.Single("add-btn", SelectByDataUi), "Even more goblins");
             });
         }
 
