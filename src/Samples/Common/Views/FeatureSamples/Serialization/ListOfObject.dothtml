@@ -8,7 +8,6 @@
     <title></title>
 </head>
 <body>
-
     <h1><code>List&lt;object&gt;</code></h1>
 
 	<p style="color: red">
@@ -18,40 +17,37 @@
 		Anyway, this tests that object arrays don't break too badly.
 		Clicking on More goblins should add more goblins to all arrays without crashing
 	</p>
-
     
 	<p>
 		<span> Array of primitives:</span>
-		<dot:Repeater DataSource={value: ArrayPrimitives} WrapperTagName="span">
+		<dot:Repeater DataSource={value: ArrayPrimitives} data-ui="array-repeater" WrapperTagName="span">
 			<SeparatorTemplate>, </SeparatorTemplate>
 			<ItemTemplate><dot:Literal Text={value: _this} /></ItemTemplate>
 		</dot:Repeater>
 	</p>
 	<p>
 		<span> List of primitives:</span>
-		<dot:Repeater DataSource={value: ListPrimitives} WrapperTagName="span">
+		<dot:Repeater DataSource={value: ListPrimitives} data-ui="list-repeater" WrapperTagName="span">
 			<SeparatorTemplate>, </SeparatorTemplate>
 			<ItemTemplate><dot:Literal Text={value: _this} /></ItemTemplate>
 		</dot:Repeater>
 	</p>
 
 	<p>
-		<dot:Button Text={value: ListPrimitives.Any(x => x == '👺') ? 'Even more goblins' : 'More goblins'} Click={command: AddSomething("👺")} />
+		<dot:Button data-ui="add-btn" Text={value: ListPrimitives.Any(x => x == '👺') ? 'Even more goblins' : 'More goblins'} Click={command: AddSomething("👺")} />
 	</p>
 
 	<p>
-		<pre id=stateDump></pre>
+		<pre id=state-dump></pre>
 	</p>
 
 	<dot:InlineScript Dependencies="dotvvm">
 		
 		dotvvm.events.newState.subscribe(() => {
-			document.getElementById("stateDump").innerText = JSON.stringify(dotvvm.state, null, 2)
+			document.getElementById("state-dump").innerText = JSON.stringify(dotvvm.state, null, 2)
 		})
 
 	</dot:InlineScript>
 
 </body>
 </html>
-
-

@@ -11,7 +11,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization
     public class ListOfObjectsViewModel : DotvvmViewModelBase
     {
         public object[] ArrayPrimitives { get; set; } = new object[] {
-            1, 2, "This array shouldn't exist", 
+            1, 2, "str", 
         };
 
         public List<object> ListPrimitives { get; set; } = new List<object> {
