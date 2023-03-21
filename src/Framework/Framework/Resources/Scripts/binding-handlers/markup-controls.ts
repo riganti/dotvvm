@@ -1,7 +1,7 @@
 import { deserialize } from '../serialization/deserialize'
 import { currentStateSymbol, unmapKnockoutObservables } from '../state-manager';
 import { logWarning } from '../utils/logging';
-import { keys } from '../utils/objects';
+import { defineConstantProperty, keys } from '../utils/objects';
 import * as manager from '../viewModules/viewModuleManager';
 
 function isCommand(value: any, prop: string) {
@@ -15,7 +15,7 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
         },
         write(value: T) {
             const val = accessor();
-            if (ko.isObservable(val)) {
+            if (ko.isWriteableObservable(val)) {
                 val(value);
             } else {
                 logWarning("binding-handler", `Attempted to write to readonly property` + (!propertyDebugInfo ? `` : ` ` + propertyDebugInfo) + `.`);
@@ -27,9 +27,35 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
         get: () => {
             const x = accessor() as any
             return (x && x.state) ?? unmapKnockoutObservables(x, true)
-        },
-        configurable: false,
-        enumerable: false
+        }
+    })
+    defineConstantProperty(computed, "setState", (state: any) => {
+        const x = accessor() as any
+        if (compileConstants.debug && typeof x.setState != "function") {
+            throw new Error(`Cannot set state of property ${propertyDebugInfo}.`)
+        }
+        x.setState(state)
+    })
+    defineConstantProperty(computed, "patchState", (state: any) => {
+        const x = accessor() as any
+        if (compileConstants.debug && typeof x.patchState != "function") {
+            throw new Error(`Cannot patch state of property ${propertyDebugInfo}.`)
+        }
+        x.patchState(state)
+    })
+    defineConstantProperty(computed, "updateState", (updateFunction: (state: any) => any) => {
+        const x = accessor() as any
+        if (compileConstants.debug && typeof x.updateState != "function") {
+            throw new Error(`Cannot patch state of property ${propertyDebugInfo}.`)
+        }
+        x.updateState(updateFunction)
+    })
+    defineConstantProperty(computed, "updateState", (updateFunction: (state: any) => any) => {
+        const x = accessor() as any
+        if (compileConstants.debug && typeof x.updateState != "function") {
+            throw new Error(`Cannot update state of property ${propertyDebugInfo}.`)
+        }
+        x.updateState(updateFunction)
     })
     return computed;
 }
