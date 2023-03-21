@@ -57,6 +57,9 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.AutoUI
         [Selection(typeof(StateSelection))]
         public string State { get; set; }
 
+        [Display(GroupName = "BasicInfo")]
+        public DateTime? ValidFrom { get; set; }
+
         [Display(GroupName = "ContactInfo")]
         public string Email { get; set; }
 
