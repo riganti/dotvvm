@@ -11,19 +11,40 @@
 </head>
 <body>
 
-    <h2 class="title">DynamicEntity</h2>
+    <h2 class="title">DynamicEntity - BulmaForm</h2>
 
     <div class="columns">
         <div class="column">
-            <auto:BulmaForm
-                DataContext="{value: Address}"
-                GroupName="BasicInfo"
-                Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}">
+            <auto:BulmaForm DataContext="{value: Address}"
+                            GroupName="BasicInfo"
+                            Property-ValidFrom="{value: ValidFrom.ToBrowserLocalTime() }"
+                            Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}">
             </auto:BulmaForm>
         </div>
         <div class="column">
             <auto:BulmaForm DataContext="{value: Address}"
-                            GroupName="ContactInfo" 
+                            GroupName="ContactInfo"
+                            Property-Something={value: _root.Something} />
+
+            <p>
+                <dot:Button Text="Validate" Click="{command: null}" />
+            </p>
+        </div>
+    </div>
+
+    <h2 class="title">DynamicEntity - AutoForm</h2>
+
+    <div class="columns">
+        <div class="column">
+            <auto:AutoForm DataContext="{value: Address}"
+                            GroupName="BasicInfo"
+                            Property-ValidFrom="{value: ValidFrom.ToBrowserLocalTime() }"
+                            Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}">
+            </auto:AutoForm>
+        </div>
+        <div class="column">
+            <auto:AutoForm DataContext="{value: Address}"
+                            GroupName="ContactInfo"
                             Property-Something={value: _root.Something} />
 
             <p>
