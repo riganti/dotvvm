@@ -23,6 +23,7 @@
     </div>
 
     <div data-ui="loading" Visible="{value: _api.IsLoading}">LOADING</div>
+    <div data-ui="not-loading" Visible="{value: !_api.IsLoading}">NOT LOADING</div>
 
 </body>
 </html>

@@ -506,21 +506,27 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_IsLoading);
                 
                 var loading = browser.Single("loading", SelectByDataUi);
+                var notLoading = browser.Single("not-loading", SelectByDataUi);
                 AssertUI.IsNotDisplayed(loading);
+                AssertUI.IsDisplayed(notLoading);
 
                 browser.Single("number1", SelectByDataUi).Single("input[type=button]").Click();
                 AssertUI.IsDisplayed(loading);
+                AssertUI.IsNotDisplayed(notLoading);
 
                 Thread.Sleep(500);
                 browser.Single("number2", SelectByDataUi).Single("input[type=button]").Click();
                 AssertUI.IsDisplayed(loading);
+                AssertUI.IsNotDisplayed(notLoading);
 
                 Thread.Sleep(500);
                 browser.Single("number3", SelectByDataUi).Single("input[type=button]").Click();
                 AssertUI.IsDisplayed(loading);
+                AssertUI.IsNotDisplayed(notLoading);
 
                 Thread.Sleep(3000);
                 AssertUI.IsNotDisplayed(loading);
+                AssertUI.IsDisplayed(notLoading);
             });
         }
 
