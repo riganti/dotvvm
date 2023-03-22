@@ -28,6 +28,15 @@ export function getObjectTypeInfo(typeId: string): ObjectTypeMetadata | DynamicT
     return typeInfo;
 }
 
+export function getTypeProperties(typeId: string | object | null | undefined): { [prop: string]: PropertyMetadata } {
+    if (typeof typeId === "string") {
+        var typeInfo = getObjectTypeInfo(typeId) as ObjectTypeMetadata;
+        return typeInfo.properties;
+    }
+    // unknown type or dynamic type
+    return {}
+}
+
 export function getKnownTypes() {
     return keys(types);
 }

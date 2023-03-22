@@ -10,7 +10,7 @@ import { getObjectTypeInfo, getTypeInfo } from "./typeMap";
  * @param type Expected type of type value.
  * @param originalValue Value that is known to be valid instance of type. It is used to perform incremental validation.
  */
-export function tryCoerce(value: any, type: TypeDefinition, originalValue: any = undefined): CoerceResult {
+export function tryCoerce(value: any, type: TypeDefinition | null | undefined, originalValue: any = undefined): CoerceResult {
 
     function core() {
         if (originalValue === value && value !== undefined) {
@@ -23,13 +23,14 @@ export function tryCoerce(value: any, type: TypeDefinition, originalValue: any =
             type = value.$type ?? type
         }
 
-        if (Array.isArray(type)) {
+        if (type == null || (type as any).type == "dynamic") {
+            return tryCoerceDynamic(value, originalValue)
+        }
+        else if (Array.isArray(type)) {
             return tryCoerceArray(value, type[0], originalValue);
         } else if (typeof type === "object") {
             if (type.type === "nullable") {
                 return tryCoerceNullable(value, type.inner, originalValue);
-            } else if (type.type === "dynamic") {
-                return tryCoerceDynamic(value, originalValue);
             }
         } else if (typeof type === "string") {
             if (type in primitiveTypes) {

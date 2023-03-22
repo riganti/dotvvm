@@ -1,7 +1,7 @@
 import { serializeDate } from './date'
 import { isObservableArray, wrapObservableObjectOrArray } from '../utils/knockout'
 import { isPrimitive, keys } from '../utils/objects'
-import { getObjectTypeInfo } from '../metadata/typeMap';
+import { getObjectTypeInfo, getTypeProperties } from '../metadata/typeMap';
 import { notifySymbol, unmapKnockoutObservables } from '../state-manager';
 
 export function deserialize(viewModel: any, target?: any, deserializeAll: boolean = false): any {
@@ -199,16 +199,13 @@ export function mapUpdatableProperties(viewModel: any, type: TypeDefinition | un
     }
 
     let result: any = {}
-    const typeMetadata = getObjectTypeInfo(viewModel["$type"] ?? type)
+    const typeMetadata = getTypeProperties(viewModel["$type"] ?? type)
     for (const prop of keys(viewModel)) {
         let value = viewModel[prop]
         if (!isTypeIdProperty(prop)) {
-            let propInfo;
-            if (typeMetadata?.type === "object") {
-                propInfo = typeMetadata?.properties[prop]
-                if (propInfo?.update == "no") {
-                    continue
-                }
+            const propInfo = typeMetadata[prop]
+            if (propInfo?.update == "no") {
+                continue
             }
 
             value = mapUpdatableProperties(value, propInfo?.type)
