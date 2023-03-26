@@ -42,12 +42,13 @@ namespace DotVVM.Framework.Compilation.Styles
 
             foreach (var (prop, setter) in control.Properties.ToArray())
             {
-                // remove empty properties
+                // remove empty properties, but preserve empty collections/templates if they are marked as Required
+                var isRequired = prop.MarkupOptions.Required;
 
                 var isEmpty = setter switch {
                     ResolvedPropertyControl { Control: var c } => c is null || ShouldRemove(c),
-                    ResolvedPropertyControlCollection { Controls: var c } => c.Count == 0,
-                    ResolvedPropertyTemplate { Content: var c } => c.Count == 0,
+                    ResolvedPropertyControlCollection { Controls: var c } when !isRequired => c.Count == 0,
+                    ResolvedPropertyTemplate { Content: var c } when !isRequired => c.Count == 0,
                     _ => false
                 };
 

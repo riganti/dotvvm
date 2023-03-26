@@ -41,6 +41,9 @@ type Cache = { [k: string]: CachedValue }
 
 const cachedValues: Cache = {};
 
+let loadingCounter = 0;
+export const isLoading = ko.observable(false);
+
 export function invoke<T>(
     target: any,
     methodName: string,
@@ -99,15 +102,24 @@ export function invoke<T>(
         return cachedValue._promise!
     }
     async function load(): Promise<any> {
-        let val = await ko.ignoreDependencies(() => target[methodName].apply(target, args))
-        if (val) {
-            const s = stateManager().setState({ data: unmapKnockoutObservables(deserialize(val)), $type })
-            val = s.data
+        try {
+            loadingCounter++;
+            isLoading(loadingCounter > 0);
+
+            let val = await ko.ignoreDependencies(() => target[methodName].apply(target, args))
+            if (val) {
+                const s = stateManager().setState({ data: unmapKnockoutObservables(deserialize(val)), $type })
+                val = s.data
+            }
+            for (const t of notifyTriggers(args)) {
+                eventHub.notify(t)
+            }
+            return val;
         }
-        for (const t of notifyTriggers(args)) {
-            eventHub.notify(t)
+        finally {
+            loadingCounter--;
+            isLoading(loadingCounter > 0);
         }
-        return val;
     }
 
     function refreshValue() {

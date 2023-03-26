@@ -1,0 +1,31 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.IsLoadingViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <div data-ui="number1">
+        <dot:Button Text="Number 1" Click="{staticCommand: Number1 = _apiCore.SlowPostRandomNumber()}" />
+        {{value: Number1}}
+    </div>
+    <div data-ui="number2">
+        <dot:Button Text="Number 2" Click="{staticCommand: Number2 = _apiCore.SlowPostRandomNumber()}" />
+        {{value: Number2}}
+    </div>
+    <div data-ui="number3">
+        <dot:Button Text="Number 3" Click="{staticCommand: Number3 = _apiCore.SlowPostRandomNumber()}" />
+        {{value: Number3}}
+    </div>
+
+    <div data-ui="loading" Visible="{value: _api.IsLoading}">LOADING</div>
+    <div data-ui="not-loading" Visible="{value: !_api.IsLoading}">NOT LOADING</div>
+
+</body>
+</html>
+
+

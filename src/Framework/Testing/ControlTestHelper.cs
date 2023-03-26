@@ -207,7 +207,8 @@ namespace DotVVM.Framework.Testing
                 bodyResources,
                 htmlDocument,
                 commands,
-                context.View
+                context.View,
+                context
             );
         }
     }
@@ -276,7 +277,8 @@ namespace DotVVM.Framework.Testing
             string? bodyResources,
             IHtmlDocument html,
             (DotvvmControl, DotvvmProperty, ICommandBinding)[] commands,
-            DotvvmView view
+            DotvvmView view,
+            TestDotvvmRequestContext initialContext
         )
         {
             TestHelper = testHelper;
@@ -288,6 +290,7 @@ namespace DotVVM.Framework.Testing
             this.Html = html;
             this.Commands = commands;
             this.View = view;
+            InitialContext = initialContext;
         }
 
         public ControlTestHelper TestHelper { get; }
@@ -301,6 +304,7 @@ namespace DotVVM.Framework.Testing
         public IHtmlDocument Html { get; }
         public (DotvvmControl control, DotvvmProperty property, ICommandBinding command)[] Commands { get; }
         public DotvvmView View { get; }
+        public TestDotvvmRequestContext InitialContext { get; }
 
         public string FormattedHtml
         {

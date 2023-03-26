@@ -16,6 +16,8 @@ namespace DotVVM.Framework.Binding.HelperNamespace
 
         public void PushEvent(string eventName) { }
 
+        public bool IsLoading => false;
+
         public static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)
         {
             methods.AddMethodTranslator(typeof(BindingApi), nameof(RefreshOnChange),
@@ -40,6 +42,10 @@ namespace DotVVM.Framework.Binding.HelperNamespace
                 new GenericMethodCompiler(a =>
                     new JsIdentifierExpression("dotvvm").Member("eventHub").Member("notify").Invoke(a[1])
                 ));
+            methods.AddPropertyGetterTranslator(typeof(BindingApi), nameof(IsLoading),
+                new GenericMethodCompiler(a =>
+                    new JsIdentifierExpression("dotvvm").Member("api").Member("isLoading")
+                        .WithAnnotation(ResultIsObservableAnnotation.Instance)));
         }
     }
 }

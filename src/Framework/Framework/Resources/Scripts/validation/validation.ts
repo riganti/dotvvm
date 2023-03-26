@@ -155,16 +155,18 @@ function validateViewModel(viewModel: any, path: string): void {
         }
 
         const propertyValue = observable();
-
-        // run validators
         const propertyPath = path + "/" + propertyName;
-        const propInfo = typeInfo?.properties[propertyName];
-    
-        if (propInfo?.validationRules) {
-            validateProperty(viewModel, observable, propertyValue, propertyPath, propInfo.validationRules);
+        let propertyInfo = null;
+
+        if (typeInfo?.type !== "dynamic") {
+            // run validators
+            propertyInfo = typeInfo?.properties[propertyName];
+            if (propertyInfo?.validationRules) {
+                validateProperty(viewModel, observable, propertyValue, propertyPath, propertyInfo.validationRules);
+            }
         }
 
-        validateRecursive(observable, propertyValue, propInfo?.type || { type: "dynamic" }, propertyPath);
+        validateRecursive(observable, propertyValue, propertyInfo?.type || { type: "dynamic" }, propertyPath);
     }
 }
 

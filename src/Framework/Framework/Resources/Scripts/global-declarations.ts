@@ -238,6 +238,10 @@ type TypeMap = {
     [typeId: string]: TypeMetadata
 }
 
+type DynamicTypeMetadata = {
+    type: "dynamic"
+}
+
 type ObjectTypeMetadata = {
     type: "object",
     properties: { [prop: string]: PropertyMetadata }
@@ -249,7 +253,7 @@ type EnumTypeMetadata = {
     isFlags?: boolean
 }
 
-type TypeMetadata = ObjectTypeMetadata | EnumTypeMetadata;
+type TypeMetadata = ObjectTypeMetadata | EnumTypeMetadata | DynamicTypeMetadata;
 
 type PropertyMetadata = {
     type: TypeDefinition;

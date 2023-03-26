@@ -417,6 +417,19 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("DelegateInvoker2('string', arg => StringProp = arg)", "plain", "string")]
+        [DataRow("DelegateInvoker2(1, a => StringProp = a)", "plain", "1")]
+        [DataRow("DelegateInvoker2(1, a => StringProp = a + 0.5)", "plain", "1.5")]
+        [DataRow("DelegateInvoker2('string', (i, a) => StringProp = (i + a))", "with int", "0string")]
+        public void BindingCompiler_Valid_LambdaParameter_TypeFromOtherArg(string expr, string expectedResult, string stringPropResult)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual(expectedResult, result, message: "Result mismatch");
+            Assert.AreEqual(stringPropResult, viewModel.StringProp, message: "StringProp mismatch");
+        }
+
+        [TestMethod]
         [DataRow("(int? arg) => arg.Value + 1", typeof(Func<int?, int>))]
         [DataRow("(double? arg) => arg.Value + 0.1", typeof(Func<double?, double>))]
         public void BindingCompiler_Valid_LambdaParameter_Nullable(string expr, Type type)
@@ -1022,6 +1035,19 @@ namespace DotVVM.Framework.Tests.Binding
         {
             Assert.AreEqual(-1025, ExecuteBinding("var intVariable = ~IntProp; intVariable", new TestViewModel { IntProp = 1024 }));
         }
+
+        [TestMethod]
+        public void BindingCompiler_NullCoalesce_ValueType()
+        {
+            var vm = new TestViewModel { NullableIntProp = null, TestViewModel2B = new TestViewModel2 { MyProperty = 1234 } };
+
+            Assert.AreEqual(null, ExecuteBinding("NullableIntProp.Value", vm));
+            Assert.AreEqual(-1, ExecuteBinding("NullableIntProp ?? -1", vm));
+            Assert.AreEqual(-1, ExecuteBinding("NullableIntProp.Value ?? -1", vm));
+            Assert.AreEqual(null, ExecuteBinding("TestViewModel2.MyProperty", vm));
+            Assert.AreEqual(-1, ExecuteBinding("TestViewModel2.MyProperty ?? -1", vm));
+            Assert.AreEqual(1234, ExecuteBinding("TestViewModel2B.MyProperty ?? -1", vm));
+        }
     }
     class TestViewModel
     {
@@ -1123,6 +1149,9 @@ namespace DotVVM.Framework.Tests.Binding
 
         public string ActionInvoker(Action<string> action) { action(default); return "Action"; }
         public string Action2Invoker(Action<string, string> action) { action(default, default); return "Action"; }
+
+        public string DelegateInvoker2<T>(T x, Action<T> func) { func(x); return "plain"; }
+        public string DelegateInvoker2<T>(T x, Action<int, T> action) { action(0, x); return "with int"; }
     }
 
     class TestViewModel2
