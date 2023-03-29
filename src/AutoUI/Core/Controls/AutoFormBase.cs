@@ -72,7 +72,7 @@ namespace DotVVM.AutoUI.Controls
             }
 
             var localProperties = props.Property.Select(p => MapLocalProperty(p.Key, props, context)!).ToDictionary(p => p.Name);
-            properties = properties.Select(p => {
+            var selectedProperties = properties.Select(p => {
                 if (localProperties.TryGetValue(p.Name, out var localProperty))
                 {
                     localProperties.Remove(p.Name);
@@ -81,10 +81,8 @@ namespace DotVVM.AutoUI.Controls
                     return localProperty;
                 }
                 return p;
-            }).Concat(
-                localProperties.Values
-            ).ToArray();
-
+            }).ToArray();
+            properties = selectedProperties.Concat(localProperties.Values).ToArray();
 
             if (props.IncludeProperties is { Length: > 0 })
             {
