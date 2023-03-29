@@ -87,27 +87,27 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_AutoUI_AutoForm);
 
                 // selection hiding and showing
-                var stateField = browser.Single("#State__input");
+                var stateField = browser.First("#State__input");
                 AssertUI.IsDisplayed(stateField);
 
-                var countryField = browser.Single("#CountryId__input");
+                var countryField = browser.First("#CountryId__input");
                 countryField.Select("2");
 
-                stateField = browser.Single("#State__input");
+                stateField = browser.First("#State__input");
                 AssertUI.IsNotDisplayed(stateField);
 
                 // validation
-                var nameField = browser.Single("#Name__input");
-                var streetField = browser.Single("#Name__input");
+                var nameField = browser.First("#Name__input");
+                var streetField = browser.First("#Name__input");
 
-                AssertUI.IsNotDisplayed(nameField.ParentElement.ParentElement.Single(".help"));
-                AssertUI.IsNotDisplayed(streetField.ParentElement.ParentElement.Single(".help"));
+                AssertUI.IsNotDisplayed(nameField.ParentElement.ParentElement.First(".help"));
+                AssertUI.IsNotDisplayed(streetField.ParentElement.ParentElement.First(".help"));
 
-                var validateButton = browser.Single("input[type=button]");
+                var validateButton = browser.First("input[type=button]");
                 validateButton.Click();
 
-                AssertUI.IsDisplayed(nameField.ParentElement.ParentElement.Single(".help"));
-                AssertUI.IsDisplayed(streetField.ParentElement.ParentElement.Single(".help"));
+                AssertUI.IsDisplayed(nameField.ParentElement.ParentElement.First(".help"));
+                AssertUI.IsDisplayed(streetField.ParentElement.ParentElement.First(".help"));
             });
         }
 
