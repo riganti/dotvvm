@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
@@ -22,6 +23,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             return new JsIndexerExpression(target, argument);
         }
+        public static JsExpression Indexer(this JsExpression target, int argument) =>
+            target.Indexer(new JsLiteral(BoxingUtils.Box(argument)));
 
         public static JsExpression Unary(this JsExpression target, UnaryOperatorType type, bool isPrefix = true) =>
             new JsUnaryExpression(type, target, isPrefix);

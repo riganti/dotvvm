@@ -573,5 +573,29 @@ namespace DotVVM.Framework.Utils
         internal static bool IsInitOnly(this PropertyInfo prop) =>
             prop.SetMethod is { ReturnParameter: {} returnParameter } &&
             returnParameter.GetRequiredCustomModifiers().Any(t => t == typeof(System.Runtime.CompilerServices.IsExternalInit));
+
+        public static string FormatMethodInfo(MethodBase method, bool stripNamespace = false)
+        {
+            var sb = new StringBuilder();
+            sb.Append(method.DeclaringType?.ToCode(stripNamespace: stripNamespace) ?? "?");
+            sb.Append(".");
+            sb.Append(method.Name);
+            sb.Append("(");
+            var first = true;
+            foreach (var p in method.GetParameters())
+            {
+                if (!first)
+                    sb.Append(", ");
+                first = false;
+                sb.Append(p.ParameterType.ToCode(stripNamespace: stripNamespace)).Append(" ").Append(p.Name);
+            }
+            sb.Append(")");
+            if (method is MethodInfo methodInfo && methodInfo.ReturnType != typeof(void))
+            {
+                sb.Append(" -> ");
+                sb.Append(methodInfo.ReturnType.ToCode(stripNamespace: stripNamespace));
+            }
+            return sb.ToString();
+        }
     }
 }

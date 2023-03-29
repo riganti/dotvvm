@@ -41,8 +41,7 @@ namespace DotVVM.Samples.Common
             services.Configure<DotvvmResourceRepository>(RegisterResources);
 
             services.Configure<JavascriptTranslatorConfiguration>(c => {
-                c.MethodCollection.AddMethodTranslator(typeof(JavaScriptUtils),
-                   nameof(JavaScriptUtils.LimitLength),
+                c.MethodCollection.AddMethodTranslator(() => JavaScriptUtils.LimitLength("", 0),
                    new GenericMethodCompiler((a) => new JsIdentifierExpression("limitLength").Invoke(a)));
             });
 

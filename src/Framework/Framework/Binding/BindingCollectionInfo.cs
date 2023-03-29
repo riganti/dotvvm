@@ -30,10 +30,10 @@ namespace DotVVM.Framework.Binding
                     builder: a => a[0].CastTo<JsObjectExpression>().Properties.Single(p => p.Name == name).Expression.Clone(),
                     check: (_m, a, _a) => a?.GetParameterAnnotation() is BindingParameterAnnotation ann && ann.ExtensionParameter is BindingCollectionInfoExtensionParameter
                 );
-            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(Index), memberAccess(nameof(Index)));
-            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsFirst), memberAccess(nameof(IsFirst)));
-            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsOdd), memberAccess(nameof(IsOdd)));
-            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsEven), memberAccess(nameof(IsEven)));
+            methods.AddPropertyTranslator(() => new BindingCollectionInfo(0).Index, memberAccess(nameof(Index)));
+            methods.AddPropertyTranslator(() => new BindingCollectionInfo(0).IsFirst, memberAccess(nameof(IsFirst)));
+            methods.AddPropertyTranslator(() => new BindingCollectionInfo(0).IsOdd, memberAccess(nameof(IsOdd)));
+            methods.AddPropertyTranslator(() => new BindingCollectionInfo(0).IsEven, memberAccess(nameof(IsEven)));
         }
     }
 }
