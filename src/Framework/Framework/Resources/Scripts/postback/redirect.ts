@@ -15,9 +15,7 @@ export function performRedirect(url: string, replace: boolean, allowSpa: boolean
 }
 
 export async function handleRedirect(options: PostbackOptions, resultObject: any, response: Response, replace: boolean = false): Promise<DotvvmRedirectEventArgs> {
-    if (resultObject.replace != null) {
-        replace = resultObject.replace || replace;
-    }
+    replace = Boolean(resultObject.replace) || replace;
     const url = resultObject.url;
 
     // trigger redirect event
