@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
@@ -15,6 +16,9 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
+                if (viewModuleInfo.ViewId == null)
+                    throw new ArgumentException($"ViewModule's property {nameof(viewModuleInfo.ViewId)} has not been set.");
+
                 return KnockoutHelper.MakeStringLiteral(viewModuleInfo.ViewId);
             }
         }

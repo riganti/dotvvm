@@ -20,19 +20,14 @@ namespace DotVVM.Framework.Binding
         public string[] ReferencedModules { get; }
 
         /// <summary>The modules are referenced under an Id to the dotvvm client-side runtime. The same ID must be used in the invocation from the _js literal.</summary>
-        public string ViewId
-        {
-            get => viewId ?? throw new ArgumentException($"{nameof(ViewId)} has not been set.");
-            internal set => viewId = value;
-        }
-        private string? viewId;
+        public string? ViewId { get; internal set; }
 
         /// <summary> Whether control id should be used instead of ViewId to identify the modules. </summary>
         public bool IsMarkupControl { get; }
 
         public ViewModuleReferenceInfo(string? viewId, string[] referencedModules, bool isMarkupControl)
         {
-            this.viewId = viewId;
+            this.ViewId = viewId;
             this.IsMarkupControl = isMarkupControl;
 
             // sort modules so the ID is deterministic
@@ -59,6 +54,9 @@ namespace DotVVM.Framework.Binding
                     throw new Exception($"The resource named '{moduleResourceName}' referenced by the @js directive must be of the ScriptModuleResource type!");
                 return moduleResource.Dependencies;
             }).Distinct().ToArray();
+
+            if (ViewId == null)
+                throw new ArgumentException($"{nameof(ViewId)} has not been set.");
 
             return (
                 new ViewModuleImportResource(ReferencedModules, ImportResourceName, dependencies),
