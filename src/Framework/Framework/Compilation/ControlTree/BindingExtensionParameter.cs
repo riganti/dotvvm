@@ -182,12 +182,20 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
     public class JsExtensionParameter : BindingExtensionParameter
     {
-        public string Id { get; }
-        public bool IsMarkupControl { get; }
-        public JsExtensionParameter(string id, bool isMarkupControl) : base("_js", new ResolvedTypeDescriptor(typeof(JsBindingApi)), true)
+        public string Id
         {
-            this.Id = id;
-            this.IsMarkupControl = isMarkupControl;
+            get => id ?? throw new ArgumentException($"{nameof(Id)} has not been set.");
+            internal set => id = value;
+        }
+        private string? id;
+
+        public bool IsMarkupControl { get; }
+
+        public JsExtensionParameter(string? id, bool isMarkupControl)
+            : base("_js", new ResolvedTypeDescriptor(typeof(JsBindingApi)), true)
+        {
+            this.id = id;
+            IsMarkupControl = isMarkupControl;
         }
         public override Expression GetServerEquivalent(Expression controlParameter)
         {

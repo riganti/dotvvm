@@ -12,13 +12,11 @@ namespace DotVVM.Framework.Compilation.Directives
     public class MarkupDirectiveCompilerPipeline : IMarkupDirectiveCompilerPipeline
     {
         private readonly IAbstractTreeBuilder treeBuilder;
-        private readonly IControlBuilderFactory controlBuilderFactory;
         private readonly DotvvmResourceRepository resourceRepository;
 
-        public MarkupDirectiveCompilerPipeline(IAbstractTreeBuilder treeBuilder, IControlBuilderFactory controlBuilderFactory, DotvvmResourceRepository resourceRepository)
+        public MarkupDirectiveCompilerPipeline(IAbstractTreeBuilder treeBuilder, DotvvmResourceRepository resourceRepository)
         {
             this.treeBuilder = treeBuilder;
-            this.controlBuilderFactory = controlBuilderFactory;
             this.resourceRepository = resourceRepository;
         }
 
@@ -41,7 +39,7 @@ namespace DotVVM.Framework.Compilation.Directives
             if (!string.IsNullOrEmpty(viewModelType.Error)) { dothtmlRoot.AddError(viewModelType.Error!); }
             resolvedDirectives.AddIfAny(viewModelDirectiveCompiler.DirectiveName, viewModelTypeResult.Directives);
 
-            var masterPageDirectiveCompiler = new MasterPageDirectiveCompiler(directivesByName, treeBuilder, controlBuilderFactory, viewModelType.TypeDescriptor);
+            var masterPageDirectiveCompiler = new MasterPageDirectiveCompiler(directivesByName, treeBuilder);
             var masterPageDirectiveResult = masterPageDirectiveCompiler.Compile();
             var masterPage = masterPageDirectiveResult.Artefact;
             resolvedDirectives.AddIfAny(masterPageDirectiveCompiler.DirectiveName, masterPageDirectiveResult.Directives);
@@ -58,7 +56,6 @@ namespace DotVVM.Framework.Compilation.Directives
             var viewModuleDirectiveCompiler = new ViewModuleDirectiveCompiler(
                 directivesByName,
                 treeBuilder,
-                masterPage,
                 !baseType.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))),
                 resourceRepository);
             var viewModuleResult = viewModuleDirectiveCompiler.Compile();
