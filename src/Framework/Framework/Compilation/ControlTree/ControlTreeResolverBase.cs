@@ -11,6 +11,8 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Compilation.Directives;
+using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation.ViewCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -58,14 +60,28 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }.Concat(directiveMetadata.InjectedServices)
              .Concat(directiveMetadata.ViewModuleResult is null ? new BindingExtensionParameter[0] : new[] { directiveMetadata.ViewModuleResult.ExtensionParameter }).ToArray());
 
-            var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directiveMetadata.Directives, directiveMetadata.MasterPage);
+            // Resolve master page
+            IAbstractControlBuilderDescriptor? masterPage = null;
+            if (directiveMetadata.MasterPageDirective is IAbstractDirective masterPageDirective)
+            {
+                masterPage = ResolveMasterPage(fileName, masterPageDirective);
+                ValidateMasterPage(directiveMetadata.ViewModelType, masterPageDirective, masterPage);
+            }
+
+            var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directiveMetadata.Directives, masterPage);
             view.FileName = fileName;
 
             if (directiveMetadata.ViewModuleResult is { })
             {
+                // Resolve viewmodule IDs
+                var viewModuleId = AssignViewModuleId(masterPage);
+                var viewModuleCompilationResult = directiveMetadata.ViewModuleResult;
+                viewModuleCompilationResult.ExtensionParameter.Id = viewModuleId;
+                viewModuleCompilationResult.Reference.ViewId = viewModuleId;
+
                 treeBuilder.AddProperty(
                     view,
-                    treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, directiveMetadata.ViewModuleResult.Reference, null),
+                    treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, viewModuleCompilationResult.Reference, null),
                     out _
                 );
             }
@@ -73,7 +89,39 @@ namespace DotVVM.Framework.Compilation.ControlTree
             ResolveRootContent(root, view, viewMetadata);
 
             return view;
-        }     
+        }
+
+        protected abstract IAbstractControlBuilderDescriptor? ResolveMasterPage(string currentFile, IAbstractDirective masterPageDirective);
+
+        protected virtual void ValidateMasterPage(ITypeDescriptor? viewModel, IAbstractDirective masterPageDirective, IAbstractControlBuilderDescriptor? masterPage)
+        {
+            if (masterPage is null || viewModel is null)
+            {
+                return;
+            }
+
+            if (masterPage.DataContextType is ResolvedTypeDescriptor typeDescriptor && typeDescriptor.Type == typeof(UnknownTypeSentinel))
+            {
+                masterPageDirective!.DothtmlNode!.AddError("Could not resolve the type of viewmodel for the specified master page. " +
+                    $"This usually means that there is an error with the @viewModel directive in the master page file: \"{masterPage.FileName}\". " +
+                    $"Make sure that the provided viewModel type is correct and visible for DotVVM.");
+            }
+            else if (!masterPage.DataContextType.IsAssignableFrom(viewModel))
+            {
+                masterPageDirective!.DothtmlNode!.AddError($"The viewmodel {viewModel.Name} is not assignable to the viewmodel of the master page {masterPage.DataContextType.Name}.");
+            }
+        }
+
+        protected virtual string AssignViewModuleId(IAbstractControlBuilderDescriptor? masterPage)
+        {
+            var numberOfMasterPages = 0;
+            while (masterPage != null)
+            {
+                masterPage = masterPage.MasterPage;
+                numberOfMasterPages += 1;
+            }
+            return "p" + numberOfMasterPages;
+        }
 
         /// <summary>
         /// Resolves the content of the root node.

@@ -54,6 +54,9 @@ namespace DotVVM.Framework.Controls
                 var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
 
+                if (viewModule.ViewId == null)
+                    throw new ArgumentException($"ViewModule's property {nameof(viewModule.ViewId)} has not been set.");
+
                 writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
                     $"{{ viewId: {KnockoutHelper.MakeStringLiteral(viewModule.ViewId)}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
                 );

@@ -5,20 +5,17 @@ using DotVVM.Framework.Compilation.Parser;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.ResourceManagement;
-using DotVVM.Framework.Compilation.ViewCompiler;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
     public class ViewModuleDirectiveCompiler : DirectiveCompiler<IAbstractViewModuleDirective, ViewModuleCompilationResult?>
     {
-        private readonly IAbstractControlBuilderDescriptor? masterPage;
         private readonly bool isMarkupControl;
         private readonly DotvvmResourceRepository resourceRepo;
 
-        public ViewModuleDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, IAbstractControlBuilderDescriptor? masterPage, bool isMarkupControl, DotvvmResourceRepository resourceRepo)
+        public ViewModuleDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, bool isMarkupControl, DotvvmResourceRepository resourceRepo)
             : base(directiveNodesByName, treeBuilder)
         {
-            this.masterPage = masterPage;
             this.isMarkupControl = isMarkupControl;
             this.resourceRepo = resourceRepo;
         }
@@ -27,11 +24,10 @@ namespace DotVVM.Framework.Compilation.Directives
 
         protected override ViewModuleCompilationResult? CreateArtefact(IReadOnlyList<IAbstractViewModuleDirective> resolvedDirectives)
         {
-            var id = AssignViewModuleId(masterPage);
-            return ResolveImportedViewModules(resolvedDirectives, id);
+            return ResolveImportedViewModules(resolvedDirectives);
         }
 
-        private ViewModuleCompilationResult? ResolveImportedViewModules(IReadOnlyList<IAbstractViewModuleDirective> moduleDirectives, string id)
+        private ViewModuleCompilationResult? ResolveImportedViewModules(IReadOnlyList<IAbstractViewModuleDirective> moduleDirectives)
         {
             if (moduleDirectives.Count == 0)
             {
@@ -58,21 +54,13 @@ namespace DotVVM.Framework.Compilation.Directives
                 })
                 .ToArray();
 
-            return new ViewModuleCompilationResult(new JsExtensionParameter(id, isMarkupControl), new ViewModuleReferenceInfo(id, resources, isMarkupControl));
+            return new ViewModuleCompilationResult(
+                new JsExtensionParameter(null, isMarkupControl),
+                new ViewModuleReferenceInfo(null, resources, isMarkupControl));
         }
 
-        protected virtual string AssignViewModuleId(IAbstractControlBuilderDescriptor? masterPage)
-        {
-            var numberOfMasterPages = 0;
-            while (masterPage != null)
-            {
-                masterPage = masterPage.MasterPage;
-                numberOfMasterPages += 1;
-            }
-            return "p" + numberOfMasterPages;
-        }
         protected override IAbstractViewModuleDirective Resolve(DothtmlDirectiveNode directiveNode) =>
             TreeBuilder.BuildViewModuleDirective(directiveNode, modulePath: directiveNode.Value, resourceName: directiveNode.Value);
-}
+    }
 
 }

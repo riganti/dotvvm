@@ -182,12 +182,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
     public class JsExtensionParameter : BindingExtensionParameter
     {
-        public string Id { get; }
+        public string? Id { get; internal set; }
+
         public bool IsMarkupControl { get; }
-        public JsExtensionParameter(string id, bool isMarkupControl) : base("_js", new ResolvedTypeDescriptor(typeof(JsBindingApi)), true)
+
+        public JsExtensionParameter(string? id, bool isMarkupControl)
+            : base("_js", new ResolvedTypeDescriptor(typeof(JsBindingApi)), true)
         {
-            this.Id = id;
-            this.IsMarkupControl = isMarkupControl;
+            Id = id;
+            IsMarkupControl = isMarkupControl;
         }
         public override Expression GetServerEquivalent(Expression controlParameter)
         {
@@ -196,6 +199,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
+            if (Id == null)
+                throw new ArgumentException($"{nameof(Id)} has not been set.");
+
             return new JsIdentifierExpression("dotvvm").Member("viewModules").WithAnnotation(new ViewModuleAnnotation(Id, IsMarkupControl));
         }
 
