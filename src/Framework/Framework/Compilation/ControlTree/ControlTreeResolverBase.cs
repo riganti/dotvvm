@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             if (directiveMetadata.ViewModuleResult is { })
             {
-                // Resolve viewmodul IDs
+                // Resolve viewmodule IDs
                 var viewModuleId = AssignViewModuleId(masterPage);
                 var viewModuleCompilationResult = directiveMetadata.ViewModuleResult;
                 viewModuleCompilationResult.ExtensionParameter.Id = viewModuleId;
