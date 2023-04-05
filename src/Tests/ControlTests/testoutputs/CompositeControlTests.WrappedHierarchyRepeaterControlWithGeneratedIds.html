@@ -5,18 +5,18 @@
 		<ul>
 			<!-- ko dotvvm-SSR-foreach: { data: Hierarchy } -->
 			<!-- ko dotvvm-SSR-item: 0 -->
-			<li data-bind="text: Label" data-id="c8a0_0L_itema0">A</li>
+			<li data-bind="text: Label" data-id="c4a0_0L_itema0">A</li>
 			<!-- /ko -->
 			<!-- ko dotvvm-SSR-item: 1 -->
-			<li data-bind="text: Label" data-id="c8a0_1L_itema0">B</li>
+			<li data-bind="text: Label" data-id="c4a0_1L_itema0">B</li>
 			<!-- /ko -->
 			<!-- ko dotvvm-SSR-foreach: { data: ko.unwrap($foreachCollectionSymbol)[1]().Children } -->
 			<!-- ko dotvvm-SSR-item: 0 -->
-			<li data-bind="text: Label" data-id="c8a0_1_0L_itema0">C</li>
+			<li data-bind="text: Label" data-id="c4a0_1_0L_itema0">C</li>
 			<!-- /ko -->
 			<!-- ko dotvvm-SSR-foreach: { data: ko.unwrap($foreachCollectionSymbol)[0]().Children } -->
 			<!-- ko dotvvm-SSR-item: 0 -->
-			<li data-bind="text: Label" data-id="c8a0_1_0_0L_itema0">D</li>
+			<li data-bind="text: Label" data-id="c4a0_1_0_0L_itema0">D</li>
 			<!-- /ko -->
 			<!-- /ko -->
 			<!-- /ko -->
@@ -25,15 +25,15 @@
 		
 		<!-- CSR -->
 		<ul>
-			<!-- ko template: { foreach: Hierarchy, name: "c12a0-item", hierarchyRole: "Root" } -->
+			<!-- ko template: { foreach: Hierarchy, name: "c5a0-item", hierarchyRole: "Root" } -->
 			<!-- /ko -->
 		</ul>
 		
-		<!-- Resource c12a0-item of type TemplateResource. -->
-		<template id="c12a0-item">
-			<!-- ko with: $item --><li data-bind="text: Label, attr: { &quot;data-id&quot;: &quot;c12a0&quot;+'_'+($indexPath.map(ko.unwrap).join(&quot;_&quot;)+&quot;L&quot;)+'_'+&quot;itema0&quot; }"></li>
+		<!-- Resource c5a0-item of type TemplateResource. -->
+		<template id="c5a0-item">
+			<!-- ko with: $item --><li data-bind="text: Label, attr: { &quot;data-id&quot;: &quot;c5a0&quot;+'_'+($indexPath.map(ko.unwrap).join(&quot;_&quot;)+&quot;L&quot;)+'_'+&quot;itema0&quot; }"></li>
 			<!-- /ko -->
-			<!-- ko template: { foreach: $item().Children, name: "c12a0-item", hierarchyRole: "Child" } -->
+			<!-- ko template: { foreach: $item().Children, name: "c5a0-item", hierarchyRole: "Child" } -->
 			<!-- ko if: Children()?.length -->
 			<!-- /ko -->
 			<!-- /ko --></template>

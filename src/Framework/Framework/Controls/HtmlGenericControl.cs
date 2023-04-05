@@ -286,12 +286,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            // render resource link. If the Render is invoked multiple times the resources are rendered on the first invocation.
-            if (TagName == "head")
-                new HeadResourceLinks().Render(writer, context);
-            else if (TagName == "body")
-                new BodyResourceLinks().Render(writer, context);
-
             if (RendersHtmlTag)
             {
                 writer.RenderEndTag();

@@ -148,6 +148,16 @@ namespace DotVVM.Framework.Testing
                 markup = "<tc:FakeHeadResourceLink />" + markup;
             }
             markup = $"@viewModel {viewModel.ToString().Replace("+", ".")}\n{directives}\n\n{markup}";
+            return await RunPageRaw(markup, markupFiles, fileName, user, culture);
+        }
+        /// <summary> Run page with the exact markup, without any modifications </summary>
+        public async Task<PageRunResult> RunPageRaw(
+            string markup,
+            Dictionary<string, string>? markupFiles = null,
+            [CallerMemberName] string? fileName = null,
+            ClaimsPrincipal? user = null,
+            CultureInfo? culture = null)
+        {
             var request = PreparePage(markup, markupFiles, fileName, user, culture);
             await presenter.ProcessRequest(request);
             return CreatePageResult(request);

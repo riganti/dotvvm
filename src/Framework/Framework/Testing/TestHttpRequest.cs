@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Testing
 
         public string? Path { get; set; }
 
-        public string? PathBase { get; set; }
+        public string? PathBase { get; set; } = "";
         IPathString IHttpRequest.Path => new TestPathString(this.Path);
 
         IPathString IHttpRequest.PathBase => new TestPathString(this.PathBase);
