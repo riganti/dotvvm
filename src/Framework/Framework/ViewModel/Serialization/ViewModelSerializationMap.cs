@@ -53,14 +53,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var hashset = new HashSet<string>();
             foreach (var propertyMap in Properties)
             {
-                if (!hashset.Contains(propertyMap.Name))
+                if (!hashset.Add(propertyMap.Name))
                 {
-                    hashset.Add(propertyMap.Name);
-                    continue;
+                    throw new InvalidOperationException($"Detected member shadowing on property \"{propertyMap.Name}\" " +
+                        $"while building serialization map for \"{Type.ToCode()}\"");
                 }
-
-                throw new InvalidOperationException($"Detected member shadowing on property \"{propertyMap.Name}\" " +
-                    $"while building serialization map for \"{Type.ToCode()}\"");
             }
         }
 
