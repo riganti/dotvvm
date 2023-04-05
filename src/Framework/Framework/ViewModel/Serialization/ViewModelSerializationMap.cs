@@ -45,6 +45,20 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Constructor = constructor;
             Properties = properties.ToImmutableArray();
             OriginalProperties = Properties.Select(p => (p.Name, p.Type, p.BindDirection, p.ViewModelProtection)).ToArray();
+            ValidatePropertyMap();
+        }
+
+        private void ValidatePropertyMap()
+        {
+            var hashset = new HashSet<string>();
+            foreach (var propertyMap in Properties)
+            {
+                if (!hashset.Add(propertyMap.Name))
+                {
+                    throw new InvalidOperationException($"Detected member shadowing on property \"{propertyMap.Name}\" " +
+                        $"while building serialization map for \"{Type.ToCode()}\"");
+                }
+            }
         }
 
         public void ResetFunctions()
