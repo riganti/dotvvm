@@ -16,17 +16,8 @@ namespace DotVVM.Framework.Hosting
             return other != null && string.Equals(FullPath, other.FullPath, StringComparison.OrdinalIgnoreCase) && LastWriteDateTimeUtc.Equals(other.LastWriteDateTimeUtc);
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((FullPath != null ? FullPath.ToLowerInvariant().GetHashCode() : 0) * 397) ^ LastWriteDateTimeUtc.GetHashCode();
-            }
-        }
-
-        public const string ViewFileExtension = ".dothtml";
-
-
+        public override int GetHashCode() =>
+            (StringComparer.OrdinalIgnoreCase.GetHashCode(FullPath), LastWriteDateTimeUtc).GetHashCode();
 
         public Func<string> ReadContent { get; private set; }
 

@@ -20,16 +20,18 @@ namespace DotVVM.Framework.Compilation
     public class DefaultControlBuilderFactory : IControlBuilderFactory
     {
         private readonly DotvvmConfiguration configuration;
+        private readonly bool allowReload;
         private readonly IMarkupFileLoader markupFileLoader;
         private readonly CompiledAssemblyCache compiledAssemblyCache;
 
         public Func<IViewCompiler> ViewCompilerFactory { get; private set; }
 
-        private ConcurrentDictionary<MarkupFile, Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>> controlBuilders = new ConcurrentDictionary<MarkupFile, Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>>();
+        private ConcurrentDictionary<string, Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>> controlBuilders = new();
 
         public DefaultControlBuilderFactory(DotvvmConfiguration configuration, IMarkupFileLoader markupFileLoader, CompiledAssemblyCache compiledAssemblyCache)
         {
             this.configuration = configuration;
+            this.allowReload = configuration.Debug;
 
             // WORKAROUND: there is a circular dependency
             // TODO: get rid of that
@@ -48,12 +50,52 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) GetControlBuilder(string virtualPath)
         {
+            var (markupFile, markupChanged) = GetMarkupFile(virtualPath);
+            if (!markupChanged)
+            {
+                if (controlBuilders.TryGetValue(virtualPath, out var builder))
+                {
+                    return builder.Value;
+                }
+                // because of race conditions, the builder doesn't need to be created
+                // we let it fallback onto creating the builder again
+            }
+
+            var lazy = new Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>(() =>
+                CreateControlBuilder(markupFile));
+
+            if (allowReload)
+            {
+                controlBuilders[virtualPath] = lazy;
+                return lazy.Value;
+            }
+            else
+            {
+                return controlBuilders.GetOrAdd(virtualPath, lazy).Value;
+            }
+        }
+
+
+        readonly ConcurrentDictionary<string, MarkupFile> markupFiles = new();
+        private (MarkupFile file, bool changed) GetMarkupFile(string virtualPath)
+        {
+            if (markupFiles.TryGetValue(virtualPath, out var cachedFile))
+            {
+                if (!allowReload)
+                    return (cachedFile, false);
+                
+                var newFile = markupFileLoader.GetMarkup(configuration, virtualPath);
+                if (newFile is null || cachedFile.Equals(newFile))
+                    return (cachedFile, false);
+                else
+                {
+                    markupFiles[virtualPath] = newFile;
+                    return (newFile, true);
+                }
+            }
             var markupFile = markupFileLoader.GetMarkup(configuration, virtualPath) ?? throw new DotvvmCompilationException($"File '{virtualPath}' was not found. This exception is possibly caused because of incorrect route registration.");
-            return controlBuilders.GetOrAdd(
-                markupFile,
-                // use lazy - do not compile the same view multiple times
-                file => new Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>(() => CreateControlBuilder(file))
-            ).Value;
+            markupFiles.TryAdd(virtualPath, markupFile);
+            return (markupFile, true);
         }
 
         /// <summary>
@@ -201,9 +243,7 @@ namespace DotVVM.Framework.Compilation
 
         public void RegisterControlBuilder(string file, IControlBuilder builder)
         {
-            var markup = markupFileLoader.GetMarkup(configuration, file) ??
-                         throw new Exception($"Could not load markup file {file}.");
-            controlBuilders.TryAdd(markup, new Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>(() => (builder.Descriptor, new Lazy<IControlBuilder>(() => builder))));
+            controlBuilders.TryAdd(file, new Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>(() => (builder.Descriptor, new Lazy<IControlBuilder>(() => builder))));
         }
 
         private static readonly HashSet<string> csharpKeywords = new HashSet<string>(new[]
