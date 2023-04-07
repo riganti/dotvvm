@@ -5,7 +5,9 @@ using System.Linq.Expressions;
 using System.Text;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -177,6 +179,22 @@ namespace DotVVM.Framework.Tests.Binding
             var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
             Assert.AreEqual(12, result);
         }
+
+        [TestMethod]
+        public void Call_GlobalExtensionMethod()
+        {
+            var expectedMethod = MethodFindingHelper.GetMethodFromExpression(() => default(IDotvvmRequestContext).RedirectToRoute("", null, false, true, "", null));
+            Assert.IsNull(expectedMethod.DeclaringType.Namespace, "The test is not valid if the method is not in the global namespace");
+            var importedTarget = new MethodGroupExpression(
+                Expression.Parameter(typeof(IDotvvmRequestContext)),
+                "RedirectToRoute"
+            );
+
+            var expression = CreateCall(importedTarget, new Expression[] { Expression.Constant("RouteName") }, new NamespaceImport[0]);
+            var methodCall = (MethodCallExpression)expression;
+            Assert.AreEqual(expectedMethod, methodCall.Method);
+        }
+
     }
 
     public static class TestExtensions

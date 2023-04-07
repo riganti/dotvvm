@@ -283,7 +283,8 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private IEnumerable<MethodInfo> GetAllExtensionMethods()
         {
-            return extensionMethodsCache.GetExtensionsForNamespaces(importedNamespaces.Select(ns => ns.Namespace).Distinct().ToArray());
+            var globalNamespace = "";
+            return extensionMethodsCache.GetExtensionsForNamespaces(importedNamespaces.Select(ns => ns.Namespace).Append(globalNamespace).Distinct().ToArray());
         }
 
         private List<MethodRecognitionResult> FindValidMethodOverloads(IEnumerable<MethodInfo> methods, string name, bool isExtension, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs)
