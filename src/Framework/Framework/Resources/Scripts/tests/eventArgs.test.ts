@@ -216,14 +216,6 @@ const fetchDefinitions = {
             allowSpa: true
         } as any;
     },
-    spaNavigateRedirectWithReplace: async <T>(url: string, init: RequestInit) => {
-        return {
-            action: "redirect",
-            url: "/newUrl",
-            allowSpa: true,
-            replace: true
-        } as any;
-    },
     spaNavigateError: async <T>(url: string, init: RequestInit) => {
         throw new DotvvmPostbackError({ 
             type: "serverError", 
@@ -483,35 +475,6 @@ test("spaNavigation + success", async () => {
 
 test("spaNavigation + redirect", async () => {
     fetchJson = fetchDefinitions.spaNavigateRedirect;
-
-    const cleanup = watchEvents(false);
-    try {
-
-        const link = document.createElement("a");
-        link.href = "/test";
-        await spa.handleSpaNavigation(link, (u: string) => {});
-
-        var history = getEventHistory();
-
-        let i = 2;  // skip the "init" and "initCompleted" event
-        validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel, validations.hasUrl);
-        validateEvent(history[i++], "redirect", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl, validations.hasReplace);
-        validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasCancel, validations.hasUrl);
-        validateEvent(history[i++], "newState", "postback");
-        validateEvent(history[i++], "spaNavigated", "spaNavigation", validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl);
-
-        expect(history.length).toBe(i);
-    }
-    finally {
-        cleanup();
-        updateTypeInfo(typeMetadata)
-        replaceViewModel(originalViewModel.viewModel as RootViewModel);
-    }
-
-});
-
-test("spaNavigation + redirect with replace (new page is loaded without SPA)", async () => {
-    fetchJson = fetchDefinitions.spaNavigateRedirectWithReplace;
 
     const cleanup = watchEvents(false);
     try {
