@@ -60,7 +60,8 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
             updater.updateViewModelAndControls(response.result, replaceTypeInfo);
             isSpaReady(true);
         } else if (response.result.action === "redirect") {
-            await handleRedirect(options, response.result, response.response!);
+            // always replace current page in history on navigation redirect, otherwise back button doesn't work (only navigates back to redirect)
+            await handleRedirect(options, response.result, response.response!, /* replace */ true);
             return { ...options, url };
         }
 

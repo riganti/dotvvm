@@ -85,7 +85,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPA_test);
 
                 // click to generate validation error
-                browser.Single("input[type=button]").Click();
+                browser.Single("#validated-command").Click();
 
                 // check if validation error is displayed
                 AssertUI.InnerTextEquals(browser.Single("span[data-ui='sample-text']"), string.Empty);
@@ -94,9 +94,69 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.ElementAt("a", 0).Click();
 
                 // click to check if validation error disapeared
-                browser.Single("input[type=button]").Click();
+                browser.Single("#validated-command").Click();
                 browser.WaitForPostback();
                 AssertUI.InnerTextEquals(browser.Single("span[data-ui='sample-text']"), "Sample Text");
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPA_default))]
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPA_test))]
+        public void Complex_SPA_RedirectingLink()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl("/");
+
+
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPA_default);
+
+                // navigate to test
+                browser.Single("#link-redirect").Click();
+
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ComplexSamples_SPA_test);
+                AssertUI.InnerTextEquals(browser.Single("h2"), "Test");
+
+                // go to default page
+                browser.NavigateBack();
+
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ComplexSamples_SPA_default);
+                AssertUI.InnerTextEquals(browser.Single("h2"), "Default");
+
+                browser.NavigateForward();
+
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ComplexSamples_SPA_test);
+                AssertUI.InnerTextEquals(browser.Single("h2"), "Test");
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPA_default))]
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPA_test))]
+        public void Complex_SPA_RedirectingCommand()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl("/");
+
+
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPA_default);
+
+                // navigate to test
+                browser.Single("#button-redirect").Click();
+
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ComplexSamples_SPA_test);
+                AssertUI.InnerTextEquals(browser.Single("h2"), "Test");
+
+                // go to default page
+                browser.NavigateBack();
+
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ComplexSamples_SPA_default);
+                AssertUI.InnerTextEquals(browser.Single("h2"), "Default");
+
+                browser.NavigateForward();
+
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ComplexSamples_SPA_test);
+                AssertUI.InnerTextEquals(browser.Single("h2"), "Test");
             });
         }
 

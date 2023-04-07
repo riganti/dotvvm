@@ -171,6 +171,8 @@ namespace DotVVM.Samples.BasicSamples
                     newDict["Id"] = 1221;
                     return newDict;
                 });
+            
+            config.RouteTable.AddRouteRedirection("ComplexSamples_SPA_redirect", "ComplexSamples/SPA/redirect", "ComplexSamples_SPA_test");
         }
 
         private static void AddRoutes(DotvvmConfiguration config)
