@@ -106,6 +106,25 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task RepeatedTextBox()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- client-side -->
+                <dot:Repeater DataSource={value: Items} RenderSettings.Mode=Client>
+                    <dot:TextBox Text={value: Number} />
+                    <span Visible={value: ShowSomethingElse}>xx</span>
+                </dot:Repeater>
+                <dot:Repeater DataSource={value: Items} RenderSettings.Mode=Server>
+                    <dot:TextBox Text={value: Number} />
+                    <span Visible={value: ShowSomethingElse}>xx</span>
+                </dot:Repeater>
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
     }
 
     public class BasicTestViewModel
@@ -113,8 +132,8 @@ namespace DotVVM.Framework.Tests.ControlTests
         public TestItem[] Items { get; set; } = new []
         {
             new TestItem() { Number = 1 },
-            new TestItem() { Number = 2 },
-            new TestItem() { Number = 3 },
+            new TestItem() { Number = 2, ShowSomethingElse = true },
+            new TestItem() { Number = 3, ShowSomethingElse = true },
             new TestItem() { Number = 4 }
         };
     }
@@ -122,6 +141,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     public class TestItem
     {
         public int Number { get; set; }
+        public bool ShowSomethingElse { get; set; }
     }
 
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = "ItemTemplate")]

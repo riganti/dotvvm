@@ -1,0 +1,18 @@
+
+<head></head>
+<body>
+    <!-- ko with: $rawData --><div data-bind="dotvvm-with-control-properties: { Something: 321 }">
+<!-- ko with: Collection --><div>
+    <div data-bind="dotvvm-SSR-foreach: { data: $rawData }"><!-- ko dotvvm-SSR-item: 0 -->
+        <!-- ko text: $rawData -->10<!-- /ko -->
+
+        <span data-x=321 data-bind='attr: { "data-x": $parentContext.$parentContext.$control.Something }'></span>
+    <!-- /ko --><!-- ko dotvvm-SSR-item: 1 -->
+        <!-- ko text: $rawData -->-20<!-- /ko -->
+
+        <span data-x=321 data-bind='attr: { "data-x": $parentContext.$parentContext.$control.Something }'></span>
+    <!-- /ko --></div>
+</div><!-- /ko --></div><!-- /ko -->
+
+
+</body>

@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.Utils
 {
@@ -25,7 +26,7 @@ namespace DotVVM.Framework.Utils
         {
             if (expr.Type == typeof(object)) return expr;
             else if (expr.Type == typeof(void)) return WrapInReturnNull(expr);
-            else return Expression.Convert(expr, typeof(object));
+            else return TypeConversion.BoxToObject(expr);
         }
 
         public static Expression WrapInReturnNull(Expression expr)
@@ -265,14 +266,10 @@ namespace DotVVM.Framework.Utils
             }
             protected override Expression VisitBinary(BinaryExpression node)
             {
-                var l = Visit(node.Left);
-                var lc = l as ConstantExpression;
-                var r = Visit(node.Right);
-                var rc = r as ConstantExpression;
-                if (lc != null && rc != null)
+                if (Visit(node.Left) is ConstantExpression lConst && Visit(node.Right) is ConstantExpression rConst)
                 {
                     if (node.Method != null)
-                        return Expression.Constant(node.Method.Invoke(null, new [] { lc.Value, rc.Value }), node.Type);
+                        return Expression.Constant(node.Method.Invoke(null, new [] { lConst.Value, rConst.Value }), node.Type);
                     else return node;
                 }
                 else return base.VisitBinary(node);

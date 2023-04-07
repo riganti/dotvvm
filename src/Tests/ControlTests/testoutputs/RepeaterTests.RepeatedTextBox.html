@@ -1,0 +1,33 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- client-side -->
+		<div data-bind="foreach: { data: Items }">
+			<input data-bind="dotvvm-textbox-text: Number" data-dotvvm-format="G" data-dotvvm-value-type="number" type="text">
+			<span data-bind="visible: ShowSomethingElse">xx</span>
+		</div>
+		<div data-bind="dotvvm-SSR-foreach: { data: Items }">
+			<!-- ko dotvvm-SSR-item: 0 -->
+			<input data-bind="dotvvm-textbox-text: Number" data-dotvvm-format="G" data-dotvvm-value-type="number" type="text">
+			<span data-bind="visible: ShowSomethingElse" style="display:none">xx</span>
+			
+			<!-- /ko -->
+			<!-- ko dotvvm-SSR-item: 1 -->
+			<input data-bind="dotvvm-textbox-text: Number" data-dotvvm-format="G" data-dotvvm-value-type="number" type="text">
+			<span data-bind="visible: ShowSomethingElse">xx</span>
+			
+			<!-- /ko -->
+			<!-- ko dotvvm-SSR-item: 2 -->
+			<input data-bind="dotvvm-textbox-text: Number" data-dotvvm-format="G" data-dotvvm-value-type="number" type="text">
+			<span data-bind="visible: ShowSomethingElse">xx</span>
+			
+			<!-- /ko -->
+			<!-- ko dotvvm-SSR-item: 3 -->
+			<input data-bind="dotvvm-textbox-text: Number" data-dotvvm-format="G" data-dotvvm-value-type="number" type="text">
+			<span data-bind="visible: ShowSomethingElse" style="display:none">xx</span>
+			
+			<!-- /ko -->
+		</div>
+	</body>
+</html>
