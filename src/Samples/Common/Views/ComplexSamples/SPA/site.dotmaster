@@ -11,8 +11,10 @@
 
     <h1>SPA Test</h1>
 
-    <dot:RouteLink RouteName="ComplexSamples_SPA_default" Text="Default Page" />
-    <dot:RouteLink RouteName="ComplexSamples_SPA_test" Text="Test Page" />
+    <dot:RouteLink RouteName="ComplexSamples_SPA_default" Text="Default Page" Id="link-default" />
+    <dot:RouteLink RouteName="ComplexSamples_SPA_test" Text="Test Page" Id="link-test" />
+    <dot:RouteLink RouteName="ComplexSamples_SPA_redirect" Text="Redirect to Test" Id="link-redirect" />
+    <dot:Button Text="Redirect to Test" Id="button-redirect" Click={command: DotvvmRequestContextExtensions.RedirectToRoute(Context, "ComplexSamples_SPA_test")} ButtonTagName=button Validation.Enabled=false />
 
     <dot:SpaContentPlaceHolder ID="Container" />
 
