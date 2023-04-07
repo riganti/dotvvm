@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Compilation
         public DefaultControlBuilderFactory(DotvvmConfiguration configuration, IMarkupFileLoader markupFileLoader, CompiledAssemblyCache compiledAssemblyCache)
         {
             this.configuration = configuration;
-            this.allowReload = configuration.Debug; // TODO: do we want another option for this?
+            this.allowReload = configuration.Debug;
 
             // WORKAROUND: there is a circular dependency
             // TODO: get rid of that
@@ -57,7 +57,8 @@ namespace DotVVM.Framework.Compilation
                 {
                     return builder.Value;
                 }
-                // because race conditions, this can happen, so just let if fallback onto creating the builder again
+                // because of race conditions, the builder doesn't need to be created
+                // we let it fallback onto creating the builder again
             }
 
             var lazy = new Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>(() =>
@@ -65,7 +66,8 @@ namespace DotVVM.Framework.Compilation
 
             if (allowReload)
             {
-                return (controlBuilders[virtualPath] = lazy).Value;
+                controlBuilders[virtualPath] = lazy;
+                return lazy.Value;
             }
             else
             {
