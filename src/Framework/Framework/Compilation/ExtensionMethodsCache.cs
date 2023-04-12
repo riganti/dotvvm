@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Compilation
                     // check all flags first, these are much cheaper to get than the namespace
                     if (!(type.IsAbstract && type.IsSealed && type.IsClass))
                         continue;
-                    var typeNamespace = type.Namespace;
+                    var typeNamespace = type.Namespace ?? ""; // global namespace is empty string, otherwise we can't put it into Dictionary
                     for (int i = 0; i < namespaces.Length; i++)
                     {
                         if (!namespaces[i].Equals(typeNamespace, StringComparison.Ordinal)) continue;
