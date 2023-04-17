@@ -32,6 +32,7 @@ namespace DotVVM.Framework.Hosting
     [NotAuthorized] // DotvvmPresenter handles authorization itself, allowing authorization on it would make [NotAuthorized] attribute useless on ViewModel, since request would be interrupted earlier that VM is found
     public class DotvvmPresenter : IDotvvmPresenter
     {
+        private readonly DotvvmConfiguration configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmPresenter" /> class.
@@ -43,6 +44,8 @@ namespace DotVVM.Framework.Hosting
 #pragma warning restore CS0618
         )
         {
+            this.configuration = configuration;
+
             DotvvmViewBuilder = viewBuilder;
             ViewModelLoader = viewModelLoader;
             ViewModelSerializer = viewModelSerializer;
@@ -452,32 +455,7 @@ namespace DotVVM.Framework.Hosting
             }
             catch (TargetInvocationException e) when (e.InnerException is DotvvmInvalidArgumentModelStateException ex)
             {
-                var argumentModelState = ex.ArgumentModelState;
-                var argumentPaths = action.ArgumentPaths;
-                var invokedMethodParameters = action.InvokedMethod.GetParameters();
-
-                foreach (var error in argumentModelState.Errors.Where(e => !e.IsResolved))
-                {
-                    var parameter = invokedMethodParameters.FirstOrDefault(p => p.Name == error.ArgumentName);
-                    if (parameter == null)
-                        throw new ArgumentException($"Could not map argument name \"{error.ArgumentName}\" to any of {action.InvokedMethod}'s parameters.");
-
-                    var argumentIndex = parameter.Position;
-                    var propertyPath = error.PropertyPath?.Trim('/');
-                    var argumentPath = argumentPaths[argumentIndex]?.TrimEnd('/');
-                    error.PropertyPath = ((argumentPath is not null) ? $"{argumentPath}/{error.PropertyPath}" : $"${argumentIndex}/{error.PropertyPath}").TrimEnd('/');
-                }
-
-                var jObject = new JObject
-                {
-                    ["modelState"] = JArray.FromObject(argumentModelState.Errors),
-                    ["action"] = "validationErrors"
-                };
-                var result = jObject.ToString();
-
-                context.HttpContext.Response.ContentType = "application/json";
-                await context.HttpContext.Response.WriteAsync(result);
-                throw new DotvvmInterruptRequestExecutionException(InterruptReason.ArgumentsValidationFailed, "Argument contain validation errors!");
+                await RespondWithStaticCommandValidationFailure(action, context, ex.ArgumentModelState);
             }
             catch (Exception ex)
             {
@@ -506,6 +484,37 @@ namespace DotVVM.Framework.Hosting
             }
             
             return null;
+        }
+
+        async Task RespondWithStaticCommandValidationFailure(ActionInfo action, IDotvvmRequestContext context, ArgumentModelState argumentModelState)
+        {
+            var argumentPaths = action.ArgumentPaths;
+            var invokedMethodParameters = action.InvokedMethod!.GetParameters();
+
+            foreach (var error in argumentModelState.Errors.Where(e => !e.IsResolved))
+            {
+                if (error.PropertyPathExtractor != null)
+                    error.PropertyPath = error.PropertyPathExtractor(configuration);
+
+                var parameter = invokedMethodParameters.FirstOrDefault(p => p.Name == error.ArgumentName)
+                    ?? throw new ArgumentException($"Could not map argument name \"{error.ArgumentName}\" to any of {action.InvokedMethod}'s parameters.");
+
+                var argumentIndex = parameter.Position;
+                var propertyPath = error.PropertyPath?.Trim('/');
+                var argumentPath = argumentPaths![argumentIndex]?.TrimEnd('/');
+                error.PropertyPath = ((argumentPath is not null) ? $"{argumentPath}/{error.PropertyPath}" : $"${argumentIndex}/{error.PropertyPath}").TrimEnd('/');
+            }
+
+            var jObject = new JObject
+            {
+                [ "modelState" ] = JArray.FromObject(argumentModelState.Errors),
+                [ "action" ] = "validationErrors"
+            };
+            var result = jObject.ToString();
+
+            context.HttpContext.Response.ContentType = "application/json";
+            await context.HttpContext.Response.WriteAsync(result);
+            throw new DotvvmInterruptRequestExecutionException(InterruptReason.ArgumentsValidationFailed, "Argument contain validation errors!");
         }
 
         async Task ValidateSecFetchHeaders(IDotvvmRequestContext context)

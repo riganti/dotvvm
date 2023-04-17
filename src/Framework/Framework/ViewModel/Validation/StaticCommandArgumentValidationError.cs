@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using DotVVM.Framework.Configuration;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
@@ -24,17 +26,28 @@ namespace DotVVM.Framework.ViewModel.Validation
         public string? PropertyPath { get; internal set; }
 
         /// <summary>
+        /// Determines property path from either argument name
+        /// </summary>
+        [JsonIgnore]
+        internal Func<DotvvmConfiguration, string>? PropertyPathExtractor { get; set; }
+
+        /// <summary>
         /// Determines whether this error is fully processed
         /// </summary>
         [JsonIgnore]
         internal bool IsResolved { get; set; }
 
         [JsonConstructor]
-        internal StaticCommandArgumentValidationError(string errorMessage, string argumentName, string? propertyPath = null)
+        internal StaticCommandArgumentValidationError(
+            string errorMessage,
+            string argumentName,
+            string? propertyPath = null,
+            Func<DotvvmConfiguration, string>? propertyPathExtractor = null)
         {
             this.PropertyPath = propertyPath;
             this.ArgumentName = argumentName;
             this.ErrorMessage = errorMessage;
+            this.PropertyPathExtractor = propertyPathExtractor;
         }
     }
 }

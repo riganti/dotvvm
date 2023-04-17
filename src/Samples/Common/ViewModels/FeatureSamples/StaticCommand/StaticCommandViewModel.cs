@@ -15,16 +15,16 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
     {
         public string Name { get; set; } = "Deep Thought";
         public string Greeting { get; set; }
-        public StaticCommandTestObject Child { get; set; }
+        public StaticCommandTestObject Child { get; set; } = new();
 
         [AllowStaticCommand]
-        public static string GetGreeting(string name)
+        public static string GetGreeting(StaticCommandTestObject child)
         {
-            var ms = new ArgumentModelState();
-            ms.AddArgumentError(nameof(name), "Error!!!");
-            ms.FailOnInvalidModelState();
+            var modelState = new ArgumentModelState();
+            modelState.AddArgumentError(nameof(child), () => child.Name, "Validation error from static command!");
+            modelState.FailOnInvalidArgumentModelState();
 
-            return "Hello " + name + "!";
+            return $"Hello {child.Name}";
         }
     }
 

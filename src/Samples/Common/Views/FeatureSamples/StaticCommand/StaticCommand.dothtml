@@ -9,7 +9,7 @@
     <div class="container">
         <h2>Static command returning value</h2>
         <p>Name: <dot:TextBox Text="{value:  Name}" /></p>
-        <dot:Button data-ui="compute-static-method" Text="Compute greeting using static command" Click="{staticCommand: Greeting = ViewModel.GetGreeting(Name)}" />
+        <dot:Button data-ui="compute-static-method" Text="Compute greeting using static command" Click="{staticCommand: Greeting = ViewModel.GetGreeting(Child)}" />
         <dot:Button data-ui="compute-string" Text="Compute greeting pure js function" Click="{staticCommand: Greeting = 'Hello ' + Name + '!'}" />
         <dot:Button data-ui="compute-service" Text="Compute using abstract service" Click="{staticCommand: Greeting = greetingService.GetGreeting(Name)}" />
         <dot:Button data-ui="compute-service-async" Text="Compute using async abstract service" Click="{staticCommand: Greeting = greetingService.GetGreetingAsync(Name).Result}" />
@@ -29,6 +29,12 @@
                 Value:<span data-ui="value">{{value: Child.Value}}</span>
             </span>
         </p>
+
+        <p>
+            Errors:
+            <dot:ValidationSummary Validation.Target="{value: _root}" IncludeErrorsFromChildren="true" />
+        </p>
+
     </div>
 </body>
 </html>
