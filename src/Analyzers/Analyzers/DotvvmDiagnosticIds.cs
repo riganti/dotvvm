@@ -13,5 +13,6 @@ namespace DotVVM.Analyzers
         public const string DoNotUseFieldsInViewModelRuleId = "DotVVM03";
         public const string DoNotInvokeMethodFromUnsupportedCallSiteRuleId = "DotVVM04";
         public const string ReferenceOnlyStaticCommandArgumentsOnValidationError = "DotVVM05";
+        public const string ReferenceTheSameParameterOnAddArgumentError = "DotVVM06";
     }
 }

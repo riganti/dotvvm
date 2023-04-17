@@ -61,7 +61,7 @@ namespace DotVVM.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Provide only paramters of method invoked by static command..
+        ///   Looks up a localized string similar to Provide only parameters of method invoked by static command..
         /// </summary>
         internal static string ApiUsage_AddArgumentError_InvalidVariable_Description {
             get {
@@ -84,6 +84,33 @@ namespace DotVVM.Analyzers {
         internal static string ApiUsage_AddArgumentError_InvalidVariable_Title {
             get {
                 return ResourceManager.GetString("ApiUsage_AddArgumentError_InvalidVariable_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use the same parameter reference in both arguments..
+        /// </summary>
+        internal static string ApiUsage_AddArgumentError_MismatchVariable_Description {
+            get {
+                return ResourceManager.GetString("ApiUsage_AddArgumentError_MismatchVariable_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Argument &apos;{0}&apos; references different parameter than previously specified &apos;{1}&apos;.
+        /// </summary>
+        internal static string ApiUsage_AddArgumentError_MismatchVariable_Message {
+            get {
+                return ResourceManager.GetString("ApiUsage_AddArgumentError_MismatchVariable_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parameter reference mismatch.
+        /// </summary>
+        internal static string ApiUsage_AddArgumentError_MismatchVariable_Title {
+            get {
+                return ResourceManager.GetString("ApiUsage_AddArgumentError_MismatchVariable_Title", resourceCulture);
             }
         }
         
