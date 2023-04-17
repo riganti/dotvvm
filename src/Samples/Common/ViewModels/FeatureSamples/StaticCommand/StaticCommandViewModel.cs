@@ -20,11 +20,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
         [AllowStaticCommand]
         public static string GetGreeting(StaticCommandTestObject child)
         {
-            var modelState = new ArgumentModelState();
-            modelState.AddArgumentError(nameof(child), () => child.Name, "Validation error from static command!");
-            modelState.FailOnInvalidArgumentModelState();
-
-            return $"Hello {child.Name}";
+            return $"Hello Deep Thought";
         }
     }
 

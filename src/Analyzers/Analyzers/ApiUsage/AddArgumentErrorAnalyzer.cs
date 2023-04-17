@@ -71,7 +71,7 @@ namespace DotVVM.Analyzers.ApiUsage
                             ILocalReferenceOperation local => local.Local.Name,
                             ILiteralOperation local => local.ConstantValue.Value as string,
                             IConstantPatternOperation constant => constant.ConstantValue.Value as string,
-                            INameOfOperation nameof => nameof.Argument.ConstantValue.Value as string,
+                            INameOfOperation nameof => nameof.ConstantValue.Value as string,
                             _ => default,
                         };
 
@@ -95,7 +95,7 @@ namespace DotVVM.Analyzers.ApiUsage
                         // Check if there is no mismatch in arguments when providing property paths through expression
                         if (invocation.Arguments.Length == 3 &&
                             SymbolEqualityComparer.Default.Equals(invocation.Arguments[1]!.Parameter?.Type.OriginalDefinition, expressionType) &&
-                            IsParameterReferenceIdentical(invocation, parameterName, out var innerArgumentName))
+                            !IsParameterReferenceIdentical(invocation, parameterName, out var innerArgumentName))
                         {
                             context.ReportDiagnostic(
                                 Diagnostic.Create(
@@ -153,7 +153,7 @@ namespace DotVVM.Analyzers.ApiUsage
                 }
             }
 
-            return innerArgumentName != null && innerArgumentName != firstArgumentName;
+            return innerArgumentName != null && innerArgumentName == firstArgumentName;
         }
 
         private bool IsWithinAllowStaticCommandMethod(OperationAnalysisContext context, ISymbol allowStaticCommandType)
