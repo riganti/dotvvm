@@ -26,6 +26,7 @@ using Newtonsoft.Json.Linq;
 using System.Security;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using DotVVM.Framework.ViewModel.Validation;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -455,6 +456,7 @@ namespace DotVVM.Framework.Hosting
             }
             catch (TargetInvocationException e) when (e.InnerException is DotvvmInvalidArgumentModelStateException ex)
             {
+                DotvvmRequestContextValidationExtensions.EnsureRequestType(context, DotvvmRequestType.StaticCommand);
                 await RespondWithStaticCommandValidationFailure(action, context, ex.ArgumentModelState);
             }
             catch (Exception ex)
