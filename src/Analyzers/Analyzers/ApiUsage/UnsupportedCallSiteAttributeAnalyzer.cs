@@ -16,7 +16,7 @@ namespace DotVVM.Analyzers.ApiUsage
         private const int callSiteTypeServerUnderlyingValue = 0;
 
         public static DiagnosticDescriptor DoNotInvokeMethodFromUnsupportedCallSite = new DiagnosticDescriptor(
-            DotvvmDiagnosticIds.DoNotInvokeMethodFromUnsupportedCallSiteRuleId,
+            DotvvmDiagnosticIds.ReferenceOnlyStaticCommandArgumentsOnValidationError,
             unsupportedCallSiteTitle,
             unsupportedCallSiteMessage,
             DiagnosticCategory.ApiUsage,

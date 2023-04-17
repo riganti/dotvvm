@@ -61,6 +61,33 @@ namespace DotVVM.Analyzers {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Provide only paramters of method invoked by static command..
+        /// </summary>
+        internal static string ApiUsage_AddArgumentError_InvalidVariable_Description {
+            get {
+                return ResourceManager.GetString("ApiUsage_AddArgumentError_InvalidVariable_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Argument &apos;{0}&apos; could not be matched to any parameter of the caller method.
+        /// </summary>
+        internal static string ApiUsage_AddArgumentError_InvalidVariable_Message {
+            get {
+                return ResourceManager.GetString("ApiUsage_AddArgumentError_InvalidVariable_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Possible reference of a local variable that is not an argument of a static command invocation.
+        /// </summary>
+        internal static string ApiUsage_AddArgumentError_InvalidVariable_Title {
+            get {
+                return ResourceManager.GetString("ApiUsage_AddArgumentError_InvalidVariable_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Method that declares that it should not be called on server is only meant to be invoked on client..
         /// </summary>
         internal static string ApiUsage_UnsupportedCallSite_Description {
