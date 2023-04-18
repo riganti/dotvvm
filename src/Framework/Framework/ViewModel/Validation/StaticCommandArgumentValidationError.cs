@@ -16,7 +16,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// Gets or sets the argument name
         /// </summary>
         [JsonProperty("argumentName")]
-        public string ArgumentName { get; internal set; }
+        public string? ArgumentName { get; internal set; }
 
         /// <summary>
         /// Contains path that can be evaluated on the client side.
@@ -40,7 +40,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         [JsonConstructor]
         internal StaticCommandArgumentValidationError(
             string errorMessage,
-            string argumentName,
+            string? argumentName = null,
             string? propertyPath = null,
             Func<DotvvmConfiguration, string>? propertyPathExtractor = null)
         {

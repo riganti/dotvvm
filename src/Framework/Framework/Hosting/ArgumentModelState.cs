@@ -40,12 +40,11 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Adds a new validation error with the given message on a property of the argument determined by its name
         /// </summary>
-        /// <param name="argumentName">Name of argument</param>
         /// <param name="propertyPath">Property path determining the nested value where to attach error</param>
         /// <param name="message">Validation error message</param>
-        public StaticCommandArgumentValidationError AddRawArgumentError(string argumentName, string propertyPath, string message)
+        public StaticCommandArgumentValidationError AddRawArgumentError(string propertyPath, string message)
         {
-            var error = new StaticCommandArgumentValidationError(message, argumentName) {
+            var error = new StaticCommandArgumentValidationError(message) {
                 PropertyPath = propertyPath,
                 ErrorMessage = message,
                 IsResolved = true

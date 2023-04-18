@@ -1,0 +1,47 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.StaticCommand_ValidationViewModel, DotVVM.Samples.Common
+@import DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .has-error {
+            border: solid 3px red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" Validator.InvalidCssClass="has-error">
+
+        <p>
+            <h3>Static commands</h3>
+            <ul>
+                <li> <dot:Button Text="Validate '/Text' not null" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNull(Text) }" /></li>
+                <li> <dot:Button Text="Validate '/User/Name' not null" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNull(User.Name) }"> </li>
+                <li> <dot:Button Text="Add custom error" Click="{staticCommand: StaticCommand_ValidationViewModel.AddError(PropertyPath, ErrorMessage) }"></li>
+            </ul>
+        </p>
+
+        <p>
+            <h3>Inputs</h3>
+            <ul>
+                <li> <dot:TextBox Validator.Value="{value: Text }" Text="{value: Text}" /> (bound to <b>/Text</b>) </li>
+                <li> <dot:TextBox Validator.Value="{value: User.Name }" Text="{value: User.Name}" /> (bound to <b>/User/Name</b>) </li>
+                <li> <dot:TextBox Text="{value: PropertyPath }" /> (bound to <b>/PropertyPath</b> </li>
+                <li> <dot:TextBox Text="{value: ErrorMessage }" /> (bound to <b>/ErrorMessage</b> </li>
+            </ul>
+        </p>
+
+        <p>
+            <h3>Validation errors</h3>
+            <dot:ValidationSummary Validation.Target="{value: _root}" IncludeErrorsFromChildren="true" />
+        </p>
+
+    </div>
+</body>
+</html>
+
+
