@@ -9,7 +9,7 @@ import { DotvvmPostbackError } from '../shared-classes';
 import { logError } from '../utils/logging';
 import { handleRedirect } from './redirect';
 import { showValidationErrorsFromServer } from '../validation/validation';
-import { removeErrors } from '../validation/validation';
+import { removeErrors, globalValidationObject } from '../validation/validation';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
@@ -171,6 +171,9 @@ export async function applyPostbackHandlers(
             }
             else if (reason.type == "validation") {
                 showValidationErrorsFromServer(reason.responseObject, options);
+                if (globalValidationObject.errors.length > 0) {
+                    logError("validation", "Validation failed: postback aborted; errors: ", globalValidationObject.errors);
+                }
             }
             else if (shouldTriggerErrorEvent(reason)) {
                 // trigger error event

@@ -357,7 +357,7 @@ export function showValidationErrorsFromServer(serverResponseObject: any, option
         detachAllErrors()
 
         // add validation errors
-        addErrors(serverResponseObject.modelState, { triggerErrorsChanged: false })
+        addErrors(serverResponseObject.modelState)
     });
 }
 
