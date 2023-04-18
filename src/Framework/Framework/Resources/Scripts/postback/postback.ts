@@ -9,6 +9,7 @@ import { DotvvmPostbackError } from '../shared-classes';
 import { logError } from '../utils/logging';
 import { handleRedirect } from './redirect';
 import { showValidationErrorsFromServer } from '../validation/validation';
+import { removeErrors } from '../validation/validation';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
@@ -154,6 +155,7 @@ export async function applyPostbackHandlers(
     const handlers = findPostbackHandlers(context, globalPostbackHandlers.concat(handlerConfigurations || []).concat(globalLaterPostbackHandlers));
 
     try {
+        removeErrors("/");
         const commit = await applyPostbackHandlersCore(saneNext, options, handlers);
         const result = await commit();
         return result;
