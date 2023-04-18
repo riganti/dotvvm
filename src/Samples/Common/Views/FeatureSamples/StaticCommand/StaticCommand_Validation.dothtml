@@ -19,25 +19,25 @@
         <p>
             <h3>Static commands</h3>
             <ul>
-                <li> <dot:Button Text="Validate '/Text' not null" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNull(Text) }" /></li>
-                <li> <dot:Button Text="Validate '/User/Name' not null" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNull(User.Name) }"> </li>
-                <li> <dot:Button Text="Add custom error" Click="{staticCommand: StaticCommand_ValidationViewModel.AddError(PropertyPath, ErrorMessage) }"></li>
+                <li> <dot:Button data-ui="btn-validate-text" Text="Validate '/Text' not null" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNull(Text) }" /></li>
+                <li> <dot:Button data-ui="btn-validate-username" Text="Validate '/User/Name' not null" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNull(User.Name) }"> </li>
+                <li> <dot:Button data-ui="btn-add-error" Text="Add custom error" Click="{staticCommand: StaticCommand_ValidationViewModel.AddError(PropertyPath, ErrorMessage) }"></li>
             </ul>
         </p>
 
         <p>
             <h3>Inputs</h3>
             <ul>
-                <li> <dot:TextBox Validator.Value="{value: Text }" Text="{value: Text}" /> (bound to <b>/Text</b>) </li>
-                <li> <dot:TextBox Validator.Value="{value: User.Name }" Text="{value: User.Name}" /> (bound to <b>/User/Name</b>) </li>
-                <li> <dot:TextBox Text="{value: PropertyPath }" /> (bound to <b>/PropertyPath</b> </li>
-                <li> <dot:TextBox Text="{value: ErrorMessage }" /> (bound to <b>/ErrorMessage</b> </li>
+                <li> <dot:TextBox data-ui="input-text" Validator.Value="{value: Text }" Text="{value: Text}" /> (bound to <b>/Text</b>) </li>
+                <li> <dot:TextBox data-ui="input-username" Validator.Value="{value: User.Name }" Text="{value: User.Name}" /> (bound to <b>/User/Name</b>) </li>
+                <li> <dot:TextBox data-ui="input-propertypath" Text="{value: PropertyPath }" /> (bound to <b>/PropertyPath</b> </li>
+                <li> <dot:TextBox data-ui="input-errormessage" Text="{value: ErrorMessage }" /> (bound to <b>/ErrorMessage</b> </li>
             </ul>
         </p>
 
         <p>
             <h3>Validation errors</h3>
-            <dot:ValidationSummary Validation.Target="{value: _root}" IncludeErrorsFromChildren="true" />
+            <dot:ValidationSummary data-ui="validation-summary" Validation.Target="{value: _root}" IncludeErrorsFromChildren="true" />
         </p>
 
     </div>
