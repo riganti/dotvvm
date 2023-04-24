@@ -13,11 +13,8 @@ namespace DotVVM.Analyzers.ApiUsage
         private static readonly LocalizableResourceString referenceOnlyStaticCommandArgumentsTitle = new(nameof(Resources.ApiUsage_AddArgumentError_InvalidVariable_Title), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString referenceOnlyStaticCommandArgumentsMessage = new(nameof(Resources.ApiUsage_AddArgumentError_InvalidVariable_Message), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString referenceOnlyStaticCommandArgumentsDescription = new(nameof(Resources.ApiUsage_AddArgumentError_InvalidVariable_Description), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableResourceString referenceTheSameParameterStaticCommandArgumentsTitle = new(nameof(Resources.ApiUsage_AddArgumentError_MismatchVariable_Title), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableResourceString referenceTheSameParameterStaticCommandArgumentsMessage = new(nameof(Resources.ApiUsage_AddArgumentError_MismatchVariable_Message), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableResourceString referenceTheSameParameterStaticCommandArgumentsDescription = new(nameof(Resources.ApiUsage_AddArgumentError_MismatchVariable_Description), Resources.ResourceManager, typeof(Resources));
         private const string allowStaticCommandAttributeMetadataName = "DotVVM.Framework.ViewModel.AllowStaticCommandAttribute";
-        private const string argumentModelStateMetadataName = "DotVVM.Framework.Hosting.ArgumentModelState";
+        private const string staticCommandModelStateMetadataName = "DotVVM.Framework.Hosting.StaticCommandModelState";
         private const string addArgumentErrorMetadataName = "AddArgumentError";
 
         public static DiagnosticDescriptor ReferenceOnlyArgumentsIncludedInStaticCommandInvocation = new DiagnosticDescriptor(
@@ -29,19 +26,8 @@ namespace DotVVM.Analyzers.ApiUsage
             isEnabledByDefault: true,
             referenceOnlyStaticCommandArgumentsDescription);
 
-        public static DiagnosticDescriptor ReferenceTheSameParameterInStaticCommandInvocation = new DiagnosticDescriptor(
-            DotvvmDiagnosticIds.ReferenceTheSameParameterOnAddArgumentError,
-            referenceTheSameParameterStaticCommandArgumentsTitle,
-            referenceTheSameParameterStaticCommandArgumentsMessage,
-            DiagnosticCategory.ApiUsage,
-            DiagnosticSeverity.Warning,
-            isEnabledByDefault: true,
-            referenceTheSameParameterStaticCommandArgumentsDescription);
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-            => ImmutableArray.Create(
-                ReferenceOnlyArgumentsIncludedInStaticCommandInvocation,
-                ReferenceTheSameParameterInStaticCommandInvocation);
+            => ImmutableArray.Create(ReferenceOnlyArgumentsIncludedInStaticCommandInvocation);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -50,10 +36,11 @@ namespace DotVVM.Analyzers.ApiUsage
 
             context.RegisterOperationAction(context => {
                 var allowStaticCommandAttribute = context.Compilation.GetTypeByMetadataName(allowStaticCommandAttributeMetadataName);
-                var argumentModelStateType = context.Compilation.GetTypeByMetadataName(argumentModelStateMetadataName);
+                var staticCommandModelStateType = context.Compilation.GetTypeByMetadataName(staticCommandModelStateMetadataName);
                 var expressionType = context.Compilation.GetTypeByMetadataName("System.Linq.Expressions.Expression`1");
+                var stringType = context.Compilation.GetSpecialType(SpecialType.System_String);
 
-                if (allowStaticCommandAttribute is null || argumentModelStateType == null)
+                if (allowStaticCommandAttribute is null || staticCommandModelStateType == null)
                     return;
 
                 if (context.Operation is IInvocationOperation invocation)
@@ -61,59 +48,50 @@ namespace DotVVM.Analyzers.ApiUsage
                     var method = invocation.TargetMethod;
                     if (invocation.Instance?.Type != null &&
                         invocation.Arguments.Any() &&
-                        SymbolEqualityComparer.Default.Equals(invocation.Instance.Type, argumentModelStateType) &&
+                        SymbolEqualityComparer.Default.Equals(invocation.Instance.Type, staticCommandModelStateType) &&
                         invocation.TargetMethod.MetadataName == addArgumentErrorMetadataName &&
                         IsWithinAllowStaticCommandMethod(context, allowStaticCommandAttribute))
                     {
                         var staticCommand = (context.ContainingSymbol as IMethodSymbol)!;
-                        var parameterName = invocation.Arguments[0].Value switch
-                        {
-                            ILocalReferenceOperation local => local.Local.Name,
-                            ILiteralOperation local => local.ConstantValue.Value as string,
-                            IConstantPatternOperation constant => constant.ConstantValue.Value as string,
-                            INameOfOperation nameof => nameof.ConstantValue.Value as string,
-                            _ => default,
-                        };
+                        var validExpression = true;
+                        string? parameterName = null;
 
-                        if (parameterName == null)
+                        if (SymbolEqualityComparer.Default.Equals(invocation.Arguments[0].Parameter?.Type, stringType))
                         {
-                            // Argument can not be evaluated during compile-time
-                            // Let's assume user knows what they are doing
-                            return;
+                            // Argument provided by string
+                            parameterName = invocation.Arguments[0].Value switch {
+                                ILocalReferenceOperation local => local.Local.Name,
+                                ILiteralOperation local => local.ConstantValue.Value as string,
+                                IConstantPatternOperation constant => constant.ConstantValue.Value as string,
+                                INameOfOperation nameof => nameof.ConstantValue.Value as string,
+                                _ => default,
+                            };
+                        }
+                        else if (SymbolEqualityComparer.Default.Equals(invocation.Arguments[0].Parameter?.Type?.OriginalDefinition, expressionType))
+                        {
+                            // Argument (or its property) provided by lambda expression
+                            (validExpression, parameterName) = GetParameterReferenceFromExpression(invocation);
                         }
 
                         // Check if the provided argument matched any parameter name of the method invoked by static command
-                        if (!staticCommand.Parameters.Any(p => p.Name == parameterName))
+                        if (!validExpression || (parameterName != null && !staticCommand.Parameters.Any(p => p.Name == parameterName)))
                         {
                             context.ReportDiagnostic(
                                 Diagnostic.Create(
                                     ReferenceOnlyArgumentsIncludedInStaticCommandInvocation,
                                     invocation.Arguments.First().Syntax.GetLocation(),
-                                    parameterName));
-                        }
-
-                        // Check if there is no mismatch in arguments when providing property paths through expression
-                        if (invocation.Arguments.Length == 3 &&
-                            SymbolEqualityComparer.Default.Equals(invocation.Arguments[1]!.Parameter?.Type.OriginalDefinition, expressionType) &&
-                            !IsParameterReferenceIdentical(invocation, parameterName, out var innerArgumentName))
-                        {
-                            context.ReportDiagnostic(
-                                Diagnostic.Create(
-                                    ReferenceTheSameParameterInStaticCommandInvocation,
-                                    invocation.Syntax.GetLocation(),
-                                    innerArgumentName,
-                                    parameterName));
+                                    (validExpression) ? parameterName : invocation.Arguments[0].Value.Syntax.ToFullString()));
                         }
                     }
                 }
             }, OperationKind.Invocation);
         }
 
-        private bool IsParameterReferenceIdentical(IInvocationOperation invocation, string firstArgumentName, out string? innerArgumentName)
+        private (bool ValidOperation, string? ParamName) GetParameterReferenceFromExpression(IInvocationOperation invocation)
         {
-            innerArgumentName = null;
             IAnonymousFunctionOperation? lambda = null;
-            var currentOperation = invocation.Arguments[1].Value;
+            var currentOperation = invocation.Arguments[0].Value;
+            string? innerArgumentName = null;
 
             while (currentOperation.Children.Any())
             {
@@ -127,8 +105,8 @@ namespace DotVVM.Analyzers.ApiUsage
 
             if (lambda == null || lambda.Body.Operations.First() is not IReturnOperation returnOperation)
             {
-                // Could not resolve argument => assume it is correct
-                return true;
+                // Could not resolve argument
+                return (true, null);
             }
 
             // Check if lambda body is valid
@@ -147,13 +125,11 @@ namespace DotVVM.Analyzers.ApiUsage
                 }
                 else
                 {
-                    // Unexpected operation
-                    Debugger.Break();
-                    break;
+                    return (false, null);
                 }
             }
 
-            return innerArgumentName != null && innerArgumentName == firstArgumentName;
+            return (true, innerArgumentName);
         }
 
         private bool IsWithinAllowStaticCommandMethod(OperationAnalysisContext context, ISymbol allowStaticCommandType)

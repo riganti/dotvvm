@@ -48,8 +48,8 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
         {
             public void CallSite(int arg1, int arg2)
             {
-                var ams = new ArgumentModelState();
-                ams.AddArgumentError(""non-exiting-arg"", ""Error"");
+                var scms = new StaticCommandModelState();
+                scms.AddArgumentError(""non-exiting-arg"", ""Error"");
             }
         }
     }";
@@ -73,8 +73,8 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             [AllowStaticCommand]
             public void CallSite(int arg1, int arg2)
             {
-                var ams = new ArgumentModelState();
-                ams.AddArgumentError({|#0:""arg1""|}, ""Error"");
+                var scms = new StaticCommandModelState();
+                scms.AddArgumentError({|#0:""arg1""|}, ""Error"");
             }
         }
     }";
@@ -98,8 +98,8 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             [AllowStaticCommand]
             public void CallSite(int arg1, int arg2)
             {
-                var ams = new ArgumentModelState();
-                ams.AddArgumentError({|#0:nameof(arg1)|}, ""Error"");
+                var scms = new StaticCommandModelState();
+                scms.AddArgumentError({|#0:nameof(arg1)|}, ""Error"");
             }
         }
     }";
@@ -125,8 +125,8 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             [AllowStaticCommand]
             public void CallSite(int arg1, int arg2)
             {
-                var ams = new ArgumentModelState();
-                ams.AddArgumentError(argName, ""Error"");
+                var scms = new StaticCommandModelState();
+                scms.AddArgumentError(argName, ""Error"");
             }
         }
     }";
@@ -155,8 +155,8 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             [AllowStaticCommand]
             public void CallSite(int arg1, int arg2)
             {
-                var ams = new ArgumentModelState();
-                ams.AddArgumentError(GetArgName(), ""Error"");
+                var scms = new StaticCommandModelState();
+                scms.AddArgumentError(GetArgName(), ""Error"");
             }
         }
     }";
@@ -180,71 +180,14 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             [AllowStaticCommand]
             public void CallSite(int arg1, int arg2)
             {
-                var ams = new ArgumentModelState();
-                ams.AddArgumentError({|#0:""non-exiting-arg""|}, ""Error"");
+                var scms = new StaticCommandModelState();
+                scms.AddArgumentError({|#0:""non-exiting-arg""|}, ""Error"");
             }
         }
     }",
 
             VerifyCS.Diagnostic(AddArgumentErrorAnalyzer.ReferenceOnlyArgumentsIncludedInStaticCommandInvocation)
                 .WithLocation(0).WithArguments("non-exiting-arg"));
-        }
-
-        [Fact]
-        public async Task Test_Warning_StaticCommandMethod_Argument_AddArgumentError_IncorrectPropertyPathLambda_SimpleObject()
-        {
-            await VerifyCS.VerifyAnalyzerAsync(@"
-    using System;
-    using System.IO;
-    using DotVVM.Framework.Hosting;
-    using DotVVM.Framework.ViewModel;
-
-    namespace ConsoleApplication1
-    {
-        public class RegularClass
-        {
-            [AllowStaticCommand]
-            public void CallSite(int arg1, int arg2)
-            {
-                var ams = new ArgumentModelState();
-                {|#0:ams.AddArgumentError(""arg1"", () => arg2, ""Error"")|};
-            }
-        }
-    }",
-
-            VerifyCS.Diagnostic(AddArgumentErrorAnalyzer.ReferenceTheSameParameterInStaticCommandInvocation)
-                .WithLocation(0).WithArguments("arg2", "arg1"));
-        }
-
-        [Fact]
-        public async Task Test_Warning_StaticCommandMethod_Argument_AddArgumentError_IncorrectPropertyPathLambda_ComplexObject()
-        {
-            await VerifyCS.VerifyAnalyzerAsync(@"
-    using System;
-    using System.IO;
-    using DotVVM.Framework.Hosting;
-    using DotVVM.Framework.ViewModel;
-
-    namespace ConsoleApplication1
-    {
-        public class TestClass
-        {
-            public string Property { get; set; }
-        }
-
-        public class RegularClass
-        {
-            [AllowStaticCommand]
-            public void CallSite(int arg1, TestClass arg2)
-            {
-                var ams = new ArgumentModelState();
-                {|#0:ams.AddArgumentError(""arg1"", () => arg2.Property, ""Error"")|};
-            }
-        }
-    }",
-
-            VerifyCS.Diagnostic(AddArgumentErrorAnalyzer.ReferenceTheSameParameterInStaticCommandInvocation)
-                .WithLocation(0).WithArguments("arg2", "arg1"));
         }
 
         [Fact]
@@ -263,8 +206,8 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             [AllowStaticCommand]
             public void CallSite(int arg1, int arg2)
             {
-                var ams = new ArgumentModelState();
-                {|#0:ams.AddArgumentError(""arg1"", () => arg1, ""Error"")|};
+                var scms = new StaticCommandModelState();
+                {|#0:scms.AddArgumentError(() => arg1, ""Error"")|};
             }
         }
     }";
@@ -293,13 +236,76 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             [AllowStaticCommand]
             public void CallSite(TestClass arg1, int arg2)
             {
-                var ams = new ArgumentModelState();
-                {|#0:ams.AddArgumentError(""arg1"", () => arg1.Property, ""Error"")|};
+                var scms = new StaticCommandModelState();
+                {|#0:scms.AddArgumentError(() => arg1.Property, ""Error"")|};
             }
         }
     }";
 
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
+        public async Task Test_Warning_StaticCommandMethod_Argument_AddArgumentError_ReferenceInvalidLocalVariable_SimpleObject()
+        {
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using System;
+    using System.IO;
+    using DotVVM.Framework.Hosting;
+    using DotVVM.Framework.ViewModel;
+
+    namespace ConsoleApplication1
+    {
+        public class RegularClass
+        {
+            public class TestClass
+            {
+                public string Property { get; set; }
+            }
+
+            [AllowStaticCommand]
+            public void CallSite(TestClass arg1, int arg2)
+            {
+                var myVariable = 123;
+                var scms = new StaticCommandModelState();
+                scms.AddArgumentError({|#0:() => myVariable|}, ""Error"");
+            }
+        }
+    }",
+
+            VerifyCS.Diagnostic(AddArgumentErrorAnalyzer.ReferenceOnlyArgumentsIncludedInStaticCommandInvocation)
+                .WithLocation(0).WithArguments("() => myVariable"));
+        }
+
+        [Fact]
+        public async Task Test_Warning_StaticCommandMethod_Argument_AddArgumentError_ReferenceInvalidLocalVariable_ComplexObject()
+        {
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using System;
+    using System.IO;
+    using DotVVM.Framework.Hosting;
+    using DotVVM.Framework.ViewModel;
+
+    namespace ConsoleApplication1
+    {
+        public class RegularClass
+        {
+            public class TestClass
+            {
+                public string Property { get; set; }
+            }
+
+            [AllowStaticCommand]
+            public void CallSite(TestClass arg1, int arg2)
+            {
+                var scms = new StaticCommandModelState();
+                scms.AddArgumentError({|#0:() => scms.Errors|}, ""Error"");
+            }
+        }
+    }",
+
+            VerifyCS.Diagnostic(AddArgumentErrorAnalyzer.ReferenceOnlyArgumentsIncludedInStaticCommandInvocation)
+                .WithLocation(0).WithArguments("() => scms.Errors"));
         }
     }
 }

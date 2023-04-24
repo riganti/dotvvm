@@ -88,33 +88,6 @@ namespace DotVVM.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use the same parameter reference in both arguments..
-        /// </summary>
-        internal static string ApiUsage_AddArgumentError_MismatchVariable_Description {
-            get {
-                return ResourceManager.GetString("ApiUsage_AddArgumentError_MismatchVariable_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Argument &apos;{0}&apos; references different parameter than previously specified &apos;{1}&apos;.
-        /// </summary>
-        internal static string ApiUsage_AddArgumentError_MismatchVariable_Message {
-            get {
-                return ResourceManager.GetString("ApiUsage_AddArgumentError_MismatchVariable_Message", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Parameter reference mismatch.
-        /// </summary>
-        internal static string ApiUsage_AddArgumentError_MismatchVariable_Title {
-            get {
-                return ResourceManager.GetString("ApiUsage_AddArgumentError_MismatchVariable_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Method that declares that it should not be called on server is only meant to be invoked on client..
         /// </summary>
         internal static string ApiUsage_UnsupportedCallSite_Description {

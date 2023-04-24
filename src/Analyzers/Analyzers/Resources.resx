@@ -126,15 +126,6 @@
   <data name="ApiUsage_AddArgumentError_InvalidVariable_Title" xml:space="preserve">
     <value>Possible reference of a local variable that is not an argument of a static command invocation</value>
   </data>
-  <data name="ApiUsage_AddArgumentError_MismatchVariable_Description" xml:space="preserve">
-    <value>Use the same parameter reference in both arguments.</value>
-  </data>
-  <data name="ApiUsage_AddArgumentError_MismatchVariable_Message" xml:space="preserve">
-    <value>Argument '{0}' references different parameter than previously specified '{1}'</value>
-  </data>
-  <data name="ApiUsage_AddArgumentError_MismatchVariable_Title" xml:space="preserve">
-    <value>Parameter reference mismatch</value>
-  </data>
   <data name="ApiUsage_UnsupportedCallSite_Description" xml:space="preserve">
     <value>Method that declares that it should not be called on server is only meant to be invoked on client.</value>
   </data>
