@@ -18,9 +18,9 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
         public StaticCommandTestObject Child { get; set; } = new();
 
         [AllowStaticCommand]
-        public static string GetGreeting(StaticCommandTestObject child)
+        public static string GetGreeting(string name)
         {
-            return $"Hello Deep Thought";
+            return "Hello " + name + "!";
         }
     }
 
