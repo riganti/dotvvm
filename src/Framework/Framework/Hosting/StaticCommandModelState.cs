@@ -7,7 +7,7 @@ using DotVVM.Framework.ViewModel.Validation;
 
 namespace DotVVM.Framework.Hosting
 {
-    public class ArgumentModelState
+    public class StaticCommandModelState
     {
         /// <summary>
         /// Gets a collection of validation errors for static command arguments
@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Hosting
         internal List<StaticCommandArgumentValidationError> ErrorsInternal = new();
 
         /// <summary>
-        /// Gets a value indicating whether the ArgumentModelState is valid (i.e. does not contain any errors)
+        /// Gets a value indicating whether the StaticCommandModelState is valid (i.e. does not contain any errors)
         /// </summary>
         public bool IsValid => !Errors.Any();
 
@@ -55,12 +55,11 @@ namespace DotVVM.Framework.Hosting
         }
 
         /// <summary>
-        /// Adds a new validation error with the given message on the argument determined by its name
+        /// Adds a new validation error with the given message on the argument (or its property) determined by an expression
         /// </summary>
-        /// <param name="argumentName">Name of argument determining where to attach error</param>
-        /// <param name="expression">Expression that determines the target property from the provided object</param>
+        /// <param name="expression">Expression that determines the target property from an argument</param>
         /// <param name="message">Validation error message</param>
-        public StaticCommandArgumentValidationError AddArgumentError<TProp>(string argumentName, Expression<Func<TProp>> expression, string message)
+        public StaticCommandArgumentValidationError AddArgumentError<TProp>(Expression<Func<TProp>> expression, string message)
         {
             [DoesNotReturn]
             void ThrowCouldNotExtractProperyInfo()
@@ -78,8 +77,7 @@ namespace DotVVM.Framework.Hosting
             var param = Expression.Parameter(targetObjectType, "_this");
             var lambda = Expression.Lambda(expression.Body, param);
 
-            var error = new StaticCommandArgumentValidationError(message, argumentName) {
-                ArgumentName = argumentName,
+            var error = new StaticCommandArgumentValidationError(message) {
                 ErrorMessage = message,
                 PropertyPathExtractor = (dotvvmConfig) => ValidationErrorFactory.GetPathFromExpression(dotvvmConfig, lambda)
             };
@@ -91,10 +89,10 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Interrupts execution of the static command if this instance contains validation errors
         /// </summary>
-        public void FailOnInvalidArgumentModelState()
+        public void FailOnInvalidModelState()
         {
             if (!IsValid)
-                throw new DotvvmInvalidArgumentModelStateException(this);
+                throw new DotvvmInvalidStaticCommandModelStateException(this);
         }
 
         /// <summary>

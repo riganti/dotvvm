@@ -454,10 +454,10 @@ namespace DotVVM.Framework.Hosting
                 
                 return commandResultOrNotYetComputedAwaitable;
             }
-            catch (TargetInvocationException e) when (e.InnerException is DotvvmInvalidArgumentModelStateException ex)
+            catch (TargetInvocationException e) when (e.InnerException is DotvvmInvalidStaticCommandModelStateException ex)
             {
                 DotvvmRequestContextValidationExtensions.EnsureRequestType(context, DotvvmRequestType.StaticCommand);
-                await RespondWithStaticCommandValidationFailure(action, context, ex.ArgumentModelState);
+                await RespondWithStaticCommandValidationFailure(action, context, ex.StaticCommandModelState);
             }
             catch (Exception ex)
             {
@@ -488,12 +488,12 @@ namespace DotVVM.Framework.Hosting
             return null;
         }
 
-        async Task RespondWithStaticCommandValidationFailure(ActionInfo action, IDotvvmRequestContext context, ArgumentModelState argumentModelState)
+        async Task RespondWithStaticCommandValidationFailure(ActionInfo action, IDotvvmRequestContext context, StaticCommandModelState staticCommandModelState)
         {
             var argumentPaths = action.ArgumentPaths;
             var invokedMethodParameters = action.InvokedMethod!.GetParameters();
 
-            foreach (var error in argumentModelState.Errors.Where(e => !e.IsResolved))
+            foreach (var error in staticCommandModelState.Errors.Where(e => !e.IsResolved))
             {
                 if (error.PropertyPathExtractor != null)
                     error.PropertyPath = error.PropertyPathExtractor(configuration);
@@ -509,7 +509,7 @@ namespace DotVVM.Framework.Hosting
 
             var jObject = new JObject
             {
-                [ "modelState" ] = JArray.FromObject(argumentModelState.Errors),
+                [ "modelState" ] = JArray.FromObject(staticCommandModelState.Errors),
                 [ "action" ] = "validationErrors"
             };
             var result = jObject.ToString();

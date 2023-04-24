@@ -13,18 +13,18 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand
         [AllowStaticCommand]
         public static void ValidateNotNull<T>(T arg)
         {
-            var modelState = new ArgumentModelState();
+            var modelState = new StaticCommandModelState();
             if (arg == null)
                 modelState.AddArgumentError(nameof(arg), "Input can not be null");
-            modelState.FailOnInvalidArgumentModelState();
+            modelState.FailOnInvalidModelState();
         }
 
         [AllowStaticCommand]
         public static void AddError(string propertyPath, string message)
         {
-            var modelState = new ArgumentModelState();
+            var modelState = new StaticCommandModelState();
             modelState.AddRawArgumentError(propertyPath, message);
-            modelState.FailOnInvalidArgumentModelState();
+            modelState.FailOnInvalidModelState();
         }
     }
 
