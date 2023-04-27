@@ -37,6 +37,7 @@ namespace DotVVM.Framework.Compilation.Directives
             => TreeBuilder.BuildBaseTypeDirective(directiveNode, ParseDirective(directiveNode, p => p.ReadDirectiveTypeName()), imports);
 
         protected override ITypeDescriptor CreateArtefact(IReadOnlyList<IAbstractBaseTypeDirective> resolvedDirectives) {
+            var isMarkupControl = IsMarkupControl();
             var wrapperType = GetDefaultWrapperType();
 
             var baseControlDirective = resolvedDirectives.SingleOrDefault();
@@ -65,7 +66,7 @@ namespace DotVVM.Framework.Compilation.Directives
                 }
             }
 
-            if (DirectiveNodesByName.TryGetValue(ParserConstants.PropertyDeclarationDirective, out var propertyDirectives) && propertyDirectives.Any())
+            if (isMarkupControl && DirectiveNodesByName.TryGetValue(ParserConstants.PropertyDeclarationDirective, out var propertyDirectives) && propertyDirectives.Any())
             {
                 wrapperType = CreateDynamicDeclaringType(wrapperType, propertyDirectives) ?? wrapperType;
             }
@@ -107,19 +108,15 @@ namespace DotVVM.Framework.Compilation.Directives
                 ? new ResolvedTypeDescriptor(createdTypeInfo)
                 : null;
         }
-        
+
         /// <summary>
         /// Gets the default type of the wrapper for the view.
         /// </summary>
         private ITypeDescriptor GetDefaultWrapperType()
-        {
-            if (fileName.EndsWith(".dotcontrol", StringComparison.Ordinal))
-            {
-                return new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl));
-            }
+            => new ResolvedTypeDescriptor(IsMarkupControl() ? typeof(DotvvmMarkupControl) : typeof(DotvvmView));
 
-            return new ResolvedTypeDescriptor(typeof(DotvvmView));
-        }
+        private bool IsMarkupControl()
+            => fileName.EndsWith(".dotcontrol", StringComparison.Ordinal);
 
         private static ModuleBuilder CreateDynamicMarkupControlAssembly()
         {
