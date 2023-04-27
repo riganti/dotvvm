@@ -4,6 +4,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
 using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using System;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
@@ -20,11 +21,18 @@ namespace DotVVM.Framework.Compilation.Directives
             this.resourceRepository = resourceRepository;
         }
 
+        protected override bool IsMarkupControl(string fileName)
+        {
+            if (fileName.EndsWith(".dotcontrol", StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }
+
         protected override DefaultDirectiveResolver CreateDefaultResolver(DirectiveDictionary directivesByName)
             => new(directivesByName, treeBuilder);
 
-        protected override PropertyDeclarationDirectiveCompiler CreatePropertyDirectiveCompiler(DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports, ITypeDescriptor baseType)
-            => new ResolvedPropertyDeclarationDirectiveCompiler (directivesByName, treeBuilder, baseType, imports);
+        protected override PropertyDeclarationDirectiveCompiler CreatePropertyDirectiveCompiler(DirectiveDictionary directivesByName, bool isMarkupControl, ImmutableList<NamespaceImport> imports, ITypeDescriptor baseType)
+            => new ResolvedPropertyDeclarationDirectiveCompiler (directivesByName, treeBuilder, isMarkupControl, baseType, imports);
 
         protected override ViewModuleDirectiveCompiler CreateViewModuleDirectiveCompiler(DirectiveDictionary directivesByName, ITypeDescriptor baseType)
             => new(
@@ -33,8 +41,8 @@ namespace DotVVM.Framework.Compilation.Directives
                         !baseType.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))),
                         resourceRepository);
 
-        protected override BaseTypeDirectiveCompiler CreateBaseTypeCompiler(string fileName, DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports)
-            => new BaseTypeDirectiveCompiler (directivesByName, treeBuilder, fileName, imports);
+        protected override BaseTypeDirectiveCompiler CreateBaseTypeCompiler(bool isMarkupControl, DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports)
+            => new BaseTypeDirectiveCompiler (directivesByName, treeBuilder, isMarkupControl, imports);
         protected override ServiceDirectiveCompiler CreateServiceCompiler(DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports)
             => new(directivesByName, treeBuilder, imports);
         protected override MasterPageDirectiveCompiler CreateMasterPageDirectiveCompiler(DirectiveDictionary directivesByName)
