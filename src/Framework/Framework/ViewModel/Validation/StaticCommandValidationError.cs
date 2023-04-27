@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
-    public class StaticCommandArgumentValidationError
+    public class StaticCommandValidationError
     {
         /// <summary>
         /// Gets or sets the error message.
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         internal bool IsResolved { get; set; }
 
         [JsonConstructor]
-        internal StaticCommandArgumentValidationError(
+        internal StaticCommandValidationError(
             string errorMessage,
             string? argumentName = null,
             string? propertyPath = null,

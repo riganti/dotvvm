@@ -23,7 +23,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand
         public static void AddError(string propertyPath, string message)
         {
             var modelState = new StaticCommandModelState();
-            modelState.AddRawArgumentError(propertyPath, message);
+            modelState.AddRawError(propertyPath, message);
             modelState.FailOnInvalidModelState();
         }
     }
