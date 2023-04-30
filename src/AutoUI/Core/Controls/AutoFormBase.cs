@@ -61,7 +61,7 @@ namespace DotVVM.AutoUI.Controls
         /// <summary>
         /// Gets the list of properties that should be displayed.
         /// </summary>
-        protected static PropertyDisplayMetadata[] GetPropertiesToDisplay(AutoUIContext context, FieldSelectorProps props)
+        protected internal static PropertyDisplayMetadata[] GetPropertiesToDisplay(AutoUIContext context, FieldSelectorProps props)
         {
             var entityPropertyListProvider = context.Services.GetRequiredService<IEntityPropertyListProvider>();
             var properties = entityPropertyListProvider.GetProperties(context.EntityType, context.CreateViewContext());
