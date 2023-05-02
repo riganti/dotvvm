@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -77,7 +78,16 @@ namespace DotVVM.Framework.Storage
         /// </summary>
         public void DeleteOldFiles(DateTime maxCreatedDate)
         {
-            var files = Directory.GetFiles(TempDirectory).Where(t => File.GetCreationTime(t) < maxCreatedDate);
+            IEnumerable<string> files;
+            try
+            {
+                files = Directory.GetFiles(TempDirectory).Where(t => File.GetCreationTime(t) < maxCreatedDate);
+            }
+            catch (IOException)
+            {
+                return;
+            }
+
             foreach (var file in files)
             {
                 try
