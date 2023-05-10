@@ -16,13 +16,6 @@ export const regex: DotvvmValidator = {
     }
 }
 
-export const intRange: DotvvmValidator = {
-    isValid(val: any, context): boolean {
-        const [from, to] = context.parameters;
-        return val % 1 === 0 && val >= from && val <= to;
-    }
-}
-
 export const enforceClientFormat: DotvvmValidator = {
     isValid(value: any, context, property): boolean {
         const [allowNull, allowEmptyString, allowEmptyStringOrWhitespaces] = context.parameters;
@@ -52,7 +45,7 @@ export const enforceClientFormat: DotvvmValidator = {
 export const range: DotvvmValidator = {
     isValid(val: any, context): boolean {
         const [from, to] = context.parameters;
-        return val >= from && val <= to;
+        return isEmpty(val) || (val >= from && val <= to);
     }
 }
 
@@ -86,7 +79,6 @@ type DotvvmValidatorSet = { [name: string]: DotvvmValidator };
 export const validators: DotvvmValidatorSet = {
     required: required,
     regularExpression: regex,
-    intrange: intRange,
     range: range,
     emailAddress: emailAddress,
     notnull: notNull,
