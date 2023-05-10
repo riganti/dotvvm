@@ -1,0 +1,23 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation.RangeClientSideValidationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <dot:TextBox Text="{value: NullableInt}" Type="Number" min="1" max="999" data-ui="textbox" />
+
+    <dot:ValidationSummary data-ui="summary" />
+
+    <dot:Button Click="{command: Process()}" Text="Validate!" data-ui="button" />
+
+    <p data-ui="result">{{value: Result}}</p>
+
+</body>
+</html>
+
+

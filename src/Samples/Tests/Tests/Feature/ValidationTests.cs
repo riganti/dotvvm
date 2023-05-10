@@ -827,6 +827,30 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Theory]
+        [InlineData("", 0)]
+        [InlineData("1", 0)]
+        [InlineData("0", 1)]
+        [InlineData("1500", 1)]
+        public void Feature_Validation_RangeClientSideValidation(string value, int errorCount)
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_RangeClientSideValidation);
+
+                var textbox = browser.Single("textbox", SelectByDataUi);
+                var validationSummary = browser.Single("summary", SelectByDataUi);
+                var button = browser.Single("button", SelectByDataUi);
+                var result = browser.Single("result", SelectByDataUi);
+
+                textbox.Clear().SendKeys(value).SendKeys(Keys.Tab);
+                button.Click();
+
+                validationSummary.Children.ThrowIfDifferentCountThan(errorCount);
+                AssertUI.TextEquals(result, errorCount == 0 ? "Valid" : "");
+            });
+        }
+
+
         public ValidationTests(ITestOutputHelper output) : base(output)
         {
         }
