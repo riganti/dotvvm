@@ -51,7 +51,6 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddAuthorization();
         builder.Services.AddWebEncoders();
         builder.Services.AddAuthentication();
-        builder.Services.AddHttpContextAccessor();
     }
 }
 #endif
