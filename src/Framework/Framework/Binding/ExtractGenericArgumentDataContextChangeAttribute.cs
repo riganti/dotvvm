@@ -51,7 +51,7 @@ public class ExtractGenericArgumentDataContextChangeAttribute : DataContextChang
         }
         else if (implementations.Count > 1)
         {
-            throw new Exception($"The data context {dataContext} has multiple implementations of {GenericType}! Cannot decide which one to extract:\n" + string.Join("\n", implementations));
+            throw new Exception($"The data context {dataContext.ToCode()} has multiple implementations of {GenericType.ToCode()}! Cannot decide which one to extract:\n" + string.Join("\n", implementations.Select(t => t.ToCode())));
         }
         return implementations[0].GetGenericArguments()[TypeArgumentIndex];
     }
