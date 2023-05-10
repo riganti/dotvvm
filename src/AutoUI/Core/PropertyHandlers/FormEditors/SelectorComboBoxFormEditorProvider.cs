@@ -2,6 +2,7 @@
 using DotVVM.AutoUI.Metadata;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
 {
@@ -16,7 +17,8 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
         public override DotvvmControl CreateControl(PropertyDisplayMetadata property, AutoEditor.Props props, AutoUIContext context)
         {
             var selectorConfiguration = property.SelectionConfiguration!;
-            var selectorDataSourceBinding = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selectorConfiguration.SelectionType);
+            var selectorDiscoveryService = context.Services.GetRequiredService<ISelectorDiscoveryService>();
+            var selectorDataSourceBinding = selectorDiscoveryService.DiscoverSelectorDataSourceBinding(context, selectorConfiguration.SelectionType);
             var nestedDataContext = context.CreateChildDataContextStack(selectorConfiguration.SelectionType);
 
             return new ComboBox()
