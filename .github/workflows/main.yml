@@ -161,16 +161,29 @@ jobs:
         browser: [chrome]
         os: [ubuntu-latest]
         environment: [Production]
+        samples-config: [Default]
         include:
           - browser: chrome
             os: windows-2022
             environment: Development
+            samples-config: Default
           - browser: firefox
             os: ubuntu-latest
             environment: Development
+            samples-config: Default
           - browser: firefox
             os: ubuntu-latest
             environment: Production
+            samples-config: Default
+          - browser: firefox
+            os: ubuntu-latest
+            environment: Production
+            samples-config: ExperimentalFeaturesTests
+          - browser: chrome
+            os: ubuntu-latest
+            environment: Development
+            samples-config: ExperimentalFeaturesTests
+
     env:
       SLN: "${{ matrix.os == 'windows-2022' && 'src/DotVVM.sln' || 'src/DotVVM.Crossplatform.slnf' }}"
     steps:
@@ -186,3 +199,4 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         build-configuration: "${{ matrix.environment == 'Production' && 'Release' || 'Debug' }}"
         runtime-environment: "${{ matrix.environment }}"
+        samples-config: "${{ matrix.samples-config }}"

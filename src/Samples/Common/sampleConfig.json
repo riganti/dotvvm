@@ -1,5 +1,5 @@
 {
-  "activeProfile": "Default",
+  "defaultProfile": "Default", // override with DOTVVM_SAMPLES_CONFIG_PROFILE environment variable
   "profiles": [
     {
       "name": "Default",
@@ -32,6 +32,35 @@
       "config": {
         "experimentalFeatures": {
           "explicitAssemblyLoading": {
+            "enabled": true
+          }
+        }
+      }
+    },
+    {
+      "name": "KnockoutDeferUpdates",
+      "config": {
+        "experimentalFeatures": {
+          "knockoutDeferUpdates": {
+            "enabled": true
+          }
+        }
+      }
+    },
+    {
+      "name": "ExperimentalFeaturesTests",
+      "config": {
+        "experimentalFeatures": {
+          "knockoutDeferUpdates": {
+            "enabled": true
+          },
+          "explicitAssemblyLoading": {
+            "enabled": true
+          },
+          "serverSideViewModelCache": {
+            "enabled": true
+          },
+          "lazyCsrfToken": {
             "enabled": true
           }
         }
