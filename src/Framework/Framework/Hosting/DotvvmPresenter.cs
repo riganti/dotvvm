@@ -507,12 +507,12 @@ namespace DotVVM.Framework.Hosting
                     if (site == "same-origin")
                         await context.RejectRequest($"""
                             Same site iframe are disabled in this application.
-                            If you are the developer, you can enable iframes by setting DotvvmConfiguration.Security.FrameOptionsSameOrigin.EnableForRoute("{route}")
+                            If you are the developer, you can enable iframes by setting DotvvmConfiguration.Security.FrameOptionsSameOrigin.IncludeRoute("{route}")
                             """);
                     else
                         await context.RejectRequest($"""
                         Cross site iframe are disabled in this application.
-                        If you are the developer, you can enable cross-site iframes by setting DotvvmConfiguration.Security.FrameOptionsCrossOrigin.EnableForRoute("{route}"). Note that it's not recommended to enable cross-site iframes for sites / pages where security is important (due to Clickjacking)
+                        If you are the developer, you can enable cross-site iframes by setting DotvvmConfiguration.Security.FrameOptionsCrossOrigin.IncludeRoute("{route}"). Note that it's not recommended to enable cross-site iframes for sites / pages where security is important (due to Clickjacking)
                         """);
                 }
             }
@@ -542,7 +542,7 @@ namespace DotVVM.Framework.Hosting
                         await context.RejectRequest($"""
                             Pages can not be loaded using Javascript for security reasons.
                             Try refreshing the page to get rid of the error.
-                            If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.DisableForRoute("{route}"). [dest: {dest}, site: {site}]
+                            If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.ExcludeRoute("{route}"). [dest: {dest}, site: {site}]
                             """);
                     if (site != "same-origin")
                         await context.RejectRequest($"Cross site SPA requests are disabled.");

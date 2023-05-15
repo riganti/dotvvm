@@ -41,7 +41,6 @@ namespace DotVVM.Framework.Routing
         /// <exception cref="DotvvmConfigurationException">Throws exception when configuration has invalid registrations.</exception> 
         public static void AssertConfigurationIsValid(this DotvvmConfiguration config)
         {
-
             var invalidRoutes = new List<DotvvmConfigurationAssertResult<RouteBase>>();
             var invalidControls = new List<DotvvmConfigurationAssertResult<DotvvmControlConfiguration>>();
             var loader = config.ServiceProvider.GetRequiredService<IMarkupFileLoader>();
@@ -97,15 +96,47 @@ namespace DotVVM.Framework.Routing
                 {
                     invalidControls.Add(new DotvvmConfigurationAssertResult<DotvvmControlConfiguration>(control, DotvvmConfigurationAssertReason.MissingFile));
                 }
-
             }
 
             if (invalidControls.Any() || invalidRoutes.Any())
             {
                 throw new DotvvmConfigurationException(invalidRoutes, invalidControls);
             }
+
+            ValidateFeatureFlags(config);
         }
 
-
+        private static void ValidateFeatureFlags(DotvvmConfiguration config)
+        {
+            var routeNameSet = new HashSet<string>(config.RouteTable.Select(r => r.RouteName), StringComparer.Ordinal);
+            var featureFlags = new DotvvmFeatureFlag[] {
+                config.Security.FrameOptionsCrossOrigin,
+                config.Security.FrameOptionsSameOrigin,
+                config.Security.XssProtectionHeader,
+                config.Security.ContentTypeOptionsHeader,
+                config.Security.VerifySecFetchForCommands,
+                config.Security.VerifySecFetchForPages,
+                config.Security.RequireSecFetchHeaders,
+                config.Security.ReferrerPolicy,
+                config.ExperimentalFeatures.LazyCsrfToken,
+                config.ExperimentalFeatures.ServerSideViewModelCache
+            };
+            var invalidRoutesInFlags = (
+                    from flag in featureFlags
+                    from route in Enumerable.Concat(flag.ExcludedRoutes, flag.IncludedRoutes)
+                    where !config.RouteTable.Contains(route)
+                    let include = flag.IncludedRoutes.Contains(route)
+                    group (include, flag) by route into g
+                    let includedFlags = g.Where(f => f.include).Select(f => f.flag)
+                    let includedInStr = includedFlags.Any() ? $"included in feature flag {string.Join(", ", includedFlags.Select(f => f.FlagName))}" : ""
+                    let excludedFlags = g.Where(f => !f.include).Select(f => f.flag)
+                    let excludedInStr = excludedFlags.Any() ? $"excluded in feature flag {string.Join(", ", excludedFlags.Select(f => f.FlagName))}" : ""
+                    select $"Route '{g.Key}' {includedInStr}{(includedInStr.Length > 0 && excludedInStr.Length > 0 ? " and " : "")}{excludedInStr} is not registered in the RouteTable"
+                ).Take(4).ToArray();
+            if (invalidRoutesInFlags.Any())
+            {
+                throw new DotvvmConfigurationException(string.Join("\n", invalidRoutesInFlags));
+            }
+        }
     }
 }

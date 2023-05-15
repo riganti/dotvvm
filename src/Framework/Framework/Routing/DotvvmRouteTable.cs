@@ -17,7 +17,6 @@ namespace DotVVM.Framework.Routing
         private readonly List<KeyValuePair<string, RouteBase>> list
             = new List<KeyValuePair<string, RouteBase>>();
 
-        // for faster checking of duplicates when adding entries
         private readonly Dictionary<string, RouteBase> dictionary
             = new Dictionary<string, RouteBase>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, DotvvmRouteTable> routeTableGroups
