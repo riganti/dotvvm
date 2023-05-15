@@ -50,6 +50,9 @@ namespace DotVVM.Framework.Controls.Infrastructure
             if (!ExpectedControlType.IsAssignableFrom(controlType))
                 throw new DotvvmControlException(this, $"'{path}' is not of expected type {ExpectedControlType.Name}.");
             var control = (DotvvmMarkupControl)b.builder.Value.BuildControl(controlBuilderFactory, context.Services);
+            // The control has a "unique" ID assigned by the builder, but it's unique inside the markup control, not the current page
+            // Since MarkupControlContainer doesn't need the ID, we can assign the markup control the same ID
+            control.SetValue(Internal.UniqueIDProperty, this.GetValue(Internal.UniqueIDProperty));
             SetProperties?.Invoke(control);
 
             CreatedControl = control;
