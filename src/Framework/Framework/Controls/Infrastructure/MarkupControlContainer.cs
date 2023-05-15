@@ -10,6 +10,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
 {
     /// <summary> Allows using markup controls from code controls or from server-side styles. Use like this <code>new MarkupControlContainer("cc:MyControl", c => c.SetValue(MyControl.NameProperty, "X"))</code> </summary>
     /// <seealso cref="MarkupControlContainer{TMarkupControl}"/>
+    [ControlMarkupOptions(AllowContent = false)]
     public class MarkupControlContainer: DotvvmControl
     {
         public string? MarkupVirtualPath { get; set; }
@@ -41,6 +42,9 @@ namespace DotVVM.Framework.Controls.Infrastructure
 
         protected internal override void OnInit(IDotvvmRequestContext context)
         {
+            if (Children.Count > 0)
+                throw new DotvvmControlException(this, "MarkupControlContainer must not have any children.");
+
             var path = GetMarkupPath(context.Configuration);
             var controlBuilderFactory = context.Services.GetRequiredService<IControlBuilderFactory>();
             var b = controlBuilderFactory.GetControlBuilder(path);
@@ -78,7 +82,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
     }
 
     /// <summary> Allows using markup controls from code controls or from server-side styles. Use like this <code>new <see cref="MarkupControlContainer{TMarkupControl}"/>("cc:MyControl", c => c.Name = "X")</code> </summary>
-    public class MarkupControlContainer<TMarkupControl>: MarkupControlContainer
+    public sealed class MarkupControlContainer<TMarkupControl>: MarkupControlContainer
         where TMarkupControl: DotvvmMarkupControl
     {
         /// <summary> After OnInit is invoked, this property contains the initialized markup control. </summary>
