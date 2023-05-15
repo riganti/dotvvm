@@ -76,7 +76,8 @@ namespace DotVVM.AutoUI
         /// <summary> Registers the AutoUI controls </summary>
         private static void AddAutoUIConfiguration(DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControls("auto", typeof(AutoUIExtensions).Namespace! + ".Controls", typeof(AutoUIExtensions).Assembly.FullName!);
+            config.Markup.AddAssembly(typeof(Annotations.Selection).Assembly);
+            config.Markup.AddCodeControls("auto", exampleControl: typeof(AutoForm));
 
             RegisterAutoUIStyles(config);
         }
