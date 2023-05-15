@@ -667,6 +667,20 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
         }
 
+        [TestMethod]
+        public void ResolvedTree_DataContextChange_ExtractGenericArgument()
+        {
+            var prop = ControlWithExtractGenericArgument.TextProperty;
+
+            var root = ParseSource(@"@viewModel System.Collections.Generic.List<System.String>
+<cc:ControlWithExtractGenericArgument Text={value: _this} />");
+
+            var binding = root.Content.Single().Properties[prop] as ResolvedPropertyBinding;
+            Assert.IsNotNull(binding);
+
+            Assert.AreEqual(typeof(string), binding.Binding.DataContextTypeStack.DataContextType);
+            Assert.AreEqual(typeof(List<string>), binding.Binding.DataContextTypeStack.Parent!.DataContextType);
+        }
 
         [TestMethod]
         public void DefaultViewCompiler_ControlUsageValidator()
@@ -766,4 +780,5 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(2, nonLiterals[0].Metadata.AlternativeNames!.Count);
         }
     }
+
 }
