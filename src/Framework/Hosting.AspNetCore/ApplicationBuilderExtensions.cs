@@ -6,11 +6,9 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
-using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Compilation.ControlTree;
 
@@ -72,7 +70,7 @@ namespace Microsoft.AspNetCore.Builder
             var startupTracer = app.ApplicationServices.GetRequiredService<IStartupTracer>();
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureStarted);
             config.Markup.AddAssembly(startup.GetType().Assembly);
-            startup.Configure(config, applicationRootPath);
+            startup.Configure(config, config.ApplicationPhysicalPath);
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
 
             modifyConfiguration?.Invoke(config);
