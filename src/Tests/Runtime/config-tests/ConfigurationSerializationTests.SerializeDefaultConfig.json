@@ -2152,12 +2152,14 @@
     },
     "DotVVM.Framework.Controls.Infrastructure.MarkupControlContainer": {
       "assembly": "DotVVM.Framework",
-      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+      "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework",
+      "withoutContent": true
     },
     "DotVVM.Framework.Controls.Infrastructure.MarkupControlContainer`1": {
       "assembly": "DotVVM.Framework",
       "baseType": "DotVVM.Framework.Controls.Infrastructure.MarkupControlContainer, DotVVM.Framework",
-      "isAbstract": true
+      "isAbstract": true,
+      "withoutContent": true
     },
     "DotVVM.Framework.Controls.Infrastructure.RawLiteral": {
       "assembly": "DotVVM.Framework",

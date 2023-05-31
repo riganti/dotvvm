@@ -186,6 +186,12 @@ namespace DotVVM.Framework.Tests.ControlTests
             );
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
+
+            var markupControls = r.View.GetAllDescendants().OfType<DotvvmMarkupControl>().ToArray();
+            Assert.AreEqual(5, markupControls.Length);
+            var markupControlIds = markupControls.Select(c => c.GetDotvvmUniqueId().GetValue()).ToArray();
+            Assert.AreEqual(markupControlIds.Length, markupControlIds.Distinct().Count(), $"Markup control IDs are not unique: {string.Join(", ", markupControlIds)}");
+
         }
         [TestMethod]
         public async Task BindingMappingWithEnum()
