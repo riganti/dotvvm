@@ -57,6 +57,6 @@ runs:
   - uses: ./.github/test-report
     with:
       trx-path: artifacts/test/ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx
-      report-name: ${{ inputs.browser }}-tests-${{ runner.os }}
+      report-name: ${{ inputs.browser }}-tests-${{ runner.os }}-${{ inputs.runtime-environment }}-${{ inputs.samples-config }}
       report-title: UI Test Results from ${{ inputs.browser }} on ${{ runner.os }}
       github-token: ${{ inputs.github-token }}
