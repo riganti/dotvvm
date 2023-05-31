@@ -45,13 +45,13 @@
 
   <PropertyGroup Condition="$(DOTVVM_ROOT) != ''">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    <RepoRoot>$([MSBuild]::NormalizeDirectory('$(DOTVVM_ROOT)'))</RepoRoot>
+    <RepoRoot>$([MSBuild]::NormalizeDirectory('$(DOTVVM_ROOT)/'))</RepoRoot>
     <BaseOutputPath>$(RepoRoot)artifacts\bin\$(MSBuildProjectName)\</BaseOutputPath>
     <PackageOutputPath>$(RepoRoot)artifacts\packages\</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup Condition="$(DOTVVM_ROOT) != ''">
-    <SourceRoot Include="$([MSBuild]::NormalizeDirectory('$(DOTVVM_ROOT)'))" />
+    <SourceRoot Include="$([MSBuild]::NormalizeDirectory('$(DOTVVM_ROOT)/'))" />
   </ItemGroup>
 
   <PropertyGroup Condition="$(DOTVVM_VERSION) != ''">

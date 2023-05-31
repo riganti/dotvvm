@@ -1,0 +1,3 @@
+DotvvmConfigurationException occurred: Route 'b' included in feature flag RequireSecFetchHeaders, LazyCsrfToken and excluded in feature flag XssProtectionHeader is not registered in the RouteTable
+Route 'c' included in feature flag RequireSecFetchHeaders is not registered in the RouteTable
+    at void DotVVM.Framework.Routing.RouteHelper.ValidateFeatureFlags(DotvvmConfiguration config)
