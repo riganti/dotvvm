@@ -2,6 +2,7 @@ import { parseDate, parseDateOnly, parseTimeOnly, serializeDate, serializeDateOn
 import * as globalize from '../DotVVM.Globalize'
 import { DotvvmValidationElementMetadata, DotvvmValidationObservableMetadata, getValidationMetadata } from '../validation/common';
 import { lastSetErrorSymbol } from '../state-manager';
+import { hackInvokeNotifySubscribers } from '../utils/knockout';
 
 // handler dotvvm-textbox-text
 export default {
@@ -89,7 +90,7 @@ export default {
                     if (obs.peek() === newValue) {
                         // first null can be legit (allowed empty value), second can be a validation error (invalid format etc.)
                         // we have to trigger the change anyway
-                        obs.valueHasMutated ? obs.valueHasMutated() : obs.notifySubscribers();
+                        hackInvokeNotifySubscribers(obs);
                         if (elmMetadata.elementValidationState) {
                             (obs as any)[lastSetErrorSymbol] = void 0;
                         }

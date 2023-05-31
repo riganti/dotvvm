@@ -329,6 +329,7 @@ test("lastSetError flag - triggers observable change even if the value hasn't re
     let changes = 0;
     const subscription = vm.Int.subscribe(() => changes++);
     try {
+        expect(changes).toEqual(0);
         vm.Int(2);
         s.doUpdateNow();
         expect(changes).toEqual(1);

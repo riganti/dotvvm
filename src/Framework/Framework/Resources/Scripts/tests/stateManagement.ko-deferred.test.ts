@@ -1,6 +1,7 @@
 import dotvvm from '../dotvvm-root'
 import { getStateManager } from "../dotvvm-base";
 import { StateManager } from "../state-manager";
+import { hackInvokeNotifySubscribers } from '../utils/knockout';
 
 ko.options.deferUpdates = true
 
@@ -28,3 +29,19 @@ test("Sanity check: deferUpdates actually does something", () => {
     expect([dirtyCalled, changedCalled, beforeChangeCalled]).toStrictEqual([2, 0, 1])
 })
 
+
+test("hackInvokeNotifySubscribers works with deferUpdates", async () => {
+    expect(ko.options.deferUpdates).toBe(true)
+
+    const timeout = () => new Promise(resolve => setTimeout(() => resolve("timeout"), 10))
+    const o = ko.observable(0)
+
+    const notifyCalled = () => new Promise(resolve => o.subscribe(() => resolve("notify")))
+
+    expect(await Promise.race([timeout(), notifyCalled()])).toBe("timeout")
+
+    const testPromise = Promise.race([timeout(), notifyCalled()])
+    hackInvokeNotifySubscribers(o)
+    expect(await testPromise).toBe("notify")
+
+})
