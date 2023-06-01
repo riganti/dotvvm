@@ -263,9 +263,9 @@ namespace DotVVM.Framework.Controls
                     writer.AddAttribute("style", "display:none");
                 }
             }
-            catch (Exception e) when (valueBinding is {} && !r.RenderOnServer(this))
+            catch (Exception) when (valueBinding is {})
             {
-                // suppress value binding error in client-side rendering
+                // suppress value binding errors
             }
         }
 

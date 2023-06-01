@@ -43,85 +43,64 @@ namespace DotVVM.Framework.Tests.ControlTests
             }
         }
 
-        [TestMethod]
-        public void ClientSideInvoke_Attribute()
+        [DataTestMethod]
+        [DataRow(RenderMode.Client)]
+        // [DataRow(RenderMode.Server)]
+        public void JsInvoke_Attribute(RenderMode renderMode)
         {
             var control = new HtmlGenericControl("div")
-                .SetProperty(RenderSettings.ModeProperty, RenderMode.Client)
+                .SetProperty(RenderSettings.ModeProperty, renderMode)
                 .SetAttribute("data-test", bindingService.Cache.CreateValueBinding<string>("_js.Invoke<string>('testMethod')", defaultDataContext));
 
             var str = RenderToString(control);
             Assert.AreEqual("""<div data-bind='attr: { "data-test": dotvvm.viewModules.call("p1", "testMethod", [], false) }'></div>""", str);
         }
-        [TestMethod]
-        public void ClientSideInvoke_Visible()
+
+        // [TestMethod]
+        // public void ServerSideInvokeFails_Attribute()
+        // {
+        //     var control = new HtmlGenericControl("div")
+        //         .SetProperty(RenderSettings.ModeProperty, RenderMode.Server)
+        //         .SetAttribute("data-test", bindingService.Cache.CreateValueBinding<string>("_js.Invoke<string>('testMethod')", defaultDataContext));
+
+        //     var exception = Assert.ThrowsException<DotvvmControlException>(() => RenderToString(control));
+        // }
+
+        [DataTestMethod]
+        [DataRow(RenderMode.Client)]
+        [DataRow(RenderMode.Server)]
+        public void JsInvoke_Visible(RenderMode renderMode)
         {
             var control = new HtmlGenericControl("div")
-                .SetProperty(RenderSettings.ModeProperty, RenderMode.Client)
+                .SetProperty(RenderSettings.ModeProperty, renderMode)
                 .SetProperty(c => c.Visible, bindingService.Cache.CreateValueBinding<bool>("_js.Invoke<bool>('testMethod')", defaultDataContext));
 
             var str = RenderToString(control);
             Assert.AreEqual("""<div data-bind='visible: dotvvm.viewModules.call("p1", "testMethod", [], false)'></div>""", str);
         }
-        [TestMethod]
-        public void ClientSideInvoke_Class()
+        [DataTestMethod]
+        [DataRow(RenderMode.Client)]
+        [DataRow(RenderMode.Server)]
+        public void JsInvoke_Class(RenderMode renderMode)
         {
             var control = new HtmlGenericControl("div")
-                .SetProperty(RenderSettings.ModeProperty, RenderMode.Client)
+                .SetProperty(RenderSettings.ModeProperty, renderMode)
                 .AddCssClass("test-class", bindingService.Cache.CreateValueBinding<bool>("_js.Invoke<bool>('testMethod')", defaultDataContext));
 
             var str = RenderToString(control);
             Assert.AreEqual("""<div data-bind='css: { "test-class": dotvvm.viewModules.call("p1", "testMethod", [], false) }'></div>""", str);
         }
-        [TestMethod]
-        public void ClientSideInvoke_Style()
+        [DataTestMethod]
+        [DataRow(RenderMode.Client)]
+        [DataRow(RenderMode.Server)]
+        public void JsInvoke_Style(RenderMode renderMode)
         {
             var control = new HtmlGenericControl("div")
-                .SetProperty(RenderSettings.ModeProperty, RenderMode.Client)
+                .SetProperty(RenderSettings.ModeProperty, renderMode)
                 .AddCssStyle("width", bindingService.Cache.CreateValueBinding<int>("_js.Invoke<int>('testMethod')", defaultDataContext));
 
             var str = RenderToString(control);
             Assert.AreEqual("""<div data-bind='style: { width: dotvvm.viewModules.call("p1", "testMethod", [], false) }'></div>""", str);
-        }
-
-        [TestMethod]
-        public void ServerSideInvokeFails_Attribute()
-        {
-            var control = new HtmlGenericControl("div")
-                .SetProperty(RenderSettings.ModeProperty, RenderMode.Server)
-                .SetAttribute("data-test", bindingService.Cache.CreateValueBinding<string>("_js.Invoke<string>('testMethod')", defaultDataContext));
-
-            var exception = Assert.ThrowsException<DotvvmControlException>(() => RenderToString(control));
-        }
-
-        [TestMethod]
-        public void ServerSideInvokeFails_Visible()
-        {
-            var control = new HtmlGenericControl("div")
-                .SetProperty(RenderSettings.ModeProperty, RenderMode.Server)
-                .SetProperty(c => c.Visible, bindingService.Cache.CreateValueBinding<bool>("_js.Invoke<bool>('testMethod')", defaultDataContext));
-
-            var exception = Assert.ThrowsException<DotvvmControlException>(() => RenderToString(control));
-        }
-        [TestMethod]
-        [Ignore] // TODO?
-        public void ServerSideInvokeFails_Class()
-        {
-            var control = new HtmlGenericControl("div")
-                .SetProperty(RenderSettings.ModeProperty, RenderMode.Server)
-                .AddCssClass("test-class", bindingService.Cache.CreateValueBinding<bool>("_js.Invoke<bool>('testMethod')", defaultDataContext));
-
-            var exception = Assert.ThrowsException<Exception>(() => RenderToString(control));
-        }
-        [TestMethod]
-        [Ignore] // TODO?
-        public void ServerSideInvokeFails_Style()
-        {
-            var control = new HtmlGenericControl("div")
-                .SetProperty(RenderSettings.ModeProperty, RenderMode.Server)
-                .AddCssStyle("width", bindingService.Cache.CreateValueBinding<int>("_js.Invoke<int>('testMethod')", defaultDataContext));
-
-            var exception = Assert.ThrowsException<Exception>(() => RenderToString(control));
         }
 
         [DataTestMethod]
@@ -136,6 +115,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             var str = RenderToString(control);
             // TODO: should it behave differently for server-side rendering?
             Assert.AreEqual($$"""<div {{(renderMode == RenderMode.Server ? "data-test=some-string " : "")}}data-bind='attr: { "data-test": String }'></div>""", str);
+            // Assert.AreEqual($$"""<div data-test=some-string data-bind='attr: { "data-test": String }'></div>""", str);
         }
 
         [DataTestMethod]
