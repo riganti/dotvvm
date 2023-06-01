@@ -373,9 +373,17 @@ namespace DotVVM.Framework.Controls
                     AddHtmlAttribute(writer, name, i.Value);
                 }
             }
-            else if (value is IStaticValueBinding)
+            else if (value is IStaticValueBinding binding)
             {
-                AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this));
+                var evaluatedBinding = binding.Evaluate(this);
+                // while directly set null is written out as empty attribute, null returned
+                // from a binding is skipped. This allows binding to conditionally add attributes.
+                // * direct null behave this way for historical reasons
+                // * binding null behaves this way because it's what knockout.js does client-side anyway
+                if (evaluatedBinding is not null)
+                {
+                    AddHtmlAttribute(writer, name, evaluatedBinding);
+                }
             }
             else if (value is bool boolValue)
             {
