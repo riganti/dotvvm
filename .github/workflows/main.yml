@@ -183,11 +183,11 @@ jobs:
             samples-config: Default
           - browser: firefox
             os: ubuntu-latest
-            environment: Production
+            environment: Development
             samples-config: ExperimentalFeaturesTests
           - browser: chrome
             os: ubuntu-latest
-            environment: Development
+            environment: Production
             samples-config: ExperimentalFeaturesTests
 
     env:
