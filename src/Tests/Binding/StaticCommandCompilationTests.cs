@@ -222,6 +222,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void StaticCommandCompilation_ListAddTranslation()
+        {
+            var result = CompileBinding("TestViewModel2.Collection.Add(TestViewModel2.Collection[0])", niceMode: false, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("{let vm=options.viewModel;dotvvm.translations.array.add(vm.TestViewModel2().Collection,vm.TestViewModel2.state.Collection[0]);}", result);
+        }
+
+        [TestMethod]
         public void StaticCommandCompilation_IndexParameterInParent()
         {
             var result = CompileBinding("_parent2.IntProp = _index", niceMode: false, new[] { typeof(TestViewModel), typeof(object), typeof(string) });

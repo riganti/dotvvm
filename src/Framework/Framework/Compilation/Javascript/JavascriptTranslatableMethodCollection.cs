@@ -594,20 +594,35 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("remove").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
         }
 
+        private bool IsDictionary(Type type) =>
+            type.GetInterfaces().Any(i =>
+                i == typeof(IDictionary) ||
+                i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+
         private void AddDefaultListTranslations()
         {
-            AddMethodTranslator(() => new List<Generic.T?>().Add(null), new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("add").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
+            var add = new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("add").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1]));
+            AddMethodTranslator(() => new List<Generic.T?>().Add(null), add);
+            AddMethodTranslator(() => default(ICollection<Generic.T?>)!.Add(null), add);
             AddMethodTranslator(() => new List<Generic.T>().AddRange(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("addRange").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
-            AddMethodTranslator(() => new List<Generic.T>().Clear(), new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("clear").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
-            AddMethodTranslator(() => new List<Generic.T?>().Insert(0, null), new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("insert").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2])));
+            var clear = new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("clear").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance)),
+                check: (_, @this, _) => !IsDictionary(@this!.Type)
+            );
+            AddMethodTranslator(() => default(ICollection<Generic.T>)!.Clear(), clear);
+            AddMethodTranslator(() => new List<Generic.T>().Clear(), clear);
+            var insert = new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("insert").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2]));
+            AddMethodTranslator(() => new List<Generic.T?>().Insert(0, null), insert);
+            AddMethodTranslator(() => default(IList<Generic.T?>)!.Insert(0, null), insert);
             AddMethodTranslator(() => new List<Generic.T>().InsertRange(0, Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("insertRange").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2])));
-            AddMethodTranslator(() => new List<Generic.T>().RemoveAt(0), new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeAt").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
+            var removeAt = new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeAt").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1]));
+            AddMethodTranslator(() => new List<Generic.T>().RemoveAt(0), removeAt);
+            AddMethodTranslator(() => default(IList<Generic.T?>)!.RemoveAt(0), removeAt);
             AddMethodTranslator(() => new List<Generic.T>().RemoveAll(_ => true), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeAll").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
             AddMethodTranslator(() => new List<Generic.T>().RemoveRange(0, 10), new GenericMethodCompiler(args =>
@@ -615,9 +630,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(() => new List<Generic.T>().Reverse(), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("reverse").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
             AddMethodTranslator(() => new List<Generic.T>().AsReadOnly(), new GenericMethodCompiler(args => args[0]));
-            AddMethodTranslator(
-               () => new List<Generic.T?>().Contains(null),
-               new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("contains").Invoke(args[0], args[1]).WithAnnotation(MayBeNullAnnotation.Instance)));
+            var contains = new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("contains").Invoke(args[0], args[1]).WithAnnotation(MayBeNullAnnotation.Instance),
+                check: (_, @this, _) => !IsDictionary(@this!.Type)
+            );
+            AddMethodTranslator(() => new List<Generic.T?>().Contains(null), contains);
+            AddMethodTranslator(() => default(ICollection<Generic.T?>)!.Contains(null), contains);
 
             // DotVVM list extensions:
             AddMethodTranslator(

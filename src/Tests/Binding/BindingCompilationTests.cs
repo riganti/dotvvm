@@ -1138,6 +1138,8 @@ namespace DotVVM.Framework.Tests.Binding
         public int[] IntArray { get; set; }
         public decimal DecimalProp { get; set; }
 
+        public ReadOnlyCollection<int> ReadOnlyCollection => new ReadOnlyCollection<int>(new[] { 1, 2, 3 });
+
         public string SetStringProp(string a, int b)
         {
             var p = StringProp;

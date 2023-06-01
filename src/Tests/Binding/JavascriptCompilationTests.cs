@@ -600,6 +600,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_ICollectionClear()
+        {
+            var result = CompileBinding("TestViewModel2.Collection.Clear()", new[] { typeof(TestViewModel) }, typeof(void), null);
+            Assert.AreEqual("dotvvm.translations.array.clear(TestViewModel2().Collection)", result);
+        }
+
+        [TestMethod]
         [DataRow("Enumerable.FirstOrDefault(LongArray)", DisplayName = "Regular call of Enumerable.FirstOrDefault")]
         [DataRow("LongArray.FirstOrDefault()", DisplayName = "Syntax sugar - extension method")]
         public void JsTranslator_EnumerableFirstOrDefault(string binding)
@@ -640,6 +647,13 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding($"{listPrefix}List.Contains({bindingValue})", new[] { typeof(TestViewModel) }, typeof(bool), null);
             Assert.AreEqual($"dotvvm.translations.array.contains({listPrefix}List(),{jsValue})", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ICollectionContains()
+        {
+            var result = CompileBinding($"ReadOnlyCollection.Contains(12)", new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.translations.array.contains(ReadOnlyCollection(),12)", result);
         }
 
         [TestMethod]
@@ -832,6 +846,12 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("LongList.RemoveAt(1)", new[] { typeof(TestViewModel) }, typeof(void), null);
             Assert.AreEqual("dotvvm.translations.array.removeAt(LongList,1)", result);
+        }
+        [TestMethod]
+        public void JsTranslator_IListRemoveAt()
+        {
+            var result = CompileBinding("TestViewModel2.Collection.RemoveAt(1)", new[] { typeof(TestViewModel) }, typeof(void), null);
+            Assert.AreEqual("dotvvm.translations.array.removeAt(TestViewModel2().Collection,1)", result);
         }
 
         [TestMethod]
