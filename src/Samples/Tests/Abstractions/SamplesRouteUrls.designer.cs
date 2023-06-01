@@ -364,6 +364,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_ModelStateErrors = "FeatureSamples/Validation/ModelStateErrors";
         public const string FeatureSamples_Validation_NestedValidation = "FeatureSamples/Validation/NestedValidation";
         public const string FeatureSamples_Validation_NullValidationTarget = "FeatureSamples/Validation/NullValidationTarget";
+        public const string FeatureSamples_Validation_RangeClientSideValidation = "FeatureSamples/Validation/RangeClientSideValidation";
         public const string FeatureSamples_Validation_RegexValidation = "FeatureSamples/Validation/RegexValidation";
         public const string FeatureSamples_Validation_SimpleValidation = "FeatureSamples/Validation/SimpleValidation";
         public const string FeatureSamples_Validation_ValidationPropertyPathResolving = "FeatureSamples/Validation/ValidationPropertyPathResolving";
