@@ -443,10 +443,17 @@ namespace DotVVM.Framework.Controls
                         attributeBindingGroup ??= new KnockoutBindingGroup();
                         attributeBindingGroup.Add(attributeName, knockoutExpression);
                     }
-                    if (!r.RenderOnServer(this))
-                        continue;
+                    // TODO: maybe we could still skip server-side rendering data-attributes?
                 }
-                AddHtmlAttribute(writer, attributeName, valueRaw);
+
+                try
+                {
+                    AddHtmlAttribute(writer, attributeName, valueRaw);
+                }
+                catch (Exception) when (knockoutExpression is {})
+                {
+                    // suppress errors in value bindings
+                }
 
                 if (attributeName.Equals("id", StringComparison.OrdinalIgnoreCase))
                 {

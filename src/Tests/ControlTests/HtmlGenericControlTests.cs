@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Tests.ControlTests
 
         [DataTestMethod]
         [DataRow(RenderMode.Client)]
-        // [DataRow(RenderMode.Server)]
+        [DataRow(RenderMode.Server)]
         public void JsInvoke_Attribute(RenderMode renderMode)
         {
             var control = new HtmlGenericControl("div")
@@ -114,8 +114,8 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             var str = RenderToString(control);
             // TODO: should it behave differently for server-side rendering?
-            Assert.AreEqual($$"""<div {{(renderMode == RenderMode.Server ? "data-test=some-string " : "")}}data-bind='attr: { "data-test": String }'></div>""", str);
-            // Assert.AreEqual($$"""<div data-test=some-string data-bind='attr: { "data-test": String }'></div>""", str);
+            // Assert.AreEqual($$"""<div {{(renderMode == RenderMode.Server ? "data-test=some-string " : "")}}data-bind='attr: { "data-test": String }'></div>""", str);
+            Assert.AreEqual($$"""<div data-test=some-string data-bind='attr: { "data-test": String }'></div>""", str);
         }
 
         [DataTestMethod]
