@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -79,7 +80,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     var staticMember = type.GetAllMembers(bindingFlags | BindingFlags.Static | BindingFlags.Instance).Where(m => m.Name == name).FirstOrDefault();
                     if (staticMember is {})
                         throw new Exception($"Member '{staticMember}' is {(isStatic ? "not static" : "static")}.");
-                    throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }.");
+                    throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.ToCode() }.");
                 }
                 else if (members.Count == 0 && !throwExceptions)
                     return null;

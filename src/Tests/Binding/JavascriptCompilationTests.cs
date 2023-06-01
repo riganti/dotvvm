@@ -1083,7 +1083,7 @@ namespace DotVVM.Framework.Tests.Binding
             // _index exists on parent, but not on _this
             var e = Assert.ThrowsException<Exception>(() =>
                 CompileBinding("_this._index", new [] { typeof(object), typeof(string) }));
-            Assert.AreEqual("Could not find instance member _index on type System.String.", e.Message);
+            Assert.AreEqual("Could not find instance member _index on type string.", e.Message);
         }
 
         [TestMethod]
