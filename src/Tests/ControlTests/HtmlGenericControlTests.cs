@@ -43,6 +43,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             }
         }
 
+        // Test that all HtmlGenericControl properties are bindable and the value binding is evaluated both client-side and server-side, regardless of the RenderMode.
+        // Errors in value bindings are suppressed, to allow bindings which can't be evaluated server-side
         [DataTestMethod]
         [DataRow(RenderMode.Client)]
         [DataRow(RenderMode.Server)]
@@ -55,16 +57,6 @@ namespace DotVVM.Framework.Tests.ControlTests
             var str = RenderToString(control);
             Assert.AreEqual("""<div data-bind='attr: { "data-test": dotvvm.viewModules.call("p1", "testMethod", [], false) }'></div>""", str);
         }
-
-        // [TestMethod]
-        // public void ServerSideInvokeFails_Attribute()
-        // {
-        //     var control = new HtmlGenericControl("div")
-        //         .SetProperty(RenderSettings.ModeProperty, RenderMode.Server)
-        //         .SetAttribute("data-test", bindingService.Cache.CreateValueBinding<string>("_js.Invoke<string>('testMethod')", defaultDataContext));
-
-        //     var exception = Assert.ThrowsException<DotvvmControlException>(() => RenderToString(control));
-        // }
 
         [DataTestMethod]
         [DataRow(RenderMode.Client)]
@@ -113,15 +105,13 @@ namespace DotVVM.Framework.Tests.ControlTests
                 .SetAttribute("data-test", bindingService.Cache.CreateValueBinding<string>("String", defaultDataContext));
 
             var str = RenderToString(control);
-            // TODO: should it behave differently for server-side rendering?
-            // Assert.AreEqual($$"""<div {{(renderMode == RenderMode.Server ? "data-test=some-string " : "")}}data-bind='attr: { "data-test": String }'></div>""", str);
             Assert.AreEqual($$"""<div data-test=some-string data-bind='attr: { "data-test": String }'></div>""", str);
         }
 
         [DataTestMethod]
         [DataRow(RenderMode.Client)]
         [DataRow(RenderMode.Server)]
-        public void ValueBinding_Visible(RenderMode renderMode) // RenderMode should not matter
+        public void ValueBinding_Visible(RenderMode renderMode)
         {
             var control = new HtmlGenericControl("div")
                 .SetProperty(RenderSettings.ModeProperty, renderMode)
@@ -134,7 +124,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         [DataTestMethod]
         [DataRow(RenderMode.Client)]
         [DataRow(RenderMode.Server)]
-        public void ValueBinding_Class(RenderMode renderMode) // RenderMode should not matter
+        public void ValueBinding_Class(RenderMode renderMode)
         {
             var control = new HtmlGenericControl("div")
                 .SetProperty(RenderSettings.ModeProperty, renderMode)
@@ -147,7 +137,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         [DataTestMethod]
         [DataRow(RenderMode.Client)]
         [DataRow(RenderMode.Server)]
-        public void ValueBinding_Style(RenderMode renderMode) // RenderMode should not matter
+        public void ValueBinding_Style(RenderMode renderMode)
         {
             var control = new HtmlGenericControl("div")
                 .SetProperty(RenderSettings.ModeProperty, renderMode)

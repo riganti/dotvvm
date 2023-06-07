@@ -443,7 +443,6 @@ namespace DotVVM.Framework.Controls
                         attributeBindingGroup ??= new KnockoutBindingGroup();
                         attributeBindingGroup.Add(attributeName, knockoutExpression);
                     }
-                    // TODO: maybe we could still skip server-side rendering data-attributes?
                 }
 
                 try
