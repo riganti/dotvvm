@@ -149,7 +149,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     {
         public static DotvvmControl GetContents(
             HtmlCapability htmlCapability,
-            [ControlPropertyTypeDataContextChange("DataSource"), CollectionElementDataContextChange(1)]
+            [ControlPropertyBindingDataContextChange("DataSource"), CollectionElementDataContextChange(1)]
             ITemplate itemTemplate,
             IValueBinding<IEnumerable> dataSource
         )

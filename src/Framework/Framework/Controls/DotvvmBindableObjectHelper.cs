@@ -270,9 +270,22 @@ namespace DotVVM.Framework.Controls
             }
             return control;
         }
+        /// <summary> Appends a css class to this control if the <paramref name="condition"/> is true. </summary>
         public static TControl AddCssClass<TControl>(this TControl control, string className, ValueOrBinding<bool>? condition)
             where TControl : IObjectWithCapability<HtmlCapability> =>
             condition is null ? control : AddCssClass(control, className, condition.Value);
+
+        /// <summary> Appends a css class to this control if the <paramref name="condition"/> is true. </summary>
+        public static TControl AddCssClass<TControl>(this TControl control, string className, IStaticValueBinding<bool>? condition)
+            where TControl : IObjectWithCapability<HtmlCapability>
+        {
+            if (condition is {})
+            {
+                var p = control.GetCssClassesDictionary();
+                p.SetBinding(className, condition);
+            }
+            return control;
+        }
 
         /// <summary> Adds a css inline style - the `style` attribute. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl AddCssStyle<TControl>(this TControl control, string name, string? styleValue)
@@ -306,6 +319,19 @@ namespace DotVVM.Framework.Controls
             }
             return control;
         }
+
+        /// <summary> Adds a css inline style - the `style` attribute. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl AddCssStyle<TControl, T>(this TControl control, string name, IStaticValueBinding<T>? styleValue)
+            where TControl : IObjectWithCapability<HtmlCapability>
+        {
+            if (styleValue is {})
+            {
+                var p = control.GetCssStylesDictionary();
+                p.SetBinding(name, styleValue);
+            }
+            return control;
+        }
+
 
         /// <summary> Sets all properties from the capability into this control. If the control does not support the capability, exception is thrown. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetCapability<TControl, TCapability>(this TControl control, [AllowNull] TCapability capability, string prefix = "")

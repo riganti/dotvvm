@@ -250,12 +250,22 @@ namespace DotVVM.Framework.Controls
         protected virtual void AddVisibleAttributeOrBinding(in RenderState r, IHtmlWriter writer)
         {
             var v = r.Visible;
-            if (v is IValueBinding binding)
-                writer.AddKnockoutDataBind("visible", binding.GetKnockoutBindingExpression(this));
-
-            if (false.Equals(EvalPropertyValue(VisibleProperty, v)))
+            var valueBinding = v as IValueBinding;
+            if (valueBinding is {})
             {
-                writer.AddAttribute("style", "display:none");
+                writer.AddKnockoutDataBind("visible", valueBinding.GetKnockoutBindingExpression(this));
+            }
+
+            try
+            {
+                if (false.Equals(EvalPropertyValue(VisibleProperty, v)))
+                {
+                    writer.AddAttribute("style", "display:none");
+                }
+            }
+            catch (Exception) when (valueBinding is {})
+            {
+                // suppress value binding errors
             }
         }
 
@@ -363,9 +373,17 @@ namespace DotVVM.Framework.Controls
                     AddHtmlAttribute(writer, name, i.Value);
                 }
             }
-            else if (value is IStaticValueBinding)
+            else if (value is IStaticValueBinding binding)
             {
-                AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this));
+                var evaluatedBinding = binding.Evaluate(this);
+                // while directly set null is written out as empty attribute, null returned
+                // from a binding is skipped. This allows binding to conditionally add attributes.
+                // * direct null behave this way for historical reasons
+                // * binding null behaves this way because it's what knockout.js does client-side anyway
+                if (evaluatedBinding is not null)
+                {
+                    AddHtmlAttribute(writer, name, evaluatedBinding);
+                }
             }
             else if (value is bool boolValue)
             {
@@ -425,10 +443,16 @@ namespace DotVVM.Framework.Controls
                         attributeBindingGroup ??= new KnockoutBindingGroup();
                         attributeBindingGroup.Add(attributeName, knockoutExpression);
                     }
-                    if (!r.RenderOnServer(this))
-                        continue;
                 }
-                AddHtmlAttribute(writer, attributeName, valueRaw);
+
+                try
+                {
+                    AddHtmlAttribute(writer, attributeName, valueRaw);
+                }
+                catch (Exception) when (knockoutExpression is {})
+                {
+                    // suppress errors in value bindings
+                }
 
                 if (attributeName.Equals("id", StringComparison.OrdinalIgnoreCase))
                 {

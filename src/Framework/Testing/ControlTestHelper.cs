@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Testing
         private readonly FakeMarkupFileLoader fileLoader;
         private readonly DotvvmPresenter presenter;
 
-        IControlBuilderFactory controlBuilderFactory => Configuration.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
+        IControlBuilderFactory controlBuilderFactory => GetService<IControlBuilderFactory>();
 
         public ControlTestHelper(bool debug = true, Action<DotvvmConfiguration>? config = null, Action<IDotvvmServiceCollection>? services = null)
         {
@@ -48,6 +48,8 @@ namespace DotVVM.Framework.Testing
             config?.Invoke(this.Configuration);
             presenter = (DotvvmPresenter)this.Configuration.ServiceProvider.GetRequiredService<IDotvvmPresenter>();
         }
+
+        public T GetService<T>() => Configuration.ServiceProvider.GetRequiredService<T>();
 
         public (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) CompilePage(
             string markup,
