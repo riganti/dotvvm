@@ -7,6 +7,14 @@ using DotVVM.Framework.ViewModel.Validation;
 
 namespace DotVVM.Framework.Hosting
 {
+    /// <summary>
+    /// A class holding validation errors for static command arguments. Usage example:
+    /// <code>
+    /// var m = new StaticCommandModelState();
+    /// m.AddArgumentError(() => arg.Name, "Name is invalid");
+    /// m.FailOnInvalidModelState();
+    /// </code>
+    /// </summary>
     public class StaticCommandModelState
     {
         /// <summary>
@@ -38,9 +46,28 @@ namespace DotVVM.Framework.Hosting
         }
 
         /// <summary>
-        /// Adds a new validation error with the given message on a property of the viewmodel
+        /// Adds a new validation error with the given message on a property in the specified argument
         /// </summary>
-        /// <param name="propertyPath">Property path determining the nested value where to attach error</param>
+        /// <param name="argumentName">Name of argument determining where to attach error</param>
+        /// <param name="propertyPath">Property path determining the property where to attach error. Format example: `MyProperty1/NestedProperty` </param>
+        /// <param name="message">Validation error message</param>
+        public StaticCommandValidationError AddRawArgumentError(string argumentName, string propertyPath, string message)
+        {
+            var error = new StaticCommandValidationError(message, argumentName) {
+                ArgumentName = argumentName,
+                PropertyPath = propertyPath,
+                ErrorMessage = message,
+                IsResolved = false
+            };
+
+            ErrorsInternal.Add(error);
+            return error;
+        }
+
+        /// <summary>
+        /// Adds a new validation error with the given message on a any property of the viewmodel. The path is *not* relative to the staticCommand, it is an absolute path in the page viewmodel
+        /// </summary>
+        /// <param name="propertyPath">Property path determining the property where to attach error. Format example: `/MyProperty1/MyCollection/3/NestedProperty2` </param>
         /// <param name="message">Validation error message</param>
         public StaticCommandValidationError AddRawError(string propertyPath, string message)
         {

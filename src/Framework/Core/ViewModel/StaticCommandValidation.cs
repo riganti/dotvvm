@@ -10,7 +10,7 @@
 
         /// <summary>
         /// Attach only manually added errors and clean any previous errors on target observables.
-        /// Use "ArgumentModelState" to add the errors.
+        /// Use the "StaticCommandModelState" class to add the errors.
         /// </summary>
         Manual,
 
