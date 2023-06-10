@@ -496,7 +496,14 @@ namespace DotVVM.Framework.Hosting
             foreach (var error in staticCommandModelState.Errors.Where(e => !e.IsResolved))
             {
                 if (error.PropertyPathExtractor != null)
-                    error.PropertyPath = error.PropertyPathExtractor(configuration);
+                {
+                    var path = error.PropertyPathExtractor(configuration);
+                    var hasPropertySegment = path.Count(static c => c == '/') >= 2;
+                    var name = hasPropertySegment ? path.Substring(0, path.IndexOf('/')) : path;
+                    var rest = hasPropertySegment ? path.Substring(name.Length + 1) : string.Empty;
+                    error.ArgumentName = name;
+                    error.PropertyPath = rest;
+                }
 
                 var parameter = invokedMethodParameters.FirstOrDefault(p => p.Name == error.ArgumentName)
                     ?? throw new ArgumentException($"Could not map argument name \"{error.ArgumentName}\" to any of {action.InvokedMethod}'s parameters.");

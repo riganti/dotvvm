@@ -36,6 +36,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             base.VisitIndexerExpression(jsIndexerExpression);
         }
 
+        public override void VisitIdentifierExpression(JsIdentifierExpression identifierExpression)
+        {
+            stack.Push(identifierExpression.Identifier.ToString());
+            base.VisitIdentifierExpression(identifierExpression);
+        }
+
         public string GetPropertyPath()
         {
             var sb = new StringBuilder();

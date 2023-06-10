@@ -101,12 +101,14 @@ namespace DotVVM.Framework.Hosting
             if (targetObjectType == null)
                 ThrowCouldNotExtractProperyInfo();
 
-            var param = Expression.Parameter(targetObjectType, "_this");
-            var lambda = Expression.Lambda(expression.Body, param);
+            var member = ((MemberExpression)expression.Body).Member;
+            var paramThis = Expression.Parameter(targetObjectType, "_this");
+            var parameter = Expression.Parameter(targetObjectType, member.Name);
+            var lambda = Expression.Lambda(parameter, paramThis, parameter);
 
             var error = new StaticCommandValidationError(message) {
                 ErrorMessage = message,
-                PropertyPathExtractor = (dotvvmConfig) => ValidationErrorFactory.GetPathFromExpression(dotvvmConfig, lambda)
+                PropertyPathExtractor = (dotvvmConfig) => ValidationErrorFactory.GetPathFromExpression(dotvvmConfig, lambda, expandLocals: false)
             };
 
             ErrorsInternal.Add(error);
