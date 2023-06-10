@@ -48,4 +48,28 @@ describe("staticCommand validation - core functions", () => {
 
         expect(abs).toBe("/Str");
     })
+    test("resolveRelativeValidationPaths - nested array", () => {
+        const nestedContext = rootContext.createChildContext(() => rootContext.$data.Array)
+        const nestedContext2 = nestedContext.createChildContext(() => rootContext.$data.Array()[0])
+
+        var [ abs ] = resolveRelativeValidationPaths(["."], nestedContext2)!;
+
+        expect(abs).toBe("/Array/0");
+    })
+    test("resolveRelativeValidationPaths - nested array with ..", () => {
+        const nestedContext = rootContext.createChildContext(() => rootContext.$data.Array)
+        const nestedContext2 = nestedContext.createChildContext(() => rootContext.$data.Array()[0])
+
+        var [ abs ] = resolveRelativeValidationPaths([".."], nestedContext2)!;
+
+        expect(abs).toBe("/Array");
+    })
+    test("resolveRelativeValidationPaths - nested array with ../..", () => {
+        const nestedContext = rootContext.createChildContext(() => rootContext.$data.Array)
+        const nestedContext2 = nestedContext.createChildContext(() => rootContext.$data.Array()[0])
+
+        var [ abs ] = resolveRelativeValidationPaths(["../.."], nestedContext2)!;
+
+        expect(abs).toBe("/");
+    })
 });

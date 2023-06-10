@@ -48,7 +48,7 @@ export function findPathToChildObject(vm: any, child: any, path: string): string
         // Iterate over its elements
         let index = 0;
         for (const value of vm) {
-            let result = findPathToChildObject(value, child, path + `/[${index}]`)
+            let result = findPathToChildObject(value, child, path + "/" + index)
             if (result != null)
                 return result;
             index++;

@@ -9,10 +9,10 @@ import { removeErrors } from '../validation/validation';
 
 export function resolveRelativeValidationPaths(paths: string[] | null | undefined, context: KnockoutBindingContext | undefined) {
     return paths?.map(p => {
-        if (p == null) {
-            return null
+        if (p == null || p.startsWith("/")) {
+            return p
         }
-        while (context && /^..[\/$]/.test(p)) {
+        while (context && /^\.\.(\/|$)/.test(p)) {
             context = context.$parentContext;
             p = p.substring(2);
             p = p.startsWith('/') ? p.substring(1) : ''
@@ -22,13 +22,9 @@ export function resolveRelativeValidationPaths(paths: string[] | null | undefine
         }
         const absolutePath = evaluator.findPathToChildObject(dotvvm.state, context.$rawData.state, "")
 
-        if (absolutePath == null) {
-            return null
-        } else if (p == ".") {
-            return absolutePath
-        } else {
-            return absolutePath + "/" + p
-        }
+        // trim trailing `/` or `/.`, but leave it when path == `/`
+        return absolutePath == null ? null :
+            (absolutePath + "/" + p).replace(/\/\.?$/, "") || "/"
     })
 }
 
