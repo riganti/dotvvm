@@ -7,12 +7,11 @@ import { DotvvmPostbackError } from '../shared-classes';
 import * as evaluator from '../utils/evaluator'
 import { removeErrors } from '../validation/validation';
 
-function resolveRelativeValidationPaths(paths: string[] | null | undefined, options: PostbackOptions) {
+export function resolveRelativeValidationPaths(paths: string[] | null | undefined, context: KnockoutBindingContext | undefined) {
     return paths?.map(p => {
         if (p == null) {
             return null
         }
-        let context = options.knockoutContext
         while (context && /^..[\/$]/.test(p)) {
             context = context.$parentContext;
             p = p.substring(2);
@@ -21,8 +20,15 @@ function resolveRelativeValidationPaths(paths: string[] | null | undefined, opti
         if (context == null) {
             return null
         }
-        const absolutePath = evaluator.findPathToChildObject(dotvvm.state, context.$rawData.state, "/")
-        return absolutePath ? absolutePath + p : null
+        const absolutePath = evaluator.findPathToChildObject(dotvvm.state, context.$rawData.state, "")
+
+        if (absolutePath == null) {
+            return null
+        } else if (p == ".") {
+            return absolutePath
+        } else {
+            return absolutePath + "/" + p
+        }
     })
 }
 
@@ -32,7 +38,7 @@ export async function staticCommandPostback(command: string, args: any[], option
     let response: http.WrappedResponse<DotvvmStaticCommandResponse>;
 
     try {
-        const absolutePaths = resolveRelativeValidationPaths(paths, options)
+        const absolutePaths = resolveRelativeValidationPaths(paths, options.knockoutContext)
 
         await http.retryOnInvalidCsrfToken(async () => {
             const csrfToken = await http.fetchCsrfToken(options.abortSignal);
