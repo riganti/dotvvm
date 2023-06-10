@@ -40,9 +40,9 @@ namespace DotVVM.Framework.Storage
                 {
                     Directory.CreateDirectory(TempDirectory);
                 }
-                catch (IOException)
+                catch (IOException e)
                 {
-                    throw new Exception($"The {nameof(FileSystemUploadedFileStorage)} couldn't create a directory {TempDirectory}. Make sure the application has write permissions for this path.");
+                    throw new Exception($"The {nameof(FileSystemUploadedFileStorage)} couldn't create a directory {TempDirectory}. Make sure the application has write permissions for this path.", e);
                 }
             }
         }
