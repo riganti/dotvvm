@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Compilation.Binding
         private bool isNull([NotNullWhen(false)] JsNode? expr) =>
             expr is null or JsLiteral { Value: null };
 
-        public JsExpression GetValidationPath(
+        public JsExpression? GetValidationPath(
             Expression expr,
             DataContextStack dataContext,
             Func<Expression, JsExpression?>? baseFormatter = null)
@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
                     var indexPath = this.javascriptTranslator.CompileToJavascript(index.Arguments.Single(), dataContext);
                     if (indexPath is JsLiteral { Value: not null } indexLiteral)
-                        return appendPaths(targetPath, indexLiteral.Value!.ToString());
+                        return appendPaths(targetPath, indexLiteral.Value.ToString());
                     else if (targetPath is JsLiteral { Value: "." })
                         return indexPath;
                     else

@@ -13,10 +13,10 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             else return new JsMemberAccessExpression(target, memberName) { IsOptional = optional };
         }
 
-        public static JsExpression Invoke(this JsExpression target, IEnumerable<JsExpression> arguments) =>
+        public static JsExpression Invoke(this JsExpression target, IEnumerable<JsExpression?> arguments) =>
             new JsInvocationExpression(target, arguments);
 
-        public static JsExpression Invoke(this JsExpression target, params JsExpression[] arguments) =>
+        public static JsExpression Invoke(this JsExpression target, params JsExpression?[] arguments) =>
             new JsInvocationExpression(target, arguments);
 
         public static JsExpression Indexer(this JsExpression target, JsExpression argument)
