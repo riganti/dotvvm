@@ -39,6 +39,8 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.TextEquals(validationSummary, "Input can not be null or empty");
 
                 inputText.SendKeys("TestString");
+                validationSummary.Click();
+                btnValidate = browser.Single(buttonDataUi, SelectByDataUi);
                 btnValidate.Click();
                 browser.WaitForPostback();
                 AssertUI.HasNotClass(inputText, "has-error");
