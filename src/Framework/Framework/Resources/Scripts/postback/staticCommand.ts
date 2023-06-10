@@ -5,6 +5,7 @@ import * as http from './http'
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { DotvvmPostbackError } from '../shared-classes';
 import * as evaluator from '../utils/evaluator'
+import { removeErrors } from '../validation/validation';
 
 function resolveRelativeValidationPaths(paths: string[], options: PostbackOptions) {
     return paths?.map(p => {
@@ -43,6 +44,11 @@ export async function staticCommandPostback(command: string, args: any[], paths:
                 knownTypeMetadata: getKnownTypes()
             };
         });
+
+        // If validation mode is not None, we should obtain argument paths
+        if (paths != null) {
+            removeErrors("/");
+        }
 
         events.staticCommandMethodInvoking.trigger({
             ...options,
