@@ -1,3 +1,4 @@
+import { internalPropCache } from "../state-manager";
 import { isObservableArray } from "./knockout";
 import { logError } from "./logging";
 import { keys } from "./objects";
@@ -34,35 +35,42 @@ export function traverseContext(context: any, path: string): any {
     return currentLevel
 }
 
-export function findPathToChildObject(vm: any, child: any, path: string): string | null {
+export function findPathToChildObservable(vm: any, child: any, path: string): string | null {
     if (vm == child) {
         // We found the child
         return path;
     }
 
+    vm = ko.unwrap(vm);
+
     if (typeof vm !== "object" || vm == null) {
         return null;
+    }
+
+    // vm is object, we can also try comparing the unwrapped value
+    if (vm == ko.unwrap(child)) {
+        return path
     }
 
     if (Array.isArray(vm)) {
         // Iterate over its elements
         let index = 0;
         for (const value of vm) {
-            let result = findPathToChildObject(value, child, path + "/" + index)
+            let result = findPathToChildObservable(value, child, path + "/" + index)
             if (result != null)
                 return result;
             index++;
         }
     }
     else {
-        // Iterate over its properties
-        for (const propertyName of keys(vm)) {
-            if (propertyName.startsWith('$')) {
+        // Iterate over its properties, if it's FakeObservableObject, only already initialized properties are iterated
+        for (const propertyName of keys(vm[internalPropCache] ?? vm)) {
+            var propertyValue = vm[propertyName];
+            if (propertyName.startsWith('$') || propertyValue == null) {
                 continue;
             }
 
-            var propertyValue = vm[propertyName];
-            let result = findPathToChildObject(propertyValue, child, path + "/" + propertyName);
+            let result = findPathToChildObservable(propertyValue, child, path + "/" + propertyName);
             if (result != null)
                 return result;
         }

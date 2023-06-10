@@ -70,9 +70,8 @@ const runClientSideValidation = (validationTarget: any, options: PostbackOptions
     watchAndTriggerValidationErrorChanged(options,
         () => {
             detachAllErrors();
-            const root = dotvvm.state;
-            const target = ko.unwrap(validationTarget)[currentStateSymbol];
-            const path = evaluator.findPathToChildObject(root, target, "")!;
+            const target = evaluator.unwrapComputedProperty(validationTarget);
+            const path = evaluator.findPathToChildObservable(dotvvm.viewModels.root, target, "")!;
             validateViewModel(validationTarget, path);
         });
 }

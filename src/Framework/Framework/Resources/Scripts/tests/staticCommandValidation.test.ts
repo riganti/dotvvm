@@ -72,4 +72,12 @@ describe("staticCommand validation - core functions", () => {
 
         expect(abs).toBe("/");
     })
+    test("resolveRelativeValidationPaths - context is primitive type", () => {
+        const nestedContext = rootContext.createChildContext(() => rootContext.$data.Inner)
+        const nestedContext2 = nestedContext.createChildContext(() => rootContext.$data.Inner().P1)
+
+        var [ abs ] = resolveRelativeValidationPaths([""], nestedContext2)!;
+
+        expect(abs).toBe("/Inner/P1");
+    })
 });

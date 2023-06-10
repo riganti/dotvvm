@@ -17,9 +17,9 @@ export const currentStateSymbol = Symbol("currentState")
 export const notifySymbol = Symbol("notify")
 export const lastSetErrorSymbol = Symbol("lastSetError")
 
-const internalPropCache = Symbol("internalPropCache")
-const updateSymbol = Symbol("update")
-const updatePropertySymbol = Symbol("updateProperty")
+export const internalPropCache = Symbol("internalPropCache")
+export const updateSymbol = Symbol("update")
+export const updatePropertySymbol = Symbol("updateProperty")
 
 let isViewModelUpdating: boolean = false;
 

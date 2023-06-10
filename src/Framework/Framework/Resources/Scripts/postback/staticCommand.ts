@@ -20,7 +20,7 @@ export function resolveRelativeValidationPaths(paths: string[] | null | undefine
         if (context == null) {
             return null
         }
-        const absolutePath = evaluator.findPathToChildObject(dotvvm.state, context.$rawData.state, "")
+        const absolutePath = evaluator.findPathToChildObservable(dotvvm.viewModels.root.viewModel, evaluator.unwrapComputedProperty(context.$rawData), "")
 
         // trim trailing `/` or `/.`, but leave it when path == `/`
         return absolutePath == null ? null :
