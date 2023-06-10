@@ -63,6 +63,7 @@ namespace DotVVM.AutoUI
             });
         }
 
+        [Obsolete("This method probably doesn't do what you'd expect - It does not work correctly for collection elements, because it will miss _index parameter. Please use the `BindingHelper.GetDataContextType(Repeater.ItemTemplateProperty, repeater, context.DataContextStack)` method for the specific property where the binding is being placed (Repeater is just example). If the type is changed using DotvvmBindableObject.DataContext property, use the DataContextStack.Create method.")]
         public DataContextStack CreateChildDataContextStack(DataContextStack dataContextStack, params Type[] nestedDataContextTypes)
         {
             foreach (var type in nestedDataContextTypes)
@@ -72,6 +73,7 @@ namespace DotVVM.AutoUI
             return dataContextStack;
         }
 
+        [Obsolete("This method probably doesn't do what you'd expect - It does not work correctly for collection elements, because it will miss _index parameter. Please use the `BindingHelper.GetDataContextType(Repeater.ItemTemplateProperty, repeater, context.DataContextStack)` method for the specific property where the binding is being placed (Repeater is just example). If the type is changed using DotvvmBindableObject.DataContext property, use the DataContextStack.Create method.")]
         public DataContextStack CreateChildDataContextStack(params Type[] nestedDataContextTypes) =>
             CreateChildDataContextStack(DataContextStack, nestedDataContextTypes);
 

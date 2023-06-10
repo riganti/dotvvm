@@ -1,5 +1,6 @@
 ﻿using DotVVM.AutoUI.Controls;
 using DotVVM.AutoUI.Metadata;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
@@ -20,15 +21,16 @@ public class MultiSelectorCheckBoxFormEditorProvider : FormEditorProviderBase
         var selectorConfiguration = property.SelectionConfiguration!;
         var selectorDiscoveryService = context.Services.GetRequiredService<ISelectorDiscoveryService>();
         var selectorDataSourceBinding = selectorDiscoveryService.DiscoverSelectorDataSourceBinding(context, selectorConfiguration.SelectionType);
-        var nestedDataContext = context.CreateChildDataContextStack(selectorConfiguration.SelectionType);
-
-        return new Repeater()
+        var repeater = new Repeater()
             .SetCapability(props.Html)
             .SetProperty(c => c.WrapperTagName, "ul")
-            .SetProperty(c => c.DataSource, selectorDataSourceBinding)
+            .SetProperty(c => c.DataSource, selectorDataSourceBinding);
+
+        var nestedDataContext = BindingHelper.GetDataContextType(Repeater.ItemTemplateProperty, repeater, context.DataContextStack).NotNull();
+
+        return repeater
             .SetProperty(c => c.ItemTemplate, new CloneTemplate(
                 new HtmlGenericControl("li")
-                    .SetProperty(Internal.DataContextTypeProperty, nestedDataContext)
                     .AppendChildren(
                         new CheckBox()
                             .SetProperty(c => c.Text, context.BindingService.Cache.CreateValueBinding<string>("DisplayName", nestedDataContext))
