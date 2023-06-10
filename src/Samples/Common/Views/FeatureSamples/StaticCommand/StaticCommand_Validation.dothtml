@@ -50,7 +50,7 @@
                 <ul>
                     <li>DataContext={value: User}</li>
                     <li DataContext="{value: User}"> <dot:Button data-ui="btn-validate-text-root-nameof" Text="Validate '/Text' not empty using '_root.Text' (nameof)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingNameof(_root.Text)}" /> </li>
-                    <li DataContext="{value: User}"> <dot:Button data-ui="btn-validate-text-root-lamda" Text="Validate '/Text' not empty using '_root.Text' (lambda)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingLambda(_root.Text)}" /> </li>
+                    <li DataContext="{value: User}"> <dot:Button data-ui="btn-validate-text-root-lambda" Text="Validate '/Text' not empty using '_root.Text' (lambda)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingLambda(_root.Text)}" /> </li>
                 </ul>
             </p>
             <p>

@@ -15,11 +15,16 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Theory]
-        [InlineData("btn-validate-text", "input-text")]
-        [InlineData("btn-validate-username", "input-username")]
-        [InlineData("btn-validate-username-this", "input-username")]
-        [InlineData("btn-validate-text-parent", "input-text")]
-        [InlineData("btn-validate-text-root", "input-text")]
+        [InlineData("btn-validate-text-nameof", "input-text")]
+        [InlineData("btn-validate-text-lambda", "input-text")]
+        [InlineData("btn-validate-username-nameof", "input-username")]
+        [InlineData("btn-validate-username-lambda", "input-username")]
+        [InlineData("btn-validate-username-this-nameof", "input-username")]
+        [InlineData("btn-validate-username-this-lambda", "input-username")]
+        [InlineData("btn-validate-text-parent-nameof", "input-text")]
+        [InlineData("btn-validate-text-parent-lambda", "input-text")]
+        [InlineData("btn-validate-text-root-nameof", "input-text")]
+        [InlineData("btn-validate-text-root-lambda", "input-text")]
         public void Feature_StaticCommandValidation_ServerSide_AddArgumentError_DifferentWaysToPassArguments(string buttonDataUi, string inputDataUi)
         {
             RunInAllBrowsers(browser => {
