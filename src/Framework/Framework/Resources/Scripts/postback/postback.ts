@@ -170,9 +170,6 @@ export async function applyPostbackHandlers(
             }
             else if (reason.type == "validation") {
                 showValidationErrorsFromServer(reason.responseObject, options);
-                if (globalValidationObject.errors.length > 0) {
-                    logError("validation", "Validation failed: postback aborted; errors: ", globalValidationObject.errors);
-                }
             }
             else if (shouldTriggerErrorEvent(reason)) {
                 // trigger error event

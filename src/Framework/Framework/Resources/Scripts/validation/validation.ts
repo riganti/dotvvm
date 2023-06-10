@@ -358,6 +358,10 @@ export function showValidationErrorsFromServer(serverResponseObject: any, option
         // add validation errors
         addErrors(serverResponseObject.modelState, {triggerErrorsChanged: false})
     });
+
+    if (allErrors.length > 0) {
+        logError("validation", "Server-side validation failed; errors: ", allErrors);
+    }
 }
 
 function applyValidatorActions(
