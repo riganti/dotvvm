@@ -38,6 +38,7 @@ namespace DotVVM.Framework.Compilation.Binding
             // throw new Exception($"Method '{methodExpression.Method.DeclaringType.Name}.{methodExpression.Method.Name}' used in static command has to be marked with [AllowStaticCommand] attribute.");
             if (!method.IsDefined(typeof(AllowStaticCommandAttribute)))
                 return null;
+            var attribute = method.GetCustomAttribute<AllowStaticCommandAttribute>();
 
             var (plan, args) = CreateExecutionPlan(context, arguments, method);
             var encryptedPlan = EncryptJson(SerializePlan(plan), protector).Apply(Convert.ToBase64String);
@@ -47,14 +48,20 @@ namespace DotVVM.Framework.Compilation.Binding
                 containsObservables: false
             );
 
-            var argumentPaths = arguments.Select(a =>
-                this.validationPathFormatter.GetValidationPath(a.OriginalExpression, this.dataContext) ?? new JsLiteral(null)).ToArray();
+            JsExpression[]? argumentPaths = null;
+
+            if (attribute.Validation != StaticCommandValidation.None)
+            {
+                argumentPaths = arguments.Select(a =>
+                    this.validationPathFormatter.GetValidationPath(a.OriginalExpression, this.dataContext) ?? new JsLiteral(null)).ToArray();
+            }
 
             return new JsIdentifierExpression("dotvvm").Member("staticCommandPostback")
                 .Invoke(new JsLiteral(encryptedPlan),
-                        new JsArrayExpression(args),
-                        new JsArrayExpression(argumentPaths),
-                        new JsSymbolicParameter(CommandBindingExpression.PostbackOptionsParameter))
+                        args.ArrayExpression(),
+                        new JsSymbolicParameter(CommandBindingExpression.PostbackOptionsParameter),
+                        argumentPaths?.ArrayExpression() // null omits the argument
+                    )
                 .WithAnnotation(new StaticCommandInvocationJsAnnotation(plan))
                 .WithAnnotation(new ResultIsPromiseAnnotation(e => e, resultTypeAnn))
                 .WithAnnotation(resultTypeAnn);

@@ -380,7 +380,7 @@ namespace DotVVM.Framework.Hosting
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
 
                 var knownTypes = postData["knownTypeMetadata"].Values<string>().ToArray();
-                var argumentPaths = postData["paths"].Values<string?>().ToArray();
+                var argumentPaths = postData["paths"]?.Values<string?>().ToArray();
                 var command = postData["command"].Value<string>();
                 var arguments = postData["args"] as JArray;
                 var executionPlan =

@@ -126,14 +126,14 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_SimpleCommand()
         {
             var result = CompileBinding("StaticCommands.GetLength(StringProp)", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("{await dotvvm.staticCommandPostback(\"XXXX\",[options.viewModel.StringProp.state],[\"StringProp\"],options);}", result);
+            Assert.AreEqual("{await dotvvm.staticCommandPostback(\"XXXX\",[options.viewModel.StringProp.state],options);}", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_AssignedCommand()
         {
             var result = CompileBinding("StringProp = StaticCommands.GetLength(StringProp).ToString()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("{let vm=options.viewModel;vm.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp()],[\"StringProp\"],options))());}", result);
+            Assert.AreEqual("{let vm=options.viewModel;vm.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp()],options))());}", result);
         }
 
         [TestMethod]
@@ -147,28 +147,28 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_ChainedCommands()
         {
             var result = CompileBinding("StringProp = StaticCommands.GetLength(StaticCommands.GetLength(StringProp).ToString()).ToString()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("{let vm=options.viewModel;vm.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp()],[\"StringProp\"],options))()],[null],options))());}", result);
+            Assert.AreEqual("{let vm=options.viewModel;vm.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp()],options))()],options))());}", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_MultipleCommandsWithVariable()
         {
             var result = CompileBinding("var lenVar = StaticCommands.GetLength(StringProp).ToString(); StringProp = StaticCommands.GetLength(lenVar).ToString();", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("{let vm=options.viewModel;let lenVar=dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp()],[\"StringProp\"],options))();vm.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[lenVar],[null],options))());}", result);
+            Assert.AreEqual("{let vm=options.viewModel;let lenVar=dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp()],options))();vm.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[lenVar],options))());}", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_ChainedCommandsWithSemicolon()
         {
             var result = CompileBinding("StringProp = StaticCommands.GetLength(StringProp).ToString(); StringProp = StaticCommands.GetLength(StringProp).ToString()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("{let vm=options.viewModel;vm.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp()],[\"StringProp\"],options))());vm.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp()],[\"StringProp\"],options))());}", result);
+            Assert.AreEqual("{let vm=options.viewModel;vm.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp()],options))());vm.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp()],options))());}", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_DateTimeResultAssignment()
         {
             var result = CompileBinding("DateFrom = StaticCommands.GetDate()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("{options.viewModel.DateFrom(dotvvm.serialization.serializeDate(await dotvvm.staticCommandPostback(\"XXXX\",[],[],options),false));}", result);
+            Assert.AreEqual("{options.viewModel.DateFrom(dotvvm.serialization.serializeDate(await dotvvm.staticCommandPostback(\"XXXX\",[],options),false));}", result);
         }
 
         [TestMethod]
@@ -197,7 +197,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("SomeString = injectedService.Load(SomeString)", niceMode: false, new[] { typeof(TestViewModel3) }, typeof(Func<string, string>));
 
-            Assert.AreEqual("{let vm=options.viewModel;return vm.SomeString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.SomeString.state],[\"SomeString\"],options)).SomeString();}", result);
+            Assert.AreEqual("{let vm=options.viewModel;return vm.SomeString(await dotvvm.staticCommandPostback(\"XXXX\",[vm.SomeString.state],options)).SomeString();}", result);
         }
 
         [TestMethod]
@@ -234,7 +234,7 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding("injectedService.LoadAsync", niceMode: true, new[] { typeof(TestViewModel) });
 
             Console.WriteLine(result);
-            var control = @"await dotvvm.staticCommandPostback(""XXXX"", [], [], options)";
+            var control = @"await dotvvm.staticCommandPostback(""XXXX"", [], options)";
 
             AreEqual(control, result);
         }
@@ -245,7 +245,7 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding("injectedService.Load()", niceMode: true, new[] { typeof(TestViewModel) }, expectedType: typeof(Task<object>));
 
             Console.WriteLine(result);
-            var control = @"await dotvvm.staticCommandPostback(""XXXX"", [], [], options)";
+            var control = @"await dotvvm.staticCommandPostback(""XXXX"", [], options)";
 
             AreEqual(control, result);
         }
@@ -254,7 +254,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_ExpressionBetweenPostbacks_WithParameters()
         {
             var result = CompileBinding("StringProp = injectedService.Load(StringProp, StringProp); \"Test\"; StringProp = injectedService.Load(StringProp)", niceMode: false, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("{let vm=options.viewModel;vm.StringProp(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp.state,vm.StringProp.state],[\"StringProp\",\"StringProp\"],options));\"Test\";vm.StringProp(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp.state],[\"StringProp\"],options));}", result);
+            Assert.AreEqual("{let vm=options.viewModel;vm.StringProp(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp.state,vm.StringProp.state],options));\"Test\";vm.StringProp(await dotvvm.staticCommandPostback(\"XXXX\",[vm.StringProp.state],options));}", result);
         }
 
         [TestMethod]
@@ -264,9 +264,9 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var control = @"{
 	let vm = options.viewModel;
-	vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [vm.IntProp.state], [""IntProp""], options));
+	vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [vm.IntProp.state], options));
 	""Test"";
-	vm.StringProp2(await dotvvm.staticCommandPostback(""XXXX"", [], [], options));
+	vm.StringProp2(await dotvvm.staticCommandPostback(""XXXX"", [], options));
 }";
 
             AreEqual(control, result);
@@ -280,9 +280,9 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var control = @"{
 	let vm = options.viewModel;
-	await dotvvm.staticCommandPostback(""XXXX"", [vm.IntProp.state], [""IntProp""], options);
+	await dotvvm.staticCommandPostback(""XXXX"", [vm.IntProp.state], options);
 	""Test"";
-	vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [], [], options));
+	vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [], options));
 }";
 
             AreEqual(control, result);
@@ -296,9 +296,9 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var control = @"{
  	let vm = options.viewModel;
- 	await dotvvm.staticCommandPostback(""XXXX"", [vm.IntProp.state], [""IntProp""], options);
+ 	await dotvvm.staticCommandPostback(""XXXX"", [vm.IntProp.state], options);
  	""Test"";
- 	return vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [], [], options)).StringProp();
+ 	return vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [], options)).StringProp();
  }";
 
             AreEqual(control, result);
@@ -312,8 +312,8 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var control = @"{
  	let vm = options.viewModel;
-    vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [vm.IntProp.state], [""IntProp""], options));
- 	vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp.state], [""StringProp""], options));
+    vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [vm.IntProp.state], options));
+ 	vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp.state], options));
  }";
 
             AreEqual(control, result);
@@ -327,7 +327,7 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var control = @"{
 	let vm = options.viewModel;
-	vm.StringProp(await MethodExtensions.test(vm.StringProp, vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp()], [""StringProp""], options)).StringProp));
+	vm.StringProp(await MethodExtensions.test(vm.StringProp, vm.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp()], options)).StringProp));
 }";
 
             AreEqual(control, result);
@@ -341,7 +341,7 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var control = @"{
 	let vm = options.viewModel;
-	vm.StringProp((await MethodExtensions.test(vm.StringProp, ""a"") ?? """") + (await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp.state], [""StringProp""], options) ?? """"));
+	vm.StringProp((await MethodExtensions.test(vm.StringProp, ""a"") ?? """") + (await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp.state], options) ?? """"));
 }";
 
             AreEqual(control, result);
@@ -369,7 +369,7 @@ namespace DotVVM.Framework.Tests.Binding
 
             Console.WriteLine(result);
             var expectedResult = @"{
-    await dotvvm.staticCommandPostback(""XXXX"", [await options.knockoutContext.$control.Load.state()], [null], options);
+    await dotvvm.staticCommandPostback(""XXXX"", [await options.knockoutContext.$control.Load.state()], options);
 }";
 
             AreEqual(expectedResult, result);
@@ -385,7 +385,7 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var expectedResult = @"{
 	let vm = options.viewModel;
-	vm.StringProp((await options.knockoutContext.$control.Change.state(vm.StringProp.state) ?? """") + (await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp.state], [""StringProp""], options) ?? """"));
+	vm.StringProp((await options.knockoutContext.$control.Change.state(vm.StringProp.state) ?? """") + (await dotvvm.staticCommandPostback(""XXXX"", [vm.StringProp.state], options) ?? """"));
 }";
 
             AreEqual(expectedResult, result);

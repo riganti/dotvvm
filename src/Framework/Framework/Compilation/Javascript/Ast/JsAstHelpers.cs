@@ -46,7 +46,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static JsBlockStatement AsBlock(this IEnumerable<JsStatement> statements) =>
             new JsBlockStatement(statements);
 
-        
+        public static JsArrayExpression ArrayExpression(this IEnumerable<JsExpression> items) =>
+            new JsArrayExpression(items);
+
         public static bool ContainsAwait(this JsNode node) =>
             node.DescendantNodesAndSelf(child => !(child is JsFunctionExpression))
                 .Any(child => child is JsUnaryExpression { Operator: UnaryOperatorType.Await });

@@ -7,7 +7,7 @@ import { DotvvmPostbackError } from '../shared-classes';
 import * as evaluator from '../utils/evaluator'
 import { removeErrors } from '../validation/validation';
 
-function resolveRelativeValidationPaths(paths: string[], options: PostbackOptions) {
+function resolveRelativeValidationPaths(paths: string[] | null | undefined, options: PostbackOptions) {
     return paths?.map(p => {
         if (p == null) {
             return null
@@ -26,7 +26,7 @@ function resolveRelativeValidationPaths(paths: string[], options: PostbackOption
     })
 }
 
-export async function staticCommandPostback(command: string, args: any[], paths: string[], options: PostbackOptions): Promise<any> {
+export async function staticCommandPostback(command: string, args: any[], options: PostbackOptions, paths: string[] | null | undefined): Promise<any> {
 
     let data: any;
     let response: http.WrappedResponse<DotvvmStaticCommandResponse>;
