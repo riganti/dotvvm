@@ -14,41 +14,24 @@ namespace DotVVM.Samples.Tests.Feature
         {
         }
 
-        [Fact]
-        public void Feature_StaticCommandValidation_ServerSide_AddArgumentError_ArgumentName()
+        [Theory]
+        [InlineData("btn-validate-text", "input-text")]
+        [InlineData("btn-validate-username", "input-username")]
+        [InlineData("btn-validate-username-this", "input-username")]
+        [InlineData("btn-validate-text-parent", "input-text")]
+        [InlineData("btn-validate-text-root", "input-text")]
+        public void Feature_StaticCommandValidation_ServerSide_AddArgumentError_DifferentWaysToPassArguments(string buttonDataUi, string inputDataUi)
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_Validation);
-                var btnValidate = browser.Single("btn-validate-text", SelectByDataUi);
-                var inputText = browser.Single("input-text", SelectByDataUi);
+                var btnValidate = browser.Single(buttonDataUi, SelectByDataUi);
+                var inputText = browser.Single(inputDataUi, SelectByDataUi);
                 var validationSummary = browser.First("[data-ui=validation-summary]");
 
                 btnValidate.Click();
                 browser.WaitForPostback();
                 AssertUI.HasClass(inputText, "has-error");
-                AssertUI.TextEquals(validationSummary, "Input can not be null");
-
-                inputText.SendKeys("TestString");
-                btnValidate.Click();
-                browser.WaitForPostback();
-                AssertUI.HasNotClass(inputText, "has-error");
-                AssertUI.TextEquals(validationSummary, "");
-            });
-        }
-
-        [Fact]
-        public void Feature_StaticCommandValidation_ServerSide_AddArgumentError_ArgumentNameAndPropertyExpression()
-        {
-            RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_Validation);
-                var btnValidate = browser.Single("btn-validate-username", SelectByDataUi);
-                var inputText = browser.Single("input-username", SelectByDataUi);
-                var validationSummary = browser.First("[data-ui=validation-summary]");
-
-                btnValidate.Click();
-                browser.WaitForPostback();
-                AssertUI.HasClass(inputText, "has-error");
-                AssertUI.TextEquals(validationSummary, "Input can not be null");
+                AssertUI.TextEquals(validationSummary, "Input can not be null or empty");
 
                 inputText.SendKeys("TestString");
                 btnValidate.Click();
