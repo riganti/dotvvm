@@ -1,5 +1,6 @@
 ﻿using DotVVM.AutoUI.Controls;
 using DotVVM.AutoUI.Metadata;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,11 +20,14 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
             var selectorConfiguration = property.SelectionConfiguration!;
             var selectorDiscoveryService = context.Services.GetRequiredService<ISelectorDiscoveryService>();
             var selectorDataSourceBinding = selectorDiscoveryService.DiscoverSelectorDataSourceBinding(context, selectorConfiguration.SelectionType);
-            var nestedDataContext = context.CreateChildDataContextStack(selectorConfiguration.SelectionType);
-
-            return new ComboBox()
+            
+            var comboBox = new ComboBox()
                 .SetCapability(props.Html)
-                .SetProperty(c => c.DataSource, selectorDataSourceBinding)
+                .SetProperty(c => c.DataSource, selectorDataSourceBinding);
+
+            var nestedDataContext = BindingHelper.GetDataContextType(ComboBox.ItemValueBindingProperty, comboBox, context.DataContextStack).NotNull();
+
+            return comboBox
                 .SetProperty(c => c.ItemTextBinding, context.BindingService.Cache.CreateValueBinding<string>("DisplayName", nestedDataContext))
                 .SetProperty(c => c.ItemValueBinding, context.BindingService.Cache.CreateValueBinding("Value", nestedDataContext))
                 .SetProperty(c => c.SelectedValue, props.Property)
