@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
         }
 
-        public JsInvocationExpression(JsExpression target, params JsExpression[] arguments) : this(target, (IEnumerable<JsExpression>)arguments)
+        public JsInvocationExpression(JsExpression target, params JsExpression?[] arguments) : this(target, (IEnumerable<JsExpression?>)arguments)
         {
         }
 

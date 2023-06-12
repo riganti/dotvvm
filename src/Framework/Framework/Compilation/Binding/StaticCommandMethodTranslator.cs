@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation.Binding
             // throw new Exception($"Method '{methodExpression.Method.DeclaringType.Name}.{methodExpression.Method.Name}' used in static command has to be marked with [AllowStaticCommand] attribute.");
             if (!method.IsDefined(typeof(AllowStaticCommandAttribute)))
                 return null;
-            var attribute = method.GetCustomAttribute<AllowStaticCommandAttribute>();
+            var attribute = method.GetCustomAttribute<AllowStaticCommandAttribute>().NotNull();
 
             var (plan, args) = CreateExecutionPlan(context, arguments, method);
             var encryptedPlan = EncryptJson(SerializePlan(plan), protector).Apply(Convert.ToBase64String);

@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Compilation.Binding
                         falsePath
                     );
                 }
-                case IndexExpression index: {
+                case IndexExpression { Object: {} } index: {
                     var targetPath = GetValidationPath(index.Object, dataContext, baseFormatter);
                     if (isNull(targetPath))
                         return targetPath;
@@ -131,7 +131,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 return right;
 
             if (right is JsLiteral { Value: not null } rightLiteral)
-                return appendPaths(left, rightLiteral.Value.ToString());
+                return appendPaths(left, rightLiteral.Value.ToString()!);
             else if (left is JsLiteral { Value: "." })
                 return right;
             else
