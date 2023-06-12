@@ -174,6 +174,14 @@ namespace DotVVM.Samples.Tests.Feature
                 textBox1.Clear();
                 textBox1.SendKeys("Invalid value");
                 textBox2.SendKeys(DateTime.Now.ToString("dd/MM/yyyy H:mm:ss", CultureInfo.InvariantCulture));
+
+                // this is a small hack to make it work with knockout defer updates
+                // The real problem is that elemMetadata[0].elementValidationState is set to false from the first invalid textbox.
+                // The textbox will reset the elementValidationState when it gets an `update` call, but it is too late
+                // with deferUpdates (unless we explicitly call SendEnterKey).
+                textBox2.SendEnterKey();
+                browser.Wait(10);
+
                 button.Click();
                 AssertUI.HasNotClass(textBox1, "has-error");
                 AssertUI.HasNotClass(textBox2, "has-error");
