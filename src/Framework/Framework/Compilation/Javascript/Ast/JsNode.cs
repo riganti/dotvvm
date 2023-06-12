@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             try
             {
-                return this.Clone().FormatScript(isDebugString: true);
+                return this.Clone().FormatScript(niceMode: true, isDebugString: true);
             }
             catch (Exception e)
             {
@@ -51,6 +51,14 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             set { role = value; }
         }
 
+        string? commentBefore;
+        /// <summary> If not null, places a /* */ comment before the node. Will not do anything if debug is set to false </summary>
+        public string? CommentBefore
+        {
+            get { return commentBefore; }
+            set { ThrowIfFrozen(); commentBefore = value; }
+        }
+
         [JsonIgnore]
         public JsNode? Parent => parent;
         [JsonIgnore]
@@ -79,7 +87,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
             public ChildrenEnumerator GetEnumerator() => new ChildrenEnumerator(node.firstChild);
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-            IEnumerator<JsNode> IEnumerable<JsNode>.GetEnumerator() => throw new NotImplementedException();
+            IEnumerator<JsNode> IEnumerable<JsNode>.GetEnumerator() => GetEnumerator();
         }
 
         public struct ChildrenEnumerator : IEnumerator<JsNode>

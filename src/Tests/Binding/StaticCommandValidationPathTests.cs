@@ -90,6 +90,14 @@ namespace DotVVM.Framework.Tests.Binding
             var p = GetValidationPaths("s.Method(!BoolProp)", typeof(TestViewModel));
             Assert.AreEqual("\"BoolProp\"", p.Single());
         }
+
+        [TestMethod]
+        public void PrintsUnsupportedReason()
+        {
+            var p = GetValidationPaths("s.Method(s.OtherMethod())", typeof(TestViewModel));
+            Assert.AreEqual("/* Expression Call (s.OtherMethod()) isn't supported */ null", p.Single());
+        }
+
         public class ValidatedService
         {
             [AllowStaticCommand(StaticCommandValidation.Manual)]

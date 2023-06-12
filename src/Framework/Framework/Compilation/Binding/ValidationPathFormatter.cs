@@ -103,8 +103,10 @@ namespace DotVVM.Framework.Compilation.Binding
                     var indexPath = this.javascriptTranslator.CompileToJavascript(b.Right, dataContext);
                     return appendPaths(targetPath, indexPath);
                 }
+                case ConstantExpression:
+                    return JsLiteral.Null; // no need to explain the reason
                 default:
-                    return JsLiteral.Null.CommentBefore($"{expr} isn't supported");
+                    return JsLiteral.Null.CommentBefore($"Expression {expr.NodeType} ({expr}) isn't supported");
             }
         }
 
