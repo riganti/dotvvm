@@ -11,6 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
+    /// <summary> Transforms JsExpressions returning a value into JsExpressions returns the validation path of that value </summary>
     public class ValidationPathFormatter
     {
         readonly IViewModelSerializationMapper mapper;
@@ -93,21 +94,38 @@ namespace DotVVM.Framework.Compilation.Binding
                         return JsLiteral.Null.CommentBefore("Unsupported Index");
 
                     var indexPath = this.javascriptTranslator.CompileToJavascript(index.Arguments.Single(), dataContext);
-                    if (indexPath is JsLiteral { Value: not null } indexLiteral)
-                        return appendPaths(targetPath, indexLiteral.Value.ToString());
-                    else if (targetPath is JsLiteral { Value: "." })
-                        return indexPath;
-                    else
-                        return new JsBinaryExpression(stringAppend(targetPath, "/"), BinaryOperatorType.Plus, indexPath);
+                    return appendPaths(targetPath, indexPath);
+                }
+                case BinaryExpression b when b.NodeType == ExpressionType.ArrayIndex: {
+                    var targetPath = GetValidationPath(b.Left, dataContext, baseFormatter);
+                    if (isNull(targetPath))
+                        return targetPath;
+                    var indexPath = this.javascriptTranslator.CompileToJavascript(b.Right, dataContext);
+                    return appendPaths(targetPath, indexPath);
                 }
                 default:
                     return JsLiteral.Null.CommentBefore($"{expr} isn't supported");
             }
         }
 
+        static JsExpression appendPaths(JsExpression left, JsExpression right)
+        {
+            if (left is JsLiteral { Value: null })
+                return left;
+            if (right is JsLiteral { Value: null })
+                return right;
+
+            if (right is JsLiteral { Value: not null } rightLiteral)
+                return appendPaths(left, rightLiteral.Value.ToString());
+            else if (left is JsLiteral { Value: "." })
+                return right;
+            else
+                return new JsBinaryExpression(stringAppend(left, "/"), BinaryOperatorType.Plus, right);
+        }
+
         static JsExpression appendPaths(JsExpression left, string right)
         {
-            if (left is JsLiteral l && ".".Equals(l.Value))
+            if (left is JsLiteral { Value: "." } l)
                 return new JsLiteral(right);
             return stringAppend(left, "/" + right);
         }

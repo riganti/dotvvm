@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
@@ -7,9 +8,11 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Testing
@@ -25,7 +28,7 @@ namespace DotVVM.Framework.Testing
             BindingService = bindingService ?? Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
             JavascriptTranslator = Configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>();
             ExpressionBuilder = Configuration.ServiceProvider.GetRequiredService<IBindingExpressionBuilder>();
-            DefaultExtensionParameters = defaultExtensionParameters ?? new BindingExtensionParameter[]{
+            DefaultExtensionParameters = defaultExtensionParameters ?? new BindingExtensionParameter[] {
                 new CurrentCollectionIndexExtensionParameter(),
                 new BindingCollectionInfoExtensionParameter("_collection"),
                 new BindingPageInfoExtensionParameter(),
@@ -39,11 +42,19 @@ namespace DotVVM.Framework.Testing
         public JavascriptTranslator JavascriptTranslator { get; }
         public IBindingExpressionBuilder ExpressionBuilder { get; }
 
-        public DataContextStack CreateDataContext(Type[] contexts)
+        public DataContextStack CreateDataContext(Type[] contexts, BindingExtensionParameter[]? extensionParameters = null, Type? markupControl = null)
         {
+            var ep = new List<BindingExtensionParameter>();
+            if (extensionParameters is {})
+                ep.AddRange(extensionParameters);
+            if (markupControl is {})
+                ep.Add(new CurrentMarkupControlExtensionParameter(new ResolvedTypeDescriptor(markupControl)));
+            ep.AddRange(DefaultExtensionParameters);
+            ep.AddRange(Configuration.Markup.DefaultExtensionParameters);
+
             var context = DataContextStack.Create(
                 contexts.FirstOrDefault() ?? typeof(object),
-                extensionParameters: DefaultExtensionParameters.Concat(Configuration.Markup.DefaultExtensionParameters).ToArray()
+                extensionParameters: ep.ToArray()
             );
             for (int i = 1; i < contexts.Length; i++)
             {
@@ -89,6 +100,44 @@ namespace DotVVM.Framework.Testing
                 BindingParserOptions.Value.AddImports(Configuration.Markup.ImportedNamespaces),
                 new ExpectedTypeBindingProperty(typeof(T))
             });
+        }
+
+        public StaticCommandBindingExpression StaticCommand(string expression, Type[] contexts, Type? expectedType = null) =>
+            StaticCommand(expression, CreateDataContext(contexts), expectedType);
+        public StaticCommandBindingExpression StaticCommand(string expression, DataContextStack context, Type? expectedType = null)
+        {
+            expectedType ??= typeof(Command);
+            return new StaticCommandBindingExpression(BindingService, new object[] {
+                context,
+                new OriginalStringBindingProperty(expression),
+                BindingParserOptions.Value.AddImports(Configuration.Markup.ImportedNamespaces),
+                new ExpectedTypeBindingProperty(expectedType)
+            });
+        }
+
+        public static string GetStaticCommandJavascriptBody(StaticCommandBindingExpression binding, bool stripBoilerplate = true)
+        {
+            var expr = KnockoutHelper.GenerateClientPostBackExpression(
+                "NonExistentProperty",
+                binding,
+                new Literal(),
+                new PostbackScriptOptions(
+                    allowPostbackHandlers: false,
+                    returnValue: null,
+                    commandArgs: CodeParameterAssignment.FromIdentifier("commandArguments")
+                ));
+            if (stripBoilerplate)
+            {
+                if (expr.StartsWith("dotvvm.applyPostbackHandlers(") && expr.EndsWith(",this,[],commandArguments)"))
+                    expr = expr.Substring(29, expr.Length - 29 - 26);
+                if (expr.StartsWith("async"))
+                    expr = expr.Substring("async".Length).TrimStart();
+                if (expr.StartsWith("(options)"))
+                    expr = expr.Substring("(options)".Length).TrimStart();
+                if (expr.StartsWith("=>"))
+                    expr = expr.Substring("=>".Length).TrimStart();
+            }
+            return expr;
         }
     }
 }

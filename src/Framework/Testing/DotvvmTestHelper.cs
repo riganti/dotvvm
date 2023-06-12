@@ -116,7 +116,8 @@ namespace DotVVM.Framework.Testing
 
         public static TestDotvvmRequestContext CreateContext(
             DotvvmConfiguration? configuration = null,
-            RouteBase? route = null)
+            RouteBase? route = null,
+            DotvvmRequestType requestType = DotvvmRequestType.Navigate)
         {
             configuration = configuration ?? DefaultConfig;
             var httpContext = new TestHttpContext();
@@ -130,6 +131,7 @@ namespace DotVVM.Framework.Testing
                 HttpContext = httpContext,
                 Parameters = new Dictionary<string, object>(),
                 Route = route ?? configuration.RouteTable.FirstOrDefault(),
+                RequestType = requestType
             };
             if (context.Route != null)
             {

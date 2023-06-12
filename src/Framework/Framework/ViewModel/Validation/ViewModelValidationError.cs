@@ -36,5 +36,8 @@ namespace DotVVM.Framework.ViewModel.Validation
             this.ErrorMessage = errorMessage;
             this.TargetObject = targetObject;
         }
+
+        public override string ToString() => 
+            $"ViewModelValidationError({ErrorMessage}, {PropertyPath}{(IsResolved ? "" : "relative in object " + TargetObject)})";
     }
 }
