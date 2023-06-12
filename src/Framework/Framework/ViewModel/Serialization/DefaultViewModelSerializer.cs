@@ -17,6 +17,9 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Binding;
 using System.Collections.Immutable;
 using RecordExceptions;
+using DotVVM.Framework.Compilation.Binding;
+using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -323,6 +326,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return result.ToString(JsonFormatting);
         }
 
+        /// <summary>
+        /// Serializes the HTTP request error object.
+        /// </summary>
+        public string SerializeErrorResponse(string action, string errorMessage)
+        {
+            // create result object
+            var result = new JObject();
+            result["action"] = action;
+            result["message"] = errorMessage;
+            return result.ToString(JsonFormatting);
+        }
 
         /// <summary>
         /// Populates the view model from the data received from the request.
@@ -383,6 +397,28 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
+        public async Task<StaticCommandRequest> DeserializeStaticCommandRequest(IDotvvmRequestContext context)
+        {
+            JObject postData;
+            using (var jsonReader = new JsonTextReader(new StreamReader(context.HttpContext.Request.Body)))
+            {
+                postData = await JObject.LoadAsync(jsonReader);
+            }
+
+            // validate csrf token
+            context.CsrfToken = postData["$csrfToken"].Value<string>();
+
+            var command = postData["command"].Value<string>();
+            var arguments = postData["args"] as JArray;
+            var executionPlan =
+                StaticCommandExecutionPlanSerializer.DecryptJson(Convert.FromBase64String(command), context.Services.GetRequiredService<IViewModelProtector>())
+                    .Apply(StaticCommandExecutionPlanSerializer.DeserializePlan);
+
+            var serializer = CreateJsonSerializer();
+            var argumentAccessors = arguments.Select(a => (Func<Type, object>)(targetType => a.ToObject(targetType, serializer)));
+            return new StaticCommandRequest(executionPlan, argumentAccessors);
+        }
+
         /// <summary>
         /// Resolves the command for the specified post data.
         /// </summary>
@@ -434,5 +470,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             context.ViewModelJson["updatedControls"] = result;
         }
+
     }
 }

@@ -107,12 +107,13 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 if (string.IsNullOrEmpty(errorMessage))
                 {
                     var json = viewModelSerializer.BuildStaticCommandResponse(request, uploadedFiles);
-                    await outputRenderer.RenderPlainJsonResponse(context, json);
+                    context.Response.StatusCode = (int)HttpStatusCode.OK;
+                    await outputRenderer.WritePlainJsonResponse(context, json);
                 }
                 else
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    await outputRenderer.RenderPlainTextResponse(context, errorMessage);
+                    await outputRenderer.WritePlainTextResponse(context, errorMessage);
                 }
             }
             
