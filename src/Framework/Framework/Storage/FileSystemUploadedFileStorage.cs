@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -24,16 +25,27 @@ namespace DotVVM.Framework.Storage
         public FileSystemUploadedFileStorage(string tempDirectory, TimeSpan autoDeleteInterval)
         {
             TempDirectory = tempDirectory;
-            if (!Directory.Exists(tempDirectory))
-            {
-                Directory.CreateDirectory(tempDirectory);
-            }
-
             AutoDeleteInterval = autoDeleteInterval;
+
+            EnsureDirectory();
 
             autoDeleteTimer = new Timer(state => DeleteOldFiles(DateTime.Now - AutoDeleteInterval), null, AutoDeleteInterval, AutoDeleteInterval);
         }
 
+        private void EnsureDirectory()
+        {
+            if (!Directory.Exists(TempDirectory))
+            {
+                try
+                {
+                    Directory.CreateDirectory(TempDirectory);
+                }
+                catch (IOException e)
+                {
+                    throw new Exception($"The {nameof(FileSystemUploadedFileStorage)} couldn't create a directory {TempDirectory}. Make sure the application has write permissions for this path.", e);
+                }
+            }
+        }
 
         /// <summary>
         /// Stores uploaded file and returns its unique id.
@@ -41,6 +53,7 @@ namespace DotVVM.Framework.Storage
         public async Task<Guid> StoreFileAsync(Stream stream)
         {
             var id = SecureGuidGenerator.GenerateGuid();
+            EnsureDirectory();
             using (var fs = new FileStream(GetFileName(id), FileMode.OpenOrCreate, FileAccess.Write))
             {
                 await stream.CopyToAsync(fs);
@@ -77,7 +90,19 @@ namespace DotVVM.Framework.Storage
         /// </summary>
         public void DeleteOldFiles(DateTime maxCreatedDate)
         {
-            var files = Directory.GetFiles(TempDirectory).Where(t => File.GetCreationTime(t) < maxCreatedDate);
+            List<string> files;
+            try
+            {
+                files = Directory.GetFiles(TempDirectory)
+                    .Where(t => File.GetCreationTime(t) < maxCreatedDate)
+                    .ToList();
+            }
+            catch (IOException)
+            {
+                // the directory probably doesn't exist, we don't have to delete anything
+                return;
+            }
+
             foreach (var file in files)
             {
                 try
@@ -86,6 +111,7 @@ namespace DotVVM.Framework.Storage
                 }
                 catch (IOException)
                 {
+                    // some of the files couldn't be deleted, it is probably locked
                 }
             }
         }
