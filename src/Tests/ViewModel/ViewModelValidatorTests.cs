@@ -225,7 +225,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             {
                 Context = new TestDotvvmRequestContext
                 {
-                    Configuration = DotvvmTestHelper.CreateConfiguration(),
+                    Configuration = DotvvmTestHelper.DefaultConfig,
                     ModelState = new ModelState(),
                     RequestType = DotvvmRequestType.Command
                 },
