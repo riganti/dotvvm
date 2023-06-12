@@ -57,6 +57,14 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void RenamedProperty()
+        {
+            // the paths are evaluated client-side, so we must use the client-side name
+            var p = GetValidationPaths("s.Method(_this.MyProperty)", typeof(ViewModelWithRenamedProperty));
+            Assert.AreEqual("\"x\"", p.Single());
+        }
+
+        [TestMethod]
         public void ArrayIndex()
         {
             var p = GetValidationPaths("s.Method(_this.VmArray[_this.IntProp].MyProperty)", typeof(TestViewModel));
@@ -70,25 +78,29 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("\"StringList/\" + $par.IntProp.state", p.Single());
         }
 
-        [TestMethod]
-        public void ToBrowserLocalTime()
+        [DataTestMethod]
+        [DataRow("_this", "\".\"")]
+        [DataRow("_parent", "\"..\"")]
+        [DataRow("_root", "\"../..\"")]
+        [DataRow("_root.DateTime", "\"../../DateTime\"")]
+        public void ParentReference(string expr, string expected)
         {
-            var p = GetValidationPaths("s.Method(_this.DateTime.ToBrowserLocalTime())", typeof(TestViewModel));
-            Assert.AreEqual("\"DateTime\"", p.Single());
+            var p = GetValidationPaths($"s.Method({expr})", new [] { typeof(TestViewModel), typeof(string), typeof(string) });
+            Assert.AreEqual(expected, p.Single());
         }
 
-        [TestMethod]
-        public void ParentReference()
+        [DataTestMethod]
+        [DataRow("!BoolProp", "\"BoolProp\"")]
+        [DataRow("_this.DateTime.ToBrowserLocalTime()", "\"DateTime\"")]
+        [DataRow("_this.DateTime.ToString('blabla')", "\"DateTime\"")]
+        [DataRow("Enums.ToEnumString(_this.EnumProperty)", "\"EnumProperty\"")]
+        [DataRow("_this.IntProp", "\"IntProp\"")] // this will use BoxingUtils.Box
+        [DataRow("_this.IntProp + 1", "\"IntProp\"")]
+        [DataRow("'padding: ' + _this.StringProp", "\"StringProp\"")]
+        public void UnwrapsPointlessExpressions(string expr, string expected)
         {
-            var p = GetValidationPaths("s.Method(_root.DateTime.ToString())", new [] { typeof(TestViewModel), typeof(string), typeof(string) });
-            Assert.AreEqual("\"../../DateTime\"", p.Single());
-        }
-
-        [TestMethod]
-        public void UnwrapsNegation()
-        {
-            var p = GetValidationPaths("s.Method(!BoolProp)", typeof(TestViewModel));
-            Assert.AreEqual("\"BoolProp\"", p.Single());
+            var p = GetValidationPaths($"s.Method({expr})", typeof(TestViewModel));
+            Assert.AreEqual(expected, p.Single());
         }
 
         [TestMethod]
@@ -98,6 +110,37 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("/* Expression Call (s.OtherMethod()) isn't supported */ null", p.Single());
         }
 
+        [TestMethod]
+        public void UnsupportedDictionary()
+        {
+            var p = GetValidationPaths("s.Method(StringVmDictionary['aa'])", typeof(TestViewModel));
+            Assert.AreEqual("/* Unsupported index */ null", p.Single());
+        }
+
+
+        [TestMethod]
+        public void ConditionalProperty()
+        {
+            var p = GetValidationPaths("s.Method(StringProp != 'aaa' ? StringProp : TestViewModel2.SomeString)", typeof(TestViewModel));
+            Assert.AreEqual("$par.StringProp.state != \"aaa\" ? \"StringProp\" : \"TestViewModel2/SomeString\"", p.Single());
+        }
+
+        [TestMethod]
+        public void ConditionalPropertyIgnoresEdgecase()
+        {
+            var p = GetValidationPaths("s.Method(StringProp != 'aaa' ? StringProp : 'bb')", typeof(TestViewModel));
+            Assert.AreEqual("\"StringProp\"", p.Single());
+        }
+
+        [TestMethod]
+        public void ConditionalPropertyDoesntExecuteCommandTwice()
+        {
+            // BoolMethod is a static command, so we really don't want to execute it twice just to evaluate the path
+            var p = GetValidationPaths("s.Method(s.BoolMethod() ? StringProp : TestViewModel2.SomeString)", typeof(TestViewModel));
+            Assert.AreEqual("/* Unsupported condition */ null", p.Single());
+        }
+
+
         public class ValidatedService
         {
             [AllowStaticCommand(StaticCommandValidation.Manual)]
@@ -105,6 +148,15 @@ namespace DotVVM.Framework.Tests.Binding
 
             [AllowStaticCommand]
             public string OtherMethod() { return "aaa"; }
+
+            [AllowStaticCommand]
+            public bool BoolMethod() { return false; }
+        }
+
+        public class ViewModelWithRenamedProperty
+        {
+            [Bind(Name = "x")]
+            public string MyProperty { get; set; }
         }
     }
 }

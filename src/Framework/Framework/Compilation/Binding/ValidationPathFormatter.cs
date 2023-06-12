@@ -80,8 +80,21 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (isNull(truePath) || isNull(falsePath))
                         return truePath ?? falsePath;
 
+                    if (truePath is JsLiteral { Value: var trueValue } && falsePath is JsLiteral { Value: var falseValue } && object.Equals(trueValue, falseValue))
+                        return truePath;
+
+                    JsExpression condition;
+                    try
+                    {
+                        condition = this.javascriptTranslator.CompileToJavascript(conditional.Test, dataContext);
+                    }
+                    catch
+                    {
+                        return JsLiteral.Null.CommentBefore("Unsupported condition");
+                    }
+
                     return new JsConditionalExpression(
-                        this.javascriptTranslator.CompileToJavascript(conditional.Test, dataContext),
+                        condition,
                         truePath,
                         falsePath
                     );
@@ -91,7 +104,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (isNull(targetPath))
                         return targetPath;
                     if (index.Arguments.Count != 1 || !index.Arguments.Single().Type.IsNumericType())
-                        return JsLiteral.Null.CommentBefore("Unsupported Index");
+                        return JsLiteral.Null.CommentBefore("Unsupported index");
 
                     var indexPath = this.javascriptTranslator.CompileToJavascript(index.Arguments.Single(), dataContext);
                     return appendPaths(targetPath, indexPath);
