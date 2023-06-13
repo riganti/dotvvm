@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Tests.Runtime
     [TestClass]
     public class ErrorPageTests
     {
-        static DotvvmConfiguration config = DotvvmTestHelper.CreateConfiguration();
+        static DotvvmConfiguration config = DotvvmTestHelper.DefaultConfig;
         ErrorFormatter formatter = CreateFormatter();
         BindingCompilationService bcs = config.ServiceProvider.GetService<BindingCompilationService>().WithoutInitialization();
         IDotvvmRequestContext context = DotvvmTestHelper.CreateContext(config);

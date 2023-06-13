@@ -18,8 +18,8 @@ namespace DotVVM.Framework.Tests.ViewModel
     [TestClass]
     public class ViewModelValidatorTests
     {
-        private IViewModelValidator CreateValidator() => DotvvmTestHelper.CreateConfiguration().ServiceProvider.GetRequiredService<IViewModelValidator>();
-        private IValidationErrorPathExpander CreateErrorPathExpander() => DotvvmTestHelper.CreateConfiguration().ServiceProvider.GetRequiredService<IValidationErrorPathExpander>();
+        private IViewModelValidator CreateValidator() => DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<IViewModelValidator>();
+        private IValidationErrorPathExpander CreateErrorPathExpander() => DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<IValidationErrorPathExpander>();
 
         [TestMethod]
         public void ViewModelValidator_SimpleObject()
@@ -261,7 +261,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             {
                 Context = new TestDotvvmRequestContext
                 {
-                    Configuration = DotvvmTestHelper.CreateConfiguration(),
+                    Configuration = DotvvmTestHelper.DefaultConfig,
                     ModelState = new ModelState(),
                     RequestType = DotvvmRequestType.Command
                 },
@@ -290,7 +290,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             {
                 Context = new TestDotvvmRequestContext
                 {
-                    Configuration = DotvvmTestHelper.CreateConfiguration(),
+                    Configuration = DotvvmTestHelper.DefaultConfig,
                     ModelState = new ModelState(),
                     RequestType = DotvvmRequestType.Command
                 },
@@ -336,7 +336,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             {
                 Context = new TestDotvvmRequestContext
                 {
-                    Configuration = DotvvmTestHelper.CreateConfiguration(),
+                    Configuration = DotvvmTestHelper.DefaultConfig,
                     ModelState = new ModelState(),
                     RequestType = DotvvmRequestType.Command
                 },
@@ -386,7 +386,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             {
                 Context = new TestDotvvmRequestContext
                 {
-                    Configuration = DotvvmTestHelper.CreateConfiguration(),
+                    Configuration = DotvvmTestHelper.DefaultConfig,
                     ModelState = new ModelState(),
                     RequestType = DotvvmRequestType.Command
                 },
@@ -426,7 +426,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             {
                 Context = new TestDotvvmRequestContext
                 {
-                    Configuration = DotvvmTestHelper.CreateConfiguration(),
+                    Configuration = DotvvmTestHelper.DefaultConfig,
                     ModelState = new ModelState(),
                     RequestType = DotvvmRequestType.Command
                 },

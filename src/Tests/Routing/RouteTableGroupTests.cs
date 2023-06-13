@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Tests.Routing
     [TestClass]
     public class RouteTableGroupTests
     {
-        DotvvmConfiguration configuration = DotvvmTestHelper.CreateConfiguration();
+        DotvvmConfiguration configuration = DotvvmTestHelper.DefaultConfig;
 
         [TestMethod]
         public void RouteTableGroup_UrlWithParameters()

@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestInitialize]
         public void Init()
         {
-            var configuration = DotvvmTestHelper.CreateConfiguration();
+            var configuration = DotvvmTestHelper.DefaultConfig;
             var extensionsCache = configuration.ServiceProvider.GetRequiredService<ExtensionMethodsCache>();
             memberExpressionFactory = new MemberExpressionFactory(extensionsCache);
         }
