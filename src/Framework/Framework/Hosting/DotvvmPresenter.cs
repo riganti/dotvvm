@@ -494,7 +494,7 @@ namespace DotVVM.Framework.Hosting
         async Task RespondWithStaticCommandValidationFailure(ActionInfo action, IDotvvmRequestContext context, StaticCommandModelState staticCommandModelState)
         {
             var invokedMethod = action.InvokedMethod!;
-            var staticCommandAttribute = action.InvokedMethod.GetCustomAttribute<AllowStaticCommandAttribute>();
+            var staticCommandAttribute = invokedMethod.GetCustomAttribute<AllowStaticCommandAttribute>();
             if (staticCommandAttribute?.Validation == StaticCommandValidation.None)
                 throw new Exception($"Could not respond with validation failure, validation is disabled on method {ReflectionUtils.FormatMethodInfo(invokedMethod)}. Use [AllowStaticCommand(StaticCommandValidation.Manual)] to allow validation.");
 
