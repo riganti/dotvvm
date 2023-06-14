@@ -35,6 +35,13 @@ namespace DotVVM.Analyzers.ApiUsage
             context.EnableConcurrentExecution();
 
             context.RegisterOperationAction(context => {
+                if (context.Operation is not IInvocationOperation invocation)
+                    return;
+
+                var method = invocation.TargetMethod;
+                if (invocation.Instance?.Type is null || method.MetadataName != addArgumentErrorMetadataName)
+                    return;
+
                 var allowStaticCommandAttribute = context.Compilation.GetTypeByMetadataName(allowStaticCommandAttributeMetadataName);
                 var staticCommandModelStateType = context.Compilation.GetTypeByMetadataName(staticCommandModelStateMetadataName);
                 var expressionType = context.Compilation.GetTypeByMetadataName("System.Linq.Expressions.Expression`1");
@@ -43,44 +50,40 @@ namespace DotVVM.Analyzers.ApiUsage
                 if (allowStaticCommandAttribute is null || staticCommandModelStateType == null)
                     return;
 
-                if (context.Operation is IInvocationOperation invocation)
+                if (invocation.Instance?.Type != null &&
+                    invocation.Arguments.Any() &&
+                    SymbolEqualityComparer.Default.Equals(invocation.Instance.Type, staticCommandModelStateType) &&
+                    method.MetadataName == addArgumentErrorMetadataName &&
+                    IsWithinAllowStaticCommandMethod(context, allowStaticCommandAttribute))
                 {
-                    var method = invocation.TargetMethod;
-                    if (invocation.Instance?.Type != null &&
-                        invocation.Arguments.Any() &&
-                        SymbolEqualityComparer.Default.Equals(invocation.Instance.Type, staticCommandModelStateType) &&
-                        invocation.TargetMethod.MetadataName == addArgumentErrorMetadataName &&
-                        IsWithinAllowStaticCommandMethod(context, allowStaticCommandAttribute))
+                    var staticCommand = (context.ContainingSymbol as IMethodSymbol)!;
+                    var validExpression = true;
+                    string? parameterName = null;
+
+                    if (SymbolEqualityComparer.Default.Equals(invocation.Arguments[0].Parameter?.Type, stringType))
                     {
-                        var staticCommand = (context.ContainingSymbol as IMethodSymbol)!;
-                        var validExpression = true;
-                        string? parameterName = null;
+                        // Argument provided by string
+                        parameterName = invocation.Arguments[0].Value switch {
+                            ILiteralOperation local => local.ConstantValue.Value as string,
+                            IConstantPatternOperation constant => constant.ConstantValue.Value as string,
+                            INameOfOperation nameof => nameof.ConstantValue.Value as string,
+                            _ => default,
+                        };
+                    }
+                    else if (SymbolEqualityComparer.Default.Equals(invocation.Arguments[0].Parameter?.Type?.OriginalDefinition, expressionType))
+                    {
+                        // Argument (or its property) provided by lambda expression
+                        (validExpression, parameterName) = GetParameterReferenceFromExpression(invocation);
+                    }
 
-                        if (SymbolEqualityComparer.Default.Equals(invocation.Arguments[0].Parameter?.Type, stringType))
-                        {
-                            // Argument provided by string
-                            parameterName = invocation.Arguments[0].Value switch {
-                                ILiteralOperation local => local.ConstantValue.Value as string,
-                                IConstantPatternOperation constant => constant.ConstantValue.Value as string,
-                                INameOfOperation nameof => nameof.ConstantValue.Value as string,
-                                _ => default,
-                            };
-                        }
-                        else if (SymbolEqualityComparer.Default.Equals(invocation.Arguments[0].Parameter?.Type?.OriginalDefinition, expressionType))
-                        {
-                            // Argument (or its property) provided by lambda expression
-                            (validExpression, parameterName) = GetParameterReferenceFromExpression(invocation);
-                        }
-
-                        // Check if the provided argument matched any parameter name of the method invoked by static command
-                        if (!validExpression || (parameterName != null && !staticCommand.Parameters.Any(p => p.Name == parameterName)))
-                        {
-                            context.ReportDiagnostic(
-                                Diagnostic.Create(
-                                    ReferenceOnlyArgumentsIncludedInStaticCommandInvocation,
-                                    invocation.Arguments.First().Syntax.GetLocation(),
-                                    (validExpression) ? parameterName : invocation.Arguments[0].Value.Syntax.ToFullString()));
-                        }
+                    // Check if the provided argument matched any parameter name of the method invoked by static command
+                    if (!validExpression || (parameterName != null && !staticCommand.Parameters.Any(p => p.Name == parameterName)))
+                    {
+                        context.ReportDiagnostic(
+                            Diagnostic.Create(
+                                ReferenceOnlyArgumentsIncludedInStaticCommandInvocation,
+                                invocation.Arguments.First().Syntax.GetLocation(),
+                                (validExpression) ? parameterName : invocation.Arguments[0].Value.Syntax.ToFullString()));
                     }
                 }
             }, OperationKind.Invocation);
