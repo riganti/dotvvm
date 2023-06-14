@@ -272,8 +272,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             EmitComment(jsLiteral.CommentBefore);
             var literalValue = jsLiteral.LiteralValue;
             if (char.IsLetterOrDigit(literalValue[0])) SpaceBeforeOp(literalValue, allowCosmeticSpace: false);
-
-            VisitChildren(jsLiteral);
             Emit(literalValue);
         }
 
@@ -355,7 +353,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             Emit('{');
             Indent();
             CommitLine();
-            foreach (var ss in blockStatement.Children)
+            foreach (var ss in blockStatement.Body)
             {
                 ss.AcceptVisitor(this);
             }

@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Compilation.Binding
             this.javascriptTranslator = javascriptTranslator;
         }
 
-        private bool isNull([NotNullWhen(false)] JsNode? expr) =>
+        private bool IsNull([NotNullWhen(false)] JsNode? expr) =>
             expr is null or JsLiteral { Value: null };
 
         public JsExpression? GetValidationPath(
@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 case MemberExpression m when m.Expression is {}: {
                     var targetPath = GetValidationPath(m.Expression, dataContext, baseFormatter);
-                    if (isNull(targetPath))
+                    if (IsNull(targetPath))
                         return targetPath;
 
                     var typeMap = mapper.GetMap(m.Member.DeclaringType!);
@@ -71,13 +71,13 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (property is null)
                         return JsLiteral.Null.CommentBefore($"{m.Member.Name} is not mapped");
 
-                    return appendPaths(targetPath, property.Name);
+                    return AppendPaths(targetPath, property.Name);
                 }
                 case ConditionalExpression conditional: {
                     var truePath = GetValidationPath(conditional.IfTrue, dataContext, baseFormatter);
                     var falsePath = GetValidationPath(conditional.IfFalse, dataContext, baseFormatter);
 
-                    if (isNull(truePath) || isNull(falsePath))
+                    if (IsNull(truePath) || IsNull(falsePath))
                         return truePath ?? falsePath;
 
                     if (truePath is JsLiteral { Value: var trueValue } && falsePath is JsLiteral { Value: var falseValue } && object.Equals(trueValue, falseValue))
@@ -101,20 +101,20 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 case IndexExpression { Object: {} } index: {
                     var targetPath = GetValidationPath(index.Object, dataContext, baseFormatter);
-                    if (isNull(targetPath))
+                    if (IsNull(targetPath))
                         return targetPath;
                     if (index.Arguments.Count != 1 || !index.Arguments.Single().Type.IsNumericType())
                         return JsLiteral.Null.CommentBefore("Unsupported index");
 
                     var indexPath = this.javascriptTranslator.CompileToJavascript(index.Arguments.Single(), dataContext);
-                    return appendPaths(targetPath, indexPath);
+                    return AppendPaths(targetPath, indexPath);
                 }
                 case BinaryExpression b when b.NodeType == ExpressionType.ArrayIndex: {
                     var targetPath = GetValidationPath(b.Left, dataContext, baseFormatter);
-                    if (isNull(targetPath))
+                    if (IsNull(targetPath))
                         return targetPath;
                     var indexPath = this.javascriptTranslator.CompileToJavascript(b.Right, dataContext);
-                    return appendPaths(targetPath, indexPath);
+                    return AppendPaths(targetPath, indexPath);
                 }
                 case ConstantExpression:
                     return JsLiteral.Null; // no need to explain the reason
@@ -123,7 +123,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        static JsExpression appendPaths(JsExpression left, JsExpression right)
+        static JsExpression AppendPaths(JsExpression left, JsExpression right)
         {
             if (left is JsLiteral { Value: null })
                 return left;
@@ -131,21 +131,21 @@ namespace DotVVM.Framework.Compilation.Binding
                 return right;
 
             if (right is JsLiteral { Value: not null } rightLiteral)
-                return appendPaths(left, rightLiteral.Value.ToString()!);
+                return AppendPaths(left, rightLiteral.Value.ToString()!);
             else if (left is JsLiteral { Value: "." })
                 return right;
             else
-                return new JsBinaryExpression(stringAppend(left, "/"), BinaryOperatorType.Plus, right);
+                return new JsBinaryExpression(StringAppend(left, "/"), BinaryOperatorType.Plus, right);
         }
 
-        static JsExpression appendPaths(JsExpression left, string right)
+        static JsExpression AppendPaths(JsExpression left, string right)
         {
             if (left is JsLiteral { Value: "." } l)
                 return new JsLiteral(right);
-            return stringAppend(left, "/" + right);
+            return StringAppend(left, "/" + right);
         }
 
-        static JsExpression stringAppend(JsExpression left, string right)
+        static JsExpression StringAppend(JsExpression left, string right)
         {
             if (left is JsLiteral l && l.Value is string s)
                 return new JsLiteral(s + right);

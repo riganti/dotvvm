@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Hosting
         public ResourceManager ResourceManager => _resourceManager ?? (_resourceManager = Services.GetRequiredService<ResourceManager>());
 
         /// <summary>
-        /// Gets the <see cref="ModelState"/> object that manages validation errors for the and static command arguments.
+        /// Gets the <see cref="ModelState"/> object that manages validation errors for the viewmodel in Command requests. In StaticCommand, please use <see cref="StaticCommandModelState"/>
         /// </summary>
         public ModelState ModelState { get; } = new ModelState();
 

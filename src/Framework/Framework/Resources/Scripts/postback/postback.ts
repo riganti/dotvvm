@@ -1,6 +1,5 @@
 import * as counter from './counter'
 import { postbackCore, throwIfAborted } from './postbackCore'
-import { getViewModel } from '../dotvvm-base'
 import { defaultConcurrencyPostbackHandler, getPostbackHandler } from './handlers';
 import * as internalHandlers from './internal-handlers';
 import * as events from '../events';
@@ -9,7 +8,6 @@ import { DotvvmPostbackError } from '../shared-classes';
 import { logError } from '../utils/logging';
 import { handleRedirect } from './redirect';
 import { showValidationErrorsFromServer } from '../validation/validation';
-import { globalValidationObject } from '../validation/validation';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,

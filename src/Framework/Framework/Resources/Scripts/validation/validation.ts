@@ -13,6 +13,7 @@ import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
 import { currentStateSymbol, lastSetErrorSymbol } from "../state-manager"
 import { logError, logWarning } from "../utils/logging"
+import { getViewModel, getViewModelObservable } from "../dotvvm-base"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -71,14 +72,14 @@ const runClientSideValidation = (validationTarget: any, options: PostbackOptions
         () => {
             detachAllErrors();
             const target = evaluator.unwrapComputedProperty(validationTarget);
-            const path = evaluator.findPathToChildObservable(dotvvm.viewModels.root, target, "")!;
+            const path = evaluator.findPathToChildObservable(getViewModel(), target, "")!;
             validateViewModel(validationTarget, path);
         });
 }
 
 export function init() {
     postbackHandlers["validate"] = (opt) => createValidationHandler(opt.fn, opt.path);
-    postbackHandlers["validate-root"] = () => createValidationHandler(c => dotvvm.viewModelObservables.root, "/");
+    postbackHandlers["validate-root"] = () => createValidationHandler(c => getViewModelObservable(), "/");
     postbackHandlers["validate-this"] = () => createValidationHandler(c => c.$data, "_this");
 
     if (compileConstants.isSpa) {
@@ -331,7 +332,7 @@ export function removeErrors(...paths: string[]) {
 
 
 export function addErrors(errors: ValidationErrorDescriptor[], options: AddErrorsOptions = {}): void {
-    const root = options.root ?? dotvvm.viewModelObservables.root
+    const root = options.root ?? getViewModelObservable()
     for (const prop of errors) {
         const propertyPath = prop.propertyPath;
         try {

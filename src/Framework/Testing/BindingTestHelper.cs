@@ -161,16 +161,20 @@ namespace DotVVM.Framework.Testing
                 ));
             if (stripBoilerplate)
             {
-                if (expr.StartsWith("dotvvm.applyPostbackHandlers(") && expr.EndsWith(",this,[],commandArguments)"))
-                    expr = expr.Substring(29, expr.Length - 29 - 26);
-                if (expr.StartsWith("async"))
-                    expr = expr.Substring("async".Length).TrimStart();
-                if (expr.StartsWith("(options)"))
-                    expr = expr.Substring("(options)".Length).TrimStart();
-                if (expr.StartsWith("=>"))
-                    expr = expr.Substring("=>".Length).TrimStart();
+                expr = strip(expr, "dotvvm.applyPostbackHandlers(", ",this,[],commandArguments)");
+                expr = strip(expr, "async", "");
+                expr = strip(expr, "(options)", "");
+                expr = strip(expr, "=>", "");
             }
             return expr;
+
+            string strip(string value, string start, string end)
+            {
+                if (value.StartsWith(start) && value.EndsWith(end))
+                    return value.Substring(start.Length, value.Length - start.Length - end.Length).Trim();
+                else
+                    return value;
+            }
         }
     }
 }

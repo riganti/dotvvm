@@ -28,7 +28,7 @@ function getCoreState() {
 }
 
 export function getViewModel() {
-    return getStateManager().stateObservable()
+    return getViewModelObservable()()
 }
 export function getViewModelCacheId(): string | undefined {
     return getCoreState()._viewModelCacheId;
@@ -37,7 +37,7 @@ export function getViewModelCache(): any {
     return getCoreState()._viewModelCache;
 }
 export function getViewModelObservable(): DeepKnockoutObservable<RootViewModel> {
-    return getCoreState()._stateManager.stateObservable
+    return getStateManager().stateObservable
 }
 export function getInitialUrl(): string {
     return getCoreState()._initialUrl

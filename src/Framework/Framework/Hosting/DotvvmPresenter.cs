@@ -380,7 +380,7 @@ namespace DotVVM.Framework.Hosting
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
 
                 var knownTypes = postData["knownTypeMetadata"].Values<string>().ToArray();
-                var argumentPaths = postData["paths"]?.Values<string?>().ToArray();
+                var argumentPaths = postData["argumentPaths"]?.Values<string?>().ToArray();
                 var command = postData["command"].Value<string>();
                 var arguments = postData["args"] as JArray;
                 var executionPlan =
@@ -454,18 +454,21 @@ namespace DotVVM.Framework.Hosting
                 
                 return commandResultOrNotYetComputedAwaitable;
             }
-            catch (TargetInvocationException e) when (e.InnerException is DotvvmInvalidStaticCommandModelStateException ex)
-            {
-                DotvvmRequestContextValidationExtensions.EnsureRequestType(context, DotvvmRequestType.StaticCommand);
-                await RespondWithStaticCommandValidationFailure(action, context, ex.StaticCommandModelState);
-            }
             catch (Exception ex)
             {
                 if (ex is TargetInvocationException && ex.InnerException is object)
                 {
                     ex = ex.InnerException;
                 }
-                if (ex is DotvvmInterruptRequestExecutionException)
+
+                if (ex is DotvvmInvalidStaticCommandModelStateException { StaticCommandModelState: {} staticCommandModelState })
+                {
+                    if (context.RequestType != DotvvmRequestType.StaticCommand)
+                        throw new InvalidOperationException($"The StaticCommandModelState type may only be used in StaticCommand requests. Please use Context.ModelState in Commands.");
+                    await RespondWithStaticCommandValidationFailure(action, context, staticCommandModelState);
+                    context.IsCommandExceptionHandled = true;
+                }
+                else if (ex is DotvvmInterruptRequestExecutionException)
                 {
                     throw new DotvvmInterruptRequestExecutionException("The request execution was interrupted in the command!", ex);
                 }
@@ -490,11 +493,18 @@ namespace DotVVM.Framework.Hosting
 
         async Task RespondWithStaticCommandValidationFailure(ActionInfo action, IDotvvmRequestContext context, StaticCommandModelState staticCommandModelState)
         {
+            var invokedMethod = action.InvokedMethod!;
+            var staticCommandAttribute = action.InvokedMethod.GetCustomAttribute<AllowStaticCommandAttribute>();
+            if (staticCommandAttribute?.Validation == StaticCommandValidation.None)
+                throw new Exception($"Could not respond with validation failure, validation is disabled on method {ReflectionUtils.FormatMethodInfo(invokedMethod)}. Use [AllowStaticCommand(StaticCommandValidation.Manual)] to allow validation.");
+
             var argumentPaths = action.ArgumentPaths;
-            var invokedMethodParameters = action.InvokedMethod!.GetParameters();
+            var invokedMethodParameters = invokedMethod.GetParameters();
 
             foreach (var error in staticCommandModelState.Errors.Where(e => !e.IsResolved))
             {
+                if (argumentPaths is null)
+                    throw new Exception("Could not respond with validation failure because the client did not send validation paths.");
                 if (error.PropertyPathExtractor != null)
                 {
                     var path = error.PropertyPathExtractor(configuration);
@@ -511,7 +521,9 @@ namespace DotVVM.Framework.Hosting
                 var argumentIndex = parameter.Position;
                 var propertyPath = error.PropertyPath?.Trim('/');
                 var argumentPath = argumentPaths![argumentIndex]?.TrimEnd('/');
-                error.PropertyPath = ((argumentPath is not null) ? $"{argumentPath}/{error.PropertyPath}" : $"${argumentIndex}/{error.PropertyPath}").TrimEnd('/');
+                if (argumentPath is null)
+                    throw new StaticCommandMissingValidationPathException(error);
+                error.PropertyPath = $"{argumentPath}/{error.PropertyPath}";
             }
 
             var jObject = new JObject
@@ -524,6 +536,11 @@ namespace DotVVM.Framework.Hosting
             context.HttpContext.Response.ContentType = "application/json";
             await context.HttpContext.Response.WriteAsync(result);
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ArgumentsValidationFailed, "Argument contain validation errors!");
+        }
+
+        record StaticCommandMissingValidationPathException(StaticCommandValidationError ValidationError): RecordExceptions.RecordException
+        {
+            public override string Message => $"Could not serialize validation error {ValidationError.ArgumentName}/{ValidationError.PropertyPath}, the client did not specify the validation path for this method argument. Make sure that the argument maps directly into a view model property (or use AddRawError to sidestep the automagic mapping in advanced cases).";
         }
 
         async Task ValidateSecFetchHeaders(IDotvvmRequestContext context)

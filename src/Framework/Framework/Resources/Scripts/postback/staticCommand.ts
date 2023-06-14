@@ -1,5 +1,5 @@
 import { serialize } from '../serialization/serialize';
-import { getInitialUrl } from '../dotvvm-base';
+import { getInitialUrl, getViewModel } from '../dotvvm-base';
 import * as events from '../events';
 import * as http from './http'
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
@@ -20,7 +20,7 @@ export function resolveRelativeValidationPaths(paths: string[] | null | undefine
         if (context == null) {
             return null
         }
-        const absolutePath = evaluator.findPathToChildObservable(dotvvm.viewModels.root.viewModel, evaluator.unwrapComputedProperty(context.$rawData), "")
+        const absolutePath = evaluator.findPathToChildObservable(getViewModel(), evaluator.unwrapComputedProperty(context.$rawData), "")
 
         // trim trailing `/` or `/.`, but leave it when path == `/`
         return absolutePath == null ? null :
@@ -41,7 +41,7 @@ export async function staticCommandPostback(command: string, args: any[], option
             data = { 
                 args: args.map(a => serialize(a)), 
                 command, 
-                paths: absolutePaths,
+                argumentPaths: absolutePaths,
                 $csrfToken: csrfToken,
                 knownTypeMetadata: getKnownTypes()
             };
