@@ -60,7 +60,6 @@ namespace DotVVM.Analyzers.ApiUsage
                         {
                             // Argument provided by string
                             parameterName = invocation.Arguments[0].Value switch {
-                                ILocalReferenceOperation local => local.Local.Name,
                                 ILiteralOperation local => local.ConstantValue.Value as string,
                                 IConstantPatternOperation constant => constant.ConstantValue.Value as string,
                                 INameOfOperation nameof => nameof.ConstantValue.Value as string,
