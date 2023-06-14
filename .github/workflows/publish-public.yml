@@ -95,14 +95,12 @@ jobs:
         run: >
           ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
             -targetDirectory "." `
-            -registry "https://registry.npmjs.org" `
-            -pat "${{ secrets.PUBLIC_NPM_PAT }}" `
-            -username "${{ secrets.PUBLIC_NPM_USERNAME }}" `
-            -email "${{ secrets.PUBLIC_NPM_EMAIL }}"
+            -registry "https://registry.npmjs.org/" `
+            -authToken "${{ secrets.PUBLIC_NPM_PAT }}"
         shell: pwsh
-        working-directory: ./artifacts
+        working-directory: ./artifacts/node_modules/dotvvm-types
 
       - name: Publish dotvvm-types to registry.npmjs.org
         if: steps.include-check.outputs.match == 'true'
-        run: npm publish
-        working-directory: ./artifacts
+        run: npm publish --verbose
+        working-directory: ./artifacts/node_modules/dotvvm-types

@@ -1,9 +1,10 @@
 param(
     [string]$targetDirectory,
     [string][parameter(Mandatory = $true)]$registry,
-    [string][parameter(Mandatory = $true)]$pat,
-    [string][parameter(Mandatory = $true)]$username,
-    [string][parameter(Mandatory = $true)]$email
+    [string][parameter(Mandatory = $false)]$pat,
+    [string][parameter(Mandatory = $false)]$authToken,
+    [string][parameter(Mandatory = $false)]$username,
+    [string][parameter(Mandatory = $false)]$email
 )
 
 $oldCwd = Get-Location
@@ -16,12 +17,21 @@ if (-not ([string]::IsNullOrWhiteSpace("$targetDirectory"))) {
 }
 
 try {
-    $password = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$pat"));
     $feed = "$registry".Trim("https:");
     npm config set --location project "registry=$registry"
-    npm config set --location project "${feed}:username=$username"
-    npm config set --location project "${feed}:email=$email"
-    npm config set --location project "${feed}:_password=$password"
+    if ($username) {
+        npm config set --location project "${feed}:username=$username"
+    }
+    if ($email) {
+        npm config set --location project "${feed}:email=$email"
+    }
+    if ($pat) {
+        $password = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$pat"));
+        npm config set --location project "${feed}:_password=$password"
+    }
+    if ($authToken) {
+        npm config set --location project "${feed}:_authToken=$authToken"
+    }
 }
 finally {
     Set-Location "$oldCwd"
