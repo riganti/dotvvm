@@ -29,6 +29,12 @@
                 Value:<span data-ui="value">{{value: Child.Value}}</span>
             </span>
         </p>
+
+        <p>
+            Errors:
+            <dot:ValidationSummary Validation.Target="{value: _root}" IncludeErrorsFromChildren="true" />
+        </p>
+
     </div>
 </body>
 </html>

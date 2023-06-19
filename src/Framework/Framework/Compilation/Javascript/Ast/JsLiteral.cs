@@ -35,5 +35,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public JsLiteral(int value): this(BoxingUtils.Box(value)) { }
 
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitLiteral(this);
+
+
+        public static JsLiteral Null => new JsLiteral(null);
     }
 }

@@ -41,6 +41,8 @@ namespace DotVVM.Framework.ViewModel.Validation
         public static ViewModelValidationError AddModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string message)
             where T : IDotvvmViewModel
         {
+            DotvvmRequestContextValidationExtensions.EnsureRequestType(vm.Context, DotvvmRequestType.Command);
+
             var error = CreateModelError(vm.Context.Configuration, vm, expr, message);
             vm.Context.ModelState.ErrorsInternal.Add(error);
             return error;
@@ -88,16 +90,18 @@ namespace DotVVM.Framework.ViewModel.Validation
         private static ConcurrentDictionary<(JavascriptTranslator translator, LambdaExpression expression), string> exprCache =
             new ConcurrentDictionary<(JavascriptTranslator, LambdaExpression), string>(new TupleComparer<JavascriptTranslator, LambdaExpression>(null, ExpressionComparer.Instance));
 
-        public static string GetPathFromExpression(DotvvmConfiguration config, LambdaExpression expr) =>
-            GetPathFromExpression(config.ServiceProvider.GetRequiredService<JavascriptTranslator>(), expr, config.Debug);
+        public static string GetPathFromExpression(DotvvmConfiguration config, LambdaExpression expr, bool expandLocals = true) =>
+            GetPathFromExpression(config.ServiceProvider.GetRequiredService<JavascriptTranslator>(), expr, expandLocals);
 
         public static string GetPathFromExpression(JavascriptTranslator translator,
             LambdaExpression expr,
-            bool isDebug = false)
+            bool expandLocals = true)
         {
-            expr = (LambdaExpression)new LocalVariableExpansionVisitor().Visit(expr);
+            if (expandLocals)
+                expr = (LambdaExpression)new LocalVariableExpansionVisitor().Visit(expr);
+
             return exprCache.GetOrAdd((translator, expr), e => {
-                var dataContext = DataContextStack.Create(e.expression.Parameters.Single().Type);
+                var dataContext = DataContextStack.Create(e.expression.Parameters.First().Type);
                 var expression = ExpressionUtils.Replace(e.expression, BindingExpressionBuilder.GetParameters(dataContext).First(p => p.Name == "_this"));
                 var jsast = translator.CompileToJavascript(expression, dataContext);
 

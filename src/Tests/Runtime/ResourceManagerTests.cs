@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void ResourceManager_SimpleTest()
         {
-            var configuration = DotvvmTestHelper.CreateConfiguration();
+            var configuration = DotvvmTestHelper.DefaultConfig;
             var manager = new ResourceManager(configuration.Resources);
 
             manager.AddRequiredResource(ResourceConstants.GlobalizeResourceName);
@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void ResourceManager_DependentResources()
         {
-            var configuration = DotvvmTestHelper.CreateConfiguration();
+            var configuration = DotvvmTestHelper.DefaultConfig;
             var manager = new ResourceManager(configuration.Resources);
 
             manager.AddRequiredResource(ResourceConstants.DotvvmResourceName);
@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void ResourceManager_DependentResources_Css()
         {
-            var configuration = DotvvmTestHelper.CreateConfiguration();
+            var configuration = DotvvmTestHelper.DefaultConfig;
             var manager = new ResourceManager(configuration.Resources);
 
             manager.AddRequiredResource(ResourceConstants.DotvvmFileUploadCssResourceName);

@@ -1,14 +1,22 @@
+﻿using System;
+using DotVVM.Framework.Configuration;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
-    public class ViewModelValidationError
+    public class StaticCommandValidationError
     {
         /// <summary>
         /// Gets or sets the error message.
         /// </summary>
         [JsonProperty("errorMessage")]
         public string ErrorMessage { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets the argument name
+        /// </summary>
+        [JsonProperty("argumentName")]
+        public string? ArgumentName { get; internal set; }
 
         /// <summary>
         /// Contains path that can be evaluated on the client side.
@@ -18,10 +26,10 @@ namespace DotVVM.Framework.ViewModel.Validation
         public string? PropertyPath { get; internal set; }
 
         /// <summary>
-        /// Object affected by this validation error
+        /// Determines property path from either argument name
         /// </summary>
         [JsonIgnore]
-        internal object? TargetObject { get; set; }
+        internal Func<DotvvmConfiguration, string>? PropertyPathExtractor { get; set; }
 
         /// <summary>
         /// Determines whether this error is fully processed
@@ -30,14 +38,16 @@ namespace DotVVM.Framework.ViewModel.Validation
         internal bool IsResolved { get; set; }
 
         [JsonConstructor]
-        internal ViewModelValidationError(string errorMessage, string? propertyPath = null, object? targetObject = null)
+        internal StaticCommandValidationError(
+            string errorMessage,
+            string? argumentName = null,
+            string? propertyPath = null,
+            Func<DotvvmConfiguration, string>? propertyPathExtractor = null)
         {
             this.PropertyPath = propertyPath;
+            this.ArgumentName = argumentName;
             this.ErrorMessage = errorMessage;
-            this.TargetObject = targetObject;
+            this.PropertyPathExtractor = propertyPathExtractor;
         }
-
-        public override string ToString() => 
-            $"ViewModelValidationError({ErrorMessage}, {PropertyPath}{(IsResolved ? "" : "relative in object " + TargetObject)})";
     }
 }

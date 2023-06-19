@@ -1,0 +1,84 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.StaticCommand_ValidationViewModel, DotVVM.Samples.Common
+@import DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .has-error {
+            border: solid 3px red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" Validator.InvalidCssClass="has-error">
+
+        <p>
+            <h3>Static commands</h3>
+            <p>
+                <ul>
+                    <li>DataContext={value: _root}</li>
+                    <li> <dot:Button data-ui="btn-validate-text-nameof" Text="Validate '/Text' not empty (nameof)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingNameof(Text) }" /> </li>
+                    <li> <dot:Button data-ui="btn-validate-text-lambda" Text="Validate '/Text' not empty (lambda)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingLambda(Text) }" /> </li>
+                </ul>
+            </p>
+            <p>
+                <ul>
+                    <li>DataContext={value: _root}</li>
+                    <li> <dot:Button data-ui="btn-validate-username-nameof" Text="Validate '/User/Name' not empty (nameof)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingNameof(User.Name) }" /> </li>
+                    <li> <dot:Button data-ui="btn-validate-username-lambda" Text="Validate '/User/Name' not empty (lambda)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingLambda(User.Name) }" /> </li>
+                </ul>
+            </p>
+            <p>
+                <ul>
+                    <li>DataContext={value: User.Name}</li>
+                    <li DataContext="{value: User.Name}"> <dot:Button data-ui="btn-validate-username-this-nameof" Text="Validate '/User/Name' not empty using '_this' (nameof)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingNameof(_this)}" /> </li>
+                    <li DataContext="{value: User.Name}"> <dot:Button data-ui="btn-validate-username-this-lambda" Text="Validate '/User/Name' not empty using '_this' (lambda)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingLambda(_this)}" /> </li>
+                </ul>
+            </p>
+            <p>
+                <ul>
+                    <li>DataContext={value: User}</li>
+                    <li DataContext="{value: User}"> <dot:Button data-ui="btn-validate-text-parent-nameof" Text="Validate '/Text' not empty using '_parent.Text' (nameof)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingNameof(_parent.Text)}" /> </li>
+                    <li DataContext="{value: User}"> <dot:Button data-ui="btn-validate-text-parent-lambda" Text="Validate '/Text' not empty using '_parent.Text' (lambda)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingLambda(_parent.Text)}" /> </li>
+                </ul>
+            </p>
+            <p>
+                <ul>
+                    <li>DataContext={value: User}</li>
+                    <li DataContext="{value: User}"> <dot:Button data-ui="btn-validate-text-root-nameof" Text="Validate '/Text' not empty using '_root.Text' (nameof)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingNameof(_root.Text)}" /> </li>
+                    <li DataContext="{value: User}"> <dot:Button data-ui="btn-validate-text-root-lambda" Text="Validate '/Text' not empty using '_root.Text' (lambda)" Click="{staticCommand: StaticCommand_ValidationViewModel.ValidateNotNullOrEmptyUsingLambda(_root.Text)}" /> </li>
+                </ul>
+            </p>
+            <p>
+                <ul>
+                    <li>DataContext={value: _root}</li>
+                    <li>
+                        <dot:Button data-ui="btn-add-error" Text="Add custom error" Click="{staticCommand: StaticCommand_ValidationViewModel.AddError(PropertyPath, ErrorMessage) }" />
+                    </li>
+                </ul>
+            </p>
+
+
+            <h3>Inputs</h3>
+            <ul>
+                <li> <dot:TextBox data-ui="input-text" Validator.Value="{value: Text }" Text="{value: Text}" /> (bound to <b>/Text</b>) </li>
+                <li> <dot:TextBox data-ui="input-username" Validator.Value="{value: User.Name }" Text="{value: User.Name}" /> (bound to <b>/User/Name</b>) </li>
+                <li> <dot:TextBox data-ui="input-propertypath" Text="{value: PropertyPath }" /> (bound to <b>/PropertyPath</b> </li>
+                <li> <dot:TextBox data-ui="input-errormessage" Text="{value: ErrorMessage }" /> (bound to <b>/ErrorMessage</b> </li>
+            </ul>
+        </p>
+
+        <p>
+            <h3>Validation errors</h3>
+            <dot:ValidationSummary data-ui="validation-summary" Validation.Target="{value: _root}" IncludeErrorsFromChildren="true" />
+        </p>
+
+    </div>
+</body>
+</html>
+
+

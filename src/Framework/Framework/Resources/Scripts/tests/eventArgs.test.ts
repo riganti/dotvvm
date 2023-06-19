@@ -587,7 +587,7 @@ test("staticCommand (with server call) + success", async () => {
 
         await applyPostbackHandlers(options => (function(){
             return new Promise(function(resolve,reject){
-                dotvvm.staticCommandPostback("test",[],options).then(function(r_0){resolve(r_0);},reject);
+                dotvvm.staticCommandPostback("test",[],options,null).then(function(r_0){resolve(r_0);},reject);
             });
         }()), window.document.body, [], []);
         
@@ -615,8 +615,8 @@ test("staticCommand (with two server call) + success", async () => {
 
         await applyPostbackHandlers(options => (function(){
             return new Promise(function(resolve,reject){
-                dotvvm.staticCommandPostback("test",[],options).then(function(r_0){
-                    dotvvm.staticCommandPostback("test2",[],options).then(function(r_1){
+                dotvvm.staticCommandPostback("test",[],options,null).then(function(r_0){
+                    dotvvm.staticCommandPostback("test2",[],options,null).then(function(r_1){
                         resolve(r_1);
                     }, reject);
                 }, reject);
@@ -653,7 +653,7 @@ test("staticCommand (with server call) + server error", async () => {
         await expect(
             applyPostbackHandlers(options => (function(){
                 return new Promise(function(resolve,reject){
-                    dotvvm.staticCommandPostback("test",[],options).then(function(r_0){resolve(r_0);},reject);
+                    dotvvm.staticCommandPostback("test",[],options,null).then(function(r_0){resolve(r_0);},reject);
                 });
             }()), window.document.body, [], [])
         ).rejects.toBeInstanceOf(DotvvmPostbackError)

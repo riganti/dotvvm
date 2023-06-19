@@ -13,6 +13,7 @@ import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
 import { currentStateSymbol, lastSetErrorSymbol } from "../state-manager"
 import { logError, logWarning } from "../utils/logging"
+import { getViewModel, getViewModelObservable } from "../dotvvm-base"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -70,16 +71,15 @@ const runClientSideValidation = (validationTarget: any, options: PostbackOptions
     watchAndTriggerValidationErrorChanged(options,
         () => {
             detachAllErrors();
-            const root = dotvvm.state;
-            const target = ko.unwrap(validationTarget)[currentStateSymbol];
-            const path = evaluator.findPathToChildObject(root, target, "")!;
+            const target = evaluator.unwrapComputedProperty(validationTarget);
+            const path = evaluator.findPathToChildObservable(getViewModel(), target, "")!;
             validateViewModel(validationTarget, path);
         });
 }
 
 export function init() {
     postbackHandlers["validate"] = (opt) => createValidationHandler(opt.fn, opt.path);
-    postbackHandlers["validate-root"] = () => createValidationHandler(c => dotvvm.viewModelObservables.root, "/");
+    postbackHandlers["validate-root"] = () => createValidationHandler(c => getViewModelObservable(), "/");
     postbackHandlers["validate-this"] = () => createValidationHandler(c => c.$data, "_this");
 
     if (compileConstants.isSpa) {
@@ -255,7 +255,7 @@ function getValidationErrors<T>(
         return errors;
     }
 
-    const validationTarget = ko.unwrap(targetObservable);
+    const validationTarget: any = ko.unwrap(targetObservable);
     if (isPrimitive(validationTarget)) {
         return errors;
     }
@@ -275,7 +275,7 @@ function getValidationErrors<T>(
             continue;
         }
 
-        const property = (validationTarget as any)[propertyName];
+        const property = validationTarget[propertyName];
         if (!ko.isObservable(property)) {
             continue;
         }
@@ -332,7 +332,7 @@ export function removeErrors(...paths: string[]) {
 
 
 export function addErrors(errors: ValidationErrorDescriptor[], options: AddErrorsOptions = {}): void {
-    const root = options.root ?? dotvvm.viewModelObservables.root
+    const root = options.root ?? getViewModelObservable()
     for (const prop of errors) {
         const propertyPath = prop.propertyPath;
         try {
@@ -357,8 +357,12 @@ export function showValidationErrorsFromServer(serverResponseObject: any, option
         detachAllErrors()
 
         // add validation errors
-        addErrors(serverResponseObject.modelState, { triggerErrorsChanged: false })
+        addErrors(serverResponseObject.modelState, {triggerErrorsChanged: false})
     });
+
+    if (allErrors.length > 0) {
+        logError("validation", "Server-side validation failed; errors: ", allErrors);
+    }
 }
 
 function applyValidatorActions(

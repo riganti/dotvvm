@@ -14,20 +14,32 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using FastExpressionCompiler;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
     public class StaticCommandBindingCompiler
     {
-        private readonly JavascriptTranslator javascriptTranslator;
-        public StaticCommandBindingCompiler(IOptions<JavascriptTranslatorConfiguration> config, IViewModelSerializationMapper serializationMapper, StaticCommandMethodTranslator staticCommandTranslator)
+        readonly JavascriptTranslatorConfiguration translatorConfiguration;
+        readonly IViewModelSerializationMapper serializationMapper;
+        readonly IServiceProvider services;
+
+        public StaticCommandBindingCompiler(IOptions<JavascriptTranslatorConfiguration> config, IViewModelSerializationMapper serializationMapper, IServiceProvider services)
         {
+            this.translatorConfiguration = config.Value;
+            this.serializationMapper = serializationMapper;
+            this.services = services;
+        }
+
+        JavascriptTranslator CreateTranslator(DataContextStack dataContext)
+        {
+            var staticCommandTranslator = ActivatorUtilities.CreateInstance<StaticCommandMethodTranslator>(services, dataContext);
             var configForStaticCommands = new JavascriptTranslatorConfiguration();
-            configForStaticCommands.Translators.Add(config.Value);
+            configForStaticCommands.Translators.Add(this.translatorConfiguration);
             configForStaticCommands.Translators.Add(staticCommandTranslator);
 
-            javascriptTranslator = new JavascriptTranslator(configForStaticCommands, serializationMapper);
+            return new JavascriptTranslator(configForStaticCommands, serializationMapper);
         }
 
         public JsExpression CompileToJavascript(DataContextStack dataContext, Expression expression)
@@ -93,6 +105,8 @@ namespace DotVVM.Framework.Compilation.Binding
 
             var rewriter = new TaskSequenceRewriterExpressionVisitor();
             expression = rewriter.Visit(expression);
+
+            var javascriptTranslator = this.CreateTranslator(dataContext);
 
             var jsExpression = javascriptTranslator.CompileToJavascript(expression, dataContext, preferUsingState: true, isRootAsync: true);
             return (JsExpression)jsExpression.AssignParameters(symbol =>

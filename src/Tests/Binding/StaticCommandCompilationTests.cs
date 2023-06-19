@@ -51,75 +51,36 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         static readonly DotvvmConfiguration debugConfiguration;
+        static readonly BindingTestHelper debugHelper;
         static readonly DotvvmConfiguration releaseConfiguration;
+        static readonly BindingTestHelper releaseHelper;
 
         static StaticCommandCompilationTests()
         {
+            var extensionParams = new BindingExtensionParameter[] {
+                new CurrentCollectionIndexExtensionParameter(),
+                new CurrentCollectionIndexExtensionParameter(),
+                new BindingPageInfoExtensionParameter(),
+                new InjectedServiceExtensionParameter("injectedService", new ResolvedTypeDescriptor(typeof(TestService)))
+            };
             debugConfiguration = MakeConfiguration();
             debugConfiguration.Debug = true;
             debugConfiguration.Freeze();
+            debugHelper = new BindingTestHelper(debugConfiguration, defaultExtensionParameters: extensionParams);
             releaseConfiguration = MakeConfiguration();
             releaseConfiguration.Debug = false;
             releaseConfiguration.Freeze();
+            releaseHelper = new BindingTestHelper(releaseConfiguration, defaultExtensionParameters: extensionParams);
         }
         /// Gets translation of the specified binding expression if it would be passed in static command
         /// For better readability, the returned code does not include null checks
         public string CompileBinding(string expression, bool niceMode, params Type[] contexts) => CompileBinding(expression, niceMode, contexts, expectedType: typeof(Command));
         public string CompileBinding(string expression, bool niceMode, Type[] contexts, Type expectedType, Type currentMarkupControl = null)
         {
-            var configuration = niceMode ? debugConfiguration : releaseConfiguration;
-            var bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
-
-            var parameters =
-                new BindingExtensionParameter[]{
-                    new CurrentCollectionIndexExtensionParameter(),
-                    new BindingPageInfoExtensionParameter(),
-                    new InjectedServiceExtensionParameter("injectedService", new ResolvedTypeDescriptor(typeof(TestService)))
-                }
-                .Concat(configuration.Markup.DefaultExtensionParameters);
-
-            if (currentMarkupControl != null)
-            {
-                parameters = parameters.Append(new CurrentMarkupControlExtensionParameter(new ResolvedTypeDescriptor(currentMarkupControl)));
-            }
-
-            var context = DataContextStack.Create(
-                contexts.FirstOrDefault() ?? typeof(object),
-                extensionParameters: parameters.ToArray(),
-                imports: configuration.Markup.ImportedNamespaces.ToImmutableList());
-
-            for (int i = 1; i < contexts.Length; i++)
-            {
-                context = DataContextStack.Create(contexts[i], context);
-            }
-
-            var options = BindingParserOptions.StaticCommand
-                .AddImports(configuration.Markup.ImportedNamespaces);
-
-            var staticCommand = new StaticCommandBindingExpression(bindingService, new object[] {
-                new OriginalStringBindingProperty(expression),
-                context,
-                options,
-                new ExpectedTypeBindingProperty(expectedType)
-            });
-            var expr = KnockoutHelper.GenerateClientPostBackExpression(
-                "",
-                staticCommand,
-                new Literal(),
-                new PostbackScriptOptions(
-                    allowPostbackHandlers: false,
-                    returnValue: null,
-                    commandArgs: CodeParameterAssignment.FromIdentifier("commandArguments")
-                ));
-            if (expr.StartsWith("dotvvm.applyPostbackHandlers(") && expr.EndsWith(",this,[],commandArguments)"))
-                expr = expr.Substring(29, expr.Length - 29 - 26);
-            if (expr.StartsWith("async"))
-                expr = expr.Substring("async".Length).TrimStart();
-            if (expr.StartsWith("(options)"))
-                expr = expr.Substring("(options)".Length).TrimStart();
-            if (expr.StartsWith("=>"))
-                expr = expr.Substring("=>".Length).TrimStart();
-            return expr;
+            var bindingHelper = niceMode ? debugHelper : releaseHelper;
+            var context = bindingHelper.CreateDataContext(contexts, markupControl: currentMarkupControl);
+            var staticCommand = bindingHelper.StaticCommand(expression, context, expectedType);
+            return BindingTestHelper.GetStaticCommandJavascriptBody(staticCommand);
         }
 
         [TestMethod]

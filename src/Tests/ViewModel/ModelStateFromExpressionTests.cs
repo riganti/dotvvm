@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             this.viewModel = new ViewModel();
             this.viewModel.Context = new TestDotvvmRequestContext {
-                Configuration = DotvvmTestHelper.CreateConfiguration()
+                Configuration = DotvvmTestHelper.DefaultConfig
             };
 
             this.viewModel.Context.Services.GetRequiredService<IViewModelSerializationMapper>().Map(typeof(ViewModel), m => {

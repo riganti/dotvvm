@@ -84,13 +84,14 @@ namespace DotVVM.Framework.Testing
 
             var context = DotvvmTestHelper.CreateContext(
                 Configuration,
-                route: new Framework.Routing.DotvvmRoute("testpage", fileName, null, _ => throw new Exception(), Configuration));
+                route: new Framework.Routing.DotvvmRoute("testpage", fileName, null, _ => throw new Exception(), Configuration),
+                requestType: postback is object ? DotvvmRequestType.Command : DotvvmRequestType.Navigate
+            );
             context.CsrfToken = null;
             var httpContext = (TestHttpContext)context.HttpContext;
 
             if (postback is object)
             {
-                context.RequestType = DotvvmRequestType.Command;
                 httpContext.Request.Method = "POST";
                 httpContext.Request.Headers["X-DotVVM-PostBack"] = new[] { "true" };
                 httpContext.Request.Body = new MemoryStream(

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace DotVVM.Framework.ViewModel
 {
@@ -10,5 +9,11 @@ namespace DotVVM.Framework.ViewModel
     /// the attribute offers a decent protection against RCE in case the Asp.Net Core encryption keys are compromised. </remarks>
     public class AllowStaticCommandAttribute : Attribute
     {
+        public StaticCommandValidation Validation { get; }
+
+        public AllowStaticCommandAttribute(StaticCommandValidation validation = StaticCommandValidation.None)
+        {
+            Validation = validation;
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var text = new StringWriter();
             a(new HtmlWriter(text, new TestDotvvmRequestContext() {
-                Configuration = DotvvmTestHelper.CreateConfiguration()
+                Configuration = DotvvmTestHelper.DefaultConfig
             }));
             return text.ToString();
         }

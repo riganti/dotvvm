@@ -1,6 +1,5 @@
 import * as counter from './counter'
 import { postbackCore, throwIfAborted } from './postbackCore'
-import { getViewModel } from '../dotvvm-base'
 import { defaultConcurrencyPostbackHandler, getPostbackHandler } from './handlers';
 import * as internalHandlers from './internal-handlers';
 import * as events from '../events';
@@ -8,6 +7,7 @@ import * as gate from './gate';
 import { DotvvmPostbackError } from '../shared-classes';
 import { logError } from '../utils/logging';
 import { handleRedirect } from './redirect';
+import { showValidationErrorsFromServer } from '../validation/validation';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
@@ -165,6 +165,9 @@ export async function applyPostbackHandlers(
             var reason = err.reason;
             if (reason.type == "redirect") {
                 return await handleRedirect(options, reason.responseObject, reason.response!)
+            }
+            else if (reason.type == "validation") {
+                showValidationErrorsFromServer(reason.responseObject, options);
             }
             else if (shouldTriggerErrorEvent(reason)) {
                 // trigger error event

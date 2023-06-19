@@ -42,7 +42,9 @@ namespace DotVVM.Framework.Runtime.Commands
             return new ActionInfo(
                 findResult.Binding,
                 () => findResult.Binding!.Evaluate(findResult.Control, args),
-                targetControl != null
+                targetControl != null,
+                null,
+                null
             );
         }
 

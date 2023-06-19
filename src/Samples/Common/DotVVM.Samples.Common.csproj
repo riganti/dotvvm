@@ -118,6 +118,7 @@
     <None Remove="Views\FeatureSamples\Serialization\TimeSpan.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\EnumSerializationCoercion.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\SerializationDateTimeOffset.dothtml" />
+    <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_Validation.dothtml" />
     <None Remove="Views\FeatureSamples\StringInterpolation\StringInterpolation.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\RangeClientSideValidation.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\ValidationTargetIsCollection.dothtml" />

@@ -1,30 +1,61 @@
 import { serialize } from '../serialization/serialize';
-import { getInitialUrl } from '../dotvvm-base';
+import { getInitialUrl, getViewModel } from '../dotvvm-base';
 import * as events from '../events';
 import * as http from './http'
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { DotvvmPostbackError } from '../shared-classes';
+import * as evaluator from '../utils/evaluator'
+import { removeErrors } from '../validation/validation';
 
-export async function staticCommandPostback(command: string, args: any[], options: PostbackOptions): Promise<any> {
+export function resolveRelativeValidationPaths(paths: string[] | null | undefined, context: KnockoutBindingContext | undefined) {
+    return paths?.map(p => {
+        if (p == null || p.startsWith("/")) {
+            return p
+        }
+        while (context && /^\.\.(\/|$)/.test(p)) {
+            context = context.$parentContext;
+            p = p.substring(2);
+            p = p.startsWith('/') ? p.substring(1) : ''
+        }
+        if (context == null) {
+            return null
+        }
+        const absolutePath = evaluator.findPathToChildObservable(getViewModel(), evaluator.unwrapComputedProperty(context.$rawData), "")
+
+        // trim trailing `/` or `/.`, but leave it when path == `/`
+        return absolutePath == null ? null :
+            (absolutePath + "/" + p).replace(/\/\.?$/, "") || "/"
+    })
+}
+
+export async function staticCommandPostback(command: string, args: any[], options: PostbackOptions, paths: string[] | null | undefined): Promise<any> {
 
     let data: any;
     let response: http.WrappedResponse<DotvvmStaticCommandResponse>;
 
     try {
+        const absolutePaths = resolveRelativeValidationPaths(paths, options.knockoutContext)
+
         await http.retryOnInvalidCsrfToken(async () => {
             const csrfToken = await http.fetchCsrfToken(options.abortSignal);
             data = { 
                 args: args.map(a => serialize(a)), 
                 command, 
+                argumentPaths: absolutePaths,
                 $csrfToken: csrfToken,
                 knownTypeMetadata: getKnownTypes()
             };
         });
 
+        // If validation mode is not None, we should obtain argument paths
+        if (paths != null) {
+            removeErrors("/");
+        }
+
         events.staticCommandMethodInvoking.trigger({
             ...options,
             methodId: command,
-            methodArgs: args,
+            methodArgs: args
         });
 
         response = await http.postJSON<DotvvmStaticCommandResponse>(
@@ -35,14 +66,21 @@ export async function staticCommandPostback(command: string, args: any[], option
         );
 
         if ("action" in response.result) {
-            if (response.result.action == "redirect") {
+            const action = response.result.action
+            if (action == "redirect") {
                 throw new DotvvmPostbackError({
                     type: "redirect",
                     response: response.response,
                     responseObject: response.result
                 })
+            } else if (action == "validationErrors") {
+                throw new DotvvmPostbackError({
+                    type: "validation",
+                    response: response.response,
+                    responseObject: response.result
+                })
             } else {
-                throw new Error(`Invalid action ${response.result.action}`);
+                throw new Error(`Invalid action ${action}`);
             }
         }
 

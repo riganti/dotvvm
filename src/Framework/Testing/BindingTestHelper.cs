@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
@@ -7,13 +8,16 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Testing
 {
+    /// <summary> Helper class for creating DotVVM bindings. </summary>
     public class BindingTestHelper
     {
         public BindingTestHelper(
@@ -25,7 +29,7 @@ namespace DotVVM.Framework.Testing
             BindingService = bindingService ?? Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
             JavascriptTranslator = Configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>();
             ExpressionBuilder = Configuration.ServiceProvider.GetRequiredService<IBindingExpressionBuilder>();
-            DefaultExtensionParameters = defaultExtensionParameters ?? new BindingExtensionParameter[]{
+            DefaultExtensionParameters = defaultExtensionParameters ?? new BindingExtensionParameter[] {
                 new CurrentCollectionIndexExtensionParameter(),
                 new BindingCollectionInfoExtensionParameter("_collection"),
                 new BindingPageInfoExtensionParameter(),
@@ -39,11 +43,22 @@ namespace DotVVM.Framework.Testing
         public JavascriptTranslator JavascriptTranslator { get; }
         public IBindingExpressionBuilder ExpressionBuilder { get; }
 
-        public DataContextStack CreateDataContext(Type[] contexts)
+        /// <summary> Created a <see cref="DataContextStack" /> from a hierarchy of contexts. First element will be <c>_root</c>, last element will be <c>_this</c>.
+        /// Additional extension parameters will be placed in the root context
+        /// If <paramref name="markupControl" /> is specified, a <c>_control</c> parameter will be added. </summary>
+        public DataContextStack CreateDataContext(Type[] contexts, BindingExtensionParameter[]? extensionParameters = null, Type? markupControl = null)
         {
+            var ep = new List<BindingExtensionParameter>();
+            if (extensionParameters is {})
+                ep.AddRange(extensionParameters);
+            if (markupControl is {})
+                ep.Add(new CurrentMarkupControlExtensionParameter(new ResolvedTypeDescriptor(markupControl)));
+            ep.AddRange(DefaultExtensionParameters);
+            ep.AddRange(Configuration.Markup.DefaultExtensionParameters);
+
             var context = DataContextStack.Create(
                 contexts.FirstOrDefault() ?? typeof(object),
-                extensionParameters: DefaultExtensionParameters.Concat(Configuration.Markup.DefaultExtensionParameters).ToArray()
+                extensionParameters: ep.ToArray()
             );
             for (int i = 1; i < contexts.Length; i++)
             {
@@ -52,6 +67,8 @@ namespace DotVVM.Framework.Testing
             return context;
         }
 
+        /// <summary> Parses and resolves a binding expression into a System.Linq.Expression using the DotVVM binding parser. </summary>
+        /// <param name="expectedType"> If specified, an implicit conversion into this type will be applied in the expression. </param>
         public Expression ParseBinding(string expression, DataContextStack context, Type? expectedType = null, NamespaceImport[]? imports = null)
         {
             expectedType ??= typeof(object);
@@ -61,8 +78,17 @@ namespace DotVVM.Framework.Testing
                 TypeConversion.ImplicitConversion(parsedExpression, expectedType, true, true)!;
         }
 
+        /// <summary> Returns JavaScript code to which the <paramref name="expression" /> translates. </summary>
+        /// <param name="contexts"> Hierarchy of data contexts. First element is <c>_root</c>, last element is <c>_this</c>. </param>
+        /// <param name="expectedType"> If specified, an implicit conversion into this type will be applied in the expression. </param>
+        /// <param name="nullChecks"> If false, the result expression will omit null propagation checks. This slightly improves resulting code readability. </param>
+        /// <param name="niceMode"> Whether the expression should contain formatting whitespace. </param>
         public ParametrizedCode ValueBindingToParametrizedCode(string expression, Type[] contexts, Type? expectedType = null, NamespaceImport[]? imports = null, bool nullChecks = false, bool niceMode = true) =>
             ValueBindingToParametrizedCode(expression, CreateDataContext(contexts), expectedType, imports, nullChecks, niceMode);
+        /// <summary> Returns JavaScript code to which the <paramref name="expression" /> translates. </summary>
+        /// <param name="expectedType"> If specified, an implicit conversion into this type will be applied in the expression. </param>
+        /// <param name="nullChecks"> If false, the result expression will omit null propagation checks. This slightly improves resulting code readability. </param>
+        /// <param name="niceMode"> Whether the expression should contain formatting whitespace. </param>
         public ParametrizedCode ValueBindingToParametrizedCode(string expression, DataContextStack context, Type? expectedType = null, NamespaceImport[]? imports = null, bool nullChecks = false, bool niceMode = true)
         {
             expectedType ??= typeof(object);
@@ -72,15 +98,26 @@ namespace DotVVM.Framework.Testing
             return BindingPropertyResolvers.FormatJavascript(jsExpression, allowObservableResult: true, nullChecks: nullChecks, niceMode: niceMode);
         }
 
+        /// <summary> Returns JavaScript code to which the <paramref name="expression" /> translates. </summary>
+        /// <param name="contexts"> Hierarchy of data contexts. First element is <c>_root</c>, last element is <c>_this</c>. </param>
+        /// <param name="expectedType"> If specified, an implicit conversion into this type will be applied in the expression. </param>
+        /// <param name="nullChecks"> If false, the result expression will omit null propagation checks. This slightly improves resulting code readability. </param>
+        /// <param name="niceMode"> Whether the expression should contain formatting whitespace. </param>
         public string ValueBindingToJs(string expression, Type[] contexts, Type? expectedType = null, NamespaceImport[]? imports = null, bool nullChecks = false, bool niceMode = true) =>
             JavascriptTranslator.FormatKnockoutScript(
                 ValueBindingToParametrizedCode(expression, contexts, expectedType, imports, nullChecks, niceMode)
             );
+        /// <summary> Returns JavaScript code to which the <paramref name="expression" /> translates. </summary>
+        /// <param name="expectedType"> If specified, an implicit conversion into this type will be applied in the expression. </param>
+        /// <param name="nullChecks"> If false, the result expression will omit null propagation checks. This slightly improves resulting code readability. </param>
+        /// <param name="niceMode"> Whether the expression should contain formatting whitespace. </param>
         public string ValueBindingToJs(string expression, DataContextStack context, Type? expectedType = null, NamespaceImport[]? imports = null, bool nullChecks = false, bool niceMode = true) =>
             JavascriptTranslator.FormatKnockoutScript(
                 ValueBindingToParametrizedCode(expression, context, expectedType, imports, nullChecks, niceMode)
             );
 
+        /// <summary> Creates a value binding by parsing the specified expression. The expression will be implicitly converted to <typeparamref name="T"/> </summary>
+        /// <param name="contexts"> Hierarchy of data contexts. First element is <c>_root</c>, last element is <c>_this</c>. </param>
         public ValueBindingExpression<T> ValueBinding<T>(string expression, Type[] contexts)
         {
             return new ValueBindingExpression<T>(BindingService, new object[] {
@@ -89,6 +126,55 @@ namespace DotVVM.Framework.Testing
                 BindingParserOptions.Value.AddImports(Configuration.Markup.ImportedNamespaces),
                 new ExpectedTypeBindingProperty(typeof(T))
             });
+        }
+
+        /// <summary> Creates a staticCommand binding by parsing the specified expression. </summary>
+        /// <param name="contexts"> Hierarchy of data contexts. First element is <c>_root</c>, last element is <c>_this</c>. </param>
+        /// <param name="expectedType"> If specified, an implicit conversion into this type will be applied in the expression. </param>
+        public StaticCommandBindingExpression StaticCommand(string expression, Type[] contexts, Type? expectedType = null) =>
+            StaticCommand(expression, CreateDataContext(contexts), expectedType);
+        /// <summary> Creates a staticCommand binding by parsing the specified expression. </summary>
+        /// <param name="expectedType"> If specified, an implicit conversion into this type will be applied in the expression. </param>
+        public StaticCommandBindingExpression StaticCommand(string expression, DataContextStack context, Type? expectedType = null)
+        {
+            expectedType ??= typeof(Command);
+            return new StaticCommandBindingExpression(BindingService, new object[] {
+                context,
+                new OriginalStringBindingProperty(expression),
+                BindingParserOptions.Value.AddImports(Configuration.Markup.ImportedNamespaces),
+                new ExpectedTypeBindingProperty(expectedType)
+            });
+        }
+
+        /// <summary> Returns the "body" of the JavaScript code produced by the staticCommand.
+        /// The method is intended for asserting that the generated code is equal to the correct thing, if you intend to execute the code, please use <see cref="KnockoutHelper.GenerateClientPostBackExpression" /> directly. </summary>
+        public static string GetStaticCommandJavascriptBody(StaticCommandBindingExpression binding, bool stripBoilerplate = true)
+        {
+            var expr = KnockoutHelper.GenerateClientPostBackExpression(
+                "NonExistentProperty",
+                binding,
+                new Literal(),
+                new PostbackScriptOptions(
+                    allowPostbackHandlers: false,
+                    returnValue: null,
+                    commandArgs: CodeParameterAssignment.FromIdentifier("commandArguments")
+                ));
+            if (stripBoilerplate)
+            {
+                expr = strip(expr, "dotvvm.applyPostbackHandlers(", ",this,[],commandArguments)");
+                expr = strip(expr, "async", "");
+                expr = strip(expr, "(options)", "");
+                expr = strip(expr, "=>", "");
+            }
+            return expr;
+
+            string strip(string value, string start, string end)
+            {
+                if (value.StartsWith(start) && value.EndsWith(end))
+                    return value.Substring(start.Length, value.Length - start.Length - end.Length).Trim();
+                else
+                    return value;
+            }
         }
     }
 }

@@ -342,7 +342,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             Expression<Func<string, string>> expr = abc => abc + "def";
             var tree = configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expr, DataContextStack.Create(typeof(object)));
-            Assert.AreEqual("(abc)=>abc+\"def\"", tree.ToString());
+            Assert.AreEqual("(abc) => abc + \"def\"", tree.ToString());
         }
 
         [TestMethod]
@@ -350,7 +350,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             Expression<Func<string, string>> expr = _ => string.Empty;
             var tree = configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expr, DataContextStack.Create(typeof(object)));
-            Assert.AreEqual("(_)=>\"\"", tree.ToString());
+            Assert.AreEqual("(_) => \"\"", tree.ToString());
         }
 
         [TestMethod]

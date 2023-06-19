@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
         }
 
-        public JsInvocationExpression(JsExpression target, IEnumerable<JsExpression> arguments)
+        public JsInvocationExpression(JsExpression target, IEnumerable<JsExpression?> arguments)
         {
             AddChild(target, JsTreeRoles.TargetExpression);
             if (arguments != null) {
@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
         }
 
-        public JsInvocationExpression(JsExpression target, params JsExpression[] arguments) : this(target, (IEnumerable<JsExpression>)arguments)
+        public JsInvocationExpression(JsExpression target, params JsExpression?[] arguments) : this(target, (IEnumerable<JsExpression?>)arguments)
         {
         }
 

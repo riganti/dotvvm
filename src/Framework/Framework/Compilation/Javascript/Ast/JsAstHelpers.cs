@@ -13,10 +13,10 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             else return new JsMemberAccessExpression(target, memberName) { IsOptional = optional };
         }
 
-        public static JsExpression Invoke(this JsExpression target, IEnumerable<JsExpression> arguments) =>
+        public static JsExpression Invoke(this JsExpression target, IEnumerable<JsExpression?> arguments) =>
             new JsInvocationExpression(target, arguments);
 
-        public static JsExpression Invoke(this JsExpression target, params JsExpression[] arguments) =>
+        public static JsExpression Invoke(this JsExpression target, params JsExpression?[] arguments) =>
             new JsInvocationExpression(target, arguments);
 
         public static JsExpression Indexer(this JsExpression target, JsExpression argument)
@@ -46,7 +46,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static JsBlockStatement AsBlock(this IEnumerable<JsStatement> statements) =>
             new JsBlockStatement(statements);
 
-        
+        public static JsArrayExpression ArrayExpression(this IEnumerable<JsExpression> items) =>
+            new JsArrayExpression(items);
+
         public static bool ContainsAwait(this JsNode node) =>
             node.DescendantNodesAndSelf(child => !(child is JsFunctionExpression))
                 .Any(child => child is JsUnaryExpression { Operator: UnaryOperatorType.Await });
@@ -271,6 +273,19 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
 
             return expression;
+        }
+
+        public static T CommentBefore<T>(this T node, string comment)
+            where T: JsNode
+        {
+            if (string.IsNullOrEmpty(node.CommentBefore))
+                node.CommentBefore = comment;
+            else
+            {
+                var separator = node is JsStatement ? "\n" : " | ";
+                node.CommentBefore = comment + separator + node.CommentBefore;
+            }
+            return node;
         }
     }
 }

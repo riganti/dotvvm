@@ -6,6 +6,8 @@ using System.Threading;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Binding;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
 {
@@ -13,7 +15,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
     {
         public string Name { get; set; } = "Deep Thought";
         public string Greeting { get; set; }
-        public StaticCommandTestObject Child { get; set; }
+        public StaticCommandTestObject Child { get; set; } = new();
 
         [AllowStaticCommand]
         public static string GetGreeting(string name)

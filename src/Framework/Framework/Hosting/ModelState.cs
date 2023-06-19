@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Validation;
 
 namespace DotVVM.Framework.Hosting
@@ -30,13 +28,9 @@ namespace DotVVM.Framework.Hosting
         internal List<ViewModelValidationError> ErrorsInternal;
 
         /// <summary>
-        /// Gets a value indicating whether the <see cref="ValidationTarget"/> is valid or not.
+        /// Gets a value indicating whether the ModelState is valid (i.e. does not contain any errors)
         /// </summary>
-        public bool IsValid
-        {
-            get { return !Errors.Any(); }
-        }
-
+        public bool IsValid => !Errors.Any();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ModelState"/> class.
