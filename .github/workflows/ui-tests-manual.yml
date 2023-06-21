@@ -1,4 +1,4 @@
-name: publish-public
+name: ui-tests-manual
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
         type: string
         default: "ubuntu-latest"
         description: The OS to run the tests on
-        required: false
+        required: true
       browser:
         type: choice
         options:
@@ -15,7 +15,7 @@ on:
           - firefox
         default: "chrome"
         description: The browser to run the tests in
-        required: false
+        required: true
       environment:
         type: choice
         options:
@@ -23,7 +23,15 @@ on:
           - Production
         default: "Development"
         description: The AspNetCore environment
-        required: false
+        required: true
+      build-configuration:
+        type: choice
+        options:
+          - Debug
+          - Release
+        default: "Debug"
+        description: The MSBuild configuration
+        required: true
       samples-config:
         type: choice
         options:
@@ -35,43 +43,18 @@ on:
           - ExperimentalFeaturesTests
         default: "Default"
         description: The samples config to use
-        required: false
+        required: true
+      timeout:
+        type: number
+        default: 50
+        description: The timeout in minutes
+        required: true
 
 jobs:
   ui-tests:
     name: UI tests
     runs-on: ${{ inputs.os }}
-    timeout-minutes: 50
-    strategy:
-      fail-fast: false # don't kill tests when one environment fails
-      matrix:
-        # specify only one config, all other configurations are included explicitly
-        browser: [chrome]
-        os: [ubuntu-latest]
-        environment: [Production]
-        samples-config: [Default]
-        include:
-          - browser: chrome
-            os: windows-2022
-            environment: Development
-            samples-config: Default
-          - browser: firefox
-            os: ubuntu-latest
-            environment: Development
-            samples-config: Default
-          - browser: firefox
-            os: ubuntu-latest
-            environment: Production
-            samples-config: Default
-          - browser: firefox
-            os: ubuntu-latest
-            environment: Production
-            samples-config: ExperimentalFeaturesTests
-          - browser: chrome
-            os: ubuntu-latest
-            environment: Development
-            samples-config: ExperimentalFeaturesTests
-
+    timeout-minutes: ${{ inputs.timeout }}
     env:
       SLN: "${{ inputs.os == 'windows-2022' && 'src/DotVVM.sln' || 'src/DotVVM.Crossplatform.slnf' }}"
     steps:
@@ -85,6 +68,6 @@ jobs:
       with:
         browser: ${{ inputs.browser }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        build-configuration: "${{ inputs.environment == 'Production' && 'Release' || 'Debug' }}"
+        build-configuration: "${{ inputs.build-configuration }}"
         runtime-environment: "${{ inputs.environment }}"
         samples-config: "${{ inputs.samples-config }}"
