@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Utils
 
 
             // throw exception without the TargetInvocationException wrapper
-            if (!task.IsCompletedSuccessfully)
+            if (task.Status != TaskStatus.RanToCompletion)
                 task.Wait();
 
             return resultProperty.GetValue(task);
