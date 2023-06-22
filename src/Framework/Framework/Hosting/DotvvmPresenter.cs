@@ -361,13 +361,7 @@ namespace DotVVM.Framework.Hosting
 
                 var actionInfo = new ActionInfo(
                     binding: null,
-                    () => {
-                        return StaticCommandExecutor.Execute(
-                            executionPlan,
-                            new Queue<JToken>(arguments.NotNull()),
-                            argumentPaths is null ? null : new Queue<string?>(argumentPaths),
-                            context);
-                    },
+                    () => { return StaticCommandExecutor.Execute(executionPlan, arguments.NotNull(), argumentPaths, context); },
                     false,
                     executionPlan.Method,
                     argumentPaths
@@ -476,6 +470,12 @@ namespace DotVVM.Framework.Hosting
 
             if (staticCommandModelState.Errors.FirstOrDefault(e => e.IsResolved) is {} unresolvedError)
                 throw new Exception("Could not respond with validation failure, some errors have unresolved paths: " + unresolvedError);
+
+            DotvvmMetrics.ValidationErrorsReturned.Record(
+                staticCommandModelState.ErrorsInternal.Count,
+                context.RouteLabel(),
+                context.RequestTypeLabel()
+            );
 
             var jObject = new JObject
             {
