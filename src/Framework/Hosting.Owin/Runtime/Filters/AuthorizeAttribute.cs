@@ -38,21 +38,21 @@ namespace DotVVM.Framework.Runtime.Filters
         public string[] Roles { get; set; }
 
         /// <inheritdoc />
-        protected override Task OnViewModelCreatedAsync(IDotvvmRequestContext context)
+        protected internal override Task OnViewModelCreatedAsync(IDotvvmRequestContext context)
         {
             Authorize(context, context.ViewModel);
             return TaskUtils.GetCompletedTask();
         }
 
         /// <inheritdoc />
-        protected override Task OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo)
+        protected internal override Task OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
             Authorize(context, null);
             return TaskUtils.GetCompletedTask();
         }
 
         /// <inheritdoc />
-        protected override Task OnPresenterExecutingAsync(IDotvvmRequestContext context)
+        protected internal override Task OnPresenterExecutingAsync(IDotvvmRequestContext context)
         {
             Authorize(context, context.Presenter);
             return TaskUtils.GetCompletedTask();

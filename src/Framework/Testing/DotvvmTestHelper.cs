@@ -137,6 +137,7 @@ namespace DotVVM.Framework.Testing
             {
                 httpContext.Request.Path = context.TranslateVirtualPath(context.Route.BuildUrl(context.Parameters));
             }
+            services.GetRequiredService<DotvvmRequestContextStorage>().Context = context;
             return context;
         }
 

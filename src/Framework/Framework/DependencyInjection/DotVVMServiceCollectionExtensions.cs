@@ -82,6 +82,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
             services.TryAddSingleton<IExpressionToDelegateCompiler, DefaultExpressionToDelegateCompiler>();
 
+            services.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
+            services.TryAddScoped<IDotvvmRequestContext>(s => s.GetRequiredService<DotvvmRequestContextStorage>().Context!);
+
             services.AddScoped<IRequestTracer>(s => {
                 var config = s.GetRequiredService<DotvvmConfiguration>();
                 return (config.Diagnostics.PerfWarnings.IsEnabled ? (IRequestTracer)s.GetService<PerformanceWarningTracer>() : null) ?? NullRequestTracer.Instance;
