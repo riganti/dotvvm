@@ -34,7 +34,7 @@ public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
         config.RouteTable.Add("Error", "error", "Pages/Error/error.dothtml");
 
         // Uncomment the following line to auto-register all dothtml files in the Pages folder
-        config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));    
+        // config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config, viewsFolder: "Pages"));    
     }
 
     private void ConfigureControls(DotvvmConfiguration config, string applicationPath)
