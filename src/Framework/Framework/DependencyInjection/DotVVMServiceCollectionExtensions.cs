@@ -60,6 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
             services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();
             services.TryAddSingleton<IOutputRenderer, DefaultOutputRenderer>();
+            services.TryAddSingleton<StaticCommandExecutor>();
             services.TryAddSingleton<IDotvvmPresenter, DotvvmPresenter>();
             services.TryAddSingleton<IMarkupFileLoader, AggregateMarkupFileLoader>();
             services.TryAddSingleton<IControlBuilderFactory, DefaultControlBuilderFactory>();
