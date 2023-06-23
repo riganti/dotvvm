@@ -74,15 +74,7 @@ namespace DotVVM.Framework.Hosting
                     plan.Method.IsStatic ? null : methodArgs.First(),
                     (plan.Method.IsStatic ? methodArgs : methodArgs.Skip(1)).ToArray());
 
-                if (result is Task task)
-                {
-                    await task;
-                    return TaskUtils.GetResult(task);
-                }
-                else
-                {
-                    return result;
-                }
+                return await TaskUtils.ToObjectTask(result);
             }
             catch (TargetInvocationException ex) when (ex.InnerException is DotvvmInvalidStaticCommandModelStateException innerEx)
             {

@@ -408,21 +408,7 @@ namespace DotVVM.Framework.Hosting
             {
                 var commandResultOrNotYetComputedAwaitable = action.Action();
 
-                if (commandResultOrNotYetComputedAwaitable is Task commandTask)
-                {
-                    await commandTask;
-                    return TaskUtils.GetResult(commandTask);
-                }
-
-                var resultType = commandResultOrNotYetComputedAwaitable?.GetType();
-                var possibleResultAwaiter = resultType?.GetMethod(nameof(Task.GetAwaiter), new Type[] { });
-
-                if(resultType != null && possibleResultAwaiter != null)
-                {
-                    throw new NotSupportedException($"The command uses unsupported awaitable type {resultType.FullName}, please use System.Task instead.");
-                }
-                
-                return commandResultOrNotYetComputedAwaitable;
+                return await TaskUtils.ToObjectTask(commandResultOrNotYetComputedAwaitable);
             }
             catch (Exception ex)
             {
@@ -468,7 +454,7 @@ namespace DotVVM.Framework.Hosting
             if (staticCommandAttribute?.Validation == StaticCommandValidation.None)
                 throw new Exception($"Could not respond with validation failure, validation is disabled on method {ReflectionUtils.FormatMethodInfo(invokedMethod)}. Use [AllowStaticCommand(StaticCommandValidation.Manual)] to allow validation.");
 
-            if (staticCommandModelState.Errors.FirstOrDefault(e => e.IsResolved) is {} unresolvedError)
+            if (staticCommandModelState.Errors.FirstOrDefault(e => !e.IsResolved) is {} unresolvedError)
                 throw new Exception("Could not respond with validation failure, some errors have unresolved paths: " + unresolvedError);
 
             DotvvmMetrics.ValidationErrorsReturned.Record(

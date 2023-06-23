@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public async Task ArgumentPropertyError()
         {
-#pragma warning disable CS4014
+#pragma warning disable CS4014 // awaitable not awaited warning
             var plan = CreatePlan(() => ValidateArgumentProperty(null, null));
 #pragma warning restore CS4014
             var modelState = await InvokeExpectingErrors(plan, (new TestViewModel(), "/MyViewModel"));
@@ -114,6 +114,25 @@ namespace DotVVM.Framework.Tests.Binding
             ms.AddRawArgumentError(nameof(vm), "/IntProp", "error1");
             ms.AddRawArgumentError("vm", "DoubleProp", "error2");
             ms.FailOnInvalidModelState();
+            return true;
+        }
+
+        [TestMethod]
+        public async Task ThrowsWhenValueTaskIsUsed()
+        {
+#pragma warning disable CS4014 // awaitable not awaited warning
+            var plan = CreatePlan(() => ReturningValueTask());
+#pragma warning restore CS4014
+            var exception = await XAssert.ThrowsAnyAsync<Exception>(() => Invoke(plan));
+            if (exception is TargetInvocationException tEx)
+                exception = tEx.InnerException;
+            Assert.IsInstanceOfType(exception, typeof(NotSupportedException));
+            XAssert.Contains("The command uses unsupported awaitable type", exception.Message);
+        }
+
+        [AllowStaticCommand]
+        internal static async ValueTask<bool> ReturningValueTask()
+        {
             return true;
         }
     }
