@@ -88,7 +88,11 @@ namespace DotVVM.Samples.BasicSamples
             var json = JObject.Parse(jsonText);
 
             // find active profile
-            var activeProfile = json.Value<string>("activeProfile");
+            var defaultProfile = json.Value<string>("defaultProfile");
+            var activeProfile = Environment.GetEnvironmentVariable("DOTVVM_SAMPLES_CONFIG_PROFILE") switch {
+                "" or null => defaultProfile,
+                var p => p,
+            };
 
             var profiles = json.Value<JArray>("profiles");
             var profile = profiles.Single(p => p.Value<string>("name") == activeProfile);

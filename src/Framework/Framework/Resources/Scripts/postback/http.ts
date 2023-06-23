@@ -49,8 +49,7 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<Wrap
 }
 
 export async function fetchCsrfToken(signal: AbortSignal | undefined): Promise<string> {
-    const viewModel = getState();
-    let token = viewModel.$csrfToken
+    let token = getState().$csrfToken
     if (token == null) {
         let response;
         try {
@@ -68,7 +67,7 @@ export async function fetchCsrfToken(signal: AbortSignal | undefined): Promise<s
         }
 
         token = await response.text()
-        getStateManager().setState({ ...viewModel, $csrfToken: token })
+        getStateManager().setState({ ...getState(), $csrfToken: token })
     }
     return token
 }

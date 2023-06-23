@@ -6,9 +6,8 @@ import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
 import { areObjectTypesEqual, getObjectTypeInfo } from "./metadata/typeMap";
 import { coerce } from "./metadata/coercer";
 import { patchViewModel } from "./postback/updater";
-import { wrapObservable } from "./utils/knockout";
+import { hackInvokeNotifySubscribers } from "./utils/knockout";
 import { logWarning } from "./utils/logging";
-import { observable } from "knockout";
 import {ValidationError} from "./validation/error";
 import { errorsSymbol } from "./validation/common";
 
@@ -289,10 +288,6 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
 
     let isUpdating = false
 
-    function triggerLastSetErrorUpdate(obs: KnockoutObservable<T>) {
-        obs.valueHasMutated && obs.valueHasMutated();
-    }
-
     function observableValidator(this: KnockoutObservable<T>, newValue: any): any {
         if (isUpdating) return { newValue, notifySubscribers: false }
         updatedObservable = true
@@ -316,7 +311,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
 
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
-            triggerLastSetErrorUpdate(this);
+            hackInvokeNotifySubscribers(this);
             logWarning("state-manager", `Cannot update observable to ${newValue}:`, err)
             throw err
         }

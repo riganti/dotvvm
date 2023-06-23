@@ -15,6 +15,7 @@
         }
       ],
       "assemblies": [
+        "DotVVM.AutoUI.Annotations, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
         "DotVVM.AutoUI, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
       ],
       "importedNamespaces": [

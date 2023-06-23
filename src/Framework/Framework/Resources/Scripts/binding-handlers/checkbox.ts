@@ -1,4 +1,5 @@
 import * as events from '../events';
+import { hackInvokeNotifySubscribers } from '../utils/knockout';
 
 export default {
     'dotvvm-checkbox-updateAfterPostback': {
@@ -8,11 +9,7 @@ export default {
                 if (bindings["dotvvm-checked-pointer"]) {
                     const checked = bindings[bindings["dotvvm-checked-pointer"]];
                     if (ko.isObservable(checked)) {
-                        if (checked.valueHasMutated) {
-                            checked.valueHasMutated();
-                        } else {
-                            checked.notifySubscribers();
-                        }
+                        hackInvokeNotifySubscribers(checked);
                     }
                 }
             });

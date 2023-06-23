@@ -14,6 +14,10 @@ inputs:
     default: Development
     description: which --environment to pass to ASP.NET Core / dotnet run. Irrelevant on Windows, since we use OWIN there
     required: false
+  samples-config:
+    default: Default
+    description: Determines which DotvvmConfiguration will be used in samples. See src/Samples/Common/sampleConfig.json for available options
+    required: false
   github-token:
     description: GitHub token so that test results can be uploaded
     required: true
@@ -21,7 +25,6 @@ inputs:
 runs:
   using: composite
   steps:
-
   # run the appropriate uitest script
   - if: ${{ runner.os != 'Windows' }}
     name: uitest.sh
@@ -31,6 +34,8 @@ runs:
       --config "${{ inputs.build-configuration }}"
       --environment "${{ inputs.runtime-environment }}"
     shell: bash
+    env:
+      DOTVVM_SAMPLES_CONFIG_PROFILE: ${{ inputs.samples-config }}
 
   - if: ${{ runner.os == 'Windows' }}
     run: choco install dotnet-aspnetcoremodule-v2 -y
@@ -45,11 +50,13 @@ runs:
       -TrxName "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
       -Config "${{ inputs.build-configuration }}"
     shell: pwsh
+    env:
+      DOTVVM_SAMPLES_CONFIG_PROFILE: ${{ inputs.samples-config }}
 
   # publish the result to github
   - uses: ./.github/test-report
     with:
       trx-path: artifacts/test/ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx
-      report-name: ${{ inputs.browser }}-tests-${{ runner.os }}
+      report-name: ${{ inputs.browser }}-tests-${{ runner.os }}-${{ inputs.runtime-environment }}-${{ inputs.samples-config }}
       report-title: UI Test Results from ${{ inputs.browser }} on ${{ runner.os }}
       github-token: ${{ inputs.github-token }}

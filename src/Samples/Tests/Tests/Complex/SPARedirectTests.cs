@@ -21,30 +21,35 @@ namespace DotVVM.Samples.Tests.Complex
                 AssertUI.Url(browser, s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
 
                 // login to the app
-                IElementWrapper getLoginElement() => browser.First("input[type=button]");
-                AssertUI.Attribute(getLoginElement(), "value", "Login");
-                getLoginElement().Click();
+                IElementWrapper getLoginElement(string dataUi) => browser.First("input[type=button][data-ui='" + dataUi + "']");
+                AssertUI.Attribute(getLoginElement("login"), "value", "Login");
+                getLoginElement("login").Click();
 
-                //check url
-                AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPARedirect"));
-
+                browser.WaitFor(() => {
+                    //check url
+                    AssertUI.Url(browser, s => s.EndsWith("ComplexSamples/SPARedirect"), waitForOptions: WaitForOptions.Disabled);
+                    AssertUI.Attribute(getLoginElement("signout"), "value", "Sign Out", waitForOptions: WaitForOptions.Disabled);
+                }, 2_000);
                 // sign out
-                AssertUI.Attribute(getLoginElement(), "value", "Sign Out");
-                getLoginElement().Click();
+                getLoginElement("signout").Click();
 
-                //check url
-                AssertUI.Url(browser, s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
+                browser.WaitFor(() => {
+                    //check url
+                    AssertUI.Url(browser, s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"), waitForOptions: WaitForOptions.Disabled);
 
+                    AssertUI.Attribute(getLoginElement("login"), "value", "Login", waitForOptions: WaitForOptions.Disabled);
+                }, 2_000);
                 // login to the app
-                AssertUI.Attribute(getLoginElement(), "value", "Login");
-                getLoginElement().Click();
+                getLoginElement("login").Click();
 
                 //check url
-                AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPARedirect"));
-
+                browser.WaitFor(() => {
+                    //check url
+                    AssertUI.Url(browser, s => s.EndsWith("ComplexSamples/SPARedirect"), waitForOptions: WaitForOptions.Disabled);
+                    AssertUI.Attribute(getLoginElement("signout"), "value", "Sign Out", waitForOptions: WaitForOptions.Disabled);
+                }, 2_000);
                 // sign out
-                AssertUI.Attribute(getLoginElement(), "value", "Sign Out");
-                getLoginElement().Click();
+                getLoginElement("signout").Click();
             });
         }
 

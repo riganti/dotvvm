@@ -32,7 +32,11 @@ namespace DotVVM.Framework.Controls
             writer.RenderSelfClosingTag("input");
 
             // init on load
-            var initCode = $@"window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});";
+            var initCode = $"window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});";
+            if (context.Configuration.ExperimentalFeatures.KnockoutDeferUpdates.IsEnabledForRoute(context.Route?.RouteName))
+            {
+                initCode = $"ko.options.deferUpdates = true;\n{initCode}";
+            }
             new InlineScriptResource(initCode, defer: true)
                 .Render(writer, context, "dotvvm-init-script");
 
