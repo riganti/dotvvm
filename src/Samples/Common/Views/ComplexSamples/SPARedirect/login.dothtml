@@ -18,7 +18,7 @@
         </tr>
     </table>
 
-    <dot:Button Text="Login" Click="{command: Login()}" />
+    <dot:Button data-ui=login Text="Login" Click="{command: Login()}" />
 
 
 </dot:Content>

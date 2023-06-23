@@ -5,7 +5,7 @@
 
     <p>Welcome home.</p>
 
-    <dot:Button Click="{command: SignOut()}" Text="Sign Out" />
+    <dot:Button data-ui=signout Click="{command: SignOut()}" Text="Sign Out" />
 
 </dot:Content>
 
