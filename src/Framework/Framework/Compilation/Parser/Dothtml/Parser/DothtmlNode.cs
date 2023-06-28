@@ -33,10 +33,9 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         }
 
 
-        public bool HasNodeErrors
-        {
-            get { return nodeErrors != null && nodeErrors.Count > 0; }
-        }
+        public bool HasNodeErrors => nodeErrors != null && nodeErrors.Count > 0;
+
+        public bool HasNodeWarnings => nodeWarnings != null && nodeWarnings.Count > 0;
 
         public abstract void Accept(IDothtmlSyntaxTreeVisitor visitor);
 
