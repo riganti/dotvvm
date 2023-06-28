@@ -109,8 +109,6 @@ namespace Owin
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
                 s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
                 s.TryAddSingleton<IRequestCancellationTokenProvider, RequestCancellationTokenProvider>();
-                s.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
-                s.TryAddScoped<IDotvvmRequestContext>(services => services.GetRequiredService<DotvvmRequestContextStorage>().Context);
                 s.TryAddSingleton<IStartupTracer>(startupTracer);
 
                 startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserServicesRegistrationStarted);

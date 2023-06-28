@@ -40,9 +40,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public DotvvmPresenter(DotvvmConfiguration configuration, IDotvvmViewBuilder viewBuilder, IViewModelLoader viewModelLoader, IViewModelSerializer viewModelSerializer,
             IOutputRenderer outputRender, ICsrfProtector csrfProtector, IViewModelParameterBinder viewModelParameterBinder,
-#pragma warning disable CS0618
-            IStaticCommandServiceLoader staticCommandServiceLoader
-#pragma warning restore CS0618
+            StaticCommandExecutor staticCommandExecutor
         )
         {
             this.configuration = configuration;
@@ -53,9 +51,7 @@ namespace DotVVM.Framework.Hosting
             OutputRenderer = outputRender;
             CsrfProtector = csrfProtector;
             ViewModelParameterBinder = viewModelParameterBinder;
-#pragma warning disable CS0618
-            StaticCommandServiceLoader = staticCommandServiceLoader;
-#pragma warning restore CS0618
+            StaticCommandExecutor = staticCommandExecutor;
             ApplicationPath = configuration.ApplicationPhysicalPath;
             SecurityConfiguration = configuration.Security;
         }
@@ -74,11 +70,7 @@ namespace DotVVM.Framework.Hosting
 
         public DotvvmSecurityConfiguration SecurityConfiguration { get; }
 
-#pragma warning disable CS0618
-        [Obsolete(DefaultStaticCommandServiceLoader.DeprecationNotice)]
-
-        public IStaticCommandServiceLoader StaticCommandServiceLoader { get; }
-#pragma warning restore CS0618
+        public StaticCommandExecutor StaticCommandExecutor { get; }
 
         public string ApplicationPath { get; }
 
@@ -343,26 +335,8 @@ namespace DotVVM.Framework.Hosting
                 {
                     ViewModelLoader.DisposeViewModel(context.ViewModel);
                 }
-#pragma warning disable CS0618
-                StaticCommandServiceLoader.DisposeStaticCommandServices(context);
-#pragma warning restore CS0618
+                StaticCommandExecutor.DisposeServices(context);
             }
-        }
-
-        private object? ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
-        {
-            var methodArgs = plan.Arguments.Select((a, index) =>
-                a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg!) :
-                a.Type == StaticCommandParameterType.Constant || a.Type == StaticCommandParameterType.DefaultValue ? a.Arg :
-                a.Type == StaticCommandParameterType.Inject ?
-#pragma warning disable CS0618
-
-                                                              StaticCommandServiceLoader.GetStaticCommandService((Type)a.Arg!, context) :
-#pragma warning restore CS0618
-                a.Type == StaticCommandParameterType.Invocation ? ExecuteStaticCommandPlan((StaticCommandInvocationPlan)a.Arg!, arguments, context) :
-                throw new NotSupportedException("" + a.Type)
-            ).ToArray();
-            return plan.Method.Invoke(plan.Method.IsStatic ? null : methodArgs.First(), plan.Method.IsStatic ? methodArgs : methodArgs.Skip(1).ToArray());
         }
 
         public async Task ProcessStaticCommandRequest(IDotvvmRequestContext context)
@@ -383,13 +357,11 @@ namespace DotVVM.Framework.Hosting
                 var argumentPaths = postData["argumentPaths"]?.Values<string?>().ToArray();
                 var command = postData["command"].Value<string>();
                 var arguments = postData["args"] as JArray;
-                var executionPlan =
-                    StaticCommandExecutionPlanSerializer.DecryptJson(Convert.FromBase64String(command), context.Services.GetRequiredService<IViewModelProtector>())
-                        .Apply(StaticCommandExecutionPlanSerializer.DeserializePlan);
+                var executionPlan = StaticCommandExecutor.DecryptPlan(command);
 
                 var actionInfo = new ActionInfo(
                     binding: null,
-                    () => { return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments.NotNull()), context); },
+                    () => { return StaticCommandExecutor.Execute(executionPlan, arguments.NotNull(), argumentPaths, context); },
                     false,
                     executionPlan.Method,
                     argumentPaths
@@ -420,9 +392,7 @@ namespace DotVVM.Framework.Hosting
             }
             finally
             {
-#pragma warning disable CS0618
-                StaticCommandServiceLoader.DisposeStaticCommandServices(context);
-#pragma warning restore CS0618
+                StaticCommandExecutor.DisposeServices(context);
             }
         }
 
@@ -438,21 +408,7 @@ namespace DotVVM.Framework.Hosting
             {
                 var commandResultOrNotYetComputedAwaitable = action.Action();
 
-                if (commandResultOrNotYetComputedAwaitable is Task commandTask)
-                {
-                    await commandTask;
-                    return TaskUtils.GetResult(commandTask);
-                }
-
-                var resultType = commandResultOrNotYetComputedAwaitable?.GetType();
-                var possibleResultAwaiter = resultType?.GetMethod(nameof(Task.GetAwaiter), new Type[] { });
-
-                if(resultType != null && possibleResultAwaiter != null)
-                {
-                    throw new NotSupportedException($"The command uses unsupported awaitable type {resultType.FullName}, please use System.Task instead.");
-                }
-                
-                return commandResultOrNotYetComputedAwaitable;
+                return await TaskUtils.ToObjectTask(commandResultOrNotYetComputedAwaitable);
             }
             catch (Exception ex)
             {
@@ -498,33 +454,14 @@ namespace DotVVM.Framework.Hosting
             if (staticCommandAttribute?.Validation == StaticCommandValidation.None)
                 throw new Exception($"Could not respond with validation failure, validation is disabled on method {ReflectionUtils.FormatMethodInfo(invokedMethod)}. Use [AllowStaticCommand(StaticCommandValidation.Manual)] to allow validation.");
 
-            var argumentPaths = action.ArgumentPaths;
-            var invokedMethodParameters = invokedMethod.GetParameters();
+            if (staticCommandModelState.Errors.FirstOrDefault(e => !e.IsResolved) is {} unresolvedError)
+                throw new Exception("Could not respond with validation failure, some errors have unresolved paths: " + unresolvedError);
 
-            foreach (var error in staticCommandModelState.Errors.Where(e => !e.IsResolved))
-            {
-                if (argumentPaths is null)
-                    throw new Exception("Could not respond with validation failure because the client did not send validation paths.");
-                if (error.PropertyPathExtractor != null)
-                {
-                    var path = error.PropertyPathExtractor(configuration);
-                    var hasPropertySegment = path.Count(static c => c == '/') >= 2;
-                    var name = hasPropertySegment ? path.Substring(0, path.IndexOf('/')) : path;
-                    var rest = hasPropertySegment ? path.Substring(name.Length + 1) : string.Empty;
-                    error.ArgumentName = name;
-                    error.PropertyPath = rest;
-                }
-
-                var parameter = invokedMethodParameters.FirstOrDefault(p => p.Name == error.ArgumentName)
-                    ?? throw new ArgumentException($"Could not map argument name \"{error.ArgumentName}\" to any of {action.InvokedMethod}'s parameters.");
-
-                var argumentIndex = parameter.Position;
-                var propertyPath = error.PropertyPath?.Trim('/');
-                var argumentPath = argumentPaths![argumentIndex]?.TrimEnd('/');
-                if (argumentPath is null)
-                    throw new StaticCommandMissingValidationPathException(error);
-                error.PropertyPath = $"{argumentPath}/{error.PropertyPath}";
-            }
+            DotvvmMetrics.ValidationErrorsReturned.Record(
+                staticCommandModelState.ErrorsInternal.Count,
+                context.RouteLabel(),
+                context.RequestTypeLabel()
+            );
 
             var jObject = new JObject
             {
@@ -536,11 +473,6 @@ namespace DotVVM.Framework.Hosting
             context.HttpContext.Response.ContentType = "application/json";
             await context.HttpContext.Response.WriteAsync(result);
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ArgumentsValidationFailed, "Argument contain validation errors!");
-        }
-
-        record StaticCommandMissingValidationPathException(StaticCommandValidationError ValidationError): RecordExceptions.RecordException
-        {
-            public override string Message => $"Could not serialize validation error {ValidationError.ArgumentName}/{ValidationError.PropertyPath}, the client did not specify the validation path for this method argument. Make sure that the argument maps directly into a view model property (or use AddRawError to sidestep the automagic mapping in advanced cases).";
         }
 
         async Task ValidateSecFetchHeaders(IDotvvmRequestContext context)

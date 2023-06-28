@@ -2,6 +2,6 @@
 {
     internal sealed class DotvvmRequestContextStorage
     {
-        public IDotvvmRequestContext Context;
+        public IDotvvmRequestContext? Context;
     }
 }

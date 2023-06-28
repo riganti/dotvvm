@@ -60,6 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
             services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();
             services.TryAddSingleton<IOutputRenderer, DefaultOutputRenderer>();
+            services.TryAddSingleton<StaticCommandExecutor>();
             services.TryAddSingleton<IDotvvmPresenter, DotvvmPresenter>();
             services.TryAddSingleton<IMarkupFileLoader, AggregateMarkupFileLoader>();
             services.TryAddSingleton<IControlBuilderFactory, DefaultControlBuilderFactory>();
@@ -81,6 +82,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
             services.TryAddSingleton<IExpressionToDelegateCompiler, DefaultExpressionToDelegateCompiler>();
+
+            services.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
+            services.TryAddScoped<IDotvvmRequestContext>(s => s.GetRequiredService<DotvvmRequestContextStorage>().Context!);
 
             services.AddScoped<IRequestTracer>(s => {
                 var config = s.GetRequiredService<DotvvmConfiguration>();

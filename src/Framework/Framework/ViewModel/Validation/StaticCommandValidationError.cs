@@ -49,5 +49,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             this.ErrorMessage = errorMessage;
             this.PropertyPathExtractor = propertyPathExtractor;
         }
-    }
+        public override string ToString() => 
+            $"StaticCommandValidationError({ErrorMessage}, {ArgumentName}, {(IsResolved ? "" : "un")}resolved {PropertyPath})";
+}
 }
