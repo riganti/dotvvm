@@ -32,22 +32,29 @@ namespace DotVVM.Framework.Utils
         }
 
         public static object? GetResult(Task task)
-            => IsVoidTask(task) ? null : ((dynamic)task).Result;
-
-        private static bool IsVoidTask(Task task)
         {
             var type = task.GetType();
-
-            var resultProperty = type.GetProperty("Result");
-            if (type != typeof(Task) && resultProperty != null)
+            if (type == typeof(Task))
             {
-                var taskResultPropertyName = resultProperty.PropertyType.Name;
-                return taskResultPropertyName == "VoidTaskResult" || taskResultPropertyName == "VoidResult";
+                return null;
             }
 
-            return true;
+            var resultProperty = type.GetProperty("Result");
+            if (resultProperty is null)
+                return null;
+
+            var taskResultPropertyName = resultProperty.PropertyType.Name;
+            if (taskResultPropertyName == "VoidTaskResult" || taskResultPropertyName == "VoidResult")
+            {
+                return null;
+            }
+
+
+            // throw exception without the TargetInvocationException wrapper
+            if (task.Status != TaskStatus.RanToCompletion)
+                task.Wait();
+
+            return resultProperty.GetValue(task);
         }
-
-
     }
 }
