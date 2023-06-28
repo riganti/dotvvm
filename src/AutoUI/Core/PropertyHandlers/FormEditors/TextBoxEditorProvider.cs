@@ -50,8 +50,11 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
                 DataType.PhoneNumber => TextBoxType.Telephone,
                 DataType.Url => TextBoxType.Url,
                 DataType.ImageUrl => TextBoxType.Url,
-                _ => propertyType.UnwrapNullableType() == typeof(DateTime) && !hasFormatString ? TextBoxType.DateTimeLocal :
-                     ReflectionUtils.IsNumericType(propertyType.UnwrapNullableType()) && !hasFormatString ? TextBoxType.Number :
+                _ => hasFormatString ? TextBoxType.Normal :
+                     propertyType.UnwrapNullableType() == typeof(DateTime) ? TextBoxType.DateTimeLocal :
+                     propertyType.UnwrapNullableType() == typeof(DateOnly) ? TextBoxType.Date :
+                     propertyType.UnwrapNullableType() == typeof(TimeOnly) ? TextBoxType.Time :
+                     ReflectionUtils.IsNumericType(propertyType.UnwrapNullableType()) ? TextBoxType.Number :
                      TextBoxType.Normal
             };
 
