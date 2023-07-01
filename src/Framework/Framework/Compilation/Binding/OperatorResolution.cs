@@ -93,7 +93,6 @@ namespace DotVVM.Framework.Compilation.Binding
                 _ => null
             };
 
-
             // Try to find user defined operator
             if (customOperator != null && (!leftType.IsPrimitive || !rightType.IsPrimitive))
             {
@@ -107,18 +106,30 @@ namespace DotVVM.Framework.Compilation.Binding
                 throw new InvalidOperationException($"Cannot apply {operation} operator to two different enum types: {leftType.Name}, {rightType.Name}.");
             }
 
-            // numeric operations
-            if (operation == ExpressionType.LeftShift)
+            if (operation is ExpressionType.Equal or ExpressionType.NotEqual && !leftType.IsValueType && !rightType.IsValueType)
             {
-                return Expression.LeftShift(left, ConvertToMaybeNullable(right, typeof(int), true)!);
+                // https://github.com/dotnet/csharpstandard/blob/standard-v6/standard/expressions.md#11117-reference-type-equality-operators
+                // Every class type C implicitly provides the following predefined reference type equality operators:
+                // bool operator ==(C x, C y);
+                // bool operator !=(C x, C y);
+                return ReferenceEquality(left, right, operation == ExpressionType.NotEqual);
             }
-            else if (operation == ExpressionType.RightShift)
+
+            if (operation is ExpressionType.LeftShift or ExpressionType.RightShift)
             {
-                return Expression.RightShift(left, ConvertToMaybeNullable(right, typeof(int), true)!);
+                // https://github.com/dotnet/csharpstandard/blob/standard-v6/standard/expressions.md#1110-shift-operators
+                // * shift operators always take int32 as the second argument
+                var rightConverted = ConvertToMaybeNullable(right, typeof(int), true)!;
+                // * the first argument is int, uint, long, ulong (in this order)
+                var leftConverted = ConvertToMaybeNullable(left, typeof(int), false) ?? ConvertToMaybeNullable(left, typeof(uint), false) ?? ConvertToMaybeNullable(left, typeof(long), false) ?? ConvertToMaybeNullable(left, typeof(ulong), false)!;
+                if (leftConverted is null)
+                    throw new InvalidOperationException($"Cannot apply {operation} operator to type {leftType.ToCode()}. The type must be convertible to an integer or have a custom operator defined.");
+                return operation == ExpressionType.LeftShift ? Expression.LeftShift(leftConverted, rightConverted) : Expression.RightShift(leftConverted, rightConverted);
             }
 
             // List of types in order of precendence
             var enumType = leftType.IsEnum ? leftType : rightType.IsEnum ? rightType : null;
+            // all operators have defined "overloads" for two
             var typeList = operation switch {
                 ExpressionType.Or or ExpressionType.And or ExpressionType.ExclusiveOr =>
                     new[] { typeof(bool), enumType, typeof(int), typeof(uint), typeof(long), typeof(ulong) },
@@ -152,56 +163,22 @@ namespace DotVVM.Framework.Compilation.Binding
             // if (left.Type.IsNullable() || right.Type.IsNullable())
             //     return GetBinaryOperator(expressionFactory, left.UnwrapNullable(), right.UnwrapNullable(), operation);
 
-            // as a fallback, try finding overridden Equals method
-            if (operation == ExpressionType.Equal) return EqualsMethod(expressionFactory, left, right);
-            if (operation == ExpressionType.NotEqual) return Expression.Not(EqualsMethod(expressionFactory, left, right));
-
             throw new InvalidOperationException($"Cannot apply {operation} operator to types {left.Type.Name} and {right.Type.Name}.");
         }
 
-        public static Expression EqualsMethod(
-            MemberExpressionFactory expressionFactory,
-            Expression left,
-            Expression right
-        )
+        static Expression ReferenceEquality(Expression left, Expression right, bool not)
         {
-            Expression? equatable = null;
-            Expression? theOther = null;
-            if (typeof(IEquatable<>).IsAssignableFrom(left.Type))
+            // * It is a binding-time error to use the predefined reference type equality operators to compare two references that are known to be different at binding-time. For example, if the binding-time types of the operands are two class types, and if neither derives from the other, then it would be impossible for the two operands to reference the same object. Thus, the operation is considered a binding-time error.
+            var leftT = left.Type;
+            var rightT = right.Type;
+            if (leftT != rightT && !(leftT.IsAssignableFrom(rightT) || rightT.IsAssignableFrom(leftT)))
             {
-                equatable = left;
-                theOther = right;
+                if (!leftT.IsInterface && rightT.IsInterface)
+                    throw new InvalidOperationException($"Cannot compare types {leftT.ToCode()} and {rightT.ToCode()}, because the classes are unrelated.");
+                if (leftT.IsSealed || rightT.IsSealed)
+                    throw new InvalidOperationException($"Cannot compare types {leftT.ToCode()} and {rightT.ToCode()}, because {(leftT.IsSealed ? leftT : rightT).ToCode(stripNamespace: true)} is sealed and does not implement {rightT.ToCode(stripNamespace: true)}.");
             }
-            else if (typeof(IEquatable<>).IsAssignableFrom(right.Type))
-            {
-                equatable = right;
-                theOther = left;
-            }
-
-            if (equatable != null)
-            {
-                var m = expressionFactory.CallMethod(equatable, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, "Equals", null, new[] { theOther! });
-                if (m != null) return m;
-            }
-
-            if (left.Type.IsValueType)
-            {
-                equatable = left;
-                theOther = right;
-            }
-            else if (left.Type.IsValueType)
-            {
-                equatable = right;
-                theOther = left;
-            }
-
-            if (equatable != null)
-            {
-                theOther = TypeConversion.ImplicitConversion(theOther!, equatable.Type);
-                if (theOther != null) return Expression.Equal(equatable, theOther);
-            }
-
-            return expressionFactory.CallMethod(left, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, "Equals", null, new[] { right });
+            return not ? Expression.ReferenceNotEqual(left, right) : Expression.ReferenceEqual(left, right);
         }
 
         static Expression? ConvertToMaybeNullable(

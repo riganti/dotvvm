@@ -1123,11 +1123,41 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("DoubleProp - 1", 0.5)]
         [DataRow("DoubleProp + ShortProp", short.MaxValue + 1.5)]
         [DataRow("NullableDoubleProp + ShortProp", null)]
-        public void BindingCompiler_OperatorType(string expr, object expectedResult)
+        [DataRow("ByteProp | ByteProp", (byte)255)]
+        [DataRow("DateTime == DateTime", true)]
+        [DataRow("NullableTimeOnly == NullableTimeOnly", true)]
+        [DataRow("NullableTimeOnly != NullableTimeOnly", false)]
+        [DataRow("NullableTimeOnly == TimeOnly", false)]
+        [DataRow("EnumList[0] > EnumList[1]", false)]
+        [DataRow("EnumList[0] < EnumList[1]", true)]
+        [DataRow("EnumList[0] == 'A'", true)]
+        [DataRow("EnumList[0] < 'C'", true)]
+        [DataRow("(EnumList[1] | 'C') == 'C'", false)]
+        [DataRow("(EnumList[2] & 1) != 0", false)]
+        public void BindingCompiler_BinaryOperator_ResultType(string expr, object expectedResult)
         {
-            var vm = new TestViewModel { IntProp = 100, DoubleProp = 1.5 };
+            var vm = new TestViewModel { IntProp = 100, DoubleProp = 1.5, EnumList = new () { TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D } };
             Assert.AreEqual(expectedResult, ExecuteBinding(expr, vm));
         }
+
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Reference equality is not defined for the types 'DotVVM.Framework.Tests.Binding.TestViewModel2' and 'DotVVM.Framework.Tests.Binding.TestViewModel'")]
+        public void BindingCompiler_InvalidReferenceComparison() =>
+            ExecuteBinding("TestViewModel2 == _this", new TestViewModel());
+
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply Equal operator to types DateTime and Object.")]
+        public void BindingCompiler_InvalidStructReferenceComparison() =>
+            ExecuteBinding("DateTime == Time", new TestViewModel());
+
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply Equal operator to types DateTime and Object.")]
+        public void BindingCompiler_InvalidStructComparison() =>
+            ExecuteBinding("DateTime == Time", new TestViewModel());
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply And operator to types TestEnum and Boolean")]
+        public void BindingCompiler_InvalidBitAndComparison() =>
+            ExecuteBinding("EnumProperty & 2 == 0", new TestViewModel());
     }
     class TestViewModel
     {

@@ -803,7 +803,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var parser = bindingParserNodeFactory.SetupParser(originalString);
             var node = parser.ReadExpression();
 
-            Assert.IsTrue(node is TypeOrFunctionReferenceBindingParserNode);
+            Assert.IsInstanceOfType(node, typeof(TypeOrFunctionReferenceBindingParserNode));
             Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
         }
 
