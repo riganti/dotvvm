@@ -135,5 +135,32 @@ namespace DotVVM.Framework.Tests.Binding
         {
             return true;
         }
+        [TestMethod]
+        public async Task ArgumentPropertyLambdaError()
+        {
+#pragma warning disable CS4014
+            var plan = CreatePlan(() => ValidateArgumentPropertyLambda(null, null));
+#pragma warning restore CS4014
+            var modelState = await InvokeExpectingErrors(plan, (new TestViewModel(), "/MyViewModel"));
+            Assert.AreEqual(3, modelState.Errors.Count);
+            Assert.IsTrue(modelState.Errors[0].IsResolved);
+            Assert.AreEqual("/MyViewModel/IntProp", modelState.Errors[0].PropertyPath);
+            Assert.IsTrue(modelState.Errors[1].IsResolved);
+            Assert.AreEqual("/MyViewModel/VmArray/12/Enum", modelState.Errors[1].PropertyPath);
+            Assert.IsTrue(modelState.Errors[2].IsResolved);
+            Assert.AreEqual("/MyViewModel/LongList/12", modelState.Errors[2].PropertyPath);
+        }
+        [AllowStaticCommand]
+        internal static async Task<bool> ValidateArgumentPropertyLambda(IDotvvmRequestContext context, TestViewModel vm)
+        {
+            var ms = new StaticCommandModelState();
+            ms.AddArgumentError(() => vm.IntProp, "error1");
+            var index = 12;
+            ms.AddArgumentError(() => vm.VmArray[index].Enum, "error2");
+            ms.AddArgumentError(() => vm.LongList[index], "error3");
+            ms.FailOnInvalidModelState();
+            return true;
+        }
+
     }
 }
