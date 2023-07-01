@@ -1,0 +1,22 @@
+
+
+<head></head>
+<body>
+<span>
+    <!-- basic CheckedValue usage -->
+    <input type=radio name=g1 data-bind='checked: NullableString, checkedValue: "A"' />
+    <!-- disabled + label -->
+    <label><input disabled=disabled type=radio name=g1 data-bind='checked: NullableString, checkedValue: "B"' /><span>Radio with label</span></label>
+    <!-- disabled dynamically -->
+    <input disabled=disabled type=radio name=g1 data-bind='enable: int() &lt; 0, checked: NullableString, checkedValue: "C"' />
+
+    <!-- checked boolean -->
+    <input checked type=radio name data-bind="checked: Bool" />
+    <!-- checked readonly -->
+    <input disabled=disabled checked type=radio name data-bind="checked: int() &gt; 0" />
+    <!-- dynamic group name -->
+    <input another-bound-attribute=10000000 disabled=disabled type=radio name=G10000000 data-bind='attr: { "another-bound-attribute": int, name: "G" + int() }, enable: int() &lt; 0, checked: NullableString, checkedValue: "C"' />
+</span>
+
+
+</body>

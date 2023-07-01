@@ -15,6 +15,24 @@ namespace DotVVM.Framework.Controls
 {
     public static class KnockoutHelper
     {
+        /// <summary> If value is a binding, evaluates it. If the binding is a value binding, any thrown exceptions are suppressed </summary>
+        internal static object? TryEvaluateValueBinding(DotvvmBindableObject control, object? valueOrBinding)
+        {
+            if (valueOrBinding is IStaticValueBinding b)
+            {
+                try
+                {
+                    return b.Evaluate(control);
+                }
+                catch when (b is IValueBinding)
+                {
+                    return null;
+                }
+            }
+            return valueOrBinding;
+        }
+
+
         /// <summary>
         /// Adds the data-bind attribute to the next HTML element that is being rendered. The binding expression is taken from the specified property. If in server rendering mode, the binding is also not rendered.
         /// </summary>

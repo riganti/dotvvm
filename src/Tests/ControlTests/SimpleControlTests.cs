@@ -216,6 +216,34 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        [DataRow(RenderMode.Server)]
+        [DataRow(RenderMode.Client)]
+        public async Task RadioButton(RenderMode mode)
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), $$"""
+                <span RenderSettings.Mode={{mode}}>
+                    <!-- basic CheckedValue usage -->
+                    <dot:RadioButton CheckedItem={value: NullableString} GroupName=g1 CheckedValue=A />
+                    <!-- disabled + label -->
+                    <dot:RadioButton CheckedItem={value: NullableString} GroupName=g1 Text="Radio with label" Enabled=false CheckedValue=B />
+                    <!-- disabled dynamically -->
+                    <dot:RadioButton CheckedItem={value: NullableString} GroupName=g1 Enabled={value: Integer < 0} CheckedValue=C />
+
+                    <!-- checked boolean -->
+                    <dot:RadioButton Checked={value: Bool} />
+                    <!-- checked readonly -->
+                    <dot:RadioButton Checked={value: Integer > 0} Enabled=false />
+                    <!-- dynamic group name -->
+                    <dot:RadioButton CheckedItem={value: NullableString} GroupName={value: "G" + Integer} Enabled={value: Integer < 0} CheckedValue=C another-bound-attribute={value: Integer} />
+                </span>
+                """,
+                fileName: $"SimpleControls_RadioButton_{mode}.dothtml"
+            );
+
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
+
+        [TestMethod]
         public async Task CommandBinding()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
@@ -414,6 +442,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             public int[] IntArray { get; set; }
 
             public string UrlSuffix { get; set; } = "#something";
+
+            public bool Bool { get; set; } = true;
 
             public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>() {
                 RowEditOptions = {

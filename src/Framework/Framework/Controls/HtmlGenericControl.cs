@@ -256,16 +256,9 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("visible", valueBinding.GetKnockoutBindingExpression(this));
             }
 
-            try
+            if (false.Equals(KnockoutHelper.TryEvaluateValueBinding(this, v)))
             {
-                if (false.Equals(EvalPropertyValue(VisibleProperty, v)))
-                {
-                    writer.AddAttribute("style", "display:none");
-                }
-            }
-            catch (Exception) when (valueBinding is {})
-            {
-                // suppress value binding errors
+                writer.AddAttribute("style", "display:none");
             }
         }
 
@@ -311,19 +304,15 @@ namespace DotVVM.Framework.Controls
         private void AddCssClassesToRender(IHtmlWriter writer)
         {
             KnockoutBindingGroup cssClassBindingGroup = new KnockoutBindingGroup();
-            foreach (var cssClass in CssClasses.Properties)
+            foreach (var (cssClass, rawValue) in CssClasses.RawValues)
             {
-                if (HasValueBinding(cssClass))
+                if (rawValue is IValueBinding binding)
                 {
-                    cssClassBindingGroup.Add(cssClass.GroupMemberName, this, cssClass);
+                    cssClassBindingGroup.Add(cssClass, this, binding);
                 }
 
-                try
-                {
-                    if (true.Equals(this.GetValue(cssClass)))
-                        writer.AddAttribute("class", cssClass.GroupMemberName, append: true, appendSeparator: " ");
-                }
-                catch when (HasValueBinding(cssClass)) { }
+                if (true.Equals(KnockoutHelper.TryEvaluateValueBinding(this, rawValue)))
+                    writer.AddAttribute("class", cssClass, append: true, appendSeparator: " ");
             }
 
             if (!cssClassBindingGroup.IsEmpty) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
@@ -332,24 +321,19 @@ namespace DotVVM.Framework.Controls
         private void AddCssStylesToRender(IHtmlWriter writer)
         {
             KnockoutBindingGroup? cssStylesBindingGroup = null;
-            foreach (var styleProperty in CssStyles.Properties)
+            foreach (var (style, rawValue) in CssStyles.RawValues)
             {
-                if (HasValueBinding(styleProperty))
+                if (rawValue is IValueBinding binding)
                 {
                     if (cssStylesBindingGroup == null) cssStylesBindingGroup = new KnockoutBindingGroup();
-                    cssStylesBindingGroup.Add(styleProperty.GroupMemberName, this, styleProperty);
+                    cssStylesBindingGroup.Add(style, this, binding);
                 }
 
-                try
+                var value = KnockoutHelper.TryEvaluateValueBinding(this, rawValue)?.ToString();
+                if (!string.IsNullOrEmpty(value))
                 {
-                    var value = GetValue(styleProperty)?.ToString();
-                    if (!string.IsNullOrEmpty(value))
-                    {
-                        writer.AddStyleAttribute(styleProperty.GroupMemberName, value!);
-                    }
+                    writer.AddStyleAttribute(style, value!);
                 }
-                // suppress all errors when we have rendered the value binding anyway
-                catch when (HasValueBinding(styleProperty)) { }
             }
 
             if (cssStylesBindingGroup != null)
