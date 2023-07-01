@@ -271,7 +271,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (matchingMethods.Count == 0)
                 return null;
-            var overload = BestOverload(matchingMethods, operatorName);
+            var overload = BestOverload(matchingMethods, searchTypes, operatorName);
             var parameters = overload.Method.GetParameters();
 
             return Expression.MakeBinary(
@@ -285,6 +285,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private MethodRecognitionResult FindValidMethodOverloads(Expression? target, Type type, string name, BindingFlags flags, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs)
         {
+            bool extensionMethods = false;
             var methods = FindValidMethodOverloads(type.GetAllMethods(flags), name, false, typeArguments, arguments, namedArgs);
 
             if (methods.Count == 1) return methods[0];
@@ -293,6 +294,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 // We did not find any match in regular methods => try extension methods
                 if (target != null && flags.HasFlag(BindingFlags.Instance))
                 {
+                    extensionMethods = true;
                     // Change to a static call
                     var newArguments = new[] { target }.Concat(arguments).ToArray();
                     var extensions = FindValidMethodOverloads(GetAllExtensionMethods(), name, true, typeArguments, newArguments, namedArgs);
@@ -311,21 +313,25 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             // There are multiple method candidates
-            return BestOverload(methods, name);
+            return BestOverload(methods, extensionMethods ? Type.EmptyTypes : new[] { type }, name);
         }
 
-        private MethodRecognitionResult BestOverload(List<MethodRecognitionResult> methods, string name)
+        private MethodRecognitionResult BestOverload(List<MethodRecognitionResult> methods, Type[] callingOnType, string name)
         {
             if (methods.Count == 1)
                 return methods[0];
 
-            methods = methods.OrderBy(s => s.CastCount).ThenBy(s => s.AutomaticTypeArgCount).ThenBy(s => s.HasParamsAttribute).ToList();
+            methods = methods
+                .OrderBy(s => GetNearestInheritanceDistance(s.Method.DeclaringType, callingOnType))
+                .ThenBy(s => s.CastCount)
+                .ThenBy(s => s.AutomaticTypeArgCount)
+                .ThenBy(s => s.HasParamsAttribute).ToList();
             var method = methods.First();
             var method2 = methods.Skip(1).First();
-            if (method.AutomaticTypeArgCount == method2.AutomaticTypeArgCount && method.CastCount == method2.CastCount && method.HasParamsAttribute == method2.HasParamsAttribute)
+            if (method.AutomaticTypeArgCount == method2.AutomaticTypeArgCount && method.CastCount == method2.CastCount && method.HasParamsAttribute == method2.HasParamsAttribute && GetNearestInheritanceDistance(method.Method.DeclaringType, callingOnType) == GetNearestInheritanceDistance(method2.Method.DeclaringType, callingOnType))
             {
                 // TODO: this behavior is not completed. Implement the same behavior as in roslyn.
-                var foundOverloads = $"{method.Method}, {method2.Method}";
+                var foundOverloads = $"{ReflectionUtils.FormatMethodInfo(method.Method, stripNamespace: true)}, {ReflectionUtils.FormatMethodInfo(method2.Method, stripNamespace: true)}";
                 throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'. The following overloads were found: {foundOverloads}.");
             }
             return method;
@@ -352,6 +358,40 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
             return result;
+        }
+
+        private int? TryGetInheritanceDistance(Type baseType, Type? derivedType)
+        {
+            int distance = 0;
+            while (derivedType != baseType)
+            {
+                if (derivedType is null)
+                    return null;
+
+                distance++;
+                derivedType = derivedType.BaseType;
+            }
+            return distance;
+        }
+        private int GetNearestInheritanceDistance(Type? baseType, Type[] derivedTypes)
+        {
+            if (baseType is null || derivedTypes.Length == 0)
+                // in extension method invocation this is irrelevant
+                return 0;
+            foreach (var derivedType in derivedTypes)
+            {
+                if (derivedType == baseType)
+                    return 0;
+            }
+            int distance = int.MaxValue;
+            foreach (var derivedType in derivedTypes)
+            {
+                if (TryGetInheritanceDistance(baseType, derivedType) is {} d)
+                    distance = Math.Min(distance, d);
+            }
+            if (distance == int.MaxValue)
+                throw new InvalidOperationException($"'{baseType.ToCode()}' is not a base type of any of '{string.Join(", ", derivedTypes.Select(t => t.ToCode()))}'.");
+            return distance;
         }
 
         sealed class MethodRecognitionResult
