@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         //TODO: Refactor ImplicitConversion usages to EnsureImplicitConversion where applicable to take advantage of nullability 
         public static Expression EnsureImplicitConversion(Expression src, Type destType, bool allowToString = false)
-            => ImplicitConversion(src, destType, true, false)!;
+            => ImplicitConversion(src, destType, throwException: true, allowToString: allowToString)!;
 
         // 6.1 Implicit Conversions
         public static Expression? ImplicitConversion(Expression src, Type destType, bool throwException = false, bool allowToString = false)

@@ -295,7 +295,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitConditionalExpression(ConditionalExpressionBindingParserNode node)
         {
-            var condition = HandleErrors(node.ConditionExpression, n => TypeConversion.ImplicitConversion(Visit(n), typeof(bool), true));
+            var condition = HandleErrors(node.ConditionExpression, n => TypeConversion.EnsureImplicitConversion(Visit(n), typeof(bool)));
             var trueExpr = HandleErrors(node.TrueExpression, Visit)!;
             var falseExpr = HandleErrors(node.FalseExpression, Visit)!;
             ThrowOnErrors();

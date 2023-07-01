@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (operation == ExpressionType.Assign)
             {
-                return expressionFactory.UpdateMember(left, TypeConversion.EnsureImplicitConversion(right, left.Type, true)!)
+                return expressionFactory.UpdateMember(left, TypeConversion.EnsureImplicitConversion(right, left.Type, true))
                     .NotNull($"Expression '{right}' cannot be assigned into '{left}'.");
             }
 
@@ -110,11 +110,11 @@ namespace DotVVM.Framework.Compilation.Binding
             // numeric operations
             if (operation == ExpressionType.LeftShift)
             {
-                return Expression.LeftShift(left, ConvertToMaybeNullable(right, typeof(int), true));
+                return Expression.LeftShift(left, ConvertToMaybeNullable(right, typeof(int), true)!);
             }
             else if (operation == ExpressionType.RightShift)
             {
-                return Expression.RightShift(left, ConvertToMaybeNullable(right, typeof(int), true));
+                return Expression.RightShift(left, ConvertToMaybeNullable(right, typeof(int), true)!);
             }
 
             // List of types in order of precendence

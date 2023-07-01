@@ -456,7 +456,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (args.Length == i + 1 && hasParamsArrayAttributes && !args[i].Type.IsArray)
                 {
                     var converted = positionalArguments.Skip(i)
-                        .Select(a => TypeConversion.ImplicitConversion(a, elm, throwException: true)!)
+                        .Select(a => TypeConversion.EnsureImplicitConversion(a, elm))
                         .ToArray();
                     args[i] = NewArrayExpression.NewArrayInit(elm, converted);
                 }

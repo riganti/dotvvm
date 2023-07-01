@@ -1060,7 +1060,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var aggEx = Assert.ThrowsException<BindingPropertyException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));
             var ex = aggEx.GetBaseException();
-            StringAssert.Contains(ex.Message, "Could not implicitly convert expression of type int to string");
+            StringAssert.Contains(ex.Message, "Expression '123' cannot be assigned into 'System.String'.");
         }
 
         [TestMethod]
@@ -1128,7 +1128,6 @@ namespace DotVVM.Framework.Tests.Binding
             var vm = new TestViewModel { IntProp = 100, DoubleProp = 1.5 };
             Assert.AreEqual(expectedResult, ExecuteBinding(expr, vm));
         }
->>>>>>> ba2cf6708 (Add tests for OperatorResolution)
     }
     class TestViewModel
     {
