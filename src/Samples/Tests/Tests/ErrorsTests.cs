@@ -144,7 +144,7 @@ namespace DotVVM.Samples.Tests
 
                 AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Could not resolve identifier"));
                 AssertUI.InnerText(browser.First("[class='source-errorLine']"), s => s.Contains("InvalidPropertyName"));
-                AssertUI.InnerText(browser.First("[class='errorUnderline']"), s => s.Contains("InvalidPropertyName"));
+                AssertUI.InnerTextEquals(browser.First("[class='errorUnderline']"), "InvalidPropertyName");
             });
         }
 
