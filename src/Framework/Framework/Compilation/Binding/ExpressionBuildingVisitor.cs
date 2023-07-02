@@ -324,7 +324,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 var name = unknownClass.Name + "." + identifierName;
 
-                var resolvedTypeExpression = Registry.Resolve(name, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(name);
+                var resolvedTypeExpression = Registry.Resolve(name, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(name, node);
 
                 if (typeParameters != null)
                 {
@@ -394,7 +394,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 var identifierName = $"{genericType.Type.ToDisplayString()}`{genericType.Arguments.Count()}";
                 var parameters = ResolveGenericArguments(genericType.Arguments);
 
-                var resolvedTypeExpr = Registry.Resolve(identifierName, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(identifierName);
+                var resolvedTypeExpr = Registry.Resolve(identifierName, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(identifierName, node);
                 return new StaticClassIdentifierExpression(resolvedTypeExpr.Type.MakeGenericType(parameters));
             }
 
@@ -535,15 +535,16 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitArrayInitializer(ArrayInitializerExpression node)
         {
-            var initializers = node.ElementInitializers.Select(e => Visit(e));
+            var initializers = node.ElementInitializers.Select(e => HandleErrors(e, Visit)).ToArray();
+            ThrowOnErrors();
 
             var firstInitializer = initializers.FirstOrDefault();
 
-            var firstElementType = firstInitializer?.Type ?? throw new DotvvmCompilationException($"Could not get the determine type of array element.");
+            var firstElementType = firstInitializer?.Type ?? throw new BindingCompilationException($"Could not get the determine type of array element.", node.ElementInitializers.FirstOrDefault() ?? node);
 
-            var arrayElementType = initializers.All(i => i.Type.IsAssignableFrom(firstElementType)) ? firstElementType : throw new DotvvmCompilationException($"All elements of the array initializer must be of the same type.");
+            var arrayElementType = initializers.All(i => i!.Type.IsAssignableFrom(firstElementType)) ? firstElementType : throw new BindingCompilationException($"All elements of the array initializer must be of the same type.", node);
 
-            return Expression.NewArrayInit(arrayElementType, initializers.Select(i => Expression.Convert(i, arrayElementType)));
+            return Expression.NewArrayInit(arrayElementType, initializers.Select(i => Expression.Convert(i!, arrayElementType)));
         }
 
         private Expression? GetMemberOrTypeExpression(IdentifierNameBindingParserNode node, Type[]? typeParameters)
@@ -552,8 +553,8 @@ namespace DotVVM.Framework.Compilation.Binding
             if (string.IsNullOrWhiteSpace(name)) return null;
             var expr = getExpression();
 
-            if (expr is null) return new UnknownStaticClassIdentifierExpression(name);
-            if (expr is ParameterExpression && expr.Type == typeof(UnknownTypeSentinel)) throw new Exception($"Type of '{expr}' could not be resolved.");
+            if (expr is null) return new UnknownStaticClassIdentifierExpression(name, node);
+            if (expr is ParameterExpression && expr.Type == typeof(UnknownTypeSentinel)) throw new BindingCompilationException($"Type of '{expr}' could not be resolved.", node);
             return expr;
 
             Expression? getExpression()
@@ -582,7 +583,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode) && !(node is AssemblyQualifiedNameBindingParserNode) && !(node is TypeReferenceBindingParserNode) && !(node is TypeOrFunctionReferenceBindingParserNode))
             {
-                throw new Exception("Only type name is supported.");
+                throw new BindingCompilationException("Only type name is supported.", node);
             }
         }
     }
