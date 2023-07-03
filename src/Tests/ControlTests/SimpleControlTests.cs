@@ -373,6 +373,20 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "reparsed.html");
         }
 
+
+        [TestMethod]
+        public async Task ClickEvents()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <dot:Button Click={command: Integer = Integer + 1} onclick="alert('Runs before the command')">Classic Btn</dot:Button>
+                <dot:LinkButton Click={command: Integer = Integer + 1} onclick="alert('Runs before the command')" Text='Link Btn' />
+                <div Events.Click={staticCommand: 0}> </div> <%-- TODO: onclick="alert('Runs before the command')" --%>
+                <div Events.DoubleClick={staticCommand: 0}> </div>
+            """);
+
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
