@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Routing
             foreach (var parameter in parameters)
             {
                 var g = match.Groups["param" + parameter.Key];
-                if (g.Success)
+                if (g.Success && g.Length > 0)
                 {
                     var decodedValue = Uri.UnescapeDataString(g.Value);
                     if (parameter.Value != null)
@@ -110,6 +110,10 @@ namespace DotVVM.Framework.Routing
                     }
                     else
                         values[parameter.Key] = decodedValue;
+                }
+                else if (DefaultValues.TryGetValue(parameter.Key, out var defaultValue))
+                {
+                    values[parameter.Key] = defaultValue;
                 }
             }
             return true;
