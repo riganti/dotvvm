@@ -169,6 +169,62 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+        public void DotvvmRoute_IsMatch_OneOptionalSuffixedParameter_WithConstraint_SlashAtTheEnd()
+        {
+            var route = new DotvvmRoute("Article/{Id?:int}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_JustOneOptionalParameter()
+        {
+            var route = new DotvvmRoute("{Id?}", null, null, null, configuration);
+
+            Assert.IsTrue(route.IsMatch("", out var params1));
+            Assert.AreEqual(0, params1.Count);
+
+            Assert.IsTrue(route.IsMatch("a", out var params2));
+            Assert.AreEqual(1, params2.Count);
+            Assert.AreEqual("a", params2["Id"]);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_JustOneOptionalParameterWithConstraint()
+        {
+            var route = new DotvvmRoute("{Id?:int}", null, null, null, configuration);
+
+            Assert.IsTrue(route.IsMatch("", out var params1));
+            Assert.AreEqual(0, params1.Count);
+
+            Assert.IsFalse(route.IsMatch("a", out var params2));
+
+            Assert.IsTrue(route.IsMatch("1", out var params3));
+            Assert.AreEqual(1, params3.Count);
+            Assert.AreEqual(1, params3["Id"]);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_JustOneOptionalParameterWithConstraint_DefaultValue()
+        {
+            var route = new DotvvmRoute("{Id?:int}", null, new { Id = 0 }, null, configuration);
+
+            Assert.IsTrue(route.IsMatch("", out var params1));
+            Assert.AreEqual(1, params1.Count);
+            Assert.AreEqual(0, params1["Id"]);
+
+            Assert.IsFalse(route.IsMatch("a", out var params2));
+
+            Assert.IsTrue(route.IsMatch("1", out var params3));
+            Assert.AreEqual(1, params3.Count);
+            Assert.AreEqual(1, params3["Id"]);
+        }
+
+        [TestMethod]
         public void DotvvmRoute_IsMatch_OneOptionalParameter()
         {
             var route = new DotvvmRoute("Article/{Id?}/edit", null, null, null, configuration);
@@ -178,6 +234,19 @@ namespace DotVVM.Framework.Tests.Routing
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, parameters.Count);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_OneOptionalParameter_DefaultValue()
+        {
+            var route = new DotvvmRoute("Article/{Id?}/edit", null, new { Id = 0 }, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/edit", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, parameters.Count);
+            Assert.AreEqual(0, parameters["Id"]);
         }
 
         [TestMethod]
