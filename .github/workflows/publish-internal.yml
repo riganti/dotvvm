@@ -72,14 +72,7 @@ jobs:
 
     - name: Set up
       uses: ./.github/setup
-
-    - name: Prepare signclient config
-      if: ${{ inputs.signature-type == 'DotNetFoundation' }}
-      run: Write-Output "$env:SIGN_CONFIG" | Out-File "${{ github.workspace }}/signconfig.json"
-      env:
-        SIGN_CONFIG: ${{ secrets.SIGN_CONFIG }}
-      working-directory: ${{ github.workspace }}/src
-
+   
     - name: Add internal NuGet feed
       run: ./ci/scripts/Add-InternalNuGetFeed.ps1 `
           -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
@@ -92,8 +85,11 @@ jobs:
           -root "${{ github.workspace }}" `
           -version "${{ needs.read-input.outputs.version }}" `
           -signatureType "DotNetFoundation" `
-          -dnfUser "${{ secrets.SIGN_USER }}" `
-          -dnfSecret "${{ secrets.SIGN_SECRET }}"
+          -dnfUrl "${{ secrets.SIGN_DNF_KEYVAULT_URL }}" `
+          -dnfClientId "${{ secrets.SIGN_DNF_CLIENT_ID }}" `
+          -dnfTenantId "${{ secrets.SIGN_DNF_TENANT_ID }}" `
+          -dnfSecret "${{ secrets.SIGN_DNF_SECRET }}" `
+          -dnfCertificate "${{ secrets.SIGN_DNF_CERTIFICATE_NAME }}"
 
     - name: Publish NuGet packages (Riganti)
       if: ${{ inputs.signature-type == 'Riganti' }}

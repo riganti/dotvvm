@@ -2,16 +2,16 @@
   "version": 1,
   "isRoot": true,
   "tools": {
-    "signclient": {
-      "version": "1.2.33",
-      "commands": [
-        "SignClient"
-      ]
-    },
     "nugetkeyvaultsigntool": {
       "version": "3.2.3",
       "commands": [
         "NuGetKeyVaultSignTool"
+      ]
+    },
+    "sign": {
+      "version": "0.9.1-beta.23356.1",
+      "commands": [
+        "sign"
       ]
     }
   }
