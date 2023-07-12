@@ -300,31 +300,31 @@ namespace DotVVM.Framework.Configuration
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         static void RegisterConstraints(DotvvmConfiguration configuration)
         {
-            configuration.RouteConstraints.Add("alpha", GenericRouteParameterType.Create("[a-zA-Z]*?"));
+            configuration.RouteConstraints.Add("alpha", GenericRouteParameterType.Create("[a-zA-Z]+"));
             configuration.RouteConstraints.Add("bool", GenericRouteParameterType.Create<bool>("true|false", bool.TryParse));
-            configuration.RouteConstraints.Add("decimal", GenericRouteParameterType.Create<decimal>("-?[0-9.e]*?", Invariant.TryParse));
-            configuration.RouteConstraints.Add("double", GenericRouteParameterType.Create<double>("-?[0-9.e]*?", Invariant.TryParse));
-            configuration.RouteConstraints.Add("float", GenericRouteParameterType.Create<float>("-?[0-9.e]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("decimal", GenericRouteParameterType.Create<decimal>("-?[0-9.e]+", Invariant.TryParse));
+            configuration.RouteConstraints.Add("double", GenericRouteParameterType.Create<double>("-?[0-9.e]+", Invariant.TryParse));
+            configuration.RouteConstraints.Add("float", GenericRouteParameterType.Create<float>("-?[0-9.e]+", Invariant.TryParse));
             configuration.RouteConstraints.Add("guid", GenericRouteParameterType.Create<Guid>("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", Guid.TryParse));
-            configuration.RouteConstraints.Add("int", GenericRouteParameterType.Create<int>("-?[0-9]*?", Invariant.TryParse));
-            configuration.RouteConstraints.Add("posint", GenericRouteParameterType.Create<int>("[0-9]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("int", GenericRouteParameterType.Create<int>("-?[0-9]+", Invariant.TryParse));
+            configuration.RouteConstraints.Add("posint", GenericRouteParameterType.Create<int>("[0-9]+", Invariant.TryParse));
             configuration.RouteConstraints.Add("length", new GenericRouteParameterType(p => "[^/]{" + p + "}"));
-            configuration.RouteConstraints.Add("long", GenericRouteParameterType.Create<long>("-?[0-9]*?", Invariant.TryParse));
-            configuration.RouteConstraints.Add("max", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
+            configuration.RouteConstraints.Add("long", GenericRouteParameterType.Create<long>("-?[0-9]+", Invariant.TryParse));
+            configuration.RouteConstraints.Add("max", new GenericRouteParameterType(p => "-?[0-9.e]+", (valueString, parameter) => {
                 if (parameter is null) throw new Exception("The `max` route constraint must have a numeric parameter.");
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 if (double.Parse(parameter, CultureInfo.InvariantCulture) < value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
             }));
-            configuration.RouteConstraints.Add("min", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
+            configuration.RouteConstraints.Add("min", new GenericRouteParameterType(p => "-?[0-9.e]+", (valueString, parameter) => {
                 if (parameter is null) throw new Exception("The `min` route constraint must have a numeric parameter.");
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 if (double.Parse(parameter, CultureInfo.InvariantCulture) > value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
             }));
-            configuration.RouteConstraints.Add("range", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
+            configuration.RouteConstraints.Add("range", new GenericRouteParameterType(p => "-?[0-9.e]+", (valueString, parameter) => {
                 if (parameter is null) throw new Exception("The `range` route constraint must have two numeric parameters.");
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
