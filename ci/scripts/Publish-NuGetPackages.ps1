@@ -3,8 +3,11 @@ param(
     [string][parameter(Mandatory = $true)]$version,
     [string]$internalFeedName = "riganti",
     [string]$signatureType = "DotNetFoundation",
-    [string]$dnfUser,
+    [string]$dnfUrl,
+    [string]$dnfClientId,
+    [string]$dnfTenantId,
     [string]$dnfSecret,
+    [string]$dnfCertificate,
     [string]$rigantiUrl,
     [string]$rigantiClientId,
     [string]$rigantiTenantId,
@@ -15,8 +18,12 @@ param(
 $root = Resolve-Path "$root"
 
 if ("$signatureType" -eq "DotNetFoundation") {
-    if (([string]::IsNullOrEmpty($dnfUser) -or [string]::IsNullOrEmpty($dnfSecret))) {
-        throw "-dnfUser and -dnfSecret are required when signing using signclient"
+    if ([string]::IsNullOrEmpty($dnfUrl) `
+        -or [string]::IsNullOrEmpty($dnfClientId) `
+        -or [string]::IsNullOrEmpty($dnfTenantId) `
+        -or [string]::IsNullOrEmpty($dnfSecret) `
+        -or [string]::IsNullOrEmpty($dnfCertificate)) {
+        throw "-dnfUrl, -dnfClientId, -dnfTenantId, -dnfSecret, and -dnfCertificate when signing using dotnet sign"
     }
 } elseif ("$signatureType" -eq "Riganti") {
     if ([string]::IsNullOrEmpty($rigantiUrl) `
@@ -80,15 +87,17 @@ function Set-AllPackageSignatures {
             $packageName = [System.IO.Path]::GetFileNameWithoutExtension($package);
 
             if ($signatureType -eq "DotNetFoundation") {
-                dotnet signclient sign `
+                dotnet sign code azure-key-vault `
+					"$package" `
                     --baseDirectory "$root/artifacts/packages" `
-                    --input "$package" `
-                    --config "$root/signconfig.json" `
-                    --user "$dnfUser" `
-                    --secret "$dnfSecret" `
-                    --name "$packageName" `
+					--publisher-name "DotVVM" `
                     --description "$("$packageName" + " " + $env:DOTVVM_VERSION)" `
-                    --descriptionUrl "https://github.com/riganti/dotvvm"
+                    --descriptionUrl "https://github.com/riganti/dotvvm" `
+					--azure-key-vault-url "$dnfUrl" `
+                    --azure-key-vault-client-id "$dnfClientId" `
+                    --azure-key-vault-tenant-id "$dnfTenantId" `
+                    --azure-key-vault-client-secret "$dnfSecret" `
+                    --azure-key-vault-certificate "$dnfCertificate"
             }
             elseif ($signatureType -eq "Riganti") {
                 dotnet NuGetKeyVaultSignTool sign `
