@@ -90,7 +90,7 @@ function Set-AllPackageSignatures {
                 dotnet sign code azure-key-vault `
 					"$package" `
                     --baseDirectory "$root/artifacts/packages" `
-					--publisher-name "DotVVM"
+					--publisher-name "DotVVM" `
                     --description "$("$packageName" + " " + $env:DOTVVM_VERSION)" `
                     --descriptionUrl "https://github.com/riganti/dotvvm" `
 					--azure-key-vault-url "$dnfUrl" `
