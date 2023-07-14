@@ -99,6 +99,7 @@ namespace DotVVM.Adapters.WebForms.Controls
         {
             var parametersExpression = parameters
                 .Select(p => $"{KnockoutHelper.MakeStringLiteral(p.Key)}: {p.Value.GetJsExpression(container)}")
+                .OrderBy(p => p)
                 .StringJoin(",");
             var routeUrlExpression = $"dotvvm.buildRouteUrl({KnockoutHelper.MakeStringLiteral(webFormsRoute.Url)}, {{{parametersExpression}}})";
             return routeUrlExpression;
@@ -106,9 +107,10 @@ namespace DotVVM.Adapters.WebForms.Controls
 
         private static string GenerateUrlSuffixExpression(DotvvmControl container, RouteLinkCapability routeLinkCapability)
         {
-            var urlSuffixBase = routeLinkCapability.UrlSuffix?.GetJsExpression(container);
+            var urlSuffixBase = routeLinkCapability.UrlSuffix?.GetJsExpression(container) ?? "\"\"";
             var queryParams = routeLinkCapability.QueryParameters
                 .Select(p => $"{KnockoutHelper.MakeStringLiteral(p.Key.ToLowerInvariant())}: {p.Value.GetJsExpression(container)}")
+                .OrderBy(p => p)
                 .StringJoin(",");
 
             // generate the function call
