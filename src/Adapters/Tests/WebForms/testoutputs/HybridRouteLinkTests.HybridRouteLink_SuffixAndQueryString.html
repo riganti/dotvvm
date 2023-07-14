@@ -5,6 +5,6 @@
 		<a data-bind="attr: { 'href': &quot;/&quot;+dotvvm.buildRouteUrl(&quot;page/{Index}&quot;, {&quot;Index&quot;: Value})+&quot;?hello=&quot; + Value()}" href="/page/15?hello=15">hello 2</a>
 		<a data-bind="attr: { 'href': &quot;/&quot;+dotvvm.buildRouteUrl(&quot;page/{Index}&quot;, {&quot;Index&quot;: Value})+dotvvm.buildUrlSuffix(&quot;?hello=&quot; + Value(), {&quot;test&quot;: &quot;1&quot;})}" href="/page/15?hello=15&amp;Test=1">hello 3</a>
 		<a data-bind="attr: { 'href': &quot;/&quot;+dotvvm.buildRouteUrl(&quot;page/{Index}&quot;, {&quot;Index&quot;: Value})+dotvvm.buildUrlSuffix(&quot;?hello=&quot; + Value(), {&quot;test&quot;: Value() * 2})}" href="/page/15?hello=15&amp;Test=30">hello 4</a>
-		<a data-bind="attr: { 'href': &quot;/&quot;+dotvvm.buildRouteUrl(&quot;page/{Index}&quot;, {&quot;Index&quot;: Value})+dotvvm.buildUrlSuffix(, {&quot;id&quot;: &quot;abc&quot;,&quot;test1&quot;: Value() + Items()?.length})}" href="/page/15?Id=abc&amp;Test1=18">hello 5</a>
+		<a data-bind="attr: { 'href': &quot;/&quot;+dotvvm.buildRouteUrl(&quot;page/{Index}&quot;, {&quot;Index&quot;: Value})+dotvvm.buildUrlSuffix(, {&quot;test1&quot;: Value() + Items()?.length,&quot;id&quot;: &quot;abc&quot;})}" href="/page/15?Test1=18&amp;Id=abc">hello 5</a>
 	</body>
 </html>

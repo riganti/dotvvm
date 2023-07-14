@@ -33,8 +33,8 @@ namespace DotVVM.Adapters.WebForms.Tests
             <webforms:HybridRouteLink RouteName=NoParams Text='hello 1' />
             <webforms:HybridRouteLink RouteName=SingleParam Param-Index=3 Text='hello 2' />
             <webforms:HybridRouteLink RouteName=SingleParam Param-Index={resource: 15} Text='hello 3' />
-            <webforms:HybridRouteLink RouteName=MultipleOptionalParams Text='hello 4' />;
-            <webforms:HybridRouteLink RouteName=MultipleOptionalParams Param-Tag=aaa Text='hello 5' />;
+            <webforms:HybridRouteLink RouteName=MultipleOptionalParams Text='hello 4' />
+            <webforms:HybridRouteLink RouteName=MultipleOptionalParams Param-Tag=aaa Text='hello 5' />
             <webforms:HybridRouteLink RouteName=MultipleOptionalParams Param-SubTag=bbb Text='hello 6' />
             <webforms:HybridRouteLink RouteName=MultipleOptionalParams Param-Tag=aaa Param-SubTag=bbb Text='hello 6' />");
 
