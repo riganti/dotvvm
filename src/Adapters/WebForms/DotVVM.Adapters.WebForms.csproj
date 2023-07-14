@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+    <PackageId>DotVVM.Adapters.WebForms</PackageId>
+    <Description>
+      This package contains helpers for migration of ASP.NET Web Forms application to DotVVM.
+      $(Description)
+    </Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="dotvvmwizard.snk" />
+  </ItemGroup>
+  <PropertyGroup>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Framework\Framework\DotVVM.Framework.csproj" />
+  </ItemGroup>
+
+</Project>
