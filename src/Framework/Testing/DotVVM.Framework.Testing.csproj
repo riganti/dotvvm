@@ -14,7 +14,7 @@
   </ItemGroup>
   <PropertyGroup>
     <SignAssembly>True</SignAssembly>
-    <PublicSign>True</PublicSign>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
