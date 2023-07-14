@@ -108,5 +108,10 @@ return @(
         Name = "DotVVM.Tracing.MiniProfiler.Owin";
         Path = "src/Tracing/MiniProfiler.Owin";
         Type = "standard"
+    },
+    [PSCustomObject]@{
+        Name = "DotVVM.Adapters.WebForms";
+        Path = "src/Adapters/WebForms";
+        Type = "standard"
     }
 )
