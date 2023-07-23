@@ -98,10 +98,11 @@ namespace DotVVM.Framework.Hosting
                     throw new Exception("Could not respond with validation failure because the client did not send validation paths.", innerException);
                 if (error.PropertyPathExtractor != null)
                 {
-                    var path = error.PropertyPathExtractor(configuration);
-                    var hasPropertySegment = path.Count(static c => c == '/') >= 2;
-                    var name = hasPropertySegment ? path.Substring(0, path.IndexOf('/')) : path;
-                    var rest = hasPropertySegment ? path.Substring(name.Length + 1) : string.Empty;
+                    var path = error.PropertyPathExtractor(configuration).TrimStart('/');
+                    var slashIndex = path.IndexOf('/');
+                    var hasPropertySegment = slashIndex >= 0 && slashIndex < path.Length - 1;
+                    var name = hasPropertySegment ? path.Substring(0, slashIndex) : path;
+                    var rest = hasPropertySegment ? path.Substring(slashIndex + 1) : string.Empty;
                     error.ArgumentName = name;
                     error.PropertyPath = rest;
                 }

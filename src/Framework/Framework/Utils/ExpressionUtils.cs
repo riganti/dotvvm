@@ -230,12 +230,12 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static Expression OptimizeConstants(this Expression ex)
         {
-            var v = new ConstantsOptimizingVisitor();
-            return v.Visit(ex);
+            return ConstantsOptimizingVisitor.Instance.Visit(ex);
         }
 
-        private class ConstantsOptimizingVisitor : ExpressionVisitor
+        private sealed class ConstantsOptimizingVisitor : ExpressionVisitor
         {
+            public static readonly ConstantsOptimizingVisitor Instance = new ConstantsOptimizingVisitor();
             protected override Expression VisitMember(MemberExpression node)
             {
                 if (node.Member.MemberType == MemberTypes.Property)
