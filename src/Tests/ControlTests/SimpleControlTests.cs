@@ -417,6 +417,28 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.OutputString, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task FormControlsEnabled()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <div FormControls.Enabled={value: Integer > 0}>
+                    <!-- client textbox -->
+                    <dot:TextBox Text={value: Label} RenderSettings.Mode=Client />
+                    <!-- server textbox -->
+                    <dot:TextBox Text={value: Label} RenderSettings.Mode=Server />
+                    <!-- override with constant -->
+                    <dot:TextBox Text={value: Label} Enabled=true />
+                    <!-- override with binding -->
+                    <dot:TextBox Text={value: Label} Enabled={value: Float < 0} />
+
+                    <!-- routelink should be unaffected -->
+                    <dot:RouteLink RouteName=Simple Text='link' />
+                    <dot:RouteLink RouteName=Simple Text='link' Enabled={value: Float < 0} />
+                </div>
+            """);
+
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
 
         [TestMethod]
         public async Task ComboBox()

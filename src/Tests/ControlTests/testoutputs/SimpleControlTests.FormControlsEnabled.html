@@ -1,0 +1,21 @@
+
+
+<head></head>
+<body>
+    <div>
+        <!-- client textbox -->
+        <input type=text data-bind="enable: int() &gt; 0, dotvvm-textbox-text: Label" />
+        <!-- server textbox -->
+        <input type=text data-bind="enable: int() &gt; 0, dotvvm-textbox-text: Label" />
+        <!-- override with constant -->
+        <input type=text data-bind="dotvvm-textbox-text: Label" />
+        <!-- override with binding -->
+        <input type=text data-bind="enable: float() &lt; 0, dotvvm-textbox-text: Label" />
+
+        <!-- routelink should be unaffected -->
+        <a href=/Simple onclick="event.stopPropagation();return !this.hasAttribute('disabled');">link</a>
+        <a href=/Simple disabled=disabled onclick="event.stopPropagation();return !this.hasAttribute('disabled');" data-bind="dotvvm-enable: float() &lt; 0">link</a>
+    </div>
+
+
+</body>
