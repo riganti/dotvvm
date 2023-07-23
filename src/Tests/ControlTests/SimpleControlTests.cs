@@ -143,6 +143,30 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task IncludeInPage()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                not included
+                <div IncludeInPage={resource: NullableString != null} />
+
+                included
+                <div IncludeInPage={resource: NullableString == null} />
+
+                returns null -> included
+                <div IncludeInPage={resource: NullBoolean} />
+
+                value binding
+                <div IncludeInPage={value: Integer < 0} />
+
+                value binding + DataContext
+                <div IncludeInPage={value: _this > 0} DataContext={value: Integer} />
+                """
+            );
+
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
+
+        [TestMethod]
         public async Task TextBox()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
@@ -384,6 +408,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             public string Label { get; } = "My Label";
 
             public string NullableString { get; } = null;
+
+            public bool? NullBoolean { get; } = null;
 
             public int[] IntArray { get; set; }
 

@@ -250,7 +250,7 @@ namespace DotVVM.Framework.Controls
         /// <returns>true means that rendering of the rest of this control should be skipped</returns>
         protected bool RenderBeforeControl(in RenderState r, IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (r.IncludeInPage != null && !(r.IncludeInPage is IValueBinding) && !this.IncludeInPage)
+            if (r.IncludeInPage != null && !(r.IncludeInPage is IValueBinding) && false.Equals(this.GetValue(IncludeInPageProperty)))
                 return true;
 
             if (r.DataContext != null)
