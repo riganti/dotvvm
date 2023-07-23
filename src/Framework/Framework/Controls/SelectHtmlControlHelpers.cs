@@ -1,5 +1,6 @@
 using System;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
 
@@ -20,7 +21,11 @@ namespace DotVVM.Framework.Controls
 
         public static void RenderOptionsProperties(IHtmlWriter writer, SelectorBase selector)
         {
-            writer.AddKnockoutDataBind("options", selector, ItemsControl.DataSourceProperty, renderEvenInServerRenderingMode: true);
+            var optionsBinding = (IValueBinding?)selector.GetValueBinding(ItemsControl.DataSourceProperty)?.GetProperty<DataSourceAccessBinding>().Binding;
+            if (optionsBinding is {})
+            {
+                writer.AddKnockoutDataBind("options", selector, optionsBinding);
+            }
             if (selector.ItemTextBinding != null)
             {
                 writer.AddKnockoutDataBind("optionsText", selector.ItemTextBinding.GetProperty<SelectorItemBindingProperty>().Expression, selector);

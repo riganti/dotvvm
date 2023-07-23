@@ -417,6 +417,23 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.OutputString, fileExtension: "html");
         }
 
+
+        [TestMethod]
+        public async Task ComboBox()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <!-- hardcoded -->
+                <dot:ComboBox SelectedValue={value: Integer}>
+                    <dot:SelectorItem Text='A' Value=0 />
+                    <dot:SelectorItem Text='X Y Z' Value=10000000 />
+                </dot:ComboBox>
+                <!-- bound -->
+                <dot:ComboBox DataSource={value: Customers} ItemValueBinding={value: Id} ItemTextBinding={value: Name} SelectedValue={value: Integer} />
+            """);
+
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]

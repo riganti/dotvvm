@@ -1,0 +1,14 @@
+
+
+<head></head>
+<body>
+    <!-- hardcoded -->
+    <select data-bind="value: int, valueAllowUnset: true">
+        <option value=0>A</option>
+        <option value=10000000>X Y Z</option>
+    </select>
+    <!-- bound -->
+    <select data-bind="options: Customers()?.Items, optionsText: (i) =&gt; ko.unwrap(i).Name(), optionsValue: (i) =&gt; ko.unwrap(i).Id(), value: int, valueAllowUnset: true"></select>
+
+
+</body>
