@@ -1,0 +1,23 @@
+
+
+<head></head>
+<body>
+<div id=serverRepeater data-bind="dotvvm-SSR-foreach: { data: Nested()?.Nested }"><!-- ko dotvvm-SSR-item: 0 -->
+    <input type=text id=serverRepeater_0_generated_id data-bind='dotvvm-textbox-text: ""' />
+    <label for=serverRepeater_0_generated_id>Label</label>
+<!-- /ko --><!-- ko dotvvm-SSR-item: 1 -->
+    <input type=text id=serverRepeater_1_generated_id data-bind='dotvvm-textbox-text: ""' />
+    <label for=serverRepeater_1_generated_id>Label</label>
+<!-- /ko --><!-- ko dotvvm-SSR-item: 2 -->
+    <input type=text id=serverRepeater_2_generated_id data-bind='dotvvm-textbox-text: ""' />
+    <label for=serverRepeater_2_generated_id>Label</label>
+<!-- /ko --></div>
+<div id=clientRepeater data-bind='template: { foreach: Nested()?.Nested, name: "Hv3v6Wb4fo2wssF7eRR7R8LDT3+fltgZN9QmaK7RKb0=" }'></div>
+
+    <!-- Resource Hv3v6Wb4fo2wssF7eRR7R8LDT3+fltgZN9QmaK7RKb0= of type TemplateResource. -->
+    <template id="Hv3v6Wb4fo2wssF7eRR7R8LDT3+fltgZN9QmaK7RKb0=">
+    <input type=text data-bind='attr: { id: "clientRepeater"+&#39;_&#39;+$index()+&#39;_&#39;+"generated_id" }, dotvvm-textbox-text: ""' />
+    <label class=my-label data-bind="attr: { for: &quot;clientRepeater&quot;+'_'+$index()+'_'+&quot;generated_id&quot; }">Label</label>
+</template>
+
+</body>

@@ -63,6 +63,23 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task AutomaticIdGeneration_Label()
+        {
+            var r = await cth.RunPage(typeof(TestViewModel), """
+                <dot:Repeater DataSource={value: Nested.Nested} RenderSettings.Mode=Server ID=serverRepeater>
+                    <dot:TextBox ID=generated_id Text={value: ""} />
+                    <dot:Label For=generated_id>Label</dot:Label>
+                </dot:Repeater>
+                <dot:Repeater DataSource={value: Nested.Nested} RenderSettings.Mode=Client ID=clientRepeater>
+                    <dot:TextBox ID=generated_id Text={value: ""} />
+                    <dot:Label For=generated_id class='my-label'>Label</dot:Label>
+                </dot:Repeater>
+                """
+            );
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
+
         public class TestViewModel: DotvvmViewModelBase
         {
             public NestedViewModel Nested { get; set; } = new NestedViewModel {
