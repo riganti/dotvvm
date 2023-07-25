@@ -57,7 +57,11 @@ namespace DotVVM.Framework.Compilation.Binding
 
                 var visitor = new ExpressionBuildingVisitor(symbols, memberExpressionFactory, expectedType);
                 visitor.Scope = symbols.Resolve(options.ScopeParameter);
-                return visitor.Visit(node);
+                var result = visitor.Visit(node);
+
+                if (result is UnknownStaticClassIdentifierExpression resultError)
+                    throw resultError.Error();
+                return result;
             }
             catch (Exception ex)
             {

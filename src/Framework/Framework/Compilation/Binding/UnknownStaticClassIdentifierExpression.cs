@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Linq.Expressions;
+using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
     public sealed class UnknownStaticClassIdentifierExpression: Expression
     {
-        public UnknownStaticClassIdentifierExpression(string name)
+        public UnknownStaticClassIdentifierExpression(string name, BindingParserNode? node = null)
         {
             Name = name;
+            Node = node;
         }
 
         public string Name { get; }
+        public BindingParserNode? Node { get; internal set; }
 
         public override Type Type => throw Error();
 
@@ -32,7 +35,10 @@ namespace DotVVM.Framework.Compilation.Binding
         public override ExpressionType NodeType => throw Error();
 
         public Exception Error()
-            => new Exception($"Could not resolve identifier '{Name}'.");
+        {
+            var message = $"Could not resolve identifier '{Name}'.";
+            return Node is null ? new Exception(message) : new BindingCompilationException(message, Node);
+        }
 
         public override string ToString() => $"[unknown identifier {Name}]";
     }

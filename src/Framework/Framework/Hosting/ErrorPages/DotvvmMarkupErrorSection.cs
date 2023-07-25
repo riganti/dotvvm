@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         private SourceModel CreateAnonymousLine(string line, int column = 0, int length = -1, int lineNumber = 0)
         {
-            if (length < 0) length = line.Length - column + length;
+            if (length < 0) length = line.Length - column;
             return new SourceModel
             {
                 CurrentLine = line,
