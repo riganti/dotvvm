@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -26,13 +27,15 @@ namespace DotVVM.Framework.Tests.Binding
         StaticCommandInvocationPlan CreatePlan(Expression<Action> methodExpr)
         {
             var methodInfo = (MethodInfo)MethodFindingHelper.GetMethodFromExpression(methodExpr);
-            var parameters = methodInfo.GetParameters();
+            var parameters = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
+            if (!methodInfo.IsStatic)   
+                parameters = Enumerable.Concat(new Type[] { methodInfo.DeclaringType }, parameters).ToArray();
             return new StaticCommandInvocationPlan(
                 methodInfo,
                 parameters.Select(p =>
-                    p.ParameterType == typeof(ITestSingletonService) || p.ParameterType == typeof(IDotvvmRequestContext) ?
-                        new StaticCommandParameterPlan(StaticCommandParameterType.Inject, p.ParameterType) :
-                    new StaticCommandParameterPlan(StaticCommandParameterType.Argument, p.ParameterType)
+                    p == typeof(ITestSingletonService) || p == typeof(IDotvvmRequestContext) ?
+                        new StaticCommandParameterPlan(StaticCommandParameterType.Inject, p) :
+                    new StaticCommandParameterPlan(StaticCommandParameterType.Argument, p)
                 ).ToArray()
             );
         }
@@ -56,7 +59,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public async Task PassesRawArguments()
+        public async Task Validation_PassesRawArguments()
         {
             var plan = CreatePlan(() => ValidateRawError(null));
             var modelState = await InvokeExpectingErrors(plan, (new TestViewModel(), null));
@@ -74,7 +77,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public async Task PlainArgumentError()
+        public async Task Validation_PlainArgumentError()
         {
             var plan = CreatePlan(() => ValidatePlainArguments(null, null, null, null, null));
             var modelState = await InvokeExpectingErrors(plan, ("value", "/Property1"), ("value", "/Property2"));
@@ -90,12 +93,13 @@ namespace DotVVM.Framework.Tests.Binding
             var ms = new StaticCommandModelState();
             ms.AddArgumentError(nameof(a), "error1");
             ms.AddArgumentError(() => b, "error2");
+
             ms.FailOnInvalidModelState();
             return Task.CompletedTask;
         }
 
         [TestMethod]
-        public async Task ArgumentPropertyError()
+        public async Task Validation_ArgumentPropertyError()
         {
 #pragma warning disable CS4014 // awaitable not awaited warning
             var plan = CreatePlan(() => ValidateArgumentProperty(null, null));
@@ -118,7 +122,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public async Task ThrowsWhenValueTaskIsUsed()
+        public async Task Validation_ThrowsWhenValueTaskIsUsed()
         {
 #pragma warning disable CS4014 // awaitable not awaited warning
             var plan = CreatePlan(() => ReturningValueTask());
@@ -136,9 +140,9 @@ namespace DotVVM.Framework.Tests.Binding
             return true;
         }
         [TestMethod]
-        public async Task ArgumentPropertyLambdaError()
+        public async Task Validation_ArgumentPropertyLambdaError()
         {
-#pragma warning disable CS4014
+#pragma warning disable CS4014 // awaitable not awaited warning
             var plan = CreatePlan(() => ValidateArgumentPropertyLambda(null, null));
 #pragma warning restore CS4014
             var modelState = await InvokeExpectingErrors(plan, (new TestViewModel(), "/MyViewModel"));
@@ -162,5 +166,65 @@ namespace DotVVM.Framework.Tests.Binding
             return true;
         }
 
+        [TestMethod]
+        public async Task Validation_InstanceCall()
+        {
+            var vm = new ViewModelInstance { Property = "abab" };
+            var plan = CreatePlan(() => vm.ValidatedStaticCommand(null));
+            var modelState = await InvokeExpectingErrors(plan, (vm, "/VM_this"), (new TestViewModel(), "/VM_argument"));
+            Assert.AreEqual(1, modelState.Errors.Count, $"Unexpected errors: {string.Join(", ", modelState.Errors)}");
+            Assert.IsTrue(modelState.Errors[0].IsResolved);
+            Assert.AreEqual("manual-error", modelState.Errors[0].ErrorMessage);
+            Assert.AreEqual("/VM_argument/IntProp", modelState.Errors[0].PropertyPath);
+        }
+
+        [TestMethod]
+        public async Task Validation_AutomaticInstance()
+        {
+            var vm = new ViewModelInstance { Property = "test" };
+            var plan = CreatePlan(() => vm.ValidatedStaticCommand(null));
+            var modelState = await InvokeExpectingErrors(plan, (vm, "/VM_this"), (new TestViewModel(), "/VM_argument"));
+            Assert.AreEqual(1, modelState.Errors.Count, $"Unexpected errors: {string.Join(", ", modelState.Errors)}");
+            Assert.IsTrue(modelState.Errors[0].IsResolved);
+            Assert.AreEqual("automatic-error", modelState.Errors[0].ErrorMessage);
+            Assert.AreEqual("/VM_this/Property", modelState.Errors[0].PropertyPath);
+        }
+
+        [TestMethod]
+        public async Task Validation_AutomaticArgument()
+        {
+            var vm = new ViewModelInstance { Property = "test" };
+            var plan = CreatePlan(() => AutomaticValidation(null, ""));
+            var modelState = await InvokeExpectingErrors(plan, (vm, "/VM"), ("test", "/Argument"));
+            Assert.AreEqual(2, modelState.Errors.Count, $"Unexpected errors: {string.Join(", ", modelState.Errors)}");
+            Assert.IsTrue(modelState.Errors[0].IsResolved);
+            Assert.IsTrue(modelState.Errors[1].IsResolved);
+            Assert.AreEqual("automatic-error", modelState.Errors[0].ErrorMessage);
+            Assert.AreEqual("automatic-arg-error", modelState.Errors[1].ErrorMessage);
+            Assert.AreEqual("/VM/Property", modelState.Errors[0].PropertyPath);
+            Assert.AreEqual("/Argument", modelState.Errors[1].PropertyPath);
+        }
+
+        public class ViewModelInstance
+        {
+            [RegularExpressionAttribute("(ab)+", ErrorMessage = "automatic-error")]
+            public string Property { get; set; } = "value";
+
+            [AllowStaticCommand(StaticCommandValidation.Automatic)]
+            internal void ValidatedStaticCommand(TestViewModel vm)
+            {
+                var ms = new StaticCommandModelState();
+                ms.AddArgumentError(() => vm.IntProp, "manual-error");
+                ms.FailOnInvalidModelState();
+            }
+        }
+
+        [AllowStaticCommand(StaticCommandValidation.Automatic)]
+        internal static void AutomaticValidation(ViewModelInstance viewModel, [RegularExpression("ab*c", ErrorMessage = "automatic-arg-error")] string argument)
+        {
+            var ms = new StaticCommandModelState();
+            ms.AddArgumentError(() => viewModel.Property, "manual-error");
+            ms.FailOnInvalidModelState();
+        }
     }
 }

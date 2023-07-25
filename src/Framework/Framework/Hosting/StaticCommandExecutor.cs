@@ -8,6 +8,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Validation;
 using Newtonsoft.Json.Linq;
 
@@ -18,12 +19,14 @@ namespace DotVVM.Framework.Hosting
 #pragma warning disable CS0618
         private readonly IStaticCommandServiceLoader serviceLoader;
         private readonly IViewModelProtector viewModelProtector;
+        private readonly IStaticCommandArgumentValidator validator;
         private readonly DotvvmConfiguration configuration;
 
-        public StaticCommandExecutor(IStaticCommandServiceLoader serviceLoader, IViewModelProtector viewModelProtector, DotvvmConfiguration configuration)
+        public StaticCommandExecutor(IStaticCommandServiceLoader serviceLoader, IViewModelProtector viewModelProtector, IStaticCommandArgumentValidator validator, DotvvmConfiguration configuration)
         {
             this.serviceLoader = serviceLoader;
             this.viewModelProtector = viewModelProtector;
+            this.validator = validator;
             this.configuration = configuration;
         }
 #pragma warning restore CS0618
@@ -68,6 +71,17 @@ namespace DotVVM.Framework.Hosting
                 methodArgsPaths?.Add(path);
             }
 
+            var methodAttribute = plan.Method.GetCustomAttribute<AllowStaticCommandAttribute>().NotNull("StaticCommand method must have the AllowStaticCommand attribute.");
+            if (methodAttribute.Validation == StaticCommandValidation.Automatic)
+            {
+                var errors = validator.ValidateStaticCommand(plan, methodArgs.ToArray(), context);
+                if (errors is not null)
+                {
+                    ResolveValidationPaths(errors, plan.Method, methodArgsPaths?.ToArray(), null);
+                    throw new DotvvmInvalidStaticCommandModelStateException(errors);
+                }
+            }
+
             try
             {
                 var result = plan.Method.Invoke(
@@ -107,12 +121,21 @@ namespace DotVVM.Framework.Hosting
                     error.PropertyPath = rest;
                 }
 
-                var parameter = invokedMethodParameters.FirstOrDefault(p => p.Name == error.ArgumentName)
-                    ?? throw new ArgumentException($"Could not map argument name \"{error.ArgumentName}\" to any parameter of {ReflectionUtils.FormatMethodInfo(method)}.", innerException);
+                int parameterIndex;
 
-                var argumentIndex = parameter.Position;
+                if (invokedMethodParameters.FirstOrDefault(p => p.Name == error.ArgumentName) is {} parameter)
+                {
+                    parameterIndex = parameter.Position;
+                    if (!method.IsStatic)
+                        parameterIndex += 1;
+                }
+                else if (error.ArgumentName == "this" && !method.IsStatic)
+                    parameterIndex = 0;
+                else
+                    throw new ArgumentException($"Could not map argument name \"{error.ArgumentName}\" to any parameter of {ReflectionUtils.FormatMethodInfo(method)}.", innerException);
+
                 var propertyPath = error.PropertyPath?.Trim('/');
-                var argumentPath = argumentPaths![argumentIndex]?.TrimEnd('/');
+                var argumentPath = argumentPaths![parameterIndex]?.TrimEnd('/');
                 if (argumentPath is null)
                     throw new StaticCommandMissingValidationPathException(error, innerException);
                 error.PropertyPath = $"{argumentPath}/{propertyPath}".TrimEnd('/');
