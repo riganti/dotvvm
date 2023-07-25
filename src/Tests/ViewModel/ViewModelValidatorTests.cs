@@ -319,14 +319,14 @@ namespace DotVVM.Framework.Tests.ViewModel
             var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
             modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
-            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
-            Assert.AreEqual(5, results.Count);
-            Assert.AreEqual("/", results[0].PropertyPath);
-            Assert.AreEqual("/Child", results[1].PropertyPath);
-            Assert.AreEqual("/Children/0/Code", results[2].PropertyPath);
-            Assert.AreEqual("/Children/0/Id", results[3].PropertyPath);
-            Assert.AreEqual("/Children/2", results[4].PropertyPath);
+            XAssert.Equal(new string [] {
+                "/",
+                "/Child",
+                "/Children/0/Code",
+                "/Children/0/Id",
+                "/Children/2"
+            }, modelState.Errors.Select(e => e.PropertyPath).OrderBy(p => p));
         }
 
         [TestMethod]
@@ -378,7 +378,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [ExpectedExceptionMessageSubstring(typeof(InvalidOperationException), "An object with one or more errors is referenced multiple times in a viewmodel")]
         public void ViewModelValidator_ObjectWithAttachedErrorReferencedMultipleTimes()
         {
             var innerViewModel = new TestViewModel2() { Code = "123" };
@@ -408,7 +408,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var validationTarget = testViewModel;
             modelState.ValidationTarget = validationTarget;
 
-            testViewModel.AddModelError(vm => vm.Children[0], "An error on object that is found multiple times in viewmodel.");
+            testViewModel.Context.AddModelError(innerViewModel, vm => vm.Code, "An error on object that is found multiple times in viewmodel.");
 
             var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
             modelState.ErrorsInternal.AddRange(errors);

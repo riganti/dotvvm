@@ -25,14 +25,18 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// </summary>
         public IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel)
         {
-            return ValidateViewModel(viewModel, new HashSet<object>());
+            return ValidateViewModel(viewModel, null, viewModel, "");
         }
 
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        private IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel, HashSet<object> alreadyValidated)
+        private IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel, HashSet<object>? alreadyValidated, object? rootObject, string pathPrefix)
         {
+            alreadyValidated ??= new HashSet<object>();
+            if (!(pathPrefix.Length == 0 || pathPrefix.EndsWith("/")))
+                throw new Exception("Invalid path!");
+
             if (viewModel == null)
             {
                 yield break;
@@ -52,7 +56,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
                 {
-                    foreach (var error in ValidateViewModel(item, alreadyValidated))
+                    foreach (var error in ValidateViewModel(item, alreadyValidated, rootObject, pathPrefix + index + "/"))
                     {
                         yield return error;
                     }
@@ -77,7 +81,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                         var propertyResult = rule.SourceValidationAttribute?.GetValidationResult(value, context);
                         if (propertyResult != ValidationResult.Success)
                         {
-                            yield return new ViewModelValidationError(rule.ErrorMessage, property.Name, viewModel);
+                            yield return new ViewModelValidationError(rule.ErrorMessage, pathPrefix + property.Name, rootObject);
                         }
                     }
                 }
@@ -88,7 +92,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                     if (ReflectionUtils.IsComplexType(property.Type))
                     {
                         // complex objects
-                        foreach (var error in ValidateViewModel(value, alreadyValidated))
+                        foreach (var error in ValidateViewModel(value, alreadyValidated, rootObject, pathPrefix + property.Name + "/"))
                         {
                             yield return error;
                         }
@@ -116,7 +120,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
                     foreach (var memberPath in paths)
                     {
-                        yield return new ViewModelValidationError(error.ErrorMessage ?? "An unknown error.", memberPath, viewModel);
+                        yield return new ViewModelValidationError(error.ErrorMessage ?? "An unknown error.", (pathPrefix + memberPath).TrimEnd('/'), rootObject);
                     }
                 }
             }
