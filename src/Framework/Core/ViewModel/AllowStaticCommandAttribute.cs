@@ -11,7 +11,9 @@ namespace DotVVM.Framework.ViewModel
     {
         public StaticCommandValidation Validation { get; }
 
-        public AllowStaticCommandAttribute(StaticCommandValidation validation = StaticCommandValidation.None)
+        public AllowStaticCommandAttribute() : this(StaticCommandValidation.None) { }
+
+        public AllowStaticCommandAttribute(StaticCommandValidation validation)
         {
             Validation = validation;
         }
