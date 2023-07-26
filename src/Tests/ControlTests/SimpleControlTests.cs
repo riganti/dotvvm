@@ -397,6 +397,89 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "reparsed.html");
         }
 
+
+        [TestMethod]
+        public async Task ClickEvents()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <dot:Button Click={command: Integer = Integer + 1} onclick="alert('Runs before the command')">Classic Btn</dot:Button>
+                <dot:LinkButton Click={command: Integer = Integer + 1} onclick="alert('Runs before the command')" Text='Link Btn' />
+                <div Events.Click={staticCommand: 0}> </div> <%-- TODO: onclick="alert('Runs before the command')" --%>
+                <div Events.DoubleClick={staticCommand: 0}> </div>
+            """);
+
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task EmptyData()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <!-- empty data, server -->
+                <dot:EmptyData IncludeInPage={value: Integer > 0} DataSource={value: EmptyDataSet} RenderSettings.Mode=Server>
+                    Data is empty
+                </dot:EmptyData>
+                <!-- empty data, client -->
+                <dot:EmptyData IncludeInPage={value: Integer > 0} DataSource={value: EmptyDataSet} RenderSettings.Mode=Client>
+                    Data is empty
+                </dot:EmptyData>
+                <!-- non empty data, server -->
+                <dot:EmptyData IncludeInPage={value: Integer > 0} DataSource={value: Customers} RenderSettings.Mode=Server>
+                    Data is empty
+                </dot:EmptyData>
+                <!-- non empty data, client -->
+                <dot:EmptyData IncludeInPage={value: Integer > 0} DataSource={value: Customers} RenderSettings.Mode=Client>
+                    Data is empty
+                </dot:EmptyData>
+
+                <!-- non empty data, client -->
+                <dot:EmptyData IncludeInPage={resource: true} DataSource={value: Customers} RenderSettings.Mode=Client>
+                    Data is empty
+                </dot:EmptyData>
+            """);
+
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task FormControlsEnabled()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <div FormControls.Enabled={value: Integer > 0}>
+                    <!-- client textbox -->
+                    <dot:TextBox Text={value: Label} RenderSettings.Mode=Client />
+                    <!-- server textbox -->
+                    <dot:TextBox Text={value: Label} RenderSettings.Mode=Server />
+                    <!-- override with constant -->
+                    <dot:TextBox Text={value: Label} Enabled=true />
+                    <!-- override with binding -->
+                    <dot:TextBox Text={value: Label} Enabled={value: Float < 0} />
+
+                    <!-- routelink should be unaffected -->
+                    <dot:RouteLink RouteName=Simple Text='link' />
+                    <dot:RouteLink RouteName=Simple Text='link' Enabled={value: Float < 0} />
+                </div>
+            """);
+
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task ComboBox()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <!-- hardcoded -->
+                <dot:ComboBox SelectedValue={value: Integer}>
+                    <dot:SelectorItem Text='A' Value=0 />
+                    <dot:SelectorItem Text='X Y Z' Value=10000000 />
+                </dot:ComboBox>
+                <!-- bound -->
+                <dot:ComboBox DataSource={value: Customers} ItemValueBinding={value: Id} ItemTextBinding={value: Name} SelectedValue={value: Integer} />
+            """);
+
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -425,6 +508,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                     new CustomerData() { Id = 2, Name = "Two" }
                 }
             };
+            public GridViewDataSet<CustomerData> EmptyDataSet { get; set; } = new GridViewDataSet<CustomerData>() { Items = { } };
 
             public UploadedFilesCollection Files { get; set; } = new UploadedFilesCollection();
 

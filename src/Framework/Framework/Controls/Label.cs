@@ -21,6 +21,7 @@ namespace DotVVM.Framework.Controls
             SetValue(ForProperty, forId);
         }
 
+        /// <summary> <see cref="DotvvmControl.ID" /> of the element which should be linked to this label. </summary>
         [MarkupOptions(Required = true)]
         public string For
         {
@@ -38,9 +39,8 @@ namespace DotVVM.Framework.Controls
             var dummyControl = new Label();
             dummyControl.SetValueRaw(DotvvmControl.IDProperty, this.GetValueRaw(ForProperty));
             var dummyIndex = this.Children.Count;
-            this.Children.Add(dummyControl);
+            dummyControl.Parent = this;
             var id = dummyControl.CreateClientId();
-            this.Children.RemoveAt(dummyIndex);
             if (id?.HasValue == true)
             {
                 writer.AddAttribute("for", id?.ValueOrDefault);

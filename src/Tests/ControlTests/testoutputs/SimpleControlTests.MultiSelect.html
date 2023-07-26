@@ -9,6 +9,6 @@
 		</select>
 		
 		<!-- bound -->
-		<select data-bind="options: Customers, optionsText: (i) => ko.unwrap(i).Name(), optionsValue: (i) => ko.unwrap(i).Id(), selectedOptions: IntArray" multiple=""></select>
+		<select data-bind="options: Customers()?.Items, optionsText: (i) => ko.unwrap(i).Name(), optionsValue: (i) => ko.unwrap(i).Id(), selectedOptions: IntArray" multiple=""></select>
 	</body>
 </html>

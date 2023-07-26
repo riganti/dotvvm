@@ -6,6 +6,8 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using System.Linq.Expressions;
 using DotVVM.Framework.Controls;
+using FastExpressionCompiler;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding
 {
@@ -48,19 +50,38 @@ namespace DotVVM.Framework.Binding
             }
             else
             {
-                if (value is bool b && !b)
+                var currentValue = obj.GetValueRaw(property);
+                if (false.Equals(currentValue) || true.Equals(value))
+                {
+                    // no change
+                }
+                else if (false.Equals(value))
                     obj.SetValue(property, false);
-                else if (obj.GetValue(property) is bool b2 && b2)
+                else if (true.Equals(currentValue))
                     obj.SetValue(property, value);
                 else
-                    obj.SetValue(property,
-                        AndAlsoCombination.GetCombination(
-                            obj.GetValue(property) as IBinding ??
-                                throw new NotSupportedException($"A IBinding instance or bool was expected in property {property}, got {obj.GetValue(property)?.GetType().Name ?? "null"}"),
-                            value as IBinding ??
-                                throw new NotSupportedException($"A IBinding instance or bool was expected to AndAssign to property {property}, got {obj.GetValue(property)?.GetType().Name ?? "null"}")
-                        )
-                    );
+                {
+                    var currentBinding = currentValue as IBinding ??
+                        throw new NotSupportedException($"A IBinding instance or bool was expected in property {property}, got {obj.GetValue(property)?.GetType().ToCode() ?? "null"}");
+                    var binding = value as IBinding ??
+                        throw new NotSupportedException($"A IBinding instance or bool was expected to AndAssign to property {property}, got {obj.GetValue(property)?.GetType().ToCode() ?? "null"}");
+                    // resource + value binding can't be combined - evaluate the resource binding
+                    if (currentBinding is IValueBinding != binding is IValueBinding)
+                    {
+                        var valueBinding = currentBinding is IValueBinding ? currentBinding : binding;
+                        var resourceBinding = currentBinding is IValueBinding ? binding : currentBinding;
+                        obj.SetValue(property, (bool)obj.EvalPropertyValue(property, resourceBinding)! ? valueBinding : BoxingUtils.False);
+                    }
+                    else
+                    {
+                        obj.SetValue(property,
+                            AndAlsoCombination.GetCombination(
+                                currentBinding,
+                                binding
+                            )
+                        );
+                    }
+                }
             }
         }
 
