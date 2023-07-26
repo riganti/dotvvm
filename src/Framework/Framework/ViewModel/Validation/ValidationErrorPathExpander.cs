@@ -22,7 +22,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         public ValidationErrorPathExpanderContext(object? validationTarget, List<ViewModelValidationError> errors)
         {
             errors.ForEach(item => item.TargetObject ??= validationTarget);
-            this.ValidationErrorsLookup = errors.GroupBy(e => e.TargetObject ?? validationTarget!).ToDictionary(e => e.Key, e => e.ToList());
+            this.ValidationErrorsLookup = errors.Where(e => !e.IsResolved).GroupBy(e => e.TargetObject ?? validationTarget!).ToDictionary(e => e.Key, e => e.ToList());
             this.ValidationTarget = validationTarget;
             this.AlreadyProcessedNodes = new HashSet<object>();
             this.FoundErrors = new Dictionary<object, int>();
@@ -53,10 +53,29 @@ namespace DotVVM.Framework.ViewModel.Validation
             }
         }
 
+        private void ResolveRootErrors(IEnumerable<ViewModelValidationError> errors, object validationTarget)
+        {
+            foreach (var error in errors)
+            {
+                if (!error.IsResolved && error.TargetObject == validationTarget)
+                {
+                    if (error.PropertyPath is null)
+                        error.PropertyPath = "/";
+
+                    if (!error.PropertyPath.StartsWith("/"))
+                        error.PropertyPath = "/" + error.PropertyPath;
+
+                    error.IsResolved = true;
+                }
+            }
+        }
+
         public void Expand(ModelState modelState, object? viewModel)
         {
             // Check that model state does not contain validation target paths in the old format
             EnsurePropertyPathsAreCorrect(modelState.Errors);
+            if (viewModel is {})
+                ResolveRootErrors(modelState.Errors, viewModel);
 
             if (modelState.Errors.All(e => e.IsResolved))
             {
