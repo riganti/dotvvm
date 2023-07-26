@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Adapters.WebForms.Controls;
-using DotVVM.Framework.Configuration;
 
-namespace DotVVM.Adapters.WebForms
+// ReSharper disable once CheckNamespace
+namespace DotVVM.Framework.Configuration
 {
     public static class DotvvmConfigurationExtensions
     {
