@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Controls;
+﻿using System;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 
 #if NETFRAMEWORK
@@ -7,6 +8,12 @@ using System.Web.Routing;
 
 namespace DotVVM.Adapters.WebForms.Controls
 {
+    /// <summary>
+    /// Renders a hyperlink pointing to the specified DotVVM route if such route exists; otherwise it falls back to a Web Forms route with the specified name.
+    /// </summary>
+#if !NETFRAMEWORK
+    [Obsolete("This control is used only during the Web Forms migration and is not needed in .NET Core. Use the standard RouteLink control.")]
+#endif
     public class HybridRouteLink : CompositeControl
     {
         private readonly IDotvvmRequestContext context;

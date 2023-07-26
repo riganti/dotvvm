@@ -8,10 +8,18 @@ using DotVVM.Framework.Routing;
 using System.Web.Routing;
 #endif
 
+// ReSharper disable once CheckNamespace
 namespace DotVVM.Framework.Hosting
 {
-    public static class DotvvmRequestContextExtensions
+    public static class WebFormsAdaptersExtensions
     {
+
+        /// <summary>
+        /// Redirects to the specified DotVVM route if such route exists; otherwise it redirects to the specified Web Forms route.
+        /// </summary>
+#if !NETFRAMEWORK
+        [Obsolete("This method is used only during the Web Forms migration and is not needed in .NET Core. Use the standard RedirectToRoute method.")]
+#endif
         public static void RedirectToRouteHybrid(this IDotvvmRequestContext context, string routeName, object routeValues = null, string urlSuffix = null, object query = null)
         {
             if (context.Configuration.RouteTable.Contains(routeName))
