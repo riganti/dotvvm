@@ -64,11 +64,17 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<string, RouteLink>(c => c.Text, "");
 
+        /// <summary>
+        /// Gets or sets a collection of parameters to be substituted in the route URL. If the current route contains a parameter with the same name, its value will be reused unless another value is specified here.
+        /// </summary>
         [PropertyGroup("Param-")]
         public VirtualPropertyGroupDictionary<object> Params => new VirtualPropertyGroupDictionary<object>(this, ParamsGroupDescriptor);
         public static DotvvmPropertyGroup ParamsGroupDescriptor =
             DotvvmPropertyGroup.Register<object, RouteLink>("Param-", "Params");
 
+        /// <summary>
+        /// Gets or sets a collection of parameters to be added in the query string.
+        /// </summary>
         [PropertyGroup("Query-")]
         public VirtualPropertyGroupDictionary<object> QueryParameters => new VirtualPropertyGroupDictionary<object>(this, QueryParametersGroupDescriptor);
         public static DotvvmPropertyGroup QueryParametersGroupDescriptor =
@@ -86,6 +92,13 @@ namespace DotVVM.Framework.Controls
                     value.WriteToChildren((DotvvmControl)control, TextProperty);
                 }
             );
+
+        public RouteLinkCapability RouteLinkCapability
+        {
+            get => (RouteLinkCapability)RouteLinkCapabilityProperty.GetValue(this);
+            set => RouteLinkCapabilityProperty.SetValue(this, value);
+        }
+        public static readonly DotvvmCapabilityProperty RouteLinkCapabilityProperty = DotvvmCapabilityProperty.RegisterCapability<RouteLinkCapability, RouteLink>();
 
         public RouteLink() : base("a", false)
         {

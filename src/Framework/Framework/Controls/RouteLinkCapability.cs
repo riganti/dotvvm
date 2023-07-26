@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using DotVVM.Framework.Binding;
 
-namespace DotVVM.Adapters.WebForms.Controls
+namespace DotVVM.Framework.Controls
 {
     [DotvvmControlCapability()]
     public sealed class RouteLinkCapability
