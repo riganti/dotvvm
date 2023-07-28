@@ -3,6 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <IsPackable>false</IsPackable>
+
+    <!-- Required for CheckTestOutput to function correctly in a CI environment. -->
+    <DeterministicSourcePaths>false</DeterministicSourcePaths>
   </PropertyGroup>
 
   <ItemGroup>
