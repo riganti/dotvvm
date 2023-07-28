@@ -1720,6 +1720,9 @@
       }
     },
     "DotVVM.Framework.Controls.RouteLink": {
+      "RouteLinkCapability": {
+        "type": "DotVVM.Framework.Controls.RouteLinkCapability, DotVVM.Framework"
+      },
       "TextOrContentCapability": {
         "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
       }
