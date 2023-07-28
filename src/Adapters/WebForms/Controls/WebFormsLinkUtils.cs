@@ -92,14 +92,14 @@ namespace DotVVM.Adapters.WebForms.Controls
             // generate the URL
             return "~/"
                    + webFormsRoute.GetVirtualPath(HttpContext.Current.Request.RequestContext, routeValues)?.VirtualPath
-                   + UrlHelper.BuildUrlSuffix(routeLinkCapability.UrlSuffix?.Evaluate(container), routeLinkCapability.QueryParameters.ToDictionary(p => p.Key, p => p.Value.Evaluate(container)));
+                   + UrlHelper.BuildUrlSuffix(routeLinkCapability.UrlSuffix?.Evaluate(container), routeLinkCapability.QueryParameters.OrderBy(p => p.Key).Select(p => new KeyValuePair<string, object>(p.Key, p.Value.Evaluate(container))));
         }
 
         private static string GenerateRouteUrlExpression(DotvvmControl container, Route webFormsRoute, IDictionary<string, ValueOrBinding<object>> parameters)
         {
             var parametersExpression = parameters
+                .OrderBy(p => p.Key)
                 .Select(p => $"{KnockoutHelper.MakeStringLiteral(p.Key)}: {p.Value.GetJsExpression(container)}")
-                .OrderBy(p => p)
                 .StringJoin(",");
             var routeUrlExpression = $"dotvvm.buildRouteUrl({KnockoutHelper.MakeStringLiteral(webFormsRoute.Url)}, {{{parametersExpression}}})";
             return routeUrlExpression;
@@ -109,8 +109,8 @@ namespace DotVVM.Adapters.WebForms.Controls
         {
             var urlSuffixBase = routeLinkCapability.UrlSuffix?.GetJsExpression(container) ?? "\"\"";
             var queryParams = routeLinkCapability.QueryParameters
+                .OrderBy(p => p.Key)
                 .Select(p => $"{KnockoutHelper.MakeStringLiteral(p.Key.ToLowerInvariant())}: {p.Value.GetJsExpression(container)}")
-                .OrderBy(p => p)
                 .StringJoin(",");
 
             // generate the function call
