@@ -1,0 +1,30 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes.TextBoxViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>TextBox</h1>
+
+    <dot:TextBox Text="{value: Point}" />
+    <dot:TextBox Text="{value: Null}" />
+
+    <dot:Button Text="Test" Click="{command: null}" />
+
+    <ul class="results" PostBack.Update="true">
+        <li>Point X: {{resource: Point.X}}</li>
+        <li>Point Y: {{resource: Point.Y}}</li>
+        <li>Null X: {{resource: Null.X}}</li>
+        <li>Null Y: {{resource: Null.Y}}</li>
+    </ul>
+
+    <dot:ValidationSummary class="validation" />
+
+</body>
+</html>
+
+

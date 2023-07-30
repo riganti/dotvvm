@@ -1,0 +1,29 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes.UsedInControlsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>Custom primitive types used in properties</h1>
+
+    <cc:ControlWithCustomPrimitiveTypeProperties PointValue="12,13"
+                                                 PointValue2="{resource: Point}"
+                                                 PointBinding="{value: Point}"
+                                                 PointValueOrBinding="1,34"
+                                                 PointValueOrBinding2="{resource: Point}"
+                                                 PointValueOrBinding3="{value: Point}"
+                                                 PointValueOrBinding4="{value: DotVVM.Samples.Common.Controls.Point.Parse("12,3")}"
+                                                 data-value="{value: Point}"
+                                                 data-resource="{resource: Point}"/>
+
+    <div class="tostring">{{value: Point.ToString()}}</div>
+    <div class="implicit-tostring">{{value: Point}}</div>
+
+</body>
+</html>
+
+

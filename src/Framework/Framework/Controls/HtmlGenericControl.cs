@@ -405,6 +405,7 @@ namespace DotVVM.Framework.Controls
                 Enum enumValue => ReflectionUtils.ToEnumString(enumValue.GetType(), enumValue.ToString()),
                 Guid guid => guid.ToString(),
                 _ when ReflectionUtils.IsNumericType(value.GetType()) => Convert.ToString(value, CultureInfo.InvariantCulture) ?? "",
+                _ when ReflectionUtils.TryGetCustomPrimitiveTypeRegistration(value.GetType()) is {} registration => registration.ToStringMethod(value),
                 System.Collections.IEnumerable =>
                     throw new NotSupportedException($"Attribute value of type '{value.GetType().ToCode(stripNamespace: true)}' is not supported. Consider concatenating the values into a string or use the HtmlGenericControl.AttributeList if you need to pass multiple values."),
                 _ =>

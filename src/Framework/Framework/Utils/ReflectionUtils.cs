@@ -236,7 +236,7 @@ namespace DotVVM.Framework.Utils
             try
             {
                 // custom primitive types
-                if (CustomPrimitiveTypes.TryGetValue(type, out var registration) && registration is { })
+                if (TryGetCustomPrimitiveTypeRegistration(type) is { } registration)
                 {
                     var result = registration.TryParseMethod(Convert.ToString(value, CultureInfo.InvariantCulture));
                     return result.Successful
@@ -307,7 +307,7 @@ namespace DotVVM.Framework.Utils
             typeof (decimal)
         };
         // mapping of server-side types to their client-side representation
-        internal static readonly ConcurrentDictionary<Type, CustomPrimitiveTypeRegistration?> CustomPrimitiveTypes = new();
+        private static readonly ConcurrentDictionary<Type, CustomPrimitiveTypeRegistration?> CustomPrimitiveTypes = new();
 
         public static IEnumerable<Type> GetNumericTypes()
         {
@@ -374,14 +374,19 @@ namespace DotVVM.Framework.Utils
         /// <summary> Returns true if the type is a custom primitive type.</summary>
         public static bool IsCustomPrimitiveType(Type type)
         {
-            return CustomPrimitiveTypes.GetOrAdd(type, TryDiscoverCustomPrimitiveType) is { };
+            return TryGetCustomPrimitiveTypeRegistration(type) is { };
+        }
+
+        /// <summary>Returns a custom primitive type registration for the given type, or null if the type is not a custom primitive type.</summary>
+        public static CustomPrimitiveTypeRegistration? TryGetCustomPrimitiveTypeRegistration(Type type)
+        {
+            return CustomPrimitiveTypes.GetOrAdd(type, TryDiscoverCustomPrimitiveType);
         }
 
         /// <summary> Returns true the type is serialized as a JavaScript primitive (not object nor array) </summary>
         public static bool IsPrimitiveType(Type type)
         {
-            return IsDotvvmNativePrimitiveType(type)
-                || CustomPrimitiveTypes.GetOrAdd(type, TryDiscoverCustomPrimitiveType) is {};
+            return IsDotvvmNativePrimitiveType(type) || TryGetCustomPrimitiveTypeRegistration(type) is {};
         }
 
         private static CustomPrimitiveTypeRegistration? TryDiscoverCustomPrimitiveType(Type type)

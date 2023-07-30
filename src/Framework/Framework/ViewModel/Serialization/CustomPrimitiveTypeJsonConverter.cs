@@ -12,7 +12,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         public override bool CanConvert(Type objectType)
         {
-            return ReflectionUtils.CustomPrimitiveTypes.TryGetValue(objectType, out var result) && result is { };
+            return ReflectionUtils.IsCustomPrimitiveType(objectType);
         }
 
         public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -23,7 +23,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 or JsonToken.Float
                 or JsonToken.Date)
             {
-                var registration = ReflectionUtils.CustomPrimitiveTypes[objectType]!;
+                var registration = ReflectionUtils.TryGetCustomPrimitiveTypeRegistration(objectType)!;
                 var parseResult = registration.TryParseMethod(Convert.ToString(reader.Value, CultureInfo.InvariantCulture));
                 if (!parseResult.Successful)
                 {
@@ -49,7 +49,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else
             {
-                var registration = ReflectionUtils.CustomPrimitiveTypes[value.GetType()]!;
+                var registration = ReflectionUtils.TryGetCustomPrimitiveTypeRegistration(value.GetType())!;
                 writer.WriteValue(registration.ToStringMethod(value));
             }
         }

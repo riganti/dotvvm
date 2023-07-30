@@ -90,5 +90,80 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.TextEquals(staticCommandResult, "54162c7e-cdcc-4585-aa92-2e78be3f0c75");
             });
         }
+
+        [Fact]
+        public void Feature_CustomPrimitiveTypes_RouteLink()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_CustomPrimitiveTypes_RouteLink);
+
+                var links = browser.FindElements("a").ThrowIfDifferentCountThan(4);
+
+                AssertUI.Attribute(links[0], "href", u => u.EndsWith("/FeatureSamples/CustomPrimitiveTypes/Basic/d7682de1-b985-4b4b-b2bf-c349192ad9c9?Id=6f5e8011-bd12-477d-9e82-a7a1ce836773"));
+                AssertUI.Attribute(links[1], "href", u => u.EndsWith("/FeatureSamples/CustomPrimitiveTypes/Basic/d7682de1-b985-4b4b-b2bf-c349192ad9c9?Id=6f5e8011-bd12-477d-9e82-a7a1ce836773"));
+                AssertUI.Attribute(links[2], "href", u => u.EndsWith("/FeatureSamples/CustomPrimitiveTypes/Basic/d7682de1-b985-4b4b-b2bf-c349192ad9c9?Id=6f5e8011-bd12-477d-9e82-a7a1ce836773"));
+                AssertUI.Attribute(links[3], "href", u => u.EndsWith("/FeatureSamples/CustomPrimitiveTypes/Basic/d7682de1-b985-4b4b-b2bf-c349192ad9c9?Id=6f5e8011-bd12-477d-9e82-a7a1ce836773"));
+
+                browser.Single("input[type=button]").Click();
+
+                AssertUI.Attribute(links[0], "href", u => u.EndsWith("/FeatureSamples/CustomPrimitiveTypes/Basic/6f5e8011-bd12-477d-9e82-a7a1ce836773?Null=d7682de1-b985-4b4b-b2bf-c349192ad9c9"));
+                AssertUI.Attribute(links[2], "href", u => u.EndsWith("/FeatureSamples/CustomPrimitiveTypes/Basic/6f5e8011-bd12-477d-9e82-a7a1ce836773?Null=d7682de1-b985-4b4b-b2bf-c349192ad9c9"));
+            });
+        }
+
+
+        [Fact]
+        public void Feature_CustomPrimitiveTypes_TextBox()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_CustomPrimitiveTypes_TextBox);
+
+                var textboxes = browser.FindElements("input[type=text]").ThrowIfDifferentCountThan(2);
+
+                AssertUI.Value(textboxes[0], "15,32");
+                AssertUI.Value(textboxes[1], "0,0");
+
+                textboxes[0].Clear().SendKeys("1,2");
+                browser.Single("input[type=button]").Click();
+
+                AssertUI.Value(textboxes[0], "1,2");
+
+                var items = browser.FindElements(".results li").ThrowIfDifferentCountThan(4);
+                AssertUI.TextEquals(items[0], "Point X: 1");
+                AssertUI.TextEquals(items[1], "Point Y: 2");
+                AssertUI.TextEquals(items[2], "Null X: 0");
+                AssertUI.TextEquals(items[3], "Null Y: 0");
+
+                textboxes[1].Clear().SendKeys("xxx");
+                browser.Single("input[type=button]").Click();
+
+                browser.FindElements(".validation li").ThrowIfSequenceEmpty();
+            });
+        }
+
+        [Fact]
+        public void Feature_CustomPrimitiveTypes_UsedInControls()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_CustomPrimitiveTypes_UsedInControls);
+
+                var items = browser.FindElements("li").ThrowIfDifferentCountThan(7);
+                AssertUI.TextEquals(items[0], "12,13");
+                AssertUI.TextEquals(items[1], "1,2");
+                AssertUI.TextEquals(items[2], "1,2");
+                AssertUI.TextEquals(items[3], "1,34");
+                AssertUI.TextEquals(items[4], "1,2");
+                AssertUI.TextEquals(items[5], "1,2");
+                AssertUI.TextEquals(items[6], "12,3");
+
+                var ul = browser.Single("ul");
+                AssertUI.Attribute(ul, "data-value", "1,2");
+                AssertUI.Attribute(ul, "data-resource", "1,2");
+
+                AssertUI.TextEquals(browser.Single(".tostring"), "1,2");
+                AssertUI.TextEquals(browser.Single(".implicit-tostring"), "1,2");
+            });
+        }
     }
 }

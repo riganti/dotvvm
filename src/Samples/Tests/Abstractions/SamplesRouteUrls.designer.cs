@@ -238,6 +238,9 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_CompositeControls_ControlPropertyNamingConflict = "FeatureSamples/CompositeControls/ControlPropertyNamingConflict";
         public const string FeatureSamples_ConditionalCssClasses_ConditionalCssClasses = "FeatureSamples/ConditionalCssClasses/ConditionalCssClasses";
         public const string FeatureSamples_CustomPrimitiveTypes_Basic = "FeatureSamples/CustomPrimitiveTypes/Basic";
+        public const string FeatureSamples_CustomPrimitiveTypes_RouteLink = "FeatureSamples/CustomPrimitiveTypes/RouteLink";
+        public const string FeatureSamples_CustomPrimitiveTypes_TextBox = "FeatureSamples/CustomPrimitiveTypes/TextBox";
+        public const string FeatureSamples_CustomPrimitiveTypes_UsedInControls = "FeatureSamples/CustomPrimitiveTypes/UsedInControls";
         public const string FeatureSamples_CustomResponseProperties_SimpleExceptionFilter = "FeatureSamples/CustomResponseProperties/SimpleExceptionFilter";
         public const string FeatureSamples_DateTimeSerialization_DateTimeSerialization = "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
         public const string FeatureSamples_DependencyInjection_ViewModelScopedService = "FeatureSamples/DependencyInjection/ViewModelScopedService";
