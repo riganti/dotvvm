@@ -157,7 +157,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 return GetNullableTypeIdentifier(type, dependentObjectTypes, dependentEnumTypes);
             }
-            else if (type.IsPrimitiveType())        // we intentionally detect this after handling enums and nullable types
+            else if (ReflectionUtils.IsPrimitiveType(type))        // we intentionally detect this after handling enums and nullable types
             {
                 if (ReflectionUtils.CustomPrimitiveTypes.TryGetValue(type, out var registration) && registration is {})
                 {

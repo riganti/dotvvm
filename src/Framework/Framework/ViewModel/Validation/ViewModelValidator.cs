@@ -43,7 +43,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             }
             if (alreadyValidated.Contains(viewModel)) yield break;
             var viewModelType = viewModel.GetType();
-            if (ReflectionUtils.IsPrimitiveType(viewModelType) || ReflectionUtils.IsNullableType(viewModelType))
+            if (ReflectionUtils.IsDotvvmNativePrimitiveType(viewModelType))
             {
                 yield break;
             }

@@ -359,11 +359,18 @@ namespace DotVVM.Framework.Utils
             return type != typeof(string) && IsEnumerable(type) && !IsDictionary(type);
         }
 
-        public static bool IsPrimitiveType(this Type type)
+        /// <summary> Returns true if the type is a primitive type natively supported by DotVVM. "Primitive" means that it is serialized as a JavaScript primitive (not object nor array) </summary>
+        public static bool IsDotvvmNativePrimitiveType(Type type)
         {
             return PrimitiveTypes.Contains(type)
                 || (IsNullableType(type) && IsPrimitiveType(type.UnwrapNullableType()))
-                || type.IsEnum
+                || type.IsEnum;
+        }
+
+        /// <summary> Returns true the type is serialized as a JavaScript primitive (not object nor array) </summary>
+        public static bool IsPrimitiveType(Type type)
+        {
+            return IsDotvvmNativePrimitiveType(type)
                 || CustomPrimitiveTypes.GetOrAdd(type, TryDiscoverCustomPrimitiveType) is {};
         }
 
