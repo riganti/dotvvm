@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Utils;
@@ -25,7 +27,9 @@ namespace DotVVM.Framework.Configuration
             Type = type;
 
             TryParseMethod = ResolveTryParseMethod(type);
-            ToStringMethod = ResolveToStringMethod(type);
+            ToStringMethod = typeof(IFormattable).IsAssignableFrom(type)
+                ? obj => ((IFormattable)obj).ToString(null, CultureInfo.InvariantCulture)
+                : obj => obj.ToString();
         }
 
         internal static Func<string, ParseResult> ResolveTryParseMethod(Type type)
@@ -36,33 +40,30 @@ namespace DotVVM.Framework.Configuration
                                      new[] { typeof(string), type.MakeByRefType() }, null)
                                  ?? throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)} but it does not contain a public static method TryParse(string, IFormatProvider, out {type}) or TryParse(string, out {type})!");
 
-            var hasFormatProvider = tryParseMethod.GetParameters().Length == 3;
-            return arg => {
-                var args = hasFormatProvider
-                    ? new object[] { arg, CultureInfo.InvariantCulture, null }
-                    : new object[] { arg, null };
-                return (bool)tryParseMethod.Invoke(null, args) ? new ParseResult(args[args.Length - 1]) : ParseResult.Failed;
-            };
-        }
+            var inputParameter = Expression.Parameter(typeof(string), "arg");
+            var resultVariable = Expression.Variable(type, "result");
 
-        internal static Func<object, string> ResolveToStringMethod(Type type)
-        {
-            var toStringMethod = type.GetMethod("ToString", BindingFlags.Public | BindingFlags.Instance, null,
-                                     new[] { typeof(string), typeof(IFormatProvider) }, null)
-                                 ?? type.GetMethod("ToString", BindingFlags.Public | BindingFlags.Instance, null,
-                                     new[] { typeof(IFormatProvider) }, null)
-                                 ?? type.GetMethod("ToString", BindingFlags.Public | BindingFlags.Instance, null,
-                                    new Type[] { }, null)
-                                 ?? throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)} but it does not contain a public method ToString(string, IFormatProvider), ToString(IFormatProvider), or ToString()!");
-            var parameterCount = toStringMethod.GetParameters().Length;
-            return arg => {
-                var args = parameterCount switch {
-                    2 => new object?[] { null, CultureInfo.InvariantCulture },
-                    1 => new object?[] { CultureInfo.InvariantCulture },
-                    _ => new object?[] { }
-                };
-                return (string)toStringMethod.Invoke(arg, args);
-            };
+            var arguments = new Expression?[]
+                {
+                    inputParameter,
+                    tryParseMethod.GetParameters().Length == 3
+                        ? Expression.Constant(CultureInfo.InvariantCulture)
+                        : null,
+                    resultVariable
+                }
+                .Where(a => a != null)
+                .ToArray();
+            var call = Expression.Call(tryParseMethod, arguments);
+
+            var body = Expression.Block(
+                new[] { resultVariable },
+                Expression.Condition(
+                    Expression.IsTrue(call),
+                    Expression.New(typeof(ParseResult).GetConstructor(new[] { typeof(object) })!, Expression.Convert(resultVariable, typeof(object))),
+                    Expression.Constant(ParseResult.Failed)
+                )
+            );
+            return Expression.Lambda<Func<string, ParseResult>>(body, inputParameter).Compile();
         }
 
         public record ParseResult(object? Result = null)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
@@ -23,9 +24,9 @@ namespace DotVVM.Samples.Common.Controls
             return new HtmlGenericControl("ul", htmlCapability)
                 .AppendChildren(
                     new HtmlGenericControl("li")
-                        .AppendChildren(new Literal(pointValue.ToString())),
+                        .AppendChildren(new Literal(pointValue.ToString(null, null))),
                     new HtmlGenericControl("li")
-                        .AppendChildren(new Literal(pointValue2.ToString())),
+                        .AppendChildren(new Literal(pointValue2.ToString(null, null))),
                     new HtmlGenericControl("li")
                         .AppendChildren(new Literal(pointBinding)),
                     new HtmlGenericControl("li")
@@ -42,12 +43,12 @@ namespace DotVVM.Samples.Common.Controls
     }
 
     [CustomPrimitiveType]
-    public struct Point
+    public struct Point : IFormattable 
     {
         public int X { get; set; }
         public int Y { get; set; }
 
-        public static bool TryParse(string value, out Point result)
+        public static bool TryParse(string value, IFormatProvider formatProvider, out Point result)
         {
             var parts = value.Split(',');
             if (int.TryParse(parts[0], out var x) && int.TryParse(parts[1], out var y))
@@ -62,8 +63,11 @@ namespace DotVVM.Samples.Common.Controls
             }
         }
 
-        public static Point Parse(string value) => TryParse(value, out var result) ? result : throw new FormatException();
+        public static Point Parse(string value) => TryParse(value, CultureInfo.InvariantCulture, out var result) ? result : throw new FormatException();
 
+        // note: both implementations of ToString must return the same result - they should not depend on the current culture
         public override string ToString() => $"{X},{Y}";
+
+        public string ToString(string format, IFormatProvider formatProvider) => $"{X},{Y}";
     }
 }
