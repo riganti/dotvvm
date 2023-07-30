@@ -338,7 +338,6 @@ export function addErrors(errors: ValidationErrorDescriptor[], options: AddError
         try {
             // find the property
             const property = evaluator.traverseContext(root, propertyPath);
-
             ValidationError.attach(prop.errorMessage, propertyPath, property);
         } catch (err) {
             logWarning("validation", err);
