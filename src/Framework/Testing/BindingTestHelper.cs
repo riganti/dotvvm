@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Testing
             var parsedExpression = ExpressionBuilder.ParseWithLambdaConversion(expression, context, BindingParserOptions.Value.AddImports(imports), expectedType);
             return
                 TypeConversion.MagicLambdaConversion(parsedExpression, expectedType) ??
-                TypeConversion.ImplicitConversion(parsedExpression, expectedType, true, true)!;
+                TypeConversion.EnsureImplicitConversion(parsedExpression, expectedType, allowToString: true)!;
         }
 
         /// <summary> Returns JavaScript code to which the <paramref name="expression" /> translates. </summary>

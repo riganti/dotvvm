@@ -405,6 +405,9 @@ namespace DotVVM.Framework.Utils
             return (concreteInterface = type.GetInterfaces().FirstOrDefault(i => isInterface(i, ifc))) != null;
         }
 
+        public static bool IsAssignableFromNull(this Type t) =>
+            !t.IsValueType || t.IsNullable();
+
         public static bool IsNullable(this Type type)
         {
             return Nullable.GetUnderlyingType(type) != null;

@@ -586,6 +586,16 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Valid_EnumBitOps()
+        {
+            var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
+            Assert.AreEqual(TestEnum.A, ExecuteBinding("EnumProperty & 1", viewModel));
+            Assert.AreEqual(TestEnum.B, ExecuteBinding("EnumProperty | 1", viewModel));
+            Assert.AreEqual(TestEnum.B, ExecuteBinding("EnumProperty | 'B'", viewModel));
+            Assert.AreEqual(TestEnum.C, ExecuteBinding("(EnumProperty | 'D') & 'C'", viewModel));
+        }
+
+        [TestMethod]
 
         public void BindingCompiler_Valid_GenericMethodCall()
         {
@@ -944,7 +954,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type System.Void to System.Object")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type void to object")]
         public void BindingCompiler_MultiBlockExpression_EmptyBlockAtEnd_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -952,7 +962,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type System.Void to System.Object")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type void to object")]
         public void BindingCompiler_MultiBlockExpression_WhitespaceBlockAtEnd_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -1050,7 +1060,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var aggEx = Assert.ThrowsException<BindingPropertyException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));
             var ex = aggEx.GetBaseException();
-            StringAssert.Contains(ex.Message, "cannot be assigned into");
+            StringAssert.Contains(ex.Message, "Expression '123' cannot be assigned into 'System.String'.");
         }
 
         [TestMethod]
@@ -1103,6 +1113,51 @@ namespace DotVVM.Framework.Tests.Binding
             );
         }
 
+        [DataTestMethod]
+        [DataRow("IntProp + 1L", 101L)]
+        [DataRow("1L + IntProp", 101L)]
+        [DataRow("1L + UIntProp", 3_000_000_001L)]
+        [DataRow("1 + UIntProp", (uint)3_000_000_001)]
+        [DataRow("ShortProp", short.MaxValue)]
+        [DataRow("ShortProp - 1", short.MaxValue - 1)]
+        [DataRow("DoubleProp - 1", 0.5)]
+        [DataRow("DoubleProp + ShortProp", short.MaxValue + 1.5)]
+        [DataRow("NullableDoubleProp + ShortProp", null)]
+        [DataRow("ByteProp | ByteProp", (byte)255)]
+        [DataRow("DateTime == DateTime", true)]
+        [DataRow("NullableTimeOnly == NullableTimeOnly", true)]
+        [DataRow("NullableTimeOnly != NullableTimeOnly", false)]
+        [DataRow("NullableTimeOnly == TimeOnly", false)]
+        [DataRow("EnumList[0] > EnumList[1]", false)]
+        [DataRow("EnumList[0] < EnumList[1]", true)]
+        [DataRow("EnumList[0] == 'A'", true)]
+        [DataRow("EnumList[0] < 'C'", true)]
+        [DataRow("(EnumList[1] | 'C') == 'C'", false)]
+        [DataRow("(EnumList[2] & 1) != 0", false)]
+        public void BindingCompiler_BinaryOperator_ResultType(string expr, object expectedResult)
+        {
+            var vm = new TestViewModel { IntProp = 100, DoubleProp = 1.5, EnumList = new () { TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D } };
+            Assert.AreEqual(expectedResult, ExecuteBinding(expr, vm));
+        }
+
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Reference equality is not defined for the types 'DotVVM.Framework.Tests.Binding.TestViewModel2' and 'DotVVM.Framework.Tests.Binding.TestViewModel'")]
+        public void BindingCompiler_InvalidReferenceComparison() =>
+            ExecuteBinding("TestViewModel2 == _this", new TestViewModel());
+
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply Equal operator to types DateTime and Object.")]
+        public void BindingCompiler_InvalidStructReferenceComparison() =>
+            ExecuteBinding("DateTime == Time", new TestViewModel());
+
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply Equal operator to types DateTime and Object.")]
+        public void BindingCompiler_InvalidStructComparison() =>
+            ExecuteBinding("DateTime == Time", new TestViewModel());
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply And operator to types TestEnum and Boolean")]
+        public void BindingCompiler_InvalidBitAndComparison() =>
+            ExecuteBinding("EnumProperty & 2 == 0", new TestViewModel());
     }
     class TestViewModel
     {
@@ -1137,6 +1192,12 @@ namespace DotVVM.Framework.Tests.Binding
         public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
         public int[] IntArray { get; set; }
         public decimal DecimalProp { get; set; }
+        public byte ByteProp { get; set; } = 255;
+        public sbyte SByteProp { get; set; } = 127;
+        public short ShortProp { get; set; } = 32767;
+        public ushort UShortProp { get; set; } = 65535;
+        public uint UIntProp { get; set; } = 3_000_000_000;
+        public double? NullableDoubleProp { get; set; }
 
         public ReadOnlyCollection<int> ReadOnlyCollection => new ReadOnlyCollection<int>(new[] { 1, 2, 3 });
 

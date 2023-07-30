@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Binding
                 if (ctor == null) throw new NotSupportedException($"Could not find .ctor(BindingCompilationService service, object[] properties) on binding '{type.FullName}'.");
                 var bindingServiceParam = Expression.Parameter(typeof(BindingCompilationService));
                 var propertiesParam = Expression.Parameter(typeof(object?[]));
-                var expression = Expression.New(ctor, bindingServiceParam, TypeConversion.ImplicitConversion(propertiesParam, ctor.GetParameters()[1].ParameterType, throwException: true)!);
+                var expression = Expression.New(ctor, bindingServiceParam, TypeConversion.EnsureImplicitConversion(propertiesParam, ctor.GetParameters()[1].ParameterType));
                 return Expression.Lambda<Func<BindingCompilationService, object?[], IBinding>>(expression, bindingServiceParam, propertiesParam).CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
             })(service, properties);
         }
