@@ -17,7 +17,7 @@ namespace DotVVM.AutoUI.PropertyHandlers
         {
             var viewModelType = typeof(ISelectorViewModel<>).MakeGenericType(propertyType);
 
-            var dataContextStack = autoUiContext.DataContextStack.Parent;
+            var dataContextStack = autoUiContext.DataContextStack;
             while (dataContextStack != null)
             {
                 var param = Expression.Parameter(dataContextStack.DataContextType, "p").AddParameterAnnotation(new BindingParameterAnnotation(dataContextStack));
@@ -39,7 +39,7 @@ namespace DotVVM.AutoUI.PropertyHandlers
                         new object[]
                         {
                             new ParsedExpressionBindingProperty(body),
-                            dataContextStack
+                            autoUiContext.DataContextStack
                         });
                 }
 
