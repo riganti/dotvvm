@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Tests.Binding
         async Task<object> Invoke(StaticCommandInvocationPlan plan, params (object value, string path)[] arguments)
         {
             var context = DotvvmTestHelper.CreateContext(config, requestType: DotvvmRequestType.StaticCommand);
-            var a = arguments.Select(t => JToken.FromObject(t.value));
+            var a = arguments.Select(t => JToken.FromObject(t.value, DefaultSerializerSettingsProvider.CreateJsonSerializer()));
             var p = arguments.Select(t => t.path);
             return await executor.Execute(plan, a, p, context);
         }
@@ -225,6 +225,27 @@ namespace DotVVM.Framework.Tests.Binding
             var ms = new StaticCommandModelState();
             ms.AddArgumentError(() => viewModel.Property, "manual-error");
             ms.FailOnInvalidModelState();
+        }
+
+        [TestMethod]
+        public async Task Validation_CustomPrimitives()
+        {
+            var vm = new TestViewModel { VehicleNumber = new(1) };
+            var plan = CreatePlan(() => CustomPrimitivesValidation(vm, new VehicleNumber(1)));
+            var modelState = await InvokeExpectingErrors(plan, (vm, "/VM"), (new VehicleNumber(321), "/Argument"));
+
+            Assert.AreEqual(2, modelState.Errors.Count, $"Unexpected errors: {string.Join(", ", modelState.Errors)}");
+            Assert.IsTrue(modelState.Errors[0].IsResolved);
+            Assert.IsTrue(modelState.Errors[1].IsResolved);
+            Assert.AreEqual("The field Value must be between 100 and 999.", modelState.Errors[0].ErrorMessage);
+            Assert.AreEqual("Vehicle must have lucky number.", modelState.Errors[1].ErrorMessage);
+            Assert.AreEqual("/VM/VehicleNumber", modelState.Errors[0].PropertyPath);
+            Assert.AreEqual("/Argument", modelState.Errors[1].PropertyPath);
+        }
+
+        [AllowStaticCommand(StaticCommandValidation.Automatic)]
+        internal static void CustomPrimitivesValidation(TestViewModel viewModel, [RegularExpression(@"\d\d7", ErrorMessage = "Vehicle must have lucky number.")] VehicleNumber vehicle)
+        {
         }
     }
 }

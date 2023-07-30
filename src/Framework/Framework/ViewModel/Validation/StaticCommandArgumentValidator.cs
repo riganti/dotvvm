@@ -52,7 +52,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                     }
                 }
                 // validate data annotations in the object
-                if (argument is {} && ReflectionUtils.IsComplexType(argument.GetType()))
+                if (argument is {} && !ReflectionUtils.IsDotvvmNativePrimitiveType(argument.GetType()))
                 {
                     var errors = this.viewModelValidator.ValidateViewModel(args[i]);
                     foreach (var e in errors)
