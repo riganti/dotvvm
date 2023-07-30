@@ -647,41 +647,5 @@ namespace DotVVM.Framework.Utils
                 type = baseType;
             }
         }
-
-        private static volatile bool customPrimitiveTypesRegistered = false;
-        internal static void RegisterCustomPrimitiveTypes(IList<CustomPrimitiveTypeRegistration> customPrimitiveTypeRegistrations)
-        {
-            foreach (var registration in customPrimitiveTypeRegistrations)
-            {
-                if (IsPrimitiveType(registration.ServerSideType)
-                    || IsCollection(registration.ServerSideType)
-                    || IsDictionary(registration.ServerSideType))
-                {
-                    throw new DotvvmConfigurationException($"The type {registration.ServerSideType} cannot be used as a custom primitive type. Custom primitive types cannot be collections, dictionaries, and cannot be primitive types already supported by DotVVM.");
-                }
-                if (CustomPrimitiveTypes.ContainsKey(registration.ServerSideType))
-                {
-                    throw new DotvvmConfigurationException($"The type {registration.ServerSideType} is already registered as a custom primitive type.");
-                }
-                if (!PrimitiveTypes.Contains(registration.ClientSideType.UnwrapNullableType()))
-                {
-                    throw new DotvvmConfigurationException($"The custom primitive type {registration.ServerSideType} cannot use {registration.ClientSideType} as a client-side equivalent. Only primitive types (strings, numbers, Guid, date and time types) are supported.");
-                }
-
-                CustomPrimitiveTypes.Add(registration.ServerSideType, registration);
-            }
-            customPrimitiveTypesRegistered = true;
-        }
-
-        internal static IEnumerable<JsonConverter> GetCustomPrimitiveTypeJsonConverters()
-        {
-            if (!customPrimitiveTypesRegistered)
-            {
-                throw new InvalidOperationException("Cannot access DefaultSerializerSettingsProvider.Instance before DotvvmConfiguration was initialized!");
-            }
-            return CustomPrimitiveTypes.Values
-                .Where(t => t.JsonConverter != null)
-                .Select(t => t.JsonConverter!);
-        }
     }
 }
