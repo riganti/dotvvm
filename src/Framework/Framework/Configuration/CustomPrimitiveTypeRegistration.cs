@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Configuration
             TryParseMethod = ResolveTryParseMethod(type);
             ToStringMethod = typeof(IFormattable).IsAssignableFrom(type)
                 ? obj => ((IFormattable)obj).ToString(null, CultureInfo.InvariantCulture)
-                : obj => obj.ToString();
+                : obj => obj.ToString()!;
         }
 
         internal static Func<string, ParseResult> ResolveTryParseMethod(Type type)
@@ -52,6 +52,7 @@ namespace DotVVM.Framework.Configuration
                     resultVariable
                 }
                 .Where(a => a != null)
+                .Cast<Expression>()
                 .ToArray();
             var call = Expression.Call(tryParseMethod, arguments);
 

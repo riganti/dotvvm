@@ -238,7 +238,7 @@ namespace DotVVM.Framework.Utils
                 // custom primitive types
                 if (TryGetCustomPrimitiveTypeRegistration(type) is { } registration)
                 {
-                    var result = registration.TryParseMethod(Convert.ToString(value, CultureInfo.InvariantCulture));
+                    var result = registration.TryParseMethod(Convert.ToString(value, CultureInfo.InvariantCulture)!);
                     return result.Successful
                         ? result.Result
                         : throw new TypeConvertException(value, type, new Exception("The TryParse method of a custom primitive type failed to parse the value."));

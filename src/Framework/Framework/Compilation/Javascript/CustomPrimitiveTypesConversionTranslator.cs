@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method)
         {
-            var type = context?.OriginalExpression.Type ?? method.DeclaringType;
+            var type = context?.OriginalExpression.Type ?? method.DeclaringType!;
             type = type.UnwrapNullableType();
             if (method.Name is "ToString" or "Parse" && ReflectionUtils.IsCustomPrimitiveType(type))
             {

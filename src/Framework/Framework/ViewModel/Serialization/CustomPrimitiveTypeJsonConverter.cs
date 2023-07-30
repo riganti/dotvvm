@@ -24,7 +24,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 or JsonToken.Date)
             {
                 var registration = ReflectionUtils.TryGetCustomPrimitiveTypeRegistration(objectType)!;
-                var parseResult = registration.TryParseMethod(Convert.ToString(reader.Value, CultureInfo.InvariantCulture));
+                var parseResult = registration.TryParseMethod(Convert.ToString(reader.Value, CultureInfo.InvariantCulture)!);
                 if (!parseResult.Successful)
                 {
                     throw new JsonSerializationException($"The value '{reader.Value}' cannot be deserialized as {objectType} because its TryParse method wasn't able to parse the value!");
