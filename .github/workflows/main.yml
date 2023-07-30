@@ -131,6 +131,15 @@ jobs:
     #     title: Analyzer Tests
     #     github-token: ${{ secrets.GITHUB_TOKEN }}
     #     target-framework: net7.0
+    - name: Adapters.WebForms.Tests (net472)
+      uses: ./.github/unittest
+      if: matrix.os == 'windows-2022'
+      with:
+        project: src/Adapters/Tests/WebForms
+        name: webforms-adapters-tests
+        title: WebForms Adapter Tests
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        target-framework: net472        
 
   js-tests:
     runs-on: ubuntu-latest
