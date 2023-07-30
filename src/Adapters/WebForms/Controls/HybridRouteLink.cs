@@ -47,14 +47,10 @@ namespace DotVVM.Adapters.WebForms.Controls
 
         private static DotvvmControl GenerateDotvvmRouteLink(HtmlCapability htmlCapability, TextOrContentCapability textOrContent, RouteLinkCapability routeLinkCapability)
         {
-            var link = new RouteLink()
+            return new RouteLink()
                 .SetCapability(htmlCapability)
                 .SetCapability(textOrContent)
-                .SetProperty(r => r.RouteName, routeLinkCapability.RouteName)
-                .SetProperty(l => l.UrlSuffix, routeLinkCapability.UrlSuffix);
-            link.QueryParameters.CopyFrom(routeLinkCapability.QueryParameters);
-            link.Params.CopyFrom(routeLinkCapability.Params);
-            return link;
+                .SetCapability(routeLinkCapability);
         }
         
     }

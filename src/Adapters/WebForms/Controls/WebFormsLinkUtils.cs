@@ -110,7 +110,7 @@ namespace DotVVM.Adapters.WebForms.Controls
             var urlSuffixBase = routeLinkCapability.UrlSuffix?.GetJsExpression(container) ?? "\"\"";
             var queryParams = routeLinkCapability.QueryParameters
                 .OrderBy(p => p.Key)
-                .Select(p => $"{KnockoutHelper.MakeStringLiteral(p.Key.ToLowerInvariant())}: {p.Value.GetJsExpression(container)}")
+                .Select(p => $"{KnockoutHelper.MakeStringLiteral(p.Key)}: {p.Value.GetJsExpression(container)}")
                 .StringJoin(",");
 
             // generate the function call
