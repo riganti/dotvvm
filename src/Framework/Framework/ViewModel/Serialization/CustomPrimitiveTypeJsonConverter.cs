@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
@@ -23,7 +24,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 or JsonToken.Date)
             {
                 var registration = ReflectionUtils.CustomPrimitiveTypes[objectType]!;
-                return registration.ConvertToServerSideType(reader.Value);
+                var parseResult = registration.TryParseMethod(Convert.ToString(reader.Value, CultureInfo.InvariantCulture));
+                if (!parseResult.Successful)
+                {
+                    throw new JsonSerializationException($"The value '{reader.Value}' cannot be deserialized as {objectType} because its TryParse method wasn't able to parse the value!");
+                }
+                return parseResult.Result;
             }
             else if (reader.TokenType == JsonToken.Null)
             {
@@ -44,7 +50,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else
             {
                 var registration = ReflectionUtils.CustomPrimitiveTypes[value.GetType()]!;
-                writer.WriteValue(registration.ConvertToClientSideType(value));
+                writer.WriteValue(registration.ToStringMethod(value));
             }
         }
 

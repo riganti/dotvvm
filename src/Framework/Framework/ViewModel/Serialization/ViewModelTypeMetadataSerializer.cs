@@ -161,7 +161,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 if (ReflectionUtils.CustomPrimitiveTypes.TryGetValue(type, out var registration) && registration is {})
                 {
-                    return GetTypeIdentifier(registration.ClientSideType, dependentObjectTypes, dependentEnumTypes);
+                    return GetPrimitiveTypeName(typeof(string));
                 }
                 return GetPrimitiveTypeName(type);
             }

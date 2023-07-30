@@ -25,7 +25,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
             return (TId)Activator.CreateInstance(typeof(TId), args: idValue)!;
         }
 
-        public static TId ParseValue(object? value)
+        public static TId Parse(object? value)
         {
             if (value is string stringValue)
             {
@@ -45,10 +45,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
             }
         }
 
-        public override string ToString()
-        {
-            return IdValue.ToString();
-        }
+        public static bool TryParse(string id, out TId result)
+            => (result = Guid.TryParse(id, out var r) ? CreateExisting(r) : null) is not null;
+
+        public sealed override string ToString() => IdValue.ToString();
     }
 
 }
