@@ -101,6 +101,7 @@ namespace DotVVM.Framework.Testing
 
         private static Lazy<DotvvmConfiguration> _defaultConfig = new Lazy<DotvvmConfiguration>(() => {
             var config = CreateConfiguration();
+            config.ExperimentalFeatures.UseDotvvmSerializationForStaticCommandArguments.Enable();
             config.RouteTable.Add("TestRoute", "TestRoute", "TestView.dothtml");
             config.Freeze();
             return config;

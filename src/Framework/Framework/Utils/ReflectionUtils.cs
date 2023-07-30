@@ -367,7 +367,7 @@ namespace DotVVM.Framework.Utils
         public static bool IsDotvvmNativePrimitiveType(Type type)
         {
             return PrimitiveTypes.Contains(type)
-                || (IsNullableType(type) && IsPrimitiveType(type.UnwrapNullableType()))
+                || (IsNullableType(type) && IsDotvvmNativePrimitiveType(type.UnwrapNullableType()))
                 || type.IsEnum;
         }
 
@@ -386,7 +386,10 @@ namespace DotVVM.Framework.Utils
         /// <summary> Returns true the type is serialized as a JavaScript primitive (not object nor array) </summary>
         public static bool IsPrimitiveType(Type type)
         {
-            return IsDotvvmNativePrimitiveType(type) || TryGetCustomPrimitiveTypeRegistration(type) is {};
+            return PrimitiveTypes.Contains(type)
+                || (IsNullableType(type) && IsDotvvmNativePrimitiveType(type.UnwrapNullableType()))
+                || type.IsEnum
+                || TryGetCustomPrimitiveTypeRegistration(type) is {};
         }
 
         private static CustomPrimitiveTypeRegistration? TryDiscoverCustomPrimitiveType(Type type)

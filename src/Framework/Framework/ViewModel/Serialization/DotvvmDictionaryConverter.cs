@@ -69,7 +69,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (value is null) throw new Exception($"Could not deserialize object with path '{reader.Path}' as IEnumerable.");
                 foreach (var item in value)
                 {
-                    dict.Add(keyProp.GetValue(item)!, valueProp.GetValue(item));
+                    dict[keyProp.GetValue(item)!] = valueProp.GetValue(item);
                 }
                 return dict;
             }
