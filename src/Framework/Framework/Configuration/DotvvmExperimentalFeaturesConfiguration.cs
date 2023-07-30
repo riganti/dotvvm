@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Configuration
         public DotvvmFeatureFlag KnockoutDeferUpdates { get; private set; } = new DotvvmFeatureFlag("KnockoutDeferUpdates");
 
         [JsonProperty("useDotvvmSerializationForStaticCommandArguments")]
-        public DotvvmGlobalFeatureFlag UseDotvvmSerializationForStaticCommandArguments { get; private set; } = new DotvvmGlobalFeatureFlag();
+        public DotvvmGlobalFeatureFlag UseDotvvmSerializationForStaticCommandArguments { get; private set; } = new DotvvmGlobalFeatureFlag("UseDotvvmSerializationForStaticCommandArguments");
 
         public void Freeze()
         {

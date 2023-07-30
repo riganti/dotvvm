@@ -10,6 +10,7 @@ using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Validation;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Hosting
@@ -21,6 +22,7 @@ namespace DotVVM.Framework.Hosting
         private readonly IViewModelProtector viewModelProtector;
         private readonly IStaticCommandArgumentValidator validator;
         private readonly DotvvmConfiguration configuration;
+        private readonly JsonSerializer jsonDeserializer;
 
         public StaticCommandExecutor(IStaticCommandServiceLoader serviceLoader, IViewModelProtector viewModelProtector, IStaticCommandArgumentValidator validator, DotvvmConfiguration configuration)
         {
@@ -28,6 +30,14 @@ namespace DotVVM.Framework.Hosting
             this.viewModelProtector = viewModelProtector;
             this.validator = validator;
             this.configuration = configuration;
+            if (configuration.ExperimentalFeatures.UseDotvvmSerializationForStaticCommandArguments.Enabled)
+            {
+                this.jsonDeserializer = DefaultSerializerSettingsProvider.CreateJsonSerializer();
+            }
+            else
+            {
+                this.jsonDeserializer = JsonSerializer.Create();
+            }
         }
 #pragma warning restore CS0618
 
@@ -56,7 +66,7 @@ namespace DotVVM.Framework.Hosting
             {
                 var (value, path) = a.Type switch {
                     StaticCommandParameterType.Argument =>
-                        ((object?)arguments.Dequeue().ToObject((Type)a.Arg!), argumentValidationPaths?.Dequeue()),
+                        ((object?)arguments.Dequeue().ToObject((Type)a.Arg!, this.jsonDeserializer), argumentValidationPaths?.Dequeue()),
                     StaticCommandParameterType.Constant or StaticCommandParameterType.DefaultValue =>
                         (a.Arg, null),
                     StaticCommandParameterType.Inject =>
