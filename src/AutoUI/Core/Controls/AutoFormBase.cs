@@ -150,7 +150,7 @@ namespace DotVVM.AutoUI.Controls
                 autoUiContext);
         }
 
-        protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl? labelElement, PropertyDisplayMetadata property, AutoUIContext context)
+        protected virtual void InitializeValidation(DotvvmBindableObject validatedElement, HtmlGenericControl? labelElement, PropertyDisplayMetadata property, AutoUIContext context)
         {
             if (property.PropertyInfo is { } &&
                 context.GetPropertyValidators(property).OfType<RequiredAttribute>().Any())
