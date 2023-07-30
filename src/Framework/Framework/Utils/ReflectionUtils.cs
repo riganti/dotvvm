@@ -371,6 +371,12 @@ namespace DotVVM.Framework.Utils
                 || type.IsEnum;
         }
 
+        /// <summary> Returns true if the type is a custom primitive type.</summary>
+        public static bool IsCustomPrimitiveType(Type type)
+        {
+            return CustomPrimitiveTypes.GetOrAdd(type, TryDiscoverCustomPrimitiveType) is { };
+        }
+
         /// <summary> Returns true the type is serialized as a JavaScript primitive (not object nor array) </summary>
         public static bool IsPrimitiveType(Type type)
         {
