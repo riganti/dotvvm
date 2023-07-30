@@ -67,7 +67,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
                 }
             }
 
-            var validators = property.PropertyInfo?.Apply(context.ValidationMetadataProvider.GetAttributesForProperty)?.ToArray() ?? Array.Empty<ValidationAttribute>();
+            var validators = context.GetPropertyValidators(property);
             if (validators.OfType<RequiredAttribute>().Any())
             {
                 textBox.SetAttribute("required", true);

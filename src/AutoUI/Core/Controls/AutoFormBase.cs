@@ -153,7 +153,7 @@ namespace DotVVM.AutoUI.Controls
         protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl? labelElement, PropertyDisplayMetadata property, AutoUIContext context)
         {
             if (property.PropertyInfo is { } &&
-                context.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
+                context.GetPropertyValidators(property).OfType<RequiredAttribute>().Any())
             {
                 labelElement?.AddCssClass("autoui-required");
             }
