@@ -3,6 +3,7 @@ import * as globalize from '../DotVVM.Globalize'
 import { DotvvmValidationElementMetadata, DotvvmValidationObservableMetadata, getValidationMetadata } from '../validation/common';
 import { lastSetErrorSymbol } from '../state-manager';
 import { hackInvokeNotifySubscribers } from '../utils/knockout';
+import { defer } from '../utils/promise';
 
 // handler dotvvm-textbox-text
 export default {
@@ -30,7 +31,7 @@ export default {
                 }
                 metadata = (obs as any).dotvvmMetadata;
             }
-            setTimeout(() => {
+            defer(() => {
                 // remove element from collection when its removed from dom
                 ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
                     for (const meta of metadata) {
@@ -40,7 +41,7 @@ export default {
                         }
                     }
                 });
-            }, 0);
+            });
 
             const valueUpdateHandler = () => {
                 const obs = valueAccessor();

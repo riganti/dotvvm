@@ -2,6 +2,7 @@ import { getElementByDotvvmId } from '../utils/dom'
 import { replaceViewModel, updateViewModelCache, clearViewModelCache, getStateManager } from '../dotvvm-base'
 import { keys } from '../utils/objects';
 import { logInfoVerbose } from '../utils/logging';
+import { defer } from '../utils/promise';
 
 const diffEqual = {}
 
@@ -41,7 +42,7 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any) 
             } else {
                 updatedControl.parent.appendChild(element);
             }
-            Promise.resolve().then(() => ko.applyBindings(updatedControl.dataContext, element))
+            defer(() => ko.applyBindings(updatedControl.dataContext, element))
         }
     }
 }

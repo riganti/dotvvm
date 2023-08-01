@@ -1,6 +1,7 @@
 import { newState } from '../events'
 import { unmapKnockoutObservables } from '../state-manager'
 import { keys } from '../utils/objects'
+import { defer } from '../utils/promise'
 import { findComponent } from '../viewModules/viewModuleManager'
 
 // handler dotvvm-textbox-text
@@ -51,38 +52,48 @@ export default {
             const value0 = valueAccessor()
 
             let lastProps = getCurrentProps(value0)
-            var [module, componentF] = findComponent(value0.view, value0.name)
-            const component = componentF.create(
-                element,
-                lastProps,
-                value0.commands ?? {},
-                value0.templates ?? {},
-                setProps
-            )
+            let component: DotvvmJsComponent
+            // defer all operations with the component so that
+            // * exceptions don't break the whole page
+            // * exceptions normally break the debugger
+            //   knockout.js "handles" all exceptions, so you'd only get a console message and have to enable "break on all exceptions" in order to debug the component
+            // * we get the synchronous initialization done faster...
+            defer(() => {
+                const [module, componentF] = findComponent(value0.view, value0.name)
+                component = componentF.create(
+                    element,
+                    lastProps,
+                    value0.commands ?? {},
+                    value0.templates ?? {},
+                    setProps
+                )
+            })
 
             function update() {
                 const value = valueAccessor()
                 const currentProps = getCurrentProps(value)
 
-                const toUpdate: { [key: string]: any } = {}
-                for (const [n, v] of Object.entries(currentProps)) {
-                    if (lastProps[n] !== v) {
-                        toUpdate[n] = v
+                defer(() => {
+                    const toUpdate: { [key: string]: any } = {}
+                    for (const [n, v] of Object.entries(currentProps)) {
+                        if (lastProps[n] !== v) {
+                            toUpdate[n] = v
+                        }
                     }
-                }
-                if (keys(toUpdate).length > 0) {
-                    component.updateProps(toUpdate)
-                }
+                    if (keys(toUpdate).length > 0) {
+                        component?.updateProps(toUpdate)
+                    }
 
-                lastProps = currentProps
+                    lastProps = currentProps
+                })
             }
             newState.subscribe(update)
             // run update when something observable changes
             let updaterComputed = ko.computed(() => update())
             ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
                 updaterComputed.dispose()
-                component.dispose()
                 newState.unsubscribe(update)
+                defer(() => component?.dispose?.())
             })
 
             // No need to evaluate data-bind attributes inside the component
