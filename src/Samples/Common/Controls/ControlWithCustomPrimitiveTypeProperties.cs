@@ -42,8 +42,7 @@ namespace DotVVM.Samples.Common.Controls
 
     }
 
-    [CustomPrimitiveType]
-    public struct Point : IFormattable 
+    public struct Point : IFormattable, IDotvvmPrimitiveType
     {
         public int X { get; set; }
         public int Y { get; set; }

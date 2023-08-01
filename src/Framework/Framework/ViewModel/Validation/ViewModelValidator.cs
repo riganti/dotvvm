@@ -81,7 +81,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                         if (propertyResult != ValidationResult.Success)
                         {
                             var propertyPath =
-                                ReflectionUtils.IsCustomPrimitiveType(viewModelType) ? pathPrefix.TrimEnd('/') : pathPrefix + property.Name;
+                                viewModel is IDotvvmPrimitiveType ? pathPrefix.TrimEnd('/') : pathPrefix + property.Name;
                             yield return new ViewModelValidationError(rule.ErrorMessage, propertyPath, rootObject);
                         }
                     }

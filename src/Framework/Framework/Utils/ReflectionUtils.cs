@@ -26,6 +26,7 @@ using System.ComponentModel;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ViewModel;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Utils
 {
@@ -307,7 +308,7 @@ namespace DotVVM.Framework.Utils
             typeof (decimal)
         };
         // mapping of server-side types to their client-side representation
-        private static readonly ConcurrentDictionary<Type, CustomPrimitiveTypeRegistration?> CustomPrimitiveTypes = new();
+        private static readonly ConcurrentDictionary<Type, CustomPrimitiveTypeRegistration> CustomPrimitiveTypes = new();
 
         public static IEnumerable<Type> GetNumericTypes()
         {
@@ -374,31 +375,30 @@ namespace DotVVM.Framework.Utils
         /// <summary> Returns true if the type is a custom primitive type.</summary>
         public static bool IsCustomPrimitiveType(Type type)
         {
-            return TryGetCustomPrimitiveTypeRegistration(type) is { };
+            return typeof(IDotvvmPrimitiveType).IsAssignableFrom(type);
         }
 
         /// <summary>Returns a custom primitive type registration for the given type, or null if the type is not a custom primitive type.</summary>
         public static CustomPrimitiveTypeRegistration? TryGetCustomPrimitiveTypeRegistration(Type type)
         {
-            return CustomPrimitiveTypes.GetOrAdd(type, TryDiscoverCustomPrimitiveType);
+            if (IsCustomPrimitiveType(type))
+                return CustomPrimitiveTypes.GetOrAdd(type, TryDiscoverCustomPrimitiveType);
+            else
+                return null;
         }
 
         /// <summary> Returns true the type is serialized as a JavaScript primitive (not object nor array) </summary>
         public static bool IsPrimitiveType(Type type)
         {
             return PrimitiveTypes.Contains(type)
-                || (IsNullableType(type) && IsDotvvmNativePrimitiveType(type.UnwrapNullableType()))
+                || (IsNullableType(type) && IsPrimitiveType(type.UnwrapNullableType()))
                 || type.IsEnum
-                || TryGetCustomPrimitiveTypeRegistration(type) is {};
+                || IsCustomPrimitiveType(type);
         }
 
-        private static CustomPrimitiveTypeRegistration? TryDiscoverCustomPrimitiveType(Type type)
+        private static CustomPrimitiveTypeRegistration TryDiscoverCustomPrimitiveType(Type type)
         {
-            var attribute = type.GetCustomAttribute<CustomPrimitiveTypeAttribute>();
-            if (attribute == null)
-            {
-                return null;
-            }
+            Debug.Assert(typeof(IDotvvmPrimitiveType).IsAssignableFrom(type));
             return new CustomPrimitiveTypeRegistration(type);
         }
 
