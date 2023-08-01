@@ -133,7 +133,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets whether the control is visible. When set to false, `style="display: none"` will be added to this control.
         /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false)]
+        [MarkupOptions]
         public bool Visible
         {
             get { return (bool)GetValue(VisibleProperty)!; }

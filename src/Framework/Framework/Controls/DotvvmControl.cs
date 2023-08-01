@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Controls
         /// <remarks>
         /// Essentially wraps Knockout's 'if' binding.
         /// </remarks>
-        [MarkupOptions(AllowHardCodedValue = false)]
+        [MarkupOptions]
         public bool IncludeInPage
         {
             get { return (bool)GetValue(IncludeInPageProperty)!; }
