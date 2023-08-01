@@ -39,9 +39,27 @@ namespace DotVVM.Samples.BasicSamples
         public const string GitHubTokenEnvName = "GITHUB_TOKEN";
         public const string GitHubTokenConfigName = "githubApiToken";
 
+        private bool IsInInvariantCultureMode()
+        {
+            // Makes the samples run even if only invariant culture is enabled
+            // This is useful for testing older versions of .NET Core which rely on ICU which is no longer installed
+            try
+            {
+                new System.Globalization.CultureInfo("en-US");
+                return false;
+            }
+            catch (System.Globalization.CultureNotFoundException)
+            {
+                return true;
+            }
+        }
+
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
-            config.DefaultCulture = "en-US";
+            if (!IsInInvariantCultureMode())
+            {
+                config.DefaultCulture = "en-US";
+            }
 
             AddControls(config);
             AddStyles(config);
