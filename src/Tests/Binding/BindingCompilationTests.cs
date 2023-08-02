@@ -1064,6 +1064,14 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_LogicalOperatorPrecedence()
+        {
+            Assert.AreEqual(true, ExecuteBinding("(false && true) || (true && true)", new TestViewModel()));
+            Assert.AreEqual(true, ExecuteBinding("false && true || true && true", new TestViewModel()));
+            Assert.AreEqual(true, ExecuteBinding("true && true || true && false", new TestViewModel()));
+        }
+
+        [TestMethod]
         public void BindingCompiler_ExclusiveOrOperator()
         {
             Assert.AreEqual(true, ExecuteBinding("var boolVariable = BoolProp ^ true; boolVariable", new TestViewModel { BoolProp = false }));
