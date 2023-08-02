@@ -382,7 +382,7 @@ namespace DotVVM.Framework.Utils
         public static CustomPrimitiveTypeRegistration? TryGetCustomPrimitiveTypeRegistration(Type type)
         {
             if (IsCustomPrimitiveType(type))
-                return CustomPrimitiveTypes.GetOrAdd(type, TryDiscoverCustomPrimitiveType);
+                return CustomPrimitiveTypes.GetOrAdd(type, DiscoverCustomPrimitiveType);
             else
                 return null;
         }
@@ -396,7 +396,7 @@ namespace DotVVM.Framework.Utils
                 || IsCustomPrimitiveType(type);
         }
 
-        private static CustomPrimitiveTypeRegistration TryDiscoverCustomPrimitiveType(Type type)
+        private static CustomPrimitiveTypeRegistration DiscoverCustomPrimitiveType(Type type)
         {
             Debug.Assert(typeof(IDotvvmPrimitiveType).IsAssignableFrom(type));
             return new CustomPrimitiveTypeRegistration(type);
