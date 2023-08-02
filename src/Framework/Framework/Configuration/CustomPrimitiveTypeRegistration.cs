@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Configuration
         {
             if (ReflectionUtils.IsCollection(type) || ReflectionUtils.IsDictionary(type))
             {
-                throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)}, but it cannot be used as a custom primitive type. Custom primitive types cannot be collections, dictionaries, and cannot be primitive types already supported by DotVVM.");
+                throw new DotvvmConfigurationException($"The type {type} implements {nameof(IDotvvmPrimitiveType)}, but it cannot be used as a custom primitive type. Custom primitive types cannot be collections, dictionaries, and cannot be primitive types already supported by DotVVM.");
             }
 
             Type = type;
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Configuration
                                      new[] { typeof(string), typeof(IFormatProvider), type.MakeByRefType() }, null)
                                  ?? type.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy, null,
                                      new[] { typeof(string), type.MakeByRefType() }, null)
-                                 ?? throw new DotvvmConfigurationException($"The type {type} is marked with {nameof(CustomPrimitiveTypeAttribute)} but it does not contain a public static method TryParse(string, IFormatProvider, out {type}) or TryParse(string, out {type})!");
+                                 ?? throw new DotvvmConfigurationException($"The type {type} implements {nameof(IDotvvmPrimitiveType)} but it does not contain a public static method TryParse(string, IFormatProvider, out {type}) or TryParse(string, out {type})!");
 
             var inputParameter = Expression.Parameter(typeof(string), "arg");
             var resultVariable = Expression.Variable(type, "result");

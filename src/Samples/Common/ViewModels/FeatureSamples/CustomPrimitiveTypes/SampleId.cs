@@ -4,8 +4,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes
 {
-    [CustomPrimitiveType]
-    public record SampleId : TypeId<SampleId>
+    public record SampleId : TypeId<SampleId>, IDotvvmPrimitiveType
     {
         public SampleId(Guid idValue) : base(idValue)
         {

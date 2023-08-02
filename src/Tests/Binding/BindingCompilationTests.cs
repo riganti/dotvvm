@@ -1201,11 +1201,10 @@ namespace DotVVM.Framework.Tests.Binding
     }
 
 
-    [CustomPrimitiveType]
     record struct VehicleNumber(
         [property: Range(100, 999)]
         int Value
-    )
+    ): IDotvvmPrimitiveType
     {
         public override string ToString() => Value.ToString();
         public static bool TryParse(string s, out VehicleNumber result)
