@@ -1,12 +1,12 @@
 {
   "profiles": {
-    "DotVVM.Samples.BasicSamples": {
+    "DotVVM.Samples.BasicSamples.Api.Owin": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:16019",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "http://localhost:61453"
     }
   }
 }

@@ -123,8 +123,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (ifTrue.Type != ifFalse.Type)
                 {
                     var nullable = ifTrue.Type.IsNullable() ? ifTrue.Type : ifFalse.Type;
-                    ifTrue = TypeConversion.ImplicitConversion(ifTrue, nullable, throwException: true)!;
-                    ifFalse = TypeConversion.ImplicitConversion(ifFalse, nullable, throwException: true)!;
+                    ifTrue = TypeConversion.EnsureImplicitConversion(ifTrue, nullable);
+                    ifFalse = TypeConversion.EnsureImplicitConversion(ifFalse, nullable);
                 }
                 return Expression.Condition(test, ifTrue, ifFalse);
             });
@@ -181,7 +181,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     return CheckForNull(Visit(node.Arguments.First()), index =>
                     {
-                        var convertedIndex = TypeConversion.ImplicitConversion(index, node.Method.GetParameters().First().ParameterType, throwException: true)!;
+                        var convertedIndex = TypeConversion.EnsureImplicitConversion(index, node.Method.GetParameters().First().ParameterType);
                         return Expression.Call(target, node.Method, new[] { convertedIndex }.Concat(node.Arguments.Skip(1)));
                     });
                 }, suppress: node.Object?.Type?.IsNullable() ?? true);
@@ -244,7 +244,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 parameter as ParameterExpression ??
                 Expression.Parameter(parameter.Type, "tmp" + tmpCounter++);
             var eresult = callback(p2.Type.IsNullable() ? (Expression)Expression.Property(p2, "Value") : p2);
-            eresult = TypeConversion.ImplicitConversion(eresult, eresult.Type.MakeNullableType())!;
+            eresult = TypeConversion.EnsureImplicitConversion(eresult, eresult.Type.MakeNullableType());
             var condition = parameter.Type.IsNullable() ? (Expression)Expression.Property(p2, "HasValue") : Expression.NotEqual(p2, Expression.Constant(null, p2.Type));
             var handledResult =
                 Expression.Condition(condition,

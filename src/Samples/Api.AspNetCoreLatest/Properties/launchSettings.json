@@ -1,22 +1,10 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:5003/",
-      "sslPort": 0
-    }
-  },
   "profiles": {
-    "IIS Express": {
-      "commandName": "IISExpress",
+    "DotVVM.Samples.BasicSamples.Api.AspNetCore": {
+      "commandName": "Project",
       "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "swag": {
-      "commandName": "Project"
+      "launchUrl": "http://localhost:50001",
+      "applicationUrl": "http://localhost:50001"
     }
   }
 }

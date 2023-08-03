@@ -13,30 +13,30 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void Conversion_IntToNullableDouble()
         {
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(int)), typeof(double?), throwException: true);
+            TypeConversion.EnsureImplicitConversion(Expression.Parameter(typeof(int)), typeof(double?));
         }
 
         [TestMethod]
         public void Conversion_DoubleNullable()
         {
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(double)), typeof(double?), throwException: true);
+            TypeConversion.EnsureImplicitConversion(Expression.Parameter(typeof(double)), typeof(double?));
         }
 
         [TestMethod]
         public void Conversion_IntToDouble()
         {
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(int)), typeof(double), throwException: true);
+            TypeConversion.EnsureImplicitConversion(Expression.Parameter(typeof(int)), typeof(double));
         }
 
         [TestMethod]
         public void Conversion_ValidToString()
         {
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(DateTime)), typeof(string), throwException: true, allowToString: true);
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(int)), typeof(string), throwException: true, allowToString: true);
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(string)), typeof(string), throwException: true, allowToString: true);
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(double)), typeof(string), throwException: true, allowToString: true);
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(TimeSpan)), typeof(string), throwException: true, allowToString: true);
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(Tuple<int, int>)), typeof(string), throwException: true, allowToString: true);
+            TypeConversion.EnsureImplicitConversion(Expression.Parameter(typeof(DateTime)), typeof(string), allowToString: true);
+            TypeConversion.EnsureImplicitConversion(Expression.Parameter(typeof(int)), typeof(string), allowToString: true);
+            TypeConversion.EnsureImplicitConversion(Expression.Parameter(typeof(string)), typeof(string), allowToString: true);
+            TypeConversion.EnsureImplicitConversion(Expression.Parameter(typeof(double)), typeof(string), allowToString: true);
+            TypeConversion.EnsureImplicitConversion(Expression.Parameter(typeof(TimeSpan)), typeof(string), allowToString: true);
+            TypeConversion.EnsureImplicitConversion(Expression.Parameter(typeof(Tuple<int, int>)), typeof(string), allowToString: true);
         }
 
         [TestMethod]

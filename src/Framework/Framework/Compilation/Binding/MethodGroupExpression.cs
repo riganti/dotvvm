@@ -92,6 +92,9 @@ namespace DotVVM.Framework.Compilation.Binding
         public Expression CreateMethodCall(IEnumerable<Expression> args, MemberExpressionFactory memberExpressionFactory)
         {
             var argsArray = args.ToArray();
+            if (Array.FindIndex(argsArray, a => a is null || a.Type == typeof(UnknownTypeSentinel)) is var argIdx && argIdx >= 0)
+                throw new Exception($"Argument {argIdx} is invalid: {this.MethodName}({string.Join(", ", argsArray.Select(a => a))})");
+
             if (IsStatic)
             {
                 return memberExpressionFactory.CallMethod(((StaticClassIdentifierExpression)Target).Type, BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
