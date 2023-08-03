@@ -1277,6 +1277,20 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding(input, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, typeof(TestViewModel));
             Assert.AreEqual(expected, result);
         }
+
+        [TestMethod]
+        public void JavascriptCompilation_CustomPrimitiveToString()
+        {
+            var result = CompileBinding("VehicleNumber.ToString()", typeof(TestViewModel));
+            Assert.AreEqual("VehicleNumber", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_CustomPrimitiveParse()
+        {
+            var result = CompileBinding("VehicleNumber == DotVVM.Framework.Tests.Binding.VehicleNumber.Parse('123')", typeof(TestViewModel));
+            Assert.AreEqual("VehicleNumber()==\"123\"", result);
+        }
     }
 
     public class TestExtensionParameterConflictViewModel
@@ -1321,4 +1335,5 @@ namespace DotVVM.Framework.Tests.Binding
         public TestEnum Enum { get; set; }
         public string String { get; set; }
     }
+
 }

@@ -22,6 +22,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using CheckTestOutput;
 using DotVVM.Framework.Tests.Runtime;
+using System.ComponentModel.DataAnnotations;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -1199,6 +1200,8 @@ namespace DotVVM.Framework.Tests.Binding
         public uint UIntProp { get; set; } = 3_000_000_000;
         public double? NullableDoubleProp { get; set; }
 
+        public VehicleNumber? VehicleNumber { get; set; }
+
         public ReadOnlyCollection<int> ReadOnlyCollection => new ReadOnlyCollection<int>(new[] { 1, 2, 3 });
 
         public string SetStringProp(string a, int b)
@@ -1256,6 +1259,29 @@ namespace DotVVM.Framework.Tests.Binding
         public string MethodWithOverloads(string i) => i;
         public string MethodWithOverloads(DateTime i) => i.ToString();
         public int MethodWithOverloads(int a, int b) => a + b;
+    }
+
+
+    record struct VehicleNumber(
+        [property: Range(100, 999)]
+        int Value
+    ): IDotvvmPrimitiveType
+    {
+        public override string ToString() => Value.ToString();
+        public static bool TryParse(string s, out VehicleNumber result)
+        {
+            if (int.TryParse(s, out var i))
+            {
+                result = new VehicleNumber(i);
+                return true;
+            }
+            else
+            {
+                result = default!;
+                return false;
+            }
+        }
+        public static VehicleNumber Parse(string s) => new VehicleNumber(int.Parse(s));
     }
 
     class TestLambdaCompilation

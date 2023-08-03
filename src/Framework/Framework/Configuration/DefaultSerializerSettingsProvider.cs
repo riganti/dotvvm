@@ -31,7 +31,8 @@ namespace DotVVM.Framework.Configuration
                     new DotvvmTimeOnlyConverter(),
                     new StringEnumConverter(),
                     new DotvvmDictionaryConverter(),
-                    new DotvvmByteArrayConverter()
+                    new DotvvmByteArrayConverter(),
+                    new DotvvmCustomPrimitiveTypeConverter()
                 },
                 MaxDepth = defaultMaxSerializationDepth
             };
@@ -53,5 +54,7 @@ namespace DotVVM.Framework.Configuration
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings() { MaxDepth = defaultMaxSerializationDepth };
             Settings = CreateSettings();
         }
+
+        public static JsonSerializer CreateJsonSerializer() => JsonSerializer.Create(Instance.Settings);
     }
 }

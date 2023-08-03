@@ -248,6 +248,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             Translators.Add(MethodCollection = new JavascriptTranslatableMethodCollection());
             Translators.Add(new DelegateInvokeMethodTranslator());
+            Translators.Add(new CustomPrimitiveTypesConversionTranslator());
         }
 
         public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method) =>

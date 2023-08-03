@@ -31,6 +31,7 @@ using DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.Views.ControlSamples.TemplateHost;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -60,6 +61,7 @@ namespace DotVVM.Samples.BasicSamples
             {
                 config.DefaultCulture = "en-US";
             }
+            config.ExperimentalFeatures.UseDotvvmSerializationForStaticCommandArguments.Enable();
 
             AddControls(config);
             AddStyles(config);
@@ -98,6 +100,15 @@ namespace DotVVM.Samples.BasicSamples
             config.AssertConfigurationIsValid();
 
             config.RouteTable.Add("Errors_Routing_NonExistingView", "Errors/Routing/NonExistingView", "Views/Errors/Routing/NonExistingView.dothml");
+
+            config.Markup.JavascriptTranslator.MethodCollection
+                .AddPropertyGetterTranslator(typeof(ITypeId), nameof(ITypeId.IdValue),
+                    new GenericMethodCompiler(args => args[0])
+                );
+            config.Markup.JavascriptTranslator.MethodCollection
+                .AddMethodTranslator(typeof(SampleId), nameof(ToString),
+                    new GenericMethodCompiler(args => args[0])
+                );
         }
 
         private void LoadSampleConfiguration(DotvvmConfiguration config, string applicationPath)
@@ -214,6 +225,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("FeatureSamples_ParameterBinding_OptionalParameterBinding2", "FeatureSamples/ParameterBinding/OptionalParameterBinding2/{Id?}", "Views/FeatureSamples/ParameterBinding/OptionalParameterBinding.dothtml", new { Id = 300 });
             config.RouteTable.Add("FeatureSamples_Validation_Localization", "FeatureSamples/Validation/Localization", "Views/FeatureSamples/Validation/Localization.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
             config.RouteTable.Add("FeatureSamples_Localization_Globalize", "FeatureSamples/Localization/Globalize", "Views/FeatureSamples/Localization/Globalize.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
+            config.RouteTable.Add("FeatureSamples_CustomPrimitiveTypes_Basic", "FeatureSamples/CustomPrimitiveTypes/Basic/{Id?}", "Views/FeatureSamples/CustomPrimitiveTypes/Basic.dothtml");
 
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
 

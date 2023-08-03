@@ -43,11 +43,10 @@ namespace DotVVM.Framework.ViewModel.Validation
             }
             if (alreadyValidated.Contains(viewModel)) yield break;
             var viewModelType = viewModel.GetType();
-            if (ReflectionUtils.IsPrimitiveType(viewModelType) || ReflectionUtils.IsNullableType(viewModelType))
+            if (ReflectionUtils.IsDotvvmNativePrimitiveType(viewModelType))
             {
                 yield break;
             }
-
             alreadyValidated.Add(viewModel);
 
             if (ReflectionUtils.IsEnumerable(viewModelType))
@@ -81,7 +80,9 @@ namespace DotVVM.Framework.ViewModel.Validation
                         var propertyResult = rule.SourceValidationAttribute?.GetValidationResult(value, context);
                         if (propertyResult != ValidationResult.Success)
                         {
-                            yield return new ViewModelValidationError(rule.ErrorMessage, pathPrefix + property.Name, rootObject);
+                            var propertyPath =
+                                viewModel is IDotvvmPrimitiveType ? pathPrefix.TrimEnd('/') : pathPrefix + property.Name;
+                            yield return new ViewModelValidationError(rule.ErrorMessage, propertyPath, rootObject);
                         }
                     }
                 }
@@ -89,7 +90,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                 // inspect objects
                 if (value != null)
                 {
-                    if (ReflectionUtils.IsComplexType(property.Type))
+                    if (!ReflectionUtils.IsDotvvmNativePrimitiveType(property.Type))
                     {
                         // complex objects
                         foreach (var error in ValidateViewModel(value, alreadyValidated, rootObject, pathPrefix + property.Name + "/"))

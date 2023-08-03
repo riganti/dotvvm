@@ -1,0 +1,49 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes.RouteLinkViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>RouteLink</h1>
+
+    <h2>Client</h2>
+    <dot:RouteLink RouteName="FeatureSamples_CustomPrimitiveTypes_Basic"
+                   Param-Id="{value: Id1}"
+                   Query-Id="{value: Id2}"
+                   Query-Null="{value: Null}"
+                   Text="routelink-client-value"
+                   data-ui="routelink-client-value" />
+    <dot:RouteLink RouteName="FeatureSamples_CustomPrimitiveTypes_Basic"
+                   Param-Id="{resource: Id1}"
+                   Query-Id="{resource: Id2}"
+                   Query-Null="{resource: Null}"
+                   Text="routelink-client-resource"
+                   data-ui="routelink-client-resource" />
+
+    <h2>Server</h2>
+    <dot:RouteLink RouteName="FeatureSamples_CustomPrimitiveTypes_Basic"
+                   RenderSettings.Mode="Server"
+                   Param-Id="{value: Id1}"
+                   Query-Id="{value: Id2}"
+                   Query-Null="{value: Null}"
+                   Text="routelink-server-value"
+                   data-ui="routelink-server-value" />
+    <dot:RouteLink RouteName="FeatureSamples_CustomPrimitiveTypes_Basic"
+                   RenderSettings.Mode="Server"
+                   Param-Id="{resource: Id1}"
+                   Query-Id="{resource: Id2}"
+                   Query-Null="{resource: Null}"
+                   Text="routelink-server-resource"
+                   data-ui="routelink-server-resource" />
+
+    <dot:Button Text="Change IDs" Click="{command: ChangeIds()}" />
+
+</body>
+</html>
+
+

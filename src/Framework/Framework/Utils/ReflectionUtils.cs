@@ -22,6 +22,11 @@ using FastExpressionCompiler;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using RecordExceptions;
+using System.ComponentModel;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Routing;
+using DotVVM.Framework.ViewModel;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Utils
 {
@@ -231,6 +236,15 @@ namespace DotVVM.Framework.Utils
             // convert
             try
             {
+                // custom primitive types
+                if (TryGetCustomPrimitiveTypeRegistration(type) is { } registration)
+                {
+                    var result = registration.TryParseMethod(Convert.ToString(value, CultureInfo.InvariantCulture)!);
+                    return result.Successful
+                        ? result.Result
+                        : throw new TypeConvertException(value, type, new Exception("The TryParse method of a custom primitive type failed to parse the value."));
+                }
+
                 return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
             }
             catch (Exception e)
@@ -293,6 +307,8 @@ namespace DotVVM.Framework.Utils
             typeof (double),
             typeof (decimal)
         };
+        // mapping of server-side types to their client-side representation
+        private static readonly ConcurrentDictionary<Type, CustomPrimitiveTypeRegistration> CustomPrimitiveTypes = new();
 
         public static IEnumerable<Type> GetNumericTypes()
         {
@@ -348,19 +364,42 @@ namespace DotVVM.Framework.Utils
             return type != typeof(string) && IsEnumerable(type) && !IsDictionary(type);
         }
 
+        /// <summary> Returns true if the type is a primitive type natively supported by DotVVM. "Primitive" means that it is serialized as a JavaScript primitive (not object nor array) </summary>
+        public static bool IsDotvvmNativePrimitiveType(Type type)
+        {
+            return PrimitiveTypes.Contains(type)
+                || (IsNullableType(type) && IsDotvvmNativePrimitiveType(type.UnwrapNullableType()))
+                || type.IsEnum;
+        }
+
+        /// <summary> Returns true if the type is a custom primitive type.</summary>
+        public static bool IsCustomPrimitiveType(Type type)
+        {
+            return typeof(IDotvvmPrimitiveType).IsAssignableFrom(type);
+        }
+
+        /// <summary>Returns a custom primitive type registration for the given type, or null if the type is not a custom primitive type.</summary>
+        public static CustomPrimitiveTypeRegistration? TryGetCustomPrimitiveTypeRegistration(Type type)
+        {
+            if (IsCustomPrimitiveType(type))
+                return CustomPrimitiveTypes.GetOrAdd(type, DiscoverCustomPrimitiveType);
+            else
+                return null;
+        }
+
+        /// <summary> Returns true the type is serialized as a JavaScript primitive (not object nor array) </summary>
         public static bool IsPrimitiveType(Type type)
         {
             return PrimitiveTypes.Contains(type)
                 || (IsNullableType(type) && IsPrimitiveType(type.UnwrapNullableType()))
-                || type.IsEnum;
+                || type.IsEnum
+                || IsCustomPrimitiveType(type);
         }
 
-        public static bool IsSerializationSupported(this Type type, bool includeNullables)
+        private static CustomPrimitiveTypeRegistration DiscoverCustomPrimitiveType(Type type)
         {
-            if (includeNullables)
-                return IsPrimitiveType(type);
-
-            return PrimitiveTypes.Contains(type);
+            Debug.Assert(typeof(IDotvvmPrimitiveType).IsAssignableFrom(type));
+            return new CustomPrimitiveTypeRegistration(type);
         }
 
         public static bool IsNullableType(Type type)
