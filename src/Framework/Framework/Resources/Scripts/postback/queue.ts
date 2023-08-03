@@ -1,3 +1,5 @@
+import { defer } from "../utils/promise";
+
 export const updateProgressChangeCounter = ko.observable(0);
 export const postbackQueues: {
     [name: string]: {
@@ -31,6 +33,6 @@ export function runNextInQueue(queueName: string) {
     const queue = getPostbackQueue(queueName);
     if (queue.queue.length > 0) {
         const callback = queue.queue.shift()!;
-        Promise.resolve().then(callback)
+        defer(callback)
     }
 }
