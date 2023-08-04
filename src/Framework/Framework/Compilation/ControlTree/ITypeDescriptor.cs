@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         ITypeDescriptor MakeGenericType(params ITypeDescriptor[] typeArguments);
 
-        IEnumerable<ITypeDescriptor> FindGenericImplementations(Type genericType);
+        IEnumerable<ITypeDescriptor> FindGenericImplementations(ITypeDescriptor genericType);
 
         ITypeDescriptor[]? GetGenericArguments();
     }

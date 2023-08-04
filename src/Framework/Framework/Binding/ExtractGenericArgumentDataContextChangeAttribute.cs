@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using FastExpressionCompiler;
@@ -9,7 +10,7 @@ namespace DotVVM.Framework.Binding;
 
 public class ExtractGenericArgumentDataContextChangeAttribute : DataContextChangeAttribute
 {
-    public Type GenericType { get; }
+    public ITypeDescriptor GenericType { get; }
     public int TypeArgumentIndex { get; }
     public override int Order { get; }
 
@@ -24,7 +25,7 @@ public class ExtractGenericArgumentDataContextChangeAttribute : DataContextChang
             throw new ArgumentOutOfRangeException(nameof(typeArgumentIndex), $"The {nameof(typeArgumentIndex)} is not a valid index of a type argument!");
         }
 
-        GenericType = genericType;
+        GenericType = new ResolvedTypeDescriptor(genericType);
         TypeArgumentIndex = typeArgumentIndex;
         Order = order;
     }
@@ -34,11 +35,11 @@ public class ExtractGenericArgumentDataContextChangeAttribute : DataContextChang
         var implementations = dataContext.FindGenericImplementations(GenericType).ToList();
         if (implementations.Count == 0)
         {
-            throw new Exception($"The data context {dataContext.CSharpFullName} doesn't implement {GenericType}!");
+            throw new Exception($"The data context {dataContext.CSharpFullName} doesn't implement {GenericType.CSharpFullName}!");
         }
         else if (implementations.Count > 1)
         {
-            throw new Exception($"The data context {dataContext.CSharpFullName} has multiple implementations of {GenericType}! Cannot decide which one to extract:\n" + string.Join("\n", implementations.Select(t => t.CSharpFullName)));
+            throw new Exception($"The data context {dataContext.CSharpFullName} has multiple implementations of {GenericType.CSharpFullName}! Cannot decide which one to extract:\n" + string.Join("\n", implementations.Select(t => t.CSharpFullName)));
         }
         return implementations[0].GetGenericArguments()![TypeArgumentIndex];
     }
@@ -50,11 +51,11 @@ public class ExtractGenericArgumentDataContextChangeAttribute : DataContextChang
             .ToList();
         if (implementations.Count == 0)
         {
-            throw new Exception($"The data context {dataContext} doesn't implement {GenericType}!");
+            throw new Exception($"The data context {dataContext} doesn't implement {GenericType.CSharpFullName}!");
         }
         else if (implementations.Count > 1)
         {
-            throw new Exception($"The data context {dataContext.ToCode()} has multiple implementations of {GenericType.ToCode()}! Cannot decide which one to extract:\n" + string.Join("\n", implementations.Select(t => t.ToCode())));
+            throw new Exception($"The data context {dataContext.ToCode()} has multiple implementations of {GenericType.CSharpFullName}! Cannot decide which one to extract:\n" + string.Join("\n", implementations.Select(t => t.ToCode())));
         }
         return implementations[0].GetGenericArguments()[TypeArgumentIndex];
     }
