@@ -12,7 +12,6 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -143,14 +142,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void HtmlGenericControl_MetaTag_RenderContentAttribute()
         {
             var context = CreateContext(new object());
-            var mockHttpContext = new Mock<IHttpContext>();
-            var mockHttpRequest = new Mock<IHttpRequest>();
-            var mockPathBase = new Mock<IPathString>();
-
-            mockPathBase.Setup(p => p.Value).Returns("home");
-            mockHttpRequest.Setup(p => p.PathBase).Returns(mockPathBase.Object);
-            mockHttpContext.Setup(p => p.Request).Returns(mockHttpRequest.Object);
-            context.HttpContext = mockHttpContext.Object;
+            context.HttpContext = new TestHttpContext { Request = { PathBase = "home" } };
 
             var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("meta").SetAttribute("content", "~/test"), context);
 
