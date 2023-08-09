@@ -4,10 +4,10 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
-using Moq;
 using System.Threading;
 using DotVVM.Framework.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.AspCore.Middleware
 {
@@ -19,28 +19,14 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
         public const string BeforeFunction = "before";
 
         private IDotvvmRequestContext _requestContext;
-        private Stream _stream;
-        
+
         [TestInitialize]
         public void Initialize()
         {
-            var mockResponse = new Mock<IHttpResponse>();
-            _stream = new MemoryStream();
-
-            mockResponse
-                .Setup(p => p.WriteAsync(It.IsAny<string>()))
-                .Returns<string>(
-                async (text) =>
-                {
-                    var writer = new StreamWriter(_stream) { AutoFlush = true };
-                    await writer.WriteAsync(text);
-                });
-
-            var mockContext = new Mock<IHttpContext>();
-            mockContext.Setup(m => m.Response).Returns(mockResponse.Object);
+            var mockContext = new TestHttpContext();
 
             var configuration = DotvvmConfiguration.CreateDefault();
-            _requestContext = new DotvvmRequestContext(mockContext.Object, configuration, configuration.ServiceProvider, requestType: DotvvmRequestType.Navigate);
+            _requestContext = new DotvvmRequestContext(mockContext, configuration, configuration.ServiceProvider, requestType: DotvvmRequestType.Navigate);
         }
 
 
@@ -98,8 +84,8 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
 
         private string ReadResponseBody()
         {
-            _stream.Position = 0;
-            return new StreamReader(_stream).ReadToEnd();
+            _requestContext.HttpContext.Response.Body.Position = 0;
+            return new StreamReader(_requestContext.HttpContext.Response.Body).ReadToEnd();
         }
     }
 }

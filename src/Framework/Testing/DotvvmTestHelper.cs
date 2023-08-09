@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Testing
             }
         }
 
-        public static void RegisterMoqServices(IServiceCollection services)
+        public static void RegisterMockServices(IServiceCollection services)
         {
             services.TryAddSingleton<IViewModelProtector, FakeProtector>();
             services.TryAddSingleton<ICsrfProtector, FakeCsrfProtector>();
@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Testing
             DotvvmConfiguration.CreateDefault(s => {
                 s.AddSingleton<ITestSingletonService, TestSingletonService>();
                 customServices?.Invoke(s);
-                RegisterMoqServices(s);
+                RegisterMockServices(s);
             });
 
         public static TestDotvvmRequestContext CreateContext(

@@ -16,7 +16,6 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Testing;
 

@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Tests.Runtime
     [TestClass]
     public class DotvvmPropertyTests
     {
-        public class MoqComponent : DotvvmBindableObject
+        public class MockComponent : DotvvmBindableObject
         {
             public object? Property
             {
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 set { SetValue(PropertyProperty, value); }
             }
             public static DotvvmProperty PropertyProperty
-                = DotvvmProperty.Register<object, MoqComponent>(t => t.Property);
+                = DotvvmProperty.Register<object, MockComponent>(t => t.Property);
         }
 
         DotvvmConfiguration config => DotvvmTestHelper.DefaultConfig;
@@ -41,8 +41,8 @@ namespace DotVVM.Framework.Tests.Runtime
         public void DotvvmProperty_PropertyRegisteredTwiceThrowException()
         {
             Assert.ThrowsException<DotvvmProperty.PropertyAlreadyExistsException>(() => {
-                _ = MoqComponent.PropertyProperty; // calls the static ctor
-                DotvvmProperty.Register<bool, MoqComponent>(t => t.Property);
+                _ = MockComponent.PropertyProperty; // calls the static ctor
+                DotvvmProperty.Register<bool, MockComponent>(t => t.Property);
             });
         }
 
