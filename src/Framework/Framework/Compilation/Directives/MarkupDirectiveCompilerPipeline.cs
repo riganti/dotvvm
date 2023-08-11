@@ -1,101 +1,47 @@
-﻿using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
-using DotVVM.Framework.Compilation.ControlTree;
+﻿using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
-using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using DirectiveDictionary = System.Collections.Generic.Dictionary<string, System.Collections.Generic.IReadOnlyList<DotVVM.Framework.Compilation.Parser.Dothtml.Parser.DothtmlDirectiveNode>>;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
-    public class MarkupDirectiveCompilerPipeline : IMarkupDirectiveCompilerPipeline
+    public class MarkupDirectiveCompilerPipeline : MarkupDirectiveCompilerPipelineBase
     {
         private readonly IAbstractTreeBuilder treeBuilder;
         private readonly DotvvmResourceRepository resourceRepository;
 
-        public MarkupDirectiveCompilerPipeline(IAbstractTreeBuilder treeBuilder, DotvvmResourceRepository resourceRepository)
+        public MarkupDirectiveCompilerPipeline(IAbstractTreeBuilder treeBuilder, DotvvmResourceRepository resourceRepository) : base()
         {
             this.treeBuilder = treeBuilder;
             this.resourceRepository = resourceRepository;
         }
 
-        public MarkupPageMetadata Compile(DothtmlRootNode dothtmlRoot, string fileName)
-        {
-            var directivesByName = dothtmlRoot.Directives
-                .GroupBy(d => d.Name, StringComparer.OrdinalIgnoreCase)
-                .ToDictionary(d => d.Key, d => (IReadOnlyList<DothtmlDirectiveNode>)d.ToList(), StringComparer.OrdinalIgnoreCase);
+        protected override DefaultDirectiveResolver CreateDefaultResolver(DirectiveDictionary directivesByName)
+            => new(directivesByName, treeBuilder);
 
-            var resolvedDirectives = new Dictionary<string, IReadOnlyList<IAbstractDirective>>();
+        protected override PropertyDeclarationDirectiveCompiler CreatePropertyDirectiveCompiler(DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports, ITypeDescriptor baseType)
+            => new(directivesByName, treeBuilder, baseType, imports);
 
-            var importCompiler = new ImportDirectiveCompiler(directivesByName, treeBuilder);
-            var importResult = importCompiler.Compile();
-            var imports = importResult.Artefact;
-            resolvedDirectives.AddIfAny(importCompiler.DirectiveName, importResult.Directives);
+        protected override ViewModuleDirectiveCompiler CreateViewModuleDirectiveCompiler(DirectiveDictionary directivesByName, ITypeDescriptor baseType)
+            => new(
+        directivesByName,
+                        treeBuilder,
+                        !baseType.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))),
+                        resourceRepository);
 
-            var viewModelDirectiveCompiler = new ViewModelDirectiveCompiler(directivesByName, treeBuilder, fileName, imports);
-            var viewModelTypeResult = viewModelDirectiveCompiler.Compile();
-            var viewModelType = viewModelTypeResult.Artefact;
-            if (!string.IsNullOrEmpty(viewModelType.Error)) { dothtmlRoot.AddError(viewModelType.Error!); }
-            resolvedDirectives.AddIfAny(viewModelDirectiveCompiler.DirectiveName, viewModelTypeResult.Directives);
-
-            var masterPageDirectiveCompiler = new MasterPageDirectiveCompiler(directivesByName, treeBuilder);
-            var masterPageDirectiveResult = masterPageDirectiveCompiler.Compile();
-            var masterPage = masterPageDirectiveResult.Artefact;
-            resolvedDirectives.AddIfAny(masterPageDirectiveCompiler.DirectiveName, masterPageDirectiveResult.Directives);
-
-            var serviceCompiler = new ServiceDirectiveCompiler(directivesByName, treeBuilder, imports);
-            var injectedServicesResult = serviceCompiler.Compile();
-            resolvedDirectives.AddIfAny(serviceCompiler.DirectiveName, injectedServicesResult.Directives);
-
-            var baseTypeCompiler = new BaseTypeDirectiveCompiler(directivesByName, treeBuilder, fileName, imports);
-            var baseTypeResult = baseTypeCompiler.Compile();
-            var baseType = baseTypeResult.Artefact;
-            resolvedDirectives.AddIfAny(baseTypeCompiler.DirectiveName, baseTypeResult.Directives);
-
-            var viewModuleDirectiveCompiler = new ViewModuleDirectiveCompiler(
-                directivesByName,
-                treeBuilder,
-                !baseType.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))),
-                resourceRepository);
-            var viewModuleResult = viewModuleDirectiveCompiler.Compile();
-            resolvedDirectives.AddIfAny(viewModuleDirectiveCompiler.DirectiveName, viewModuleResult.Directives);
-
-            var propertyDirectiveCompiler = new PropertyDeclarationDirectiveCompiler(directivesByName, treeBuilder, baseType, imports);
-            var propertyResult = propertyDirectiveCompiler.Compile();
-            resolvedDirectives.AddIfAny(propertyDirectiveCompiler.DirectiveName, propertyResult.Directives);
-
-            var defaultResolver = new DefaultDirectiveResolver(directivesByName, treeBuilder);
-
-            foreach (var directiveGroup in directivesByName)
-            {
-                if (!resolvedDirectives.ContainsKey(directiveGroup.Key))
-                {
-                    resolvedDirectives.Add(directiveGroup.Key, defaultResolver.ResolveAll(directiveGroup.Key));
-                }
-            }
-
-            return new MarkupPageMetadata(
-                resolvedDirectives,
-                imports,
-                masterPageDirectiveResult.Artefact,
-                injectedServicesResult.Artefact,
-                baseType,
-                viewModelType.TypeDescriptor,
-                viewModuleResult.Artefact,
-                propertyResult.Artefact);
-        }
+        protected override BaseTypeDirectiveCompiler CreateBaseTypeCompiler(string fileName, DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports)
+            => new ResolvedBaseTypeDirectiveCompiler(directivesByName, treeBuilder, fileName, imports);
+        protected override ServiceDirectiveCompiler CreateServiceCompiler(DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports)
+            => new(directivesByName, treeBuilder, imports);
+        protected override MasterPageDirectiveCompiler CreateMasterPageDirectiveCompiler(DirectiveDictionary directivesByName)
+            => new(directivesByName, treeBuilder);
+        protected override ViewModelDirectiveCompiler CreateViewModelDirectiveCompiler( string fileName, DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports)
+            => new(directivesByName, treeBuilder, fileName, imports);
+        protected override ImportDirectiveCompiler CreateImportCompiler(DirectiveDictionary directivesByName)
+            => new(directivesByName, treeBuilder);
     }
-
-    internal static class DirectivesExtensions
-    {
-        internal static void AddIfAny(this Dictionary<string, IReadOnlyList<IAbstractDirective>> resolvedDirectives, string directiveName, IReadOnlyList<IAbstractDirective> newDirectives)
-        {
-            if (newDirectives.Any())
-            {
-                resolvedDirectives.Add(directiveName, newDirectives);
-            }
-        }
-    }
-
 }
