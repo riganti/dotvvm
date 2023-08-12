@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -33,13 +34,13 @@ namespace DotVVM.Framework.Routing
                 case IEnumerable<KeyValuePair<string, object>> keyValueCollection:
                     foreach (var item in keyValueCollection.Where(i => i.Value != null))
                     {
-                        AppendQueryParam(ref resultSuffix, item.Key, item.Value.ToString().NotNull());
+                        AppendQueryParam(ref resultSuffix, item.Key, ParameterToString(item.Value));
                     }
                     break;
                 default:
                     foreach (var prop in query.GetType().GetProperties().Where(p => p.GetValue(query) != null))
                     {
-                        AppendQueryParam(ref resultSuffix, prop.Name, prop.GetValue(query)!.ToString().NotNull());
+                        AppendQueryParam(ref resultSuffix, prop.Name, ParameterToString(prop.GetValue(query)!));
                     }
                     break;
             }
@@ -47,14 +48,14 @@ namespace DotVVM.Framework.Routing
             return resultSuffix + (!suffixContainsHash ? "" : urlSuffix.Substring(hashIndex));
         }
 
-        private static string AppendQueryParam(ref string urlSuffix, string name, string value)
+        private static string AppendQueryParam(ref string urlSuffix, string name, string? value)
         {
             urlSuffix += (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&");
-            var hasValue = value.Trim() != string.Empty;
+            var hasValue = !string.IsNullOrWhiteSpace(value);
 
             return (!hasValue) ?
                 urlSuffix += Uri.EscapeDataString(name) :
-                urlSuffix += $"{Uri.EscapeDataString(name)}={Uri.EscapeDataString(value)}";
+                urlSuffix += $"{Uri.EscapeDataString(name)}={value}";
         }
 
         /// <summary>
@@ -126,6 +127,26 @@ namespace DotVVM.Framework.Routing
                 }
             }
             return true;
+        }
+
+        public static string? ParameterToString(object? value)
+        {
+            if (value is null)
+            {
+                return null;
+            }
+            else if (ReflectionUtils.TryGetCustomPrimitiveTypeRegistration(value.GetType()) is { } registration)
+            {
+                return Uri.EscapeDataString(registration.ToStringMethod(value));
+            }
+            else if (value is IConvertible convertible)
+            {
+                return Uri.EscapeDataString(convertible.ToString(CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                return Uri.EscapeDataString(value.ToString());
+            }
         }
     }
 }

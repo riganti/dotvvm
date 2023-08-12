@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Globalization;
+using DotVVM.Framework.Tests.Binding;
 
 namespace DotVVM.Framework.Tests.Routing
 {
@@ -459,6 +460,18 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+
+        public void DotvvmRoute_BuildUrl_CustomPrimitiveType()
+        {
+            CultureUtils.RunWithCulture("cs-CZ", () => {
+                var route = new DotvvmRoute("Test/{Id}", null, null, null, configuration);
+
+                var result = route.BuildUrl(new { Id = new DecimalNumber(123.4m) }) + UrlHelper.BuildUrlSuffix(null, new { Id = new DecimalNumber(555.5m) });
+                Assert.AreEqual("~/Test/123%2C4?Id=555%2C5", result);
+            });
+        }
+
+        [TestMethod]
         public void DotvvmRoute_BuildUrl_Invalid_UnclosedParameter()
         {
             Assert.ThrowsException<ArgumentException>(() => {
@@ -468,7 +481,6 @@ namespace DotVVM.Framework.Tests.Routing
                 var result = route.BuildUrl(new { });
             });
         }
-
 
         [TestMethod]
 
@@ -667,6 +679,22 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual(parse("test/{Param:int}-{PaRAM2?:regex(.*)}"), "test/{param}-{param2}");
             Assert.AreEqual(parse("test/{Param:int}-{PaRAM2?:regex((.){4,10})}"), "test/{param}-{param2}");
         }
+    }
+
+    record struct DecimalNumber(decimal Value) : IFormattable
+    {
+        public static bool TryParse(string value, out decimal result)
+        {
+            if (decimal.TryParse(value, out var r))
+            {
+                result = r;
+                return true;
+            }
+            result = default;
+            return false;
+        }
+        public override string ToString() => Value.ToString();
+        public string ToString(string format, IFormatProvider formatProvider) => Value.ToString(null, formatProvider);
     }
 
     public class TestPresenterWithoutInterface
