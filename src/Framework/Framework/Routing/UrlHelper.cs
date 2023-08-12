@@ -145,7 +145,8 @@ namespace DotVVM.Framework.Routing
             }
             else
             {
-                return Uri.EscapeDataString(value.ToString());
+                var strVal = value.ToString();
+                return strVal == null ? null : Uri.EscapeDataString(strVal);
             }
         }
     }
