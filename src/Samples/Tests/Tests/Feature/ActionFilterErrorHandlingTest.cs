@@ -48,13 +48,13 @@ namespace DotVVM.Samples.Tests.Feature
                 // try the first button
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect);
                 AssertUI.Url(browser, u => !u.Contains("?redirected=true"));
-                browser.ElementAt("input", 0).Click();
+                browser.ElementAt("input", 0).Click().Wait(1000);
                 AssertUI.Url(browser, u => u.Contains("?redirected=true"));
 
                 // try the second button
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect);
                 AssertUI.Url(browser, u => !u.Contains("?redirected=true"));
-                browser.ElementAt("input", 1).Click();
+                browser.ElementAt("input", 1).Click().Wait(1000);
                 AssertUI.Url(browser, u => u.Contains("?redirected=true"));
             });
         }
