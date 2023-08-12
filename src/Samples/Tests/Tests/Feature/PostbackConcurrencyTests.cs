@@ -1,6 +1,7 @@
 using System.Threading;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions.Attributes;
 using Riganti.Selenium.DotVVM;
@@ -256,11 +257,27 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.ElementAt("input[type=button]", 2).Click();
 
+                var attempt = 0;
                 while (!browser.CurrentUrl.Contains("?time"))
                 {
+                    attempt++;
+                    if (attempt > 50)
+                    {
+                        Assert.Fail("The redirect didn't happen.");
+                    }
+
                     Thread.Sleep(100);
-                    AssertUI.TextNotEquals(browser.Single(".result"), "1");
+                    try
+                    {
+                        AssertUI.TextNotEquals(browser.Single(".result"), "1", waitForOptions: WaitForOptions.Disabled);
+                    }
+                    catch (StaleElementReferenceException)
+                    {
+                        // ignore
+                        break;
+                    }
                 }
+                AssertUI.Url(browser, u => u.Contains("?time"));
 
                 for (int i = 0; i < 8; i++)
                 {
