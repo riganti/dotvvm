@@ -4,6 +4,7 @@ using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Chromium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions.Attributes;
 using Riganti.Selenium.DotVVM;
@@ -31,7 +32,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                 void SetOfflineMode(bool offline)
                 {
-                    ((ChromeDriver)browser.Driver).NetworkConditions = new ChromeNetworkConditions() {
+                    ((ChromeDriver)browser.Driver).NetworkConditions = new ChromiumNetworkConditions() {
                         IsOffline = offline,
                         Latency = TimeSpan.FromMilliseconds(5),
                         DownloadThroughput = 500 * 1024,
