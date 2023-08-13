@@ -20,9 +20,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(LocalSeleniumUtilsPath)' == ''">
-    <PackageReference Include="Riganti.Selenium.DotVVM" Version="3.0.0-preview12-final" />
-    <PackageReference Include="Riganti.Selenium.AssertApi" Version="3.0.0-preview12-final" />
-    <PackageReference Include="Riganti.Selenium.xUnitIntegration" Version="3.0.0-preview12-final" />
+    <PackageReference Include="Riganti.Selenium.DotVVM" Version="3.0.0-preview13-final" />
+    <PackageReference Include="Riganti.Selenium.AssertApi" Version="3.0.0-preview13-final" />
+    <PackageReference Include="Riganti.Selenium.xUnitIntegration" Version="3.0.0-preview13-final" />
   </ItemGroup>
   <ItemGroup Condition="'$(LocalSeleniumUtilsPath)' != ''">
     <ProjectReference Include="$(LocalSeleniumUtilsPath)\src\Core\Riganti.Selenium.AssertApi\Riganti.Selenium.AssertApi.csproj" />
