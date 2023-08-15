@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Compilation.Directives
             => new(directivesByName, treeBuilder);
 
         protected override PropertyDeclarationDirectiveCompiler CreatePropertyDirectiveCompiler(DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports, ITypeDescriptor baseType)
-            => new(directivesByName, treeBuilder, baseType, imports);
+            => new ResolvedPropertyDeclarationDirectiveCompiler (directivesByName, treeBuilder, baseType, imports);
 
         protected override ViewModuleDirectiveCompiler CreateViewModuleDirectiveCompiler(DirectiveDictionary directivesByName, ITypeDescriptor baseType)
             => new(

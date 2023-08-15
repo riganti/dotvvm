@@ -16,48 +16,6 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
-    public class ResolvedBaseTypeDirectiveCompiler : BaseTypeDirectiveCompiler
-    {
-        private static readonly Lazy<ModuleBuilder> DynamicMarkupControlAssembly = new(CreateDynamicMarkupControlAssembly);
-
-        public ResolvedBaseTypeDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, string fileName, ImmutableList<NamespaceImport> imports)
-            : base(directiveNodesByName, treeBuilder, fileName, imports)
-        {
-        }
-
-        protected override ITypeDescriptor? GetOrCreateDynamicType(ITypeDescriptor baseType, string typeName)
-        {
-            if (DynamicMarkupControlAssembly.Value.GetType(typeName) is { } type)
-            {
-                return new ResolvedTypeDescriptor(type);
-            }
-
-            var declaringTypeBuilder =
-                DynamicMarkupControlAssembly.Value.DefineType(typeName, TypeAttributes.Public, ResolvedTypeDescriptor.ToSystemType(baseType));
-            var createdTypeInfo = declaringTypeBuilder.CreateTypeInfo()?.AsType();
-
-            return createdTypeInfo is not null
-                ? new ResolvedTypeDescriptor(createdTypeInfo)
-                : null;
-        }
-
-        private static ModuleBuilder CreateDynamicMarkupControlAssembly()
-        {
-            var newDynamicAssemblyName = $"DotvvmMarkupControlDynamicAssembly-{Guid.NewGuid()}";
-            var assemblyName = new AssemblyName(newDynamicAssemblyName);
-            var assemblyBuilder =
-                AssemblyBuilder.DefineDynamicAssembly(
-                    assemblyName,
-                    AssemblyBuilderAccess.Run);
-
-            // For a single-module assembly, the module name is usually
-            // the assembly name plus an extension.
-            var mb =
-                assemblyBuilder.DefineDynamicModule(newDynamicAssemblyName);
-            return mb;
-        }
-    }
-
     public abstract class BaseTypeDirectiveCompiler : DirectiveCompiler<IAbstractBaseTypeDirective, ITypeDescriptor>
     {
         private readonly string fileName;
