@@ -12,7 +12,7 @@ runs:
   steps:
 
   - if: ${{ runner.os == 'Linux' }}
-    run: apt-get update -y && apt-get upgrade -y
+    run: sudo apt-get update -y && sudo apt-get upgrade -y
     shell: bash
 
   # nuget
