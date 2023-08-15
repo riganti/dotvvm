@@ -1,8 +1,6 @@
 {
   "factories": {
-    "chrome:fast": {
-      "capabilities": [ "--headless" ]
-    }
+    "firefox:fast": {}
   },
   "baseUrls": [
     "http://localhost:16019/"
