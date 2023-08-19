@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Configuration
         }
         public bool Contains(T item) => list.Contains(item);
         public void CopyTo(T[] array, int arrayIndex) => list.CopyTo(array, arrayIndex);
-        public IEnumerator<T> GetEnumerator() => list.GetEnumerator();
+        public List<T>.Enumerator GetEnumerator() => list.GetEnumerator();
         public int IndexOf(T item) => list.IndexOf(item);
         public void Insert(int index, T item)
         {
@@ -87,6 +87,7 @@ namespace DotVVM.Framework.Configuration
             ThrowIfFrozen();
             list.RemoveAt(index);
         }
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => list.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => list.GetEnumerator();
         public void CopyTo(Array array, int index) => ((ICollection)list).CopyTo(array, index);
     }

@@ -10,6 +10,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
@@ -239,19 +240,35 @@ namespace DotVVM.Framework.Compilation.Javascript
                                    : new VMPropertyInfoAnnotation(p.PropertyInfo, p.PropertyType);
     }
 
-    public class JavascriptTranslatorConfiguration: IJavascriptMethodTranslator
+    public class CompositeJavascriptTranslator: IJavascriptMethodTranslator
     {
-        public List<IJavascriptMethodTranslator> Translators { get; } = new List<IJavascriptMethodTranslator>();
+        private readonly FreezableList<IJavascriptMethodTranslator> _translators = new();
+        public IList<IJavascriptMethodTranslator> Translators => _translators;
+        public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method)
+        {
+            foreach (var t in this._translators)
+            {
+                if (t.TryTranslateCall(context, arguments, method) is {} result)
+                    return result;
+            }
+            return null;
+        }
+
+        public void Freeze()
+        {
+            _translators.Freeze();
+        }
+    }
+
+    public class JavascriptTranslatorConfiguration: CompositeJavascriptTranslator
+    {
         public JavascriptTranslatableMethodCollection MethodCollection { get; }
 
         public JavascriptTranslatorConfiguration()
         {
-            Translators.Add(MethodCollection = new JavascriptTranslatableMethodCollection());
+            Translators.Add(MethodCollection = JavascriptTranslatableMethodCollection.CreateDefault());
             Translators.Add(new DelegateInvokeMethodTranslator());
             Translators.Add(new CustomPrimitiveTypesConversionTranslator());
         }
-
-        public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method) =>
-            Translators.Select(t => t.TryTranslateCall(context, arguments, method)).FirstOrDefault(d => d != null);
     }
 }

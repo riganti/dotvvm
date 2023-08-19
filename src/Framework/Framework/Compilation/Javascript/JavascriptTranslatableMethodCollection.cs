@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.HelperNamespace;
@@ -38,14 +39,24 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
-    public partial class JavascriptTranslatableMethodCollection : IJavascriptMethodTranslator
+    public partial class JavascriptTranslatableMethodCollection : IJavascriptMethodTranslator, ICloneable
     {
         public readonly Dictionary<MethodInfo, IJavascriptMethodTranslator> MethodTranslators = new Dictionary<MethodInfo, IJavascriptMethodTranslator>();
         public readonly HashSet<Type> Interfaces = new HashSet<Type>();
 
-        public JavascriptTranslatableMethodCollection()
+        private JavascriptTranslatableMethodCollection() { }
+
+        public static JavascriptTranslatableMethodCollection CreateEmpty() => new();
+        private static JavascriptTranslatableMethodCollection? premadeDefault;
+        public static JavascriptTranslatableMethodCollection CreateDefault()
         {
-            AddDefaultMethodTranslators();
+            if (premadeDefault is null)
+            {
+                var result = CreateEmpty();
+                result.AddDefaultMethodTranslators();
+                Interlocked.CompareExchange(ref premadeDefault, result, null);
+            }
+            return premadeDefault.Clone();
         }
 
         public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, Type[]? parameters = null, bool allowGeneric = true, bool allowMultipleMethods = false)
@@ -820,5 +831,19 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (baseMethod != null && baseMethod != method) return TryTranslateCall(context, args, baseMethod);
             else return null;
         }
+
+        public JavascriptTranslatableMethodCollection Clone()
+        {
+            var clone = new JavascriptTranslatableMethodCollection();
+            foreach (var i in Interfaces)
+                clone.Interfaces.Add(i);
+            foreach (var item in MethodTranslators)
+            {
+                var translator = item.Value is ICloneable cloneable ? (IJavascriptMethodTranslator)cloneable.Clone() : item.Value;
+                clone.MethodTranslators.Add(item.Key, translator);
+            }
+            return clone;
+        }
+        object ICloneable.Clone() => Clone();
     }
 }

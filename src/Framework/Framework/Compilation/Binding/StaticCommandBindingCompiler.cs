@@ -35,9 +35,12 @@ namespace DotVVM.Framework.Compilation.Binding
         JavascriptTranslator CreateTranslator(DataContextStack dataContext)
         {
             var staticCommandTranslator = ActivatorUtilities.CreateInstance<StaticCommandMethodTranslator>(services, dataContext);
-            var configForStaticCommands = new JavascriptTranslatorConfiguration();
-            configForStaticCommands.Translators.Add(this.translatorConfiguration);
-            configForStaticCommands.Translators.Add(staticCommandTranslator);
+            var configForStaticCommands = new CompositeJavascriptTranslator {
+                Translators = {
+                    this.translatorConfiguration,
+                    staticCommandTranslator
+                }
+            };
 
             return new JavascriptTranslator(configForStaticCommands, serializationMapper);
         }
