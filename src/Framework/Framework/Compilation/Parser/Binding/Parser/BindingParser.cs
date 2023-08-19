@@ -120,7 +120,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         public BindingParserNode ReadDirectiveTypeName()
         {
             var startIndex = CurrentIndex;
-            var typeName = ReadNamespaceOrTypeName();
+
+            var typeName = TryReadTypeReference(out var resultType)
+                ? resultType
+                : new ActualTypeReferenceBindingParserNode(new SimpleNameBindingParserNode(""));
+
             if (PeekType() == BindingTokenType.Comma)
             {
                 Read();

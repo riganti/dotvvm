@@ -830,6 +830,35 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type[], Domain.Company.Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type[], Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type<string>[], Domain.Company.Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type<string>[], Product")]
+        public void BindingParser_ArrayType_AssemblyQualifiedName_ValidAssemblyName(string binding)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(binding);
+            var node = parser.ReadDirectiveTypeName() as AssemblyQualifiedNameBindingParserNode;
+            Assert.IsNotNull(node, "expected qualified name node.");
+
+            var array = node.TypeName as ArrayTypeReferenceBindingParserNode;
+
+            Assert.IsNotNull(array, "Expected array type reference");
+            Assert.IsFalse(node.AssemblyName.HasNodeErrors);
+        }
+
+        [TestMethod]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type[]")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type<string>[]")]
+        public void BindingParser_ArrayType_ValidAssemblyName(string binding)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(binding);
+            var array = parser.ReadDirectiveTypeName() as ArrayTypeReferenceBindingParserNode;
+
+            Assert.IsNotNull(array, "Expected array type reference");
+            Assert.IsFalse(array.HasNodeErrors);
+        }
+
+        [TestMethod]
         [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company.Product")]
         [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product")]
         public void BindingParser_AssemblyQualifiedName_ValidAssemblyName(string binding)
