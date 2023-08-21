@@ -203,16 +203,16 @@ jobs:
       SLN: "${{ matrix.os == 'windows-2022' && 'src/DotVVM.sln' || 'src/DotVVM.Crossplatform.slnf' }}"
     steps:
     - uses: actions/checkout@v3
-    - name: Set up
-      uses: ./.github/setup
-      with:
-        sln: ${{ env.SLN }}
     - name: Add internal NuGet feed
       run: ./ci/scripts/Add-InternalNuGetFeed.ps1 `
         -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
         -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
         -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}"
       shell: pwsh
+    - name: Set up
+      uses: ./.github/setup
+      with:
+        sln: ${{ env.SLN }}
     - name: Run UI tests
       uses: ./.github/uitest
       with:
