@@ -8,7 +8,7 @@ inputs:
     required: false
   build-configuration:
     default: Debug
-    description: which --configuration to pass to dotnet build / dotnet run    
+    description: which --configuration to pass to dotnet build / dotnet run
     required: false
   runtime-environment:
     default: Development
@@ -25,6 +25,14 @@ inputs:
 runs:
   using: composite
   steps:
+
+  - name: Add internal NuGet feed
+    run: ./ci/scripts/Add-InternalNuGetFeed.ps1 `
+        -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
+        -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
+        -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}"
+    shell: pwsh
+
   # run the appropriate uitest script
   - if: ${{ runner.os != 'Windows' }}
     name: uitest.sh

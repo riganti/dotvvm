@@ -14,13 +14,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Riganti.Selenium.Coordinator.Client" Version="3.0.0-preview09-final" />
-    <PackageReference Include="Riganti.Selenium.Core" Version="3.0.0-preview09-final" />
-    <PackageReference Include="Riganti.Selenium.Core.Abstractions" Version="3.0.0-preview09-final" />
-    <PackageReference Include="Riganti.Selenium.DotVVM" Version="3.0.0-preview09-final" />
-    <PackageReference Include="Riganti.Selenium.AssertApi" Version="3.0.0-preview09-final" />
-    <PackageReference Include="Riganti.Selenium.xUnitIntegration" Version="3.0.0-preview09-final" />
-    <PackageReference Include="Riganti.Selenium.Validators" Version="3.0.0-preview09-final" />
+    <PackageReference Include="Riganti.Selenium.Coordinator.Client" Version="3.0.0-firefoxfix01" />
+    <PackageReference Include="Riganti.Selenium.Core" Version="3.0.0-firefoxfix01" />
+    <PackageReference Include="Riganti.Selenium.Core.Abstractions" Version="3.0.0-firefoxfix01" />
+    <PackageReference Include="Riganti.Selenium.DotVVM" Version="3.0.0-firefoxfix01" />
+    <PackageReference Include="Riganti.Selenium.AssertApi" Version="3.0.0-firefoxfix01" />
+    <PackageReference Include="Riganti.Selenium.xUnitIntegration" Version="3.0.0-firefoxfix01" />
+    <PackageReference Include="Riganti.Selenium.Validators" Version="3.0.0-firefoxfix01" />
   </ItemGroup>
 
   <ItemGroup>
