@@ -212,6 +212,7 @@ jobs:
         -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
         -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
         -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}"
+      shell: pwsh
     - name: Run UI tests
       uses: ./.github/uitest
       with:
