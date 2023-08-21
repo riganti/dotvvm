@@ -139,7 +139,7 @@ jobs:
         name: webforms-adapters-tests
         title: WebForms Adapter Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        target-framework: net472        
+        target-framework: net472
 
   js-tests:
     runs-on: ubuntu-latest
@@ -207,6 +207,11 @@ jobs:
       uses: ./.github/setup
       with:
         sln: ${{ env.SLN }}
+    - name: Add internal NuGet feed
+      run: ./ci/scripts/Add-InternalNuGetFeed.ps1 `
+        -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
+        -internalFeedUser "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" `
+        -internalFeedPat "${{ secrets.AZURE_ARTIFACTS_PAT }}"
     - name: Run UI tests
       uses: ./.github/uitest
       with:
