@@ -462,10 +462,17 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_BooleanOperatorPrecedence()
+        {
+            var result = CompileBinding("IntProp > 0 && IntProp > 1 || IntProp > 2 && IntProp > 3", new [] { typeof(TestViewModel)});
+            Assert.AreEqual("IntProp()>0&&IntProp()>1||IntProp()>2&&IntProp()>3", result);
+        }
+
+        [TestMethod]
         public void JsTranslator_ArrayIndexer()
         {
             var result = CompileBinding("LongArray[1] == 3 && VmArray[0].MyProperty == 1 && VmArray.Length > 1", new [] { typeof(TestViewModel)});
-            Assert.AreEqual("LongArray()[1]()==3&&(VmArray()[0]().MyProperty()==1&&VmArray().length>1)", result);
+            Assert.AreEqual("LongArray()[1]()==3&&VmArray()[0]().MyProperty()==1&&VmArray().length>1", result);
         }
 
         [TestMethod]

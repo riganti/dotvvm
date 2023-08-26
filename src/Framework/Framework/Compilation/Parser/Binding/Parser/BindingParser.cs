@@ -313,7 +313,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.AndAlsoOperator)
             {
                 Read();
-                var second = ReadOrElseExpression();
+                var second = ReadOrExpression();
                 first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AndAlsoOperator), startIndex);
             }
             return first;
