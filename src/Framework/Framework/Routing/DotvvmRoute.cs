@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using DotVVM.Framework.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Routing
 {
@@ -127,13 +128,7 @@ namespace DotVVM.Framework.Routing
             var convertedValues =
                 values.ToDictionary(
                     v => v.Key,
-                    v => {
-                        var strVal = v.Value is IConvertible convertible ?
-                                     convertible.ToString(CultureInfo.InvariantCulture) :
-                                     v.Value?.ToString();
-
-                        return strVal == null ? null : Uri.EscapeDataString(strVal);
-                    },
+                    v => UrlHelper.ParameterToString(v.Value),
                     StringComparer.OrdinalIgnoreCase
                 );
             try
