@@ -230,9 +230,9 @@ namespace DotVVM.Framework.Tests.ControlTests
                     <dot:RadioButton CheckedItem={value: NullableString} GroupName=g1 Enabled={value: Integer < 0} CheckedValue=C />
 
                     <!-- checked boolean -->
-                    <dot:RadioButton Checked={value: Bool} />
+                    <dot:RadioButton Checked={value: Bool} CheckedValue={resource:true} />
                     <!-- checked readonly -->
-                    <dot:RadioButton Checked={value: Integer > 0} Enabled=false />
+                    <dot:RadioButton Checked={value: Integer > 0} Enabled=false CheckedValue={resource:true} />
                     <!-- dynamic group name -->
                     <dot:RadioButton CheckedItem={value: NullableString} GroupName={value: "G" + Integer} Enabled={value: Integer < 0} CheckedValue=C another-bound-attribute={value: Integer} />
                 </span>

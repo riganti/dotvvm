@@ -19,12 +19,14 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets whether the control is checked.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
+        [Obsolete("Checked property probably does not work as a reasonable person would expect. Use CheckedItem and CheckedValue instead.")]
         public bool Checked
         {
             get { return (bool)GetValue(CheckedProperty)!; }
             set { SetValue(CheckedProperty, value); }
         }
 
+        [Obsolete("Checked property probably does not work as a reasonable person would expect. Use CheckedItem and CheckedValue instead.")]
         public static readonly DotvvmProperty CheckedProperty =
             DotvvmProperty.Register<bool, RadioButton>(t => t.Checked, false);
 
@@ -92,9 +94,14 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void RenderCheckedAttribute(IHtmlWriter writer)
         {
+            if (!IsPropertySet(CheckedValueProperty))
+            {
+                throw new DotvvmControlException(this, "The 'CheckedValue' of the RadioButton control must be set when CheckedItem is used. Remember that all RadioButtons with the same GroupName should be bound to the same property in the viewmodel.");
+            }
             var checkedItemBinding = GetValueBinding(CheckedItemProperty);
             if (checkedItemBinding is null)
             {
+#pragma warning disable CS0618 // CheckedProperty is obsolete
                 var @checked = GetValueRaw(CheckedProperty);
                 if (@checked is IValueBinding checkedBinding)
                 {
@@ -104,11 +111,7 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.AddAttribute("checked", "");
                 }
-
-                // if (!IsPropertySet(CheckedValueProperty))
-                // {
-                //     throw new DotvvmControlException(this, "The 'CheckedValue' of the RadioButton control must be set. Remember that all RadioButtons with the same GroupName should be bound to the same property in the viewmodel.");
-                // }
+#pragma warning restore CS0618
             }
             else
             {
@@ -134,6 +137,36 @@ namespace DotVVM.Framework.Controls
                     control.GetValue(CheckedValueProperty)?.DothtmlNode
                 );
             }
+
+            if (!control.Properties.ContainsKey(CheckedValueProperty))
+            {
+                yield return new ControlUsageError(
+                    "The 'CheckedValue' of the RadioButton control must be set when CheckedItem is used. Remember that all RadioButtons with the same GroupName should be bound to the same property in the viewmodel.",
+                    control.GetValue(CheckedItemProperty)?.DothtmlNode
+                );
+            }
+
+#pragma warning disable CS0618 // CheckedProperty is obsolete
+            if (control.Properties.ContainsKey(CheckedProperty))
+            {
+                if (control.Properties.ContainsKey(CheckedItemProperty))
+                {
+                    yield return new ControlUsageError(
+                        "The Checked and CheckedItem properties cannot be both used on the same RadioButton.",
+                        control.GetValue(CheckedProperty)?.DothtmlNode,
+                        control.GetValue(CheckedItemProperty)?.DothtmlNode
+                    );
+                }
+            }
+
+            if (!control.Properties.ContainsKey(CheckedItemProperty) && !control.Properties.ContainsKey(CheckedProperty))
+            {
+                yield return new ControlUsageError(
+                    "The CheckedItem property must be set on the RadioButton.",
+                    control.DothtmlNode
+                );
+            }
+#pragma warning restore CS0618
         }
     }
 }
