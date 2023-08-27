@@ -27,9 +27,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
                 return literal;
             }
 
-
             var propertyType = property.Type;
-            var hasFormatString = !string.IsNullOrEmpty(property.FormatString);
             var textBox = new TextBox()
                 .SetCapability(props.Html)
                 .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)
@@ -40,23 +38,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
                 .SetProperty(t => t.Enabled, props.Enabled)
                 .SetProperty(t => t.Changed, props.Changed);
 
-            textBox.Type = property.DataType switch {
-                DataType.Password => TextBoxType.Password,
-                DataType.MultilineText => TextBoxType.MultiLine,
-                DataType.Date => TextBoxType.Date,
-                DataType.Time => TextBoxType.Time,
-                DataType.DateTime => TextBoxType.DateTimeLocal,
-                DataType.EmailAddress => TextBoxType.Email,
-                DataType.PhoneNumber => TextBoxType.Telephone,
-                DataType.Url => TextBoxType.Url,
-                DataType.ImageUrl => TextBoxType.Url,
-                _ => hasFormatString ? TextBoxType.Normal :
-                     propertyType.UnwrapNullableType() == typeof(DateTime) ? TextBoxType.DateTimeLocal :
-                     propertyType.UnwrapNullableType() == typeof(DateOnly) ? TextBoxType.Date :
-                     propertyType.UnwrapNullableType() == typeof(TimeOnly) ? TextBoxType.Time :
-                     ReflectionUtils.IsNumericType(propertyType.UnwrapNullableType()) ? TextBoxType.Number :
-                     TextBoxType.Normal
-            };
+            textBox.Type = ResolveDataType(property);
 
             if (textBox.Type == TextBoxType.Number)
             {
@@ -67,7 +49,7 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
                 }
             }
 
-            var validators = property.PropertyInfo?.Apply(context.ValidationMetadataProvider.GetAttributesForProperty)?.ToArray() ?? Array.Empty<ValidationAttribute>();
+            var validators = context.GetPropertyValidators(property);
             if (validators.OfType<RequiredAttribute>().Any())
             {
                 textBox.SetAttribute("required", true);
@@ -108,6 +90,32 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
             }
 
             return textBox;
+        }
+
+        /// <summary>
+        /// Resolves the TextBoxType for a specified DataType annotation.
+        /// </summary>
+        public static TextBoxType ResolveDataType(PropertyDisplayMetadata property)
+        {
+            var propertyType = property.Type;
+            var hasFormatString = !string.IsNullOrEmpty(property.FormatString);
+            return property.DataType switch {
+                DataType.Password => TextBoxType.Password,
+                DataType.MultilineText => TextBoxType.MultiLine,
+                DataType.Date => TextBoxType.Date,
+                DataType.Time => TextBoxType.Time,
+                DataType.DateTime => TextBoxType.DateTimeLocal,
+                DataType.EmailAddress => TextBoxType.Email,
+                DataType.PhoneNumber => TextBoxType.Telephone,
+                DataType.Url => TextBoxType.Url,
+                DataType.ImageUrl => TextBoxType.Url,
+                _ => hasFormatString ? TextBoxType.Normal :
+                    propertyType.UnwrapNullableType() == typeof(DateTime) ? TextBoxType.DateTimeLocal :
+                    propertyType.UnwrapNullableType() == typeof(DateOnly) ? TextBoxType.Date :
+                    propertyType.UnwrapNullableType() == typeof(TimeOnly) ? TextBoxType.Time :
+                    ReflectionUtils.IsNumericType(propertyType.UnwrapNullableType()) ? TextBoxType.Number :
+                    TextBoxType.Normal
+            };
         }
     }
 }

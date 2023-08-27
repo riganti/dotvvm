@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using DotVVM.AutoUI.Annotations;
 using DotVVM.AutoUI.Configuration;
@@ -43,6 +46,18 @@ namespace DotVVM.AutoUI
             AutoUiConfiguration = services.GetRequiredService<AutoUIConfiguration>();
             BindingService = services.GetRequiredService<BindingCompilationService>();
         }
+
+        public ValidationAttribute[] GetPropertyValidators(PropertyInfo property)
+        {
+            return ValidationMetadataProvider.GetAttributesForProperty(property).ToArray();
+        }
+        public ValidationAttribute[] GetPropertyValidators(PropertyDisplayMetadata property)
+        {
+            if (property.PropertyInfo is null)
+                return Array.Empty<ValidationAttribute>();
+            return GetPropertyValidators(property.PropertyInfo);
+        }
+        
 
         public IValueBinding CreateValueBinding(PropertyDisplayMetadata property)
         {

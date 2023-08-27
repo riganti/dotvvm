@@ -66,7 +66,7 @@ namespace DotVVM.AutoUI.Controls
         /// <summary>
         /// Gets the list of properties that should be displayed.
         /// </summary>
-        protected internal static PropertyDisplayMetadata[] GetPropertiesToDisplay(AutoUIContext context, FieldSelectorProps props)
+        public static PropertyDisplayMetadata[] GetPropertiesToDisplay(AutoUIContext context, FieldSelectorProps props)
         {
             var entityPropertyListProvider = context.Services.GetRequiredService<IEntityPropertyListProvider>();
             var properties = entityPropertyListProvider.GetProperties(context.EntityType, context.CreateViewContext());
@@ -150,10 +150,10 @@ namespace DotVVM.AutoUI.Controls
                 autoUiContext);
         }
 
-        protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl? labelElement, PropertyDisplayMetadata property, AutoUIContext context)
+        protected virtual void InitializeValidation(DotvvmBindableObject validatedElement, HtmlGenericControl? labelElement, PropertyDisplayMetadata property, AutoUIContext context)
         {
             if (property.PropertyInfo is { } &&
-                context.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
+                context.GetPropertyValidators(property).OfType<RequiredAttribute>().Any())
             {
                 labelElement?.AddCssClass("autoui-required");
             }
