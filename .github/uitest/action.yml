@@ -8,7 +8,7 @@ inputs:
     required: false
   build-configuration:
     default: Debug
-    description: which --configuration to pass to dotnet build / dotnet run    
+    description: which --configuration to pass to dotnet build / dotnet run
     required: false
   runtime-environment:
     default: Development
@@ -25,6 +25,7 @@ inputs:
 runs:
   using: composite
   steps:
+
   # run the appropriate uitest script
   - if: ${{ runner.os != 'Windows' }}
     name: uitest.sh
