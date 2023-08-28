@@ -203,8 +203,6 @@ jobs:
       SLN: "${{ matrix.os == 'windows-2022' && 'src/DotVVM.sln' || 'src/DotVVM.Crossplatform.slnf' }}"
     steps:
     - uses: actions/checkout@v3
-    - name: Add internal NuGet feed
-      run:  dotnet nuget add source "${{ secrets.AZURE_ARTIFACTS_FEED }}" -n riganti -u "${{ secrets.AZURE_ARTIFACTS_USERNAME }}" -p "${{ secrets.AZURE_ARTIFACTS_PAT }}" --store-password-in-clear-text
     - name: Set up
       uses: ./.github/setup
       with:
