@@ -5,7 +5,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 
@@ -60,7 +63,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var propertyType = propAnnotation.ResultType;
                 var annotation = node.Annotation<ViewModelInfoAnnotation>() ?? new ViewModelInfoAnnotation(propertyType);
 
-                if (target?.Annotation<ViewModelInfoAnnotation>() is {} targetAnnotation)
+                var targetAnnotation = target?.Annotation<ViewModelInfoAnnotation>();
+                if (targetAnnotation is {})
                 {
                     propAnnotation.SerializationMap ??=
                         targetAnnotation.SerializationMap?.Properties
@@ -77,6 +81,16 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
                 else if (member is FieldInfo)
                     throw new NotSupportedException($"Cannot translate field '{member}' to Javascript");
+
+                if (targetAnnotation is { IsControl: true } &&
+                    member is {} &&
+                    typeof(DotvvmBindableObject).IsAssignableFrom(member.DeclaringType) &&
+                    DotvvmProperty.ResolveProperty(member.DeclaringType, member.Name) is null &&
+                    DotvvmPropertyGroup.ResolvePropertyGroup(member.DeclaringType, member.Name) is null)
+                {
+                    // Plain .NET is used on _control, this property is not serialized, so it will not work client-side
+                    throw new NotSupportedException($"Control property {member.Name} is not a registered DotvvmProperty and cannot be used client-side. Either use a resource binding to use the server-side value, or see https://www.dotvvm.com/docs/latest/pages/concepts/control-development/control-properties how to register a DotvvmProperty.");
+                }
 
                 annotation.ContainsObservables ??= !this.preferUsingState; // we don't know -> guess what is the current preference
 
