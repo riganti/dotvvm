@@ -260,9 +260,12 @@ test";
         {
             var markup = @"<dot:ContentPlace Holder DataContext=""sdads"">
 </ dot:ContentPlaceHolder > ";
-            var nodes = ParseMarkup(markup).Content;
+            var root = ParseMarkup(markup);
+            var nodes = root.Content;
 
-            Assert.AreEqual(3, nodes.Count);
+            Assert.IsTrue(root.EnumerateNodes().Any(n => n.HasNodeErrors || n.Tokens.Any(t => t.HasError)), "this is invalid code, there should be error on some node");
+
+            Assert.AreEqual(2, nodes.Count);
 
             Assert.AreEqual("Holder", ((DothtmlElementNode)nodes[0]).Attributes[0].AttributeName);
             Assert.AreEqual(null, ((DothtmlElementNode)nodes[0]).Attributes[0].ValueNode);
@@ -270,11 +273,10 @@ test";
             Assert.AreEqual("DataContext", ((DothtmlElementNode)nodes[0]).Attributes[1].AttributeName);
             Assert.AreEqual("sdads", (((DothtmlElementNode)nodes[0]).Attributes[1].ValueNode as DothtmlValueTextNode).Text);
 
-            Assert.IsTrue(((DothtmlElementNode)nodes[1]).IsClosingTag);
-            Assert.AreEqual("", ((DothtmlElementNode)nodes[1]).FullTagName);
-            Assert.IsTrue(((DothtmlElementNode)nodes[1]).NodeWarnings.Any());
+            Assert.IsTrue(((DothtmlElementNode)nodes[0]).CorrespondingEndTag?.IsClosingTag);
+            Assert.AreEqual("", ((DothtmlElementNode)nodes[0]).CorrespondingEndTag.FullTagName);
 
-            Assert.AreEqual(" dot:ContentPlaceHolder > ", ((DothtmlLiteralNode)nodes[2]).Value);
+            Assert.AreEqual(" dot:ContentPlaceHolder > ", ((DothtmlLiteralNode)nodes[1]).Value);
         }
 
         [TestMethod]
@@ -342,19 +344,24 @@ test";
             var markup = @"<a></b></a>";
             var nodes = ParseMarkup(markup).Content;
 
-            Assert.AreEqual(3, nodes.Count);
+            Assert.AreEqual(1, nodes.Count);
 
-            Assert.IsFalse(((DothtmlElementNode)nodes[0]).IsClosingTag);
-            Assert.AreEqual("a", ((DothtmlElementNode)nodes[0]).FullTagName);
-            Assert.IsTrue(((DothtmlElementNode)nodes[0]).NodeWarnings.Any());
+            var aTag = (DothtmlElementNode)nodes[0];
 
-            Assert.IsTrue(((DothtmlElementNode)nodes[1]).IsClosingTag);
-            Assert.AreEqual("b", ((DothtmlElementNode)nodes[1]).FullTagName);
-            Assert.IsTrue(((DothtmlElementNode)nodes[1]).NodeWarnings.Any());
+            Assert.IsFalse(aTag.IsClosingTag);
+            Assert.AreEqual("a", aTag.FullTagName);
+            Assert.IsFalse(aTag.NodeWarnings.Any());
+            Assert.AreEqual(1, aTag.Content.Count);
 
-            Assert.IsTrue(((DothtmlElementNode)nodes[2]).IsClosingTag);
-            Assert.AreEqual("a", ((DothtmlElementNode)nodes[2]).FullTagName);
-            Assert.IsTrue(((DothtmlElementNode)nodes[2]).NodeWarnings.Any());
+            var bTag = (DothtmlElementNode)aTag.Content[0];
+            Assert.IsTrue(bTag.IsClosingTag);
+            Assert.AreEqual("b", bTag.FullTagName);
+            Assert.IsTrue(bTag.NodeWarnings.Any());
+            XAssert.Empty(bTag.Content);
+
+            Assert.IsTrue(aTag.CorrespondingEndTag?.IsClosingTag);
+            Assert.AreEqual("a", aTag.FullTagName);
+            Assert.IsFalse(aTag.NodeWarnings.Any());
         }
 
 
@@ -370,6 +377,7 @@ test";
             Assert.IsFalse(html.IsClosingTag);
             Assert.AreEqual("html", html.FullTagName);
             Assert.IsFalse(html.HasNodeErrors);
+            XAssert.Equal(new string[] { "head", "body" }, html.Content.Select(c => c.CastTo<DothtmlElementNode>().FullTagName));
             Assert.AreEqual(2, html.Content.Count);
 
             var head = ((DothtmlElementNode)html.Content[0]);
@@ -688,8 +696,7 @@ test";
                 .Content[0].CastTo<DothtmlElementNode>();
 
             Assert.AreEqual("p", pNode.TagName, "Tree is differen as expected, second tier should be p.");
-            Assert.AreEqual(1, pNode.NodeWarnings.Count(), "There should have been a warning about unclosed element.");
-            Assert.AreEqual(true, pNode.NodeWarnings.Any(w => w.Contains("implicitly closed")));
+            XAssert.Empty(pNode.NodeWarnings);
         }
 
         [TestMethod]
@@ -718,8 +725,99 @@ test";
                 .Content[0].CastTo<DothtmlElementNode>();
 
             Assert.AreEqual("p", pNode.TagName, "Tree is different as expected, second tier should be p.");
-            Assert.AreEqual(1, pNode.NodeWarnings.Count(), "There should have been a warning about implicitly closing p element.");
-            Assert.AreEqual(true, pNode.NodeWarnings.Any(w=> w.Contains("implicitly closed")));
+            XAssert.Empty(pNode.NodeWarnings);
+        }
+
+
+
+        [TestMethod]
+        public void DothtmlParser_SelfClosingTags()
+        {
+            var markup = "<div><br><hr><span></span></div>";
+            var root = ParseMarkup(markup);
+            var div = (DothtmlElementNode)root.Content[0];
+            Assert.AreEqual("div", div.TagName);
+            XAssert.Equal(new [] { "br", "hr", "span" }, div.Content.Select(c => c.CastTo<DothtmlElementNode>().TagName));
+
+            // div is perfectly valid
+            XAssert.Empty(div.NodeWarnings);
+            XAssert.Empty(div.CorrespondingEndTag.NodeWarnings);
+
+            // unclosed tags are known self-closing HTML element, so no warning should be emitted either
+            XAssert.Empty(div.Content[0].NodeWarnings);
+            XAssert.Empty(div.Content[1].NodeWarnings);
+            XAssert.Empty(div.Content[2].NodeWarnings);
+        }
+
+        [TestMethod]
+        public void DothtmlParser_SelfClosingTagsWithContent()
+        {
+            // We need to support content inside normally self-closing tags, because of InnerElement attached properties (like PostBack.Handlers)
+            var markup = "<div><br><PostBack.Handlers></PostBack.Handlers></br><hr></div>";
+            var root = ParseMarkup(markup);
+            var div = (DothtmlElementNode)root.Content[0];
+            Assert.AreEqual("div", div.TagName);
+            XAssert.Equal(new [] { "br", "hr" }, div.Content.Select(c => c.CastTo<DothtmlElementNode>().TagName));
+
+            var br = (DothtmlElementNode)div.Content[0];
+            XAssert.Equal(new [] { "PostBack.Handlers" }, br.Content.Select(c => c.CastTo<DothtmlElementNode>().TagName));
+
+            XAssert.Empty(root.EnumerateNodes().SelectMany(n => n.NodeWarnings));
+        }
+
+        [TestMethod]
+        public void DothtmlParser_RandomClosingTag()
+        {
+            // close tag without any matching open tag - does nothing (especially does not close everything as it has in <4.2)
+            var markup = "<div><a></random></a></div>";
+            var root = ParseMarkup(markup);
+            var div = (DothtmlElementNode)root.Content[0];
+            Assert.AreEqual("div", div.TagName);
+            XAssert.Equal(new [] { "a" }, div.Content.Select(c => c.CastTo<DothtmlElementNode>().TagName));
+            var a = (DothtmlElementNode)div.Content[0];
+            Assert.AreEqual("a", a.TagName);
+            var random = (DothtmlElementNode)a.Content[0];
+            Assert.AreEqual("random", random.TagName);
+            Assert.AreEqual(1, a.Content.Count);
+        }
+
+        [TestMethod]
+        public void DothtmlParser_UnclosedParagraphTags()
+        {
+            // p tags are allowed to be unclosed - it's closed by closing the parent or by starting a new <p> tag
+            var markup = "<div><p>a<p>b<p>c</div>";
+            var root = ParseMarkup(markup);
+            var div = (DothtmlElementNode)root.Content[0];
+            var pTags = div.Content.Select(c => c.CastTo<DothtmlElementNode>());
+            XAssert.Equal(new [] { "p", "p", "p" }, pTags.Select(p => p.TagName));
+            XAssert.Equal(new [] { "a", "b", "c" }, pTags.Select(p => p.Content[0].CastTo<DothtmlLiteralNode>().Value));
+
+            XAssert.Empty(root.EnumerateNodes().SelectMany(n => n.NodeWarnings));
+        }
+
+        [TestMethod]
+        public void DothtmlParser_UnclosedSpanTags()
+        {
+            // span tags are not allowed to be unclosed
+            // they eventually get closed by closing the parent, but warnings are issued
+            var markup = "<div><span>a<span>b<span>c</div>";
+            var root = ParseMarkup(markup);
+            var div = (DothtmlElementNode)root.Content[0];
+            var pTags = div.Content.Select(c => c.CastTo<DothtmlElementNode>());
+            XAssert.Equal(new [] { "span" }, div.Content.Select(c => c.CastTo<DothtmlElementNode>().TagName));
+            var span1 = (DothtmlElementNode)div.Content[0];
+            XAssert.Equal(new [] { "End tag is missing, the element is implicitly closed by </div>." }, span1.NodeWarnings);
+            XAssert.Equal(new [] { "span" }, span1.Content.OfType<DothtmlElementNode>().Select(c => c.TagName));
+            XAssert.Equal(new [] { "a" }, span1.Content.OfType<DothtmlLiteralNode>().Select(c => c.Value));
+            var span2 = (DothtmlElementNode)span1.Content[1];
+            XAssert.Equal(new [] { "End tag is missing, the element is implicitly closed by </div>." }, span2.NodeWarnings);
+            XAssert.Equal(new [] { "span" }, span2.Content.OfType<DothtmlElementNode>().Select(c => c.TagName));
+            XAssert.Equal(new [] { "b" }, span2.Content.OfType<DothtmlLiteralNode>().Select(c => c.Value));
+            var span3 = (DothtmlElementNode)span2.Content[1];
+            XAssert.Equal(new [] { "End tag is missing, the element is implicitly closed by </div>." }, span3.NodeWarnings);
+            XAssert.Empty(span3.Content.OfType<DothtmlElementNode>().Select(c => c.TagName));
+
+            XAssert.Equal(new [] { "c" }, span3.Content.OfType<DothtmlLiteralNode>().Select(c => c.Value));
         }
 
         [TestMethod]
