@@ -32,12 +32,14 @@ namespace DotVVM.Framework.Tests.Binding
         OutputChecker check = new OutputChecker("testoutputs");
         private DotvvmConfiguration configuration;
         private BindingCompilationService bindingService;
+        private BindingTestHelper bindingHelper;
 
         [TestInitialize]
         public void Init()
         {
             this.configuration = DotvvmTestHelper.DefaultConfig;
-            this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
+            this.bindingHelper = new BindingTestHelper(configuration);
+            this.bindingService = bindingHelper.BindingService;
         }
 
         public object ExecuteBinding(string expression, NamespaceImport[] imports = null, Type expectedType = null)
@@ -50,17 +52,11 @@ namespace DotVVM.Framework.Tests.Binding
         }
         public object ExecuteBinding(string expression, object[] contexts, NamespaceImport[] imports = null, Type expectedType = null)
         {
-            var context = DataContextStack.Create(contexts.First().GetType());
-            for (int i = 1; i < contexts.Length; i++)
-            {
-                context = DataContextStack.Create(contexts[i].GetType(), context);
-            }
-            return ExecuteBinding(expression, context, contexts, imports, expectedType);
+            return bindingHelper.ExecuteBinding<object>(expression, contexts, imports: imports, expectedType: expectedType);
         }
         public object ExecuteBinding(string expression, DataContextStack contextType, object[] contexts, NamespaceImport[] imports = null, Type expectedType = null)
         {
-            var control = BuildFakeControlHierarchy(contextType, contexts, null);
-            return ExecuteBinding(expression, contextType, control, imports, expectedType);
+            return bindingHelper.ExecuteBinding<object>(expression, contexts, contextType, imports, expectedType: expectedType);
         }
         public object ExecuteBinding(string expression, DataContextStack contextType, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)
         {
@@ -73,21 +69,6 @@ namespace DotVVM.Framework.Tests.Binding
             return binding.BindingDelegate.Invoke(control);
         }
 
-        DotvvmControl BuildFakeControlHierarchy(DataContextStack contextType, object[] contexts, DotvvmControl rootControl)
-        {
-            var types = contextType.EnumerableItems().Reverse().ToArray();
-            DotvvmControl parent = rootControl;
-            Assert.AreEqual(types.Length, contexts.Length, $"{contextType} does not match real types: {string.Join(", ", contexts.Select(t => t?.GetType().Name))}");
-            for (int i = 0; i < types.Length; i++)
-            {
-                var c = new PlaceHolder();
-                parent?.Children.Add(c);
-                c.DataContext = contexts[i];
-                c.SetDataContextType(types[i]);
-                parent = c;
-            }
-            return parent;
-        }
 
         public object ExecuteBinding(string expression, NamespaceImport[] imports, params object[] contexts)
         {
