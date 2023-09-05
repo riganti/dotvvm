@@ -1,3 +1,4 @@
+import { getViewModelObservable } from "../dotvvm-base";
 import { deserialize } from "../serialization/deserialize";
 import { serialize } from "../serialization/serialize";
 import { unmapKnockoutObservables } from "../state-manager";
@@ -49,7 +50,7 @@ export function initViewModule(name: string, viewIdOrElement: string | HTMLEleme
         name,
         [rootElement],
         properties,
-        ko.contextFor(rootElement)?.$rawData
+        rootElement == document.body ? getViewModelObservable() : ko.contextFor(rootElement)?.$rawData
     );
     const moduleInstance = createModuleInstance(handler.module.default, context);
     context.module = moduleInstance;

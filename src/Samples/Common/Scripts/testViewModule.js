@@ -79,6 +79,6 @@ class Page {
     }
 
     readControlProperty() {
-        return ko.unwrap(this.context.properties.ControlProperty)
+        return this.context.properties.ControlProperty.state
     }
 }

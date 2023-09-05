@@ -50,13 +50,6 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
         }
         x.updateState(updateFunction)
     })
-    defineConstantProperty(computed, "updateState", (updateFunction: (state: any) => any) => {
-        const x = accessor() as any
-        if (compileConstants.debug && typeof x.updateState != "function") {
-            throw new Error(`Cannot update state of property ${propertyDebugInfo}.`)
-        }
-        x.updateState(updateFunction)
-    })
     return computed;
 }
 

@@ -348,5 +348,45 @@ namespace DotVVM.Samples.Tests.Feature
             });
 
         }
+
+        [Fact]
+        public void Feature_ViewModules_StateManipulation() =>
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_StateManipulation);
+
+                void ensureValue(string name, int value)
+                {
+                    AssertUI.TextEquals(browser.Single($"span[data-ui='{name}-num']", SelectBy.CssSelector), value.ToString());
+                }
+
+                void increment(string name) =>
+                    browser.Single($"input[data-ui='{name}-incrementer']", SelectBy.CssSelector).Click();
+                void decrement(string name) =>
+                    browser.Single($"input[data-ui='{name}-decrementer']", SelectBy.CssSelector).Click();
+
+                void testControl(string name, int initialValue)
+                {
+                    ensureValue(name, initialValue);
+                    increment(name);
+                    increment(name);
+                    ensureValue(name, initialValue + 2);
+                    decrement(name);
+                    ensureValue(name, initialValue + 1);
+                }
+
+                testControl("page", 0);
+                testControl("control-Item1-VM", 0);
+                testControl("control-Item1-CP", 1);
+                testControl("control-Item2-CP", 0);
+                testControl("control-Item2-VM", 1);
+                testControl("control-Item2-CP", 2);
+
+                browser.Single("input[data-ui='remove-Item1']", SelectBy.CssSelector).Click();
+                browser.WaitFor(() => {
+                    Assert.Empty(browser.FindElements("control-Item1-VM-num"));
+                }, 300);
+                testControl("control-Item2-CP", 3);
+
+            });
     }
 }
