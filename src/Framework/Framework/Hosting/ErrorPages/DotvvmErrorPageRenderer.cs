@@ -6,13 +6,20 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class DotvvmErrorPageRenderer
     {
+        private readonly ILogger<DotvvmErrorPageRenderer>? logger;
 
         public ErrorFormatter? Formatter { get; set; }
+
+        public DotvvmErrorPageRenderer(ILogger<DotvvmErrorPageRenderer>? logger = null)
+        {
+            this.logger = logger;
+        }
 
         /// <summary>
         /// Renders the error response.
@@ -21,10 +28,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             try
             {
-                context.Response.ContentType = "text/html; charset=utf-8";
+                // EventId is the same as ASP.NET Core error page uses: https://github.com/dotnet/aspnetcore/blob/9068fcf8cfe289735c0f8244aedf6b7798523cbe/src/Middleware/Diagnostics/src/DiagnosticsLoggerExtensions.cs#L11
+                logger?.LogError(new EventId(1, "UnhandledException"), error, "An unhandled exception has occurred while executing the request.");
 
                 var text = (Formatter ?? (Formatter = CreateDefaultWithDemystifier()))
                     .ErrorHtml(error, context);
+                context.Response.ContentType = "text/html; charset=utf-8";
                 return context.Response.WriteAsync(text);
             }
             catch (Exception exc)
