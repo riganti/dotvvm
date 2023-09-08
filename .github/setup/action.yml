@@ -11,10 +11,6 @@ runs:
   using: composite
   steps:
 
-  - if: ${{ runner.os == 'Linux' }}
-    run: sudo apt-get update -y && sudo apt-get upgrade -y
-    shell: bash
-
   # nuget
   - uses: nuget/setup-nuget@v1
     with:
