@@ -1237,8 +1237,7 @@
       },
       "GroupName": {
         "type": "System.String",
-        "defaultValue": "",
-        "onlyHardcoded": true
+        "defaultValue": ""
       }
     },
     "DotVVM.Framework.Controls.RenderSettings": {

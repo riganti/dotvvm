@@ -41,6 +41,12 @@ namespace DotVVM.Framework.Controls
                 Add(name, nestedGroup.ToString());
         }
 
+        public void Add(string name, DotvvmBindableObject contextControl, IValueBinding binding)
+        {
+            var expression = binding.GetKnockoutBindingExpression(contextControl);
+            Add(name, expression);
+        }
+
         [Obsolete("Use Add or AddValue instead")]
         public virtual void Add(string name, string expression, bool surroundWithDoubleQuotes)
         {

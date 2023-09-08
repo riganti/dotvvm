@@ -34,9 +34,9 @@
         <dot:ListBox ID="lb1-enabled" Enabled="{value: true}" DataSource="{value: Items}" SelectedValue="{value: SelectedItem}" />
         <dot:ListBox ID="lb1-disabled" Enabled="{value: false}" DataSource="{value: Items}" SelectedValue="{value: SelectedItem}" />
         <br />
-        <dot:RadioButton ID="rb1-default" CheckedValue="{value: false}" />
-        <dot:RadioButton ID="rb1-enabled" CheckedValue="{value: false}" Enabled="{value: true}" />
-        <dot:RadioButton ID="rb1-disabled" CheckedValue="{value: false}" Enabled="{value: false}" />
+        <dot:RadioButton ID="rb1-default" CheckedItem={value: false} CheckedValue={value: true} />
+        <dot:RadioButton ID="rb1-enabled" CheckedItem={value: false} CheckedValue={value: true} Enabled={value: true} />
+        <dot:RadioButton ID="rb1-disabled" CheckedItem={value: false} CheckedValue={value: true} Enabled={value: false} />
         <br />
         <dot:TextBox ID="tb1-default" Text="Test" />
         <dot:TextBox ID="tb1-enabled" Enabled="{value: true}" Text="Test" />
@@ -64,9 +64,9 @@
             <dot:ListBox ID="lb2-enabled" Enabled="{value: true}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
             <dot:ListBox ID="lb2-disabled" Enabled="{value: false}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
             <br />
-            <dot:RadioButton ID="rb2-default" CheckedValue="{value: false}" />
-            <dot:RadioButton ID="rb2-enabled" CheckedValue="{value: false}" Enabled="{value: true}" />
-            <dot:RadioButton ID="rb2-disabled" CheckedValue="{value: false}" Enabled="{value: false}" />
+            <dot:RadioButton ID="rb2-default" CheckedItem={value: false} CheckedValue={value: true} />
+            <dot:RadioButton ID="rb2-enabled" CheckedItem={value: false} CheckedValue={value: true} Enabled={value: true} />
+            <dot:RadioButton ID="rb2-disabled" CheckedItem={value: false} CheckedValue={value: true} Enabled={value: false} />
             <br />
             <dot:TextBox ID="tb2-default" Text="Test" />
             <dot:TextBox ID="tb2-enabled" Enabled="{value: true}" Text="Test" />
@@ -99,9 +99,9 @@
                     <dot:ListBox ID="lb-enabled" Enabled="{value: true}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
                     <dot:ListBox ID="lb-disabled" Enabled="{value: false}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
                     <br />
-                    <dot:RadioButton ID="rb-default" CheckedValue="{value: false}" />
-                    <dot:RadioButton ID="rb-enabled" CheckedValue="{value: false}" Enabled="{value: true}" />
-                    <dot:RadioButton ID="rb-disabled" CheckedValue="{value: false}" Enabled="{value: false}" />
+                    <dot:RadioButton ID="rb-default" CheckedItem={value: false} CheckedValue={value: true} />
+                    <dot:RadioButton ID="rb-enabled" CheckedItem={value: false} CheckedValue={value: true} Enabled={value: true} />
+                    <dot:RadioButton ID="rb-disabled" CheckedItem={value: false} CheckedValue={value: true} Enabled={value: false} />
                     <br />
                     <dot:TextBox ID="tb-default" Text="Test" />
                     <dot:TextBox ID="tb-enabled" Enabled="{value: true}" Text="Test" />

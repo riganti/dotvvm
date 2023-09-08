@@ -194,13 +194,15 @@ namespace DotVVM.Framework.Controls
             }
 
             // handle enabled attribute
-            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
+            var enabled = this.GetValueRaw(EnabledProperty);
+            if (enabled is IValueBinding enabledBinding)
             {
-                if (!Enabled)
-                {
-                    writer.AddAttribute("disabled", "disabled");
-                }
-            });
+                writer.AddKnockoutDataBind("enable", this, enabledBinding);
+            }
+            if (false.Equals(KnockoutHelper.TryEvaluateValueBinding(this, enabled)))
+            {
+                writer.AddAttribute("disabled", "disabled");
+            }
 
             if (!string.IsNullOrEmpty(InputCssClass))
             {
