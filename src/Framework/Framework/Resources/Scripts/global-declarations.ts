@@ -207,26 +207,35 @@ type DeepReadonly<T> =
     T extends object ? { readonly [P in keyof T]: DeepReadonly<T[P]>; } :
     T;
 
-/** Knockout observable that is found in the DotVVM ViewModel - all nested objects and arrays are also observable + it has some helper functions (state, patchState, ...) */
-type DotvvmObservable<T> = DeepKnockoutObservable<T> & {
-    /** A property, returns latest state from dotvvm.state. It does not contain any knockout observable and does not have any propagation delay, as the value in the observable */
+type DotvvmStateContainer<T> = {
+    /** A property, returns latest state from dotvvm.state. It does not contain any knockout observable and does not have any propagation delay, as the value in the ko.observables */
     readonly state: DeepReadonly<T>
     /** Sets new state directly into the dotvvm.state.
-     * Note that the value arrives into the observable itself asynchronously, so there might be slight delay */
+     * Note that the value arrives into the ko.observables asynchronously, so there might be slight delay */
     readonly setState: (newState: DeepReadonly<T>) => void
     /** Patches the current state and sets it into dotvvm.state.
      * Compared to setState, when property does not exist in the patch parameter, the old value from state is used.
-     * Note that the value arrives into the observable itself asynchronously, so there might be slight delay
+     * Note that the value arrives into the ko.observables asynchronously, so there might be slight delay
      * @example observable.patchState({ Prop2: 0 }) // Only must be specified, although Prop1 also exists and is required  */
     readonly patchState: (patch: DeepReadonly<DeepPartial<T>>) => void
     /** Dispatches update of the state.
-     * Note that the value arrives into the observable itself asynchronously, so there might be slight delay
-     * @example observable.updater(state => [ ...state, newElement ]) // This appends an element to an (observable) array
-     * @example observable.updater(state => state + 1) // Increments the value by one
-     * @example observable.updater(state => ({ ...state, MyProperty: state.MyProperty + 1 })) // Increments the property MyProperty by one
+     * Note that the value arrives into the ko.observables asynchronously, so there might be slight delay
+     * @example observable.updateState(state => [ ...state, newElement ]) // This appends an element to an (observable) array
+     * @example observable.updateState(state => state + 1) // Increments the value by one
+     * @example observable.updateState(state => ({ ...state, MyProperty: state.MyProperty + 1 })) // Increments the property MyProperty by one
      */
-    readonly updater: UpdateDispatcher<T>
+    readonly updateState: UpdateDispatcher<T>
 }
+
+/** Knockout observable that is found in the DotVVM ViewModel - all nested objects and arrays are also observable + it has some helper functions (state, patchState, ...) */
+type DotvvmObservable<T> =
+    DeepKnockoutObservable<T> &
+    {
+        // deprecated
+        /** @deprecated Use updateState instead */
+        readonly updater: UpdateDispatcher<T>
+    } &
+    DotvvmStateContainer<T>
 
 type RootViewModel = {
     $type: string
@@ -327,7 +336,7 @@ type DotvvmViewModule = {
     [commandName: DotvvmViewModuleCommandName]: (...args: any[]) => Promise<any> | any
 }
 
-type DotvvmModuleContext = {
+type DotvvmModuleContext<TViewModelType = any> = {
     /** Name of the resource defining the view module */
     moduleName: string
     /** Instance of the view module */
@@ -335,7 +344,7 @@ type DotvvmModuleContext = {
     /** List of element where this module is mounted. It will be `document.body` for pages and the wrapper tag for markup controls. Most likely, only one element is in the collection. */
     elements: HTMLElement[]
     /** Properties of the markup control which were sent to the client */
-    properties: { [name: string]: any }
+    properties: { [name: string]: DotvvmObservable<any> }
     /** <dot:NamedCommand /> declared in the dothtml/dotcontrol view. */
     namedCommands: { [name: string]: (...args: any[]) => Promise<any> }
-}
+} & DotvvmStateContainer<TViewModelType>

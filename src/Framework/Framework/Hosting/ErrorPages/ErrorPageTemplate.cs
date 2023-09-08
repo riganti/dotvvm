@@ -287,10 +287,10 @@ $@"
             {
                 errorColumn = line.Length - 1;
                 errorLength = 0;
-                if (errorColumn < 0)
-                {
-                    errorColumn = 0;
-                }
+            }
+            if (errorColumn < 0)
+            {
+                errorColumn = 0;
             }
             Write("<pre>");
             Write("<span class='lineNumber'>");

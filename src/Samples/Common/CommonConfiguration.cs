@@ -115,6 +115,7 @@ namespace DotVVM.Samples.Common
             resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule", "Scripts/testViewModule.js");
             resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule2", "Scripts/testViewModule2.js");
             resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule3", "Scripts/testViewModule3.js");
+            resources.RegisterScriptModuleFile("FeatureSamples_Resources_StateAwareModule", "Scripts/stateAwareViewModule.js");
 
             resources.Register("FeatureSamples_Resources_Incrementer", new ScriptModuleResource(new FileResourceLocation("~/Scripts/incrementerModule.js")));
 

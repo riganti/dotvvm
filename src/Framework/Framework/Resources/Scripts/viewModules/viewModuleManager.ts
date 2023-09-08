@@ -1,3 +1,4 @@
+import { getViewModelObservable } from "../dotvvm-base";
 import { deserialize } from "../serialization/deserialize";
 import { serialize } from "../serialization/serialize";
 import { unmapKnockoutObservables } from "../state-manager";
@@ -48,7 +49,8 @@ export function initViewModule(name: string, viewIdOrElement: string | HTMLEleme
     const context = new ModuleContext(
         name,
         [rootElement],
-        properties
+        properties,
+        rootElement == document.body ? getViewModelObservable() : ko.contextFor(rootElement)?.$rawData
     );
     const moduleInstance = createModuleInstance(handler.module.default, context);
     context.module = moduleInstance;
@@ -255,11 +257,23 @@ function mapCommandResult(result: any) {
 export class ModuleContext implements DotvvmModuleContext {
     public readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> } = {};
     public module: any;
+    public setState: (state: any) => void;
+    public patchState: (state: any) => void;
+    public updateState: (updateFunction: StateUpdate<any>) => void;
+    public state: any;
     
     constructor(
         public readonly moduleName: string,
         public readonly elements: HTMLElement[],
-        public readonly properties: { [name: string]: any }) {
+        public readonly properties: { [name: string]: any },
+        viewModel: DotvvmObservable<any>) {
+
+        this.setState = viewModel?.setState
+        this.patchState = viewModel?.patchState
+        this.updateState = viewModel?.updateState
+        Object.defineProperty(this, "state", {
+            get: () => viewModel.state
+        })
     }
     
     public registerNamedCommand = (name: string, command: (...args: any[]) => Promise<any>) => {

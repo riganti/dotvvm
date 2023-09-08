@@ -35,8 +35,8 @@ namespace DotVVM.Framework.Runtime
             SetCacheHeaders(context.HttpContext);
             using (var html = RenderPage(context, view))
             {
-                context.HttpContext.Response.Headers["Content-Length"] = html.Length.ToString();
                 CheckRenderedResources(context);
+                context.HttpContext.Response.Headers["Content-Length"] = html.Length.ToString();
                 await html.CopyToAsync(context.HttpContext.Response.Body);
             }
         }

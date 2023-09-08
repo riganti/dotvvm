@@ -1,6 +1,6 @@
 /// Holds the dotvvm viewmodel
 
-import { createArray, isPrimitive, keys } from "./utils/objects";
+import { createArray, defineConstantProperty, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
 import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
 import { areObjectTypesEqual, getObjectTypeInfo } from "./metadata/typeMap";
@@ -30,23 +30,6 @@ export type UpdatableObjectExtensions<T> = {
     [notifySymbol]: (newValue: T) => void
     [currentStateSymbol]: T
     [updateSymbol]?: UpdateDispatcher<T>
-}
-
-type RenderContext<TViewModel> = {
-    // timeFromStartGetter: () => number
-    // secondsTimeGetter: () => Date
-    update: (updater: StateUpdate<TViewModel>) => void
-    dataContext: TViewModel
-    parentContext?: RenderContext<any>
-    // replacableControls?: { [id: string] : RenderFunction<any> }
-    "@extensions"?: { [name: string]: any }
-}
-// type RenderFunction<TViewModel> = (context: RenderContext<TViewModel>) => virtualDom.VTree;
-class TwoWayBinding<T> {
-    constructor(
-        public readonly update: (updater: StateUpdate<T>) => void,
-        public readonly value: T
-    ) { }
 }
 
 export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
@@ -163,7 +146,6 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
 
             Object.defineProperty(this, p, {
                 enumerable: true,
-                configurable: false,
                 get() {
                     const cached = this[internalPropCache][p]
                     if (cached) return cached
@@ -422,25 +404,16 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                 return state
             })
             return resultState
-        },
-        configurable: false
+        }
     });
-    Object.defineProperty(obs, "patchState", {
-        get: () => (patch: any) => {
+    defineConstantProperty(obs, "patchState", (patch: any) => {
             updater(state => patchViewModel(state, patch))
-        },
-        configurable: false
-    });
-    Object.defineProperty(obs, "setState", {
-        get: () => (newState: any) => {
-            updater(_ => newState);
-        },
-        configurable: false
-    });
-    Object.defineProperty(obs, "updater", {
-        get: () => updater,
-        configurable: false
-    });
+        });
+    defineConstantProperty(obs, "setState", (newState: any) => {
+        updater(_ => newState);
+    })
+    defineConstantProperty(obs, "updateState", updater)
+    defineConstantProperty(obs, "updater", updater)
     return obs
 }
 

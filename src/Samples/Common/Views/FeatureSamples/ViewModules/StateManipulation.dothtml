@@ -1,0 +1,35 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.ModuleStateManipulationViewModel
+@js FeatureSamples_Resources_StateAwareModule
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>ViewModule - state manipulation</title>
+</head>
+<body>
+
+
+    <h1> Test of <code>context.state</code>, <code>context.setState</code>, <code>observable.updateState</code>, ... API </h1>
+
+
+    <h3> incrementer in the page </h3>
+
+    <fieldset>
+        <span data-ui=page-num>{{value: IntProperty}}</span>
+        <dot:Button Click={staticCommand: _js.InvokeAsync("setViewModelProperty", "IntProperty", IntProperty + 1)} Text="+" data-ui=page-incrementer />
+        <dot:Button Click={staticCommand: _js.InvokeAsync("setViewModelProperty", "IntProperty", IntProperty - 1)} Text="-" data-ui=page-decrementer />
+    </fieldset>
+
+    <h3> incrementers in markup control </h3>
+
+    <dot:Repeater DataSource={value: Items}>
+        <cc:StateIncrementer Property={value: Value} />
+        <dot:Button Text={value: $"Remove {Label}"} data-ui={value: $"remove-{Label}"}
+            Click={staticCommand: _root.Items.RemoveAt(_index)} />
+    </dot:Repeater>
+
+
+
+</body>
+</html>

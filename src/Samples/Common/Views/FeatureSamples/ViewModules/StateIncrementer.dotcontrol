@@ -1,0 +1,14 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.ModuleStateManipulationViewModel.Item
+@property int Property
+@js FeatureSamples_Resources_StateAwareModule
+
+<fieldset>
+    <legend>{{value: Label}}</legend>
+    <span data-ui={value: $"control-{Label}-VM-num"}>{{value: Value}}</span>
+    <span data-ui={value: $"control-{Label}-CP-num"}>{{value: _control.Property}}</span>
+    
+    <dot:Button Click={staticCommand: _js.InvokeAsync("setViewModelProperty", "Value", Value + 1)} Text="ViewModel++" data-ui={value: $"control-{Label}-VM-incrementer"} />
+    <dot:Button Click={staticCommand: _js.InvokeAsync("setViewModelProperty", "Value", Value - 1)} Text="ViewModel--" data-ui={value: $"control-{Label}-VM-decrementer"} />
+    <dot:Button Click={staticCommand: _js.InvokeAsync("setControlProperty", "Property", _control.Property + 1)} Text="Property++" data-ui={value: $"control-{Label}-CP-incrementer"} />
+    <dot:Button Click={staticCommand: _js.InvokeAsync("setControlProperty", "Property", _control.Property - 1)} Text="Property--" data-ui={value: $"control-{Label}-CP-decrementer"} />
+</fieldset>

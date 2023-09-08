@@ -88,6 +88,8 @@ const dotvvmExports = {
     patchState(a: any) {
         getStateManager().patchState(a)
     },
+    setState(a: any) { getStateManager().setState(a) },
+    updateState(updateFunction: StateUpdate<any>) { getStateManager().update(updateFunction) },
     viewModelObservables: {
         get root() { return getViewModelObservable(); }
     },
@@ -132,12 +134,13 @@ if (compileConstants.isSpa) {
 if (compileConstants.debug) {
     (dotvvmExports as any).debug = true
 }
-
-
-
+if (false) {
+    // just check that the types are assignable
+    const test: DotvvmStateContainer<any> = dotvvm
+}
 declare global {
     interface DotvvmGlobalExtensions {}
-    type DotvvmGlobal = DotvvmGlobalExtensions & typeof dotvvmExports & { debug?: true, isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation }
+    type DotvvmGlobal = DotvvmGlobalExtensions & typeof dotvvmExports & DotvvmStateContainer<any> & { debug?: true, isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation }
 
     const dotvvm: DotvvmGlobal;
 
