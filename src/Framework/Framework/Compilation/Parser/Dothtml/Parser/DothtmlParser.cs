@@ -88,16 +88,26 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                                 var beginTagName = beginTag.FullTagName;
                                 if (!beginTagName.Equals(element.FullTagName, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    element.AddWarning($"The closing tag '</{element.FullTagName}>' doesn't have a matching opening tag!");
-                                    ResolveWrongClosingTag(element);
-
-                                    if (ElementHierarchy.Peek() is DothtmlElementNode newBeginTag && beginTagName != newBeginTag.FullTagName)
+                                    if (ElementHierarchy.OfType<DothtmlElementNode>().Any(e => e.FullTagName.Equals(element.FullTagName, StringComparison.OrdinalIgnoreCase)))
                                     {
+                                        // start tag of the same element exists, close all elements in between and continue
+                                        ResolveWrongClosingTag(element);
+                                        var newBeginTag = (DothtmlElementNode)ElementHierarchy.Peek();
+                                        Debug.Assert(newBeginTag.FullTagName.Equals(element.FullTagName, StringComparison.OrdinalIgnoreCase));
                                         newBeginTag.CorrespondingEndTag = element;
                                         ElementHierarchy.Pop();
                                     }
+                                    else if (string.IsNullOrEmpty(element.TagName))
+                                    {
+                                        // invalid or incomplete closing tag - probably closing the current element
+                                        // element.AddError($"Closing that of <{beginTagName}> is incomplete!");
+                                        ElementHierarchy.Pop();
+                                        beginTag.CorrespondingEndTag = element;
+                                    }
                                     else
                                     {
+                                        // don't close anything, essentially treat it as self closing element
+                                        element.AddWarning($"The closing tag '</{element.FullTagName}>' doesn't have a matching opening tag!");
                                         CurrentElementContent.Add(element);
                                     }
                                 }
@@ -187,22 +197,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                     // automatic immediate close of the tag (for <img src="">)
                     ElementHierarchy.Peek().Content.AddRange(startElement.Content);
                     startElement.Content.Clear();
-                    startElement.AddWarning("End tag is missing, the element is implicitly self-closed.");
                 }
                 else if (AutomaticClosingTags.Contains(startElement.FullTagName))
                 {
-                    // elements than can contain itself like <p> are closed on the first occurrence of element with the same name
+                    // elements than cannot contain itself like <p> are closed on the first occurrence of element with the same name
                     var sameElementIndex = startElement.Content.FindIndex(a => (a as DothtmlElementNode)?.FullTagName == startElement.FullTagName);
                     
-                    if(sameElementIndex < 0)
+                    if (sameElementIndex >= 0)
                     {
-                        startElement.AddWarning($"End tag is missing, the element is implicitly closed with its parent tag or by the end of file.");
-                    }
-                    else if (sameElementIndex >= 0)
-                    {
-                        startElement.AddWarning($"End tag is missing, the element is implicitly closed by following <{startElement.Content[sameElementIndex].As<DothtmlElementNode>()?.FullTagName}> tag.");
-                        startElement.Content[sameElementIndex].AddWarning($"Previous <{startElement.FullTagName}> is implicitly closed here.");
-
                         var count = startElement.Content.Count - sameElementIndex;
                         ElementHierarchy.Peek().Content.AddRange(startElement.Content.Skip(sameElementIndex));
                         startElement.Content.RemoveRange(sameElementIndex, count);
