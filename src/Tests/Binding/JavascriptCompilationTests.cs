@@ -1232,6 +1232,25 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("dotvvm.api.refreshOn(\"here would be the API invocation\",ko.pureComputed(()=>(StringProp()??\"\")+(StringProp2()??\"\")))", result);
         }
 
+        [TestMethod]
+        public void JavascriptCompilation_MarkupControlProperty()
+        {
+            var dataContext = bindingHelper.CreateDataContext(new [] { typeof(object) }, markupControl: typeof(TestMarkupControl));
+            var result = bindingHelper.ValueBindingToJs("_control.SomeProperty + 'aa'", dataContext, niceMode: false);
+            Assert.AreEqual("($control.SomeProperty()??\"\")+\"aa\"", result);
+        }
+        [TestMethod]
+        public void JavascriptCompilation_MarkupControlProperty_NotDotvvmProperty()
+        {
+            // Using non-DotvvmProperty is JS binding is an error, the property doesn't exist client-side
+            var dataContext = bindingHelper.CreateDataContext(new [] { typeof(object) }, markupControl: typeof(TestMarkupControl));
+            // resource bindings should be fine, only value bindings don't support it
+            var resourceResult = bindingHelper.ExecuteBinding<string>("_control.NonUsableProperty", new [] { new object() }, markupControl: new TestMarkupControl() { NonUsableProperty = "xxyyaa" });
+            Assert.AreEqual("xxyyaa", resourceResult);
+            var exception = XAssert.ThrowsAny<Exception>(() => bindingHelper.ValueBindingToJs("_control.NonUsableProperty", dataContext, niceMode: false));
+            XAssert.Contains("Control property NonUsableProperty is not a registered DotvvmProperty and cannot be used client-side", exception.Message);
+        }
+
         [DataTestMethod]
         [DataRow("StringProp.ToUpper()", "StringProp().toLocaleUpperCase()")]
         [DataRow("StringProp.ToLower()", "StringProp().toLocaleLowerCase()")]
@@ -1297,6 +1316,19 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("VehicleNumber == DotVVM.Framework.Tests.Binding.VehicleNumber.Parse('123')", typeof(TestViewModel));
             Assert.AreEqual("VehicleNumber()==\"123\"", result);
+        }
+
+        public class TestMarkupControl: DotvvmMarkupControl
+        {
+            public string SomeProperty
+            {
+                get { return (string)GetValue(SomePropertyProperty); }
+                set { SetValue(SomePropertyProperty, value); }
+            }
+            public static readonly DotvvmProperty SomePropertyProperty =
+                DotvvmProperty.Register<string, TestMarkupControl>(nameof(SomeProperty));
+
+            public string NonUsableProperty { get; set; }
         }
     }
 

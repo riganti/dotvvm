@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Testing
         public Expression ParseBinding(string expression, DataContextStack context, Type? expectedType = null, NamespaceImport[]? imports = null)
         {
             expectedType ??= typeof(object);
-            var parsedExpression = ExpressionBuilder.ParseWithLambdaConversion(expression, context, BindingParserOptions.Value.AddImports(imports), expectedType);
+            var parsedExpression = ExpressionBuilder.ParseWithLambdaConversion(expression, context, BindingParserOptions.Value.AddImports(imports).AddImports(context.NamespaceImports), expectedType);
             return
                 TypeConversion.MagicLambdaConversion(parsedExpression, expectedType) ??
                 TypeConversion.EnsureImplicitConversion(parsedExpression, expectedType, allowToString: true)!;
@@ -118,13 +118,19 @@ namespace DotVVM.Framework.Testing
 
         /// <summary> Creates a value binding by parsing the specified expression. The expression will be implicitly converted to <typeparamref name="T"/> </summary>
         /// <param name="contexts"> Hierarchy of data contexts. First element is <c>_root</c>, last element is <c>_this</c>. </param>
-        public ValueBindingExpression<T> ValueBinding<T>(string expression, Type[] contexts)
+        public ValueBindingExpression<T> ValueBinding<T>(string expression, Type[] contexts, Type? expectedType = null) =>
+            this.ValueBinding<T>(expression, CreateDataContext(contexts));
+        /// <summary> Creates a value binding by parsing the specified expression. The expression will be implicitly converted to <typeparamref name="T"/> </summary>
+        public ValueBindingExpression<T> ValueBinding<T>(string expression, DataContextStack dataContext, Type? expectedType = null)
         {
+            if (expectedType is {} && !typeof(T).IsAssignableFrom(expectedType))
+                throw new ArgumentException($"The expected type {expectedType} must be assignable to {typeof(T)}", nameof(expectedType));
+
             return new ValueBindingExpression<T>(BindingService, new object[] {
-                CreateDataContext(contexts),
+                dataContext,
                 new OriginalStringBindingProperty(expression),
-                BindingParserOptions.Value.AddImports(Configuration.Markup.ImportedNamespaces),
-                new ExpectedTypeBindingProperty(typeof(T))
+                BindingParserOptions.Value.AddImports(dataContext.NamespaceImports).AddImports(Configuration.Markup.ImportedNamespaces),
+                new ExpectedTypeBindingProperty(expectedType ?? typeof(T))
             });
         }
 
@@ -141,10 +147,81 @@ namespace DotVVM.Framework.Testing
             return new StaticCommandBindingExpression(BindingService, new object[] {
                 context,
                 new OriginalStringBindingProperty(expression),
-                BindingParserOptions.Value.AddImports(Configuration.Markup.ImportedNamespaces),
+                BindingParserOptions.Value.AddImports(context.NamespaceImports).AddImports(Configuration.Markup.ImportedNamespaces),
                 new ExpectedTypeBindingProperty(expectedType)
             });
         }
+
+        /// <summary> Creates a value binding by parsing the specified expression. The expression will be implicitly converted to <typeparamref name="T"/> </summary>
+        /// <param name="contexts"> Hierarchy of data contexts. First element is <c>_root</c>, last element is <c>_this</c>. </param>
+        /// <param name="expectedType"> Convert the result to this type instead of converting it to <typeparamref name="T"/>. The type must be assignable to T. </param>
+        public ResourceBindingExpression<T> ResourceBinding<T>(string expression, Type[] contexts, Type? expectedType = null) =>
+            this.ResourceBinding<T>(expression, CreateDataContext(contexts), expectedType);
+
+        /// <summary> Creates a resource binding by parsing the specified expression. The expression will be implicitly converted to <typeparamref name="T"/> </summary>
+        /// <param name="expectedType"> Convert the result to this type instead of converting it to <typeparamref name="T"/>. The type must be assignable to T. </param>
+        public ResourceBindingExpression<T> ResourceBinding<T>(string expression, DataContextStack dataContext, Type? expectedType = null)
+        {
+            if (expectedType is {} && !typeof(T).IsAssignableFrom(expectedType))
+                throw new ArgumentException($"The expected type {expectedType} must be assignable to {typeof(T)}", nameof(expectedType));
+            return new ResourceBindingExpression<T>(BindingService, new object[] {
+                dataContext,
+                new OriginalStringBindingProperty(expression),
+                BindingParserOptions.Resource.AddImports(dataContext.NamespaceImports).AddImports(Configuration.Markup.ImportedNamespaces),
+                new ExpectedTypeBindingProperty(expectedType ?? typeof(T))
+            });
+        }
+
+        public T ExecuteBinding<T>(
+            string expression, object[] viewModelStack,
+            DataContextStack? dataContextType = null,
+            NamespaceImport[]? imports = null,
+            DotvvmControl? markupControl = null,
+            Type? expectedType = null
+        )
+        {
+            if (dataContextType is null)
+            {
+                if (viewModelStack.Contains(null))
+                    throw new Exception("dataContextType argument must be specified if any of the view models is null");
+                dataContextType ??= CreateDataContext(viewModelStack.Select(v => v!.GetType()).ToArray(), markupControl: markupControl?.GetType());
+            }
+            if (imports is {})
+                dataContextType = DataContextStack.Create(dataContextType.DataContextType, dataContextType.Parent, Enumerable.Concat(imports, dataContextType.NamespaceImports).ToArray(), dataContextType.ExtensionParameters, dataContextType.BindingPropertyResolvers);
+            var binding = ResourceBinding<T>(expression, dataContextType, expectedType: expectedType);
+            var rootControl = new PlaceHolder();
+            if (markupControl is {})
+                markupControl.Children.Add(rootControl);
+
+            try
+            {
+                var control = BuildFakeControlHierarchy(dataContextType, viewModelStack, rootControl);
+                return binding.BindingDelegate.Invoke(control);
+            }
+            finally
+            {
+                markupControl?.Children.Remove(rootControl);
+            }
+
+        }
+
+        DotvvmControl BuildFakeControlHierarchy(DataContextStack contextType, object[] contexts, DotvvmControl rootControl)
+        {
+            var types = contextType.EnumerableItems().Reverse().ToArray();
+            DotvvmControl parent = rootControl;
+            if (types.Length != contexts.Length)
+                throw new Exception($"{contextType} does not match real types: {string.Join(", ", contexts.Select(t => t?.GetType().Name))}");
+            for (int i = 0; i < types.Length; i++)
+            {
+                var c = new PlaceHolder();
+                parent.Children.Add(c);
+                c.DataContext = contexts[i];
+                c.SetDataContextType(types[i]);
+                parent = c;
+            }
+            return parent;
+        }
+
 
         /// <summary> Returns the "body" of the JavaScript code produced by the staticCommand.
         /// The method is intended for asserting that the generated code is equal to the correct thing, if you intend to execute the code, please use <see cref="KnockoutHelper.GenerateClientPostBackExpression" /> directly. </summary>
