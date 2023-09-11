@@ -672,6 +672,21 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
         [Fact]
+        public void Feature_Lambda_Expression_Static_Command_List_Sum()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_LambdaExpressions_StaticCommands);
+                var textbox = browser.First("[data-ui=textbox]");
+
+                browser.First($"//input[@value='OrderBy Id']", By.XPath).Click();
+                browser.First($"//input[@value='Sum of name lengths']", By.XPath).Click();
+                AssertUI.InnerTextEquals(textbox, "51");
+                browser.First($"//input[@value='Skip 5 customers']", By.XPath).Click();
+                browser.First($"//input[@value='Sum of name lengths']", By.XPath).Click();
+                AssertUI.InnerTextEquals(textbox, "26");
+            });
+        }
+        [Fact]
         public void Feature_List_Translation_Add_Item()
         {
             RunInAllBrowsers(browser => {

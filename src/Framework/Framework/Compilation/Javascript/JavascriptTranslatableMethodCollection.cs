@@ -531,8 +531,6 @@ namespace DotVVM.Framework.Compilation.Javascript
         private void AddDefaultEnumerableTranslations()
         {
             var returnTrueFunc = new JsArrowFunctionExpression(Enumerable.Empty<JsIdentifier>(), new JsLiteral(true));
-            var selectIdentityFunc = new JsArrowFunctionExpression(new[] { new JsIdentifier("arg") },
-                new JsIdentifierExpression("ko").Member("unwrap").Invoke(new JsIdentifierExpression("arg")));
 
             bool IsDelegateReturnTypeEnum(Type type)
                 => type.GetGenericArguments().Last().IsEnum;
@@ -562,19 +560,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(_ => false), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("lastOrDefault").Invoke(args[1], args[2]).WithAnnotation(MayBeNullAnnotation.Instance)));
 
-            foreach (var type in new[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal), typeof(int?), typeof(long?), typeof(float?), typeof(double?), typeof(decimal?) })
-            {
-                AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Max), parameters: new[] { typeof(IEnumerable<>).MakeGenericType(type) }, translator: new GenericMethodCompiler(args =>
-                    new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("max").Invoke(args[1], selectIdentityFunc.Clone(), new JsLiteral(!type.IsNullable()))));
-                AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Max), parameterCount: 2, parameterFilter: p => p[1].ParameterType.GetGenericArguments().Last() == type, translator: new GenericMethodCompiler(args =>
-                    new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("max").Invoke(args[1], args[2], new JsLiteral(!type.IsNullable()))));
-
-                AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Min), parameters: new[] { typeof(IEnumerable<>).MakeGenericType(type) }, translator: new GenericMethodCompiler(args =>
-                    new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("min").Invoke(args[1], selectIdentityFunc.Clone(), new JsLiteral(!type.IsNullable()))));
-                AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Min), parameterCount: 2, parameterFilter: p => p[1].ParameterType.GetGenericArguments().Last() == type, translator: new GenericMethodCompiler(args =>
-                    new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("min").Invoke(args[1], args[2], new JsLiteral(!type.IsNullable()))));
-            }
-
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().OrderBy(_ => Generic.Enum.Something), new GenericMethodCompiler((jArgs, dArgs) => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("orderBy")
                     .Invoke(jArgs[1], jArgs[2], new JsLiteral((IsDelegateReturnTypeEnum(dArgs.Last().Type)) ? GetDelegateReturnTypeHash(dArgs.Last().Type) : null)),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
@@ -592,6 +577,69 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ToList(), new GenericMethodCompiler(args => args[1]));
 
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Where(_ => true), new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
+
+            AddDefaultNumericEnumerableTranslations();
+        }
+
+        private void AddDefaultNumericEnumerableTranslations()
+        {
+            var methods = typeof(Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public);
+
+            var selectIdentityFunc = new JsArrowFunctionExpression(new[] { new JsIdentifier("arg") },
+                new JsIdentifierExpression("ko").Member("unwrap").Invoke(new JsIdentifierExpression("arg")));
+
+            foreach (var m in methods)
+            {
+                if (m.Name is "Max" or "Min" or "Sum")
+                {
+                    var parameters = m.GetParameters();
+                    if (parameters.Length == 0) continue;
+                    var itemType = ReflectionUtils.GetEnumerableType(parameters[0].ParameterType);
+                    if (itemType is null) continue;
+                    var selectorResultType = parameters.ElementAtOrDefault(1)?.ParameterType.GetGenericArguments().LastOrDefault();
+
+                    if (m.Name is "Max" or "Min" && parameters.Length == 1 && itemType.UnwrapNullableType().IsNumericType())
+                    {
+                        AddMethodTranslator(m, new GenericMethodCompiler(args =>
+                            new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member(m.Name is "Min" ? "min" : "max").Invoke(args[1], selectIdentityFunc.Clone(), new JsLiteral(!itemType.IsNullable()))));
+                    }
+                    else if (m.Name is "Max" or "Min" && parameters.Length == 2 && selectorResultType?.UnwrapNullableType().IsNumericType() == true)
+                    {
+                        AddMethodTranslator(m, new GenericMethodCompiler(args =>
+                        new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member(m.Name is "Min" ? "min" : "max").Invoke(args[1], args[2], new JsLiteral(!selectorResultType.IsNullable()))));
+                    }
+
+                    else if (m.Name is "Sum" && parameters.Length == 1 && itemType.UnwrapNullableType().IsNumericType())
+                    {
+                        AddMethodTranslator(m, new GenericMethodCompiler(args => args[1].Member("reduce").Invoke(
+                            new JsArrowFunctionExpression(
+                                new[] { new JsIdentifier("acc"), new JsIdentifier("x") },
+                                new JsIdentifierExpression("acc").Binary(BinaryOperatorType.Plus,
+                                    new JsIdentifierExpression("ko").Member("unwrap").Invoke(new JsIdentifierExpression("x"))
+                                    .Binary(BinaryOperatorType.NullishCoalescing, new JsLiteral(0))
+                                )
+                            ),
+                            new JsLiteral(0))
+                        ));
+                    }
+                    else if (m.Name is "Sum" && parameters.Length == 2 && selectorResultType?.UnwrapNullableType().IsNumericType() == true)
+                    {
+                        AddMethodTranslator(m, new GenericMethodCompiler(args => args[1]
+                            .Member("map").Invoke(args[2])
+                            .Member("reduce").Invoke(
+                                new JsArrowFunctionExpression(
+                                    new[] { new JsIdentifier("acc"), new JsIdentifier("x") },
+                                    new JsIdentifierExpression("acc").Binary(BinaryOperatorType.Plus,
+                                        new JsIdentifierExpression("x").Binary(BinaryOperatorType.NullishCoalescing, new JsLiteral(0))
+                                    )
+                                ),
+                                new JsLiteral(0)
+                            )
+                        ));
+                    }
+                }
+
+            }
         }
 
         private void AddDefaultDictionaryTranslations()
