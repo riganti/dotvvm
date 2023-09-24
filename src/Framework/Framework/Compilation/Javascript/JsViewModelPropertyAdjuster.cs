@@ -10,7 +10,9 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -90,6 +92,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     // Plain .NET is used on _control, this property is not serialized, so it will not work client-side
                     throw new NotSupportedException($"Control property {member.Name} is not a registered DotvvmProperty and cannot be used client-side. Either use a resource binding to use the server-side value, or see https://www.dotvvm.com/docs/latest/pages/concepts/control-development/control-properties how to register a DotvvmProperty.");
+                }
+
+                if (member is {} && typeof(IDotvvmPrimitiveType).IsAssignableFrom(member.DeclaringType))
+                {
+                    throw new NotSupportedException($"Cannot translate property {member.Name} on custom primitive type {member.DeclaringType.ToCode()} to Javascript. Use the ToString() method to get the underlying value.");
                 }
 
                 annotation.ContainsObservables ??= !this.preferUsingState; // we don't know -> guess what is the current preference
