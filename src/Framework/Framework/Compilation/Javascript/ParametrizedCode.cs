@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
@@ -64,12 +64,17 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (allIsDefault && this.evaluatedDefault != null)
                 return evaluatedDefault;
 
-            var sb = new StringBuilder(codes.Sum((p) => p.code.Length) + stringParts.Sum(p => p.Length));
+            var capacity = 0;
+            foreach (var c in codes) capacity += c.code.Length;
+            foreach (var s in stringParts) capacity += s.Length;
+            var sb = new StringBuilder(capacity);
+
             sb.Append(stringParts[0]);
             for (int i = 0; i < codes.Length;)
             {
-                var isGlobalContext = codes[i].parameter.IsGlobalContext && parameters![i].IsSafeMemberAccess;
-                var needsParens = codes[i].parameter.Code!.OperatorPrecedence.NeedsParens(parameters![i].OperatorPrecedence);
+                var code = codes[i];
+                var isGlobalContext = code.parameter.IsGlobalContext && parameters![i].IsSafeMemberAccess;
+                var needsParens = code.parameter.Code!.OperatorPrecedence.NeedsParens(parameters![i].OperatorPrecedence);
 
                 if (isGlobalContext)
                     sb.Append(stringParts[++i], 1, stringParts[i].Length - 1); // skip `.`
@@ -77,9 +82,9 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     if (needsParens)
                         sb.Append("(");
-                    else if (JsFormattingVisitor.NeedSpaceBetween(sb, codes[i].code))
+                    else if (JsFormattingVisitor.NeedSpaceBetween(sb, code.code))
                         sb.Append(" ");
-                    sb.Append(codes[i].code);
+                    sb.Append(code.code);
                     i++;
                     if (needsParens) sb.Append(")");
                     else if (JsFormattingVisitor.NeedSpaceBetween(sb, stringParts[i]))
@@ -177,7 +182,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     builder.Add(stringParts[i]);
                     builder.Add(parameters[i]);
                 }
-                builder.Add(stringParts.Last());
+                builder.Add(stringParts[stringParts.Length - 1]);
             }
         }
 
