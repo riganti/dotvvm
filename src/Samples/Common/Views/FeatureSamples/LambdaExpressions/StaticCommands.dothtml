@@ -72,6 +72,7 @@
         <dot:Button Text="Get maximum number of finished transactions" Click="{staticCommand: OperationResult = SourceCustomers.Max((CustomerData c) => c.FinishedTransactions)}" />
         <dot:Button Text="Get minimum number of finished transactions" Click="{staticCommand: OperationResult = SourceCustomers.Min((CustomerData c) => c.FinishedTransactions)}" />
         <dot:Button Text="Is there green in the list" Click="{staticCommand: OperationResult = SelectedCategories.Contains(StaticCommandsViewModel.Category.Green)}" />
+        <dot:Button Text="Sum of name lengths" Click="{staticCommand: OperationResult = FilteredCustomers.Sum(c => c.Name.Length)}" />
     </div>
 
     <div>

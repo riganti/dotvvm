@@ -850,6 +850,32 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual($"dotvvm.translations.array.min({property}(),(item)=>-ko.unwrap(item),{(!nullable).ToString().ToLowerInvariant()})", result);
         }
 
+        [DataRow("Int32Array")]
+        [DataRow("NullableInt32Array")]
+        [DataRow("Int64Array")]
+        [DataRow("NullableInt64Array")]
+        [DataRow("SingleArray")]
+        [DataRow("NullableSingleArray")]
+        [DataRow("DoubleArray")]
+        [DataRow("NullableDoubleArray")]
+        [DataRow("DecimalArray")]
+        [DataRow("NullableDecimalArray")]
+        [DataTestMethod]
+        public void JsTranslator_EnumerableSum(string property)
+        {
+            var result = CompileBinding($"{property}.Sum()", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
+            XAssert.Equal($"{property}().reduce((acc,x)=>acc+(ko.unwrap(x)??0),0)", result);
+            var resultSelector = CompileBinding($"{property}.Sum(x => -x)", new[] { new NamespaceImport("System.Linq"), new NamespaceImport("Math") }, new[] { typeof(TestArraysViewModel) });
+            XAssert.Equal($"{property}().map((x)=>-ko.unwrap(x)).reduce((acc,x)=>acc+(x??0),0)", resultSelector);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableSum_Selector()
+        {
+            var result = CompileBinding($"ObjectArray.Sum(x => x.Int)", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
+            XAssert.Equal($"ObjectArray().map((x)=>ko.unwrap(x).Int()).reduce((acc,x)=>acc+(x??0),0)", result);
+        }
+
         [TestMethod]
         [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Int)", "Int", typeof(int), DisplayName = "Regular call of Enumerable.OrderBy")]
         [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Bool)", "Bool", typeof(bool), DisplayName = "Regular call of Enumerable.OrderBy")]
