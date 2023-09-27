@@ -10,7 +10,7 @@ namespace DotVVM.Framework.ResourceManagement
     /// <summary>
     /// CSS in header. It's perfect for small css. For example critical CSS.
     /// </summary>
-    public class InlineStylesheetResource : ResourceBase
+    public sealed class InlineStylesheetResource : ResourceBase
     {
         private readonly ILocalResourceLocation? resourceLocation;
         private volatile Lazy<string>? code;

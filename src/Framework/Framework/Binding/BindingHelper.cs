@@ -63,11 +63,11 @@ namespace DotVVM.Framework.Binding
         /// Gets Internal.PathFragmentProperty or DataContext.KnockoutExpression. Returns null if none of these is set.
         /// </summary>
         public static string? GetDataContextPathFragment(this DotvvmBindableObject currentControl) =>
-            (string?)currentControl.GetValue(Internal.PathFragmentProperty, inherit: false) ??
-            (currentControl.GetBinding(DotvvmBindableObject.DataContextProperty, inherit: false) is IValueBinding binding ?
+            currentControl.properties.TryGet(Internal.PathFragmentProperty, out var pathFragment) && pathFragment is string pathFragmentStr ? pathFragmentStr :
+            currentControl.properties.TryGet(DotvvmBindableObject.DataContextProperty, out var dataContext) && dataContext is IValueBinding binding ?
                 binding.GetProperty<SimplePathExpressionBindingProperty>()
                 .Code.FormatKnockoutScript(currentControl, binding) :
-            null);
+            null;
 
 
         // PERF: maybe safe last GetValue's target/binding to ThreadLocal variable, so the path does not have to be traversed twice

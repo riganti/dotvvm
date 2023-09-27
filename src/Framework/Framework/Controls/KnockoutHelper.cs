@@ -374,10 +374,10 @@ namespace DotVVM.Framework.Controls
 
             // determine concurrency queue
             string? queueName = null;
-            var queueSettings = obj.GetValueRaw(PostBack.ConcurrencyQueueSettingsProperty) as ConcurrencyQueueSettingsCollection;
+            var queueSettings = PostBack.ConcurrencyQueueSettingsProperty.GetValue(obj, inherit: false);
             if (queueSettings != null)
             {
-                queueName = queueSettings.FirstOrDefault(q => string.Equals(q.EventName, propertyName, StringComparison.OrdinalIgnoreCase))?.ConcurrencyQueue;
+                queueName = ((ConcurrencyQueueSettingsCollection)queueSettings).FirstOrDefault(q => string.Equals(q.EventName, propertyName, StringComparison.OrdinalIgnoreCase))?.ConcurrencyQueue;
             }
             if (queueName == null)
             {
@@ -385,18 +385,23 @@ namespace DotVVM.Framework.Controls
             }
 
             // return the handler script
-            if (mode == PostbackConcurrencyMode.Default && "default".Equals(queueName))
+            if (mode == PostbackConcurrencyMode.Default && "default".Equals(queueName, StringComparison.Ordinal))
             {
                 return null;
             }
-            var handlerName = $"concurrency-{mode.ToString().ToLowerInvariant()}";
-            if ("default".Equals(queueName))
+            var handlerNameJson = mode switch {
+                PostbackConcurrencyMode.Default => "\"concurrency-default\"",
+                PostbackConcurrencyMode.Deny => "\"concurrency-deny\"",
+                PostbackConcurrencyMode.Queue => "\"concurrency-queue\"",
+                _ => throw new NotSupportedException()
+            };
+            if ("default".Equals(queueName, StringComparison.Ordinal))
             {
-                return JsonConvert.ToString(handlerName);
+                return handlerNameJson;
             }
             else
             {
-                return $"[{JsonConvert.ToString(handlerName)},{GenerateHandlerOptions(obj, new Dictionary<string, object?> { ["q"] = queueName })}]";
+                return $"[{handlerNameJson},{{q:{JsonConvert.ToString(queueName)}}}]";
             }
         }
         
