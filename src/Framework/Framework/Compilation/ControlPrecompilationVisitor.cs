@@ -164,7 +164,10 @@ namespace DotVVM.Framework.Compilation
             var content = runtimeControl.ExecuteGetContents(null!);
 
             var config = services.GetService<DotvvmConfiguration>();
-            return content.Select(c => ResolvedControlHelper.FromRuntimeControl(c, control.DataContextTypeStack, config)).ToArray();
+            return content.Select(c => {
+                runtimeControl.CopyPostBackHandlersRecursive(c);
+                return ResolvedControlHelper.FromRuntimeControl(c, control.DataContextTypeStack, config);
+            }).ToArray();
         }
 
         /// Returns true if we can send binding into the property without evaluating it

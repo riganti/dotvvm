@@ -4,7 +4,7 @@
 		
 		<!-- command -->
 		<div>
-			<div data-bind="foreach: { &quot;data&quot;: List }">
+			<div data-bind="foreach: { data: List }">
 				<input onclick="dotvvm.postBack(this,[&quot;List/[$index]&quot;],&quot;IYZcgJXAUDcvRzk7&quot;,&quot;&quot;,ko.contextFor(this).$parentContext,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Item">
 			</div>
 			<input onclick="dotvvm.postBack(this,[],&quot;IYZcgJXAUDcvRzk7&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Last Item">
@@ -12,10 +12,14 @@
 		
 		<!-- staticCommand -->
 		<div>
-			<div data-bind="foreach: { &quot;data&quot;: List }">
-				<input onclick="dotvvm.applyPostbackHandlers((options) => options.knockoutContext.$parent.int(12).int(),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Item">
+			<div data-bind="foreach: { data: List }">
+				<input onclick="dotvvm.applyPostbackHandlers((options) => {
+	options.knockoutContext.$parent.int(12);
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Item">
 			</div>
-			<input onclick="dotvvm.applyPostbackHandlers((options) => options.viewModel.int(12).int(),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Last Item">
+			<input onclick="dotvvm.applyPostbackHandlers((options) => {
+	options.viewModel.int(12);
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Last Item">
 		</div>
 	</body>
 </html>
