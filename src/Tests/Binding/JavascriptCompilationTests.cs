@@ -1309,6 +1309,16 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("VehicleNumber.ToString()", typeof(TestViewModel));
             Assert.AreEqual("VehicleNumber", result);
+            // nullable .Value unwrap
+            result = CompileBinding("VehicleNumber.Value.ToString()", typeof(TestViewModel));
+            Assert.AreEqual("VehicleNumber", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_CustomPrimitiveProperty_Disallowed()
+        {
+            var e = Assert.ThrowsException<NotSupportedException>(() => CompileBinding("VehicleNumber.Value.Value", typeof(TestViewModel)));
+            XAssert.Contains("Cannot translate property Value on custom primitive type DotVVM.Framework.Tests.Binding.VehicleNumber", e.Message);
         }
 
         [TestMethod]
