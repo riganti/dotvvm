@@ -41,38 +41,39 @@ namespace DotVVM.Framework.Hosting
         public static readonly Counter<long> BindingsCompiled =
             Meter.CreateCounter<long>("binding_compiled_total", description: "Number of bindings that were compiled. It should reach a steady state shortly after startup.");
 
-        /// <summary> Labeled by route=RouteName and request_type=GET/POST </summary>
+        /// <summary> Labeled by route=RouteName and request_type=Navigate/SpaNavigate/Command/StaticCommand </summary>
         public static readonly Histogram<long> ViewModelSize =
-            Meter.CreateHistogram<long>("viewmodel_size_bytes", unit: "bytes", description: "Size of the viewmodel JSON in bytes.");
+            Meter.CreateHistogram<long>("viewmodel_size_bytes", unit: "bytes", description: "Size of the result viewmodel JSON in bytes.");
 
-        /// <summary> Labeled by route=RouteName and request_type=GET/POST </summary>
+        /// <summary> Labeled by route=RouteName and request_type=Navigate/SpaNavigate/Command/StaticCommand </summary>
         public static readonly Histogram<double> ViewModelStringificationTime =
             Meter.CreateHistogram<double>("viewmodel_stringification_seconds", unit: "seconds", description: "Time it took to stringify the resulting JSON view model.");
 
-        /// <summary> Labeled by route=RouteName and request_type=GET/POST </summary>
+        /// <summary> Labeled by route=RouteName and request_type=Navigate/SpaNavigate/Command/StaticCommand </summary>
         public static readonly Histogram<double> ViewModelSerializationTime =
             Meter.CreateHistogram<double>("viewmodel_serialization_seconds", unit: "seconds", description: "Time it took to serialize view model to JSON objects.");
 
-        /// <summary> Labeled by route=RouteName and lifecycle_type=TODO </summary>
+        /// <summary> Labeled by route=RouteName and lifecycle_type=PreInit/Init/Load/PreRender/PreRenderComplete </summary>
         public static readonly Histogram<double> LifecycleInvocationDuration =
-            Meter.CreateHistogram<double>("control_lifecycle_seconds", unit: "seconds", description: "Time it took to process a request on the specific route.");
+            Meter.CreateHistogram<double>("control_lifecycle_seconds", unit: "seconds", description: "Time it took to call the On{lifecycle_type} method on all controls (does not include Init/Load/PreRender on view models).");
 
-        /// <summary> Labeled by route=RouteName, dothtml_file=filepath, request_type=GET/POST </summary>
+        /// <summary> Labeled by route=RouteName, dothtml_file=filepath, request_type=Navigate/SpaNavigate/Command/StaticCommand </summary>
         public static readonly Histogram<double> RequestDuration =
             Meter.CreateHistogram<double>("request_duration_seconds", unit: "seconds", description: "Time it took to process a request on the specific route.");
 
-        /// <summary> Labeled by route=RouteName, dothtml_file=filepath, request_type=GET/POST </summary>
+        /// <summary> Labeled by route=RouteName, request_type=Navigate/SpaNavigate/Command/StaticCommand </summary>
         public static readonly Counter<long> RequestsRejected =
             Meter.CreateCounter<long>("request_rejected_total", description: "Number of requests rejected (for security reasons) on the specific route.");
 
         /// <summary> Labeled by command="method invoked", result=Ok/Exception/UnhandledException </summary>
         public static readonly Histogram<double> StaticCommandInvocationDuration =
-            Meter.CreateHistogram<double>("staticcommand_invocation_seconds", unit: "seconds", description: "Time it took to invoke the staticCommand method. Note that serialization overhead is not included, look at request_duration_seconds{request_type=\"staticCommand\"}.");
+            Meter.CreateHistogram<double>("!", unit: "seconds", description: "Time it took to invoke the staticCommand method. Note that serialization overhead is not included, look at dotvvm_request_duration_seconds{request_type=\"StaticCommand\"}.");
 
         /// <summary> Labeled by command={command: TheBinding()}, result=Ok/Exception/UnhandledException </summary>
         public static readonly Histogram<double> CommandInvocationDuration =
-            Meter.CreateHistogram<double>("command_invocation_seconds", unit: "seconds", description: "Time it took to invoke the command method. Note that this does not include any of the overhead which is quite heavy for commands. Look at request_duration_seconds{request_type=\"command\"}.");
+            Meter.CreateHistogram<double>("command_invocation_seconds", unit: "seconds", description: "Time it took to invoke the command method. Note that this does not include any of the overhead which is quite heavy for commands. Look at dotvvm_request_duration_seconds{request_type=\"Command\"}.");
 
+        /// <summary> Labeled by route=RouteName, request_type=Navigate/SpaNavigate/Command/StaticCommand </summary>
         public static readonly Histogram<long> ValidationErrorsReturned =
             Meter.CreateHistogram<long>("viewmodel_validation_errors_total", description: "Number of validation errors returned to the client.");
 
@@ -100,6 +101,7 @@ namespace DotVVM.Framework.Hosting
             Meter.CreateCounter<long>("viewmodel_cache_loaded_bytes_total", "bytes", description: "Total number of bytes loaded from view model cache");
 
 
+        /// <summary> Returns the default recommended buckets for the histograms defined in this class. </summary>
         public static double[]? TryGetRecommendedBuckets(Instrument instrument)
         {
             if (instrument.Meter != Meter)
