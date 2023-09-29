@@ -36,6 +36,20 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver
         }
         public static readonly DotvvmProperty TextProperty
             = DotvvmProperty.Register<string, ControlWithExtractGenericArgument>(c => c.Text, null);
+
+        [ExtractGenericArgumentDataContextChange(typeof(List<>), 0)]
+        public string Text2
+        {
+            get { return (string)GetValue(Text2Property); }
+            set { SetValue(Text2Property, value); }
+        }
+        public static readonly DotvvmProperty Text2Property
+            = DotvvmProperty.Register<string, ControlWithExtractGenericArgument>(c => c.Text2, null);
+
+    }
+
+    public class ListOfString : List<string>
+    {
     }
 }
 
