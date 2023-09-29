@@ -34,7 +34,7 @@ public class ErrorViewModel : DotvvmViewModelBase
             ExceptionType = "View called without IExceptionHandlerFeature";
             return base.Init();
         }
-        ExceptionType = exceptionInfo.Error.GetType().Name;
+        ExceptionType = exceptionInfo.Error.GetBaseException().GetType().Name;
         RequestId = aspcontext.TraceIdentifier;
         RequestPath = exceptionInfo.Path;
         return base.Init();

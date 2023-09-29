@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting.ErrorPages;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
@@ -40,8 +42,13 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public async Task Invoke(HttpContext context)
         {
-            // create the context
-            var dotvvmContext = CreateDotvvmContext(context);
+            // If we are handling an error, assume that the request is Navigate, otherwise we are attempting to execute postbacks from a different page
+            var assumedRequestType =
+#if NET6_0_OR_GREATER
+                context.Features[typeof(Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature)] is {} ? DotvvmRequestType.Navigate :
+#endif
+                (DotvvmRequestType?)null;
+            var dotvvmContext = CreateDotvvmContext(context, assumedRequestType);
             context.RequestServices.GetRequiredService<DotvvmRequestContextStorage>().Context = dotvvmContext;
             context.Items[HostingConstants.DotvvmRequestContextKey] = dotvvmContext;
 
@@ -101,14 +108,13 @@ namespace DotVVM.Framework.Hosting
             return httpContext;
         }
 
-        protected DotvvmRequestContext CreateDotvvmContext(HttpContext context)
-        {
-            return new DotvvmRequestContext(
+        protected DotvvmRequestContext CreateDotvvmContext(HttpContext context, DotvvmRequestType? requestType = null) =>
+            new DotvvmRequestContext(
                 ConvertHttpContext(context),
                 Configuration,
-                context.RequestServices
+                context.RequestServices,
+                requestType
             );
-        }
 
         public static bool IsInCurrentVirtualDirectory(IHttpContext context, ref string url)
         {
