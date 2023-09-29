@@ -647,6 +647,7 @@ namespace DotVVM.Framework.Utils
                 yield return i;
             }
 
+            yield return type;
             while (type.BaseType is { } baseType)
             {
                 yield return baseType;

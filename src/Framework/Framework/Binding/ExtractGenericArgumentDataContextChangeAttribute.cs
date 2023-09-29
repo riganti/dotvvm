@@ -45,7 +45,9 @@ public class ExtractGenericArgumentDataContextChangeAttribute : DataContextChang
 
     public override Type? GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty? property = null)
     {
-        var implementations = ReflectionUtils.GetBaseTypesAndInterfaces(dataContext).ToList();
+        var implementations = ReflectionUtils.GetBaseTypesAndInterfaces(dataContext)
+            .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == GenericType)
+            .ToList();
         if (implementations.Count == 0)
         {
             throw new Exception($"The data context {dataContext} doesn't implement {GenericType}!");

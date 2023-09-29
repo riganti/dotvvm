@@ -668,7 +668,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
-        public void ResolvedTree_DataContextChange_ExtractGenericArgument()
+        public void ResolvedTree_DataContextChange_ExtractGenericArgument_Interface()
         {
             var prop = ControlWithExtractGenericArgument.TextProperty;
 
@@ -680,6 +680,36 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             Assert.AreEqual(typeof(string), binding.Binding.DataContextTypeStack.DataContextType);
             Assert.AreEqual(typeof(List<string>), binding.Binding.DataContextTypeStack.Parent!.DataContextType);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_DataContextChange_ExtractGenericArgument_Self()
+        {
+            var prop = ControlWithExtractGenericArgument.Text2Property;
+
+            var root = ParseSource(@"@viewModel System.Collections.Generic.List<System.String>
+<cc:ControlWithExtractGenericArgument Text2={value: _this} />");
+
+            var binding = root.Content.Single().Properties[prop] as ResolvedPropertyBinding;
+            Assert.IsNotNull(binding);
+
+            Assert.AreEqual(typeof(string), binding.Binding.DataContextTypeStack.DataContextType);
+            Assert.AreEqual(typeof(List<string>), binding.Binding.DataContextTypeStack.Parent!.DataContextType);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_DataContextChange_ExtractGenericArgument_BaseType()
+        {
+            var prop = ControlWithExtractGenericArgument.Text2Property;
+
+            var root = ParseSource(@"@viewModel DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver.ListOfString
+<cc:ControlWithExtractGenericArgument Text2={value: _this} />");
+
+            var binding = root.Content.Single().Properties[prop] as ResolvedPropertyBinding;
+            Assert.IsNotNull(binding);
+
+            Assert.AreEqual(typeof(string), binding.Binding.DataContextTypeStack.DataContextType);
+            Assert.AreEqual(typeof(ListOfString), binding.Binding.DataContextTypeStack.Parent!.DataContextType);
         }
 
         [TestMethod]
