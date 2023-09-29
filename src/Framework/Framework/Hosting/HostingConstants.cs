@@ -5,6 +5,7 @@ namespace DotVVM.Framework.Hosting
     public class HostingConstants
     {
         public const string DotvvmRequestContextKey = "dotvvm.requestContext";
+        public const string DotvvmIsErrorHandlingKey = "dotvvm.isErrorHandling";
 
         public const string GlobalizeCultureUrlPath = "dotvvmGlobalizeCulture";
         public const string GlobalizeCultureUrlIdParameter = "id";
