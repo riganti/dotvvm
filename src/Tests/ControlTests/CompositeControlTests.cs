@@ -131,6 +131,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+
+        [TestMethod]
         public async Task CommandDataContextChange()
         {
             // RepeatedButton2 creates button in repeater, but also 
@@ -149,6 +151,34 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.AreEqual(10000000, (int)r.ViewModel.@int);
             await r.RunCommand("Integer = 15", "list-item2".Equals);
             Assert.AreEqual(15, (int)r.ViewModel.@int);
+        }
+
+        [TestMethod]
+        public async Task AutoclonedPostbackHandlers()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <!-- command -->
+                <cc:RepeatedButton2 DataSource={value: List}
+                                    ItemClick={command: Integer = 15}
+                                    Precompile=false>
+                    <PostBack.Handlers>
+                        <dot:ConfirmPostBackHandler Message='Test not precompiled' />
+                    </PostBack.Handlers>
+                </cc:RepeatedButton2>
+                <cc:RepeatedButton2 DataSource={value: List}
+                                    ItemClick={command: Integer = 15}
+                                    Precompile=true>
+                    <PostBack.Handlers>
+                        <dot:ConfirmPostBackHandler Message='Test precompiled' />
+                    </PostBack.Handlers>
+                </cc:RepeatedButton2>
+                """
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+
+            XAssert.Contains("Test not precompiled", r.OutputString);
+            XAssert.Contains("Test precompiled", r.OutputString);
         }
 
         [TestMethod]
@@ -394,15 +424,20 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
-    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.IfPossible)]
     public class RepeatedButton2: CompositeControl
     {
-        public static DotvvmControl GetContents(
+        public DotvvmControl GetContents(
             IValueBinding<IEnumerable<string>> dataSource,
 
-            ICommandBinding itemClick = null
+            ICommandBinding itemClick = null,
+            bool precompile = true
         )
         {
+            if (!precompile && this.GetValue(Internal.RequestContextProperty) is null)
+            {
+                throw new SkipPrecompilationException();
+            }
             // Places itemClick in two different data contexts
             var repeater = new Repeater() {
                 RenderAsNamedTemplate = false,

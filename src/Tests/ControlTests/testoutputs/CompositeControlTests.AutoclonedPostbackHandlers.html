@@ -1,0 +1,19 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- command -->
+		<div>
+			<div data-bind="foreach: { data: List }">
+				<input onclick="dotvvm.postBack(this,[&quot;List/[$index]&quot;],&quot;IYZcgJXAUDcvRzk7&quot;,&quot;&quot;,ko.contextFor(this).$parentContext,[[&quot;confirm&quot;,{message:&quot;Test not precompiled&quot;}]],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Item">
+			</div>
+			<input onclick="dotvvm.postBack(this,[],&quot;IYZcgJXAUDcvRzk7&quot;,&quot;&quot;,null,[[&quot;confirm&quot;,{message:&quot;Test not precompiled&quot;}]],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Last Item">
+		</div>
+		<div>
+			<div data-bind="foreach: { data: List }">
+				<input onclick="dotvvm.postBack(this,[&quot;List/[$index]&quot;],&quot;/cYhsuIE/4DfszAC&quot;,&quot;&quot;,ko.contextFor(this).$parentContext,[[&quot;confirm&quot;,{message:&quot;Test precompiled&quot;}]],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Item">
+			</div>
+			<input onclick="dotvvm.postBack(this,[],&quot;/cYhsuIE/4DfszAC&quot;,&quot;&quot;,null,[[&quot;confirm&quot;,{message:&quot;Test precompiled&quot;}]],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Last Item">
+		</div>
+	</body>
+</html>
