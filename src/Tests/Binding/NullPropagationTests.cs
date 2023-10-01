@@ -62,7 +62,14 @@ namespace DotVVM.Framework.Tests.Binding
             Create((DateTime d) => d.ToString()),
             Create((double a) => TimeSpan.FromSeconds(a)),
             Create((TestViewModel vm) => (TimeSpan)vm.Time),
-            Create((TestViewModel vm, TimeSpan time, int integer, double number, DateTime d) => new TestViewModel{ EnumProperty = TestEnum.B, BoolMethodExecuted = vm.BoolMethodExecuted, StringProp = time + ": " + vm.StringProp, StringProp2 = integer + vm.StringProp2 + number, TestViewModel2 = vm.TestViewModel2, DateFrom = d}),
+            Create((TestViewModel vm, TimeSpan time, int integer, double number, DateTime d) => new TestViewModel {
+                EnumProperty = TestEnum.B,
+                BoolMethodExecuted = (bool?)vm.BoolMethodExecuted ?? false,
+                StringProp = time + ": " + vm.StringProp,
+                StringProp2 = integer + vm.StringProp2 + number,
+                TestViewModel2 = vm.TestViewModel2,
+                DateFrom = d
+            }),
         };
 
         private static LambdaExpression Create<T1, T2>(Expression<Func<T1, T2>> e) => e;
@@ -200,6 +207,16 @@ namespace DotVVM.Framework.Tests.Binding
                     Assert.IsTrue(ex.Message.StartsWith("Binding expression"));
                     // and it must only occur for value types
                     Assert.IsTrue(new [] { "System.Int", "System.TimeSpan", "System.Char", "System.Double" }.Any(ex.Message.Contains));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Original expression: {expr.ToCSharpString()}");
+                    Console.WriteLine($"Null-checked expression {expr.ToCSharpString()}");
+                    Console.WriteLine();
+                    Console.WriteLine(expr.ToExpressionString());
+                    Console.WriteLine(e.ToString());
+                    Assert.Fail($"Exception {e.Message} while executing null-checked {expr.ToCSharpString()}");
+                    return;
                 }
             }
         }

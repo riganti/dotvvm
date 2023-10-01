@@ -936,7 +936,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type void to object")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot implicitly convert expression of type void to object")]
         public void BindingCompiler_MultiBlockExpression_EmptyBlockAtEnd_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -944,7 +944,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type void to object")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot implicitly convert expression of type void to object")]
         public void BindingCompiler_MultiBlockExpression_WhitespaceBlockAtEnd_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -1101,6 +1101,71 @@ namespace DotVVM.Framework.Tests.Binding
             check.CheckException(() =>
                 ExecuteBinding("_this + 'aaa'", type, control)
             );
+        }
+
+        [TestMethod]
+        public void NullableIntAssignment()
+        {
+            var vm = new TestViewModel() { NullableIntProp = 11 };
+            ExecuteBinding("NullableIntProp = null", vm);
+            Assert.AreEqual(null, vm.NullableIntProp);
+            ExecuteBinding("NullableIntProp = 3", vm);
+            Assert.AreEqual(3, vm.NullableIntProp);
+        }
+
+        [TestMethod]
+        public void NullableDateAssignment()
+        {
+            var vm = new TestViewModel() {
+                DateFrom = new DateTime(2000, 1, 1, 11, 11, 11),
+                DateTime = new DateTime(203, 3, 3, 3, 3, 3),
+                DateOnly = new DateOnly(2000, 1, 1),
+                NullableDateOnly = new DateOnly(2000, 1, 1)
+            };
+            ExecuteBinding("DateFrom = null; NullableDateOnly = null", vm);
+            Assert.AreEqual(null, vm.DateFrom);
+            Assert.AreEqual(null, vm.NullableDateOnly);
+
+            ExecuteBinding("DateFrom = DateTime; NullableDateOnly = DateOnly", vm);
+            Assert.AreEqual(new DateTime(203, 3, 3, 3, 3, 3), vm.DateFrom);
+            Assert.AreEqual(vm.DateTime, vm.DateFrom);
+            Assert.AreEqual(new DateOnly(2000, 1, 1), vm.NullableDateOnly);
+            Assert.AreEqual(vm.DateOnly, vm.NullableDateOnly);
+        }
+
+        [TestMethod]
+        public void NullableToNonnullableAssignment()
+        {
+            var vm = new TestViewModel() { NullableIntProp = 11 };
+            ExecuteBinding("IntProp = NullableIntProp", vm);
+            Assert.AreEqual(11, vm.IntProp);
+            ExecuteBinding("IntProp = NullableIntProp.Value", vm);
+            Assert.AreEqual(11, vm.IntProp);
+
+            vm.NullableIntProp = null;
+            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                ExecuteBinding("IntProp = NullableIntProp", vm));
+            Assert.AreEqual("Nullable object must have a value.", exception.Message);
+        }
+
+        [TestMethod]
+        public void NullableStringAssignment()
+        {
+            var vm = new TestViewModel() { StringProp2 = "A", StringProp = "B" };
+            ExecuteBinding("StringProp2 = null", vm);
+            Assert.AreEqual(null, vm.StringProp2);
+            ExecuteBinding("StringProp2 = StringProp", vm);
+            Assert.AreEqual("B", vm.StringProp2);
+            Assert.AreEqual(vm.StringProp, vm.StringProp2);
+        }
+
+        [TestMethod]
+        public void Error_ValueTypeIntAssignment()
+        {
+            var ex = XAssert.ThrowsAny<Exception>(() =>
+                ExecuteBinding("DateTime = null", new TestViewModel())
+            );
+            XAssert.Contains("Cannot convert null to System.DateTime", ex.Message);
         }
 
         [DataTestMethod]
