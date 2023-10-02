@@ -53,15 +53,16 @@ namespace DotVVM.Framework.Compilation.Directives
             var baseType = baseTypeResult.Artefact;
             resolvedDirectives.AddIfAny(baseTypeCompiler.DirectiveName, baseTypeResult.Directives);
 
+            var isMarkupControl = !baseType.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView)));
             var viewModuleDirectiveCompiler = new ViewModuleDirectiveCompiler(
                 directivesByName,
                 treeBuilder,
-                !baseType.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))),
+                isMarkupControl,
                 resourceRepository);
             var viewModuleResult = viewModuleDirectiveCompiler.Compile();
             resolvedDirectives.AddIfAny(viewModuleDirectiveCompiler.DirectiveName, viewModuleResult.Directives);
 
-            var propertyDirectiveCompiler = new PropertyDeclarationDirectiveCompiler(directivesByName, treeBuilder, baseType, imports);
+            var propertyDirectiveCompiler = new PropertyDeclarationDirectiveCompiler(directivesByName, treeBuilder, isMarkupControl, baseType, imports);
             var propertyResult = propertyDirectiveCompiler.Compile();
             resolvedDirectives.AddIfAny(propertyDirectiveCompiler.DirectiveName, propertyResult.Directives);
 

@@ -17,18 +17,25 @@ namespace DotVVM.Framework.Compilation.Directives
     {
         private readonly ITypeDescriptor controlWrapperType;
         private readonly ImmutableList<NamespaceImport> imports;
+        private readonly bool isMarkupControl;
 
         public override string DirectiveName => ParserConstants.PropertyDeclarationDirective;
 
-        public PropertyDeclarationDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, ITypeDescriptor controlWrapperType, ImmutableList<NamespaceImport> imports)
+        public PropertyDeclarationDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, bool isMarkupControl, ITypeDescriptor controlWrapperType, ImmutableList<NamespaceImport> imports)
             : base(directiveNodesByName, treeBuilder)
         {
+            this.isMarkupControl = isMarkupControl;
             this.controlWrapperType = controlWrapperType;
             this.imports = imports;
         }
 
         protected override IAbstractPropertyDeclarationDirective Resolve(DothtmlDirectiveNode directiveNode)
         {
+            if (!isMarkupControl)
+            {
+                directiveNode.AddError("Can not use the @property directive outside of a markup control");
+            }
+
             var valueSyntaxRoot = ParseDirective(directiveNode, p => p.ReadPropertyDirectiveValue());
 
             var declaration = valueSyntaxRoot as PropertyDeclarationBindingParserNode;
