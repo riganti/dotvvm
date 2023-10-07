@@ -139,6 +139,7 @@ public class GridViewDataSetBindingProvider
                 new object[]
                 {
                     new ParsedExpressionBindingProperty(expression),
+                    new OriginalStringBindingProperty($"DataPager: _dataSet.{methodName}({string.Join(", ", arguments.AsEnumerable())})"), // For ID generation
                     dataContextStack
                 });
         }
@@ -175,11 +176,23 @@ public class GridViewDataSetBindingProvider
         return Expression.Call(method, dataSetParam);
     }
 
+    private static Expression CurrentGridDataSetExpression(Type datasetType)
+    {
+        var method = typeof(GridViewDataSetBindingProvider).GetMethod(nameof(GetCurrentGridDataSet))!.MakeGenericMethod(datasetType);
+        return Expression.Call(method);
+    }
+
     /// <summary>
     /// A sentinel method which is translated to load the GridViewDataSet on the client side using the Load delegate.
     /// Do not call this method on the server.
     /// </summary>
     public static Task DataSetClientSideLoad(IBaseGridViewDataSet dataSet)
+    {
+        throw new InvalidOperationException("This method cannot be called on the server!");
+    }
+
+    /// <summary> Returns the DataSet we currently work on from the $context.$gridViewDataSetHelper.dataSet </summary>
+    public static T GetCurrentGridDataSet<T>() where T : IBaseGridViewDataSet
     {
         throw new InvalidOperationException("This method cannot be called on the server!");
     }
