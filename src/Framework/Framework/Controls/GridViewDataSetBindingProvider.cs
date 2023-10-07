@@ -43,9 +43,9 @@ public class GridViewDataSetBindingProvider
                 ? CreateCommandBinding<T>(commandType, dataSetParam, dataContextStack, methodName, arguments)
                 : null;
         }
-        ParameterExpression CreateParameter(DataContextStack dataContextStack)
+        ParameterExpression CreateParameter(DataContextStack dataContextStack, string name = "_this")
         {
-            return Expression.Parameter(dataContextStack.DataContextType).AddParameterAnnotation(new BindingParameterAnnotation(dataContextStack));
+            return Expression.Parameter(dataContextStack.DataContextType, name).AddParameterAnnotation(new BindingParameterAnnotation(dataContextStack));
         }
 
         return new DataPagerCommands()
@@ -71,10 +71,10 @@ public class GridViewDataSetBindingProvider
                 nameof(IPagingLastPageCapability.GoToLastPage)),
 
             GoToPage = GetCommandOrNull<IPageableGridViewDataSet<IPagingPageIndexCapability>>(
-                CreateParameter(dataContextStack),
+                CreateParameter(dataContextStack, "_parent"),
                 DataContextStack.Create(typeof(int), dataContextStack),
                 nameof(IPagingPageIndexCapability.GoToPage),
-                CreateParameter(DataContextStack.Create(typeof(int), dataContextStack)))
+                CreateParameter(DataContextStack.Create(typeof(int), dataContextStack), "_thisIndex"))
         };
     }
 

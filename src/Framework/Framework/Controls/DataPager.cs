@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
 
 
         public DataPager(GridViewDataSetBindingProvider gridViewDataSetBindingProvider, BindingCompilationService bindingCompilationService)
-            : base("div", false)
+            : base("ul", false)
         {
             this.gridViewDataSetBindingProvider = gridViewDataSetBindingProvider;
             this.bindingCompilationService = bindingCompilationService;
@@ -126,6 +126,14 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, DataPager>(nameof(Enabled), FormControls.EnabledProperty);
 
+        public ICommandBinding? LoadData
+        {
+            get => (ICommandBinding?)GetValue(LoadDataProperty);
+            set => SetValue(LoadDataProperty, value);
+        }
+        public static readonly DotvvmProperty LoadDataProperty =
+            DotvvmProperty.Register<ICommandBinding?, DataPager>(nameof(LoadData));
+
         protected HtmlGenericControl? ContentWrapper { get; set; }
         protected HtmlGenericControl? GoToFirstPageButton { get; set; }
         protected HtmlGenericControl? GoToPreviousPageButton { get; set; }
@@ -156,7 +164,9 @@ namespace DotVVM.Framework.Controls
             ContentWrapper = CreateWrapperList(dataContextType);
             Children.Add(ContentWrapper);
 
-            pagerCommands = gridViewDataSetBindingProvider.GetDataPagerCommands(dataContextType, GridViewDataSetCommandType.Command);
+            var commandType = LoadData is {} ? GridViewDataSetCommandType.StaticCommand : GridViewDataSetCommandType.Command;
+
+            pagerCommands = gridViewDataSetBindingProvider.GetDataPagerCommands(dataContextType, commandType);
             object enabledValue = GetValueRaw(EnabledProperty)!;
             
             if (typeof(IPageableGridViewDataSet<IPagingFirstPageCapability>).IsAssignableFrom(dataContextType.DataContextType))
@@ -265,19 +275,27 @@ namespace DotVVM.Framework.Controls
                 throw new DotvvmControlException(this, "The DataPager control cannot be rendered in the RenderSettings.Mode='Server'.");
             }
 
-            base.AddAttributesToRender(writer, context);
+            var dataSetBinding = GetDataSetBinding().GetKnockoutBindingExpression(this, unwrapped: true);
+            var helperBinding = new KnockoutBindingGroup();
+            helperBinding.Add("dataSet", dataSetBinding);
+            if (this.LoadData is {} loadData)
+            {
+                var loadDataExpression = KnockoutHelper.GenerateClientPostbackLambda("LoadData", loadData, this, new PostbackScriptOptions(elementAccessor: "$element", koContext: CodeParameterAssignment.FromIdentifier("$context")));
+                helperBinding.Add("loadData", loadDataExpression);
+            }
+            writer.AddKnockoutDataBind("dotvvm-gridviewdataset", helperBinding);
 
             // If Visible property was set to something, it will be overwritten by this. TODO: is it how it should behave?
             if (HideWhenOnlyOnePage)
             {
                 if (IsPropertySet(VisibleProperty))
                     throw new Exception("Visible can't be set on a DataPager when HideWhenOnlyOnePage is true. You can wrap it in an element that hide that or set HideWhenOnlyOnePage to false");
-                writer.AddKnockoutDataBind("visible", $"({GetDataSetBinding().GetKnockoutBindingExpression(this, unwrapped: true)}).PagingOptions().PagesCount() > 1");
+                writer.AddKnockoutDataBind("visible", $"({dataSetBinding}).PagingOptions().PagesCount() > 1");
             }
-        }
 
-        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
+            writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
+
+
             if (GetValueBinding(EnabledProperty) is IValueBinding enabledBinding)
             {
                 var disabledBinding = enabledBinding.GetProperty<NegatedBindingExpression>().Binding.CastTo<IValueBinding>();
@@ -288,8 +306,7 @@ namespace DotVVM.Framework.Controls
                 writer.AddAttribute("class", DisabledItemCssClass, true);
             }
 
-            writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
-            writer.RenderBeginTag("ul");
+            base.AddAttributesToRender(writer, context);
         }
 
         protected virtual void AddItemCssClass(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -311,15 +328,15 @@ namespace DotVVM.Framework.Controls
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             AddItemCssClass(writer, context);
-            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsFirstPage()");
+            AddKnockoutDisabledCssDataBind(writer, context, "$gridViewDataSetHelper.dataSet.PagingOptions().IsFirstPage()");
             GoToFirstPageButton!.Render(writer, context);
 
             AddItemCssClass(writer, context);
-            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsFirstPage()");
+            AddKnockoutDisabledCssDataBind(writer, context, "$gridViewDataSetHelper.dataSet.PagingOptions().IsFirstPage()");
             GoToPreviousPageButton!.Render(writer, context);
 
             // render template
-            writer.WriteKnockoutForeachComment("PagingOptions().NearPageIndexes");
+            writer.WriteKnockoutForeachComment("$gridViewDataSetHelper.dataSet.PagingOptions().NearPageIndexes");
 
             // render page number
             NumberButtonsPlaceHolder!.Children.Clear();
@@ -383,11 +400,6 @@ namespace DotVVM.Framework.Controls
             if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
 
             li.Render(writer, context);
-        }
-
-        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            writer.RenderEndTag();
         }
 
         private IValueBinding GetDataSetBinding()
