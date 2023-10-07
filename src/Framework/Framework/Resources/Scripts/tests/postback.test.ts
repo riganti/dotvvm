@@ -420,3 +420,95 @@ test("Postback: AbortSignal", async () => {
 
     expect(postbackPromise).rejects.toMatchObject( {reason: {type: "abort"}})
 })
+
+test("Run postbacks [Queue + Default | no failures]", async () => {
+    jest.setTimeout(120_000);
+
+    // watchEvents()
+
+    await fc.assert(fc.asyncProperty(
+        fc.integer(1, 10),
+        fc.boolean(),
+        fc.boolean(),
+        fc.constantFrom<{parent: [string, object]; nested: [string, object]}[]>(
+            { parent: ["concurrency-queue", { q: "parent" }], nested: ["concurrency-queue", { q: "nested" }] },
+            { parent: ["concurrency-queue", { q: "parent" }], nested: ["concurrency-deny", { q: "nested" }] }, // first queue should be enough to avoid races   
+            { parent: ["concurrency-queue", { q: "parent" }], nested: ["concurrency-default", { q: "nested" }] }, // first queue should be enough to avoid races
+            { parent: ["concurrency-default", { q: "parent" }], nested: ["concurrency-default", { q: "nested" }] },
+            { parent: ["concurrency-deny", { q: "parent" }], nested: ["concurrency-default", { q: "nested" }] },
+        ),
+        fc.scheduler(),
+        async (parallelism, nestedBefore, nestedAfter, concurrency, scheduler) => {
+            // wait for stuff to settle down
+            // postbacks from the previous run may have been running or so
+            await delay(1)
+            resetQueues()
+
+            // console.debug("Starting new test ", parallelismQ, parallelismD)
+            let index = 0
+            let index2 = 0
+            fetchJson = async(url: string, init: RequestInit) => {
+                const { command } = JSON.parse(init.body as string)
+                if (command == "nested") {
+                    return makeResponse({
+                        Property1: ++index
+                    })
+                } else if (command == "default") {
+                    return makeResponse({
+                        Property2: ++index2
+                    })
+                }
+            }
+
+            getStateManager().update(x => ({...x, Property1: 0, Property2: 0}))
+
+            async function runNestedPostback(name: string) {
+                await postBack(window.document.body, [], "nested", "", undefined, [concurrency.nested, cancerPostbackHandler(scheduler, name) ]).catch(_ => {})
+            }
+
+            function postbackHandler(name: string): DotvvmPostbackHandler {
+                return {
+                    name: "run-nested-postback",
+                    async execute(next: () => Promise<PostbackCommitFunction>): Promise<PostbackCommitFunction> {
+                        if (nestedBefore) {
+                            await runNestedPostback(name + "-nested-before")
+                        }
+                        const commit = await next()
+                        return async () => {
+                            const result = await commit()
+                            if (nestedAfter) {
+                                await runNestedPostback(name + "-nested-after")
+                            }
+                            return result
+                        }
+                    }
+                }
+            }
+
+            const queuePostbacks: Promise<any>[] =
+                makeEventRange(parallelism, scheduler, "postback", i =>
+                    postBack(window.document.body, [], "default", "", undefined, [concurrency.parent, postbackHandler("Q" + i), cancerPostbackHandler(scheduler, "Q" + i) ]).catch(_ => {})
+                )
+
+            await waitForEnd(queuePostbacks, scheduler, () => {
+                expect(state().Property1).toBeLessThanOrEqual(index)
+                expect(state().Property2).toBeLessThanOrEqual(index2)
+            })
+            
+            const numberOfNestedPostbacks = parallelism * (Number(nestedBefore) + Number(nestedAfter))
+            expect(index).toBeLessThanOrEqual(numberOfNestedPostbacks)
+            if (concurrency.parent[0] == "concurrency-deny") {
+                expect(index2).toBeLessThanOrEqual(parallelism)
+            } else {
+                // all parallelism requests got to the server
+                expect(index2).toBe(parallelism)
+            }
+
+            if (concurrency.parent[0] == "concurrency-queue") {
+                expect(state().Property2).toBe(index2)
+                expect(index).toBe(numberOfNestedPostbacks)
+                expect(state().Property1).toBe(index)
+            }
+        }
+    ), { timeout: 2000 })
+})

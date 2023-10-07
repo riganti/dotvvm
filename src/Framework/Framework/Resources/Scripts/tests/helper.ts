@@ -18,7 +18,7 @@ export async function waitForEnd<T>(result: Promise<T>[], s: fc_types.Scheduler,
 
     while (!done) {
         // console.log(s.report())
-        expect(s.count()).toBeGreaterThan(0)
+        expect(s.count()).toBeGreaterThan(0) // scheduler is stuck - in reality there would be deadlock
         await s.waitOne()
 
         assert()
