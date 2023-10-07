@@ -837,7 +837,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             // GridViewDataSetBindingProvider
             AddMethodTranslator(typeof(GridViewDataSetBindingProvider), "DataSetClientSideLoad", new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("loadDataSet").Invoke(args[1], args[2])));
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("loadDataSet").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance), new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$gridViewDataSetHelper").Member("loadDataSet")).WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
 
             // PagingOptions
             AddMethodTranslator(() => default(PagingOptions)!.GoToFirstPage(),new GenericMethodCompiler(args =>

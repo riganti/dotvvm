@@ -124,6 +124,8 @@ namespace DotVVM.Framework.Tests.ViewModel
             var commands = commandProvider.GetDataPagerCommands(dataContextStack, GridViewDataSetCommandType.StaticCommand);
 
             var goToFirstPage = CompileBinding(commands.GoToFirstPage);
+            Console.WriteLine(goToFirstPage);
+            XAssert.Equal("dotvvm.applyPostbackHandlers(async (options)=>{let vm=options.viewModel;dotvvm.dataSet.translations.PagingOptions.goToFirstPage(vm.PagingOptions);return await dotvvm.dataSet.loadDataSet(vm,options.knockoutContext.$gridViewDataSetHelper.loadDataSet);},this)", goToFirstPage);
         }
 
         private string CompileBinding(ICommandBinding staticCommand)
@@ -134,8 +136,7 @@ namespace DotVVM.Framework.Tests.ViewModel
                 new Literal(),
                 new PostbackScriptOptions(
                     allowPostbackHandlers: false,
-                    returnValue: null,
-                    commandArgs: CodeParameterAssignment.FromLiteral("commandArguments")
+                    returnValue: null
                 ));
         }
 
