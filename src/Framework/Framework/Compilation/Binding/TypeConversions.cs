@@ -130,7 +130,16 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 result = ToStringConversion(src);
             }
-            if (throwException && result == null) throw new InvalidOperationException($"Could not implicitly convert expression of type { src.Type.ToCode() } to { destType.ToCode() }.");
+            if (throwException && result == null)
+            {
+                if (src is ConstantExpression { Value: null } && destType.IsValueType)
+                    throw new InvalidOperationException($"Cannot convert null to {destType.ToCode()} because it is a non-nullable value type.");
+                else if (src is ConstantExpression { Value: var value })
+                    // constants have quite different conversion rules, so we include the value in the error message
+                    throw new InvalidOperationException($"Cannot convert '{value}' of type {src.Type.ToCode()} to {destType.ToCode()}.");
+
+                throw new InvalidOperationException($"Cannot implicitly convert expression of type { src.Type.ToCode() } to { destType.ToCode() }.");
+            }
             return result;
         }
 

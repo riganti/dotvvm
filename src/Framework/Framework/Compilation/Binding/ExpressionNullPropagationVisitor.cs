@@ -47,32 +47,33 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 return CheckForNull(Visit(node.Right), right =>
                 {
-                    // When assigning values to nullable types, convert value to nullable first
-                    if (node.NodeType == ExpressionType.Assign)
-                    {
-                        if (ReflectionUtils.IsNullableType(left.Type) && !ReflectionUtils.IsNullableType(right.Type))
-                            right = Expression.Convert(right, left.Type);
-                    }
-
                     return Expression.MakeBinary(node.NodeType, left, right, false, node.Method, node.Conversion);
                 }, checkReferenceTypes: false);
             }
 
             if (node.NodeType.ToString().EndsWith("Assign"))
             {
+                var right = Visit(node.Right);
+                // Convert non-nullable to nullable
+                // and unwrap nullable to non-nullable - throw a runtime NullReferenceException when right is null
+                if (right.Type != node.Right.Type && right.Type.UnwrapNullableType() == right.Type.UnwrapNullableType())
+                {
+                    right = Expression.Convert(right, node.Right.Type);
+                }
+
                 // only check for left target's null, assignment to null is perfectly valid
                 if (node.Left is MemberExpression memberExpression)
                 {
                     return CheckForNull(Visit(memberExpression.Expression), memberTarget =>
-                        createExpr(memberExpression.Update(memberTarget)));
+                        node.Update(memberExpression.Update(memberTarget), node.Conversion, right));
                 }
                 else if (node.Left is IndexExpression indexer)
                 {
                     return CheckForNull(Visit(indexer.Object), memberTarget =>
-                        createExpr(indexer.Update(memberTarget, indexer.Arguments)));
+                        node.Update(indexer.Update(memberTarget, indexer.Arguments), node.Conversion, right));
                 }
                 // this should only be ParameterExpression
-                else return createExpr(node.Left);
+                else return node.Update(node.Left, node.Conversion, right);
             }
             else if (node.NodeType == ExpressionType.ArrayIndex)
             {

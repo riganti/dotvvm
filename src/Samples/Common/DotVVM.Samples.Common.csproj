@@ -127,6 +127,7 @@
     <None Remove="Views\FeatureSamples\Validation\RangeClientSideValidation.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\ValidationTargetIsCollection.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\ValidatorValueComplexExpressions.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModelDeserialization\PropertyNullAssignment.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\Incrementer.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\IncrementerInRepeater.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\InnerModuleControl.dotcontrol" />

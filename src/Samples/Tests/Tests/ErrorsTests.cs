@@ -99,7 +99,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_WrongPropertyValue);
                 AssertUI.InnerText(browser.First("[class='exceptionMessage']")
-                    , s => s.Contains("Could not implicitly convert expression"));
+                    , s => s.Contains("Cannot convert 'NotAllowedValue' of type string to bool?"));
 
                 AssertUI.InnerText(browser.First("[class='errorUnderline']")
                     , s => s.Contains("NotAllowedValue"));

@@ -52,6 +52,31 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_ViewModelDeserialization_PropertyNullAssignment()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelDeserialization_PropertyNullAssignment);
+
+                var value = browser.Single(".result");
+                var buttons = browser.FindElements("input[type=button]");
+
+                AssertUI.InnerTextEquals(value, "");
+
+                buttons[0].Click();
+                AssertUI.InnerTextEquals(value, "1/2/2023 3:04:05 AM");
+
+                buttons[1].Click();
+                AssertUI.InnerTextEquals(value, "");
+
+                buttons[0].Click();
+                AssertUI.InnerTextEquals(value, "1/2/2023 3:04:05 AM");
+
+                buttons[2].Click();
+                AssertUI.InnerTextEquals(value, "");
+            });
+        }
+
         public ViewModelDeserializationTests(ITestOutputHelper output) : base(output)
         {
         }
