@@ -285,7 +285,7 @@ namespace DotVVM.Framework.Controls
                 var loadDataExpression = KnockoutHelper.GenerateClientPostbackLambda("LoadData", loadData, this, new PostbackScriptOptions(elementAccessor: "$element", koContext: CodeParameterAssignment.FromIdentifier("$context")));
                 helperBinding.Add("loadData", loadDataExpression);
             }
-            writer.AddKnockoutDataBind("dotvvm-gridviewdataset", helperBinding.ToString());
+            writer.WriteKnockoutDataBindComment("dotvvm-gridviewdataset", helperBinding.ToString());
 
             // If Visible property was set to something, it will be overwritten by this. TODO: is it how it should behave?
             if (HideWhenOnlyOnePage)
@@ -295,7 +295,7 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("visible", $"({dataSetBinding}).PagingOptions().PagesCount() > 1");
             }
 
-            // writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
+            writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
 
 
             if (GetValueBinding(EnabledProperty) is IValueBinding enabledBinding)
@@ -330,15 +330,15 @@ namespace DotVVM.Framework.Controls
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             AddItemCssClass(writer, context);
-            AddKnockoutDisabledCssDataBind(writer, context, "$gridViewDataSetHelper.dataSet.PagingOptions().IsFirstPage()");
+            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsFirstPage()");
             GoToFirstPageButton!.Render(writer, context);
 
             AddItemCssClass(writer, context);
-            AddKnockoutDisabledCssDataBind(writer, context, "$gridViewDataSetHelper.dataSet.PagingOptions().IsFirstPage()");
+            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsFirstPage()");
             GoToPreviousPageButton!.Render(writer, context);
 
             // render template
-            writer.WriteKnockoutForeachComment("$gridViewDataSetHelper.dataSet.PagingOptions().NearPageIndexes");
+            writer.WriteKnockoutForeachComment("PagingOptions().NearPageIndexes");
 
             // render page number
             NumberButtonsPlaceHolder!.Children.Clear();
@@ -347,11 +347,11 @@ namespace DotVVM.Framework.Controls
             writer.WriteKnockoutDataBindEndComment();
 
             AddItemCssClass(writer, context);
-            AddKnockoutDisabledCssDataBind(writer, context, "$gridViewDataSetHelper.dataSet.PagingOptions().IsLastPage()");
+            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsLastPage()");
             GoToNextPageButton!.Render(writer, context);
 
             AddItemCssClass(writer, context);
-            AddKnockoutDisabledCssDataBind(writer, context, "$gridViewDataSetHelper.dataSet.PagingOptions().IsLastPage()");
+            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsLastPage()");
             GoToLastPageButton!.Render(writer, context);
         }
 
@@ -368,7 +368,7 @@ namespace DotVVM.Framework.Controls
 
             if (!RenderLinkForCurrentPage)
             {
-                writer.AddKnockoutDataBind("visible", "$data == $parentContext.$gridViewDataSetHelper.dataSet.PagingOptions().PageIndex()");
+                writer.AddKnockoutDataBind("visible", "$data == $parent.PagingOptions().PageIndex()");
                 AddItemCssClass(writer, context);
                 writer.AddAttribute("class", ActiveItemCssClass, true);
                 var literal = new Literal();
@@ -379,7 +379,7 @@ namespace DotVVM.Framework.Controls
 
                 li.Render(writer, context);
 
-                writer.AddKnockoutDataBind("visible", "$data != $parentContext.$gridViewDataSetHelper.dataSet.PagingOptions().PageIndex()");
+                writer.AddKnockoutDataBind("visible", "$data != $parent.PagingOptions().PageIndex()");
             }
 
             li = new HtmlGenericControl("li");
@@ -390,7 +390,7 @@ namespace DotVVM.Framework.Controls
             AddItemCssClass(writer, context);
 
             if (RenderLinkForCurrentPage)
-                AddKnockoutActiveCssDataBind(writer, context, "$data == $parentContext.$gridViewDataSetHelper.dataSet.PagingOptions().PageIndex()");
+                AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
 
             li.SetValue(Internal.PathFragmentProperty, "$parent.PagingOptions.NearPageIndexes[$index]");
             var link = new LinkButton();
@@ -404,11 +404,11 @@ namespace DotVVM.Framework.Controls
             li.Render(writer, context);
         }
 
-        // protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
-        // {
-        //     base.RenderEndTag(writer, context);
-        //     writer.WriteKnockoutDataBindEndComment();
-        // }
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            base.RenderEndTag(writer, context);
+            writer.WriteKnockoutDataBindEndComment();
+        }
 
         private IValueBinding GetDataSetBinding()
             => GetValueBinding(DataSetProperty) ?? throw new DotvvmControlException(this, "The DataSet property of the dot:DataPager control must be set!");
