@@ -8,23 +8,57 @@
 </head>
 <body>
     <div class="container">
-        <h1>GridView with IGridViewDataSet</h1>
-        <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered">
+        <h1>Standard data set</h1>
+        <dot:GridView DataSource="{value: StandardDataSet}"
+                      <%--LoadData="{staticCommand: _root.LoadStandard}"--%>>
             <Columns>
-                <!-- comment inside columns collection -->
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
-                <dot:GridViewTemplateColumn HeaderText="Action">
-                    <ContentTemplate>
-                        <dot:Button Click="{command: _root.DeleteCustomerData(CustomerId)}" Text="Static command delete" />
-                    </ContentTemplate>
-                </dot:GridViewTemplateColumn>
+                <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" AllowSorting="True" />
             </Columns>
-
-            <!-- comment inside control -->
         </dot:GridView>
-        <dot:DataPager DataSet="{value: CustomersDataSet}" class="pagination" />
+        <dot:DataPager DataSet="{value: StandardDataSet}" LoadData="{staticCommand: _root.LoadStandard}" />
+        <%--
+        <h1>NextToken paging options</h1>
+        <dot:GridView DataSource="{value: NextTokenDataSet}"
+                      <%--LoadData="{staticCommand: _root.LoadToken}"--%>
+                      >
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" />
+                <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" />
+            </Columns>
+        </dot:GridView>
+        <dot:DataPager DataSet="{value: NextTokenDataSet}" LoadData="{staticCommand: _root.LoadToken}" />
+
+        <h1>NextTokenHistory data set</h1>
+        <dot:GridView DataSource="{value: NextTokenHistoryDataSet}"
+                      <%--LoadData="{staticCommand: _root.LoadTokenHistory}"--%>
+                      >
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" />
+                <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" />
+            </Columns>
+        </dot:GridView>
+        <dot:DataPager DataSet="{value: NextTokenHistoryDataSet}" LoadData="{staticCommand: _root.LoadTokenHistory}" />
+
+        <h1>MultiSort data set</h1>
+        <dot:GridView DataSource="{value: MultiSortDataSet}"
+                      <%--LoadData="{staticCommand: _root.LoadMultiSort}"--%>
+                      >
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" AllowSorting="True" />
+            </Columns>
+        </dot:GridView>
+        <dot:DataPager DataSet="{value: MultiSortDataSet}" LoadData="{staticCommand: _root.LoadMultiSort}" />
+        --%>
     </div>
 </body>
 </html>
