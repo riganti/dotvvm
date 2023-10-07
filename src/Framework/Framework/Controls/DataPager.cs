@@ -283,7 +283,7 @@ namespace DotVVM.Framework.Controls
             if (this.LoadData is {} loadData)
             {
                 var loadDataExpression = KnockoutHelper.GenerateClientPostbackLambda("LoadData", loadData, this, new PostbackScriptOptions(elementAccessor: "$element", koContext: CodeParameterAssignment.FromIdentifier("$context")));
-                helperBinding.Add("loadData", loadDataExpression);
+                helperBinding.Add("loadDataSet", loadDataExpression);
             }
             writer.WriteKnockoutDataBindComment("dotvvm-gridviewdataset", helperBinding.ToString());
 

@@ -126,8 +126,8 @@ const dotvvmExports = {
     options,
     translations: translations as any,
     dataSet: {
-        load: loadDataSet,
-        translations: dataSetTranslations
+        loadDataSet: loadDataSet,
+        translations: dataSetTranslations.translations
     },
     StateManager,
     DotvvmEvent,

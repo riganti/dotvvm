@@ -128,11 +128,7 @@
   <ItemGroup>
     <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
     <TypescriptFile Include="Resources/Scripts/**/*.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypescriptFile Remove="Resources\Scripts\dataset\loader.ts" />
-    <TypescriptFile Remove="Resources\Scripts\dataset\translations.ts" />
+    <UpToDateCheckInput Include="Resources/Scripts/**/*.ts" />
   </ItemGroup>
 
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
