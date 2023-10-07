@@ -1,0 +1,27 @@
+<html>
+	<head></head>
+	<body>
+		<ul data-bind="dotvvm-gridviewdataset: { dataSet: Customers() }, visible: (Customers()).PagingOptions().PagesCount() > 1, with: Customers">
+			<li data-bind="css: { 'disabled': $gridViewDataSetHelper.dataSet.PagingOptions().IsFirstPage() }">
+				<a href="javascript:;" onclick="dotvvm.postBack(this,[&quot;$parent.Customers&quot;],&quot;YNrHJz3wB1224tUc&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">««</a>
+			</li>
+			<li data-bind="css: { 'disabled': $gridViewDataSetHelper.dataSet.PagingOptions().IsFirstPage() }">
+				<a href="javascript:;" onclick="dotvvm.postBack(this,[&quot;$parent.Customers&quot;],&quot;YNrHJz3wB1224tUc&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">«</a>
+			</li>
+			<!-- ko foreach: $gridViewDataSetHelper.dataSet.PagingOptions().NearPageIndexes -->
+			<li class="active" data-bind="visible: $data == $parent.PagingOptions().PageIndex()">
+				<span data-bind="text: 1+$data+&quot;&quot;"></span>
+			</li>
+			<li data-bind="visible: $data != $parent.PagingOptions().PageIndex()">
+				<a data-bind="text: 1+$data+&quot;&quot;" href="javascript:;" onclick="dotvvm.postBack(this,[&quot;$parent.Customers&quot;,&quot;PagingOptions.NearPageIndexes[$index]&quot;],&quot;ZwmBknlLAz5Evw5W&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;"></a>
+			</li>
+			<!-- /ko -->
+			<li data-bind="css: { 'disabled': PagingOptions().IsLastPage() }">
+				<a href="javascript:;" onclick="dotvvm.postBack(this,[&quot;$parent.Customers&quot;],&quot;YNrHJz3wB1224tUc&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">»</a>
+			</li>
+			<li data-bind="css: { 'disabled': PagingOptions().IsLastPage() }">
+				<a href="javascript:;" onclick="dotvvm.postBack(this,[&quot;$parent.Customers&quot;],&quot;YNrHJz3wB1224tUc&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">»»</a>
+			</li>
+		</ul>
+	</body>
+</html>
