@@ -80,12 +80,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             CheckNotAccidentalDefinition(method);
             AddMethodTranslator(method, translator);
         }
-        public void AddMethodTranslator(Expression<Action> methodCall, IJavascriptMethodTranslator translator)
-        {
-            var method = (MethodInfo)MethodFindingHelper.GetMethodFromExpression(methodCall);
-            CheckNotAccidentalDefinition(method);
-            AddMethodTranslator(method, translator);
-        }
 
         private void CheckNotAccidentalDefinition(MethodBase m)
         {
