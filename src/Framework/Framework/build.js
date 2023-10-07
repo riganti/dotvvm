@@ -21,9 +21,7 @@ async function build({ debug, spa, output, input = "dotvvm-root.ts" }) {
         treeShaking: true,
         minify: !debug,
         metafile: printStats,
-        mangleProps: debug ? undefined : /^_/,
-
-        // plugins: [envPlugin],
+        mangleProps: debug ? undefined : /^_/, // allow renaming of properties starting with _
     }).catch(() => process.exit(1))
 }
 
