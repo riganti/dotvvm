@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Represents settings for paging.
     /// </summary>
-    public class PagingOptions : IPagingOptions, IPagingFirstPageCapability, IPagingLastPageCapability, IPagingPreviousPageCapability, IPagingNextPageCapability, IPagingPageIndexCapability, IPagingPageSizeCapability, IPagingTotalItemsCountCapability, IApplyToQueryable
+    public class PagingOptions : IPagingOptions, IPagingFirstPageCapability, IPagingLastPageCapability, IPagingPreviousPageCapability, IPagingNextPageCapability, IPagingPageIndexCapability, IPagingPageSizeCapability, IPagingTotalItemsCountCapability, IApplyToQueryable, IPagingOptionsLoadingPostProcessor
     {
         /// <summary>
         /// Gets or sets the object that provides a list of page indexes near the current page.
@@ -113,6 +113,11 @@ namespace DotVVM.Framework.Controls
         public IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
         {
             return PagingImplementation.ApplyPagingToQueryable(queryable, this);
+        }
+
+        public void ProcessLoadedItems<T>(IQueryable<T> filteredQueryable, IList<T> items)
+        {
+            TotalItemsCount = filteredQueryable.Count();
         }
     }
 }

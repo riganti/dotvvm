@@ -26,9 +26,9 @@ namespace DotVVM.Framework.Controls
             var paged = pagingOptions.ApplyToQueryable(sorted);
             dataSet.Items = paged.ToList();
 
-            if (pagingOptions is IPagingTotalItemsCountCapability pagingTotalItemsCount)
+            if (pagingOptions is IPagingOptionsLoadingPostProcessor pagingOptionsLoadingPostProcessor)
             {
-                pagingTotalItemsCount.TotalItemsCount = filtered.Count();
+                pagingOptionsLoadingPostProcessor.ProcessLoadedItems(filtered, dataSet.Items);
             }
 
             dataSet.IsRefreshRequired = false;
@@ -63,5 +63,6 @@ namespace DotVVM.Framework.Controls
             dataSet.PagingOptions.GoToPage(pageIndex);
             (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
         }
+
     }
 }

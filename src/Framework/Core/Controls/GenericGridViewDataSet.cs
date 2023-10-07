@@ -92,5 +92,26 @@ namespace DotVVM.Framework.Controls
         {
             IsRefreshRequired = true;
         }
+
+        /// <summary>
+        /// Applies the options from the specified <see cref="GridViewDataSetOptions{TFilteringOptions, TSortingOptions, TPagingOptions}" /> to this instance.
+        /// </summary>
+        public void ApplyOptions(GridViewDataSetOptions<TFilteringOptions, TSortingOptions, TPagingOptions> options)
+        {
+            if (options.FilteringOptions != null)
+            {
+                FilteringOptions = options.FilteringOptions;
+            }
+
+            if (options.SortingOptions != null)
+            {
+                SortingOptions = options.SortingOptions;
+            }
+
+            if (options.PagingOptions != null)
+            {
+                PagingOptions = options.PagingOptions;
+            }
+        }
     }
 }
