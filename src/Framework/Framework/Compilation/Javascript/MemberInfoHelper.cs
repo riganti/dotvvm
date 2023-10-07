@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -154,6 +155,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             public record T { }
             public enum Enum { Something }
             public record struct Struct { }
+            public class DataSet: GridViewDataSet<string> { }
         }
     }
 }
