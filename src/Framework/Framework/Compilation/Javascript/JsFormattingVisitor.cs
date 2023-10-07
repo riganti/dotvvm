@@ -192,7 +192,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             EmitComment(memberAccessExpression.CommentBefore);
             if (!memberAccessExpression.MemberNameToken.IsValidName())
-                new JsIndexerExpression(memberAccessExpression.Target.Clone(), new JsLiteral(memberAccessExpression.MemberNameToken))
+                new JsIndexerExpression(memberAccessExpression.Target.Clone(), new JsLiteral(memberAccessExpression.MemberName))
                 .AcceptVisitor(this);
             else
             {

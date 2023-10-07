@@ -145,7 +145,8 @@ public class GridViewDataSetBindingProvider
         else if (commandType == GridViewDataSetCommandType.StaticCommand)
         {
             // on the client, wrap the call into client-side loading procedure
-            var expression = WrapInDataSetClientLoad(dataSetParam, body);
+            body.Add(CallClientSideLoad(dataSetParam));
+            Expression expression = Expression.Block(body);
             if (transformExpression != null)
             {
                 expression = transformExpression(expression);
@@ -165,43 +166,20 @@ public class GridViewDataSetBindingProvider
     }
     
     /// <summary>
-    /// Wraps the block expression { dataSet.XXXOptions.Method(); dataSet.RequestRefresh(); }
-    /// as loaderFunction => { ...; return GridViewDataSetBindingProvider.DataSetClientSideLoad(dataSet, loaderFunction); });
+    /// Invoked the client-side loadDataSet function with the loader from $gridViewDataSetHelper
     /// </summary>
-    private static Expression WrapInDataSetClientLoad(Expression dataSetParam, List<Expression> body)
+    private static Expression CallClientSideLoad(Expression dataSetParam)
     {
-        // get options and data set item type
-        var dataSetType = dataSetParam.Type;
-        var filteringOptionsConcreteType = GetOptionsConcreteType<IFilterableGridViewDataSet<IFilteringOptions>>(dataSetType, out _);
-        var sortingOptionsConcreteType = GetOptionsConcreteType<ISortableGridViewDataSet<ISortingOptions>>(dataSetType, out _);
-        var pagingOptionsConcreteType = GetOptionsConcreteType<IPageableGridViewDataSet<IPagingOptions>>(dataSetType, out _);
-        var dataSetItemType = dataSetType.GetInterfaces()
-            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IBaseGridViewDataSet<>))
-            .GetGenericArguments()[0];
-
-        // resolve generic method and its parameter
-        var method = typeof(GridViewDataSetBindingProvider).GetMethod(nameof(DataSetClientSideLoad))!
-            .MakeGenericMethod(dataSetType, dataSetItemType, filteringOptionsConcreteType, sortingOptionsConcreteType, pagingOptionsConcreteType);
-        var loaderFunctionParam = Expression.Parameter(method.GetParameters().Single(p => p.Name == "loaderFunction").ParameterType, "loaderFn");
-
         // call static method DataSetClientLoad
-        var callClientLoad = Expression.Call(method, dataSetParam, loaderFunctionParam);
-        return Expression.Lambda(Expression.Block(body.Concat(new [] { callClientLoad })), loaderFunctionParam);
+        var method = typeof(GridViewDataSetBindingProvider).GetMethod(nameof(DataSetClientSideLoad))!;
+        return Expression.Call(method, dataSetParam);
     }
 
     /// <summary>
     /// A sentinel method which is translated to load the GridViewDataSet on the client side using the Load delegate.
     /// Do not call this method on the server.
     /// </summary>
-    public static Task DataSetClientSideLoad<TGridViewDataSet, T, TFilteringOptions, TSortingOptions, TPagingOptions>
-    (
-        TGridViewDataSet dataSet,
-        Func<GridViewDataSetOptions<TFilteringOptions, TSortingOptions, TPagingOptions>, Task<GridViewDataSetResult<T, TFilteringOptions, TSortingOptions, TPagingOptions>>> loaderFunction
-    )
-        where TGridViewDataSet : IBaseGridViewDataSet<T>, IFilterableGridViewDataSet<TFilteringOptions>, ISortableGridViewDataSet<TSortingOptions>, IPageableGridViewDataSet<TPagingOptions>
-        where TFilteringOptions : IFilteringOptions
-        where TSortingOptions : ISortingOptions
-        where TPagingOptions : IPagingOptions
+    public static Task DataSetClientSideLoad(IBaseGridViewDataSet dataSet)
     {
         throw new InvalidOperationException("This method cannot be called on the server!");
     }
