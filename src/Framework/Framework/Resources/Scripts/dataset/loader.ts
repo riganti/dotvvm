@@ -11,30 +11,36 @@ type GridViewDataSetOptions = {
     FilteringOptions: DotvvmObservable<any>
 };
 type GridViewDataSetResult = {
-    Items: DotvvmObservable<any[]>,
-    TotalItemsCount?: DotvvmObservable<number>
+    Items: any[],
+    PagingOptions: any,
+    SortingOptions: any,
+    FilteringOptions: any
 };
 
-export async function loadDataSet(dataSet: GridViewDataSet, loadData: (options: GridViewDataSetOptions) => Promise<GridViewDataSetResult>) {
+export async function loadDataSet(dataSetObservable: KnockoutObservable<GridViewDataSet>, loadData: (options: GridViewDataSetOptions) => Promise<DotvvmAfterPostBackEventArgs>) {
+    const dataSet = ko.unwrap(dataSetObservable);
     if (dataSet.IsRefreshRequired) {
         dataSet.IsRefreshRequired.setState(true);
     }
 
     const result = await loadData({
-        FilteringOptions: dataSet.FilteringOptions,
-        SortingOptions: dataSet.SortingOptions,
-        PagingOptions: dataSet.PagingOptions
+        FilteringOptions: dataSet.FilteringOptions.state,
+        SortingOptions: dataSet.SortingOptions.state,
+        PagingOptions: dataSet.PagingOptions.state
     });
+    const commandResult = result.commandResult as GridViewDataSetResult;
 
     dataSet.Items.setState([]);
-    dataSet.Items.setState(result.Items.state);
+    dataSet.Items.setState(commandResult.Items);
 
-    const pagingOptions = dataSet.PagingOptions.state;
-    const totalItemsCount = result.TotalItemsCount?.state; 
-    if (totalItemsCount && ko.isWriteableObservable(pagingOptions.TotalItemsCount)) {
-        dataSet.PagingOptions.patchState({
-            TotalItemsCount: result.TotalItemsCount
-        });
+    if (commandResult.FilteringOptions && ko.isWriteableObservable(dataSet.FilteringOptions)) {
+        dataSet.FilteringOptions.setState(commandResult.FilteringOptions);
+    }
+    if (commandResult.SortingOptions && ko.isWriteableObservable(dataSet.SortingOptions)) {
+        dataSet.SortingOptions.setState(commandResult.SortingOptions);
+    }
+    if (commandResult.PagingOptions && ko.isWriteableObservable(dataSet.PagingOptions)) {
+        dataSet.PagingOptions.setState(commandResult.PagingOptions);
     }
 
     if (dataSet.IsRefreshRequired) {
