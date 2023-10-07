@@ -14,16 +14,16 @@ namespace DotVVM.Framework.Controls
         /// of items is retrieved.
         /// </summary>
         /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
-        public static IQueryable<T> ApplySortingToQueryable<T>(IQueryable<T> queryable, ISortingSingleCriterionCapability options)
+        public static IQueryable<T> ApplySortingToQueryable<T>(IQueryable<T> queryable, string? sortExpression, bool sortDescending)
         {
-            if (options.SortExpression == null)
+            if (sortExpression == null)
             {
                 return queryable;
             }
 
             var parameterExpression = Expression.Parameter(typeof(T), "p");
             Expression sortByExpression = parameterExpression;
-            foreach (var prop in (options.SortExpression ?? "").Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var prop in sortExpression.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 var property = sortByExpression.Type.GetProperty(prop);
                 if (property == null)
@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Controls
                 return queryable;
             }
             var lambdaExpression = Expression.Lambda(sortByExpression, parameterExpression);
-            var methodCallExpression = Expression.Call(typeof(Queryable), GetSortingMethodName(options.SortDescending),
+            var methodCallExpression = Expression.Call(typeof(Queryable), GetSortingMethodName(sortDescending),
                 new[] { parameterExpression.Type, sortByExpression.Type },
                 queryable.Expression,
                 Expression.Quote(lambdaExpression));

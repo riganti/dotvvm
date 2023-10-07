@@ -50,9 +50,9 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Applies the sorting options to the specified IQueryable expression.
         /// </summary>
-        public IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
+        public virtual IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
         {
-            return SortingImplementation.ApplySortingToQueryable(queryable, this);
+            return SortingImplementation.ApplySortingToQueryable(queryable, SortExpression, SortDescending);
         }
     }
 }
