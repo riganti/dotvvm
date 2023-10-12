@@ -35,6 +35,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public string CSharpName => Type.ToCode(stripNamespace: true);
         public string CSharpFullName => Type.ToCode();
 
+        public bool IsGenericTypeDefinition => Type.IsGenericTypeDefinition;
+
         public bool IsAssignableTo(ITypeDescriptor typeDescriptor)
         {
             return ToSystemType(typeDescriptor).IsAssignableFrom(Type);

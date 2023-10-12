@@ -15,17 +15,23 @@ public class ExtractGenericArgumentDataContextChangeAttribute : DataContextChang
     public override int Order { get; }
 
     public ExtractGenericArgumentDataContextChangeAttribute(Type genericType, int typeArgumentIndex, int order = 0)
+        : this(new ResolvedTypeDescriptor(genericType), typeArgumentIndex, order)
+    {
+    }
+   
+
+    public ExtractGenericArgumentDataContextChangeAttribute(ITypeDescriptor genericType, int typeArgumentIndex, int order = 0)
     {
         if (!genericType.IsGenericTypeDefinition)
         {
             throw new ArgumentException($"The {nameof(genericType)} argument must be a generic type definition!", nameof(genericType));
         }
-        if (typeArgumentIndex < 0 || typeArgumentIndex >= genericType.GetGenericArguments().Length)
+        if (typeArgumentIndex < 0 || typeArgumentIndex >= genericType.GetGenericArguments()!.Length)
         {
             throw new ArgumentOutOfRangeException(nameof(typeArgumentIndex), $"The {nameof(typeArgumentIndex)} is not a valid index of a type argument!");
         }
 
-        GenericType = new ResolvedTypeDescriptor(genericType);
+        GenericType = genericType;
         TypeArgumentIndex = typeArgumentIndex;
         Order = order;
     }
