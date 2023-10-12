@@ -13,7 +13,7 @@ using System;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
-    public class PropertyDeclarationDirectiveCompiler : DirectiveCompiler<IAbstractPropertyDeclarationDirective, ImmutableList<DotvvmProperty>>
+    public abstract class PropertyDeclarationDirectiveCompiler : DirectiveCompiler<IAbstractPropertyDeclarationDirective, ImmutableList<DotvvmProperty>>
     {
         private readonly ITypeDescriptor controlWrapperType;
         private readonly ImmutableList<NamespaceImport> imports;
@@ -98,15 +98,32 @@ namespace DotVVM.Framework.Compilation.Directives
             }
 
             return directives
-            .Where(d => d.PropertyType is ResolvedTypeDescriptor { Type: not null })
-            .Select(d => TryCreateDotvvmPropertyFromDirective(d))
+            .Where(HasPropertyType)
+            .Select(TryCreateDotvvmPropertyFromDirective)
             .ToImmutableList();
         }
 
-        protected virtual DotvvmProperty TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective)
+        protected abstract bool HasPropertyType(IAbstractPropertyDeclarationDirective directive);
+        protected abstract DotvvmProperty TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective);
+    }
+
+    public class ResolvedPropertyDeclarationDirectiveCompiler : PropertyDeclarationDirectiveCompiler
+    {
+        public ResolvedPropertyDeclarationDirectiveCompiler(
+            IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName,
+            IAbstractTreeBuilder treeBuilder, ITypeDescriptor controlWrapperType,
+            ImmutableList<NamespaceImport> imports)
+            : base(directiveNodesByName, treeBuilder, controlWrapperType, imports)
         {
-            if(propertyDeclarationDirective.PropertyType is not ResolvedTypeDescriptor { Type: not null } propertyType) { throw new ArgumentException("propertyDeclarationDirective.PropertyType must be of type ResolvedTypeDescriptor and have non null type."); }
-            if(propertyDeclarationDirective.DeclaringType is not ResolvedTypeDescriptor { Type: not null } declaringType) { throw new ArgumentException("propertyDeclarationDirective.DeclaringType must be of type ResolvedTypeDescriptor and have non null type."); }
+        }
+
+        protected override bool HasPropertyType(IAbstractPropertyDeclarationDirective directive)
+           => directive.PropertyType is ResolvedTypeDescriptor { Type: not null };
+
+        protected override DotvvmProperty TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective)
+        {
+            if (propertyDeclarationDirective.PropertyType is not ResolvedTypeDescriptor { Type: not null } propertyType) { throw new ArgumentException("propertyDeclarationDirective.PropertyType must be of type ResolvedTypeDescriptor and have non null type."); }
+            if (propertyDeclarationDirective.DeclaringType is not ResolvedTypeDescriptor { Type: not null } declaringType) { throw new ArgumentException("propertyDeclarationDirective.DeclaringType must be of type ResolvedTypeDescriptor and have non null type."); }
 
             return DotvvmProperty.Register(
                 propertyDeclarationDirective.NameSyntax.Name,

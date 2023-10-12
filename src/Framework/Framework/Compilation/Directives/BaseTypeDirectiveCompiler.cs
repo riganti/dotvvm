@@ -16,14 +16,15 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
-    public class BaseTypeDirectiveCompiler : DirectiveCompiler<IAbstractBaseTypeDirective, ITypeDescriptor>
+    public abstract class BaseTypeDirectiveCompiler : DirectiveCompiler<IAbstractBaseTypeDirective, ITypeDescriptor>
     {
-        private static readonly Lazy<ModuleBuilder> DynamicMarkupControlAssembly = new (CreateDynamicMarkupControlAssembly);
-
         private readonly string fileName;
         private readonly ImmutableList<NamespaceImport> imports;
 
         public override string DirectiveName => ParserConstants.BaseTypeDirective;
+
+        protected virtual ITypeDescriptor DotvvmViewType => new ResolvedTypeDescriptor(typeof(DotvvmView));
+        protected virtual ITypeDescriptor DotvvmMarkupControlType => new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl));
 
         public BaseTypeDirectiveCompiler(
             IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, string fileName, ImmutableList<NamespaceImport> imports)
@@ -36,7 +37,8 @@ namespace DotVVM.Framework.Compilation.Directives
         protected override IAbstractBaseTypeDirective Resolve(DothtmlDirectiveNode directiveNode)
             => TreeBuilder.BuildBaseTypeDirective(directiveNode, ParseDirective(directiveNode, p => p.ReadDirectiveTypeName()), imports);
 
-        protected override ITypeDescriptor CreateArtefact(IReadOnlyList<IAbstractBaseTypeDirective> resolvedDirectives) {
+        protected override ITypeDescriptor CreateArtefact(IReadOnlyList<IAbstractBaseTypeDirective> resolvedDirectives)
+        {
             var wrapperType = GetDefaultWrapperType();
 
             var baseControlDirective = resolvedDirectives.SingleOrDefault();
@@ -44,11 +46,12 @@ namespace DotVVM.Framework.Compilation.Directives
             if (baseControlDirective != null)
             {
                 var baseType = baseControlDirective.ResolvedType;
+
                 if (baseType == null)
                 {
                     baseControlDirective.DothtmlNode!.AddError($"The type '{baseControlDirective.Value}' specified in baseType directive was not found!");
                 }
-                else if (!baseType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl))))
+                else if (!baseType.IsAssignableTo(DotvvmMarkupControlType))
                 {
                     baseControlDirective.DothtmlNode!.AddError("Markup controls must derive from DotvvmMarkupControl class!");
                     wrapperType = baseType;
@@ -83,7 +86,7 @@ namespace DotVVM.Framework.Compilation.Directives
                 .Select(d => d.Value.Trim()).OrderBy(s => s).ToImmutableArray();
             var properties = propertyDirectives
                 .Select(p => p.Value.Trim()).OrderBy(s => s).ToImmutableArray();
-            var baseType = originalWrapperType?.CastTo<ResolvedTypeDescriptor>().Type ?? typeof(DotvvmMarkupControl);
+            var baseType = originalWrapperType ?? DotvvmMarkupControlType;
 
             using var sha = SHA256.Create();
             var hashBytes = sha.ComputeHash(
@@ -94,19 +97,11 @@ namespace DotVVM.Framework.Compilation.Directives
             var hash = Convert.ToBase64String(hashBytes, 0, 16);
 
             var typeName = "DotvvmMarkupControl-" + hash;
-            if (DynamicMarkupControlAssembly.Value.GetType(typeName) is { } type)
-            {
-                return new ResolvedTypeDescriptor(type);
-            }
 
-            var declaringTypeBuilder =
-                DynamicMarkupControlAssembly.Value.DefineType(typeName, TypeAttributes.Public, baseType);
-            var createdTypeInfo = declaringTypeBuilder.CreateTypeInfo()?.AsType();
-
-            return createdTypeInfo is not null
-                ? new ResolvedTypeDescriptor(createdTypeInfo)
-                : null;
+            return GetOrCreateDynamicType(baseType, typeName);
         }
+
+        protected abstract ITypeDescriptor? GetOrCreateDynamicType(ITypeDescriptor baseType, string typeName);
         
         /// <summary>
         /// Gets the default type of the wrapper for the view.
@@ -115,26 +110,10 @@ namespace DotVVM.Framework.Compilation.Directives
         {
             if (fileName.EndsWith(".dotcontrol", StringComparison.Ordinal))
             {
-                return new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl));
+                return DotvvmMarkupControlType;
             }
 
-            return new ResolvedTypeDescriptor(typeof(DotvvmView));
-        }
-
-        private static ModuleBuilder CreateDynamicMarkupControlAssembly()
-        {
-            var newDynamicAssemblyName = $"DotvvmMarkupControlDynamicAssembly-{Guid.NewGuid()}";
-            var assemblyName = new AssemblyName(newDynamicAssemblyName);
-            var assemblyBuilder =
-                AssemblyBuilder.DefineDynamicAssembly(
-                    assemblyName,
-                    AssemblyBuilderAccess.Run);
-
-            // For a single-module assembly, the module name is usually
-            // the assembly name plus an extension.
-            var mb =
-                assemblyBuilder.DefineDynamicModule(newDynamicAssemblyName);
-            return mb;
+            return DotvvmViewType;
         }
     }
 

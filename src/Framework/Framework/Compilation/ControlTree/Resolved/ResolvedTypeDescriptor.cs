@@ -35,6 +35,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public string CSharpName => Type.ToCode(stripNamespace: true);
         public string CSharpFullName => Type.ToCode();
 
+        public bool IsGenericTypeDefinition => Type.IsGenericTypeDefinition;
+
         public bool IsAssignableTo(ITypeDescriptor typeDescriptor)
         {
             return ToSystemType(typeDescriptor).IsAssignableFrom(Type);
@@ -138,10 +140,11 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedTypeDescriptor(genericType);
         }
 
-        public IEnumerable<ITypeDescriptor> FindGenericImplementations(Type genericType)
+        public IEnumerable<ITypeDescriptor> FindGenericImplementations(ITypeDescriptor genericType)
         {
-            return ReflectionUtils.GetBaseTypesAndInterfaces(Type)
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericType)
+            var generic = ToSystemType(genericType);
+                return ReflectionUtils.GetBaseTypesAndInterfaces(Type)
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == generic)
                 .Select(t => new ResolvedTypeDescriptor(t));
         }
 

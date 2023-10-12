@@ -18,6 +18,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         string CSharpName { get; }
         /// <summary> Returns type name including namespace with generic arguments in the C# style. </summary>
         string CSharpFullName { get; }
+        bool IsGenericTypeDefinition { get; }
 
         bool IsAssignableTo(ITypeDescriptor typeDescriptor);
 
@@ -34,7 +35,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         ITypeDescriptor MakeGenericType(params ITypeDescriptor[] typeArguments);
 
-        IEnumerable<ITypeDescriptor> FindGenericImplementations(Type genericType);
+        IEnumerable<ITypeDescriptor> FindGenericImplementations(ITypeDescriptor genericType);
 
         ITypeDescriptor[]? GetGenericArguments();
     }
