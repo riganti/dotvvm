@@ -47,11 +47,11 @@ public class ExtractGenericArgumentDataContextChangeAttribute : DataContextChang
     public override Type? GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty? property = null)
     {
         var implementations = ReflectionUtils.GetBaseTypesAndInterfaces(dataContext)
-            .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == GenericType)
+            .Where(i => i.IsGenericType && new ResolvedTypeDescriptor(i.GetGenericTypeDefinition()).IsEqualTo(GenericType))
             .ToList();
         if (implementations.Count == 0)
         {
-            throw new Exception($"The data context {dataContext} doesn't implement {GenericType.CSharpFullName}!");
+            throw new Exception($"The data context {dataContext.ToCode()} doesn't implement {GenericType.CSharpFullName}!");
         }
         else if (implementations.Count > 1)
         {

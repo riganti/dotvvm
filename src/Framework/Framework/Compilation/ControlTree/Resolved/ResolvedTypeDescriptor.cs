@@ -140,7 +140,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public IEnumerable<ITypeDescriptor> FindGenericImplementations(ITypeDescriptor genericType)
         {
-            var generic = (genericType as ResolvedTypeDescriptor)?.Type ?? throw new InvalidOperationException($"Only {nameof(ResolvedTypeDescriptor)} sould be used as a parameter.");
+            var generic = ToSystemType(genericType);
                 return ReflectionUtils.GetBaseTypesAndInterfaces(Type)
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == generic)
                 .Select(t => new ResolvedTypeDescriptor(t));
