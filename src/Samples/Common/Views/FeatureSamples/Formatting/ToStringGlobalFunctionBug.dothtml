@@ -1,0 +1,19 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Formatting.ToStringGlobalFunctionBugViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Button Text="Set to true" Click="{staticCommand: Boolean = true}" />
+
+    <p class="result-boolean">Boolean: {{value: Boolean}}</p>
+    <p class="result-string">String: {{value: String}}</p>
+
+</body>
+</html>
+
+

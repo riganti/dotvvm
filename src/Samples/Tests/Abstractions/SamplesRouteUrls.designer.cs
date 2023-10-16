@@ -249,6 +249,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Directives_ViewModelMissingAssembly = "FeatureSamples/Directives/ViewModelMissingAssembly";
         public const string FeatureSamples_EmbeddedResourceControls_EmbeddedResourceControls = "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceControls";
         public const string FeatureSamples_Formatting_Formatting = "FeatureSamples/Formatting/Formatting";
+        public const string FeatureSamples_Formatting_ToStringGlobalFunctionBug = "FeatureSamples/Formatting/ToStringGlobalFunctionBug";
         public const string FeatureSamples_FormControlsEnabled_FormControlsEnabled = "FeatureSamples/FormControlsEnabled/FormControlsEnabled";
         public const string FeatureSamples_GenericTypes_InCommandBinding = "FeatureSamples/GenericTypes/InCommandBinding";
         public const string FeatureSamples_GenericTypes_InResourceBinding = "FeatureSamples/GenericTypes/InResourceBinding";

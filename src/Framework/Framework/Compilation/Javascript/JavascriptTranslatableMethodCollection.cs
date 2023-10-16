@@ -760,7 +760,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
                 else if (p[0].ParameterType == typeof(string) || p[0].ParameterType == typeof(bool))
                 {
-                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => wrapInRound(new JsIdentifierExpression("Number").Invoke(args[1]))));
+                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => wrapInRound(new JsIdentifierExpression("window").Member("Number").Invoke(args[1]))));
                 }
             }
 
@@ -773,7 +773,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     continue;
                 if (p[0].ParameterType.IsNumericType() && p[0].ParameterType != typeof(char))
                 {
-                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("Boolean").Invoke(args[1])));
+                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("window").Member("Boolean").Invoke(args[1])));
                 }
             }
         }
