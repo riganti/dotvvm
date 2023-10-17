@@ -882,7 +882,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
         [TestMethod]
         [DataRow("(arg) => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression with parentheses.")]
-        [DataRow("arg => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression without parentheses.")]           
+        [DataRow("arg => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression without parentheses.")]
         [DataRow("  arg    =>   Method   (   arg  )", DisplayName = "Simple lambda with various whitespaces.")]
         [DataRow("arg =>Method(arg)", DisplayName = "Simple lambda with various whitespaces.")]
         [DataRow("arg=>Method(arg)", DisplayName = "Simple lambda with various whitespaces.")]
@@ -1158,7 +1158,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             Assert.AreEqual(SkipWhitespaces(bindingExpression), SkipWhitespaces(node.ToDisplayString()));
         }
-        
+
         [TestMethod]
         public void BindingParser_VariableExpression_3Vars()
         {
@@ -1191,9 +1191,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
             var name = root.Name.CastTo<SimpleNameBindingParserNode>();
 
-            Assert.AreEqual("System.String MyProperty", root.ToDisplayString());
-            Assert.AreEqual("System.String", type.ToDisplayString());
-            Assert.AreEqual("MyProperty", name.ToDisplayString());
+            AssertNode(root, "System.String MyProperty = \"Test\"", 0, 33);
+            AssertNode(type, "System.String", 0, 13);
+            AssertNode(name, "MyProperty", 14, 11);
         }
 
         [TestMethod]
@@ -1207,10 +1207,10 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var name = root.Name.CastTo<SimpleNameBindingParserNode>();
             var init = root.Initializer.CastTo<LiteralExpressionBindingParserNode>();
 
-            Assert.AreEqual("System.String MyProperty = \"Test\"", root.ToDisplayString());
-            Assert.AreEqual("System.String", type.ToDisplayString());
-            Assert.AreEqual("MyProperty", name.ToDisplayString());
-            Assert.AreEqual("\"Test\"", init.ToDisplayString());
+            AssertNode(root, "System.String MyProperty = \"Test\"", 0, 33);
+            AssertNode(type, "System.String", 0, 13);
+            AssertNode(name, "MyProperty", 14, 11);
+            AssertNode(init, "\"Test\"", 27, 6);
         }
 
         [TestMethod]
@@ -1229,12 +1229,12 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var att1 = root.Attributes[0].CastTo<BinaryOperatorBindingParserNode>();
             var att2 = root.Attributes[1].CastTo<BinaryOperatorBindingParserNode>();
 
-            Assert.AreEqual("System.String MyProperty = \"Test\", MarkupOptions.AllowHardCodedValue = False, MarkupOptions.Required = True", root.ToDisplayString());
-            Assert.AreEqual("System.String", type.ToDisplayString());
-            Assert.AreEqual("MyProperty", name.ToDisplayString());
-            Assert.AreEqual("\"Test\"", init.ToDisplayString());
-            Assert.AreEqual("MarkupOptions.AllowHardCodedValue = False", att1.ToDisplayString());
-            Assert.AreEqual("MarkupOptions.Required = True", att2.ToDisplayString());
+            AssertNode(root, "System.String MyProperty = \"Test\", MarkupOptions.AllowHardCodedValue = False, MarkupOptions.Required = True", 0, 107);
+            AssertNode(type, "System.String", 0, 13);
+            AssertNode(name, "MyProperty", 14, 11);
+            AssertNode(init, "\"Test\"", 27, 6);
+            AssertNode(att1, "MarkupOptions.AllowHardCodedValue = False", 35, 41);
+            AssertNode(att2, "MarkupOptions.Required = True", 77, 30);
         }
 
         [TestMethod]
@@ -1244,7 +1244,8 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var declaration = parser.ReadPropertyDirectiveValue();
 
             var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
-            var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
+            var type = root.PropertyType.CastTo<ArrayTypeReferenceBindingParserNode>();
+            var elementType = type.ElementType.CastTo<TypeReferenceBindingParserNode>();
             var name = root.Name.CastTo<SimpleNameBindingParserNode>();
             var attributes = root.Attributes;
 
@@ -1282,16 +1283,45 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var element2Initializer = root.Initializer.CastTo<ArrayInitializerExpression>().ElementInitializers[1].CastTo<MemberAccessBindingParserNode>();
             var element3Initializer = root.Initializer.CastTo<ArrayInitializerExpression>().ElementInitializers[2].CastTo<MemberAccessBindingParserNode>();
 
-            Assert.AreEqual("Namespace.Enum[] MyProperty = [ Namespace.Enum.Value1, Namespace.Enum.Value2, Namespace.Enum.Value3 ], MarkupOptions.AllowHardCodedValue = False, MarkupOptions.Required = True", root.ToDisplayString());
-            Assert.AreEqual("Namespace.Enum[]", type.ToDisplayString());
-            Assert.AreEqual("MyProperty", name.ToDisplayString());
+            AssertNode(root, "Namespace.Enum[] MyProperty = [ Namespace.Enum.Value1, Namespace.Enum.Value2, Namespace.Enum.Value3 ], MarkupOptions.AllowHardCodedValue = False, MarkupOptions.Required = True", 0, 175);
+            AssertNode(type, "Namespace.Enum[]", 0, 16);
+            AssertNode(elementType, "Namespace.Enum", 0, 14);
+            AssertNode(name, "MyProperty", 16, 12);
 
-            Assert.AreEqual("Namespace.Enum.Value1", element1Initializer.ToDisplayString());
-            Assert.AreEqual("Namespace.Enum.Value2", element2Initializer.ToDisplayString());
-            Assert.AreEqual("Namespace.Enum.Value3", element3Initializer.ToDisplayString());
+            AssertNode(element1Initializer, "Namespace.Enum.Value1", 32, 21);
+            AssertNode(element2Initializer, "Namespace.Enum.Value2", 55, 21);
+            AssertNode(element3Initializer, "Namespace.Enum.Value3", 78, 22);
 
-            Assert.AreEqual("MarkupOptions.AllowHardCodedValue = False", att1.ToDisplayString());
-            Assert.AreEqual("MarkupOptions.Required = True", att2.ToDisplayString());
+            AssertNode(att1, "MarkupOptions.AllowHardCodedValue = False", 103, 41);
+            AssertNode(att2, "MarkupOptions.Required = True", 145, 30);
+        }
+
+        [TestMethod]
+        public void BindingParser_GenericTypePropertyDeclaration()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("IDictionary<int, System.String> MyProperty");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var genericType = root.PropertyType.CastTo<GenericTypeReferenceBindingParserNode>();
+            var name = root.Name.CastTo<SimpleNameBindingParserNode>();
+
+            var type = genericType.Type.CastTo<TypeReferenceBindingParserNode>();
+            var arg1 = genericType.Arguments[0].CastTo<TypeReferenceBindingParserNode>();
+            var arg2 = genericType.Arguments[1].CastTo<TypeReferenceBindingParserNode>();
+
+            AssertNode(root, "IDictionary<int, System.String> MyProperty", 0, 42);
+            AssertNode(name, "MyProperty", 31, 11);
+            AssertNode(type, "IDictionary", 0, 11);
+            AssertNode(arg1, "int", 12, 3);
+            AssertNode(arg2, "System.String", 17, 13);
+        }
+
+        private static void AssertNode(BindingParserNode elementType, string expectedDisplayString, int start, int length)
+        {
+            Assert.AreEqual(expectedDisplayString, elementType.ToDisplayString(), $"Node {elementType.GetType().Name}: display string incorrect.");
+            Assert.AreEqual(start, elementType.StartPosition, $"Node {elementType.GetType().Name}: Start position incorrect.");
+            Assert.AreEqual(length, elementType.Length, $"Node {elementType.GetType().Name}: Length incorrect.");
         }
 
         private static string SkipWhitespaces(string str) => string.Join("", str.Where(c => !char.IsWhiteSpace(c)));
