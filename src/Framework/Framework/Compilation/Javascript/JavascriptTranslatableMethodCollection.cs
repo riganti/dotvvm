@@ -175,6 +175,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(() => default(ICollection)!.Count, lengthMethod);
             AddMethodTranslator(() => default(ICollection<Generic.T>)!.Count, lengthMethod);
             AddMethodTranslator(() => default(IReadOnlyCollection<Generic.T>)!.Count, lengthMethod);
+            AddMethodTranslator(() => default(ImmutableArray<Generic.T>)!.Length, lengthMethod);
             AddMethodTranslator(() => "".Length, lengthMethod);
             AddMethodTranslator(() => Enums.GetNames<Generic.Enum>(), new EnumGetNamesMethodTranslator());
             var identityTranslator = new GenericMethodCompiler(a => a[1]);
@@ -538,9 +539,15 @@ namespace DotVVM.Framework.Compilation.Javascript
             string GetDelegateReturnTypeHash(Type type)
                 => type.GetGenericArguments().Last().GetTypeHash();
 
-            AddMethodTranslator(() => Enumerable.All(Enumerable.Empty<Generic.T>(), _ => false), new GenericMethodCompiler(args => args[1].Member("every").Invoke(args[2])));
-            AddMethodTranslator(() => Enumerable.Any(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1].Member("some").Invoke(returnTrueFunc.Clone())));
-            AddMethodTranslator(() => Enumerable.Any(Enumerable.Empty<Generic.T>(), _ => false), new GenericMethodCompiler(args => args[1].Member("some").Invoke(args[2])));
+            var all = new GenericMethodCompiler(args => args[1].Member("every").Invoke(args[2]));
+            AddMethodTranslator(() => Enumerable.All(Enumerable.Empty<Generic.T>(), _ => false), all);
+            AddMethodTranslator(() => ImmutableArrayExtensions.All(default(ImmutableArray<Generic.T>), _ => false), all);
+            var any = new GenericMethodCompiler(args => args[1].Member("length").Binary(BinaryOperatorType.Greater, new JsLiteral(0)));
+            AddMethodTranslator(() => Enumerable.Any(Enumerable.Empty<Generic.T>()), any);
+            AddMethodTranslator(() => ImmutableArrayExtensions.Any(default(ImmutableArray<Generic.T>)), any);
+            var anyPred = new GenericMethodCompiler(args => args[1].Member("some").Invoke(args[2]));
+            AddMethodTranslator(() => Enumerable.Any(Enumerable.Empty<Generic.T>(), _ => false), anyPred);
+            AddMethodTranslator(() => ImmutableArrayExtensions.Any(default(ImmutableArray<Generic.T>), _ => false), anyPred);
             AddMethodTranslator(() => Enumerable.Concat(Enumerable.Empty<Generic.T>(), Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1].Member("concat").Invoke(args[2])));
             AddMethodTranslator(() => Enumerable.Count(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1].Member("length")));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Distinct(), new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("distinct").Invoke(args[1]),
@@ -548,17 +555,27 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ElementAt(0),
                 new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ElementAtOrDefault(0),
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+            AddMethodTranslator(() => ImmutableArrayExtensions.ElementAt(default(ImmutableArray<Generic.T>), 0),
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+            AddMethodTranslator(() => ImmutableArrayExtensions.ElementAtOrDefault(default(ImmutableArray<Generic.T>), 0),
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
 
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(), new GenericMethodCompiler((args, m) =>
-                args[1].Indexer(0)
-                    .WithAnnotation(new VMPropertyInfoAnnotation(m.ReturnType)).WithAnnotation(MayBeNullAnnotation.Instance)));
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(_ => true), new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("firstOrDefault").Invoke(args[1], args[2]).WithAnnotation(MayBeNullAnnotation.Instance)));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(), new GenericMethodCompiler((args, m) => BuildIndexer(args[1], new JsLiteral(0), m)));
+            AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>)), new GenericMethodCompiler((args, m) => BuildIndexer(args[1], new JsLiteral(0), m)));
+            var firstOrDefaultPred = new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("firstOrDefault").Invoke(args[1], args[2]).WithAnnotation(MayBeNullAnnotation.Instance));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(_ => true), firstOrDefaultPred);
+            AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>), _ => true), firstOrDefaultPred);
 
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(), new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("lastOrDefault").Invoke(args[1], returnTrueFunc.Clone()).WithAnnotation(MayBeNullAnnotation.Instance)));
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(_ => false), new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("lastOrDefault").Invoke(args[1], args[2]).WithAnnotation(MayBeNullAnnotation.Instance)));
+            var lastOrDefault = new GenericMethodCompiler(args => args[1].Member("at").Invoke(new JsLiteral(-1)).WithAnnotation(MayBeNullAnnotation.Instance));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(), lastOrDefault);
+            AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>)), lastOrDefault);
+            var lastOrDefaultPred = new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("lastOrDefault").Invoke(args[1], args[2]).WithAnnotation(MayBeNullAnnotation.Instance));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(_ => false), lastOrDefaultPred);
+            AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>), _ => false), lastOrDefaultPred);
 
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().OrderBy(_ => Generic.Enum.Something), new GenericMethodCompiler((jArgs, dArgs) => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("orderBy")
                     .Invoke(jArgs[1], jArgs[2], new JsLiteral((IsDelegateReturnTypeEnum(dArgs.Last().Type)) ? GetDelegateReturnTypeHash(dArgs.Last().Type) : null)),
@@ -567,17 +584,30 @@ namespace DotVVM.Framework.Compilation.Javascript
                     .Invoke(jArgs[1], jArgs[2], new JsLiteral((IsDelegateReturnTypeEnum(dArgs.Last().Type)) ? GetDelegateReturnTypeHash(dArgs.Last().Type) : null)),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
 
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Select(_ => Generic.Enum.Something),
-                translator: new GenericMethodCompiler(args => args[1].Member("map").Invoke(args[2])));
+            var select = new GenericMethodCompiler(args => args[1].Member("map").Invoke(args[2]));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Select(_ => Generic.Enum.Something), select);
+            AddMethodTranslator(() => ImmutableArrayExtensions.Select(default(ImmutableArray<Generic.T>), _ => Generic.Enum.Something), select);
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Skip(0), new GenericMethodCompiler(args => args[1].Member("slice").Invoke(args[2])));
 
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Take(0), new GenericMethodCompiler(args =>
                 args[1].Member("slice").Invoke(new JsLiteral(0), args[2])));
+            
+            var where = new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2]));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Where(_ => true), where);
+            AddMethodTranslator(() => ImmutableArrayExtensions.Where(default(ImmutableArray<Generic.T>), _ => true), where);
+
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ToArray(), new GenericMethodCompiler(args => args[1]));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ToList(), new GenericMethodCompiler(args => args[1]));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ToHashSet(), new GenericMethodCompiler(args => args[1]));
+            AddMethodTranslator(() => Enumerable.AsEnumerable(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1]));
 
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Where(_ => true), new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
+            AddMethodTranslator(() => ImmutableArray.ToImmutableArray(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1]));
+            AddMethodTranslator(() => ImmutableList.ToImmutableList(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1]));
+            AddMethodTranslator(() => ImmutableArrayExtensions.ToArray(ImmutableArray<Generic.T>.Empty), new GenericMethodCompiler(args => args[1]));
 
+
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>(), new GenericMethodCompiler(args => new JsArrayExpression()));
+            AddMethodTranslator(() => Array.Empty<Generic.T>(), new GenericMethodCompiler(args => new JsArrayExpression()));
             AddDefaultNumericEnumerableTranslations();
         }
 
