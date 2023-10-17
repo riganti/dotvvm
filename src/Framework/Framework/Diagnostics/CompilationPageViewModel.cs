@@ -15,6 +15,7 @@ namespace DotVVM.Framework.Diagnostics
         public ImmutableArray<DotHtmlFileInfo> MasterPages => viewCompilationService.GetMasterPages();
         public ImmutableArray<DotHtmlFileInfo> Controls => viewCompilationService.GetControls();
         public int ActiveTab { get; set; } = 0;
+        public string PathBase => Context.TranslateVirtualPath("~/");
 
         public CompilationPageViewModel(IDotvvmViewCompilationService viewCompilationService)
         {
