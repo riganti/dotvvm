@@ -1,4 +1,4 @@
-@viewModel DotVVM.Framework.Diagnostics.CompilationPageViewModel
+﻿@viewModel DotVVM.Framework.Diagnostics.CompilationPageViewModel
 
 <!DOCTYPE html>
 <html lang="en">
@@ -34,10 +34,14 @@
                     Text="Master pages"
                     class="nav"
                     Class-active="{value: ActiveTab == 2}" />
+        <dot:Button Click="{staticCommand: ActiveTab = 3}"
+                    Text="Errors"
+                    class="nav"
+                    Class-active="{value: ActiveTab == 3}" />
     </nav>
     <hr />
     <main>
-        <section Visible="{value: ActiveTab == 0}">
+        <section IncludeInPage="{value: ActiveTab == 0}">
             <h2>Routes</h2>
             <dot:GridView DataSource="{value: Routes}" class="nowrap">
                 <RowDecorators>
@@ -80,7 +84,7 @@
             </dot:GridView>
         </section>
 
-        <section Visible="{value: ActiveTab == 1}">
+        <section IncludeInPage="{value: ActiveTab == 1}" Visible={value: _page.EvaluatingOnClient}>
             <h2>Controls</h2>
             <dot:GridView DataSource="{value: Controls}" class="nowrap">
                 <RowDecorators>
@@ -111,7 +115,7 @@
             </dot:GridView>
         </section>
 
-        <section Visible="{value: ActiveTab == 2}">
+        <section IncludeInPage="{value: ActiveTab == 2}" Visible={value: _page.EvaluatingOnClient}>
             <h2>Master pages</h2>
             <dot:GridView DataSource="{value: MasterPages}" class="nowrap">
 
@@ -138,6 +142,67 @@
                     </dot:GridViewTemplateColumn>
                 </Columns>
             </dot:GridView>
+        </section>
+        <section IncludeInPage={value: ActiveTab == 3} Visible={value: _page.EvaluatingOnClient} >
+            <h2>Errors</h2>
+
+            <p IncludeInPage={value: MasterPages.AsEnumerable().Any(m => m.Status == 'None') || Controls.AsEnumerable().Any(m => m.Status == 'None') || Routes.AsEnumerable().Any(m => m.Status == 'None')}
+                style="color: var(--error-dark-color)">
+                Some files have not been compiled yet. Please press the "Compile all" button to make the list of errors complete.
+            </p>
+            <table>
+                <thead>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>File path</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </thead>
+                <dot:Repeater DataSource={value: Routes.Where(r => r.Status == 'CompilationFailed')} WrapperTagName=tbody >
+                    <tr class="failure">
+                        <td>Route</td>
+                        <td title={value: $"{Url} -> {RouteName}"}>
+                            <span IncludeInPage={value: !HasParameters}>
+                                <a href="{value: _root.PathBase + Url}">{{value: RouteName}}</a>
+                            </span>
+                            <span IncludeInPage={value: HasParameters}>
+                                {{value: RouteName}}
+                            </span>
+                        </td>
+                        <td title={value: VirtualPath}>{{value: VirtualPath}}</td>
+                        <td>{{value: Status}}</td>
+                        <td>
+                            <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Recompile" class="execute" />
+                        </td>
+                    </tr>
+                </dot:Repeater>
+                <dot:Repeater DataSource={value: Controls.Where(r => r.Status == 'CompilationFailed')} WrapperTagName=tbody >
+                    <tr class="failure">
+                        <td>Control</td>
+                        <td>
+                            {{value: $"{TagPrefix}:{TagName}"}}
+                        </td>
+                        <td title={value: VirtualPath}>{{value: VirtualPath}}</td>
+                        <td>{{value: Status}}</td>
+                        <td>
+                            <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Recompile" class="execute" />
+                        </td>
+                    </tr>
+                </dot:Repeater>
+                <dot:Repeater DataSource={value: MasterPages.Where(r => r.Status == 'CompilationFailed')} WrapperTagName=tbody >
+                    <tr class="failure">
+                        <td>Master page</td>
+                        <td></td>
+                        <td title={value: VirtualPath}>{{value: VirtualPath}}</td>
+                        <td>{{value: Status}}</td>
+                        <td>
+                            <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Recompile" class="execute" />
+                        </td>
+                    </tr>
+                </dot:Repeater>
+
+
+            </table>
         </section>
     </main>
     <hr />
