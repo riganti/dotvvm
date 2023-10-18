@@ -13,6 +13,8 @@ using System.Reflection;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser.Annotations;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using FastExpressionCompiler;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -302,11 +304,43 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (trueExpr.Type != falseExpr.Type)
             {
-                trueExpr = TypeConversion.ImplicitConversion(trueExpr, falseExpr.Type, allowToString: true) ?? trueExpr;
-                falseExpr = TypeConversion.ImplicitConversion(falseExpr, trueExpr.Type, allowToString: true) ?? falseExpr;
+                // implicit conversions are specified at https://github.com/ljw1004/csharpspec/blob/gh-pages/expressions.md#conditional-operator
+                // > If x has type X and y has type Y then
+                // > * If an implicit conversion (Implicit conversions) exists from X to Y, but not from Y to X, then Y is the type of the conditional expression.
+                // > * If an implicit conversion (Implicit conversions) exists from Y to X, but not from X to Y, then X is the type of the conditional expression.
+                // > * Otherwise, no expression type can be determined, and a compile-time error occurs.
+                // 
+
+                var trueConverted = TypeConversion.ImplicitConversion(trueExpr, falseExpr.Type, allowToString: true);
+                var falseConverted = TypeConversion.ImplicitConversion(falseExpr, trueExpr.Type, allowToString: true);
+
+                if (trueConverted is null && falseConverted is null)
+                    throw new BindingCompilationException($"Type of conditional expression '{node.ToDisplayString()}' cannot be determined because there is no implicit conversion between '{trueExpr.Type.ToCode()}' and '{falseExpr.Type.ToCode()}'", node);
+                else if (trueConverted is null)
+                    falseExpr = falseConverted;
+                else if (falseConverted is null)
+                    trueExpr = trueConverted;
+                else
+                {
+                    Debug.Assert(trueConverted.Type != falseConverted.Type);
+                    // 1. We represent some "typeless expressions" as expression of type object
+                    // 2. We allow conversion to string and also have the implicit conversion from string literal to enum
+                    // -> if we have an ambiguity, try to solve it by preferring the more specific type
+
+                    if (trueConverted.Type == typeof(object))
+                        falseExpr = falseConverted;
+                    else if (falseConverted.Type == typeof(object))
+                        trueExpr = trueConverted;
+                    else if (trueConverted.Type == typeof(string))
+                        falseExpr = falseConverted;
+                    else if (falseConverted.Type == typeof(string))
+                        trueExpr = trueConverted;
+                    else
+                        throw new BindingCompilationException($"Type of conditional expression '{node.ToDisplayString()}' cannot be determined because because '{trueExpr.Type.ToCode()}' and '{falseExpr.Type.ToCode()}' implicitly convert to one another", node);
+                }
             }
 
-            return Expression.Condition(condition!, trueExpr, falseExpr);
+            return Expression.Condition(condition!, trueExpr.NotNull(), falseExpr.NotNull());
         }
 
         protected override Expression VisitMemberAccess(MemberAccessBindingParserNode node)

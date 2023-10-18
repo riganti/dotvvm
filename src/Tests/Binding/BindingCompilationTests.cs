@@ -825,6 +825,26 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_ImplicitConversion_ConditionalStringAndNull()
+        {
+            var resultNotNull = ExecuteBinding("_this.BoolProp ? _this.StringProp : null", new [] { new TestViewModel { StringProp = "test", BoolProp = true } }, expectedType: typeof(string));
+            Assert.AreEqual("test", resultNotNull);
+            resultNotNull = ExecuteBinding("!_this.BoolProp ? null : _this.StringProp", new [] { new TestViewModel { StringProp = "test", BoolProp = true } }, expectedType: typeof(string));
+            Assert.AreEqual("test", resultNotNull);
+            var resultNull = ExecuteBinding("_this.BoolProp ? _this.StringProp : null", new [] { new TestViewModel { StringProp = "test", BoolProp = false } }, expectedType: typeof(string));
+            Assert.IsNull(resultNull);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ImplicitConversion_ConditionalEnumAndLiteral()
+        {
+            var result = ExecuteBinding("_this.BoolProp ? _this.EnumProperty : 'A'", new [] { new TestViewModel { EnumProperty = TestEnum.B, BoolProp = false } }, expectedType: typeof(object));
+            Assert.AreEqual(TestEnum.A, result);
+            result = ExecuteBinding("_this.BoolProp ? 'A' : _this.EnumProperty", new [] { new TestViewModel { EnumProperty = TestEnum.B, BoolProp = false } }, expectedType: typeof(object));
+            Assert.AreEqual(TestEnum.B, result);
+        }
+
+        [TestMethod]
         public void BindingCompiler_SimpleBlockExpression()
         {
             var result = ExecuteBinding("SetStringProp2(StringProp + 'kk'); StringProp = StringProp2 + 'll'", new [] { new TestViewModel { StringProp = "a" } });

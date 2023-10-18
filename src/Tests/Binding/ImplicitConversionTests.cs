@@ -29,6 +29,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void Conversion_NullConversion()
+        {
+            TypeConversion.EnsureImplicitConversion(Expression.Constant(null, typeof(object)), typeof(string));
+            TypeConversion.EnsureImplicitConversion(Expression.Constant(null, typeof(object)), typeof(int?));
+        }
+
+        [TestMethod]
         public void Conversion_ValidToString()
         {
             TypeConversion.EnsureImplicitConversion(Expression.Parameter(typeof(DateTime)), typeof(string), allowToString: true);
