@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -148,10 +149,19 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
                     ""
                 );
                 string error;
-                if (ContextLine is {})
+                if (ContextLine is {} contextLine)
                 {
-                    var errorHighlight = new string(' ', CharPosition ?? 1) + new string('^', HighlightLength);
-                    error = $"{fileLocation}: Dotvvm Compilation Warning\n{ContextLine}\n{errorHighlight} {Message}";
+                    var graphemeIndices = StringInfo.ParseCombiningCharacters(contextLine.Substring(0, Math.Min(contextLine.Length, CharPosition ?? 0)));
+                    var padding = string.Concat(
+                        graphemeIndices.Select(
+                            startIndex => contextLine[startIndex] switch {
+                                '\t' => "\t",
+                                _ => " "
+                            }
+                        )
+                    );
+                    var errorHighlight = padding + new string('^', HighlightLength);
+                    error = $"{fileLocation}: Dotvvm Compilation Warning\n{contextLine}\n{errorHighlight} {Message}";
                 }
                 else
                 {
