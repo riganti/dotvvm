@@ -585,14 +585,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     // Generic
                     if (!TryReadGenericArguments(startIndex, expression, out var typeOrFunction))
                         return false;
-                    expression = typeOrFunction!.ToTypeReference();
+                    expression = CreateNode(typeOrFunction!.ToTypeReference(), startIndex);
                 }
                 else if (next.Type == BindingTokenType.QuestionMarkOperator)
                 {
                     // Nullable
                     Read();
-                    var typeExpr = expression as TypeReferenceBindingParserNode ?? new ActualTypeReferenceBindingParserNode(expression);
-                    expression = CreateNode(new NullableTypeReferenceBindingParserNode(typeExpr), startIndex);
+
+                    expression = CreateNode(new NullableTypeReferenceBindingParserNode(EnsureTypeExpression(expression)), startIndex);
                 }
                 else if (next.Type == BindingTokenType.OpenArrayBrace)
                 {
@@ -602,8 +602,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     if (next?.Type != BindingTokenType.CloseArrayBrace)
                         return false;
                     Read();
-                    var typeExpr = expression as TypeReferenceBindingParserNode ?? new ActualTypeReferenceBindingParserNode(expression);
-                    expression = CreateNode(new ArrayTypeReferenceBindingParserNode(typeExpr), startIndex);
+
+                    expression = CreateNode(new ArrayTypeReferenceBindingParserNode(EnsureTypeExpression(expression)), startIndex);
                 }
                 else
                 {
@@ -612,8 +612,18 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 next = Peek();
             }
 
-            typeNode = expression as TypeReferenceBindingParserNode ?? new ActualTypeReferenceBindingParserNode(expression);
+            typeNode = EnsureTypeExpression(expression);
             return true;
+        }
+
+        private static TypeReferenceBindingParserNode EnsureTypeExpression(BindingParserNode expression)
+        {
+            if (expression is TypeReferenceBindingParserNode typeExpr) { return typeExpr; }
+
+            typeExpr = new ActualTypeReferenceBindingParserNode(expression);
+            typeExpr.TransferTokens(expression);
+
+            return typeExpr;
         }
 
         private BindingParserNode ReadIdentifierExpression(bool onlyTypeName)

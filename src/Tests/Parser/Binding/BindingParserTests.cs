@@ -1191,9 +1191,66 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
             var name = root.Name.CastTo<SimpleNameBindingParserNode>();
 
-            AssertNode(root, "System.String MyProperty = \"Test\"", 0, 33);
+            AssertNode(root, "System.String MyProperty", 0, 24);
+            AssertNode(type, "System.String", 0, 14);
+            AssertNode(name, "MyProperty", 14, 10);
+        }
+
+        [TestMethod]
+        public void BindingParser_NullablePropertyDeclaration()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("System.String? MyProperty");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var nullable = root.PropertyType.CastTo<NullableTypeReferenceBindingParserNode>();
+            var type = nullable.InnerType.CastTo<ActualTypeReferenceBindingParserNode>();
+            var name = root.Name.CastTo<SimpleNameBindingParserNode>();
+
+            AssertNode(root, "System.String? MyProperty", 0, 25);
+            AssertNode(nullable, "System.String?", 0, 14);
             AssertNode(type, "System.String", 0, 13);
             AssertNode(name, "MyProperty", 14, 11);
+        }
+
+        [TestMethod]
+        public void BindingParser_ComplexTypePropertyDeclaration()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("System.Func<System.String?, int?, string, IdentifierNameBindingParserNode?[]>? MyProperty");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var nullableFunc = root.PropertyType.CastTo<NullableTypeReferenceBindingParserNode>();
+            var funcGeneric = nullableFunc.InnerType.CastTo<GenericTypeReferenceBindingParserNode>();
+            var func = funcGeneric.Type.CastTo<ActualTypeReferenceBindingParserNode>();
+
+            var arg1Nullable = funcGeneric.Arguments[0].CastTo<NullableTypeReferenceBindingParserNode>();
+            var arg2Nullable = funcGeneric.Arguments[1].CastTo<NullableTypeReferenceBindingParserNode>();
+            var arg4Array = funcGeneric.Arguments[3].CastTo<ArrayTypeReferenceBindingParserNode>();
+
+            var arg1 = arg1Nullable.InnerType.CastTo<ActualTypeReferenceBindingParserNode>();
+            var arg2 = arg2Nullable.InnerType.CastTo<ActualTypeReferenceBindingParserNode>();
+            var arg3 = funcGeneric.Arguments[2].CastTo<ActualTypeReferenceBindingParserNode>();
+            var arg4Nullable = arg4Array.ElementType.CastTo<NullableTypeReferenceBindingParserNode>();
+
+            var arg4 = arg4Nullable.InnerType.CastTo<ActualTypeReferenceBindingParserNode>();
+
+            AssertNode(root, "System.Func<System.String?, int?, string, IdentifierNameBindingParserNode?[]>? MyProperty", 0, 89);
+            AssertNode(nullableFunc, "System.Func<System.String?, int?, string, IdentifierNameBindingParserNode?[]>?", 0, 78);
+            AssertNode(funcGeneric, "System.Func<System.String?, int?, string, IdentifierNameBindingParserNode?[]>", 0, 77);
+            AssertNode(func, "System.Func", 0, 11);
+            AssertNode(root.Name, "MyProperty", 78, 11);
+
+            AssertNode(arg1Nullable, "System.String?", 12, 14);
+            AssertNode(arg2Nullable, "int?", 28, 4);
+            AssertNode(arg3, "string", 34, 6);
+            AssertNode(arg4Array, "IdentifierNameBindingParserNode?[]", 42, 34);
+
+            AssertNode(arg1, "System.String", 12, 13);
+            AssertNode(arg2, "int", 28, 3);
+            AssertNode(arg4Nullable, "IdentifierNameBindingParserNode?", 42, 32);
+
+            AssertNode(arg4, "IdentifierNameBindingParserNode", 42, 31);
         }
 
         [TestMethod]
@@ -1208,7 +1265,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var init = root.Initializer.CastTo<LiteralExpressionBindingParserNode>();
 
             AssertNode(root, "System.String MyProperty = \"Test\"", 0, 33);
-            AssertNode(type, "System.String", 0, 13);
+            AssertNode(type, "System.String", 0, 14);
             AssertNode(name, "MyProperty", 14, 11);
             AssertNode(init, "\"Test\"", 27, 6);
         }
@@ -1230,7 +1287,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var att2 = root.Attributes[1].CastTo<BinaryOperatorBindingParserNode>();
 
             AssertNode(root, "System.String MyProperty = \"Test\", MarkupOptions.AllowHardCodedValue = False, MarkupOptions.Required = True", 0, 107);
-            AssertNode(type, "System.String", 0, 13);
+            AssertNode(type, "System.String", 0, 14);
             AssertNode(name, "MyProperty", 14, 11);
             AssertNode(init, "\"Test\"", 27, 6);
             AssertNode(att1, "MarkupOptions.AllowHardCodedValue = False", 35, 41);
@@ -1255,11 +1312,11 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var att1 = root.Attributes[0].CastTo<BinaryOperatorBindingParserNode>();
             var att2 = root.Attributes[1].CastTo<BinaryOperatorBindingParserNode>();
 
-            Assert.AreEqual("System.String MyProperty, MarkupOptions.AllowHardCodedValue = False, MarkupOptions.Required = True", root.ToDisplayString());
-            Assert.AreEqual("System.String", type.ToDisplayString());
-            Assert.AreEqual("MyProperty", name.ToDisplayString());
-            Assert.AreEqual("MarkupOptions.AllowHardCodedValue = False", att1.ToDisplayString());
-            Assert.AreEqual("MarkupOptions.Required = True", att2.ToDisplayString());
+            AssertNode(root, "System.String MyProperty, MarkupOptions.AllowHardCodedValue = False, MarkupOptions.Required = True", 0, 98);
+            AssertNode(type, "System.String", 0, 14);
+            AssertNode(name, "MyProperty", 14, 10);
+            AssertNode(att1, "MarkupOptions.AllowHardCodedValue = False", 26, 41);
+            AssertNode(att2, "MarkupOptions.Required = True", 68, 30);
         }
 
         [TestMethod]
@@ -1312,6 +1369,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             AssertNode(root, "IDictionary<int, System.String> MyProperty", 0, 42);
             AssertNode(name, "MyProperty", 31, 11);
+            AssertNode(genericType, "IDictionary<int, System.String>", 0, 31);
             AssertNode(type, "IDictionary", 0, 11);
             AssertNode(arg1, "int", 12, 3);
             AssertNode(arg2, "System.String", 17, 13);

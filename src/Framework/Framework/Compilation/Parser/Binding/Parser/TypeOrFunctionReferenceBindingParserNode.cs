@@ -32,6 +32,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         public TypeReferenceBindingParserNode ToTypeReference()
         {
             var type = new ActualTypeReferenceBindingParserNode(TypeOrFunction);
+            type.TransferTokens(TypeOrFunction);
+
             if (TypeArguments.Count == 0)
                 return type;
 
