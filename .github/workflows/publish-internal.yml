@@ -14,7 +14,7 @@ on:
         required: false
       version-core:
         type: string
-        default: "4.1.0"
+        default: "4.2.0"
         description: The core part of the version string
         required: false
       prerelease-version:
