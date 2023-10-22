@@ -55,8 +55,22 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Formatting_ToStringGlobalFunctionBug()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Formatting_ToStringGlobalFunctionBug);
+
+                AssertUI.TextEquals(browser.Single(".result-boolean"), "Boolean: false");
+                AssertUI.TextEquals(browser.Single(".result-string"), "String:");
+                browser.Single("input[type=button]").Click();
+                AssertUI.TextEquals(browser.Single(".result-boolean"), "Boolean: true");
+                AssertUI.TextEquals(browser.Single(".result-string"), "String:");
+            });
+        }
+
         public FormattingTests(ITestOutputHelper output) : base(output)
         {
+            }
         }
     }
-}

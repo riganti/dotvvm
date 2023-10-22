@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (isNullable)
                 js = new JsBinaryExpression(js, BinaryOperatorType.NullishCoalescing, new JsLiteral(""));
             if (!isStringAlready)
-                js = new JsIdentifierExpression("String").Invoke(js);
+                js = new JsIdentifierExpression("window").Member("String").Invoke(js);
             return js;
         }
     }

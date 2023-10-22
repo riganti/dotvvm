@@ -1020,8 +1020,8 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("Convert.ToBoolean(IntProp)", "Boolean(IntProp())")]
-        [DataRow("Convert.ToBoolean(DoubleProp)", "Boolean(DoubleProp())")]
+        [DataRow("Convert.ToBoolean(IntProp)", "window.Boolean(IntProp())")]
+        [DataRow("Convert.ToBoolean(DoubleProp)", "window.Boolean(DoubleProp())")]
         [DataRow("Convert.ToDecimal(DoubleProp)", "DoubleProp")]
         [DataRow("Convert.ToInt32(DoubleProp)", "Math.round(DoubleProp())")]
         [DataRow("Convert.ToByte(DoubleProp)", "Math.round(DoubleProp())")]
@@ -1282,6 +1282,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JavascriptCompilation_MarkupControlProperty()
         {
+            _ = TestMarkupControl.SomePropertyProperty;
             var dataContext = bindingHelper.CreateDataContext(new [] { typeof(object) }, markupControl: typeof(TestMarkupControl));
             var result = bindingHelper.ValueBindingToJs("_control.SomeProperty + 'aa'", dataContext, niceMode: false);
             Assert.AreEqual("($control.SomeProperty()??\"\")+\"aa\"", result);
