@@ -562,9 +562,10 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.Where(LongArray, (long item) => item % 2 == 0)", DisplayName = "Regular call of Enumerable.Where")]
         [DataRow("LongArray.Where((long item) => item % 2 == 0)", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("LongArray.ToImmutableArray().Where((long item) => item % 2 == 0)", DisplayName = "Immutable array - extension method")]
         public void JsTranslator_EnumerableWhere(string binding)
         {
-            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().filter((item)=>ko.unwrap(item)%2==0)", result);
         }
 
@@ -579,18 +580,21 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.Select(LongArray, (long item) => -item)", DisplayName = "Regular call of Enumerable.Select")]
         [DataRow("LongArray.Select((long item) => -item)", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("LongArray.ToImmutableArray().Select((long item) => -item)", DisplayName = "Immutable array - extension method")]
+        [DataRow("LongArray.ToImmutableList().Select((long item) => -item)", DisplayName = "Immutable list - extension method")]
         public void JsTranslator_EnumerableSelect(string binding)
         {
-            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().map((item)=>-ko.unwrap(item))", result);
         }
 
         [TestMethod]
         [DataRow("Enumerable.Concat(LongArray, LongArray)", DisplayName = "Regular call of Enumerable.Concat")]
         [DataRow("LongArray.Concat(LongArray)", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("LongArray.ToImmutableArray().Concat(LongArray.ToImmutableArray())", DisplayName = "Immutable arrays")]
         public void JsTranslator_EnumerableConcat(string binding)
         {
-            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().concat(LongArray())", result);
         }
 
@@ -636,18 +640,20 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.All(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.All")]
         [DataRow("LongArray.All((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("LongArray.ToImmutableArray().All((long item) => item > 0)", DisplayName = "Immutable array - extension method")]
         public void JsTranslator_EnumerableAll(string binding)
         {
-            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().every((item)=>ko.unwrap(item)>0)", result);
         }
 
         [TestMethod]
         [DataRow("Enumerable.Any(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.Any")]
         [DataRow("LongArray.Any((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("LongArray.ToImmutableArray().Any((long item) => item > 0)", DisplayName = "Immutable array - extension method")]
         public void JsTranslator_EnumerableAny(string binding)
         {
-            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().some((item)=>ko.unwrap(item)>0)", result);
         }
 
@@ -666,20 +672,34 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("Enumerable.Empty<int>()")]
+        [DataRow("Array.Empty<int>()")]
+        [DataRow("ImmutableArray<int>.Empty")]
+        [DataRow("ImmutableList<int>.Empty")]
+        public void JsTranslator_EnumerableEmpty(string binding)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("[]", result);
+        }
+
+
+        [TestMethod]
         [DataRow("Enumerable.FirstOrDefault(LongArray)", DisplayName = "Regular call of Enumerable.FirstOrDefault")]
         [DataRow("LongArray.FirstOrDefault()", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("LongArray.ToImmutableArray().FirstOrDefault()", DisplayName = "Immutable array - extension method")]
         public void JsTranslator_EnumerableFirstOrDefault(string binding)
         {
-            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray()[0]", result);
         }
 
         [TestMethod]
         [DataRow("Enumerable.FirstOrDefault(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.FirstOrDefault")]
         [DataRow("LongArray.FirstOrDefault((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("LongArray.ToImmutableArray().FirstOrDefault((long item) => item > 0)", DisplayName = "Immutable array - extension method")]
         public void JsTranslator_EnumerableFirstOrDefaultParametrized(string binding)
         {
-            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("dotvvm.translations.array.firstOrDefault(LongArray(),(item)=>ko.unwrap(item)>0)", result);
         }
 
@@ -718,10 +738,11 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.LastOrDefault(LongArray)", DisplayName = "Regular call of Enumerable.LastOrDefault")]
         [DataRow("LongArray.LastOrDefault()", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("LongArray.ToImmutableArray().LastOrDefault()", DisplayName = "Immutable array - extension method")]
         public void JsTranslator_EnumerableLastOrDefault(string binding)
         {
-            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.translations.array.lastOrDefault(LongArray(),()=>true)", result);
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("LongArray().at(-1)", result);
         }
 
         [TestMethod]
@@ -729,7 +750,7 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("LongArray.LastOrDefault((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
         public void JsTranslator_EnumerableLastOrDefaultParametrized(string binding)
         {
-            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("dotvvm.translations.array.lastOrDefault(LongArray(),(item)=>ko.unwrap(item)>0)", result);
         }
 
