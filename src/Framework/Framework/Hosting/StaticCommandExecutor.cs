@@ -60,13 +60,26 @@ namespace DotVVM.Framework.Hosting
             IDotvvmRequestContext context
         )
         {
+            var parameters = plan.Method.GetParameters();
+            object? DeserializeArgument(Type type, int index)
+            {
+                var parameterType =
+                    plan.Method.IsStatic ? parameters[index].ParameterType :
+                    index == 0 ? plan.Method.DeclaringType :
+                    parameters[index - 1].ParameterType;
+                if (!parameterType!.IsAssignableFrom(type))
+                    throw new Exception($"Argument {index} has an invalid type");
+                var arg = arguments.Dequeue();
+                return arg.ToObject(type, this.jsonDeserializer);
+            }
             var methodArgs = new List<object?>();
             var methodArgsPaths = argumentValidationPaths is null ? null : new List<string?>();
             foreach (var a in plan.Arguments)
             {
+                var index = methodArgs.Count;
                 var (value, path) = a.Type switch {
                     StaticCommandParameterType.Argument =>
-                        ((object?)arguments.Dequeue().ToObject((Type)a.Arg!, this.jsonDeserializer), argumentValidationPaths?.Dequeue()),
+                        (DeserializeArgument((Type)a.Arg!, index), argumentValidationPaths?.Dequeue()),
                     StaticCommandParameterType.Constant or StaticCommandParameterType.DefaultValue =>
                         (a.Arg, null),
                     StaticCommandParameterType.Inject =>
