@@ -55,7 +55,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         }
 
         [AllowStaticCommand]
-        public async Task<GridViewDataSet<CustomerData>> LoadStandard(GridViewDataSetOptions options)
+        public static async Task<GridViewDataSet<CustomerData>> LoadStandard(GridViewDataSetOptions options)
         {
             var dataSet = new GridViewDataSet<CustomerData>();
             dataSet.ApplyOptions(options);
@@ -64,7 +64,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         }
 
         [AllowStaticCommand]
-        public async Task<NextTokenGridViewDataSet> LoadToken(GridViewDataSetOptions<NoFilteringOptions, SortingOptions, CustomerDataNextTokenPagingOptions> options)
+        public static async Task<NextTokenGridViewDataSet> LoadToken(GridViewDataSetOptions<NoFilteringOptions, SortingOptions, CustomerDataNextTokenPagingOptions> options)
         {
             var dataSet = new NextTokenGridViewDataSet();
             dataSet.ApplyOptions(options);
@@ -73,7 +73,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         }
 
         [AllowStaticCommand]
-        public async Task<NextTokenHistoryGridViewDataSet> LoadTokenHistory(GridViewDataSetOptions<NoFilteringOptions, SortingOptions, CustomerDataNextTokenHistoryPagingOptions> options)
+        public static async Task<NextTokenHistoryGridViewDataSet> LoadTokenHistory(GridViewDataSetOptions<NoFilteringOptions, SortingOptions, CustomerDataNextTokenHistoryPagingOptions> options)
         {
             var dataSet = new NextTokenHistoryGridViewDataSet();
             dataSet.ApplyOptions(options);
@@ -82,7 +82,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         }
 
         [AllowStaticCommand]
-        public async Task<MultiSortGridViewDataSet> LoadMultiSort(GridViewDataSetOptions<NoFilteringOptions, MultiCriteriaSortingOptions, PagingOptions> options)
+        public static async Task<MultiSortGridViewDataSet> LoadMultiSort(GridViewDataSetOptions<NoFilteringOptions, MultiCriteriaSortingOptions, PagingOptions> options)
         {
             var dataSet = new MultiSortGridViewDataSet();
             dataSet.ApplyOptions(options);

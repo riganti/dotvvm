@@ -193,10 +193,18 @@ namespace DotVVM.Framework.Controls
                 // li.SetBinding(DataContextProperty, GetNearIndexesBinding(context, i, dataContextType));
                 liTemplate.CssClasses.Add(ActiveItemCssClass, new ValueOrBinding<bool>(pagerBindings.IsActivePage.NotNull()));
                 var link = new LinkButton();
-                link.SetBinding(ButtonBase.ClickProperty, pagerBindings.GoToPage!);
-                link.SetBinding(ButtonBase.TextProperty, pagerBindings.PageNumberText);
+                link.SetBinding(ButtonBase.ClickProperty, pagerBindings.GoToPage.NotNull());
+                link.SetBinding(ButtonBase.TextProperty, pagerBindings.PageNumberText.NotNull());
                 if (!true.Equals(enabled)) link.SetValue(LinkButton.EnabledProperty, enabled);
                 liTemplate.Children.Add(link);
+                if (!this.RenderLinkForCurrentPage)
+                {
+                    var notLink = new Literal(pagerBindings.PageNumberText);
+                    notLink.RenderSpanElement = true;
+                    notLink.SetBinding(DotvvmControl.IncludeInPageProperty, pagerBindings.IsActivePage);
+                    link.SetBinding(DotvvmControl.IncludeInPageProperty, pagerBindings.IsActivePage.Negate());
+                    liTemplate.Children.Add(notLink);
+                }
                 NumberButtonsRepeater = new Repeater() {
                     DataSource = pagerBindings.PageNumbers,
                     RenderWrapperTag = false,
