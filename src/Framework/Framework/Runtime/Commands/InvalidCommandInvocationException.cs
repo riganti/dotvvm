@@ -5,7 +5,7 @@ namespace DotVVM.Framework.Runtime.Commands
 {
     public class InvalidCommandInvocationException : Exception
     {
-        public Dictionary<string, string[]>? AdditionData { get; set; }
+        public KeyValuePair<string, string[]>[]? AdditionData { get; set; }
 
         public InvalidCommandInvocationException(string message)
             : base(message)
@@ -19,24 +19,16 @@ namespace DotVVM.Framework.Runtime.Commands
             
         }
 
-        public InvalidCommandInvocationException(string message, Dictionary<string, CandidateBindings>? data)
+        public InvalidCommandInvocationException(string message, KeyValuePair<string, string[]>[]? data)
             : this(message, (Exception?)null, data)
         {
 
         }
 
-        public InvalidCommandInvocationException(string message, Exception? innerException, Dictionary<string, CandidateBindings>? data)
+        public InvalidCommandInvocationException(string message, Exception? innerException, KeyValuePair<string, string[]>[]? data)
             : base(message, innerException)
         {
-            if(data != null)
-            {
-                AdditionData = new Dictionary<string, string[]>();
-                foreach (var bindings in data)
-                {
-                    AdditionData.Add(bindings.Key, bindings.Value.BindingsToString());
-                }
-            }
-
+            AdditionData = data;
         }
     }
 }

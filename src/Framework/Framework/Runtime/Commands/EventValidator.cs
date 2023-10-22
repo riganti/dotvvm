@@ -58,10 +58,8 @@ namespace DotVVM.Framework.Runtime.Commands
             DotvvmBindableObject? resultControl = null;
             DotvvmProperty? resultProperty = null;
 
-            bool checkControl;
-            bool bindingInPath = false;
-            var candidateBindings = new Dictionary<string, CandidateBindings>();
-            string? errorMessage = null;
+            var candidateBindings = new Dictionary<FindBindingResult.BindingMatchChecklist, CandidateBindings>();
+            var infoMessage = new StringBuilder();
 
             var walker = new ControlTreeWalker(viewRootControl);
             walker.ProcessControlTree((control) =>
@@ -74,84 +72,98 @@ namespace DotVVM.Framework.Runtime.Commands
 
                     foreach (var binding in bindings)
                     {
-                        var wrongExceptionPropertyKeys = new List<string>();
-                        var correctExceptionPropertyKeys = new List<string>();
-                        var infoMessage = new StringBuilder();
+                        infoMessage.Clear();
+                        var bindingMatch = new FindBindingResult.BindingMatchChecklist();
 
                         // checking path
                         if (!ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
                         {
-                            wrongExceptionPropertyKeys.Add("DataContext path");
                             infoMessage.Append(
                                 $"Expected DataContext path: '{string.Join("/", path)}' Command binding DataContext path: '{string.Join("/", walker.CurrentPathArray)}'");
                         }
                         else
                         {
-                            //Found a binding in DataContext
-                            bindingInPath = true;
-                            correctExceptionPropertyKeys.Add("DataContext path");
+                            bindingMatch.DataContextPathMatch = true;
                         }
 
                         //checking binding id
-                        if (((CommandBindingExpression) binding.Value).BindingId != commandId)
+                        if (((CommandBindingExpression) binding.Value).BindingId == commandId)
                         {
-                            wrongExceptionPropertyKeys.Add("binding id");
-                        }
-                        else
-                        {
-                            correctExceptionPropertyKeys.Add("binding id");
+                            bindingMatch.BindingIdMatch = true;
                         }
 
                         //checking validation path
                         var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(control)?.identificationExpression;
                         if (currentValidationTargetPath != validationTargetPath)
                         {
-                            wrongExceptionPropertyKeys.Add("validation path");
-                            infoMessage.Append($"Expected validation path: '{string.Join("/", validationTargetPath)}' Command binding validation path: '{string.Join("/", currentValidationTargetPath)}'");
+                            if (infoMessage.Length > 0)
+                                infoMessage.Append("; ");
+                            infoMessage.Append($"Expected validation path: '{validationTargetPath}' Command binding validation path: '{currentValidationTargetPath}'");
                         }
                         else
                         {
-                            correctExceptionPropertyKeys.Add("validation path");
+                            bindingMatch.ValidationPathMatch = true;
                         }
 
                         //If finding control command binding checks if the binding is control otherwise always true
-                        checkControl = !findControl || control.GetClosestControlBindingTarget() == targetControl;
+                        bindingMatch.ControlMatch = !findControl || control.GetClosestControlBindingTarget() == targetControl;
 
-                        if(!wrongExceptionPropertyKeys.Any() && checkControl)
+                        if (!bindingMatch.ControlMatch)
+                        {
+                            if (infoMessage.Length > 0)
+                            {
+                                infoMessage.Append("; different markup control");
+                            }
+                            else
+                            {
+                                infoMessage.Append($"Expected control: '{(targetControl as DotvvmControl)?.GetDotvvmUniqueId()}' Command binding control: '{(control.GetClosestControlBindingTarget() as DotvvmControl)?.GetDotvvmUniqueId()}'");
+                            }
+                        }
+
+                        if(bindingMatch.AllMatches)
                         {
                             //correct binding found
                             resultBinding = (CommandBindingExpression)binding.Value;
                             resultControl = control;
                             resultProperty = binding.Key;
                         }
-                        else if (wrongExceptionPropertyKeys.Any())
-                        {
-                            var exceptionPropertyKey =
-                                (findControl && checkControl
-                                    ? "Control command bindings with wrong "
-                                    : "Command bindings with wrong ") + string.Join(", ", wrongExceptionPropertyKeys)
-                                + (correctExceptionPropertyKeys.Any()
-                                    ? " and correct " + string.Join(", ", correctExceptionPropertyKeys)
-                                    : "")
-                                + ":";
-                            if (!candidateBindings.ContainsKey(exceptionPropertyKey))
-                            {
-                                candidateBindings.Add(exceptionPropertyKey, new CandidateBindings());
-                            }
-                            candidateBindings[exceptionPropertyKey]
-                                .AddBinding(new KeyValuePair<string, IBinding>(infoMessage.ToString(), binding.Value));
-                        }
                         else
                         {
-                            errorMessage = "Invalid command invocation (the binding is not control command binding)";
+                            // only add information about ID mismatch if no other mismatch was found to avoid information clutter
+                            if (!bindingMatch.BindingIdMatch && infoMessage.Length == 0)
+                            {
+                                infoMessage.Append($"Expected internal binding id: '{commandId}' Command binding id: '{((CommandBindingExpression)binding.Value).BindingId}'");
+                            }
+                            if (!candidateBindings.ContainsKey(bindingMatch))
+                            {
+                                candidateBindings.Add(bindingMatch, new CandidateBindings());
+                            }
+                            candidateBindings[bindingMatch]
+                                .AddBinding(new(infoMessage.ToString(), binding.Value));
                         }
                     }
                 }
             });
 
+            string? errorMessage = null;
+            if (candidateBindings.ContainsKey(new FindBindingResult.BindingMatchChecklist { ControlMatch = false, BindingIdMatch = true, DataContextPathMatch = true, ValidationPathMatch = true }))
+            {
+                // all properties match except the control
+                errorMessage = "Invalid command invocation - The binding is not control command binding.";
+            }
+            else if (candidateBindings.All(b => !b.Key.DataContextPathMatch))
+            {
+                // nothing in the specified data context path
+                errorMessage = $"Invalid command invocation - Nothing was found inside DataContext '{path}'. Please check if ViewModel is populated.";
+            }
+            else
+            {
+                errorMessage = "Invalid command invocation - The specified command binding was not found.";
+            }
+
             return new FindBindingResult
             {
-                ErrorMessage = bindingInPath ? errorMessage : "Nothing was found inside specified DataContext. Please check if ViewModel is populated.",
+                ErrorMessage = errorMessage,
                 CandidateBindings = candidateBindings,
                 Binding = resultBinding,
                 Control = resultControl,
@@ -191,17 +203,64 @@ namespace DotVVM.Framework.Runtime.Commands
         /// <summary>
         /// Throws the event validation exception.
         /// </summary>
-        private InvalidCommandInvocationException EventValidationException(string? errorMessage = null, Dictionary<string, CandidateBindings>? data = null)
-            => new InvalidCommandInvocationException(errorMessage == null ? "Invalid command invocation!" : errorMessage, data);
+        private InvalidCommandInvocationException EventValidationException(string? errorMessage = null, Dictionary<FindBindingResult.BindingMatchChecklist, CandidateBindings>? data = null)
+        {
+            var stringifiedData =
+                data?.OrderByDescending(k => (k.Key.BindingIdMatch, k.Key.ControlMatch, -k.Key.MismatchCount))
+                     .Select(k => new KeyValuePair<string, string[]>(k.Key.ToString(), k.Value.BindingsToString()))
+                     .ToArray();
+            return new InvalidCommandInvocationException(errorMessage ?? "Invalid command invocation!", stringifiedData);
+        }
     }
 
     public class FindBindingResult
     {
         public string? ErrorMessage { get; set; }
-        public Dictionary<string, CandidateBindings> CandidateBindings { get; set; } = new();
+        public Dictionary<BindingMatchChecklist, CandidateBindings> CandidateBindings { get; set; } = new();
 
         public CommandBindingExpression? Binding { get; set; }
         public DotvvmBindableObject? Control { get; set; }
         public DotvvmProperty? Property { get; set; }
+
+        public struct BindingMatchChecklist: IEquatable<BindingMatchChecklist>
+        {
+            public bool ValidationPathMatch { get; set; }
+            public bool BindingIdMatch { get; set; }
+            public bool DataContextPathMatch { get; set; }
+            public bool ControlMatch { get; set; }
+
+            public readonly bool AllMatches => ValidationPathMatch && BindingIdMatch && DataContextPathMatch && ControlMatch;
+            public readonly int MismatchCount => (ValidationPathMatch ? 0 : 1) + (BindingIdMatch ? 0 : 1) + (DataContextPathMatch ? 0 : 1) + (ControlMatch ? 0 : 1);
+
+            public readonly bool Equals(BindingMatchChecklist other) => ValidationPathMatch == other.ValidationPathMatch && BindingIdMatch == other.BindingIdMatch && DataContextPathMatch == other.DataContextPathMatch && ControlMatch == other.ControlMatch;
+            public readonly override bool Equals(object? obj) => obj is BindingMatchChecklist other && Equals(other);
+            public readonly override int GetHashCode() => (ValidationPathMatch, BindingIdMatch, DataContextPathMatch, ControlMatch).GetHashCode();
+
+            public readonly override string ToString()
+            {
+                if (AllMatches)
+                {
+                    return "Matching binding";
+                }
+                if (!ControlMatch && ValidationPathMatch && BindingIdMatch && DataContextPathMatch)
+                {
+                    return "The binding is not control command binding or is in wrong control";
+                }
+                if (!ValidationPathMatch && !BindingIdMatch && !DataContextPathMatch)
+                {
+                    return "No matching property";
+                }
+                var properties = new [] {
+                    ("binding id", this.BindingIdMatch),
+                    ("validation path", this.ValidationPathMatch),
+                    ("DataContext path", this.DataContextPathMatch)
+                }.ToLookup(p => p.Item2, p => p.Item1);
+
+                var wrong = string.Join(", ", properties[false]);
+                var correct = string.Join(", ", properties[true]);
+
+                return "Command binding with wrong " + wrong + (correct.Any() ? " and correct " + correct : "");
+            }
+        }
     }
 }
