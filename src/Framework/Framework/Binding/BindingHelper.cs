@@ -253,6 +253,30 @@ namespace DotVVM.Framework.Binding
             JavascriptTranslator.AdjustKnockoutScriptContext(binding.CommandJavascript,
                 dataContextLevel: FindDataContextTarget(binding, control).stepsUp);
 
+        /// <summary>
+        /// Gets command arguments parametrized code from the arguments collection.
+        /// </summary>
+        public static CodeParameterAssignment? GetParametrizedCommandArgs(DotvvmControl control, IEnumerable<object?> argumentsCollection)
+        {
+            var builder = new ParametrizedCode.Builder();
+            var isFirst = true;
+
+            builder.Add("[");
+            foreach (var arg in argumentsCollection)
+            {
+                if (!isFirst)
+                {
+                    builder.Add(",");
+                }
+                isFirst = false;
+
+                builder.Add(ValueOrBinding<object>.FromBoxedValue(arg).GetParametrizedJsExpression(control));
+            }
+            builder.Add("]");
+
+            return builder.Build(OperatorPrecedence.Max);
+        }
+
         public static object? GetBindingValue(this IBinding binding, DotvvmBindableObject control)
         {
             if (binding is IStaticValueBinding valueBinding)

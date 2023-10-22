@@ -96,7 +96,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public void GridViewDataSet_GridViewCommands_Command()
         {
             // get gridview commands
-            var commands = commandProvider.GetGridViewCommands(dataContextStack, GridViewDataSetCommandType.Command);
+            var commands = commandProvider.GetGridViewCommands(dataContextStack, dataSetBinding, GridViewDataSetCommandType.Command);
 
             // test evaluation of commands
             Assert.IsNotNull(commands.SetSortExpression);

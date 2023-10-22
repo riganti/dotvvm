@@ -10,7 +10,6 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Controls;
 
@@ -19,7 +18,7 @@ public class GridViewDataSetBindingProvider
     private readonly BindingCompilationService service;
 
     private readonly ConcurrentDictionary<(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType), DataPagerBindings> dataPagerCommands = new();
-    private readonly ConcurrentDictionary<(DataContextStack, GridViewDataSetCommandType), GridViewCommands> gridViewCommands = new();
+    private readonly ConcurrentDictionary<(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType), GridViewCommands> gridViewCommands = new();
 
     public GridViewDataSetBindingProvider(BindingCompilationService service)
     {
@@ -31,9 +30,9 @@ public class GridViewDataSetBindingProvider
         return dataPagerCommands.GetOrAdd((dataContextStack, dataSetBinding, commandType), x => GetDataPagerCommandsCore(x.dataContextStack, x.dataSetBinding, x.commandType));
     }
 
-    public GridViewCommands GetGridViewCommands(DataContextStack dataContextStack, GridViewDataSetCommandType commandType)
+    public GridViewCommands GetGridViewCommands(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
     {
-        return gridViewCommands.GetOrAdd((dataContextStack, commandType), _ => GetGridViewCommandsCore(dataContextStack, commandType));
+        return gridViewCommands.GetOrAdd((dataContextStack, dataSetBinding, commandType), x => GetGridViewCommandsCore(x.dataContextStack, x.dataSetBinding, x.commandType));
     }
 
     private DataPagerBindings GetDataPagerCommandsCore(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
@@ -117,24 +116,21 @@ public class GridViewDataSetBindingProvider
         };
     }
 
-    private GridViewCommands GetGridViewCommandsCore(DataContextStack dataContextStack, GridViewDataSetCommandType commandType)
+    private GridViewCommands GetGridViewCommandsCore(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
     {
-        ICommandBinding? GetCommandOrNull<T>(ParameterExpression dataSetParam, string methodName, Expression[] arguments, Func<Expression, Expression> transformExpression)
+        var dataSetExpr = dataSetBinding.GetProperty<ParsedExpressionBindingProperty>().Expression;
+        ICommandBinding? GetCommandOrNull<T>(DataContextStack dataContextStack, string methodName, Expression[] arguments, Func<Expression, Expression>? transformExpression)
         {
-            return typeof(T).IsAssignableFrom(dataSetParam.Type)
-                ? CreateCommandBinding<T>(commandType, dataSetParam, dataContextStack, methodName, arguments, transformExpression)
+            return typeof(T).IsAssignableFrom(dataSetExpr.Type)
+                ? CreateCommandBinding<T>(commandType, dataSetExpr, dataContextStack, methodName, arguments, transformExpression)
                 : null;
         }
-        ParameterExpression CreateParameter(DataContextStack dataContextStack)
-        {
-            return Expression.Parameter(dataContextStack.DataContextType).AddParameterAnnotation(new BindingParameterAnnotation(dataContextStack));
-        }
 
-        var setSortExpressionParam = Expression.Parameter(typeof(string));
+        var setSortExpressionParam = Expression.Parameter(typeof(string), "_sortExpression");
         return new GridViewCommands()
         {
             SetSortExpression = GetCommandOrNull<ISortableGridViewDataSet<ISortingSetSortExpressionCapability>>(
-                CreateParameter(dataContextStack),
+                dataContextStack,
                 nameof(ISortingSetSortExpressionCapability.SetSortExpression),
                 new Expression[] { setSortExpressionParam },
                 // transform to sortExpression => command lambda

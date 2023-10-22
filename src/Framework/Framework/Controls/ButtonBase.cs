@@ -37,6 +37,18 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ClickProperty =
             DotvvmProperty.Register<Command?, ButtonBase>(t => t.Click, null);
 
+        /// <summary>
+        /// Gets or sets a collection of arguments passed to the <see cref="Click"/> command when the button is clicked.
+        /// This property is typically used from the code-behind to allow sharing the same binding expressions among multiple buttons.
+        /// </summary>
+        [MarkupOptions(MappingMode = MappingMode.Exclude)]
+        public List<object?> ClickArguments
+        {
+            get { return (List<object?>)GetValue(ClickArgumentsProperty)!; }
+            set { SetValue(ClickArgumentsProperty, value); }
+        }
+        public static readonly DotvvmProperty ClickArgumentsProperty
+            = DotvvmProperty.Register<List<object?>, ButtonBase>(c => c.ClickArguments, null);
 
         /// <summary>
         /// Gets or sets a value indicating whether the button is enabled and can be clicked on.
@@ -65,6 +77,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public ButtonBase(string tagName) : base(tagName)
         {
+            ClickArguments = new List<object>();
         }
 
 

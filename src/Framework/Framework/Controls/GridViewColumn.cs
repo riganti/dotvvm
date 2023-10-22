@@ -189,7 +189,7 @@ namespace DotVVM.Framework.Controls
             EditTemplate.BuildContent(context, container);
         }
 
-        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string?>? sortCommand, HtmlGenericControl cell, IGridViewDataSet? gridViewDataSet)
+        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, ICommandBinding? sortCommandBinding, HtmlGenericControl cell, IGridViewDataSet? gridViewDataSet)
         {
             if (HeaderTemplate != null)
             {
@@ -199,22 +199,21 @@ namespace DotVVM.Framework.Controls
 
             if (AllowSorting)
             {
-                if (sortCommand == null)
+                if (sortCommandBinding == null)
                 {
                     throw new DotvvmControlException(this, "Cannot use column sorting where no sort command is specified. Either put IGridViewDataSet in the DataSource property of the GridView, or set the SortChanged command on the GridView to implement custom sorting logic!");
                 }
 
                 var sortExpression = GetSortExpression();
-
+                
                 var linkButton = new LinkButton();
-                linkButton.SetValue(LinkButton.TextProperty, GetValueRaw(HeaderTextProperty));
+                linkButton.SetValue(ButtonBase.TextProperty, GetValueRaw(HeaderTextProperty));
+                linkButton.ClickArguments.Add(sortExpression);
                 cell.Children.Add(linkButton);
 
-                var bindingId = linkButton.GetDotvvmUniqueId().GetValue() + "_sortBinding";
-                var binding = new CommandBindingExpression(context.Services.GetRequiredService<BindingCompilationService>().WithoutInitialization(), h => sortCommand(sortExpression), bindingId);
-                linkButton.SetBinding(ButtonBase.ClickProperty, binding);
+                linkButton.SetBinding(ButtonBase.ClickProperty, sortCommandBinding);
 
-                SetSortedCssClass(cell, gridViewDataSet, gridView.GetValueBinding(GridView.DataSourceProperty)!);
+                SetSortedCssClass(cell, gridViewDataSet, gridView.GetValueBinding(ItemsControl.DataSourceProperty)!);
             }
             else
             {

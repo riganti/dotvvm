@@ -24,6 +24,8 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(Columns))]
     public class GridView : ItemsControl
     {
+        private readonly GridViewDataSetBindingProvider gridViewDataSetBindingProvider;
+        private readonly BindingCompilationService bindingCompilationService;
         private EmptyData? emptyDataContainer;
         private int numberOfRows;
         private HtmlGenericControl? head;
@@ -31,8 +33,11 @@ namespace DotVVM.Framework.Controls
         private DataItemContainer? clientEditTemplate;
 
 
-        public GridView() : base("table")
+        public GridView(GridViewDataSetBindingProvider gridViewDataSetBindingProvider, BindingCompilationService bindingCompilationService) : base("table")
         {
+            this.gridViewDataSetBindingProvider = gridViewDataSetBindingProvider;
+            this.bindingCompilationService = bindingCompilationService;
+
             SetValue(Internal.IsNamingContainerProperty, true);
 
             Columns = new List<GridViewColumn>();
@@ -161,6 +166,19 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty InlineEditingProperty =
             DotvvmProperty.Register<bool, GridView>(t => t.InlineEditing, false);
 
+        /// <summary>
+        /// Gets or sets the command that will be triggered when the GridView needs to load data (e.g. when the sort order has changed).
+        /// The command accepts one argument of type GridViewDataSetOptions&lt;TFilteringOptions, TSortingOptions, TPagingOptions&gt; and should return the new GridViewDataSet.
+        /// </summary>
+        public ICommandBinding? LoadData
+        {
+            get => (ICommandBinding?)GetValue(LoadDataProperty);
+            set => SetValue(LoadDataProperty, value);
+        }
+        public static readonly DotvvmProperty LoadDataProperty =
+            DotvvmProperty.Register<ICommandBinding?, GridView>(nameof(LoadData));
+
+
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
             DataBind(context);
@@ -186,16 +204,7 @@ namespace DotVVM.Framework.Controls
             var dataSourceBinding = GetDataSourceBinding();
             var dataSource = DataSource;
 
-            var sortCommand = SortChanged;
-            sortCommand ??=
-                typeof(ISortableGridViewDataSet).IsAssignableFrom((GetBinding(DataSourceProperty) as IStaticValueBinding)?.ResultType)
-                  ? (Action<string?>)SortChangedCommand
-                  : null;
-
-            sortCommand ??= s =>
-                throw new DotvvmControlException(this, "Cannot sort when DataSource is null.");
-
-            CreateHeaderRow(context, sortCommand);
+            CreateHeaderRow(context);
 
             var index = 0;
             if (dataSource != null)
@@ -231,21 +240,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected virtual void SortChangedCommand(string? expr)
-        {
-            var dataSource = this.DataSource;
-            if (dataSource is null)
-                throw new DotvvmControlException(this, "Cannot execute sort command, DataSource is null");
-
-            var sortOptions = (dataSource as ISortableGridViewDataSet<ISortingSetSortExpressionCapability>)?.SortingOptions;
-            if (sortOptions is null || (expr != null && !sortOptions.IsSortingAllowed(expr)))
-                throw new DotvvmControlException(this, "Cannot execute sort command, DataSource does not have sorting options");
-            sortOptions.SetSortExpression(expr);
-            (dataSource as IPageableGridViewDataSet<IPagingFirstPageCapability>)?.PagingOptions.GoToFirstPage();
-            (dataSource as IRefreshableGridViewDataSet)?.RequestRefresh();
-        }
-
-        protected virtual void CreateHeaderRow(IDotvvmRequestContext context, Action<string?>? sortCommand)
+        protected virtual void CreateHeaderRow(IDotvvmRequestContext context)
         {
             head = new HtmlGenericControl("thead");
             Children.Add(head);
@@ -256,14 +251,15 @@ namespace DotVVM.Framework.Controls
             var decoratedHeaderRow = Decorator.ApplyDecorators(headerRow, HeaderRowDecorators);
             head.Children.Add(decoratedHeaderRow);
 
+            var sortCommandBinding = BuildSortCommandBinding();
             foreach (var column in Columns.NotNull("GridView.Columns must be set"))
             {
                 var cell = new HtmlGenericControl("th");
                 SetCellAttributes(column, cell, true);
                 var decoratedCell = Decorator.ApplyDecorators(cell, column.HeaderCellDecorators);
                 headerRow.Children.Add(decoratedCell);
-
-                column.CreateHeaderControls(context, this, sortCommand, cell, gridViewDataSet);
+                
+                column.CreateHeaderControls(context, this, sortCommandBinding, cell, gridViewDataSet);
                 if (FilterPlacement == GridViewFilterPlacement.HeaderRow)
                 {
                     column.CreateFilterControls(context, this, cell, gridViewDataSet);
@@ -282,6 +278,52 @@ namespace DotVVM.Framework.Controls
                     column.CreateFilterControls(context, this, cell, gridViewDataSet);
                 }
             }
+        }
+
+        private ICommandBinding? BuildSortCommandBinding()
+        {
+            if (SortChanged is { } && LoadData is { })
+            {
+                throw new DotvvmControlException(this, $"The {nameof(LoadData)} and {nameof(SortChanged)} properties cannot be used together!");
+            }
+
+            if (SortChanged is { })
+            {
+                return BuildDefaultSortCommandBinding();
+            }
+            else
+            {
+                return BuildLoadDataSortCommandBinding();
+            }
+        }
+
+        protected virtual ICommandBinding BuildDefaultSortCommandBinding()
+        {
+            var dataContextStack = this.GetDataContextType()!;
+            return new CommandBindingExpression(bindingCompilationService.WithoutInitialization(),
+                new object[] {
+                    dataContextStack,
+                    (BindingDelegate)(c =>
+                        (string sortExpression) =>
+                        {
+                            var dataSource = this.DataSource;
+                            if (dataSource is null)
+                                throw new DotvvmControlException(this, "Cannot execute sort command, DataSource is null");
+
+                            SortChanged!(sortExpression);
+
+                            (dataSource as IPageableGridViewDataSet<IPagingFirstPageCapability>)?.PagingOptions.GoToFirstPage();
+                            (dataSource as IRefreshableGridViewDataSet)?.RequestRefresh();
+                        }),
+                    new IdBindingProperty($"{this.GetDotvvmUniqueId().GetValue()}_sortBinding")
+                });
+        }
+
+        protected virtual ICommandBinding? BuildLoadDataSortCommandBinding()
+        {
+            var dataContextStack = this.GetDataContextType()!;
+            var commandType = LoadData is { } ? GridViewDataSetCommandType.StaticCommand : GridViewDataSetCommandType.Command;
+            return gridViewDataSetBindingProvider.GetGridViewCommands(dataContextStack, GetDataSourceBinding(), commandType).SetSortExpression;
         }
 
         private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)
@@ -520,7 +562,16 @@ namespace DotVVM.Framework.Controls
             var mapping = userColumnMappingService.GetMapping(itemType!);
             var mappingJson = JsonConvert.SerializeObject(mapping);
 
-            writer.AddKnockoutDataBind("dotvvm-gridviewdataset", $"{{'mapping':{mappingJson},'dataSet':{GetDataSourceBinding().GetKnockoutBindingExpression(this, unwrapped: true)}}}");
+            var helperBinding = new KnockoutBindingGroup();
+            helperBinding.Add("dataSet", GetDataSourceBinding().GetKnockoutBindingExpression(this, unwrapped: true));
+            helperBinding.Add("mapping", mappingJson);
+            if (this.LoadData is { } loadData)
+            {
+                var loadDataExpression = KnockoutHelper.GenerateClientPostbackLambda("LoadData", loadData, this, new PostbackScriptOptions(elementAccessor: "$element", koContext: CodeParameterAssignment.FromIdentifier("$context")));
+                helperBinding.Add("loadDataSet", loadDataExpression);
+            }
+            writer.AddKnockoutDataBind("dotvvm-gridviewdataset", helperBinding.ToString());
+
             base.AddAttributesToRender(writer, context);
         }
 
