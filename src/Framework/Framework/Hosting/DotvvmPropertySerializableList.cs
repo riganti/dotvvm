@@ -14,6 +14,7 @@ namespace DotVVM.Framework.Hosting
     {
         public static SortedDictionary<string, SortedDictionary<string, DotvvmPropertyInfo>> Properties =>
             DotvvmProperty.AllProperties
+            .Where(p => !p.DeclaringType.Assembly.IsDynamic)
             .Where(p => p is not DotvvmCapabilityProperty)
             .Select(p =>
                 new {
@@ -46,6 +47,7 @@ namespace DotVVM.Framework.Hosting
 
         public static SortedDictionary<string, SortedDictionary<string, DotvvmPropertyInfo>> Capabilities =>
             DotvvmProperty.AllProperties
+            .Where(p => !p.DeclaringType.Assembly.IsDynamic)
             .OfType<DotvvmCapabilityProperty>()
             .Select(p =>
                 new {
@@ -65,6 +67,7 @@ namespace DotVVM.Framework.Hosting
 
         public static SortedDictionary<string, SortedDictionary<string, DotvvmPropertyGroupInfo>> PropertyGroups =>
             DotvvmPropertyGroup.AllGroups
+            .Where(p => !p.DeclaringType.Assembly.IsDynamic)
             .Select(p =>
                 new {
                     declaringType = p.DeclaringType,
@@ -91,7 +94,7 @@ namespace DotVVM.Framework.Hosting
         public static SortedDictionary<string, DotvvmControlInfo> GetControls(CompiledAssemblyCache assemblies)
         {
             var result = new SortedDictionary<string, DotvvmControlInfo>(StringComparer.OrdinalIgnoreCase);
-            foreach (var a in assemblies.GetAllAssemblies())
+            foreach (var a in assemblies.GetAllAssemblies().Where(a => !a.IsDynamic))
             {
                 foreach (var c in a.GetLoadableTypes())
                 {

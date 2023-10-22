@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <ProjectReference Include="../Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
-    <PackageReference Include="CheckTestOutput" Version="0.5.1" />
+    <PackageReference Include="CheckTestOutput" Version="0.6.3" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.17.0" />

@@ -63,15 +63,22 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("'Local' == _this", "\"Local\"==$data")]
         [DataRow("_this == 2", "$data==\"Local\"")]
         [DataRow("2 == _this", "\"Local\"==$data")]
-        [DataRow("_this & 'Local'", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"G0/GAE51KlQlMR5T\")&2,\"G0/GAE51KlQlMR5T\")")]
-        [DataRow("'Local' & _this", "dotvvm.translations.enums.fromInt(2&dotvvm.translations.enums.toInt($data,\"G0/GAE51KlQlMR5T\"),\"G0/GAE51KlQlMR5T\")")]
-        [DataRow("_this | 'Local'", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"G0/GAE51KlQlMR5T\")|2,\"G0/GAE51KlQlMR5T\")")]
-        [DataRow("_this & 1", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"G0/GAE51KlQlMR5T\")&1,\"G0/GAE51KlQlMR5T\")")]
-        [DataRow("1 & _this", "dotvvm.translations.enums.fromInt(1&dotvvm.translations.enums.toInt($data,\"G0/GAE51KlQlMR5T\"),\"G0/GAE51KlQlMR5T\")")]
+        [DataRow("_this & 'Local'", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"bmCpvOUHn4NxUNdc\")&2,\"bmCpvOUHn4NxUNdc\")")]
+        [DataRow("'Local' & _this", "dotvvm.translations.enums.fromInt(2&dotvvm.translations.enums.toInt($data,\"bmCpvOUHn4NxUNdc\"),\"bmCpvOUHn4NxUNdc\")")]
+        [DataRow("_this | 'Local'", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"bmCpvOUHn4NxUNdc\")|2,\"bmCpvOUHn4NxUNdc\")")]
+        [DataRow("_this & 1", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"bmCpvOUHn4NxUNdc\")&1,\"bmCpvOUHn4NxUNdc\")")]
+        [DataRow("1 & _this", "dotvvm.translations.enums.fromInt(1&dotvvm.translations.enums.toInt($data,\"bmCpvOUHn4NxUNdc\"),\"bmCpvOUHn4NxUNdc\")")]
         public void JavascriptCompilation_EnumOperators(string expr, string expectedJs)
         {
-            var js = CompileBinding(expr, typeof(DateTimeKind));
+            var js = CompileBinding(expr, typeof(OurDateTimeKind));
             Assert.AreEqual(expectedJs, js);
+        }
+
+        enum OurDateTimeKind
+        {
+            Unspecified = 0,
+            Utc = 1,
+            Local = 2,
         }
 
         [DataTestMethod]
