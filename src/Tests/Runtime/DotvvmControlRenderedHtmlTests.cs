@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void GridViewTextColumn_RenderedHtmlTest_ServerRendering()
         {
-            var gridView = new GridView() {
+            var gridView = new GridView(new GridViewDataSetBindingProvider(BindingService), BindingService) {
                 Columns = new List<GridViewColumn>
                 {
                     new GridViewTextColumn() { HeaderCssClass = "lol", HeaderText="Header Text", ValueBinding = ValueBindingExpression.CreateBinding(BindingService, h => (object)h[0], (DataContextStack)null) }

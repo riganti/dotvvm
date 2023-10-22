@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                 .Select(c => (c.control, c.command, str: c.command.GetProperty<ParsedExpressionBindingProperty>().Expression.ToCSharpString().Trim().TrimEnd(';')))
                 .OrderBy(c => c.str)
                 .ToArray();
-            check.CheckLines(commandExpressions.DistinctBy(c => c.command).Select(c => c.str), checkName: "command-bindings", fileExtension: "txt");
+            check.CheckLines(commandExpressions.GroupBy(c => c.command).Select(c => c.First().str), checkName: "command-bindings", fileExtension: "txt");
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
 

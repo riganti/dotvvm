@@ -10,7 +10,7 @@
     <div class="container">
         <h1>Standard data set</h1>
         <dot:GridView DataSource="{value: StandardDataSet}"
-                      <%--LoadData="{staticCommand: _root.LoadStandard}"--%>>
+                      LoadData="{staticCommand: _root.LoadStandard}">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
