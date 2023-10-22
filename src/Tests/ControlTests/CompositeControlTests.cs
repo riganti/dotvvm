@@ -17,6 +17,7 @@ using DotVVM.Framework.Tests.Runtime;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Hosting;
+using System.ComponentModel;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -317,6 +318,18 @@ namespace DotVVM.Framework.Tests.ControlTests
                     {{value: _this}}
                 </cc:MenuRepeater>
                 "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task CompositeControlInheritance()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <cc:TestBaseCompositeControl Text="Text" Number=1 />
+                <cc:TestDerivedCompositeControl Text="SecondText" AnotherNumber=1.1 />
+                """
             );
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
@@ -687,6 +700,37 @@ namespace DotVVM.Framework.Tests.ControlTests
             icon.AddCssClass("fas");
             icon.CssClasses.Add("fa-times", testStatus.Select(t => t == TestStatusEnum.Failed));
             return icon;
+        }
+    }
+
+    public class TestBaseCompositeControl: CompositeControl
+    {
+        public static DotvvmControl GetContents(
+            ValueOrBinding<string> text,
+            [DefaultValue(1)]
+            ValueOrBinding<int> number
+        )
+        {
+            return new HtmlGenericControl("div") {
+                Children = {
+                    new Literal(text), new Literal(number)
+                }
+            };
+        }
+    }
+
+    public class TestDerivedCompositeControl: TestBaseCompositeControl
+    {
+        public static DotvvmControl GetContents(
+            ValueOrBinding<string> text,
+            ValueOrBinding<double> anotherNumber // declare another property, type of existing property cannot be changed
+        )
+        {
+            return new HtmlGenericControl("p") {
+                Children = {
+                    new Literal(text), new Literal(anotherNumber)
+                }
+            };
         }
     }
 }

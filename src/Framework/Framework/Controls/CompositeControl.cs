@@ -85,7 +85,18 @@ namespace DotVVM.Framework.Controls
 
                 DefaultControlResolver.InitType(controlType.BaseType.NotNull());
 
-                var method = controlType.GetMethod("GetContents", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                MethodInfo? method;
+                try
+                {
+                    method = controlType.GetMethod("GetContents", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                }
+                catch (AmbiguousMatchException ex)
+                {
+                    var allMethods = controlType.GetMethods(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).Where(m => m.Name == "GetContents").ToArray();
+
+                    var message = $"Could not initialize control {controlType.FullName}, multiple GetContents methods are present: {allMethods.Take(3).Select(m => ReflectionUtils.FormatMethodInfo(m, stripNamespace: true)).StringJoin(", ")}{(allMethods.Length > 3 ? ", ..." : "")}";
+                    throw new Exception(message, ex);
+                }
                 if (method == null)
                     throw new Exception($"Could not initialize control {controlType.FullName}, could not find (single) GetContents method");
                 if (!(typeof(DotvvmControl).IsAssignableFrom(method.ReturnType) || typeof(IEnumerable<DotvvmControl>).IsAssignableFrom(method.ReturnType)))
