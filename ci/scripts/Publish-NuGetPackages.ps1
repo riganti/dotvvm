@@ -89,10 +89,10 @@ function Set-AllPackageSignatures {
             if ($signatureType -eq "DotNetFoundation") {
                 dotnet sign code azure-key-vault `
 					"$package" `
-                    --baseDirectory "$root/artifacts/packages" `
+                    --base-directory "$root/artifacts/packages" `
 					--publisher-name "DotVVM" `
                     --description "$("$packageName" + " " + $env:DOTVVM_VERSION)" `
-                    --descriptionUrl "https://github.com/riganti/dotvvm" `
+                    --description-url "https://github.com/riganti/dotvvm" `
 					--azure-key-vault-url "$dnfUrl" `
                     --azure-key-vault-client-id "$dnfClientId" `
                     --azure-key-vault-tenant-id "$dnfTenantId" `
@@ -113,6 +113,9 @@ function Set-AllPackageSignatures {
             }
             else {
                 throw "$signatureType is not a valid signature type"
+            }
+            if ($LastExitCode -ne 0) {
+            	throw "Signing failed"
             }
         }
     }
