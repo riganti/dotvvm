@@ -333,8 +333,20 @@ namespace DotVVM.Framework.Hosting
 
         private object? ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
         {
+            var parameters = plan.Method.GetParameters();
+            object? DeserializeArgument(Type type, int index)
+            {
+                var parameterType =
+                    plan.Method.IsStatic ? parameters[index].ParameterType :
+                    index == 0 ? plan.Method.DeclaringType :
+                    parameters[index - 1].ParameterType;
+                if (!parameterType!.IsAssignableFrom(type))
+                    throw new Exception($"Argument {index} has an invalid type");
+                var arg = arguments.Dequeue();
+                return arg.ToObject(type);
+            }
             var methodArgs = plan.Arguments.Select((a, index) =>
-                a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg!) :
+                a.Type == StaticCommandParameterType.Argument ? DeserializeArgument((Type)a.Arg!, index) :
                 a.Type == StaticCommandParameterType.Constant || a.Type == StaticCommandParameterType.DefaultValue ? a.Arg :
                 a.Type == StaticCommandParameterType.Inject ?
 #pragma warning disable CS0618
