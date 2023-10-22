@@ -1,26 +1,23 @@
 <html>
 	<head></head>
 	<body>
-		<ul data-bind="dotvvm-gridviewdataset: { dataSet: Customers() }, visible: (Customers()).PagingOptions().PagesCount() > 1, with: Customers">
-			<li data-bind="css: { 'disabled': $gridViewDataSetHelper.dataSet.PagingOptions().IsFirstPage() }">
-				<a href="javascript:;" onclick="dotvvm.postBack(this,[&quot;$parent.Customers&quot;],&quot;YNrHJz3wB1224tUc&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">««</a>
+		<ul data-bind="dotvvm-gridviewdataset: { dataSet: Customers() }, visible: (Customers()).PagingOptions().PagesCount() > 1">
+			<li class="disabled" data-bind="css: { disabled: Customers()?.PagingOptions()?.IsFirstPage }">
+				<a href="javascript:;" onclick="dotvvm.postBack(this,[],&quot;XV5Ciz2t6C9bIsEQ&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">««</a>
 			</li>
-			<li data-bind="css: { 'disabled': $gridViewDataSetHelper.dataSet.PagingOptions().IsFirstPage() }">
-				<a href="javascript:;" onclick="dotvvm.postBack(this,[&quot;$parent.Customers&quot;],&quot;YNrHJz3wB1224tUc&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">«</a>
+			<li class="disabled" data-bind="css: { disabled: Customers()?.PagingOptions()?.IsFirstPage }">
+				<a href="javascript:;" onclick="dotvvm.postBack(this,[],&quot;PxPMW1CzRuBPCnTL&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">«</a>
 			</li>
-			<!-- ko foreach: $gridViewDataSetHelper.dataSet.PagingOptions().NearPageIndexes -->
-			<li class="active" data-bind="visible: $data == $parent.PagingOptions().PageIndex()">
-				<span data-bind="text: 1+$data+&quot;&quot;"></span>
-			</li>
-			<li data-bind="visible: $data != $parent.PagingOptions().PageIndex()">
-				<a data-bind="text: 1+$data+&quot;&quot;" href="javascript:;" onclick="dotvvm.postBack(this,[&quot;$parent.Customers&quot;,&quot;PagingOptions.NearPageIndexes[$index]&quot;],&quot;ZwmBknlLAz5Evw5W&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;"></a>
+			<!-- ko foreach: { data: Customers()?.PagingOptions()?.NearPageIndexes } -->
+			<li data-bind="css: { active: $data == $parent.Customers()?.PagingOptions()?.PageIndex() }">
+				<a data-bind="text: $data + 1" href="javascript:;" onclick="dotvvm.postBack(this,[&quot;Customers()?.PagingOptions()?.NearPageIndexes/[$index]&quot;],&quot;3DH6e+4ylYjhk3T4&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;"></a>
 			</li>
 			<!-- /ko -->
-			<li data-bind="css: { 'disabled': PagingOptions().IsLastPage() }">
-				<a href="javascript:;" onclick="dotvvm.postBack(this,[&quot;$parent.Customers&quot;],&quot;YNrHJz3wB1224tUc&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">»</a>
+			<li data-bind="css: { disabled: Customers()?.PagingOptions()?.IsLastPage }">
+				<a href="javascript:;" onclick="dotvvm.postBack(this,[],&quot;uY1Q3Oz/wIMX+SxN&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">»</a>
 			</li>
-			<li data-bind="css: { 'disabled': PagingOptions().IsLastPage() }">
-				<a href="javascript:;" onclick="dotvvm.postBack(this,[&quot;$parent.Customers&quot;],&quot;YNrHJz3wB1224tUc&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">»»</a>
+			<li data-bind="css: { disabled: Customers()?.PagingOptions()?.IsLastPage }">
+				<a href="javascript:;" onclick="dotvvm.postBack(this,[],&quot;aFLXuxCfzdFlmtnD&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">»»</a>
 			</li>
 		</ul>
 	</body>

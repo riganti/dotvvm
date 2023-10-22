@@ -18,14 +18,16 @@ namespace DotVVM.Framework.Tests.ViewModel
     [TestClass]
     public class GridViewDataSetTests
     {
+        private readonly BindingCompilationService bindingService;
         private readonly GridViewDataSetBindingProvider commandProvider;
         private readonly GridViewDataSet<TestDto> vm;
         private readonly DataContextStack dataContextStack;
         private readonly DotvvmControl control;
+        private readonly ValueBindingExpression<GridViewDataSet<TestDto>> dataSetBinding;
 
         public GridViewDataSetTests()
         {
-            var bindingService = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<BindingCompilationService>();
+            bindingService = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<BindingCompilationService>();
             commandProvider = new GridViewDataSetBindingProvider(bindingService);
 
             // build viewmodel
@@ -42,6 +44,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             // create page
             dataContextStack = DataContextStack.Create(vm.GetType());
             control = new DotvvmView() { DataContext = vm };
+            dataSetBinding = ValueBindingExpression.CreateThisBinding<GridViewDataSet<TestDto>>(bindingService, dataContextStack);
         }
 
         [TestMethod]
@@ -49,13 +52,13 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             // create control with page index data context
             var pageIndexControl = new PlaceHolder();
-            var pageIndexDataContextStack = DataContextStack.Create(typeof(int), dataContextStack);
+            var pageIndexDataContextStack = DataContextStack.CreateCollectionElement(typeof(int), dataContextStack);
             pageIndexControl.SetDataContextType(pageIndexDataContextStack);
             pageIndexControl.SetProperty(p => p.DataContext, ValueOrBinding<int>.FromBoxedValue(1));
             control.Children.Add(pageIndexControl);
 
             // get pager commands
-            var commands = commandProvider.GetDataPagerCommands(dataContextStack, GridViewDataSetCommandType.Command);
+            var commands = commandProvider.GetDataPagerCommands(dataContextStack, dataSetBinding, GridViewDataSetCommandType.Command);
 
             // test evaluation of commands
             Assert.IsNotNull(commands.GoToLastPage);
@@ -121,7 +124,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public void GridViewDataSet_DataPagerCommands_StaticCommand()
         {
             // get pager commands
-            var commands = commandProvider.GetDataPagerCommands(dataContextStack, GridViewDataSetCommandType.StaticCommand);
+            var commands = commandProvider.GetDataPagerCommands(dataContextStack, dataSetBinding, GridViewDataSetCommandType.StaticCommand);
 
             var goToFirstPage = CompileBinding(commands.GoToFirstPage);
             Console.WriteLine(goToFirstPage);

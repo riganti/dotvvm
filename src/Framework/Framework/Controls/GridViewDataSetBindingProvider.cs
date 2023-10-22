@@ -10,6 +10,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Controls;
 
@@ -17,7 +18,7 @@ public class GridViewDataSetBindingProvider
 {
     private readonly BindingCompilationService service;
 
-    private readonly ConcurrentDictionary<(DataContextStack, GridViewDataSetCommandType), DataPagerCommands> dataPagerCommands = new();
+    private readonly ConcurrentDictionary<(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType), DataPagerBindings> dataPagerCommands = new();
     private readonly ConcurrentDictionary<(DataContextStack, GridViewDataSetCommandType), GridViewCommands> gridViewCommands = new();
 
     public GridViewDataSetBindingProvider(BindingCompilationService service)
@@ -25,9 +26,9 @@ public class GridViewDataSetBindingProvider
         this.service = service;
     }
 
-    public DataPagerCommands GetDataPagerCommands(DataContextStack dataContextStack, GridViewDataSetCommandType commandType)
+    public DataPagerBindings GetDataPagerCommands(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
     {
-        return dataPagerCommands.GetOrAdd((dataContextStack, commandType), _ => GetDataPagerCommandsCore(dataContextStack, commandType));
+        return dataPagerCommands.GetOrAdd((dataContextStack, dataSetBinding, commandType), x => GetDataPagerCommandsCore(x.dataContextStack, x.dataSetBinding, x.commandType));
     }
 
     public GridViewCommands GetGridViewCommands(DataContextStack dataContextStack, GridViewDataSetCommandType commandType)
@@ -35,46 +36,84 @@ public class GridViewDataSetBindingProvider
         return gridViewCommands.GetOrAdd((dataContextStack, commandType), _ => GetGridViewCommandsCore(dataContextStack, commandType));
     }
 
-    private DataPagerCommands GetDataPagerCommandsCore(DataContextStack dataContextStack, GridViewDataSetCommandType commandType)
+    private DataPagerBindings GetDataPagerCommandsCore(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
     {
-        ICommandBinding? GetCommandOrNull<T>(ParameterExpression dataSetParam, DataContextStack dataContextStack, string methodName, params Expression[] arguments)
+        var dataSetExpr = dataSetBinding.GetProperty<ParsedExpressionBindingProperty>().Expression;
+        ICommandBinding? GetCommandOrNull<T>(DataContextStack dataContextStack, string methodName, params Expression[] arguments)
         {
-            return typeof(T).IsAssignableFrom(dataSetParam.Type)
-                ? CreateCommandBinding<T>(commandType, dataSetParam, dataContextStack, methodName, arguments)
+            return typeof(T).IsAssignableFrom(dataSetExpr.Type)
+                ? CreateCommandBinding<T>(commandType, dataSetExpr, dataContextStack, methodName, arguments)
                 : null;
         }
+
+        IStaticValueBinding<TResult>? GetValueBindingOrNull<T, TResult>(Expression<Func<T, TResult>> expression)
+        {
+            if (typeof(T).IsAssignableFrom(dataSetExpr.Type))
+            {
+                return (IStaticValueBinding<TResult>)ValueOrBindingExtensions.SelectImpl(dataSetBinding, expression);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         ParameterExpression CreateParameter(DataContextStack dataContextStack, string name = "_this")
         {
             return Expression.Parameter(dataContextStack.DataContextType, name).AddParameterAnnotation(new BindingParameterAnnotation(dataContextStack));
         }
 
-        return new DataPagerCommands()
+        var pageIndexDataContext = DataContextStack.CreateCollectionElement(
+            typeof(int), dataContextStack
+        );
+
+        return new DataPagerBindings()
         {
             GoToFirstPage = GetCommandOrNull<IPageableGridViewDataSet<IPagingFirstPageCapability>>(
-                CreateParameter(dataContextStack),
                 dataContextStack,
                 nameof(IPagingFirstPageCapability.GoToFirstPage)),
 
             GoToPreviousPage = GetCommandOrNull<IPageableGridViewDataSet<IPagingPreviousPageCapability>>(
-                CreateParameter(dataContextStack),
                 dataContextStack,
                 nameof(IPagingPreviousPageCapability.GoToPreviousPage)),
 
             GoToNextPage = GetCommandOrNull<IPageableGridViewDataSet<IPagingNextPageCapability>>(
-                CreateParameter(dataContextStack),
                 dataContextStack,
                 nameof(IPagingNextPageCapability.GoToNextPage)),
 
             GoToLastPage = GetCommandOrNull<IPageableGridViewDataSet<IPagingLastPageCapability>>(
-                CreateParameter(dataContextStack),
                 dataContextStack,
                 nameof(IPagingLastPageCapability.GoToLastPage)),
 
             GoToPage = GetCommandOrNull<IPageableGridViewDataSet<IPagingPageIndexCapability>>(
-                CreateParameter(dataContextStack, "_parent"),
-                DataContextStack.Create(typeof(int), dataContextStack),
+                pageIndexDataContext,
                 nameof(IPagingPageIndexCapability.GoToPage),
-                CreateParameter(DataContextStack.Create(typeof(int), dataContextStack), "_thisIndex"))
+                CreateParameter(pageIndexDataContext, "_thisIndex")),
+
+            IsFirstPage =
+                GetValueBindingOrNull<IPageableGridViewDataSet<IPagingFirstPageCapability>, bool>(d => d.PagingOptions.IsFirstPage) ??
+                GetValueBindingOrNull<IPageableGridViewDataSet<IPagingPreviousPageCapability>, bool>(d => d.PagingOptions.IsFirstPage),
+
+            IsLastPage =
+                GetValueBindingOrNull<IPageableGridViewDataSet<IPagingLastPageCapability>, bool>(d => d.PagingOptions.IsLastPage) ??
+                GetValueBindingOrNull<IPageableGridViewDataSet<IPagingNextPageCapability>, bool>(d => d.PagingOptions.IsLastPage),
+
+            PageNumbers =
+                GetValueBindingOrNull<IPageableGridViewDataSet<IPagingPageIndexCapability>, IEnumerable<int>>(d => d.PagingOptions.NearPageIndexes),
+            
+            IsActivePage = // _this == _parent.DataSet.PagingOptions.PageIndex
+                typeof(IPageableGridViewDataSet<IPagingPageIndexCapability>).IsAssignableFrom(dataSetExpr.Type)
+                    ? new ValueBindingExpression<bool>(service, new object[] {
+                        pageIndexDataContext,
+                        new ParsedExpressionBindingProperty(Expression.Equal(
+                            CreateParameter(pageIndexDataContext, "_thisIndex"),
+                            Expression.Property(Expression.Property(dataSetExpr, "PagingOptions"), "PageIndex")
+                        )),
+                    })
+                    : null,
+
+            PageNumberText =
+                service.Cache.CreateValueBinding<string>("_this + 1", pageIndexDataContext)
         };
     }
 
@@ -103,16 +142,16 @@ public class GridViewDataSetBindingProvider
         };
     }
 
-    private ICommandBinding CreateCommandBinding<TDataSetInterface>(GridViewDataSetCommandType commandType, ParameterExpression dataSetParam, DataContextStack dataContextStack, string methodName, Expression[] arguments, Func<Expression, Expression>? transformExpression = null)
+    private ICommandBinding CreateCommandBinding<TDataSetInterface>(GridViewDataSetCommandType commandType, Expression dataSet, DataContextStack dataContextStack, string methodName, Expression[] arguments, Func<Expression, Expression>? transformExpression = null)
     {
         var body = new List<Expression>();
 
         // get concrete type from implementation of IXXXableGridViewDataSet<?>
-        var optionsConcreteType = GetOptionsConcreteType<TDataSetInterface>(dataSetParam.Type, out var optionsProperty);
+        var optionsConcreteType = GetOptionsConcreteType<TDataSetInterface>(dataSet.Type, out var optionsProperty);
 
         // call dataSet.XXXOptions.Method(...);
         var callMethodOnOptions = Expression.Call(
-            Expression.Convert(Expression.Property(dataSetParam, optionsProperty), optionsConcreteType),
+            Expression.Convert(Expression.Property(dataSet, optionsProperty), optionsConcreteType),
             optionsConcreteType.GetMethod(methodName)!,
             arguments);
         body.Add(callMethodOnOptions);
@@ -120,10 +159,10 @@ public class GridViewDataSetBindingProvider
         if (commandType == GridViewDataSetCommandType.Command)
         {
             // if we are on a server, call the dataSet.RequestRefresh if supported
-            if (typeof(IRefreshableGridViewDataSet).IsAssignableFrom(dataSetParam.Type))
+            if (typeof(IRefreshableGridViewDataSet).IsAssignableFrom(dataSet.Type))
             {
                 var callRequestRefresh = Expression.Call(
-                    Expression.Convert(dataSetParam, typeof(IRefreshableGridViewDataSet)),
+                    Expression.Convert(dataSet, typeof(IRefreshableGridViewDataSet)),
                     typeof(IRefreshableGridViewDataSet).GetMethod(nameof(IRefreshableGridViewDataSet.RequestRefresh))!
                 );
                 body.Add(callRequestRefresh);
@@ -146,7 +185,7 @@ public class GridViewDataSetBindingProvider
         else if (commandType == GridViewDataSetCommandType.StaticCommand)
         {
             // on the client, wrap the call into client-side loading procedure
-            body.Add(CallClientSideLoad(dataSetParam));
+            body.Add(CallClientSideLoad(dataSet));
             Expression expression = Expression.Block(body);
             if (transformExpression != null)
             {

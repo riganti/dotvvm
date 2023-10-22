@@ -540,6 +540,10 @@
         "mappingMode": "InnerElement",
         "onlyHardcoded": true
       },
+      "LoadData": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
+        "onlyBindings": true
+      },
       "NextPageTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "mappingMode": "InnerElement",
@@ -1668,23 +1672,6 @@
         "onlyBindings": true,
         "isActive": true,
         "isAttached": true
-      }
-    },
-    "DotvvmMarkupControl-33jwRoNrnlbAOVpOnCErXw==": {
-      "ShowDescription": {
-        "type": "System.Boolean",
-        "defaultValue": false
-      }
-    },
-    "DotvvmMarkupControl-koCHqjx2oIk1rVwG1PzLJQ==": {
-      "Click": {
-        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework",
-        "isCommand": true
-      }
-    },
-    "DotvvmMarkupControl-YYPITyOzVEL518wclEMJZw==": {
-      "SomeProperty": {
-        "type": "System.String"
       }
     }
   },
