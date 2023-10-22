@@ -38,8 +38,7 @@
       "Tracing\\ApplicationInsights.AspNetCore\\DotVVM.Tracing.ApplicationInsights.AspNetCore.csproj",
       "Tracing\\ApplicationInsights\\DotVVM.Tracing.ApplicationInsights.csproj",
       "Tracing\\MiniProfiler.AspNetCore\\DotVVM.Tracing.MiniProfiler.AspNetCore.csproj",
-      "Tracing\\MiniProfiler.Shared\\DotVVM.Tracing.MiniProfiler.Shared.shproj",
-      "Tracing\\MiniProfiler.Tests\\DotVVM.Tracing.MiniProfiler.Tests.csproj"
+      "Tracing\\MiniProfiler.Shared\\DotVVM.Tracing.MiniProfiler.Shared.shproj"
     ]
   }
 }
