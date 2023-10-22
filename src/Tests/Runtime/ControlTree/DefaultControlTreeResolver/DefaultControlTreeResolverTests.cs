@@ -768,6 +768,25 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
+        public void DefaultViewCompiler_NonExistenPropertyWarning_PrefixedGroup()
+        {
+           var markup = $@"
+@viewModel System.Boolean
+<dot:HierarchyRepeater ItemClass=AA ItemIncludeInPage=false />
+";
+            var repeater = ParseSource(markup)
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(HierarchyRepeater));
+
+            var elementNode = (DothtmlElementNode)repeater.DothtmlNode;
+            var attribute1 = elementNode.Attributes.Single(a => a.AttributeName == "ItemClass");
+            var attribute2 = elementNode.Attributes.Single(a => a.AttributeName == "ItemIncludeInPage");
+
+            Assert.AreEqual(0, attribute1.AttributeNameNode.NodeWarnings.Count(), attribute1.AttributeNameNode.NodeWarnings.StringJoin(", "));
+            Assert.AreEqual("HTML attribute name 'IncludeInPage' should not contain uppercase letters. Did you intent to use a DotVVM property instead?", XAssert.Single(attribute2.AttributeNameNode.NodeWarnings));
+        }
+
+        [TestMethod]
         public void DefaultViewCompiler_UnsupportedCallSite_ResourceBinding_Warning()
         {
             var markup = @"

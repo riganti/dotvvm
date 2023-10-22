@@ -454,12 +454,18 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 var pGroup = groupedProperty.PropertyGroup;
                 var name = groupedProperty.GroupMemberName;
-                if (pGroup.Name.EndsWith("Attributes") && name.ToLowerInvariant() != name)
+                var prefix = attribute.AttributeName.Substring(0, attribute.AttributeName.Length - name.Length);
+                // If the HTML attribute is used with a prefix such as `Item`, it might be clearer if the first character is uppercased
+                // e.g. ItemClass reads better than Itemclass
+                // we supress the warning in such case
+                var allowFirstCharacterUppercase = prefix.Length > 0 && char.IsLetter(prefix[prefix.Length - 1]);
+                if (pGroup.Name.EndsWith("Attributes") &&
+                    name.Substring(allowFirstCharacterUppercase ? 1 : 0).ToLowerInvariant() != name.Substring(allowFirstCharacterUppercase ? 1 : 0))
                 {
                     // properties with at most two typos
                     var similarNameProperties =
                         control.Metadata.AllProperties
-                        .Where(p => StringSimilarity.DamerauLevenshteinDistance(p.Name.ToLowerInvariant(), name.ToLowerInvariant()) <= 2)
+                        .Where(p => StringSimilarity.DamerauLevenshteinDistance(p.Name.ToLowerInvariant(), (prefix + name).ToLowerInvariant()) <= 2)
                         .Select(p => p.Name)
                         .ToArray();
                     var similarPropertyHelp =
