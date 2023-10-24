@@ -642,7 +642,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     Read();
                     var member = ReadIdentifierNameExpression();
                     if (expression is TypeOrFunctionReferenceBindingParserNode typeOrFunction)
-                        expression = typeOrFunction.ToTypeReference();
+                        expression = CreateNode(typeOrFunction.ToTypeReference(), startIndex);
 
                     expression = CreateNode(new MemberAccessBindingParserNode(expression, member), startIndex);
                 }
@@ -657,7 +657,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 else if (!onlyTypeName && next.Type == BindingTokenType.OpenParenthesis)
                 {
                     if (expression is TypeOrFunctionReferenceBindingParserNode typeOrFunction)
-                        expression = typeOrFunction.ToFunctionReference();
+                        expression = CreateNode(typeOrFunction.ToFunctionReference(), startIndex);
 
                     expression = ReadFunctionCall(startIndex, expression);
                 }

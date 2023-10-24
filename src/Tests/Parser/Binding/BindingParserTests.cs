@@ -966,9 +966,10 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var parameters = lambda.ParameterExpressions;
 
             Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(type, parameters[0].Type.ToDisplayString());
-            Assert.AreEqual("arg", parameters[0].Name.ToDisplayString());
-            Assert.AreEqual("Method(arg)", body.ToDisplayString());
+
+            AssertNode(parameters[0].Type, type, 1, type.Length+1);
+            AssertNode(parameters[0].Name, "arg", type.Length + 2, 3);
+            AssertNode(body, "Method(arg)", type.Length + 10, 11);
         }
 
         [TestMethod]
@@ -1373,6 +1374,64 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             AssertNode(type, "IDictionary", 0, 11);
             AssertNode(arg1, "int", 12, 3);
             AssertNode(arg2, "System.String", 17, 13);
+        }
+
+        [TestMethod]
+        public void BindingParser_GenericMethodCall_SimpleName()
+        {
+            var source = "GetType<string>(StringProp)";
+            var parser = bindingParserNodeFactory.SetupParser(source);
+            var root = parser.ReadExpression().As<FunctionCallBindingParserNode>();
+
+            var generic = root.TargetExpression.As<GenericNameBindingParserNode>();
+            var typeArgument = generic.TypeArguments[0].As<TypeReferenceBindingParserNode>();
+
+            AssertNode(root, source, 0, source.Length);
+            AssertNode(generic, "GetType<string>", 0, source.Length-12);
+            AssertNode(typeArgument, "string", 8, 6);
+        }
+
+        [TestMethod]
+        public void BindingParser_GenericMethodCall_MemberAccessName()
+        {
+            var source = "service.GetType<string?>(StringProp)";
+
+            var parser = bindingParserNodeFactory.SetupParser(source);
+            var root = parser.ReadExpression().As<FunctionCallBindingParserNode>();
+
+            var memberAccess = root.TargetExpression.As<MemberAccessBindingParserNode>();
+            var generic = memberAccess.MemberNameExpression.As<GenericNameBindingParserNode>();
+            var typeArgument = generic.TypeArguments[0].As<TypeReferenceBindingParserNode>();
+
+            AssertNode(root, source, 0, source.Length);
+            AssertNode(memberAccess, "service.GetType<string?>", 0, source.Length-12);
+            AssertNode(generic, "GetType<string?>", 8, source.Length - 20);
+
+            AssertNode(typeArgument, "string?", 16, 7);
+
+        }
+
+        [TestMethod]
+        public void BindingParser_GenericMethodCall_MultipleGenericArguments()
+        {
+            var source = "_this.Modal.GetType<string?, System.String>(StringProp)";
+
+            var parser = bindingParserNodeFactory.SetupParser(source);
+            var root = parser.ReadExpression().As<FunctionCallBindingParserNode>();
+
+            var memberAccess1 = root.TargetExpression.As<MemberAccessBindingParserNode>();
+            var memberAccess2 = memberAccess1.TargetExpression.As<MemberAccessBindingParserNode>();
+            var generic = memberAccess1.MemberNameExpression.As<GenericNameBindingParserNode>();
+            var typeArgument1 = generic.TypeArguments[0].As<TypeReferenceBindingParserNode>();
+            var typeArgument2 = generic.TypeArguments[1].As<TypeReferenceBindingParserNode>();
+
+            AssertNode(root, source, 0, source.Length);
+            AssertNode(memberAccess1, "_this.Modal.GetType<string?, System.String>", 0, source.Length - 12);
+            AssertNode(memberAccess2, "_this.Modal", 0, 11);
+            AssertNode(generic, "GetType<string?, System.String>", 12, 31);
+
+            AssertNode(typeArgument1, "string?", 20, 7);
+            AssertNode(typeArgument2, "System.String", 29, 13);
         }
 
         private static void AssertNode(BindingParserNode elementType, string expectedDisplayString, int start, int length)

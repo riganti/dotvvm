@@ -54,7 +54,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 if (TypeArguments.Count == 0)
                     return memberAccess;
 
-                var genericName = new GenericNameBindingParserNode(memberAccess.MemberNameExpression.NameToken, TypeArguments);
+                var name = memberAccess.MemberNameExpression.NameToken;
+                var genericName = new GenericNameBindingParserNode(name, TypeArguments);
+                genericName.TransferTokens(this, name.StartPosition);
+
                 memberAccess.MemberNameExpression = genericName;
                 return memberAccess;
             }

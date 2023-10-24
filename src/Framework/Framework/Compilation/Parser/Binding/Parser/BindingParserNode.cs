@@ -47,14 +47,24 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         public abstract string ToDisplayString();
 
-        internal void TransferTokens(BindingParserNode sourceNode)
+        internal void TransferTokens(BindingParserNode sourceNode, int? startPosition = null)
         {
-            Length = sourceNode.Length;
-            StartPosition = sourceNode.StartPosition;
+            
+            StartPosition = startPosition ?? sourceNode.StartPosition;
+            Length = 0;
+
             Tokens.Clear();
             Tokens.Capacity = sourceNode.Tokens.Capacity;
+
             for (int i = 0; i < sourceNode.Tokens.Count; i++)
-                Tokens.Add(sourceNode.Tokens[i]);
+            {
+                var token = sourceNode.Tokens[i];
+                if ((startPosition ?? 0) <= token.StartPosition)
+                {
+                    Length += token.Length;
+                    Tokens.Add(token);
+                }
+            }
         }
     }
 }
