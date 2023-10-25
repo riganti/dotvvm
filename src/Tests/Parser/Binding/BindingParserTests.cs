@@ -955,7 +955,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [DataRow("(string arg) => Method(arg)", "string")]
         [DataRow("(float arg) => Method(arg)", "float")]
         [DataRow("(decimal arg) => Method(arg)", "decimal")]
-        [DataRow("(System.Collections.Generic.List<int> arg) => Method(arg)", "System.Collections.Generic.List<int>")]
+        [DataRow("(System.Collections.Generic.List<int>.Subtype arg) => Method(arg)", "System.Collections.Generic.List<int>.Subtype")]
         public void BindingParser_Lambda_WithTypeInfo_SingleParameter(string expr, string type)
         {
             var parser = bindingParserNodeFactory.SetupParser(expr);
