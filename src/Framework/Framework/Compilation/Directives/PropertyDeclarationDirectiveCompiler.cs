@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Compilation.Directives
                 var attributePropertyNameReference = attributePropertyReference?.MemberNameExpression;
                 var initializer = assignment.SecondExpression as LiteralExpressionBindingParserNode;
 
-                if (attributeTypeReference is not TypeReferenceBindingParserNode attributeType || attributePropertyNameReference == null)
+                if (attributeTypeReference is null || attributePropertyNameReference is null)
                 {
                     directiveNode.AddError("Property attributes must be in the form Attribute.Property = value.");
                     continue;
@@ -85,7 +85,10 @@ namespace DotVVM.Framework.Compilation.Directives
                     directiveNode.AddError($"Value for property {attributeTypeReference.ToDisplayString()} of attribute {attributePropertyNameReference.ToDisplayString()} is missing or not a constant.");
                     continue;
                 }
-                result.Add(new (attributeType, attributePropertyNameReference, initializer));
+
+                var type = new ActualTypeReferenceBindingParserNode(attributeTypeReference);
+                type.TransferTokens(attributeTypeReference);
+                result.Add(new (type, attributePropertyNameReference, initializer));
             }
             return result;
         }
