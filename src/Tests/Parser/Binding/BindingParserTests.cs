@@ -1302,8 +1302,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var declaration = parser.ReadPropertyDirectiveValue();
 
             var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
-            var type = root.PropertyType.CastTo<ArrayTypeReferenceBindingParserNode>();
-            var elementType = type.ElementType.CastTo<TypeReferenceBindingParserNode>();
+            var type = root.PropertyType.CastTo<ActualTypeReferenceBindingParserNode>();
             var name = root.Name.CastTo<SimpleNameBindingParserNode>();
             var attributes = root.Attributes;
 
@@ -1327,7 +1326,8 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var declaration = parser.ReadPropertyDirectiveValue();
 
             var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
-            var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
+            var type = root.PropertyType.CastTo<ArrayTypeReferenceBindingParserNode>();
+            var elementType = type.ElementType.CastTo<ActualTypeReferenceBindingParserNode>();
             var name = root.Name.CastTo<SimpleNameBindingParserNode>();
             var attributes = root.Attributes;
 

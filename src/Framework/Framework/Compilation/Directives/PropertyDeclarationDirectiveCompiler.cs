@@ -59,9 +59,9 @@ namespace DotVVM.Framework.Compilation.Directives
             return TreeBuilder.BuildPropertyDeclarationDirective(directiveNode, type, name, declaration?.Initializer, resolvedAttributes, valueSyntaxRoot, imports);
         }
 
-        private List<(ActualTypeReferenceBindingParserNode type, IdentifierNameBindingParserNode name, LiteralExpressionBindingParserNode initializer)> ProcessPropertyDirectiveAttributeReference(DothtmlDirectiveNode directiveNode, List<BindingParserNode> attributeReferences)
+        private List<(TypeReferenceBindingParserNode type, IdentifierNameBindingParserNode name, LiteralExpressionBindingParserNode initializer)> ProcessPropertyDirectiveAttributeReference(DothtmlDirectiveNode directiveNode, List<BindingParserNode> attributeReferences)
         {
-            var result = new List<(ActualTypeReferenceBindingParserNode, IdentifierNameBindingParserNode, LiteralExpressionBindingParserNode)>();
+            var result = new List<(TypeReferenceBindingParserNode, IdentifierNameBindingParserNode, LiteralExpressionBindingParserNode)>();
             foreach (var attributeReference in attributeReferences)
             {
                 if (attributeReference is not BinaryOperatorBindingParserNode { Operator: BindingTokenType.AssignOperator } assignment)
@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Compilation.Directives
                 var attributePropertyNameReference = attributePropertyReference?.MemberNameExpression;
                 var initializer = assignment.SecondExpression as LiteralExpressionBindingParserNode;
 
-                if (attributeTypeReference == null || attributePropertyNameReference == null)
+                if (attributeTypeReference is not TypeReferenceBindingParserNode attributeType || attributePropertyNameReference == null)
                 {
                     directiveNode.AddError("Property attributes must be in the form Attribute.Property = value.");
                     continue;
@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Compilation.Directives
                     directiveNode.AddError($"Value for property {attributeTypeReference.ToDisplayString()} of attribute {attributePropertyNameReference.ToDisplayString()} is missing or not a constant.");
                     continue;
                 }
-                result.Add((new ActualTypeReferenceBindingParserNode(attributeTypeReference), attributePropertyNameReference, initializer));
+                result.Add(new (attributeType, attributePropertyNameReference, initializer));
             }
             return result;
         }
