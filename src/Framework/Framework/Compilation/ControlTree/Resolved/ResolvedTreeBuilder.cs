@@ -113,7 +113,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReference(
             DothtmlDirectiveNode directiveNode,
             IdentifierNameBindingParserNode propertyNameSyntax,
-            ActualTypeReferenceBindingParserNode typeSyntax,
+            TypeReferenceBindingParserNode typeSyntax,
             LiteralExpressionBindingParserNode initializer,
             ImmutableList<NamespaceImport> imports)
         {
