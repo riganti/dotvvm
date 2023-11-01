@@ -1204,6 +1204,22 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        public void BindingParser_PropertyHalfWrittenAttributes()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("string MyProperty, , DotVVM., DotVVM.Fra = , DotVVM.Framework.Controls.MarkupOptionsAttribute.Required = t");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
+            var name = root.Name.CastTo<SimpleNameBindingParserNode>();
+
+            AssertNode(type, "string", 0, 7);
+            AssertNode(name, "MyProperty", 7, 10);
+
+            Assert.AreEqual(4, root.Attributes.Count);
+        }
+
+        [TestMethod]
         public void BindingParser_NullablePropertyDeclaration()
         {
             var parser = bindingParserNodeFactory.SetupParser("System.String? MyProperty");

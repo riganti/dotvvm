@@ -53,44 +53,55 @@ namespace DotVVM.Framework.Compilation.Directives
 
             var attributeSyntaxes = (declaration?.Attributes ?? new List<BindingParserNode>());
             var resolvedAttributes = ProcessPropertyDirectiveAttributeReference(directiveNode, attributeSyntaxes)
-                .Select(a => TreeBuilder.BuildPropertyDeclarationAttributeReference(directiveNode, a.name, a.type, a.initializer, imports))
+                .Select(a => TreeBuilder.BuildPropertyDeclarationAttributeReference(directiveNode, a.Name, a.Type, a.Initializer, imports))
                 .ToList();
 
             return TreeBuilder.BuildPropertyDeclarationDirective(directiveNode, type, name, declaration?.Initializer, resolvedAttributes, valueSyntaxRoot, imports);
         }
 
-        private List<(TypeReferenceBindingParserNode type, IdentifierNameBindingParserNode name, LiteralExpressionBindingParserNode initializer)> ProcessPropertyDirectiveAttributeReference(DothtmlDirectiveNode directiveNode, List<BindingParserNode> attributeReferences)
+        private List<AttributeInfo> ProcessPropertyDirectiveAttributeReference(DothtmlDirectiveNode directiveNode, List<BindingParserNode> attributeReferences)
         {
-            var result = new List<(TypeReferenceBindingParserNode, IdentifierNameBindingParserNode, LiteralExpressionBindingParserNode)>();
-            foreach (var attributeReference in attributeReferences)
+            return attributeReferences.Select(attr => GetAttributeInfo(attr, directiveNode)).ToList();
+        }
+
+        private AttributeInfo GetAttributeInfo(BindingParserNode attributeReference, DothtmlDirectiveNode directiveNode)
+        {
+            if (attributeReference is not BinaryOperatorBindingParserNode { Operator: BindingTokenType.AssignOperator } assignment)
             {
-                if (attributeReference is not BinaryOperatorBindingParserNode { Operator: BindingTokenType.AssignOperator } assignment)
-                {
-                    directiveNode.AddError("Property attributes must be in the form Attribute.Property = value.");
-                    continue;
-                }
+                directiveNode.AddError("Property attributes must be in the form Attribute.Property = value.");
+                //No idea what is that, lets make it a type and move on
 
-                var attributePropertyReference = assignment.FirstExpression as MemberAccessBindingParserNode;
-                var attributeTypeReference = attributePropertyReference?.TargetExpression;
-                var attributePropertyNameReference = attributePropertyReference?.MemberNameExpression;
-                var initializer = assignment.SecondExpression as LiteralExpressionBindingParserNode;
+                var typeRef = new ActualTypeReferenceBindingParserNode(attributeReference);
+                typeRef.TransferTokens(attributeReference);
 
-                if (attributeTypeReference is null || attributePropertyNameReference is null)
-                {
-                    directiveNode.AddError("Property attributes must be in the form Attribute.Property = value.");
-                    continue;
-                }
-                if (initializer == null)
-                {
-                    directiveNode.AddError($"Value for property {attributeTypeReference.ToDisplayString()} of attribute {attributePropertyNameReference.ToDisplayString()} is missing or not a constant.");
-                    continue;
-                }
-
-                var type = new ActualTypeReferenceBindingParserNode(attributeTypeReference);
-                type.TransferTokens(attributeTypeReference);
-                result.Add(new (type, attributePropertyNameReference, initializer));
+                return new AttributeInfo(
+                    typeRef,
+                    new SimpleNameBindingParserNode("") { StartPosition = attributeReference.EndPosition },
+                    new LiteralExpressionBindingParserNode("") { StartPosition = attributeReference.EndPosition });
             }
-            return result;
+
+            var attributePropertyReference = assignment.FirstExpression as MemberAccessBindingParserNode;
+            var initializer = assignment.SecondExpression as LiteralExpressionBindingParserNode;
+            var attributeTypeReference = attributePropertyReference?.TargetExpression;
+            var attributePropertyNameReference = attributePropertyReference?.MemberNameExpression;
+
+
+            if (attributeTypeReference is null || attributePropertyNameReference is null)
+            {
+                directiveNode.AddError("Property attributes must be in the form Attribute.Property = value.");
+                //Name is probably mising or type is incomplete
+                attributeTypeReference = attributeTypeReference ?? new SimpleNameBindingParserNode("");
+                attributePropertyNameReference = attributePropertyNameReference ?? new SimpleNameBindingParserNode("") { StartPosition = attributeTypeReference.EndPosition };
+            }
+            if (initializer == null)
+            {
+                directiveNode.AddError($"Value for property {attributeTypeReference.ToDisplayString()} of attribute {attributePropertyNameReference.ToDisplayString()} is missing or not a constant.");
+                initializer = new LiteralExpressionBindingParserNode("") { StartPosition = attributePropertyNameReference.EndPosition };
+            }
+
+            var type = new ActualTypeReferenceBindingParserNode(attributeTypeReference);
+            type.TransferTokens(attributeTypeReference);
+            return new AttributeInfo(type, attributePropertyNameReference, initializer);
         }
 
         protected override ImmutableList<DotvvmProperty> CreateArtefact(IReadOnlyList<IAbstractPropertyDeclarationDirective> directives)
@@ -108,6 +119,8 @@ namespace DotVVM.Framework.Compilation.Directives
 
         protected abstract bool HasPropertyType(IAbstractPropertyDeclarationDirective directive);
         protected abstract DotvvmProperty TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective);
+
+        private record AttributeInfo(ActualTypeReferenceBindingParserNode Type, IdentifierNameBindingParserNode Name, LiteralExpressionBindingParserNode Initializer);
     }
 
     public class ResolvedPropertyDeclarationDirectiveCompiler : PropertyDeclarationDirectiveCompiler
