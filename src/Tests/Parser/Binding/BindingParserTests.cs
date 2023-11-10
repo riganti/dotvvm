@@ -830,20 +830,23 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type[], Domain.Company.Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type[], Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type<string>[], Domain.Company.Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type<string>[], Product")]
-        public void BindingParser_ArrayType_AssemblyQualifiedName_ValidAssemblyName(string binding)
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type[], Domain.Company.Product", "Domain.Company.Product.DotVVM.Feature.Type[]")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type[], Product", "Domain.Company.Product.DotVVM.Feature.Type[]")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type<string>[], Domain.Company.Product", "Domain.Company.Product.DotVVM.Feature.Type<string>[]")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type<string>[], Product", "Domain.Company.Product.DotVVM.Feature.Type<string>[]")]
+        public void BindingParser_ArrayType_AssemblyQualifiedName_ValidAssemblyName(string binding, string type)
         {
             var parser = bindingParserNodeFactory.SetupParser(binding);
             var node = parser.ReadDirectiveTypeName() as AssemblyQualifiedNameBindingParserNode;
             Assert.IsNotNull(node, "expected qualified name node.");
+            AssertNode(node, binding, 0, binding.Length);
 
             var array = node.TypeName as ArrayTypeReferenceBindingParserNode;
 
             Assert.IsNotNull(array, "Expected array type reference");
             Assert.IsFalse(node.AssemblyName.HasNodeErrors);
+
+            AssertNode(array, type, 0, type.Length);
         }
 
         [TestMethod]
@@ -973,7 +976,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             Assert.AreEqual(1, parameters.Count);
 
-            AssertNode(parameters[0].Type, type, 1, type.Length+1);
+            AssertNode(parameters[0].Type, type, 1, type.Length + 1);
             AssertNode(parameters[0].Name, "arg", type.Length + 2, 3);
             AssertNode(body, "Method(arg)", type.Length + 10, 11);
         }
@@ -1438,7 +1441,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var typeArgument = generic.TypeArguments[0].As<TypeReferenceBindingParserNode>();
 
             AssertNode(root, source, 0, source.Length);
-            AssertNode(generic, "GetType<string>", 0, source.Length-12);
+            AssertNode(generic, "GetType<string>", 0, source.Length - 12);
             AssertNode(typeArgument, "string", 8, 6);
         }
 
@@ -1455,7 +1458,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var typeArgument = generic.TypeArguments[0].As<TypeReferenceBindingParserNode>();
 
             AssertNode(root, source, 0, source.Length);
-            AssertNode(memberAccess, "service.GetType<string?>", 0, source.Length-12);
+            AssertNode(memberAccess, "service.GetType<string?>", 0, source.Length - 12);
             AssertNode(generic, "GetType<string?>", 8, source.Length - 20);
 
             AssertNode(typeArgument, "string?", 16, 7);

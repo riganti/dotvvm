@@ -131,7 +131,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 Read();
                 var assemblyName = ReadAssemblyName();
 
-                return new AssemblyQualifiedNameBindingParserNode(typeName, assemblyName); //TODO: create node
+                return CreateNode(new AssemblyQualifiedNameBindingParserNode(typeName, assemblyName), startIndex);
             }
             else if (Peek() is BindingToken token)
             {
