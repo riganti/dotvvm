@@ -1217,6 +1217,35 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             AssertNode(name, "MyProperty", 7, 10);
 
             Assert.AreEqual(4, root.Attributes.Count);
+
+            var emptyAttribute = root.Attributes[0].CastTo<SimpleNameBindingParserNode>();
+            AssertNode(emptyAttribute, "", 19, 0);
+
+            var dotvvmNode = root.Attributes[1].CastTo<MemberAccessBindingParserNode>();
+            AssertNode(dotvvmNode, "DotVVM.", 21, 7);
+
+            var dotvvmFraNode = root.Attributes[2].CastTo<BinaryOperatorBindingParserNode>();
+            AssertNode(dotvvmFraNode, "DotVVM.Fra = ", 30, 13);
+
+            var longNode = root.Attributes[3].CastTo<BinaryOperatorBindingParserNode>();
+            AssertNode(longNode, "DotVVM.Framework.Controls.MarkupOptionsAttribute.Required = t", 45, 61);
+        }
+
+        [TestMethod]
+        public void BindingParser_PropertyTypeHalfWritten()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("System.");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var type = root.PropertyType.CastTo<ActualTypeReferenceBindingParserNode>();
+            var memberAccess = type.Type.CastTo<MemberAccessBindingParserNode>();
+            var target = memberAccess.TargetExpression;
+            var name = memberAccess.MemberNameExpression;
+
+            AssertNode(type, "System.", 0, 7);
+            AssertNode(target, "System", 0, 6);
+            AssertNode(name, "", 7, 0);
         }
 
         [TestMethod]
@@ -1314,7 +1343,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             AssertNode(name, "MyProperty", 14, 11);
             AssertNode(init, "\"Test\"", 27, 6);
             AssertNode(att1, "MarkupOptions.AllowHardCodedValue = False", 35, 41);
-            AssertNode(att2, "MarkupOptions.Required = True", 77, 30);
+            AssertNode(att2, "MarkupOptions.Required = True", 78, 29);
         }
 
         [TestMethod]
@@ -1338,7 +1367,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             AssertNode(type, "System.String", 0, 14);
             AssertNode(name, "MyProperty", 14, 10);
             AssertNode(att1, "MarkupOptions.AllowHardCodedValue = False", 26, 41);
-            AssertNode(att2, "MarkupOptions.Required = True", 68, 30);
+            AssertNode(att2, "MarkupOptions.Required = True", 69, 29);
         }
 
         [TestMethod]
@@ -1373,7 +1402,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             AssertNode(element3Initializer, "Namespace.Enum.Value3", 78, 22);
 
             AssertNode(att1, "MarkupOptions.AllowHardCodedValue = False", 103, 41);
-            AssertNode(att2, "MarkupOptions.Required = True", 145, 30);
+            AssertNode(att2, "MarkupOptions.Required = True", 146, 29);
         }
 
         [TestMethod]
