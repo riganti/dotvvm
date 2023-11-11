@@ -835,13 +835,18 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         private void AddDataSetOptionsTranslations()
         {
+            var dataSetHelper = new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$gridViewDataSetHelper");
             // GridViewDataSetBindingProvider
             AddMethodTranslator(() => GridViewDataSetBindingProvider.DataSetClientSideLoad(null!), new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("loadDataSet").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance), new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$gridViewDataSetHelper").Member("loadDataSet")).WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("loadDataSet").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance), dataSetHelper.Clone().Member("loadDataSet")).WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
 
             AddMethodTranslator(() => GridViewDataSetBindingProvider.GetCurrentGridDataSet<Generic.DataSet>(), new GenericMethodCompiler(args =>
-                new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$gridViewDataSetHelper").Member("dataSet")
+                dataSetHelper.Clone().Member("dataSet")
             ));
+
+            // _dataPager.Load()
+            AddMethodTranslator(() => default(DataPagerApi)!.Load(), new GenericMethodCompiler(args =>
+                dataSetHelper.Member("loadNextPage").Invoke().WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
 
             // PagingOptions
             AddMethodTranslator(() => default(PagingOptions)!.GoToFirstPage(),new GenericMethodCompiler(args =>
