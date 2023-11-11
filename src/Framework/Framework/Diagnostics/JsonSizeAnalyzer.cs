@@ -48,8 +48,12 @@ namespace DotVVM.Framework.Diagnostics
                         return new(((bool)token) ? 4 : 5);
                     case JTokenType.Null:
                         return new(4);
+                    case JTokenType.Guid:
+                        return new(36 + 2);
+                    case JTokenType.Date:
+                        return new(23 + 2);
                     default:
-                        Debug.Assert(false);
+                        Debug.Assert(false, $"Unexpected token type {token.Type}");
                         return new(token.ToString().Length);
                 }
             }
