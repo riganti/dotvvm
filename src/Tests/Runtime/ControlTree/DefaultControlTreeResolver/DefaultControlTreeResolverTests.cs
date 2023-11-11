@@ -828,6 +828,22 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(ControlWithAlternativeNames), nonLiterals[2].Metadata.Type);
             Assert.AreEqual(2, nonLiterals[0].Metadata.AlternativeNames!.Count);
         }
+
+        [TestMethod]
+        public void DefaultViewCompiler_XmlnsAttribute()
+        {
+            var root = ParseSource("""
+                @viewModel System.String
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 120 120" another:attribute="123"></svg>
+                """);
+            var element = root.Content.Single(c => c.Metadata.Type == typeof(HtmlGenericControl));
+            Assert.AreEqual("svg", element.ConstructorParameters[0]);
+            Assert.AreEqual("32", element.GetHtmlAttribute("width").CastTo<ResolvedPropertyValue>().Value);
+            Assert.AreEqual("32", element.GetHtmlAttribute("height").CastTo<ResolvedPropertyValue>().Value);
+            Assert.AreEqual("http://www.w3.org/2000/svg", element.GetHtmlAttribute("xmlns").CastTo<ResolvedPropertyValue>().Value);
+            Assert.AreEqual("http://www.w3.org/1999/xlink", element.GetHtmlAttribute("xmlns:xlink").CastTo<ResolvedPropertyValue>().Value);
+            Assert.AreEqual("123", element.GetHtmlAttribute("another:attribute").CastTo<ResolvedPropertyValue>().Value);
+        }
     }
 
 }

@@ -263,7 +263,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             control.ConstructorParameters = constructorParameters;
 
             // resolve data context
-            var dataContextAttribute = element.Attributes.FirstOrDefault(a => a.AttributeName == "DataContext");
+            var dataContextAttribute = element.Attributes.FirstOrDefault(a => a.AttributeFullName == "DataContext");
             if (dataContextAttribute != null)
             {
                 ProcessAttribute(DotvvmBindableObject.DataContextProperty, dataContextAttribute, control, dataContext);
@@ -287,7 +287,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                    .AddError($"The control '{controlMetadata.Type.CSharpName}' requires a DataContext of type '{controlMetadata.DataContextConstraint.CSharpFullName}'!");
             }
 
-            ProcessAttributeProperties(control, element.Attributes.Where(a => a.AttributeName != "DataContext").ToArray(), dataContext!);
+            ProcessAttributeProperties(control, element.Attributes.Where(a => a.AttributeFullName != "DataContext").ToArray(), dataContext!);
 
             // process control contents
             ProcessControlContent(control, element.Content);
@@ -324,21 +324,20 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private void ProcessAttributeProperties(IAbstractControl control, DothtmlAttributeNode[] nodes, IDataContextStack dataContext)
         {
             var doneAttributes = new HashSet<DothtmlAttributeNode>();
-            string getName(DothtmlAttributeNode n) => n.AttributePrefix == null ? n.AttributeName : n.AttributePrefix + ":" + n.AttributeName;
             void resolveAttribute(DothtmlAttributeNode attribute)
             {
-                var name = getName(attribute);
+                var name = attribute.AttributeFullName;
                 if (!doneAttributes.Add(attribute)) return;
 
                 var property = controlResolver.FindProperty(control.Metadata, name, MappingMode.Attribute);
                 if (property == null)
                 {
-                    attribute.AddError($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}' and does not allow HTML attributes!");
+                    attribute.AddError($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeFullName}' and does not allow HTML attributes!");
                 }
                 else
                 {
                     var dependsOn = property.DataContextChangeAttributes.SelectMany(c => c.PropertyDependsOn);
-                    foreach (var p in dependsOn.SelectMany(t => nodes.Where(n => t == getName(n))))
+                    foreach (var p in dependsOn.SelectMany(t => nodes.Where(n => t == n.AttributeFullName)))
                         resolveAttribute(p);
                     ProcessAttribute(property, attribute, control, dataContext);
                 }
@@ -454,7 +453,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 var pGroup = groupedProperty.PropertyGroup;
                 var name = groupedProperty.GroupMemberName;
-                var prefix = attribute.AttributeName.Substring(0, attribute.AttributeName.Length - name.Length);
+                var prefix = attribute.AttributeFullName.Substring(0, attribute.AttributeFullName.Length - name.Length);
                 // If the HTML attribute is used with a prefix such as `Item`, it might be clearer if the first character is uppercased
                 // e.g. ItemClass reads better than Itemclass
                 // we supress the warning in such case

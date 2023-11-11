@@ -10,18 +10,13 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
     {
         #region debugger display
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string debuggerDisplay
-        {
-            get
-            {
-                return (string.IsNullOrWhiteSpace(AttributePrefix) ? "" : AttributePrefix + ":") + AttributeName
-                    + (ValueNode == null ? "" : "=");
-            }
-        }
+        private string debuggerDisplay =>
+            AttributeFullName + (ValueNode == null ? "" : "=");
         #endregion
         public string? AttributePrefix => AttributePrefixNode?.Text;
 
         public string AttributeName => AttributeNameNode.Text;
+        public string AttributeFullName => AttributePrefix == null ? AttributeName : AttributePrefix + ":" + AttributeName;
 
         public DothtmlValueNode? ValueNode { get; set; }
 
