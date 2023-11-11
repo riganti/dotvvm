@@ -116,7 +116,15 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
                     .OrderByDescending(c => c.CustomerId)
                     .FirstOrDefault()?.CustomerId;
 
-                NextPageToken = (lastToken ?? 0).ToString();
+                lastToken ??= 0;
+                if (lastToken == 12)
+                {
+                    NextPageToken = null;
+                }
+                else
+                {
+                    NextPageToken = lastToken.ToString();
+                }
             }
         }
 
