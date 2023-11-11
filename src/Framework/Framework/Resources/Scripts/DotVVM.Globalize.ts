@@ -32,8 +32,13 @@ type GlobalizeFormattable = null | undefined | string | Date | number
 
 export function formatString(format: string | null | undefined, value: GlobalizeFormattable | KnockoutObservable<GlobalizeFormattable>, type: string | null) {
     value = ko.unwrap(value);
+    const originalValue = value;
     if (value == null || value === "") {
         return "";
+    }
+
+    if (format === "") {
+        format = null
     }
 
     if (typeof value === "string") {
@@ -41,26 +46,20 @@ export function formatString(format: string | null | undefined, value: Globalize
         // DateTime, DateOnly or TimeOnly
         if (type === "dateonly") {
             value = serializationParseDateOnly(value);
-            if (format == null || format.length == 0) {
-                format = "D";
-            }
+            format ??= "D"
         } else if (type == "timeonly") {
             value = serializationParseTimeOnly(value);
-            if (format == null || format.length == 0) {
-                format = "T";
-            }
+            format ??= "T"
         } else {
             value = serializationParseDate(value);
         }
 
         if (value == null) {
-            throw new Error(`Could not parse ${value} as a date`);
+            throw new Error(`Could not parse ${originalValue} as a ${type || "date"}`);
         }
     }
 
-    if (format == null || format.length == 0) {
-        format = "G";
-    }
+    format ??= "G"
 
     return getGlobalize().format(value, format, getCulture());
 }
