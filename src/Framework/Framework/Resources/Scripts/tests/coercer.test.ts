@@ -1,4 +1,5 @@
 import { tryCoerce } from "../metadata/coercer"
+import { formatTypeName } from "../metadata/typeMap";
 import { initDotvvm } from "./helper";
 
 initDotvvm({
@@ -9,6 +10,7 @@ initDotvvm({
     typeMetadata: {
         t1: {
             type: "object",
+            debugName: "MyType1",
             properties: {
                 a: {
                     type: "String"
@@ -606,4 +608,13 @@ test("dynamic - valid, object of unknown type, nested known object", () => {
     const result = tryCoerce({ inner: { $type: "t1", a: "aa" } }, { type: "dynamic" });
     expect(result.wasCoerced).toBeFalsy();
     expect(result.value).toEqual({ inner: { $type: "t1", a: "aa" } });
+})
+
+test("formatTypeName", () => {
+    expect(formatTypeName("t1")).toBe("MyType1 (t1)");
+    expect(formatTypeName("t2")).toBe("t2");
+    expect(formatTypeName([ "t1" ])).toBe("MyType1[] (t1[])");
+    expect(formatTypeName([ "t2" ])).toBe("t2[]");
+    expect(formatTypeName({ type: "nullable", inner: "t1" })).toBe("MyType1? (t1?)");
+    expect(formatTypeName({ type: "nullable", inner: "t2" })).toBe("t2?");
 })

@@ -63,3 +63,28 @@ export function areObjectTypesEqual(currentValue: any, newVal: any): boolean {
     }
     return false;
 }
+
+
+export function formatTypeName(type: TypeDefinition, prefix = "", suffix = ""): string {
+    if (!compileConstants.debug)
+        return JSON.stringify(type)
+
+    if (typeof type === "string") {
+        let debugName = types[type]?.debugName
+        if (debugName)
+            return `${prefix}${debugName}${suffix} (${prefix}${type}${suffix})`
+        else
+            return prefix + type + suffix
+    }
+    if (Array.isArray(type)) {
+        return formatTypeName(type[0], prefix, "[]" + suffix)
+    }
+    if (type.type == "nullable") {
+        return formatTypeName(type.inner, prefix, "?" + suffix)
+    }
+    if (type.type == "dynamic") {
+        return prefix + "dynamic" + suffix
+    }
+    const typeCheck: never = type
+    return undefined as any
+}

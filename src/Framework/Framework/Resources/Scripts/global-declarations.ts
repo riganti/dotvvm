@@ -248,16 +248,19 @@ type TypeMap = {
 }
 
 type DynamicTypeMetadata = {
+    debugName?: string,
     type: "dynamic"
 }
 
 type ObjectTypeMetadata = {
     type: "object",
+    debugName?: string,
     properties: { [prop: string]: PropertyMetadata }
 }
 
 type EnumTypeMetadata = {
     type: "enum",
+    debugName?: string,
     values: { [name: string]: number },
     isFlags?: boolean
 }
