@@ -5,12 +5,15 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
+    <style>
+        .disabled a { color: gray; text-decoration: none; }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Standard data set</h1>
         <dot:GridView DataSource="{value: StandardDataSet}"
-                      LoadData="{staticCommand: _root.LoadStandard}">
+                      LoadData="{staticCommand: RootViewModel.LoadStandard}">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
@@ -19,11 +22,10 @@
             </Columns>
         </dot:GridView>
         <dot:DataPager DataSet="{value: StandardDataSet}" LoadData="{staticCommand: RootViewModel.LoadStandard}" />
-        <%--
+        
         <h1>NextToken paging options</h1>
         <dot:GridView DataSource="{value: NextTokenDataSet}"
-                      <%--LoadData="{staticCommand: _root.LoadToken}"--%>
-                      >
+                      LoadData="{staticCommand: RootViewModel.LoadToken}">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
@@ -35,8 +37,7 @@
 
         <h1>NextTokenHistory data set</h1>
         <dot:GridView DataSource="{value: NextTokenHistoryDataSet}"
-                      <%--LoadData="{staticCommand: RootViewModel.LoadTokenHistory}"--%>
-                      >
+                      LoadData="{staticCommand: RootViewModel.LoadTokenHistory}">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
@@ -48,8 +49,7 @@
 
         <h1>MultiSort data set</h1>
         <dot:GridView DataSource="{value: MultiSortDataSet}"
-                      <%--LoadData="{staticCommand: RootViewModel.LoadMultiSort}"--%>
-                      >
+                      LoadData="{staticCommand: RootViewModel.LoadMultiSort}">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
@@ -58,7 +58,7 @@
             </Columns>
         </dot:GridView>
         <dot:DataPager DataSet="{value: MultiSortDataSet}" LoadData="{staticCommand: RootViewModel.LoadMultiSort}" />
-        --%>
+        
     </div>
 </body>
 </html>
