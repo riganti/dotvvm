@@ -15,13 +15,15 @@ namespace DotVVM.Framework.Diagnostics
     public class PerformanceWarningTracer : IRequestTracer
     {
         private readonly RuntimeWarningCollector logger;
+        private readonly ILogger? tracerLogger;
         private readonly DotvvmPerfWarningsConfiguration config;
         private readonly JsonSizeAnalyzer jsonSizeAnalyzer;
         private readonly Stopwatch stopwatch = Stopwatch.StartNew();
         private readonly List<(string eventName, TimeSpan timestamp)> events = new();
-        public PerformanceWarningTracer(DotvvmConfiguration config, RuntimeWarningCollector logger, JsonSizeAnalyzer jsonSizeAnalyzer)
+        public PerformanceWarningTracer(DotvvmConfiguration config, RuntimeWarningCollector logger, JsonSizeAnalyzer jsonSizeAnalyzer, ILogger<PerformanceWarningTracer>? tracerLogger = null)
         {
             this.logger = logger;
+            this.tracerLogger = tracerLogger;
             this.config = config.Diagnostics.PerfWarnings;
             this.jsonSizeAnalyzer = jsonSizeAnalyzer;
         }
@@ -57,34 +59,41 @@ namespace DotVVM.Framework.Diagnostics
             if (context.ViewModelJson is null)
                 return;
 
-            var vmAnalysis = jsonSizeAnalyzer.Analyze(context.ViewModelJson);
+            try
+            {
+                var vmAnalysis = jsonSizeAnalyzer.Analyze(context.ViewModelJson);
 
-            var topClasses =
-                vmAnalysis.Classes
-                .OrderByDescending(c => c.Value.Size.ExclusiveSize)
-                .Take(3)
-                // only classes which have at least 5% impact
-                .Where(c => c.Value.Size.ExclusiveSize > vmAnalysis.TotalSize / 20)
-                .ToArray();
-            var topProperties =
-                vmAnalysis.Classes
-                .SelectMany(c => c.Value.Properties.Select(p => (Key: c.Key + "." + p.Key, p.Value)))
-                .OrderByDescending(c => c.Value.ExclusiveSize)
-                .Take(3)
-                // only properties which have at least 5% impact
-                .Where(c => c.Value.ExclusiveSize > vmAnalysis.TotalSize / 20)
-                .ToArray();
+                var topClasses =
+                    vmAnalysis.Classes
+                    .OrderByDescending(c => c.Value.Size.ExclusiveSize)
+                    .Take(3)
+                    // only classes which have at least 5% impact
+                    .Where(c => c.Value.Size.ExclusiveSize > vmAnalysis.TotalSize / 20)
+                    .ToArray();
+                var topProperties =
+                    vmAnalysis.Classes
+                    .SelectMany(c => c.Value.Properties.Select(p => (Key: c.Key + "." + p.Key, p.Value)))
+                    .OrderByDescending(c => c.Value.ExclusiveSize)
+                    .Take(3)
+                    // only properties which have at least 5% impact
+                    .Where(c => c.Value.ExclusiveSize > vmAnalysis.TotalSize / 20)
+                    .ToArray();
 
-            var byteToPercent = 100.0 / vmAnalysis.TotalSize;
+                var byteToPercent = 100.0 / vmAnalysis.TotalSize;
 
-            var msg = $"The serialized view model has {viewModelSize / 1024.0 / 1024.0:0.0}MB, which may make your application quite slow. " +
-                string.Join(", ",
-                    topProperties.Select(c => $"Property {c.Key} takes {c.Value.ExclusiveSize * byteToPercent:0}%").Concat(
-                    topClasses.Select(c => $"Class {c.Key} takes {c.Value.Size.ExclusiveSize * byteToPercent:0}%")));
+                var msg = $"The serialized view model has {viewModelSize / 1024.0 / 1024.0:0.0}MB, which may make your application quite slow. " +
+                    string.Join(", ",
+                        topProperties.Select(c => $"Property {c.Key} takes {c.Value.ExclusiveSize * byteToPercent:0}%").Concat(
+                        topClasses.Select(c => $"Class {c.Key} takes {c.Value.Size.ExclusiveSize * byteToPercent:0}%")));
 
-            logger.Warn(new DotvvmRuntimeWarning(
-                msg
-            ));
+                logger.Warn(new DotvvmRuntimeWarning(
+                    msg
+                ));
+            }
+            catch (Exception ex)
+            {
+                tracerLogger?.LogWarning(ex, $"Failed to analyze view model size. The serialized view model has {viewModelSize / 1024.0 / 1024.0:0.0}MB, which may make your application quite slow");
+            }
         }
         public Task EndRequest(IDotvvmRequestContext context)
         {
