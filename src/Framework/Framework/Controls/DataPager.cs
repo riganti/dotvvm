@@ -161,16 +161,15 @@ namespace DotVVM.Framework.Controls
 
             var dataSetBinding = GetValueBinding(DataSetProperty)!;
             var dataSetType = dataSetBinding.ResultType;
+
+            var commandType = LoadData is {} ? GridViewDataSetCommandType.StaticCommand : GridViewDataSetCommandType.Command;
+            pagerBindings = gridViewDataSetBindingProvider.GetDataPagerCommands(this.GetDataContextType().NotNull(), dataSetBinding, commandType);
+
+            var enabled = GetValueOrBinding<bool>(EnabledProperty)!;
+
             ContentWrapper = CreateWrapperList();
             Children.Add(ContentWrapper);
 
-            var commandType = LoadData is {} ? GridViewDataSetCommandType.StaticCommand : GridViewDataSetCommandType.Command;
-
-            pagerBindings = gridViewDataSetBindingProvider.GetDataPagerCommands(this.GetDataContextType().NotNull(), dataSetBinding, commandType);
-
-
-            var enabled = GetValueOrBinding<bool>(EnabledProperty)!;
-            
             if (typeof(IPageableGridViewDataSet<IPagingFirstPageCapability>).IsAssignableFrom(dataSetType))
             {
                 GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, enabled, pagerBindings.GoToFirstPage!, context);
@@ -232,6 +231,15 @@ namespace DotVVM.Framework.Controls
         protected virtual HtmlGenericControl CreateWrapperList()
         {
             var list = new HtmlGenericControl("ul");
+
+            // If Visible property was set to something, it would be overwritten by this
+            if (HideWhenOnlyOnePage && pagerBindings?.HasMoreThanOnePage is {} hasMoreThanOnePage)
+            {
+                if (IsPropertySet(VisibleProperty))
+                    throw new Exception("Visible can't be set on a DataPager when HideWhenOnlyOnePage is true. You can wrap it in an element that hide that or set HideWhenOnlyOnePage to false");
+                list.SetProperty(HtmlGenericControl.VisibleProperty, hasMoreThanOnePage);
+            }
+
             return list;
         }
 
@@ -266,22 +274,13 @@ namespace DotVVM.Framework.Controls
                 throw new DotvvmControlException(this, "The DataPager control cannot be rendered in the RenderSettings.Mode='Server'.");
             }
 
-            var dataSetBinding = GetDataSetBinding().GetKnockoutBindingExpression(this, unwrapped: true);
-            var helperBinding = new KnockoutBindingGroup();
-            helperBinding.Add("dataSet", dataSetBinding);
             if (this.LoadData is {} loadData)
             {
+                var helperBinding = new KnockoutBindingGroup();
+                helperBinding.Add("dataSet", GetDataSetBinding().GetKnockoutBindingExpression(this, unwrapped: true));
                 var loadDataExpression = KnockoutHelper.GenerateClientPostbackLambda("LoadData", loadData, this, new PostbackScriptOptions(elementAccessor: "$element", koContext: CodeParameterAssignment.FromIdentifier("$context")));
                 helperBinding.Add("loadDataSet", loadDataExpression);
-            }
-            writer.AddKnockoutDataBind("dotvvm-gridviewdataset", helperBinding.ToString());
-
-            // If Visible property was set to something, it will be overwritten by this. TODO: is it how it should behave?
-            if (HideWhenOnlyOnePage)
-            {
-                if (IsPropertySet(VisibleProperty))
-                    throw new Exception("Visible can't be set on a DataPager when HideWhenOnlyOnePage is true. You can wrap it in an element that hide that or set HideWhenOnlyOnePage to false");
-                writer.AddKnockoutDataBind("visible", $"({dataSetBinding}).PagingOptions().PagesCount() > 1");
+                writer.AddKnockoutDataBind("dotvvm-gridviewdataset", helperBinding.ToString());
             }
 
             if (GetValueBinding(EnabledProperty) is IValueBinding enabledBinding)

@@ -66,6 +66,11 @@ public class GridViewDataSetBindingProvider
             typeof(int), dataContextStack
         );
 
+        var isFirstPage = GetValueBindingOrNull<IPageableGridViewDataSet<IPagingFirstPageCapability>, bool>(d => d.PagingOptions.IsFirstPage) ??
+                GetValueBindingOrNull<IPageableGridViewDataSet<IPagingPreviousPageCapability>, bool>(d => d.PagingOptions.IsFirstPage);
+        var isLastPage = GetValueBindingOrNull<IPageableGridViewDataSet<IPagingLastPageCapability>, bool>(d => d.PagingOptions.IsLastPage) ??
+                GetValueBindingOrNull<IPageableGridViewDataSet<IPagingNextPageCapability>, bool>(d => d.PagingOptions.IsLastPage);
+
         return new DataPagerBindings()
         {
             GoToFirstPage = GetCommandOrNull<IPageableGridViewDataSet<IPagingFirstPageCapability>>(
@@ -89,14 +94,8 @@ public class GridViewDataSetBindingProvider
                 nameof(IPagingPageIndexCapability.GoToPage),
                 CreateParameter(pageIndexDataContext, "_thisIndex")),
 
-            IsFirstPage =
-                GetValueBindingOrNull<IPageableGridViewDataSet<IPagingFirstPageCapability>, bool>(d => d.PagingOptions.IsFirstPage) ??
-                GetValueBindingOrNull<IPageableGridViewDataSet<IPagingPreviousPageCapability>, bool>(d => d.PagingOptions.IsFirstPage),
-
-            IsLastPage =
-                GetValueBindingOrNull<IPageableGridViewDataSet<IPagingLastPageCapability>, bool>(d => d.PagingOptions.IsLastPage) ??
-                GetValueBindingOrNull<IPageableGridViewDataSet<IPagingNextPageCapability>, bool>(d => d.PagingOptions.IsLastPage),
-
+            IsFirstPage = isFirstPage,
+            IsLastPage = isLastPage,
             PageNumbers =
                 GetValueBindingOrNull<IPageableGridViewDataSet<IPagingPageIndexCapability>, IEnumerable<int>>(d => d.PagingOptions.NearPageIndexes),
             
@@ -112,7 +111,17 @@ public class GridViewDataSetBindingProvider
                     : null,
 
             PageNumberText =
-                service.Cache.CreateValueBinding<string>("_this + 1", pageIndexDataContext)
+                service.Cache.CreateValueBinding<string>("_this + 1", pageIndexDataContext),
+            HasMoreThanOnePage =
+                GetValueBindingOrNull<IPageableGridViewDataSet<PagingOptions>, bool>(d => d.PagingOptions.PagesCount > 1) ??
+                (isFirstPage != null && isLastPage != null ?
+                    new ValueBindingExpression<bool>(service, new object[] {
+                        dataContextStack,
+                        new ParsedExpressionBindingProperty(Expression.Not(Expression.AndAlso(
+                            isFirstPage.GetProperty<ParsedExpressionBindingProperty>().Expression,
+                            isLastPage.GetProperty<ParsedExpressionBindingProperty>().Expression
+                        )))
+                    }) : null)
         };
     }
 

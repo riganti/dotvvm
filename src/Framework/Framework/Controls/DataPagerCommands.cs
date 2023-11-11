@@ -17,5 +17,6 @@ namespace DotVVM.Framework.Controls
         public IStaticValueBinding<IEnumerable<int>>? PageNumbers { get; init; }
         public IStaticValueBinding<bool>? IsActivePage { get; init; }
         public IStaticValueBinding<string>? PageNumberText { get; init; }
+        public IStaticValueBinding<bool>? HasMoreThanOnePage { get; init; }
     }
 }
