@@ -42,5 +42,38 @@ namespace DotVVM.Framework.Tests.Runtime
             });
             Assert.AreEqual("<img><div></div></img>", text);
         }
+
+        [TestMethod]
+        public void EscapingAmpersandStringEnd()
+        {
+            var text = WriteHtml(a => {
+                a.AddAttribute("a", "&");
+                a.AddAttribute("b", "abc &");
+                a.RenderSelfClosingTag("img");
+            });
+            Assert.AreEqual("<img a=\"&amp;\" b=\"abc &amp;\" />", text);
+        }
+
+        [TestMethod]
+        public void EscapingAmpersandAllowedUnescaped()
+        {
+            var text = WriteHtml(a => {
+                a.AddAttribute("a", "a & b");
+                a.AddAttribute("b", "a && b");
+                a.RenderSelfClosingTag("img");
+            });
+            Assert.AreEqual("<img a=\"a & b\" b=\"a && b\" />", text);
+        }
+
+        [TestMethod]
+        public void EscapingAmpersandUnallowed()
+        {
+            var text = WriteHtml(a => {
+                a.AddAttribute("a", "&amp;");
+                a.AddAttribute("b", "a&b");
+                a.RenderSelfClosingTag("img");
+            });
+            Assert.AreEqual("<img a=\"&amp;amp;\" b=\"a&amp;b\" />", text);
+        }
     }
 }
