@@ -515,7 +515,7 @@ namespace DotVVM.Framework.Controls
                             // An ambiguous ampersand is a U+0026 AMPERSAND character (&) that is followed by one or more ASCII alphanumerics, followed by a U+003B SEMICOLON character (;), where these characters do not match any of the names given in the named character references section.
 
                             // so if the next character is not alphanumeric, we can leave it there
-                            if (i == input.Length)
+                            if (i + 1 == input.Length)
                                 return i;
                             var nextChar = input[i + 1];
                             if (IsInRange(nextChar, 'a', 'z') ||
