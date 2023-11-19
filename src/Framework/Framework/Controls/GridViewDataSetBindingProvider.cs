@@ -10,6 +10,8 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls;
@@ -254,11 +256,14 @@ public class GridViewDataSetBindingProvider
             });
     }
 
-    private static Expression CurrentGridDataSetExpression(Type datasetType)
-    {
-        var method = typeof(GridViewDataSetBindingProvider).GetMethod(nameof(GetCurrentGridDataSet))!.MakeGenericMethod(datasetType);
-        return Expression.Call(method);
-    }
+    public static CodeSymbolicParameter LoadDataDelegate = new CodeSymbolicParameter(
+        "LoadDataDelegate",
+        CodeParameterAssignment.FromExpression(JavascriptTranslator.KnockoutContextParameter.ToExpression().Member("$gridViewDataSetHelper").Member("loadDataSet"))
+    );
+    public static CodeSymbolicParameter PostProcessorDelegate = new CodeSymbolicParameter(
+        "PostProcessorDelegate",
+        CodeParameterAssignment.FromExpression(JavascriptTranslator.KnockoutContextParameter.ToExpression().Member("$gridViewDataSetHelper").Member("postProcessor"))
+    );
 
     /// <summary>
     /// A sentinel method which is translated to load the GridViewDataSet on the client side using the Load delegate.
@@ -272,12 +277,6 @@ public class GridViewDataSetBindingProvider
         where TFilteringOptions : IFilteringOptions
         where TSortingOptions : ISortingOptions
         where TPagingOptions : IPagingOptions
-    {
-        throw new InvalidOperationException("This method cannot be called on the server!");
-    }
-
-    /// <summary> Returns the DataSet we currently work on from the $context.$gridViewDataSetHelper.dataSet </summary>
-    public static T GetCurrentGridDataSet<T>() where T : IBaseGridViewDataSet
     {
         throw new InvalidOperationException("This method cannot be called on the server!");
     }
