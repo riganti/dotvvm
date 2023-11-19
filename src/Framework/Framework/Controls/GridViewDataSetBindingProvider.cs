@@ -10,6 +10,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls;
 
@@ -149,6 +150,24 @@ public class GridViewDataSetBindingProvider
 
     private ICommandBinding CreateCommandBinding<TDataSetInterface>(GridViewDataSetCommandType commandType, Expression dataSet, DataContextStack dataContextStack, string methodName, Expression[] arguments, Func<Expression, Expression>? transformExpression = null)
     {
+        if (commandType == GridViewDataSetCommandType.Default)
+        {
+            // create a binding {command: dataSet.XXXOptions.YYY(args); dataSet.RequestRefresh() }
+            return CreateDefaultCommandBinding<TDataSetInterface>(dataSet, dataContextStack, methodName, arguments, transformExpression);
+        }
+        else if (commandType == GridViewDataSetCommandType.LoadDataDelegate)
+        {
+            // create a binding {staticCommand: GridViewDataSetBindingProvider.LoadDataSet(dataSet, options => { options.XXXOptions.YYY(args); }, loadDataDelegate, postProcessor) }
+            return CreateLoadDataDelegateCommandBinding<TDataSetInterface>(dataSet, dataContextStack, methodName, arguments, transformExpression);
+        }
+        else
+        {
+            throw new NotSupportedException($"The command type {commandType} is not supported!");
+        }
+    }
+
+    private ICommandBinding CreateDefaultCommandBinding<TDataSetInterface>(Expression dataSet, DataContextStack dataContextStack, string methodName, Expression[] arguments, Func<Expression, Expression>? transformExpression)
+    {
         var body = new List<Expression>();
 
         // get concrete type from implementation of IXXXableGridViewDataSet<?>
@@ -161,63 +180,78 @@ public class GridViewDataSetBindingProvider
             arguments);
         body.Add(callMethodOnOptions);
 
-        if (commandType == GridViewDataSetCommandType.Command)
+        // if we are on a server, call the dataSet.RequestRefresh if supported
+        if (typeof(IRefreshableGridViewDataSet).IsAssignableFrom(dataSet.Type))
         {
-            // if we are on a server, call the dataSet.RequestRefresh if supported
-            if (typeof(IRefreshableGridViewDataSet).IsAssignableFrom(dataSet.Type))
-            {
-                var callRequestRefresh = Expression.Call(
-                    Expression.Convert(dataSet, typeof(IRefreshableGridViewDataSet)),
-                    typeof(IRefreshableGridViewDataSet).GetMethod(nameof(IRefreshableGridViewDataSet.RequestRefresh))!
-                );
-                body.Add(callRequestRefresh);
-            }
+            var callRequestRefresh = Expression.Call(
+                Expression.Convert(dataSet, typeof(IRefreshableGridViewDataSet)),
+                typeof(IRefreshableGridViewDataSet).GetMethod(nameof(IRefreshableGridViewDataSet.RequestRefresh))!
+            );
+            body.Add(callRequestRefresh);
+        }
 
-            // build command binding
-            Expression expression = Expression.Block(body);
-            if (transformExpression != null)
-            {
-                expression = transformExpression(expression);
-            }
-            return new CommandBindingExpression(service,
-                new object[]
-                {
-                    new ParsedExpressionBindingProperty(expression),
-                    new OriginalStringBindingProperty($"DataPager: _dataSet.{methodName}({string.Join(", ", arguments.AsEnumerable())})"), // For ID generation
-                    dataContextStack
-                });
-        }
-        else if (commandType == GridViewDataSetCommandType.StaticCommand)
+        // build command binding
+        Expression expression = Expression.Block(body);
+        if (transformExpression != null)
         {
-            // on the client, wrap the call into client-side loading procedure
-            body.Add(CallClientSideLoad(dataSet));
-            Expression expression = Expression.Block(body);
-            if (transformExpression != null)
+            expression = transformExpression(expression);
+        }
+
+        return new CommandBindingExpression(service,
+            new object[]
             {
-                expression = transformExpression(expression);
-            }
-            return new StaticCommandBindingExpression(service,
-                new object[]
-                {
-                    new ParsedExpressionBindingProperty(expression),
-                    BindingParserOptions.StaticCommand,
-                    dataContextStack
-                });
-        }
-        else
-        {
-            throw new NotSupportedException($"The command type {commandType} is not supported!");
-        }
+                new ParsedExpressionBindingProperty(expression),
+                new OriginalStringBindingProperty($"DataPager: _dataSet.{methodName}({string.Join(", ", arguments.AsEnumerable())})"), // For ID generation
+                dataContextStack
+            });
     }
-    
-    /// <summary>
-    /// Invoked the client-side loadDataSet function with the loader from $gridViewDataSetHelper
-    /// </summary>
-    private static Expression CallClientSideLoad(Expression dataSetParam)
+
+    private ICommandBinding CreateLoadDataDelegateCommandBinding<TDataSetInterface>(Expression dataSet, DataContextStack dataContextStack, string methodName, Expression[] arguments, Func<Expression, Expression>? transformExpression)
     {
-        // call static method DataSetClientLoad
-        var method = typeof(GridViewDataSetBindingProvider).GetMethod(nameof(DataSetClientSideLoad))!;
-        return Expression.Call(method, dataSetParam);
+        var loadDataSetMethod = typeof(GridViewDataSetBindingProvider).GetMethod(nameof(DataSetClientSideLoad))!;
+
+        // build the concrete type of GridViewDataSetOptions<,,>
+        GetOptionsConcreteType<IFilterableGridViewDataSet>(dataSet.Type, out var filteringOptionsProperty);
+        GetOptionsConcreteType<ISortableGridViewDataSet>(dataSet.Type, out var sortingOptionsProperty);
+        GetOptionsConcreteType<IPageableGridViewDataSet>(dataSet.Type, out var pagingOptionsProperty);
+        GetOptionsConcreteType<IBaseGridViewDataSet>(dataSet.Type, out var itemProperty);
+        var itemType = itemProperty.PropertyType.GetEnumerableType()!;
+
+        var optionsType = typeof(GridViewDataSetOptions<,,>).MakeGenericType(filteringOptionsProperty.PropertyType, sortingOptionsProperty.PropertyType, pagingOptionsProperty.PropertyType);
+        var resultType = typeof(GridViewDataSetResult<,,,>).MakeGenericType(itemType, filteringOptionsProperty.PropertyType, sortingOptionsProperty.PropertyType, pagingOptionsProperty.PropertyType);
+
+        // get concrete type from implementation of IXXXableGridViewDataSet<?>
+        var modifiedOptionsType = GetOptionsConcreteType<TDataSetInterface>(dataSet.Type, out var modifiedOptionsProperty);
+
+        // call options.XXXOptions.Method(...);
+        var optionsParameter = Expression.Parameter(optionsType, "options");
+        var callMethodOnOptions = Expression.Call(
+                Expression.Convert(Expression.Property(optionsParameter, modifiedOptionsProperty.Name), modifiedOptionsType),
+                modifiedOptionsType.GetMethod(methodName)!,
+                arguments);
+
+        // build options => options.XXXOptions.Method(...)
+        var optionsTransformLambdaType = typeof(Action<>).MakeGenericType(optionsType);
+        var optionsTransformLambda = Expression.Lambda(optionsTransformLambdaType, callMethodOnOptions, optionsParameter);
+
+        var expression = (Expression)Expression.Call(
+            loadDataSetMethod.MakeGenericMethod(dataSet.Type, itemType, filteringOptionsProperty.PropertyType, sortingOptionsProperty.PropertyType, pagingOptionsProperty.PropertyType),
+            dataSet,
+            optionsTransformLambda,
+            Expression.Constant(null, typeof(Func<,>).MakeGenericType(optionsType, typeof(Task<>).MakeGenericType(resultType))),
+            Expression.Constant(null, typeof(Action<,>).MakeGenericType(dataSet.Type, resultType)));
+
+        if (transformExpression != null)
+        {
+            expression = transformExpression(expression);
+        }
+        return new StaticCommandBindingExpression(service,
+            new object[]
+            {
+                new ParsedExpressionBindingProperty(expression),
+                BindingParserOptions.StaticCommand,
+                dataContextStack
+            });
     }
 
     private static Expression CurrentGridDataSetExpression(Type datasetType)
@@ -230,7 +264,14 @@ public class GridViewDataSetBindingProvider
     /// A sentinel method which is translated to load the GridViewDataSet on the client side using the Load delegate.
     /// Do not call this method on the server.
     /// </summary>
-    public static Task DataSetClientSideLoad(IBaseGridViewDataSet dataSet)
+    public static Task DataSetClientSideLoad<TGridViewDataSet, TItem, TFilteringOptions, TSortingOptions, TPagingOptions>(
+        IBaseGridViewDataSet dataSet,
+        Action<GridViewDataSetOptions<TFilteringOptions, TSortingOptions, TPagingOptions>> optionsTransformer,
+        Func<GridViewDataSetOptions<TFilteringOptions, TSortingOptions, TPagingOptions>, Task<GridViewDataSetResult<TItem, TFilteringOptions, TSortingOptions, TPagingOptions>>> loadDataDelegate,
+        Action<TGridViewDataSet, GridViewDataSetResult<TItem, TFilteringOptions, TSortingOptions, TPagingOptions>> postProcessor)
+        where TFilteringOptions : IFilteringOptions
+        where TSortingOptions : ISortingOptions
+        where TPagingOptions : IPagingOptions
     {
         throw new InvalidOperationException("This method cannot be called on the server!");
     }
@@ -243,24 +284,32 @@ public class GridViewDataSetBindingProvider
 
     private static Type GetOptionsConcreteType<TDataSetInterface>(Type dataSetConcreteType, out PropertyInfo optionsProperty)
     {
-        if (!typeof(TDataSetInterface).IsGenericType || !typeof(TDataSetInterface).IsAssignableFrom(dataSetConcreteType))
+        if (!typeof(TDataSetInterface).IsAssignableFrom(dataSetConcreteType))
         {
             throw new ArgumentException($"The type {typeof(TDataSetInterface)} must be a generic type and must be implemented by the type {dataSetConcreteType} specified in {nameof(dataSetConcreteType)} argument!");
         }
 
         // resolve options property
-        var genericInterface = typeof(TDataSetInterface).GetGenericTypeDefinition();
-        if (genericInterface == typeof(IFilterableGridViewDataSet<>))
+        var genericInterface = typeof(TDataSetInterface).IsGenericType ? typeof(TDataSetInterface).GetGenericTypeDefinition() : typeof(TDataSetInterface);
+        if (genericInterface == typeof(IFilterableGridViewDataSet<>) || genericInterface == typeof(IFilterableGridViewDataSet))
         {
             optionsProperty = typeof(TDataSetInterface).GetProperty(nameof(IFilterableGridViewDataSet.FilteringOptions))!;
+            genericInterface = typeof(IFilterableGridViewDataSet<>);
         }
-        else if (genericInterface == typeof(ISortableGridViewDataSet<>))
+        else if (genericInterface == typeof(ISortableGridViewDataSet<>) || genericInterface == typeof(ISortableGridViewDataSet))
         {
             optionsProperty = typeof(TDataSetInterface).GetProperty(nameof(ISortableGridViewDataSet.SortingOptions))!;
+            genericInterface = typeof(ISortableGridViewDataSet<>);
         }
-        else if (genericInterface == typeof(IPageableGridViewDataSet<>))
+        else if (genericInterface == typeof(IPageableGridViewDataSet<>) || genericInterface == typeof(IPageableGridViewDataSet))
         {
             optionsProperty = typeof(TDataSetInterface).GetProperty(nameof(IPageableGridViewDataSet.PagingOptions))!;
+            genericInterface = typeof(IPageableGridViewDataSet<>);
+        }
+        else if (genericInterface == typeof(IBaseGridViewDataSet<>) || genericInterface == typeof(IBaseGridViewDataSet))
+        {
+            optionsProperty = typeof(TDataSetInterface).GetProperty(nameof(IBaseGridViewDataSet.Items))!;
+            genericInterface = typeof(IBaseGridViewDataSet<>);
         }
         else
         {

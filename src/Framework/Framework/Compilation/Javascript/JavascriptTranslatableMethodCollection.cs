@@ -835,11 +835,15 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         private void AddDataSetOptionsTranslations()
         {
-            var dataSetHelper = new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$gridViewDataSetHelper");
             // GridViewDataSetBindingProvider
-            AddMethodTranslator(() => GridViewDataSetBindingProvider.DataSetClientSideLoad(null!), new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("loadDataSet").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance), dataSetHelper.Clone().Member("loadDataSet")).WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
-
+            var dataSetHelper = new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$gridViewDataSetHelper");
+            AddMethodTranslator(typeof(GridViewDataSetBindingProvider), nameof(GridViewDataSetBindingProvider.DataSetClientSideLoad), new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("loadDataSet").Invoke(
+                    args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
+                    args[2],
+                    dataSetHelper.Clone().Member("loadDataSet"),
+                    dataSetHelper.Clone().Member("postProcessor")
+                ).WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
             AddMethodTranslator(() => GridViewDataSetBindingProvider.GetCurrentGridDataSet<Generic.DataSet>(), new GenericMethodCompiler(args =>
                 dataSetHelper.Clone().Member("dataSet")
             ));

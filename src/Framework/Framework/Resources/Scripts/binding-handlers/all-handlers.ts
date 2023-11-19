@@ -11,6 +11,7 @@ import namedCommand from './named-command'
 import fileUpload from './file-upload'
 import jsComponents from './js-component'
 import modalDialog from './modal-dialog'
+import appendableDataPager from './appendable-data-pager'
 
 type KnockoutHandlerDictionary = {
     [name: string]: KnockoutBindingHandler
@@ -28,7 +29,8 @@ const allHandlers: KnockoutHandlerDictionary = {
     ...namedCommand,
     ...fileUpload,
     ...jsComponents,
-    ...modalDialog
+    ...modalDialog,
+    ...appendableDataPager
 }
 
 export default allHandlers

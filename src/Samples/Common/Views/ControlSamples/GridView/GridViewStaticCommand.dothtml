@@ -23,7 +23,7 @@
         </dot:GridView>
         <dot:DataPager DataSet="{value: StandardDataSet}" LoadData="{staticCommand: RootViewModel.LoadStandard}" />
         
-        <h1>NextToken paging options</h1>
+        <%--<h1>NextToken paging options</h1>
         <dot:GridView DataSource="{value: NextTokenDataSet}"
                       LoadData="{staticCommand: RootViewModel.LoadToken}">
             <Columns>
@@ -57,7 +57,7 @@
                 <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" AllowSorting="True" />
             </Columns>
         </dot:GridView>
-        <dot:DataPager DataSet="{value: MultiSortDataSet}" LoadData="{staticCommand: RootViewModel.LoadMultiSort}" />
+        <dot:DataPager DataSet="{value: MultiSortDataSet}" LoadData="{staticCommand: RootViewModel.LoadMultiSort}" />--%>
         
     </div>
 </body>

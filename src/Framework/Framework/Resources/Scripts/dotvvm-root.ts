@@ -27,7 +27,7 @@ import * as metadataHelper from './metadata/metadataHelper'
 import { StateManager } from "./state-manager"
 import { DotvvmEvent } from "./events"
 import translations from './translations/translations'
-import { loadDataSet } from './dataset/loader'
+import { loadDataSet, postProcessors as loaderPostProcessors } from './dataset/loader'
 import * as dataSetTranslations from './dataset/translations'
 
 if (window["dotvvm"]) {
@@ -128,6 +128,7 @@ const dotvvmExports = {
     translations: translations as any,
     dataSet: {
         loadDataSet: loadDataSet,
+        postProcessors: loaderPostProcessors,
         translations: dataSetTranslations.translations
     },
     StateManager,

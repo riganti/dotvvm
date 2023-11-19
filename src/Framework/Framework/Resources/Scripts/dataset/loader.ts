@@ -1,4 +1,6 @@
-﻿type GridViewDataSet = {
+﻿import { StateManager } from "../state-manager";
+
+type GridViewDataSet = {
     PagingOptions: DotvvmObservable<any>,
     SortingOptions: DotvvmObservable<any>,
     FilteringOptions: DotvvmObservable<any>,
@@ -6,9 +8,9 @@
     IsRefreshRequired?: DotvvmObservable<boolean>
 };
 type GridViewDataSetOptions = {
-    PagingOptions: DotvvmObservable<any>,
-    SortingOptions: DotvvmObservable<any>,
-    FilteringOptions: DotvvmObservable<any>
+    PagingOptions: any,
+    SortingOptions: any,
+    FilteringOptions: any
 };
 type GridViewDataSetResult = {
     Items: any[],
@@ -17,34 +19,41 @@ type GridViewDataSetResult = {
     FilteringOptions: any
 };
 
-export async function loadDataSet(dataSetObservable: KnockoutObservable<GridViewDataSet>, loadData: (options: GridViewDataSetOptions) => Promise<DotvvmAfterPostBackEventArgs>) {
-    const dataSet = ko.unwrap(dataSetObservable);
-    if (dataSet.IsRefreshRequired) {
-        dataSet.IsRefreshRequired.setState(true);
-    }
+export async function loadDataSet(
+    dataSetObservable: DotvvmObservable<GridViewDataSet>,
+    transformOptions: (options: GridViewDataSetOptions) => void,
+    loadData: (options: GridViewDataSetOptions) => Promise<DotvvmAfterPostBackEventArgs>,
+    postProcessor: (dataSet: DotvvmObservable<GridViewDataSet>, result: GridViewDataSetResult) => void = postProcessors.replace
+) {
+    const dataSet = dataSetObservable.state;
 
-    const result = await loadData({
-        FilteringOptions: dataSet.FilteringOptions.state,
-        SortingOptions: dataSet.SortingOptions.state,
-        PagingOptions: dataSet.PagingOptions.state
-    });
+    const options: GridViewDataSetOptions = {
+        FilteringOptions: structuredClone(dataSet.FilteringOptions),
+        SortingOptions: structuredClone(dataSet.SortingOptions),
+        PagingOptions: structuredClone(dataSet.PagingOptions)
+    };
+    transformOptions(options);
+        
+    const result = await loadData(options);
     const commandResult = result.commandResult as GridViewDataSetResult;
 
-    dataSet.Items.setState([]);
-    dataSet.Items.setState(commandResult.Items);
-
-    if (commandResult.FilteringOptions && ko.isWriteableObservable(dataSet.FilteringOptions)) {
-        dataSet.FilteringOptions.setState(commandResult.FilteringOptions);
-    }
-    if (commandResult.SortingOptions && ko.isWriteableObservable(dataSet.SortingOptions)) {
-        dataSet.SortingOptions.setState(commandResult.SortingOptions);
-    }
-    if (commandResult.PagingOptions && ko.isWriteableObservable(dataSet.PagingOptions)) {
-        dataSet.PagingOptions.setState(commandResult.PagingOptions);
-    }
-
-    if (dataSet.IsRefreshRequired) {
-        dataSet.IsRefreshRequired.setState(false);
-    }
+    postProcessor(dataSetObservable, commandResult);
 }
 
+export const postProcessors = {
+
+    replace(dataSet: DotvvmObservable<GridViewDataSet>, result: GridViewDataSetResult) {
+        dataSet.patchState(result);
+    },
+
+    append(dataSet: DotvvmObservable<GridViewDataSet>, result: GridViewDataSetResult) {
+        const currentItems = (dataSet.state as any).Items as any[];
+        dataSet.patchState({
+            FilteringOptions: result.FilteringOptions,
+            SortingOptions: result.SortingOptions,
+            PagingOptions: result.PagingOptions,
+            Items: [...currentItems, ...result.Items]
+        });
+    }
+
+};
