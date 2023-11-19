@@ -162,7 +162,8 @@ namespace DotVVM.Framework.Controls
             var dataSetBinding = GetValueBinding(DataSetProperty)!;
             var dataSetType = dataSetBinding.ResultType;
 
-            var commandType = LoadData is {} ? GridViewDataSetCommandType.StaticCommand : GridViewDataSetCommandType.Command;
+            var commandType = LoadData is {} ? GridViewDataSetCommandType.LoadDataDelegate : GridViewDataSetCommandType.Default;
+
             pagerBindings = gridViewDataSetBindingProvider.GetDataPagerCommands(this.GetDataContextType().NotNull(), dataSetBinding, commandType);
 
             var enabled = GetValueOrBinding<bool>(EnabledProperty)!;

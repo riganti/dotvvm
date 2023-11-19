@@ -20,77 +20,71 @@ type SortingOptions = {
 
 export const translations = {
     PagingOptions: {
-        goToFirstPage(options: DotvvmObservable<PagingOptions>) {
-            options.patchState({ PageIndex: 0 });
+        goToFirstPage(options: PagingOptions) {
+            options.PageIndex = 0;
         },
-        goToLastPage(options: DotvvmObservable<PagingOptions>) {
-            options.patchState({ PageIndex: options.state.PagesCount - 1 });
+        goToLastPage(options: PagingOptions) {
+            options.PageIndex = options.PagesCount - 1;
         },
-        goToNextPage(options: DotvvmObservable<PagingOptions>) {
-            if (options.state.PageIndex < options.state.PagesCount - 1) {
-                options.patchState({ PageIndex: options.state.PageIndex + 1 });
+        goToNextPage(options: PagingOptions) {
+            if (options.PageIndex < options.PagesCount - 1) {
+                options.PageIndex = options.PageIndex + 1;
             }
         },
-        goToPreviousPage(options: DotvvmObservable<PagingOptions>) {
-            if (options.state.PageIndex > 0) {
-                options.patchState({ PageIndex: options.state.PageIndex - 1 });
+        goToPreviousPage(options: PagingOptions) {
+            if (options.PageIndex > 0) {
+                options.PageIndex = options.PageIndex - 1;
             }
         },
-        goToPage(options: DotvvmObservable<PagingOptions>, pageIndex: number) {
-            if (options.state.PageIndex >= 0 && options.state.PageIndex < options.state.PagesCount) {
-                options.patchState({ PageIndex: pageIndex });
+        goToPage(options: PagingOptions, pageIndex: number) {
+            if (options.PageIndex >= 0 && options.PageIndex < options.PagesCount) {
+                options.PageIndex = pageIndex;
             }
         }
     },
     NextTokenPagingOptions: {
-        goToFirstPage(options: DotvvmObservable<NextTokenPagingOptions>) {
-            options.patchState({ CurrentToken: null });
+        goToFirstPage(options: NextTokenPagingOptions) {
+            options.CurrentToken = null;
         },
-        goToNextPage(options: DotvvmObservable<NextTokenPagingOptions>) {
-            if (options.state.NextPageToken) {
-                options.patchState({ CurrentToken: options.state.NextPageToken });
+        goToNextPage(options: NextTokenPagingOptions) {
+            if (options.NextPageToken) {
+                options.CurrentToken = options.NextPageToken;
             }
         }
     },
     NextTokenHistoryPagingOptions: {
-        goToFirstPage(options: DotvvmObservable<NextTokenHistoryPagingOptions>) {
-            options.patchState({ PageIndex: 0 });
+        goToFirstPage(options: NextTokenHistoryPagingOptions) {
+            options.PageIndex = 0;
         },
-        goToNextPage(options: DotvvmObservable<NextTokenHistoryPagingOptions>) {
-            if (options.state.PageIndex < options.state.TokenHistory.length - 1) {
-                options.patchState({ PageIndex: options.state.PageIndex + 1 });
+        goToNextPage(options: NextTokenHistoryPagingOptions) {
+            if (options.PageIndex < options.TokenHistory.length - 1) {
+                options.PageIndex = options.PageIndex + 1;
             }
         },
-        goToPreviousPage(options: DotvvmObservable<NextTokenHistoryPagingOptions>) {
-            if (options.state.PageIndex > 0) {
-                options.patchState({ PageIndex: options.state.PageIndex - 1 });
+        goToPreviousPage(options: NextTokenHistoryPagingOptions) {
+            if (options.PageIndex > 0) {
+                options.PageIndex = options.PageIndex - 1;
             }
         },
-        goToPage(options: DotvvmObservable<NextTokenHistoryPagingOptions>, pageIndex: number) {
-            if (options.state.PageIndex >= 0 && options.state.PageIndex < options.state.TokenHistory.length) {
-                options.patchState({ PageIndex: pageIndex });
+        goToPage(options: NextTokenHistoryPagingOptions, pageIndex: number) {
+            if (options.PageIndex >= 0 && options.PageIndex < options.TokenHistory.length) {
+                options.PageIndex = pageIndex;
             }
         }
     },
 
     SortingOptions: {
-        setSortExpression(options: DotvvmObservable<SortingOptions>, sortExpression: string) {
+        setSortExpression(options: SortingOptions, sortExpression: string) {
             if (sortExpression == null) {
-                options.patchState({
-                    SortExpression: null,
-                    SortDescending: false
-                });
+                options.SortExpression = null;
+                options.SortDescending = false;
             }
-            else if (sortExpression == options.state.SortExpression) {
-                options.patchState({
-                    SortDescending: !options.state.SortDescending
-                });
+            else if (sortExpression == options.SortExpression) {
+                options.SortDescending = !options.SortDescending;
             }
             else {
-                options.patchState({
-                    SortExpression: sortExpression,
-                    SortDescending: false
-                });
+                options.SortExpression = sortExpression;
+                options.SortDescending = false;
             }
         }
     }

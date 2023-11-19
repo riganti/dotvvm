@@ -58,7 +58,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             control.Children.Add(pageIndexControl);
 
             // get pager commands
-            var commands = commandProvider.GetDataPagerCommands(dataContextStack, dataSetBinding, GridViewDataSetCommandType.Command);
+            var commands = commandProvider.GetDataPagerCommands(dataContextStack, dataSetBinding, GridViewDataSetCommandType.Default);
 
             // test evaluation of commands
             Assert.IsNotNull(commands.GoToLastPage);
@@ -96,7 +96,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public void GridViewDataSet_GridViewCommands_Command()
         {
             // get gridview commands
-            var commands = commandProvider.GetGridViewCommands(dataContextStack, dataSetBinding, GridViewDataSetCommandType.Command);
+            var commands = commandProvider.GetGridViewCommands(dataContextStack, dataSetBinding, GridViewDataSetCommandType.Default);
 
             // test evaluation of commands
             Assert.IsNotNull(commands.SetSortExpression);
@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public void GridViewDataSet_DataPagerCommands_StaticCommand()
         {
             // get pager commands
-            var commands = commandProvider.GetDataPagerCommands(dataContextStack, dataSetBinding, GridViewDataSetCommandType.StaticCommand);
+            var commands = commandProvider.GetDataPagerCommands(dataContextStack, dataSetBinding, GridViewDataSetCommandType.LoadDataDelegate);
 
             var goToFirstPage = CompileBinding(commands.GoToFirstPage);
             Console.WriteLine(goToFirstPage);

@@ -322,7 +322,7 @@ namespace DotVVM.Framework.Controls
         protected virtual ICommandBinding? BuildLoadDataSortCommandBinding()
         {
             var dataContextStack = this.GetDataContextType()!;
-            var commandType = LoadData is { } ? GridViewDataSetCommandType.StaticCommand : GridViewDataSetCommandType.Command;
+            var commandType = LoadData is { } ? GridViewDataSetCommandType.LoadDataDelegate : GridViewDataSetCommandType.Default;
             return gridViewDataSetBindingProvider.GetGridViewCommands(dataContextStack, GetDataSourceBinding(), commandType).SetSortExpression;
         }
 
