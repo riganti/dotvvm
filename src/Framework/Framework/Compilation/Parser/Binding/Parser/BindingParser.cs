@@ -8,6 +8,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using System.Reflection;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
@@ -128,31 +129,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             if (PeekType() == BindingTokenType.Comma)
             {
                 Read();
-                var assemblyName = ReadNamespaceOrTypeName();
-
-                // SimpleNameBinding means that assembly name does not contain dots
-                // MemberAccessBinding means that assembly name is complex (multiple identifiers delimited with dots)
-                if (!(assemblyName is SimpleNameBindingParserNode || assemblyName is MemberAccessBindingParserNode))
-                {
-                    assemblyName.NodeErrors.Add($"Expected assembly name but instead got {assemblyName.GetType().Name}.");
-                }
-                else if (assemblyName is MemberAccessBindingParserNode)
-                {
-                    // Make sure there is no GenericNameBinding within assemblyName
-                    var assemblyBinding = assemblyName;
-                    while (assemblyBinding is MemberAccessBindingParserNode assemblyMemberBinding)
-                    {
-                        var memberExprType = assemblyMemberBinding.MemberNameExpression.GetType();
-                        var targetExprType = assemblyMemberBinding.TargetExpression.GetType();
-                        if (memberExprType == typeof(GenericTypeReferenceBindingParserNode) || targetExprType == typeof(GenericTypeReferenceBindingParserNode))
-                        {
-                            assemblyName.NodeErrors.Add($"Generic identifier name is not allowed in an assembly name.");
-                            break;
-                        }
-
-                        assemblyBinding = assemblyMemberBinding.TargetExpression;
-                    }
-                }
+                var assemblyName = ReadAssemblyName();
 
                 return new AssemblyQualifiedNameBindingParserNode(typeName, assemblyName);
             }
@@ -161,6 +138,34 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 typeName.NodeErrors.Add($"Unexpected operator: {token.Type}, expecting `,` or end.");
             }
             return typeName;
+        }
+
+        public AssemblyNameBindingParserNode ReadAssemblyName()
+        {
+            // almost anything can be an assembly name, so we just read everything until the end
+            SkipWhiteSpace();
+            var tokens = this.Tokens.Skip(CurrentIndex).ToList();
+            CurrentIndex = Tokens.Count;
+
+            while (tokens.Count > 0 && tokens[tokens.Count - 1].Type == BindingTokenType.WhiteSpace)
+                tokens.RemoveAt(tokens.Count - 1);
+
+            var node = new AssemblyNameBindingParserNode(tokens);
+            if (node.Name.Length == 0)
+            {
+                node.NodeErrors.Add("Assembly name cannot be empty.");
+                return node;
+            }
+            try
+            {
+                new AssemblyName(node.Name);
+            }
+            catch (Exception ex)
+            {
+                node.NodeErrors.Add($"'{node.Name}' is invalid assembly name ({ex.Message})");
+                return node;
+            }
+            return node;
         }
 
         public BindingParserNode ReadNamespaceOrTypeName()
