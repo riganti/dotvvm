@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Controls
             if (!AllowPostbackHandlers) fields.Add("allowPostbackHandlers: false");
             if (AbortSignal != null) fields.Add($"abortSignal: \"{AbortSignal}\"");
             if (ParameterAssignment != null) fields.Add($"parameterAssignment: \"{ParameterAssignment}\"");
-            return new StringBuilder("new PostbackScriptOptions(").AppendJoin(", ", fields.ToArray()).Append(")").ToString();
+            return new StringBuilder("new PostbackScriptOptions(").Append(string.Join(", ", fields.ToArray())).Append(")").ToString();
         }
     }
 }

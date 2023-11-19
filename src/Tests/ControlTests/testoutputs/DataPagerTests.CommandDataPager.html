@@ -1,7 +1,7 @@
 <html>
 	<head></head>
 	<body>
-		<ul data-bind="dotvvm-gridviewdataset: { dataSet: Customers() }, visible: (Customers()).PagingOptions().PagesCount() > 1">
+		<ul data-bind="visible: Customers()?.PagingOptions()?.PagesCount() > 1">
 			<li class="disabled" data-bind="css: { disabled: Customers()?.PagingOptions()?.IsFirstPage }">
 				<a href="javascript:;" onclick="dotvvm.postBack(this,[],&quot;XV5Ciz2t6C9bIsEQ&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">««</a>
 			</li>

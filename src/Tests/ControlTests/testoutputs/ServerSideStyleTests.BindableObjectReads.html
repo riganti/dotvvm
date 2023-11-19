@@ -4,7 +4,7 @@
 		
 		<!-- no header attribute -->                 
 		<!-- ko if: Collection()?.length -->
-		<table data-bind="dotvvm-gridviewdataset: {'mapping':{},'dataSet':Collection()}">
+		<table data-bind="dotvvm-gridviewdataset: { dataSet: Collection(), mapping: {} }">
 			<thead>
 				<tr>
 					<th>
@@ -23,7 +23,7 @@
 		<!-- /ko -->                  
 		<!-- has header attribute -->                 
 		<!-- ko if: Collection()?.length -->
-		<table data-bind="dotvvm-gridviewdataset: {'mapping':{},'dataSet':Collection()}" data-headers="RealValue ; Test">
+		<table data-bind="dotvvm-gridviewdataset: { dataSet: Collection(), mapping: {} }" data-headers="RealValue ; Test">
 			<thead>
 				<tr>
 					<th>
