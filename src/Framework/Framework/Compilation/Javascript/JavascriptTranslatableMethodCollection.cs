@@ -847,7 +847,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             // _dataPager.Load()
             AddMethodTranslator(() => default(DataPagerApi)!.Load(), new GenericMethodCompiler(args =>
-                dataSetHelper.Member("loadNextPage").Invoke().WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
+                dataSetHelper.Clone().Member("loadNextPage").Invoke().WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
 
             // PagingOptions
             AddMethodTranslator(() => default(PagingOptions)!.GoToFirstPage(),new GenericMethodCompiler(args =>
