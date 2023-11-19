@@ -485,6 +485,26 @@ namespace DotVVM.Framework.Controls
             return toStringed;
         }
 
+        private static (string? prefix, string tagName) FormatControlName(DotvvmBindableObject control, DotvvmConfiguration? config = null)
+        {
+            var type = control.GetType();
+            if (type == typeof(HtmlGenericControl))
+                return (null, ((HtmlGenericControl)control).TagName!);
+            var reg = config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace && Type.GetType(c.Namespace + "." + type.Name + ", " + c.Assembly) == type) ??
+                      config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace) ??
+                      config?.Markup.Controls.FirstOrDefault(c => c.Assembly == type.Assembly.GetName().Name);
+            var ns = reg?.TagPrefix ?? type.Namespace switch {
+                "DotVVM.Framework.Controls" => "dot",
+                "DotVVM.AutoUI.Controls" => "auto",
+                "DotVVM.BusinessPack.Controls" or "DotVVM.BusinessPack.PostBackHandlers" => "bp",
+                "DotVVM.BusinessPack.Controls.FilterOperators" => "op",
+                "DotVVM.BusinessPack.Controls.FilterBuilderFields" => "fp",
+                _ => "_"
+            };
+            var optionsAttribute = type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
+            return (ns, optionsAttribute?.PrimaryName ?? type.Name);
+        }
+
         /// <summary> Returns somewhat readable string representing this dotvvm control. </summary>
         public static string DebugString(this DotvvmBindableObject control, DotvvmConfiguration? config = null, bool multiline = true, bool useHtml = false)
         {
@@ -506,25 +526,30 @@ namespace DotVVM.Framework.Controls
                               select new { p, className, propName = name.propName, memberName = name.memberName, croppedValue, value, isAttached }
                              ).ToArray();
 
-            var location = (file: control.TryGetValue(Internal.MarkupFileNameProperty) as string, line: control.TryGetValue(Internal.MarkupLineNumberProperty) as int? ?? -1);
-            var reg = config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace && Type.GetType(c.Namespace + "." + type.Name + ", " + c.Assembly) == type) ??
-                      config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace) ??
-                      config?.Markup.Controls.FirstOrDefault(c => c.Assembly == type.Assembly.GetName().Name);
-            var ns = reg?.TagPrefix ?? type.Namespace switch {
-                "DotVVM.Framework.Controls" => "dot",
-                "DotVVM.BusinessPack.Controls" or "DotVVM.BusinessPack.PostBackHandlers" => "bp",
-                "DotVVM.BusinessPack.Controls.FilterOperators" => "op",
-                "DotVVM.BusinessPack.Controls.FilterBuilderFields" => "fp",
-                _ => "_"
-            };
+            var location = (
+                file: control.TryGetValue(Internal.MarkupFileNameProperty) as string,
+                line: control.TryGetValue(Internal.MarkupLineNumberProperty) as int? ?? -1,
+                nearestControlInMarkup: (string?)null
+            );
+            if (location.line < 0 && location.file is {})
+            {
+                // line is not normally inherited, but we can find it manually in an ancestor control
+                var ancestor = control.GetAllAncestors().FirstOrDefault(c => c.TryGetValue(Internal.MarkupLineNumberProperty) is int line && line >= 0);
+                if (ancestor is {} && location.file.Equals(ancestor.TryGetValue(Internal.MarkupFileNameProperty)))
+                {
+                    location.line = (int)ancestor.TryGetValue(Internal.MarkupLineNumberProperty)!;
+                    var ancestorName = FormatControlName(ancestor);
+                    location.nearestControlInMarkup = ancestorName.prefix is null ? ancestorName.tagName : $"{ancestorName.prefix}:{ancestorName.tagName}";
+                }
+            }
 
-
+            var cname = FormatControlName(control, config);
             string dothtmlString;
             if (useHtml)
             {
-                var tagName = type == typeof(HtmlGenericControl) ?
-                    $"<span class='tag-name'>{((HtmlGenericControl)control).TagName}</span>" :
-                    $"<span class='tag-prefix'>{WebUtility.HtmlEncode(ns)}</span>:<span class='control-name'>{WebUtility.HtmlEncode(type.Name)}</span>";
+                var tagName = cname.prefix is null ?
+                    $"<span class='tag-name'>{cname.tagName}</span>" :
+                    $"<span class='tag-prefix'>{WebUtility.HtmlEncode(cname.prefix)}</span>:<span class='control-name'>{WebUtility.HtmlEncode(cname.tagName)}</span>";
                 dothtmlString = $"&lt;<span class='tag' title='{WebUtility.HtmlEncode(type.ToCode())}'>{tagName}</span> ";
                 var prefixLength = dothtmlString.Length;
 
@@ -547,7 +572,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                var tagName = type == typeof(HtmlGenericControl) ? ((HtmlGenericControl)control).TagName : ns + ":" + type.Name;
+                var tagName = cname.prefix is null ? cname.tagName : cname.prefix + ":" + cname.tagName;
                 dothtmlString = $"<{tagName} ";
                 var prefixLength = dothtmlString.Length;
 
@@ -567,7 +592,8 @@ namespace DotVVM.Framework.Controls
             }
             
             var fileLocation = (location.file)
-                     + (location.line >= 0 ? ":" + location.line : "");
+                     + (location.line >= 0 ? ":" + location.line : "")
+                     + (location.nearestControlInMarkup is null && multiline ? "" : $" (nearest dothtml control is <{location.nearestControlInMarkup}>)");
 
             if (useHtml)
             {
