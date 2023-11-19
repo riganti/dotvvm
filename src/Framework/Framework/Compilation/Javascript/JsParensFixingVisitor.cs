@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -56,7 +56,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             return Precedence + (IsPreferredSide ? "+" : "-") + " (" + name + ")";
         }
 
-        public static readonly OperatorPrecedence Max = new OperatorPrecedence(20, true);
+        /// <summary> Assume that the expression is an atomic </summary>
+        public static OperatorPrecedence Max => new OperatorPrecedence(20, true);
 
         /// <summary> atomic expression, like `x`, `(x + y)`, `0`, `{"f": 123}`, `x[1]`, ... </summary>
         public const byte Atomic = 20;

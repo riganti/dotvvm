@@ -1,6 +1,9 @@
-﻿type AppendableDataPagerBinding = {
+﻿import { getStateManager } from "../dotvvm-base";
+
+type AppendableDataPagerBinding = {
     autoLoadWhenInViewport: boolean,
-    loadNextPage: () => Promise<any>
+    loadNextPage: () => Promise<any>,
+    dataSet: any
 };
 
 export default {
@@ -15,15 +18,17 @@ export default {
                     if (isLoading) return;
 
                     let entry = entries[0];
-                    while (entry.isIntersecting) {
-                        const dataSet = allBindingsAccessor.get("dotvvm-gridviewdataset").dataSet as DotvvmObservable<any>;
-                        if (dataSet.state.PagingOptions.IsLastPage) {
+                    while (entry?.isIntersecting) {
+                        const dataSet = valueAccessor().dataSet;
+                        if (dataSet.PagingOptions().IsLastPage()) {
                             return;
                         }
 
                         isLoading = true;
                         try {
                             await binding.loadNextPage();
+
+                            // getStateManager().doUpdateNow();
 
                             // when the loading was finished, check whether we need to load another page
                             entry = observer.takeRecords()[0];

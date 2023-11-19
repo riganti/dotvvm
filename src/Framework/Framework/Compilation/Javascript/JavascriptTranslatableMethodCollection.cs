@@ -841,12 +841,9 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new JsIdentifierExpression("dotvvm").Member("dataSet").Member("loadDataSet").Invoke(
                     args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
                     args[2],
-                    dataSetHelper.Clone().Member("loadDataSet"),
-                    dataSetHelper.Clone().Member("postProcessor")
+                    GridViewDataSetBindingProvider.LoadDataDelegate.ToExpression(),
+                    GridViewDataSetBindingProvider.PostProcessorDelegate.ToExpression()
                 ).WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
-            AddMethodTranslator(() => GridViewDataSetBindingProvider.GetCurrentGridDataSet<Generic.DataSet>(), new GenericMethodCompiler(args =>
-                dataSetHelper.Clone().Member("dataSet")
-            ));
 
             // _dataPager.Load()
             AddMethodTranslator(() => default(DataPagerApi)!.Load(), new GenericMethodCompiler(args =>
