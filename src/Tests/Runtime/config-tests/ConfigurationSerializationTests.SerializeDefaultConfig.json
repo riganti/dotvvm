@@ -362,6 +362,35 @@
         "mappingMode": "InnerElement"
       }
     },
+    "DotVVM.Framework.Controls.AppendableDataPager": {
+      "DataSet": {
+        "type": "DotVVM.Framework.Controls.IPageableGridViewDataSet, DotVVM.Core",
+        "required": true,
+        "onlyBindings": true
+      },
+      "EndTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement",
+        "onlyHardcoded": true
+      },
+      "LoadData": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
+        "required": true,
+        "onlyBindings": true
+      },
+      "LoadTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute, DotVVM.Framework",
+            "Name": "_dataPager",
+            "TypeId": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "mappingMode": "InnerElement",
+        "onlyHardcoded": true
+      }
+    },
     "DotVVM.Framework.Controls.AuthenticatedView": {
       "AuthenticatedTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
@@ -388,6 +417,10 @@
       "Click": {
         "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework",
         "isCommand": true
+      },
+      "ClickArguments": {
+        "type": "System.Collections.Generic.List`1[[System.Object, CoreLibrary]]",
+        "mappingMode": "Exclude"
       },
       "Enabled": {
         "type": "System.Boolean",
@@ -744,6 +777,10 @@
         "type": "System.Boolean",
         "defaultValue": false,
         "onlyHardcoded": true
+      },
+      "LoadData": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
+        "onlyBindings": true
       },
       "RowDecorators": {
         "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
@@ -2005,6 +2042,12 @@
     "DotVVM.Framework.Controls.AddTemplateDecorator": {
       "assembly": "DotVVM.Framework",
       "baseType": "DotVVM.Framework.Controls.Decorator, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.AppendableDataPager": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "defaultContentProperty": "LoadTemplate",
       "withoutContent": true
     },
     "DotVVM.Framework.Controls.AuthenticatedView": {

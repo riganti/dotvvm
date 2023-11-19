@@ -128,7 +128,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
             var goToFirstPage = CompileBinding(commands.GoToFirstPage);
             Console.WriteLine(goToFirstPage);
-            XAssert.Equal("dotvvm.applyPostbackHandlers(async (options)=>{let vm=options.viewModel;dotvvm.dataSet.translations.PagingOptions.goToFirstPage(vm.PagingOptions);return await dotvvm.dataSet.loadDataSet(vm,options.knockoutContext.$gridViewDataSetHelper.loadDataSet);},this)", goToFirstPage);
+            XAssert.Equal("dotvvm.applyPostbackHandlers(async (options)=>{let cx=options.knockoutContext;return await dotvvm.dataSet.loadDataSet(options.viewModel,(options)=>dotvvm.dataSet.translations.PagingOptions.goToFirstPage(ko.unwrap(options).PagingOptions),cx.$gridViewDataSetHelper.loadDataSet,cx.$gridViewDataSetHelper.postProcessor);},this)", goToFirstPage);
         }
 
         private string CompileBinding(ICommandBinding staticCommand)

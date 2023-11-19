@@ -85,7 +85,17 @@ namespace DotVVM.Framework.Controls
         public override string ToString()
         {
             if (entries.Count == 0) return "{}";
-            return "{ " + string.Join(", ", entries) + " }";
+            bool multiline = false;
+            foreach (var entry in entries)
+                if (entry.Expression.Contains("\n"))
+                {
+                    multiline = true;
+                    break;
+                }
+            if (multiline)
+                return "{\n" + string.Join(",\n", entries) + "\n}";
+            else
+                return "{ " + string.Join(", ", entries) + " }";
         }
 
         IEnumerator<KnockoutBindingInfo> IEnumerable<KnockoutBindingInfo>.GetEnumerator() => GetEnumerator();
