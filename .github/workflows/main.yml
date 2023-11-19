@@ -99,14 +99,14 @@ jobs:
       uses: ./.github/setup
       with:
         sln: src/DotVVM.Crossplatform.slnf
-    - name: Tests (net6.0)
+    - name: Tests (net8.0)
       uses: ./.github/unittest
       with:
         project: src/Tests
         name: framework-tests
         title: Framework Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        target-framework: net6.0
+        target-framework: net8.0
     # - name: Tests (net7.0)
     #   uses: ./.github/unittest
     #   with:
