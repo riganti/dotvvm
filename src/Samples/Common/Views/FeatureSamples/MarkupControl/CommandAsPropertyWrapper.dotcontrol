@@ -1,0 +1,10 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.CommandAsPropertyPageViewModel, DotVVM.Samples.Common
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.CommandAsPropertyWrapper, DotVVM.Samples.Common
+
+<dot:Repeater DataSource="{value: Items}">
+    <%--
+    The correct syntax would be Click="{value: _control.Click(_parent.Name, _parent.IsTrue)}"
+    Btw is value binding the right thing, or shall we use resource binding here?
+    --%>
+    <cc:CommandAsProperty Click="{value: _control.Click(_parent.Name, _parent.IsTrue)}" DataContext="{value: Name}" />
+</dot:Repeater>
