@@ -1,0 +1,10 @@
+﻿@viewModel System.String, mscorlib
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.CommandAsProperty, DotVVM.Samples.Common
+
+<%-- When uncommented, it produces an error --%>
+<%-- In Release mode, the error that is really hard to debug (maybe it was caused because the control was loaded from embedded resource). --%>
+<%--<dot:Button Text="{value: _this}" Click="{command: _control.Click}" />--%>
+
+
+<%--The following with ToString works somehow and I am not sure by what magic--%>
+<dot:Button Text="{value: _this}" Click="{command: _control.Click.ToString()}" />

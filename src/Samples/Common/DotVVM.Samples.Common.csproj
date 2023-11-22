@@ -118,6 +118,9 @@
     <None Remove="Views\FeatureSamples\LambdaExpressions\ClientSideFiltering.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\CommandAsProperty.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\CommandAsPropertyPage.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\CommandAsPropertyWrapper.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\MarkupDefinedProperties.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\MarkupDefinedPropertiesControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\ServiceDependency\ServiceDependencyControl.dotcontrol" />

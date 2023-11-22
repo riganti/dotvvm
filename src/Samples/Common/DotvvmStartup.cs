@@ -267,6 +267,8 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddCodeControls("cc", typeof(Loader));
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
             config.Markup.AddMarkupControl("cc", "NodeControl", "Views/ControlSamples/HierarchyRepeater/NodeControl.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "CommandAsProperty", "Views/FeatureSamples/MarkupControl/CommandAsProperty.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "CommandAsPropertyWrapper", "Views/FeatureSamples/MarkupControl/CommandAsPropertyWrapper.dotcontrol");
 
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
 

@@ -1,0 +1,19 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.CommandAsPropertyPageViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <cc:CommandAsPropertyWrapper Click="{command: (string name, bool isTrue) => _root.MyFunction(name, isTrue)}" />
+
+    <p DataContext="{value: SelectedItem}">Selected item: {{value: Name}}, {{value: IsTrue}}</p>
+
+</body>
+</html>
+
+
