@@ -1,0 +1,35 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.NoJsForm.NoJsFormViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+    <div RenderSettings.Mode=Server>
+        <fieldset>
+            <legend>Form 1</legend>
+            <form method="POST">
+                <input id=input1 type="text" name="text" />
+                <button id=submit1 type=submit name=submit value=form1>Submit</button>
+
+                <p Visible={value: Form1Value != null}>
+                    Last submitted value: <span id=result1>{{value: Form1Value}}</span>
+                </p>
+            </form>
+        </fieldset>
+
+        <fieldset>
+            <legend>Form 2</legend>
+            <form method="POST">
+                <input id=input2 type="text" name="text" />
+                <button id=submit2 type=submit name=submit value=form2>Submit</button>
+
+                <p Visible={value: Form2Value != null}>
+                    Last submitted value: <span id=result2>{{value: Form2Value}}</span>
+                </p>
+            </form>
+        </fieldset>
+    </div>
+</body>
+</html>
