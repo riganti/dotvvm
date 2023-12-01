@@ -548,7 +548,7 @@ namespace DotVVM.Framework.Controls
             if (useHtml)
             {
                 var tagName = cname.prefix is null ?
-                    $"<span class='tag-name'>{cname.tagName}</span>" :
+                    $"<span class='tag-name'>{WebUtility.HtmlEncode(cname.tagName)}</span>" :
                     $"<span class='tag-prefix'>{WebUtility.HtmlEncode(cname.prefix)}</span>:<span class='control-name'>{WebUtility.HtmlEncode(cname.tagName)}</span>";
                 dothtmlString = $"&lt;<span class='tag' title='{WebUtility.HtmlEncode(type.ToCode())}'>{tagName}</span> ";
                 var prefixLength = dothtmlString.Length;
