@@ -593,7 +593,7 @@ namespace DotVVM.Framework.Controls
             
             var fileLocation = (location.file)
                      + (location.line >= 0 ? ":" + location.line : "")
-                     + (location.nearestControlInMarkup is null && multiline ? "" : $" (nearest dothtml control is <{location.nearestControlInMarkup}>)");
+                     + (location.nearestControlInMarkup is null || !multiline ? "" : $" (nearest dothtml control is <{location.nearestControlInMarkup}>)");
 
             if (useHtml)
             {
