@@ -836,6 +836,29 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_ImplicitConversion_ConditionalNullableAndNonNullable()
+        {
+            var resultNotNull = ExecuteBinding("_this.BoolProp ? _this.NullableDoubleProp : _this.DoubleProp", new[] { new TestViewModel { NullableDoubleProp = 11.1, DoubleProp = 22.2, BoolProp = true } }, expectedType: typeof(double?));
+            Assert.AreEqual(11.1, resultNotNull);
+            resultNotNull = ExecuteBinding("!_this.BoolProp ? _this.NullableDoubleProp : _this.DoubleProp", new[] { new TestViewModel { NullableDoubleProp = 11.1, DoubleProp = 22.2, BoolProp = true } }, expectedType: typeof(double?));
+            Assert.AreEqual(22.2, resultNotNull);
+            var resultNull = ExecuteBinding("_this.BoolProp ? null : _this.DoubleProp", new[] { new TestViewModel { NullableDoubleProp = 11.1, DoubleProp = 22.2, BoolProp = true } }, expectedType: typeof(object));
+            Assert.IsNull(resultNull);
+
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ImplicitConversion_ConditionalNullableAndNonNullable_IntDouble()
+        {
+            var resultNotNull = ExecuteBinding("_this.BoolProp ? _this.NullableDoubleProp : _this.IntProp", new[] { new TestViewModel { NullableDoubleProp = 11.1, IntProp = 1, BoolProp = true } });
+            Assert.AreEqual(11.1, resultNotNull);
+            resultNotNull = ExecuteBinding("!_this.BoolProp ? _this.NullableDoubleProp : _this.IntProp", new[] { new TestViewModel { NullableDoubleProp = 11.1, IntProp = 1, BoolProp = true } }, expectedType: typeof(double?));
+            Assert.AreEqual(1.0, resultNotNull);
+            resultNotNull = ExecuteBinding("_this.BoolProp ? _this.NullableIntProp : _this.DoubleProp", new[] { new TestViewModel { DoubleProp = 11.1, NullableIntProp = 1, BoolProp = true } }, expectedType: typeof(double?));
+            Assert.AreEqual(1.0, resultNotNull);
+        }
+
+        [TestMethod]
         public void BindingCompiler_ImplicitConversion_ConditionalEnumAndLiteral()
         {
             var result = ExecuteBinding("_this.BoolProp ? _this.EnumProperty : 'A'", new [] { new TestViewModel { EnumProperty = TestEnum.B, BoolProp = false } }, expectedType: typeof(object));

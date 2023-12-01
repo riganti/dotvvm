@@ -325,6 +325,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     Debug.Assert(trueConverted.Type != falseConverted.Type);
                     // 1. We represent some "typeless expressions" as expression of type object
                     // 2. We allow conversion to string and also have the implicit conversion from string literal to enum
+                    // 3. For some reason, we allow T? -> T implicit conversion as well as T -> T?, this will prefer the nullable type
                     // -> if we have an ambiguity, try to solve it by preferring the more specific type
 
                     if (trueConverted.Type == typeof(object))
@@ -335,6 +336,13 @@ namespace DotVVM.Framework.Compilation.Binding
                         falseExpr = falseConverted;
                     else if (falseConverted.Type == typeof(string))
                         trueExpr = trueConverted;
+                    else if (trueConverted.Type.UnwrapNullableType() == falseConverted.Type.UnwrapNullableType())                    
+                    {
+                        if (trueConverted.Type.IsNullable())
+                            falseExpr = falseConverted;
+                        else
+                            trueExpr = trueConverted;
+                    }
                     else
                         throw new BindingCompilationException($"Type of conditional expression '{node.ToDisplayString()}' cannot be determined because because '{trueExpr.Type.ToCode()}' and '{falseExpr.Type.ToCode()}' implicitly convert to one another", node);
                 }
