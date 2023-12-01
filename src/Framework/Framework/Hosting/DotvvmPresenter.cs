@@ -478,11 +478,8 @@ namespace DotVVM.Framework.Hosting
         async Task ValidateSecFetchHeaders(IDotvvmRequestContext context)
         {
             var route = context.Route?.RouteName;
-            var isPost = context.HttpContext.Request.Method switch {
-                "POST" => true,
-                "GET" => false,
-                _ => throw new NotSupportedException()
-            };
+            var requestType = DotvvmRequestContext.DetermineRequestType(context.HttpContext);
+            var isPost = requestType is DotvvmRequestType.Command or DotvvmRequestType.StaticCommand;
             var checksAllowed = (isPost ? SecurityConfiguration.VerifySecFetchForCommands : SecurityConfiguration.VerifySecFetchForPages).IsEnabledForRoute(route);
             var dest = context.HttpContext.Request.Headers["Sec-Fetch-Dest"];
             var site = context.HttpContext.Request.Headers["Sec-Fetch-Site"];

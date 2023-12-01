@@ -294,6 +294,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_MarkupControl_StaticCommandInMarkupControl = "FeatureSamples/MarkupControl/StaticCommandInMarkupControl";
         public const string FeatureSamples_MarkupControl_StaticCommandInMarkupControlCallingRegularCommand = "FeatureSamples/MarkupControl/StaticCommandInMarkupControlCallingRegularCommand";
         public const string FeatureSamples_NestedMasterPages_Content = "FeatureSamples/NestedMasterPages/Content";
+        public const string FeatureSamples_NoJsForm_NoJsForm = "FeatureSamples/NoJsForm/NoJsForm";
         public const string FeatureSamples_ParameterBinding_OptionalParameterBinding = "FeatureSamples/ParameterBinding/OptionalParameterBinding";
         public const string FeatureSamples_ParameterBinding_ParameterBinding = "FeatureSamples/ParameterBinding/ParameterBinding";
         public const string FeatureSamples_PostBack_ConfirmPostBackHandler = "FeatureSamples/PostBack/ConfirmPostBackHandler";

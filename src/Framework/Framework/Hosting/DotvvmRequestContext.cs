@@ -171,6 +171,9 @@ namespace DotVVM.Framework.Hosting
                 {
                     return DotvvmRequestType.Command;
                 }
+                // Unknown POST request is treated as a Navigate request
+                // it is useful for submitting classic <form method=POST> elements (as a no-JS fallback, login forms, etc.)
+                return DotvvmRequestType.Navigate;
             }
             return DotvvmRequestType.Unknown;
         }
