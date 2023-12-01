@@ -617,4 +617,5 @@ test("formatTypeName", () => {
     expect(formatTypeName([ "t2" ])).toBe("t2[]");
     expect(formatTypeName({ type: "nullable", inner: "t1" })).toBe("MyType1? (t1?)");
     expect(formatTypeName({ type: "nullable", inner: "t2" })).toBe("t2?");
+    expect(formatTypeName([ { type:"nullable", inner: [ [ "t1" ] ] }])).toBe("MyType1[][]?[] (t1[][]?[])");
 })
