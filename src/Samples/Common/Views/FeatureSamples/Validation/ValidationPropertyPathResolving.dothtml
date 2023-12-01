@@ -9,22 +9,23 @@
 </head>
 <body>
     <div data-ui="root">
-        <dot:TextBox Text="{value: Text}" />
+        <label>Text: <dot:TextBox Text="{value: Text}" placeholder="fill in anything" /></label>
         <dot:Validator Value="{value: Text}">*</dot:Validator>
     </div>
 
     <div data-ui="innerProp">
-        <dot:TextBox Text="{value: Data.Text}" />
+        <label> Data.Text: <dot:TextBox Text="{value: Data.Text}" placeholder="validation will always fail" /></label>
         <dot:Validator Value="{value: Data.Text}">*</dot:Validator>
     </div>
 
     <div data-ui="dataContext" DataContext="{value: Data2}">
-        <dot:TextBox Text="{value: Text}" />
+        <label>Data2 / Text: <dot:TextBox Text="{value: Text}" placeholder="in all of these textboxes" /></label>
         <dot:Validator Value="{value: Text}">*</dot:Validator>
     </div>
 
     <dot:Repeater data-ui="repeater" DataSource="{value: Col}">
-        <dot:TextBox Text="{value: Text}" />
+        <SeparatorTemplate> | </SeparatorTemplate>
+        {{value: $"Col[{_index}].Text: "}}<dot:TextBox Text="{value: Text}" placeholder="even here" />
         <dot:Validator Value="{value: Text}">
             *
         </dot:Validator>

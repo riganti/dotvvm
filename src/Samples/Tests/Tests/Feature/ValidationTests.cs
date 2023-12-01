@@ -808,10 +808,13 @@ namespace DotVVM.Samples.Tests.Feature
 
                 button.Click();
 
-                var validationPaths = validationPathsList.FindElements("li").Select(t => t.GetInnerText()).ToList();
+                browser.WaitFor(() => {
 
-                bool hasCorrectValidationPath = validationPaths.Any(t => t == validationPath);
-                Assert.True(hasCorrectValidationPath,"None of the errors has expected validation path.");
+                    var validationPaths = validationPathsList.FindElements("li").Select(t => t.GetInnerText()).ToList();
+
+                    bool hasCorrectValidationPath = validationPaths.Any(t => t == validationPath);
+                    Assert.True(hasCorrectValidationPath, $"None of the errors has expected validation path ({validationPath}).");
+                }, timeout: 2_000);
             });
         }
 
