@@ -8,9 +8,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     public class AssemblyQualifiedNameBindingParserNode: BindingParserNode
     {
         public BindingParserNode TypeName { get; }
-        public BindingParserNode AssemblyName { get; }
+        public AssemblyNameBindingParserNode AssemblyName { get; }
 
-        public AssemblyQualifiedNameBindingParserNode(BindingParserNode typeName, BindingParserNode assemblyName)
+        public AssemblyQualifiedNameBindingParserNode(BindingParserNode typeName, AssemblyNameBindingParserNode assemblyName)
         {
             this.TypeName = typeName;
             this.AssemblyName = assemblyName;

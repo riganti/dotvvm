@@ -859,20 +859,26 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company.Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product")]
-        public void BindingParser_AssemblyQualifiedName_ValidAssemblyName(string binding)
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company.Product", "Domain.Company.Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product", "Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, My-Assembly-Name", "My-Assembly-Name")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company.Product<int>", "Domain.Company.Product<int>")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company<int>.Product", "Domain.Company<int>.Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain<int>.Company.Product", "Domain<int>.Company.Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product<int>", "Product<int>")]
+
+        public void BindingParser_AssemblyQualifiedName_ValidAssemblyName(string binding, string assemblyName)
         {
             var parser = bindingParserNodeFactory.SetupParser(binding);
             var node = parser.ReadDirectiveTypeName() as AssemblyQualifiedNameBindingParserNode;
             Assert.IsFalse(node.AssemblyName.HasNodeErrors);
+            Assert.AreEqual(assemblyName, node.AssemblyName.ToDisplayString());
         }
 
         [TestMethod]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company.Product<int>")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company<int>.Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain<int>.Company.Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product<int>")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type,  ")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, ,,,,,,,,,")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, this/is/apparently/invalid/for/some/reason")]
         public void BindingParser_AssemblyQualifiedName_InvalidAssemblyName(string binding)
         {
             var parser = bindingParserNodeFactory.SetupParser(binding);
