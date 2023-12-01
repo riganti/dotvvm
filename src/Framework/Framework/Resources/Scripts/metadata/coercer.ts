@@ -3,7 +3,7 @@ import { CoerceError } from "../shared-classes";
 import { keys } from "../utils/objects";
 import { tryCoerceEnum } from "./enums";
 import { primitiveTypes } from "./primitiveTypes";
-import { getObjectTypeInfo, getTypeInfo } from "./typeMap";
+import { formatTypeName, getObjectTypeInfo, getTypeInfo } from "./typeMap";
 
 /**
  * Validates type of value
@@ -45,7 +45,7 @@ export function tryCoerce(value: any, type: TypeDefinition | null | undefined, o
                 }
             }
         }
-        return new CoerceError(`Unsupported type metadata ${JSON.stringify(type)}!`);
+        return new CoerceError(`Unsupported type metadata ${formatTypeName(type)}!`);
     }
 
     const result = core();
@@ -100,7 +100,7 @@ function tryCoerceArray(value: any, innerType: TypeDefinition, originalValue: an
             return { value: items, wasCoerced: true };
         }
     }
-    return new CoerceError(`Value '${JSON.stringify(value)}' is not an array of type '${JSON.stringify(innerType)}'.`);
+    return new CoerceError(`Value '${JSON.stringify(value)}' is not an array of type '${formatTypeName(innerType)}'.`);
 }
 
 function tryCoercePrimitiveType(value: any, type: string): CoerceResult {

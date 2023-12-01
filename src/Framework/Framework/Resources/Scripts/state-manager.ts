@@ -3,7 +3,7 @@
 import { createArray, defineConstantProperty, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
 import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
-import { areObjectTypesEqual, getObjectTypeInfo } from "./metadata/typeMap";
+import { areObjectTypesEqual, formatTypeName, getObjectTypeInfo } from "./metadata/typeMap";
 import { coerce } from "./metadata/coercer";
 import { patchViewModel } from "./postback/updater";
 import { hackInvokeNotifySubscribers } from "./utils/knockout";
@@ -166,7 +166,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                             }
                         }
                     } else if (!isDynamic && p.indexOf("$") !== 0) {
-                        logWarning("state-manager", `Unknown property '${p}' set on an object of type ${typeId}.`);
+                        logWarning("state-manager", `Unknown property '${p}' set on an object of type ${formatTypeName(typeId)}.`);
                     }
 
                     this[internalPropCache][p] = newObs
