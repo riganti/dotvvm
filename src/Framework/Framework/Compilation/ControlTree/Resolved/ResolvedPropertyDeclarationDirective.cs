@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
                 if (attributeInstance is null)
                 {
-                    dothtmlDirective.AddError($"Could not create insstance of the attribute {attribute.attributeType}.");
+                    dothtmlDirective.AddError($"Could not create instance of the attribute {attribute.attributeType}.");
                     continue;
                 }
 
@@ -85,11 +85,18 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
                     if (reflectedProperty is null)
                     {
-                        dothtmlDirective.AddError($"Could not find property {property.name} insstance of the attribute {attribute.attributeType}.");
+                        dothtmlDirective.AddError($"Could not find property {property.name} instance of the attribute {attribute.attributeType}.");
                         continue;
                     }
 
-                    reflectedProperty.SetValue(attributeInstance, property.value);
+                    try
+                    {
+                        reflectedProperty.SetValue(attributeInstance, property.value);
+                    }
+                    catch (Exception ex)
+                    {
+                        dothtmlDirective.AddError($"Cannot assign {reflectedProperty.Name} of attribute {attribute.attributeType.FullName}: {ex.Message}");
+                    }
                 }
                 yield return attributeInstance;
             }

@@ -23,5 +23,25 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             Assert.AreEqual(4, property.Attributes.Count);
         }
+
+        [TestMethod]
+        public void ResolvedTree_PropertyDirectiveIncompatibleType_ErrorReported()
+        {
+            var root = ParseSource(@$"
+@viewModel object
+@property string MyProperty, DotVVM.Framework.Controls.MarkupOptionsAttribute.Required = 1");
+
+            var property = root.Directives["property"].SingleOrDefault() as IAbstractPropertyDeclarationDirective;
+
+            Assert.AreEqual("System.String", property.PropertyType.FullName);
+            Assert.AreEqual("MyProperty", property.NameSyntax.Name);
+
+            Assert.AreEqual(1, property.Attributes.Count);
+            Assert.AreEqual(1, property.DothtmlNode.NodeErrors.Count());
+
+            var error = property.DothtmlNode.NodeErrors.First();
+
+            Assert.IsTrue(error.Contains("Cannot assign"), "Expected error about failed assignment into the attribute property.");
+        }
     }
 }
