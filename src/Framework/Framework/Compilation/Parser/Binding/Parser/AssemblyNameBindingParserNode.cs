@@ -12,15 +12,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     public class AssemblyNameBindingParserNode : BindingParserNode
     {
         public string Name { get; }
-        public AssemblyNameBindingParserNode(List<BindingToken> tokens)
-        {
-            Tokens = tokens;
-            Name = string.Concat(tokens.Select(t => t.Text));
-        }
 
         public AssemblyNameBindingParserNode(string name)
-            : this(new List<BindingToken>() { new BindingToken(name, BindingTokenType.Identifier, 0, 0, 0, 0)})
-        { }
+        {
+            Name = name;
+        }
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => Enumerable.Empty<BindingParserNode>();

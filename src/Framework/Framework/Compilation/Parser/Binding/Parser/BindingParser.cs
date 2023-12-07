@@ -148,12 +148,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
 
             var tokens = Tokens.Skip(CurrentIndex).ToList();
-            CurrentIndex = Tokens.Count;
 
             while (tokens.Count > 0 && tokens[tokens.Count - 1].Type == BindingTokenType.WhiteSpace)
                 tokens.RemoveAt(tokens.Count - 1);
 
-            var node = CreateNode(new AssemblyNameBindingParserNode(tokens), startIndex);
+            CurrentIndex += tokens.Count;
+            var name = string.Concat(tokens.Select(t => t.Text));
+
+            var node = CreateNode(new AssemblyNameBindingParserNode(name), startIndex);
+            CurrentIndex = Tokens.Count;
+
             if (node.Name.Length == 0)
             {
                 node.NodeErrors.Add("Assembly name cannot be empty.");

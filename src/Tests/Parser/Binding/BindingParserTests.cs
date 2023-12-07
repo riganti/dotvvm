@@ -864,13 +864,19 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company<int>.Product", "Domain.Company<int>.Product")]
         [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain<int>.Company.Product", "Domain<int>.Company.Product")]
         [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product<int>", "Product<int>")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product<int>   ", "Product<int>")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, my assembly name  ", "my assembly name")]
 
         public void BindingParser_AssemblyQualifiedName_ValidAssemblyName(string binding, string assemblyName)
         {
             var parser = bindingParserNodeFactory.SetupParser(binding);
             var node = parser.ReadDirectiveTypeName() as AssemblyQualifiedNameBindingParserNode;
+
+            var controlSting = binding.TrimEnd();
+
             Assert.IsFalse(node.AssemblyName.HasNodeErrors);
-            Assert.AreEqual(assemblyName, node.AssemblyName.ToDisplayString());
+            AssertNode(node, controlSting, 0, binding.Length);
+            AssertNode(node.AssemblyName, assemblyName, 44, assemblyName.Length);
         }
 
         [TestMethod]
@@ -1217,7 +1223,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(4, root.Attributes.Count);
 
             var emptyAttribute = root.Attributes[0].CastTo<SimpleNameBindingParserNode>();
-            AssertNode(emptyAttribute, "", 19, 0, hasErrors:true);
+            AssertNode(emptyAttribute, "", 19, 0, hasErrors: true);
 
             var dotvvmNode = root.Attributes[1].CastTo<MemberAccessBindingParserNode>();
             AssertNode(dotvvmNode, "DotVVM.", 21, 7);
@@ -1495,7 +1501,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             }
             else
             {
-                Assert.IsFalse (node.HasNodeErrors);
+                Assert.IsFalse(node.HasNodeErrors);
             }
         }
 
