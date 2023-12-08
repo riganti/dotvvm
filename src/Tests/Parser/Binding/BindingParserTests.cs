@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
-using DotVVM.Framework.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BindingParser = DotVVM.Framework.Compilation.Parser.Binding.Parser.BindingParser;
-using a = System.Collections.Generic.Dictionary<string, int>.ValueCollection;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Tests.Parser.Binding
@@ -830,20 +822,26 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type[], Domain.Company.Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type[], Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type<string>[], Domain.Company.Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type<string>[], Product")]
-        public void BindingParser_ArrayType_AssemblyQualifiedName_ValidAssemblyName(string binding)
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type[], Domain.Company.Product", "Domain.Company.Product.DotVVM.Feature.Type[]", "Domain.Company.Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type[], Product", "Domain.Company.Product.DotVVM.Feature.Type[]", "Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type<string>[], Domain.Company.Product", "Domain.Company.Product.DotVVM.Feature.Type<string>[]", "Domain.Company.Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type<string>[], Product", "Domain.Company.Product.DotVVM.Feature.Type<string>[]", "Product")]
+        public void BindingParser_ArrayType_AssemblyQualifiedName_ValidAssemblyName(string binding, string type, string assembly)
         {
             var parser = bindingParserNodeFactory.SetupParser(binding);
             var node = parser.ReadDirectiveTypeName() as AssemblyQualifiedNameBindingParserNode;
+
             Assert.IsNotNull(node, "expected qualified name node.");
+            AssertNode(node, binding, 0, binding.Length);
 
-            var array = node.TypeName as ArrayTypeReferenceBindingParserNode;
+            var arrayNode = node.TypeName as ArrayTypeReferenceBindingParserNode;
+            var assemblyNode = node.AssemblyName;
 
-            Assert.IsNotNull(array, "Expected array type reference");
-            Assert.IsFalse(node.AssemblyName.HasNodeErrors);
+            Assert.IsNotNull(assemblyNode, "expected assembly name node.");
+            AssertNode(assemblyNode, assembly, type.Length + 2, assembly.Length);
+
+            Assert.IsNotNull(arrayNode, "Expected array type reference");
+            AssertNode(arrayNode, type, 0, type.Length);
         }
 
         [TestMethod]
@@ -866,13 +864,19 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company<int>.Product", "Domain.Company<int>.Product")]
         [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain<int>.Company.Product", "Domain<int>.Company.Product")]
         [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product<int>", "Product<int>")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product<int>   ", "Product<int>")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, my assembly name  ", "my assembly name")]
 
         public void BindingParser_AssemblyQualifiedName_ValidAssemblyName(string binding, string assemblyName)
         {
             var parser = bindingParserNodeFactory.SetupParser(binding);
             var node = parser.ReadDirectiveTypeName() as AssemblyQualifiedNameBindingParserNode;
+
+            var controlSting = binding.TrimEnd();
+
             Assert.IsFalse(node.AssemblyName.HasNodeErrors);
-            Assert.AreEqual(assemblyName, node.AssemblyName.ToDisplayString());
+            AssertNode(node, controlSting, 0, binding.Length);
+            AssertNode(node.AssemblyName, assemblyName, 44, assemblyName.Length);
         }
 
         [TestMethod]
@@ -973,7 +977,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             Assert.AreEqual(1, parameters.Count);
 
-            AssertNode(parameters[0].Type, type, 1, type.Length+1);
+            AssertNode(parameters[0].Type, type, 1, type.Length + 1);
             AssertNode(parameters[0].Name, "arg", type.Length + 2, 3);
             AssertNode(body, "Method(arg)", type.Length + 10, 11);
         }
@@ -1204,6 +1208,51 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        public void BindingParser_PropertyHalfWrittenAttributes()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("string MyProperty, , DotVVM., DotVVM.Fra = , DotVVM.Framework.Controls.MarkupOptionsAttribute.Required = t");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
+            var name = root.Name.CastTo<SimpleNameBindingParserNode>();
+
+            AssertNode(type, "string", 0, 7);
+            AssertNode(name, "MyProperty", 7, 10);
+
+            Assert.AreEqual(4, root.Attributes.Count);
+
+            var emptyAttribute = root.Attributes[0].CastTo<SimpleNameBindingParserNode>();
+            AssertNode(emptyAttribute, "", 19, 0, hasErrors: true);
+
+            var dotvvmNode = root.Attributes[1].CastTo<MemberAccessBindingParserNode>();
+            AssertNode(dotvvmNode, "DotVVM.", 21, 7);
+
+            var dotvvmFraNode = root.Attributes[2].CastTo<BinaryOperatorBindingParserNode>();
+            AssertNode(dotvvmFraNode, "DotVVM.Fra = ", 30, 13);
+
+            var longNode = root.Attributes[3].CastTo<BinaryOperatorBindingParserNode>();
+            AssertNode(longNode, "DotVVM.Framework.Controls.MarkupOptionsAttribute.Required = t", 45, 61);
+        }
+
+        [TestMethod]
+        public void BindingParser_PropertyTypeHalfWritten()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("System.");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var type = root.PropertyType.CastTo<ActualTypeReferenceBindingParserNode>();
+            var memberAccess = type.Type.CastTo<MemberAccessBindingParserNode>();
+            var target = memberAccess.TargetExpression;
+            var name = memberAccess.MemberNameExpression;
+
+            AssertNode(type, "System.", 0, 7);
+            AssertNode(target, "System", 0, 6);
+            AssertNode(name, "", 7, 0, hasErrors: true);
+        }
+
+        [TestMethod]
         public void BindingParser_NullablePropertyDeclaration()
         {
             var parser = bindingParserNodeFactory.SetupParser("System.String? MyProperty");
@@ -1298,7 +1347,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             AssertNode(name, "MyProperty", 14, 11);
             AssertNode(init, "\"Test\"", 27, 6);
             AssertNode(att1, "MarkupOptions.AllowHardCodedValue = False", 35, 41);
-            AssertNode(att2, "MarkupOptions.Required = True", 77, 30);
+            AssertNode(att2, "MarkupOptions.Required = True", 78, 29);
         }
 
         [TestMethod]
@@ -1322,7 +1371,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             AssertNode(type, "System.String", 0, 14);
             AssertNode(name, "MyProperty", 14, 10);
             AssertNode(att1, "MarkupOptions.AllowHardCodedValue = False", 26, 41);
-            AssertNode(att2, "MarkupOptions.Required = True", 68, 30);
+            AssertNode(att2, "MarkupOptions.Required = True", 69, 29);
         }
 
         [TestMethod]
@@ -1357,7 +1406,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             AssertNode(element3Initializer, "Namespace.Enum.Value3", 78, 22);
 
             AssertNode(att1, "MarkupOptions.AllowHardCodedValue = False", 103, 41);
-            AssertNode(att2, "MarkupOptions.Required = True", 145, 30);
+            AssertNode(att2, "MarkupOptions.Required = True", 146, 29);
         }
 
         [TestMethod]
@@ -1393,7 +1442,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var typeArgument = generic.TypeArguments[0].As<TypeReferenceBindingParserNode>();
 
             AssertNode(root, source, 0, source.Length);
-            AssertNode(generic, "GetType<string>", 0, source.Length-12);
+            AssertNode(generic, "GetType<string>", 0, source.Length - 12);
             AssertNode(typeArgument, "string", 8, 6);
         }
 
@@ -1410,7 +1459,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var typeArgument = generic.TypeArguments[0].As<TypeReferenceBindingParserNode>();
 
             AssertNode(root, source, 0, source.Length);
-            AssertNode(memberAccess, "service.GetType<string?>", 0, source.Length-12);
+            AssertNode(memberAccess, "service.GetType<string?>", 0, source.Length - 12);
             AssertNode(generic, "GetType<string?>", 8, source.Length - 20);
 
             AssertNode(typeArgument, "string?", 16, 7);
@@ -1440,11 +1489,20 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             AssertNode(typeArgument2, "System.String", 29, 13);
         }
 
-        private static void AssertNode(BindingParserNode elementType, string expectedDisplayString, int start, int length)
+        private static void AssertNode(BindingParserNode node, string expectedDisplayString, int start, int length, bool hasErrors = false)
         {
-            Assert.AreEqual(expectedDisplayString, elementType.ToDisplayString(), $"Node {elementType.GetType().Name}: display string incorrect.");
-            Assert.AreEqual(start, elementType.StartPosition, $"Node {elementType.GetType().Name}: Start position incorrect.");
-            Assert.AreEqual(length, elementType.Length, $"Node {elementType.GetType().Name}: Length incorrect.");
+            Assert.AreEqual(expectedDisplayString, node.ToDisplayString(), $"Node {node.GetType().Name}: display string incorrect.");
+            Assert.AreEqual(start, node.StartPosition, $"Node {node.GetType().Name}: Start position incorrect.");
+            Assert.AreEqual(length, node.Length, $"Node {node.GetType().Name}: Length incorrect.");
+
+            if (hasErrors)
+            {
+                Assert.IsTrue(node.HasNodeErrors);
+            }
+            else
+            {
+                Assert.IsFalse(node.HasNodeErrors);
+            }
         }
 
         private static string SkipWhitespaces(string str) => string.Join("", str.Where(c => !char.IsWhiteSpace(c)));

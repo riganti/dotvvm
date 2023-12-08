@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     SkipWhiteSpace();
                 }
 
-                if(PeekType() == BindingTokenType.CloseArrayBrace)
+                if (PeekType() == BindingTokenType.CloseArrayBrace)
                 {
                     Read();
                     SkipWhiteSpace();
@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 Read();
                 SkipWhiteSpace();
 
-                var attributes = ReadArguments();
+                var attributes = ReadArguments(OnEnd);
 
                 foreach (var attribute in attributes)
                 {
@@ -131,7 +131,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 Read();
                 var assemblyName = ReadAssemblyName();
 
-                return new AssemblyQualifiedNameBindingParserNode(typeName, assemblyName);
+                return CreateNode(new AssemblyQualifiedNameBindingParserNode(typeName, assemblyName), startIndex);
             }
             else if (Peek() is BindingToken token)
             {
@@ -144,13 +144,20 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             // almost anything can be an assembly name, so we just read everything until the end
             SkipWhiteSpace();
-            var tokens = this.Tokens.Skip(CurrentIndex).ToList();
-            CurrentIndex = Tokens.Count;
+
+            var startIndex = CurrentIndex;
+
+            var tokens = Tokens.Skip(CurrentIndex).ToList();
 
             while (tokens.Count > 0 && tokens[tokens.Count - 1].Type == BindingTokenType.WhiteSpace)
                 tokens.RemoveAt(tokens.Count - 1);
 
-            var node = new AssemblyNameBindingParserNode(tokens);
+            CurrentIndex += tokens.Count;
+            var name = string.Concat(tokens.Select(t => t.Text));
+
+            var node = CreateNode(new AssemblyNameBindingParserNode(name), startIndex);
+            CurrentIndex = Tokens.Count;
+
             if (node.Name.Length == 0)
             {
                 node.NodeErrors.Add("Assembly name cannot be empty.");
@@ -742,7 +749,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             // function call
             Read();
-            var arguments = ReadArguments();
+            SkipWhiteSpace();
+            var arguments = ReadArguments(() =>  PeekType() == BindingTokenType.CloseParenthesis);
             var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
             Read();
             SkipWhiteSpace();
@@ -750,21 +758,27 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return expression;
         }
 
-        private List<BindingParserNode> ReadArguments()
+        private List<BindingParserNode> ReadArguments(Func<bool> isEndToken)
         {
             var arguments = new List<BindingParserNode>();
-            int previousInnerIndex = -1;
-            while (Peek() is BindingToken operatorToken && operatorToken.Type != BindingTokenType.CloseParenthesis && previousInnerIndex != CurrentIndex)
+            var previousInnerIndex = -1;
+            while (previousInnerIndex != CurrentIndex && !OnEnd() && !isEndToken())
             {
                 previousInnerIndex = CurrentIndex;
-                if (arguments.Count > 0)
-                {
-                    SkipWhiteSpace();
-                    if (IsCurrentTokenIncorrect(BindingTokenType.Comma))
-                        arguments.Add(CreateNode(new LiteralExpressionBindingParserNode(null), CurrentIndex, "The ',' was expected"));
-                    else Read();
-                }
+
                 arguments.Add(ReadExpression());
+
+                SkipWhiteSpace();
+
+                if (PeekType() == BindingTokenType.Comma)
+                {
+                    Read();
+                    SkipWhiteSpace();
+                }
+                else if (!isEndToken())
+                {
+                    arguments.Add(CreateNode(new SimpleNameBindingParserNode(""), CurrentIndex, "The ',' was expected"));
+                }
             }
 
             return arguments;
@@ -1116,7 +1130,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             error = null;
             if (method(text, styles, CultureInfo.InvariantCulture, out var result)) return result;
-            error = $"could not parse { text } using { method.GetMethodInfo()?.DeclaringType?.FullName + "." + method.GetMethodInfo()?.Name }";
+            error = $"could not parse {text} using {method.GetMethodInfo()?.DeclaringType?.FullName + "." + method.GetMethodInfo()?.Name}";
             return null;
         }
 
