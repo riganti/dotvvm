@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using DotVVM.Framework.ViewModel;
 
@@ -7,6 +8,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation
     public class ValidationTargetIsCollectionViewModel : DotvvmViewModelBase
     {
         public List<Customer> Customers { get; set; }
+
+        public DateTime Something { get; set; } = DateTime.Now;
 
         public ValidationTargetIsCollectionViewModel()
         {
