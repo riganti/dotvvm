@@ -89,7 +89,7 @@ namespace DotVVM.CommandLine.OpenApi
         private static string GetOperationNameFromPath(OpenApiOperationDescription operation)
         {
             var pathSegments = operation.Path.Trim('/').Split('/').Where(s => !s.Contains('{')).ToArray();
-            var lastPathSegment = pathSegments.LastOrDefault();
+            var lastPathSegment = pathSegments.LastOrDefault() ?? "";
             var path = string.Concat(pathSegments.Take(pathSegments.Length - 1).Select(s => s + "_"));
             return path + operation.Method.ToString()[0].ToString().ToUpperInvariant() + operation.Method.ToString().Substring(1).ToLowerInvariant() + ConversionUtilities.ConvertToUpperCamelCase(lastPathSegment.Replace('_', '-'), false);
         }

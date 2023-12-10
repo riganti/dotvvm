@@ -48,7 +48,7 @@ jobs:
 
     # command-line
     - name: CommandLine
-      run: dotnet build src/Tools/CommandLine --configuration ${{ matrix.configuration }} --no-restore --framework netcoreapp3.1 /WarnAsError
+      run: dotnet build src/Tools/CommandLine --configuration ${{ matrix.configuration }} --no-restore --framework net6.0 /WarnAsError
 
     # swashbuckle
     - name: Api.Swashbuckle.AspNetCore

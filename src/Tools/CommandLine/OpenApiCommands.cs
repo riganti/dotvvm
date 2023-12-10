@@ -111,7 +111,8 @@ namespace DotVVM.CommandLine
                 await JsonSerializer.SerializeAsync(stream, clients);
             }
 
-            Directory.SetCurrentDirectory(projectDir);
+            if (projectDir is {})
+                Directory.SetCurrentDirectory(projectDir);
             await ApiClientManager.RegenApiClient(clientDefinition, logger);
             return 0;
         }
@@ -153,7 +154,8 @@ namespace DotVVM.CommandLine
                 }
             }
 
-            Directory.SetCurrentDirectory(projectDir);
+            if (projectDir is {})
+                Directory.SetCurrentDirectory(projectDir);
             foreach(var client in clients)
             {
                 await ApiClientManager.RegenApiClient(client, logger);
