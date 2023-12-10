@@ -14,10 +14,15 @@ namespace DotVVM.Framework.Controls
 
         public override bool CanConvert(Type objectType) =>
             typeof(DotvvmBindableObject).IsAssignableFrom(objectType);
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) =>
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) =>
             throw new NotImplementedException("Deserializing dotvvm control from JSON is not supported.");
-        public override void WriteJson(JsonWriter w, object valueObj, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter w, object? valueObj, JsonSerializer serializer)
         {
+            if (valueObj is null)
+            {
+                w.WriteNull();
+                return;
+            }
             var obj = (DotvvmBindableObject)valueObj;
             w.WriteStartObject();
 

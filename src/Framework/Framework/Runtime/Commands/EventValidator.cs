@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Runtime.Commands
         /// <summary>
         /// Validates the command.
         /// </summary>
-        public FindBindingResult ValidateCommand(string[] path, string commandId, DotvvmControl viewRootControl, string validationTargetPath)
+        public FindBindingResult ValidateCommand(string[] path, string commandId, DotvvmControl viewRootControl, string? validationTargetPath)
         {
             // find the binding
             var result = FindCommandBinding(path, commandId, viewRootControl, validationTargetPath);
@@ -175,13 +175,13 @@ namespace DotVVM.Framework.Runtime.Commands
         /// Finds the binding of the specified type on the specified viewmodel path.
         /// </summary>
         private FindBindingResult FindCommandBinding(string[] path, string commandId,
-            DotvvmBindableObject viewRootControl, string validationTargetPath)
+            DotvvmBindableObject viewRootControl, string? validationTargetPath)
             => FindCommandBinding(path, commandId, viewRootControl, null, validationTargetPath, false);
 
         /// <summary>
         /// Validates the control command.
         /// </summary>
-        public FindBindingResult ValidateControlCommand(string[] path, string commandId, DotvvmControl viewRootControl, DotvvmControl targetControl, string validationTargetPath)
+        public FindBindingResult ValidateControlCommand(string[] path, string commandId, DotvvmControl viewRootControl, DotvvmControl targetControl, string? validationTargetPath)
         {
             // find the binding
             var result = FindControlCommandBinding(path, commandId, viewRootControl, targetControl, validationTargetPath);
@@ -196,7 +196,7 @@ namespace DotVVM.Framework.Runtime.Commands
         /// Finds the binding of the specified type on the specified viewmodel path.
         /// </summary>
         private FindBindingResult FindControlCommandBinding(string[] path, string commandId,
-            DotvvmControl viewRootControl, DotvvmBindableObject targetControl, string validationTargetPath)
+            DotvvmControl viewRootControl, DotvvmBindableObject targetControl, string? validationTargetPath)
             => FindCommandBinding(path, commandId, viewRootControl, targetControl, validationTargetPath, true);
 
 

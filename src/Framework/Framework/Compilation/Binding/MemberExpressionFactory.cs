@@ -247,8 +247,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (b is null) throw new ArgumentNullException(nameof(b));
             if (operatorName is null) throw new ArgumentNullException(nameof(b));
 
-            var searchTypes = new [] { a.Type, b.Type, a.Type.UnwrapNullableType(), b.Type.UnwrapNullableType() }.OfType<Type>().Distinct().ToArray();
-
+            var searchTypes = new [] { a.Type, b.Type, a.Type.UnwrapNullableType(), b.Type.UnwrapNullableType() }.WhereNotNull().Distinct().ToArray();
 
             // https://github.com/dotnet/csharpstandard/blob/standard-v6/standard/expressions.md#1145-binary-operator-overload-resolution
             // The set of candidate user-defined operators provided by X and Y for the operation operator «op»(x, y) is determined. The set consists of the union of the candidate operators provided by X and the candidate operators provided by Y, each determined using the rules of §11.4.6.

@@ -133,11 +133,11 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
             var jobj = JObject.FromObject(numberFormat);
             jobj[","] = ni.NumberGroupSeparator;
             jobj["."] = ni.NumberDecimalSeparator;
-            jobj["percent"][","] = ni.PercentGroupSeparator;
-            jobj["percent"]["."] = ni.PercentDecimalSeparator;
+            jobj["percent"]![","] = ni.PercentGroupSeparator;
+            jobj["percent"]!["."] = ni.PercentDecimalSeparator;
 
-            jobj["currency"][","] = ni.CurrencyGroupSeparator;
-            jobj["currency"]["."] = ni.CurrencyDecimalSeparator;
+            jobj["currency"]![","] = ni.CurrencyGroupSeparator;
+            jobj["currency"]!["."] = ni.CurrencyDecimalSeparator;
             return jobj;
         }
 

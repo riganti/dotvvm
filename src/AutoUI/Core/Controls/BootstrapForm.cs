@@ -95,7 +95,7 @@ namespace DotVVM.AutoUI.Controls
         /// </summary>
         public bool WrapControlInDiv
         {
-            get { return (bool)GetValue(WrapControlInDivProperty); }
+            get { return (bool)GetValue(WrapControlInDivProperty)!; }
             set { SetValue(WrapControlInDivProperty, value); }
         }
         public static readonly DotvvmProperty WrapControlInDivProperty

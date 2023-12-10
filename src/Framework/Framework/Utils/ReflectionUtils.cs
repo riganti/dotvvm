@@ -555,7 +555,7 @@ namespace DotVVM.Framework.Utils
             }
             else if (EnumInfo<T>.IsFlags)
             {
-                return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value));
+                return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value))!;
             }
             else
             {

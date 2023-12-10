@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Routing
 {
@@ -15,29 +16,34 @@ namespace DotVVM.Framework.Routing
     {
         public override bool CanConvert(Type objectType) => objectType == typeof(DotvvmRouteTable);
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             var rt = existingValue as DotvvmRouteTable;
             if (rt == null) return null;
             foreach (var prop in (JObject)JObject.ReadFrom(reader))
             {
-                var route = (JObject)prop.Value;
+                var route = (JObject)prop.Value.NotNull();
                 try
                 {
-                    rt.Add(prop.Key, route["url"].Value<string>(), route["virtualPath"].Value<string>(), route["defaultValues"].ToObject<IDictionary<string, object>>());
+                    rt.Add(prop.Key, route["url"].NotNull("route.url is required").Value<string>(), (route["virtualPath"]?.Value<string>()).NotNull("route.virtualPath is required"), route["defaultValues"]?.ToObject<IDictionary<string, object>>());
                 }
                 catch (Exception error)
                 {
-                    rt.Add(prop.Key, new ErrorRoute(route["url"].Value<string>(), route["virtualPath"].Value<string>(), prop.Key, route["defaultValues"].ToObject<IDictionary<string, object?>>(), error));
+                    rt.Add(prop.Key, new ErrorRoute(route["url"]?.Value<string>(), route["virtualPath"]?.Value<string>(), prop.Key, route["defaultValues"]?.ToObject<IDictionary<string, object?>>(), error));
                 }
             }
             return rt;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => WriteJson(writer, (DotvvmRouteTable)value, serializer);
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) => WriteJson(writer, (DotvvmRouteTable?)value, serializer);
 
-        public void WriteJson(JsonWriter writer, DotvvmRouteTable value, JsonSerializer serializer)
+        public void WriteJson(JsonWriter writer, DotvvmRouteTable? value, JsonSerializer serializer)
         {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
             writer.WriteStartObject();
             foreach (var route in value)
             {
@@ -55,7 +61,8 @@ namespace DotVVM.Framework.Routing
         {
             private readonly Exception error;
 
-            public ErrorRoute(string url, string virtualPath, string name, IDictionary<string, object?>? defaultValues, Exception error) : base(url, virtualPath, name, defaultValues)
+            public ErrorRoute(string? url, string? virtualPath, string? name, IDictionary<string, object?>? defaultValues, Exception error)
+                : base(url ?? "<unknown>", virtualPath ?? "<unknown>", name ?? "<unknown>", defaultValues)
             {
                 this.error = error;
             }

@@ -1,5 +1,5 @@
 using DotVVM.Framework.Compilation;
-using Microsoft.Extensions.DependencyModel;
+using DotVVM.Framework.Utils;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Hosting
             if (mainAssembly is {})
                 assemblies.Add(mainAssembly);
             return new AssemblySerializableList(
-                assemblyDirs: assemblies.Select(a => IO.Path.GetDirectoryName(a.Location)).OfType<string>().Distinct().OrderBy(x => x).ToArray(),
+                assemblyDirs: assemblies.Select(a => IO.Path.GetDirectoryName(a.Location)).WhereNotNull().Distinct().OrderBy(x => x).ToArray(),
                 assemblyNames: assemblies.Select(getName).OrderBy(x => x).ToArray()!,
                 mainAssembly: getName(mainAssembly)
             );

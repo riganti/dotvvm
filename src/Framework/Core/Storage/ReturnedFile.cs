@@ -18,6 +18,5 @@ namespace DotVVM.Core.Storage
             Stream = stream;
             Metadata = metadata;
         }
-
     }
 }

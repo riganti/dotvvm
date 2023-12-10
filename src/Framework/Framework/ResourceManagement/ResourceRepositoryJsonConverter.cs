@@ -34,7 +34,7 @@ namespace DotVVM.Framework.ResourceManagement
             return null;
         }
         
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             var jobj = JObject.Load(reader);
             var repo = existingValue as DotvvmResourceRepository ?? new DotvvmResourceRepository();
@@ -42,15 +42,15 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 if (resourceTypeAliases.FirstOrDefault(x => x.name == prop.Key) is var r && r.type != null)
                 {
-                    DeserializeResources((JObject)prop.Value, r.type, serializer, repo);
+                    DeserializeResources((JObject)prop.Value.NotNull(), r.type, serializer, repo);
                 }
                 else if (CompiledAssemblyCache.Instance!.FindType(prop.Key) is Type resourceType)
                 {
-                    DeserializeResources((JObject)prop.Value, resourceType, serializer, repo);
+                    DeserializeResources((JObject)prop.Value.NotNull(), resourceType, serializer, repo);
                 }
                 else if (UnknownResourceType != null)
                 {
-                    DeserializeResources((JObject)prop.Value, UnknownResourceType, serializer, repo);
+                    DeserializeResources((JObject)prop.Value.NotNull(), UnknownResourceType, serializer, repo);
                 }
                 else
                     throw new NotSupportedException(string.Format("resource collection name {0} is not supported", prop.Key));
@@ -64,7 +64,7 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 try
                 {
-                    var resource = (IResource)serializer.Deserialize(resObj.Value.CreateReader(), resourceType);
+                    var resource = (IResource)serializer.Deserialize(resObj.Value!.CreateReader(), resourceType).NotNull();
                     if (resource is LinkResourceBase linkResource)
                     {
                         if (linkResource.Location == null)
@@ -82,8 +82,13 @@ namespace DotVVM.Framework.ResourceManagement
             }
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
             writer.WriteStartObject();
             var resources = value as DotvvmResourceRepository ?? throw new NotSupportedException();
             foreach (var (name, group) in (
@@ -110,8 +115,8 @@ namespace DotVVM.Framework.ResourceManagement
         public class DeserializationErrorResource : ResourceBase
         {
             public Exception Error { get; }
-            public JToken Json { get; set; }
-            public DeserializationErrorResource(Exception error, JToken json) : base(ResourceRenderPosition.Head)
+            public JToken? Json { get; set; }
+            public DeserializationErrorResource(Exception error, JToken? json) : base(ResourceRenderPosition.Head)
             {
                 this.Error = error;
                 this.Json = json;
@@ -119,7 +124,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             public override void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
             {
-                throw new NotSupportedException($"Resource could not be deserialized from '{Json.ToString()}': \n{Error}");
+                throw new NotSupportedException($"Resource could not be deserialized from '{(Json is null ? "null" : Json.ToString())}': \n{Error}");
             }
         }
     }
