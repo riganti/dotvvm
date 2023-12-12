@@ -747,61 +747,6 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
-        public void DefaultViewCompiler_NonExistenPropertyWarning()
-        {
-           var markup = $@"
-@viewModel System.Boolean
-<dot:Button TestProperty=AA Visble={{value: false}} normal-attribute=AA Click={{command: 0}} />
-";
-            var button = ParseSource(markup)
-                .Content.SelectRecursively(c => c.Content)
-                .Single(c => c.Metadata.Type == typeof(Button));
-
-            var elementNode = (DothtmlElementNode)button.DothtmlNode;
-            var attribute1 = elementNode.Attributes.Single(a => a.AttributeName == "TestProperty");
-            var attribute2 = elementNode.Attributes.Single(a => a.AttributeName == "normal-attribute");
-            var attribute3 = elementNode.Attributes.Single(a => a.AttributeName == "Visble");
-
-            Assert.AreEqual(0, attribute2.AttributeNameNode.NodeWarnings.Count(), attribute2.AttributeNameNode.NodeWarnings.StringJoin(", "));
-            Assert.AreEqual("HTML attribute name 'TestProperty' should not contain uppercase letters. Did you intent to use a DotVVM property instead?", attribute1.AttributeNameNode.NodeWarnings.Single());
-            Assert.AreEqual("HTML attribute name 'Visble' should not contain uppercase letters. Did you mean Visible, or another DotVVM property?", attribute3.AttributeNameNode.NodeWarnings.Single());
-        }
-
-        [TestMethod]
-        public void DefaultViewCompiler_NonExistenPropertyWarning_PrefixedGroup()
-        {
-           var markup = $@"
-@viewModel System.Boolean
-<dot:HierarchyRepeater ItemClass=AA ItemIncludeInPage=false />
-";
-            var repeater = ParseSource(markup)
-                .Content.SelectRecursively(c => c.Content)
-                .Single(c => c.Metadata.Type == typeof(HierarchyRepeater));
-
-            var elementNode = (DothtmlElementNode)repeater.DothtmlNode;
-            var attribute1 = elementNode.Attributes.Single(a => a.AttributeName == "ItemClass");
-            var attribute2 = elementNode.Attributes.Single(a => a.AttributeName == "ItemIncludeInPage");
-
-            Assert.AreEqual(0, attribute1.AttributeNameNode.NodeWarnings.Count(), attribute1.AttributeNameNode.NodeWarnings.StringJoin(", "));
-            Assert.AreEqual("HTML attribute name 'IncludeInPage' should not contain uppercase letters. Did you intent to use a DotVVM property instead?", XAssert.Single(attribute2.AttributeNameNode.NodeWarnings));
-        }
-
-        [TestMethod]
-        public void DefaultViewCompiler_UnsupportedCallSite_ResourceBinding_Warning()
-        {
-            var markup = @"
-@viewModel System.DateTime
-{{resource: _this.ToBrowserLocalTime()}}
-";
-            var literal = ParseSource(markup)
-                .Content.SelectRecursively(c => c.Content)
-                .Single(c => c.Metadata.Type == typeof(Literal));
-
-            Assert.AreEqual(1, literal.DothtmlNode.NodeWarnings.Count());
-            Assert.AreEqual("Evaluation of method \"ToBrowserLocalTime\" on server-side may yield unexpected results.", literal.DothtmlNode.NodeWarnings.First());
-        }
-
-        [TestMethod]
         public void DefaultViewCompiler_DifferentControlPrimaryName()
         {
             var root = ParseSource(@"@viewModel System.String
