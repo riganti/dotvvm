@@ -94,38 +94,31 @@ namespace DotVVM.Framework.Compilation.Inference
             if (delegateParameters.Length != argsCount)
                 return false;
 
-            var generics = (context != null) ? context.Generics : new Dictionary<string, Type>();
-            if (!TryInstantiateDelegateParameters(delegateType, argsCount, generics, out parameters))
+            var generics = (context != null) ? context.Generics : new Dictionary<Type, Type>();
+            if (!TryInstantiateDelegateParameters(delegateParameters.Select(p => p.ParameterType).ToArray(), argsCount, generics, out parameters))
                 return false;
 
             return true;
         }
 
-        private bool TryInstantiateDelegateParameters(Type generic, int argsCount, Dictionary<string, Type> generics, [NotNullWhen(true)] out Type[]? instantiation)
+        private bool TryInstantiateDelegateParameters(Type[] delegateParameters, int argsCount, Dictionary<Type, Type> generics, [NotNullWhen(true)] out Type[]? instantiation)
         {
-            var genericArgs = generic.GetGenericArguments();
             var substitutions = new Type[argsCount];
 
             for (var argIndex = 0; argIndex < argsCount; argIndex++)
             {
-                var currentArg = genericArgs[argIndex];
+                var currentArg = delegateParameters[argIndex];
+                var assignedArg = ReflectionUtils.AssignGenericParameters(currentArg, generics);
 
-                if (!currentArg.IsGenericParameter)
-                {
-                    // This is a known type
-                    substitutions[argIndex] = currentArg;
-                }
-                else if (currentArg.IsGenericParameter && generics.ContainsKey(currentArg.Name))
-                {
-                    // This is a generic parameter
-                    // But we already inferred its type
-                    substitutions[argIndex] = generics[currentArg.Name];
-                }
-                else
+                if (assignedArg.ContainsGenericParameters)
                 {
                     // This is an unknown type
                     instantiation = null;
                     return false;
+                }
+                else
+                {
+                    substitutions[argIndex] = assignedArg;
                 }
             }
 
