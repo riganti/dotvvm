@@ -107,6 +107,17 @@ namespace DotVVM.Framework.Utils
         public static SortedDictionary<K, V> ToSorted<K, V>(this IDictionary<K, V> d, IComparer<K>? c = null)
             where K: notnull =>
             new(d, c ?? Comparer<K>.Default);
+
+        internal static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> enumerable) where T : class =>
+            enumerable.Where(x => x != null)!;
+        internal static IEnumerable<T> WhereNotNull<T>(this IEnumerable<Nullable<T>> enumerable) where T : struct
+        {
+            foreach (var x in enumerable)
+            {
+                if (x.HasValue)
+                    yield return x.Value;
+            }
+        }
     }
 
     sealed class ObjectWithComparer<T> : IEquatable<ObjectWithComparer<T>>, IEquatable<T>

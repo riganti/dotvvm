@@ -51,7 +51,7 @@ namespace DotVVM.CommandLine
                 WindowStyle = ProcessWindowStyle.Hidden
             };
 
-            var process = Process.Start(startInfo);
+            var process = Process.Start(startInfo).NotNull();
             var stdout = process.StandardOutput.ReadToEnd().Trim();
             process.WaitForExit();
             if (process.ExitCode != 0)
@@ -118,7 +118,7 @@ namespace DotVVM.CommandLine
                 startInfo.RedirectStandardError = true;
             }
             logger.LogDebug($"Invoking MSBuild with args: '{startInfo.ArgumentList.StringJoin(" ")}'.");
-            var process = Process.Start(startInfo);
+            var process = Process.Start(startInfo).NotNull();
             if (!showOutput)
             {
                 Task.Run(() => process.StandardOutput.ReadToEnd());
@@ -143,7 +143,7 @@ namespace DotVVM.CommandLine
             startInfo.RedirectStandardError = true;
             logger.LogDebug($"Invoking MSBuild with args: '{startInfo.ArgumentList.StringJoin(" ")}'.");
         
-            var process = Process.Start(startInfo);
+            var process = Process.Start(startInfo).NotNull();
             var stderrTask = Task.Run(() => process.StandardError.ReadToEnd());
             var stdout = process.StandardOutput.ReadToEnd();
             var stderr = stderrTask.GetAwaiter().GetResult();

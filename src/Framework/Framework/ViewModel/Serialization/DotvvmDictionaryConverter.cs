@@ -16,10 +16,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private static Type keyValuePairGenericType = typeof(KeyValuePair<,>);
         private static Type listGenericType = typeof(List<>);
         private static Type dictionaryEntryType = typeof(DictionaryEntry);
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            var dict = value as IDictionary;
-            if (dict == null)
+            if (value is not IDictionary dict)
             {
                 writer.WriteNull();
             }
@@ -46,7 +45,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null)
             {

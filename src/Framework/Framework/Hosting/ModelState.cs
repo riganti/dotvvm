@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the validation target path relative to the command target.
         /// </summary>
-        internal string ValidationTargetPath { get; set; }
+        internal string? ValidationTargetPath { get; set; }
 
         /// <summary>
         /// Gets the object that was validated.

@@ -352,7 +352,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:RequiredResource Name='ggg11' html:class='jshfsjhfkj'>
 ");
             var control = root.Content.First(r => r.Metadata.Name == nameof(RequiredResource));
-            Assert.AreEqual(0, control.Properties.OfType<GroupedDotvvmProperty>().Where(a => a.PropertyGroup.Prefixes.Contains("")).Count());
+            Assert.AreEqual(0, control.Properties.Keys.OfType<GroupedDotvvmProperty>().Where(a => a.PropertyGroup.Prefixes.Contains("")).Count());
             Assert.IsTrue(((DothtmlElementNode)control.DothtmlNode).Attributes.Any(a => a.HasNodeErrors));
         }
 

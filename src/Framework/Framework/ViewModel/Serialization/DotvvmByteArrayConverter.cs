@@ -9,7 +9,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class DotvvmByteArrayConverter : JsonConverter
     {
-        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null)
             {
@@ -40,7 +40,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             if (value == null)
             {

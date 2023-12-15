@@ -61,9 +61,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var timer = ValueStopwatch.StartNew();
 
             context.ViewModelJson ??= new JObject();
-            if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
+            if (SendDiff && context.ReceivedViewModelJson?["viewModel"] is JObject receivedVM && context.ViewModelJson["viewModel"] is JObject responseVM)
             {
-                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], false, i => ShouldIncludeProperty(i.TypeId, i.Property));
+                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff(receivedVM, responseVM, false, i => ShouldIncludeProperty(i.TypeId, i.Property));
                 context.ViewModelJson.Remove("viewModel");
             }
             var result = context.ViewModelJson.ToString(JsonFormatting);
@@ -117,7 +117,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 throw new SerializationException(true, context.ViewModel!.GetType(), writer.Path, ex);
             }
-            var viewModelToken = writer.Token;
+            var viewModelToken = writer.Token.NotNull();
 
             string? viewModelCacheId = null;
             if (context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route?.RouteName))
@@ -177,13 +177,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private JObject SerializeTypeMetadata(IDotvvmRequestContext context, ViewModelJsonConverter viewModelJsonConverter)
         {
-            var knownTypeIds = context.ReceivedViewModelJson?["knownTypeMetadata"]?.Values<string>().ToImmutableHashSet();
+            var knownTypeIds = context.ReceivedViewModelJson?["knownTypeMetadata"]?.Values<string>().WhereNotNull().ToImmutableHashSet();
             return viewModelTypeMetadataSerializer.SerializeTypeMetadata(viewModelJsonConverter.UsedSerializationMaps, knownTypeIds);
         }
 
         public void AddNewResources(IDotvvmRequestContext context)
         {
-            var renderedResources = new HashSet<string>(context.ReceivedViewModelJson?["renderedResources"]?.Values<string>() ?? new string[] { });
+            var renderedResources = new HashSet<string>(context.ReceivedViewModelJson?["renderedResources"]?.Values<string>().WhereNotNull<string>() ?? new string[] { });
             var resourcesObject = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
             if (resourcesObject.Count > 0)
                 context.ViewModelJson!["resources"] = resourcesObject;
@@ -235,7 +235,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 throw new SerializationException(true, data?.GetType(), writer.Path, ex);
             }
-            return writer.Token;
+            return writer.Token.NotNull();
         }
 
         protected virtual JsonSerializer CreateJsonSerializer() => DefaultSerializerSettingsProvider.Instance.Settings.Apply(JsonSerializer.Create);
@@ -333,35 +333,34 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // get properties
             var data = context.ReceivedViewModelJson = JObject.Parse(serializedPostData);
             JObject viewModelToken;
-            if (data["viewModelCacheId"] != null)
+            if (data["viewModelCacheId"]?.Value<string>() is string viewModelCacheId)
             {
                 if (!context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route?.RouteName))
                 {
                     throw new InvalidOperationException("The server-side viewmodel caching is not enabled for the current route!");
                 }
 
-                viewModelToken = viewModelServerCache.TryRestoreViewModel(context, (string)data["viewModelCacheId"], (JObject)data["viewModelDiff"]);
+                viewModelToken = viewModelServerCache.TryRestoreViewModel(context, viewModelCacheId, (JObject)data["viewModelDiff"]!);
                 data["viewModel"] = viewModelToken;
             }
             else
             {
-                viewModelToken = (JObject)data["viewModel"];
+                viewModelToken = (JObject)data["viewModel"]!;
             }
 
             // load CSRF token
             context.CsrfToken = viewModelToken["$csrfToken"]?.Value<string>();
 
             ViewModelJsonConverter viewModelConverter;
-            if (viewModelToken["$encryptedValues"] != null)
+            if (viewModelToken["$encryptedValues"]?.Value<string>() is string encryptedValuesString)
             {
                 // load encrypted values
-                var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
                 viewModelConverter = new ViewModelJsonConverter(IsPostBack(context), viewModelMapper, context.Services, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
             }
             else viewModelConverter = new ViewModelJsonConverter(IsPostBack(context), viewModelMapper, context.Services);
 
             // get validation path
-            context.ModelState.ValidationTargetPath = (string)data["validationTargetPath"];
+            context.ModelState.ValidationTargetPath = (string?)data["validationTargetPath"];
 
             // populate the ViewModel
             var serializer = CreateJsonSerializer();
@@ -390,12 +389,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             // get properties
             var data = context.ReceivedViewModelJson ?? throw new NotSupportedException("Could not find ReceivedViewModelJson in request context.");
-            var path = data["currentPath"].Values<string>().ToArray();
-            var command = data["command"].Value<string>();
+            var path = data["currentPath"].NotNull("currentPath is required").Values<string>().ToArray();
+            var command = data["command"].NotNull("command is required").Value<string>();
             var controlUniqueId = data["controlUniqueId"]?.Value<string>();
             var args = data["commandArgs"] is JArray argsJson ?
-                       argsJson.Select(a => (Func<Type, object>)(t => a.ToObject(t))).ToArray() :
-                       new Func<Type, object>[0];
+                       argsJson.Select(a => (Func<Type, object?>)(t => a.ToObject(t))).ToArray() :
+                       new Func<Type, object?>[0];
 
             // empty command
             if (string.IsNullOrEmpty(command)) return null;
@@ -408,11 +407,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 {
                     throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
                 }
-                return commandResolver.GetFunction(target, view, context, path, command, args);
+                return commandResolver.GetFunction(target, view, context, path!, command, args);
             }
             else
             {
-                return commandResolver.GetFunction(view, context, path, command, args);
+                return commandResolver.GetFunction(view, context, path!, command, args);
             }
         }
 

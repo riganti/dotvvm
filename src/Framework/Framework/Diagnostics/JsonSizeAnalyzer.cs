@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Diagnostics
                         return r;
                     }
                     case JTokenType.String:
-                        return new (((string)token).Length + 2);
+                        return new ((((string?)token)?.Length ?? 4) + 2);
                     case JTokenType.Integer:
                         // This should be the same as token.ToString().Length, but I didn't want to allocate the string unnecesarily
                         return new((int)Math.Log10(Math.Abs((long)token) + 1) + 1);

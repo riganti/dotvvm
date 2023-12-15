@@ -4,6 +4,7 @@ using System.CommandLine.Invocation;
 using System.IO;
 using DotVVM.CommandLine;
 using DotVVM.CommandLine.Templates;
+using DotVVM.Framework.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace DotVVM.CommandLine
@@ -91,7 +92,7 @@ namespace DotVVM.CommandLine
 
             var viewModelName = Names.GetViewModel(name);
             var viewModelNamespace = Names.GetNamespace(
-                file.DirectoryName,
+                file.DirectoryName.NotNull(),
                 projectDir,
                 metadata.RootNamespace);
 
@@ -132,7 +133,7 @@ namespace DotVVM.CommandLine
 
             var viewModelName = Names.GetViewModel(name);
             var viewModelNamespace = Names.GetNamespace(
-                file.DirectoryName,
+                file.DirectoryName.NotNull(),
                 projectDir,
                 metadata.RootNamespace);
 
@@ -158,7 +159,7 @@ namespace DotVVM.CommandLine
             }
 
             var @namespace = Names.GetNamespace(
-                file.DirectoryName,
+                file.DirectoryName.NotNull(),
                 projectDir,
                 metadata.RootNamespace);
 
@@ -203,7 +204,7 @@ namespace DotVVM.CommandLine
                 return null;
             }
 
-            Directory.CreateDirectory(file.DirectoryName);
+            Directory.CreateDirectory(file.DirectoryName.NotNull());
             return file;
         }
     }

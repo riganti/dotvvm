@@ -350,18 +350,18 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 // validate csrf token
-                context.CsrfToken = postData["$csrfToken"].Value<string>();
+                context.CsrfToken = (postData["$csrfToken"]?.Value<string>()).NotNull("$csrfToken is required");
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
 
-                var knownTypes = postData["knownTypeMetadata"].Values<string>().ToArray();
+                var knownTypes = postData["knownTypeMetadata"]?.Values<string>().WhereNotNull().ToArray() ?? Array.Empty<string>();
                 var argumentPaths = postData["argumentPaths"]?.Values<string?>().ToArray();
-                var command = postData["command"].Value<string>();
-                var arguments = postData["args"] as JArray;
+                var command = (postData["command"]?.Value<string>()).NotNull("command is required");
+                var arguments = (postData["args"] as JArray).NotNull("args is required");
                 var executionPlan = StaticCommandExecutor.DecryptPlan(command);
 
                 var actionInfo = new ActionInfo(
                     binding: null,
-                    () => { return StaticCommandExecutor.Execute(executionPlan, arguments.NotNull(), argumentPaths, context); },
+                    () => { return StaticCommandExecutor.Execute(executionPlan, arguments, argumentPaths, context); },
                     false,
                     executionPlan.Method,
                     argumentPaths

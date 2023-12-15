@@ -154,6 +154,12 @@ $@"
 
         public void ObjectBrowser(object? obj)
         {
+            if (obj is null)
+            {
+                WriteText("null");
+                return;
+            }
+
             var settings = new JsonSerializerSettings() {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 DefaultValueHandling = DefaultValueHandling.Ignore,
@@ -227,7 +233,11 @@ $@"
                     Write("<div class='prop'><span class='propname'>");
                     WriteText(p.Key);
                     Write("</span>:");
-                    if (p.Value is JObject)
+                    if (p.Value is null)
+                    {
+                        WriteText("null");
+                    }
+                    else if (p.Value is JObject)
                     {
                         ObjectBrowser((JObject)p.Value);
                     }
@@ -360,9 +370,9 @@ $@"
         {
             public override bool CanConvert(Type objectType) =>
                 objectType.IsDelegate();
-            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) =>
+            public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) =>
                 throw new NotImplementedException();
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
             {
                 writer.WriteValue("<delegate>");
             }
