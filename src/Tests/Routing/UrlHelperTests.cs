@@ -37,13 +37,13 @@ namespace DotVVM.Framework.Tests.Routing
             var suffix = "suffix";
             var query = new List<KeyValuePair<string, string>>()
             {
-                new KeyValuePair<string, string>("key1", "value1"),
+                new KeyValuePair<string, string>("key1", "value1+x"),
                 new KeyValuePair<string, string>("key2", null!),
                 new KeyValuePair<string, string>("key3", string.Empty),
                 new KeyValuePair<string, string>("key4", "value4")
             };
             var result = UrlHelper.BuildUrlSuffix(suffix, query);
-            Assert.AreEqual("suffix?key1=value1&key3&key4=value4", result);
+            Assert.AreEqual("suffix?key1=value1%2Bx&key3&key4=value4", result);
         }
 
         [TestMethod]
@@ -52,13 +52,13 @@ namespace DotVVM.Framework.Tests.Routing
             var suffix = "suffix";
             var query = new List<KeyValuePair<string, object>>()
             {
-                new KeyValuePair<string, object>("key1", "value1"),
+                new KeyValuePair<string, object>("key1", "value1+x"),
                 new KeyValuePair<string, object>("key2", null!),
                 new KeyValuePair<string, object>("key3", string.Empty),
                 new KeyValuePair<string, object>("key4", "value4")
             };
             var result = UrlHelper.BuildUrlSuffix(suffix, query);
-            Assert.AreEqual("suffix?key1=value1&key3&key4=value4", result);
+            Assert.AreEqual("suffix?key1=value1%2Bx&key3&key4=value4", result);
         }
 
         [TestMethod]
@@ -67,12 +67,12 @@ namespace DotVVM.Framework.Tests.Routing
             var suffix = "suffix";
             var query = new TestUrlSuffixDescriptor();
             var result = UrlHelper.BuildUrlSuffix(suffix, query);
-            Assert.AreEqual("suffix?key1=value1&key3&key4=value4", result);
+            Assert.AreEqual("suffix?key1=value1%2Bx&key3&key4=value4", result);
         }
 
         private class TestUrlSuffixDescriptor
         {
-            public string key1 { get; set; } = "value1";
+            public string key1 { get; set; } = "value1+x";
             public object key2 { get; set; } = null;
             public object key3 { get; set; } = string.Empty;
             public string key4 { get; set; } = "value4";

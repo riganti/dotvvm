@@ -128,7 +128,7 @@ namespace DotVVM.Framework.Routing
             var convertedValues =
                 values.ToDictionary(
                     v => v.Key,
-                    v => UrlHelper.ParameterToString(v.Value),
+                    v => UrlHelper.ParameterToString(v.Value) is string x ? Uri.EscapeDataString(x) : null,
                     StringComparer.OrdinalIgnoreCase
                 );
             try
