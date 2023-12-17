@@ -20,6 +20,7 @@
     <None Remove="script\**" />
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="Views\FeatureSamples\EmbeddedResourceControls\EmbeddedResourceMasterPage.dotmaster" />
     <Content Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +99,8 @@
     <None Remove="Views\FeatureSamples\CustomPrimitiveTypes\RouteLink.dothtml" />
     <None Remove="Views\FeatureSamples\CustomPrimitiveTypes\TextBox.dothtml" />
     <None Remove="Views\FeatureSamples\CustomPrimitiveTypes\UsedInControls.dothtml" />
+    <None Remove="Views\FeatureSamples\EmbeddedResourceControls\EmbeddedResourceMasterPage.dotmaster" />
+    <None Remove="Views\FeatureSamples\EmbeddedResourceControls\PageWithEmbeddedResourceMasterPage.dothtml" />
     <None Remove="Views\FeatureSamples\Formatting\AutoResourceInclusion.dothtml" />
     <None Remove="Views\FeatureSamples\Formatting\AutoResourceInclusionMaster.dotmaster" />
     <None Remove="Views\FeatureSamples\Formatting\ToStringGlobalFunctionBug.dothtml" />
@@ -193,6 +196,7 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Views\FeatureSamples\EmbeddedResourceControls\EmbeddedResourceMasterPage.dotmaster" />
     <EmbeddedResource Include="Views\FeatureSamples\ViewModules\LinkModuleControl.dotcontrol" />
     <EmbeddedResource Include="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
