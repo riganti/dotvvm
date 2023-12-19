@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Compilation
         public DefaultControlBuilderFactory(DotvvmConfiguration configuration, IMarkupFileLoader markupFileLoader, CompiledAssemblyCache compiledAssemblyCache)
         {
             this.configuration = configuration;
-            this.allowReload = configuration.Debug;
+            this.allowReload = configuration.Runtime.ReloadMarkupFiles.Enabled ?? configuration.Debug;
 
             // WORKAROUND: there is a circular dependency
             // TODO: get rid of that

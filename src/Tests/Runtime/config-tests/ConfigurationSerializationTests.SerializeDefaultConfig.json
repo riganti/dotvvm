@@ -147,7 +147,9 @@
         "enabled": true
       }
     },
-    "runtime": {},
+    "runtime": {
+      "reloadMarkupFiles": {}
+    },
     "defaultCulture": "en-US",
     "experimentalFeatures": {
       "explicitAssemblyLoading": {
