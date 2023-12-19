@@ -166,7 +166,7 @@ namespace DotVVM.Framework.Configuration
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                FreezableUtils.Error($"{nameof(DotvvmFeatureFlag)} {this.FlagName}");
+                throw FreezableUtils.Error($"{nameof(DotvvmFeatureFlag)} {this.FlagName}");
         }
         public void Freeze()
         {

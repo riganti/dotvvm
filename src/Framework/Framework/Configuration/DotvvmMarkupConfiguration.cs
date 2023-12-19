@@ -196,8 +196,9 @@ namespace DotVVM.Framework.Configuration
             foreach (var t in this.HtmlAttributeTransforms)
                 t.Value.Freeze();
             _defaultDirectives.Freeze();
-
+            FreezableList.Freeze(ref _importedNamespaces);
             JavascriptTranslator.Freeze();
+            FreezableList.Freeze(ref _defaultExtensionParameters);
         }
     }
 }

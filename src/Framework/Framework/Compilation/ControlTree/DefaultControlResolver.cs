@@ -22,13 +22,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private readonly DotvvmConfiguration configuration;
         private readonly IControlBuilderFactory controlBuilderFactory;
         private readonly CompiledAssemblyCache compiledAssemblyCache;
+        private readonly Dictionary<string, Type>? controlNameMappings;
 
         private static object locker = new object();
         private static bool isInitialized = false;
         private static object dotvvmLocker = new object();
         private static bool isDotvvmInitialized = false;
 
-        private static Dictionary<string, Type>? controlNameMappings;
 
         public DefaultControlResolver(DotvvmConfiguration configuration, IControlBuilderFactory controlBuilderFactory, CompiledAssemblyCache compiledAssemblyCache) : base(configuration.Markup)
         {

@@ -158,6 +158,7 @@ namespace DotVVM.Framework.Configuration
         public void Freeze()
         {
             isFrozen = true;
+            Diagnostics.Freeze();
             Markup.Freeze();
             RouteTable.Freeze();
             Resources.Freeze();
