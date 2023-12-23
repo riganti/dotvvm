@@ -42,7 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-    <PackageReference Include="FastExpressionCompiler" Version="3.3.3" />
+    <PackageReference Include="FastExpressionCompiler" Version="4.0.1" />
+    <!-- <ProjectReference Include="/home/exyi/code/FastExpressionCompiler/src/FastExpressionCompiler/FastExpressionCompiler.csproj" /> -->
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.1" />
     <PackageReference Include="RecordException" Version="0.1.2" />
