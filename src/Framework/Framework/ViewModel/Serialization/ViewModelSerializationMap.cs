@@ -101,7 +101,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (Constructor is null)
                 return jitException($"Can not deserialize {Type.ToCode()}, no parameterless constructor found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.");
 
-            var parameters = Constructor.GetParameters().Select(p => {
+            var parameters = new List<Expression>();
+
+            var blockBody = new List<Expression>();
+            var blockVariables = new List<ParameterExpression>();
+            foreach (var p in Constructor.GetParameters())
+            {
                 var prop = Properties.FirstOrDefault(pp => pp.ConstructorParameter == p);
                 if (prop is null)
                 {
@@ -110,26 +115,40 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         throw new Exception($"Can not deserialize {Type.ToCode()}, constructor parameter {p.Name} is not mapped to any property.");
 
                     var errorMessage = $"Can not deserialize {Type.ToCode()}, constructor parameter {p.Name} is not mapped to any property and service {p.ParameterType.ToCode(stripNamespace: true)} was not found in ServiceProvider.";
-                    return ExpressionUtils.WrapException(
-                        Call(typeof(ServiceProviderServiceExtensions), "GetRequiredService", new [] { p.ParameterType }, services),
-                        e => throw new Exception(errorMessage, e)
+                    // we avoid putting TryCatch block into the Call expression, since both FastExpressionCompiler and standard .Compile apparently have issues with nested `try { }` blocks
+                    var tmp = Expression.Parameter(p.ParameterType, "tmp_" + p.Name);
+                    blockVariables.Add(tmp);
+                    blockBody.Add(
+                        Assign(tmp, ExpressionUtils.WrapException(
+                            Call(typeof(ServiceProviderServiceExtensions), "GetRequiredService", new [] { p.ParameterType }, services),
+                            e => throw new Exception(errorMessage, e)
+                        ))
                     );
+                    parameters.Add(tmp);
                 }
 
-                if (!prop.TransferToServer)
+                else if (!prop.TransferToServer)
                     throw new Exception($"Can not deserialize {Type.ToCode()}, property {prop.Name} is not transferred to server, but it's used in constructor.");
+                else
+                {
+                    parameters.Add(propertyVariables[prop.PropertyInfo]);
+                }
+            }
 
-                Debug.Assert(propertyVariables.ContainsKey(prop.PropertyInfo));
-
-                return propertyVariables[prop.PropertyInfo];
-            }).ToArray();
-            return Constructor switch {
+            Expression call = Constructor switch {
                 ConstructorInfo c =>
                     New(c, parameters),
                 MethodInfo m =>
                     Call(m, parameters),
                 _ => throw new NotSupportedException()
             };
+            if (blockBody.Count > 0)
+            {
+                blockBody.Add(call);
+                return Expression.Block(call.Type, blockVariables, blockBody);
+            }
+            else
+                return call;
 
             // Since the old serializer didn't care about constructor problems until it was actually needed,
             // we can't throw exception during compilation, so we wait until this code will run.
@@ -562,7 +581,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         // serializer.Serialize(serializer, writer, {property}, (object)value.{property.PropertyInfo.Name});
                         propertyBlock.Add(GetSerializeExpression(property, writer, prop, serializer));
 
-                        Expression propertyFinally = Expression.Default(typeof(void));
+                        Expression? propertyFinally = null;
                         if (checkEV)
                         {
                             if (writeEV)
@@ -585,6 +604,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         }
 
                         block.Add(
+                            propertyFinally is null ? Expression.Block(propertyBlock) :
                             Expression.TryFinally(
                                 Expression.Block(propertyBlock),
                                 propertyFinally
