@@ -22,6 +22,11 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual("MyProperty", property.NameSyntax.Name);
 
             Assert.AreEqual(4, property.Attributes.Count);
+
+            AssertEx.AssertNode(property.Attributes[0].Initializer, "", 19, 0);
+            AssertEx.AssertNode(property.Attributes[1].Initializer, "", 28, 0);
+            AssertEx.AssertNode(property.Attributes[2].Initializer, "", 43, 0);
+            AssertEx.AssertNode(property.Attributes[3].Initializer, "t", 105, 0);
         }
 
         [TestMethod]
