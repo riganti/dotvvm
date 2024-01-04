@@ -25,8 +25,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             AssertEx.AssertNode(property.Attributes[0].Initializer, "", 19, 0);
             AssertEx.AssertNode(property.Attributes[1].Initializer, "", 28, 0);
-            AssertEx.AssertNode(property.Attributes[2].Initializer, "", 43, 0);
-            AssertEx.AssertNode(property.Attributes[3].Initializer, "t", 105, 0);
+            AssertEx.AssertNode(property.Attributes[2].Initializer, "", 42, 1, true);
+            AssertEx.AssertNode(property.Attributes[3].Initializer, "t", 104, 2);
         }
 
         [TestMethod]
@@ -58,11 +58,15 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var property = root.Directives["property"].SingleOrDefault() as IAbstractPropertyDeclarationDirective;
 
-            var nodes = property.InitializerSyntax.EnumerateChildNodes();
+            Assert.AreEqual("System.String[]", property.PropertyType.FullName);
+            Assert.AreEqual("MyProperty", property.NameSyntax.Name);
 
+            var nodes = property.InitializerSyntax.EnumerateChildNodes();
             Assert.IsFalse(nodes.Any(n => n == property.InitializerSyntax));
 
-            Assert.AreEqual(2,nodes.Count());
+            Assert.AreEqual(2, property.Attributes.Count);
+            AssertEx.AssertNode(property.Attributes[0].Initializer, "True", 66, 5);
+            AssertEx.AssertNode(property.Attributes[1].Initializer, "False", 110, 6);
         }
     }
 }

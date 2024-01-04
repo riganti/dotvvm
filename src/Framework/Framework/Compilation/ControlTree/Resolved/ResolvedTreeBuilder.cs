@@ -114,7 +114,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             DothtmlDirectiveNode directiveNode,
             IdentifierNameBindingParserNode propertyNameSyntax,
             TypeReferenceBindingParserNode typeSyntax,
-            LiteralExpressionBindingParserNode initializer,
+            BindingParserNode initializer,
             ImmutableList<NamespaceImport> imports)
         {
             return new ResolvedPropertyDirectiveAttributeReference(directiveService, directiveNode, typeSyntax, propertyNameSyntax, initializer, imports);

@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 (name, attributes) => {
 
                     var attributeType = (attributes.First().Type as ResolvedTypeDescriptor)?.Type;
-                    var properties = attributes.Select(a => (name: a.NameSyntax.Name, value: a.Initializer.Value));
+                    var properties = attributes.Select(a => (name: a.NameSyntax.Name, value: a.Initializer));
 
                     return (attributeType, properties);
                 }).ToList();
