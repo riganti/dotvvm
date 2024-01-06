@@ -43,5 +43,21 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             Assert.IsTrue(error.Contains("Cannot assign"), "Expected error about failed assignment into the attribute property.");
         }
+
+        [TestMethod]
+        public void ResolvedTree_PropertyDirectiveArrayInicializer_ResolvedCorrectly()
+        {
+            var root = ParseSource(@$"
+@viewModel object
+@property string a=[, MarkupOptionsAttribute.Required = true");
+
+            var property = root.Directives["property"].SingleOrDefault() as IAbstractPropertyDeclarationDirective;
+
+            var nodes = property.InitializerSyntax.EnumerateChildNodes();
+
+            Assert.IsFalse(nodes.Any(n => n == property.InitializerSyntax));
+
+            Assert.AreEqual(2,nodes.Count());
+        }
     }
 }
