@@ -68,9 +68,10 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void ResolvedTree_PropertyDirectiveArrayInicializerAndAttributes_ResolvedCorrectly()
         {
-            var root = ParseSource(@$"
+            var root = ParseSource("""
 @viewModel object
-@property string[] MyProperty=["""",""""], MarkupOptionsAttribute.Required = true, MarkupOptionsAttribute.AllowBinding = false");
+@property string[] MyProperty=["",""], MarkupOptionsAttribute.Required = true, MarkupOptionsAttribute.AllowBinding = false
+""");
 
             var property = root.Directives["property"].SingleOrDefault() as IAbstractPropertyDeclarationDirective;
 
