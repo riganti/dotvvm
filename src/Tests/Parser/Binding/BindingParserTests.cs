@@ -1490,7 +1490,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         private static void AssertNode(BindingParserNode node, string expectedDisplayString, int start, int length, bool hasErrors = false)
-            => AssertEx.AssertNode(node, expectedDisplayString, start, length, hasErrors);
+            => AssertEx.BindingNode(node, expectedDisplayString, start, length, hasErrors);
 
         private static string SkipWhitespaces(string str) => string.Join("", str.Where(c => !char.IsWhiteSpace(c)));
 

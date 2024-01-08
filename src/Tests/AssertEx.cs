@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Tests
 {
     public static class AssertEx
     {
-        public static void AssertNode(BindingParserNode node, string expectedDisplayString, int start, int length, bool hasErrors = false)
+        public static void BindingNode(BindingParserNode node, string expectedDisplayString, int start, int length, bool hasErrors = false)
         {
             Assert.AreEqual(expectedDisplayString, node.ToDisplayString(), $"Node {node.GetType().Name}: display string incorrect.");
             Assert.AreEqual(start, node.StartPosition, $"Node {node.GetType().Name}: Start position incorrect.");

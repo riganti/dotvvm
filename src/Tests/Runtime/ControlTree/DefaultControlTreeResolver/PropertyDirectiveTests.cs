@@ -23,10 +23,10 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             Assert.AreEqual(4, property.Attributes.Count);
 
-            AssertEx.AssertNode(property.Attributes[0].Initializer, "", 19, 0);
-            AssertEx.AssertNode(property.Attributes[1].Initializer, "", 28, 0);
-            AssertEx.AssertNode(property.Attributes[2].Initializer, "", 42, 1, true);
-            AssertEx.AssertNode(property.Attributes[3].Initializer, "t", 104, 2);
+            AssertEx.BindingNode(property.Attributes[0].Initializer, "", 19, 0);
+            AssertEx.BindingNode(property.Attributes[1].Initializer, "", 28, 0);
+            AssertEx.BindingNode(property.Attributes[2].Initializer, "", 42, 1, true);
+            AssertEx.BindingNode(property.Attributes[3].Initializer, "t", 104, 2);
         }
 
         [TestMethod]
@@ -78,8 +78,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual("MyProperty", property.NameSyntax.Name);
 
             Assert.AreEqual(2, property.Attributes.Count);
-            AssertEx.AssertNode(property.Attributes[0].Initializer, "True", 62, 5);
-            AssertEx.AssertNode(property.Attributes[1].Initializer, "False", 106, 6);
+            AssertEx.BindingNode(property.Attributes[0].Initializer, "True", 62, 5);
+            AssertEx.BindingNode(property.Attributes[1].Initializer, "False", 106, 6);
         }
     }
 }
