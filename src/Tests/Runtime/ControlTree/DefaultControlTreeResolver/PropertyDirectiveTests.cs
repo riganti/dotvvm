@@ -22,6 +22,11 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual("MyProperty", property.NameSyntax.Name);
 
             Assert.AreEqual(4, property.Attributes.Count);
+
+            AssertEx.BindingNode(property.Attributes[0].Initializer, "", 19, 0);
+            AssertEx.BindingNode(property.Attributes[1].Initializer, "", 28, 0);
+            AssertEx.BindingNode(property.Attributes[2].Initializer, "", 42, 1, true);
+            AssertEx.BindingNode(property.Attributes[3].Initializer, "t", 104, 2);
         }
 
         [TestMethod]
@@ -45,7 +50,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
-        public void ResolvedTree_PropertyDirectiveArrayInicializer_ResolvedCorrectly()
+        public void ResolvedTree_PropertyDirectiveInvalidArrayInicializer_ResolvedCorrectly()
         {
             var root = ParseSource(@$"
 @viewModel object
@@ -53,11 +58,29 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var property = root.Directives["property"].SingleOrDefault() as IAbstractPropertyDeclarationDirective;
 
+            Assert.AreEqual("System.String", property.PropertyType.FullName);
+            Assert.AreEqual("a", property.NameSyntax.Name);
+
             var nodes = property.InitializerSyntax.EnumerateChildNodes();
-
             Assert.IsFalse(nodes.Any(n => n == property.InitializerSyntax));
+        }
 
-            Assert.AreEqual(2,nodes.Count());
+        [TestMethod]
+        public void ResolvedTree_PropertyDirectiveArrayInicializerAndAttributes_ResolvedCorrectly()
+        {
+            var root = ParseSource("""
+@viewModel object
+@property string[] MyProperty=["",""], MarkupOptionsAttribute.Required = true, MarkupOptionsAttribute.AllowBinding = false
+""");
+
+            var property = root.Directives["property"].SingleOrDefault() as IAbstractPropertyDeclarationDirective;
+
+            Assert.AreEqual("System.String[]", property.PropertyType.FullName);
+            Assert.AreEqual("MyProperty", property.NameSyntax.Name);
+
+            Assert.AreEqual(2, property.Attributes.Count);
+            AssertEx.BindingNode(property.Attributes[0].Initializer, "True", 62, 5);
+            AssertEx.BindingNode(property.Attributes[1].Initializer, "False", 106, 6);
         }
     }
 }

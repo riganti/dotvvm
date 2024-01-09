@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         IAbstractViewModuleDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName);
         IAbstractPropertyDeclarationDirective BuildPropertyDeclarationDirective(DothtmlDirectiveNode directive, TypeReferenceBindingParserNode typeSyntax, SimpleNameBindingParserNode nameSyntax, BindingParserNode? initializer, IList<IAbstractDirectiveAttributeReference> resolvedAttributes, BindingParserNode valueSyntaxRoot, ImmutableList<NamespaceImport> imports);
-        IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReference(DothtmlDirectiveNode directiveNode, IdentifierNameBindingParserNode propertyNameSyntax, TypeReferenceBindingParserNode typeSyntax, LiteralExpressionBindingParserNode initializer, ImmutableList<NamespaceImport> imports);
+        IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReference(DothtmlDirectiveNode directiveNode, IdentifierNameBindingParserNode propertyNameSyntax, TypeReferenceBindingParserNode typeSyntax, BindingParserNode initializer, ImmutableList<NamespaceImport> imports);
         IAbstractPropertyBinding BuildPropertyBinding(IPropertyDescriptor property, IAbstractBinding binding, DothtmlAttributeNode? sourceAttributeNode);
 
         IAbstractPropertyControl BuildPropertyControl(IPropertyDescriptor property, IAbstractControl? control, DothtmlElementNode? wrapperElementNode);

@@ -15,14 +15,14 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public TypeReferenceBindingParserNode TypeSyntax { get; }
         public IdentifierNameBindingParserNode NameSyntax { get; }
         public ITypeDescriptor? Type { get; set; }
-        public LiteralExpressionBindingParserNode Initializer { get; }
+        public BindingParserNode Initializer { get; }
 
         public ResolvedPropertyDirectiveAttributeReference(
             DirectiveCompilationService directiveService,
             DothtmlDirectiveNode directiveNode,
             TypeReferenceBindingParserNode typeReferenceBindingParserNode,
             IdentifierNameBindingParserNode attributePropertyNameReference,
-            LiteralExpressionBindingParserNode initializer,
+            BindingParserNode initializer,
             ImmutableList<NamespaceImport> imports)
         {
             DirectiveNode = directiveNode;

@@ -1490,20 +1490,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         private static void AssertNode(BindingParserNode node, string expectedDisplayString, int start, int length, bool hasErrors = false)
-        {
-            Assert.AreEqual(expectedDisplayString, node.ToDisplayString(), $"Node {node.GetType().Name}: display string incorrect.");
-            Assert.AreEqual(start, node.StartPosition, $"Node {node.GetType().Name}: Start position incorrect.");
-            Assert.AreEqual(length, node.Length, $"Node {node.GetType().Name}: Length incorrect.");
-
-            if (hasErrors)
-            {
-                Assert.IsTrue(node.HasNodeErrors);
-            }
-            else
-            {
-                Assert.IsFalse(node.HasNodeErrors);
-            }
-        }
+            => AssertEx.BindingNode(node, expectedDisplayString, start, length, hasErrors);
 
         private static string SkipWhitespaces(string str) => string.Join("", str.Where(c => !char.IsWhiteSpace(c)));
 
