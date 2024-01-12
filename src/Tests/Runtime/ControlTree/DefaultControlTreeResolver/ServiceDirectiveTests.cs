@@ -5,6 +5,7 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -52,30 +53,32 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void ResolvedTree_ServiceDirective_CorrectBindingFromInjectedService_UsingGlobalImportedAliasedNamespace()
         {
-            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport(
+            var config = DotvvmTestHelper.CreateConfiguration();
+            config.Markup.ImportedNamespaces.Add(new NamespaceImport(
                 $"DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver.{nameof(TestService)}",
                 "testServiceAlias"));
 
-            var root = ParseSource(@$"
+            var root = DotvvmTestHelper.ParseResolvedTree(@$"
 @viewModel object
 @service testService = testServiceAlias
 
 <dot:Button Click={{staticCommand: testService.TestCall()}} Text=""Test"" />
-");
+", configuration: config);
             CheckServiceAndBinding(root);
         }
 
         [TestMethod]
         public void ResolvedTree_ServiceDirective_CorrectBindingFromInjectedService_UsingGlobalImportedNamespace()
         {
-            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport($"DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver"));
+            var config = DotvvmTestHelper.CreateConfiguration();
+            config.Markup.ImportedNamespaces.Add(new NamespaceImport($"DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver"));
 
-            var root = ParseSource(@$"
+            var root = DotvvmTestHelper.ParseResolvedTree(@$"
 @viewModel object
 @service testService = {nameof(TestService)}
 
 <dot:Button Click={{staticCommand: testService.TestCall()}} Text=""Test"" />
-");
+", configuration: config);
             CheckServiceAndBinding(root);
         }
 

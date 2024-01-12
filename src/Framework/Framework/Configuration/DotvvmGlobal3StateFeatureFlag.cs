@@ -3,23 +3,20 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
-    /// <summary> Enables or disables certain DotVVM feature for the entire application. </summary>
-    public class DotvvmGlobalFeatureFlag
+    /// <summary> Overrides an automatically enabled feature by always enabling or disabling it for the entire application. </summary>
+    public class DotvvmGlobal3StateFeatureFlag
     {
         [JsonIgnore]
         public string FlagName { get; }
 
-        public DotvvmGlobalFeatureFlag(string flagName)
+        public DotvvmGlobal3StateFeatureFlag(string flagName)
         {
             FlagName = flagName;
         }
 
-        [Obsolete("Please specify the feature flag name")]
-        public DotvvmGlobalFeatureFlag(): this("Unknown") { }
-
         /// <summary> Gets or sets whether the feature is enabled or disabled. </summary>
         [JsonProperty("enabled")]
-        public bool Enabled
+        public bool? Enabled
         {
             get => _enabled;
             set
@@ -28,7 +25,14 @@ namespace DotVVM.Framework.Configuration
                 _enabled = value;
             }
         }
-        private bool _enabled = false;
+        private bool? _enabled = null;
+
+        /// <summary> Resets the feature flag to its default state. </summary>
+        public void Reset()
+        {
+            ThrowIfFrozen();
+            Enabled = null;
+        }
 
         /// <summary> Enables the feature for this application. </summary>
         public void Enable()
@@ -55,6 +59,6 @@ namespace DotVVM.Framework.Configuration
             this.isFrozen = true;
         }
 
-        public override string ToString() => $"Feature flag {FlagName}: {(Enabled ? "Enabled" : "Disabled")}";
+        public override string ToString() => $"Feature flag {FlagName}: {Enabled switch { null => "Default", true => "Enabled", false => "Disabled"}}";
     }
 }
