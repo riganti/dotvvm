@@ -181,6 +181,13 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
+        /// <summary> Removes an old entry from the cache, forcing a recompilation. If loading of this view is already running </summary>
+        public void InvalidateCache(string virtualPath)
+        {
+            this.markupFiles.TryRemove(virtualPath, out _);
+            this.controlBuilders.TryRemove(virtualPath, out _);
+        }
+
         public void LoadCompiledViewsAssembly(string filePath)
         {
             var assembly = TryFindAssembly(filePath);
