@@ -69,8 +69,18 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Formatting_AutoResourceInclusion()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Formatting_AutoResourceInclusion);
+
+                browser.FindElements("p").ThrowIfDifferentCountThan(3);
+            });
+        }
+
         public FormattingTests(ITestOutputHelper output) : base(output)
         {
-            }
         }
     }
+}

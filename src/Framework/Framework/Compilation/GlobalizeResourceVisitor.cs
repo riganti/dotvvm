@@ -39,11 +39,6 @@ namespace DotVVM.Framework.Compilation
             base.VisitControl(control);
         }
 
-        public override void VisitPropertyTemplate(ResolvedPropertyTemplate propertyTemplate)
-        {
-            Visit(propertyTemplate, propertyTemplate.Content, base.VisitPropertyTemplate);
-        }
-
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
             var requiredGlobalizeProperty = propertyBinding.Binding.Binding
