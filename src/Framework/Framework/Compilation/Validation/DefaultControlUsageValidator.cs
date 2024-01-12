@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Validation
 {
@@ -18,7 +20,7 @@ namespace DotVVM.Framework.Compilation.Validation
             Configuration = config;
         }
 
-        public static ConcurrentDictionary<Type, MethodInfo[]> cache = new ConcurrentDictionary<Type, MethodInfo[]>();
+        public static ConcurrentDictionary<Type, (MethodInfo[] controlValidators, MethodInfo[] attachedPropertyValidators)> cache = new();
 
         protected DotvvmConfiguration Configuration { get; }
 
@@ -44,6 +46,48 @@ namespace DotVVM.Framework.Compilation.Validation
             }
         }
 
+        private IEnumerable<ControlUsageError> CallMethod(MethodInfo method, IAbstractControl control)
+        {
+            var par = method.GetParameters();
+            var args = new object[par.Length];
+            for (int i = 0; i < par.Length; i++)
+            {
+                if (par[i].ParameterType.IsAssignableFrom(control.GetType()))
+                {
+                    args[i] = control;
+                }
+                else if (control.DothtmlNode != null && par[i].ParameterType.IsAssignableFrom(control.DothtmlNode.GetType()))
+                {
+                    args[i] = control.DothtmlNode;
+                }
+                else if (par[i].ParameterType == typeof(DotvvmConfiguration))
+                {
+                    args[i] = Configuration;
+                }
+                else
+                {
+                    return Enumerable.Empty<ControlUsageError>();
+                }
+            }
+            var r = method.Invoke(null, args);
+            if (r is null)
+            {
+                return Enumerable.Empty<ControlUsageError>();
+            }
+            else if (r is IEnumerable<ControlUsageError> errors)
+            {
+                return errors;
+            }
+            else if (r is IEnumerable<string> stringErrors)
+            {
+                return stringErrors.Select(e => new ControlUsageError(e));
+            }
+            else
+            {
+                throw new Exception($"ControlUsageValidator method '{ReflectionUtils.FormatMethodInfo(method)}' returned an invalid type. Expected IEnumerable<ControlUsageError> or IEnumerable<string>.");
+            }
+        }
+
         public IEnumerable<ControlUsageError> Validate(IAbstractControl control)
         {
             var type = GetControlType(control.Metadata);
@@ -55,71 +99,72 @@ namespace DotVVM.Framework.Compilation.Validation
                 return result;
 
             var methods = cache.GetOrAdd(type, FindMethods);
-            foreach (var method in methods)
+            foreach (var method in methods.controlValidators)
             {
-                var par = method.GetParameters();
-                var args = new object[par.Length];
-                for (int i = 0; i < par.Length; i++)
+                result.AddRange(CallMethod(method, control));
+            }
+
+            var attachedPropertiesTypes = new HashSet<Type>();
+            foreach (var attachedProperty in control.PropertyNames)
+            {
+                if (attachedProperty.DeclaringType.IsAssignableFrom(control.Metadata.Type))
+                    continue; // not an attached property
+                if (GetPropertyDeclaringType(attachedProperty) is {} declaringType)
+                    attachedPropertiesTypes.Add(declaringType);
+            }
+
+            foreach (var attachedPropertyType in attachedPropertiesTypes)
+            {
+                var (_, attachedValidators) = cache.GetOrAdd(attachedPropertyType, FindMethods);
+                foreach (var method in attachedValidators)
                 {
-                    if (par[i].ParameterType.IsAssignableFrom(control.GetType()))
-                    {
-                        args[i] = control;
-                    }
-                    else if (control.DothtmlNode != null && par[i].ParameterType.IsAssignableFrom(control.DothtmlNode.GetType()))
-                    {
-                        args[i] = control.DothtmlNode;
-                    }
-                    else if (par[i].ParameterType == typeof(DotvvmConfiguration))
-                    {
-                        args[i] = Configuration;
-                    }
-                    else
-                    {
-                        goto Error; // I think it is better that throw exceptions and catch them
-                    }
+                    result.AddRange(CallMethod(method, control));
                 }
-                var r = method.Invoke(null, args);
-                if (r is IEnumerable<ControlUsageError> errors)
-                {
-                    result.AddRange(errors);
-                }
-                else if (r is IEnumerable<string> stringErrors)
-                {
-                    result.AddRange(stringErrors.Select(e => new ControlUsageError(e)));
-                }
-                continue;
-                Error:;
             }
 
             return result
                 // add current node to the error, if no control is specified
                 .Select(e => e.Nodes.Length == 0 ?
-                    new ControlUsageError(e.ErrorMessage, control.DothtmlNode) :
+                    new ControlUsageError(e.ErrorMessage, e.Severity, control.DothtmlNode) :
                     e);
         }
 
-        protected virtual MethodInfo[] FindMethods(Type type)
+        protected virtual (MethodInfo[] controlValidators, MethodInfo[] attachedPropertyValidators) FindMethods(Type type)
         {
-            if (type == typeof(object)) return new MethodInfo[0];
+            if (type == typeof(object))
+                return (Array.Empty<MethodInfo>(), Array.Empty<MethodInfo>());
+
             var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
                 .Where(m => m.IsDefined(typeof(ControlUsageValidatorAttribute)))
                 .ToArray();
 
-            var attributes = methods.Select(s => s.GetCustomAttribute(typeof(ControlUsageValidatorAttribute))).ToList();
-            var overrideValidation = attributes.OfType<ControlUsageValidatorAttribute>().Select(s => s.Override).Distinct().ToList();
+            var attributes = methods.Select(method => (method, attr: method.GetCustomAttribute<ControlUsageValidatorAttribute>().NotNull())).ToList();
+            var overrideValidation = attributes.Select(s => s.attr.Override).Distinct().ToList();
 
             if (overrideValidation.Count > 1)
                 throw new Exception($"ControlUsageValidator attributes on '{type.FullName}' are in an inconsistent state. Make sure all attributes have an Override property set to the same value.");
 
-            if (overrideValidation.Any() && overrideValidation[0]) return methods;
+            var attachedValidators = attributes.Where(s => s.attr.IncludeAttachedProperties).Select(m => m.method).ToArray();
+                
+            if (overrideValidation.Any() && overrideValidation[0])
+                return (methods, attachedValidators);
+
             var ancestorMethods = FindMethods(type.BaseType!);
-            return ancestorMethods.Concat(methods).ToArray();
+            // attached validators are not inherited
+            return (ancestorMethods.controlValidators.Concat(methods).ToArray(), attachedValidators);
         }
 
         protected virtual Type? GetControlType(IControlResolverMetadata metadata)
         {
             var type = metadata.Type as ResolvedTypeDescriptor;
             return type?.Type;
+        }
+
+        protected virtual Type? GetPropertyDeclaringType(IPropertyDescriptor property)
+        {
+            if (property is DotvvmProperty p)
+                return p.DeclaringType;
+            return (property.DeclaringType as ResolvedTypeDescriptor)?.Type;
         }
 
         /// <summary> Clear cache when hot reload happens </summary>
