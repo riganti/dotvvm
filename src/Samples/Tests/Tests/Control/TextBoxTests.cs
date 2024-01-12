@@ -165,6 +165,12 @@ window.getSelectionText = function (dataui) {
                 var nullableNumberValueText = browser.First("#nullableNumberValueText");
                 AssertUI.InnerTextEquals(nullableNumberValueText, 123.123456789.ToString(culture));
 
+                var timespanTextbox = browser.First("#timespanTextbox");
+                AssertUI.Attribute(timespanTextbox, "value", new TimeSpan(11, 48, 25).ToString("HH:mm"));
+
+                var timespanValueText = browser.First("#timespanValueText");
+                AssertUI.InnerTextEquals(timespanValueText, new TimeSpan(11, 48, 25).ToString());
+
                 //write new valid values
                 dateTextBox.Clear().SendKeys(dateResult2);
                 numberTextbox.Clear().SendKeys(2000.ToString("n0", culture));
@@ -287,6 +293,9 @@ window.getSelectionText = function (dataui) {
 
                 AssertUI.Value(browser.Single("input[data-ui='datetime-textbox']"), "2017-01-01T08:08");
                 AssertUI.Value(browser.Single("input[data-ui='nullable-datetime-textbox']"), "2017-01-01T20:10");
+
+                AssertUI.Value(browser.Single("input[data-ui='timespan-textbox']"), "11:48:25");
+                AssertUI.Value(browser.Single("input[data-ui='nullable-timespan-textbox']"), "11:48:25");
 
                 var intTextBox = browser.Single("input[data-ui='int-textbox']");
                 AssertUI.Value(intTextBox, "0");

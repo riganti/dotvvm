@@ -45,6 +45,21 @@
                      Text="{value: NumberValue}">
         </dot:Literal>
     </p>
+    <p ID="timespanFormat">
+        TimeSpan Format: <br>
+        <dot:textbox ID="timespanTextbox"
+                     ClientIDMode="Static"
+                     Text="{value: TimeSpanValue.ToString('HH\:mm') }"
+                     style="height: 20px; width: 200px;"/>
+        <dot:Literal ID="timespanValueText"
+                     ClientIDMode="Static"
+                     Text="{value: TimeSpanValue }"
+                     ValueType="Time" />
+        <dot:Literal ID="timespanFormatText"
+                     ClientIDMode="Static"
+                     Text="(Format: HH:mm)"
+                     ValueType="Text" />
+    </p>
     <p ID="nullableNumberformat">
         Nullable Number: <br>
         <dot:TextBox ID="nullableNumberTextbox"

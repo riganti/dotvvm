@@ -19,6 +19,10 @@
         <br />
         <dot:TextBox Text="{value: NullableDate}" Type="Time" data-ui="nullable-time-textbox" />
         <br />
+        <dot:TextBox Text="{value: TimeSpan}" Type="Time" data-ui="timespan-textbox" />
+        <br />
+        <dot:TextBox Text="{value: NullableTimeSpan}" Type="Time" data-ui="nullable-timespan-textbox" />
+        <br />
         <dot:TextBox Text="{value: Date}" Type="DateTimeLocal" data-ui="datetime-textbox" />
         <br />
         <dot:TextBox Text="{value: NullableDate}" Type="DateTimeLocal" data-ui="nullable-datetime-textbox" />
