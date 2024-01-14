@@ -248,6 +248,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Directives_ImportDirectiveInvalid = "FeatureSamples/Directives/ImportDirectiveInvalid";
         public const string FeatureSamples_Directives_ViewModelMissingAssembly = "FeatureSamples/Directives/ViewModelMissingAssembly";
         public const string FeatureSamples_EmbeddedResourceControls_EmbeddedResourceControls = "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceControls";
+        public const string FeatureSamples_EmbeddedResourceControls_PageWithEmbeddedResourceMasterPage = "FeatureSamples/EmbeddedResourceControls/PageWithEmbeddedResourceMasterPage";
         public const string FeatureSamples_Formatting_AutoResourceInclusion = "FeatureSamples/Formatting/AutoResourceInclusion";
         public const string FeatureSamples_Formatting_Formatting = "FeatureSamples/Formatting/Formatting";
         public const string FeatureSamples_Formatting_ToStringGlobalFunctionBug = "FeatureSamples/Formatting/ToStringGlobalFunctionBug";

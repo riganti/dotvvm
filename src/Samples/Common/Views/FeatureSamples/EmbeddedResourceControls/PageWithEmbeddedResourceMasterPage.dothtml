@@ -1,0 +1,9 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.EmbeddedResourceControls.PageWithEmbeddedResourceMasterPageViewModel, DotVVM.Samples.Common
+@masterPage embedded://DotVVM.Samples.Common/Views.FeatureSamples.EmbeddedResourceControls.EmbeddedResourceMasterPage.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <p>Success</p>
+
+</dot:Content>
+
