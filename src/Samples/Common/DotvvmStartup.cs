@@ -95,6 +95,7 @@ namespace DotVVM.Samples.BasicSamples
                                     ), allowGeneric: true, allowMultipleMethods: true);
 
             config.Diagnostics.CompilationPage.IsApiEnabled = true;
+            config.Diagnostics.CompilationPage.IsEnabled = true;
             config.Diagnostics.CompilationPage.ShouldCompileAllOnLoad = false;
 
             config.AssertConfigurationIsValid();

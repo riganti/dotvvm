@@ -36,6 +36,8 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Diagnostics\CompilationPage.dothtml" />
+    <EmbeddedResource Include="Diagnostics\CompilationDiagnostic.dotcontrol" />
+    <EmbeddedResource Include="Diagnostics\CompilationDiagnosticRows.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Core/DotVVM.Core.csproj" />

@@ -432,8 +432,8 @@ test <dot:Literal><a /></dot:Literal>";
             var ex = Assert.ThrowsException<DotvvmCompilationException>(() => {
                 CompileMarkup(markup);
             });
-            Assert.IsTrue(ex.ToString().Contains("DotVVM.Framework.Binding.Properties.DataSourceLengthBinding"));
-            Assert.IsTrue(ex.ToString().Contains("Cannot find collection length from binding '_this'"));
+            Assert.IsTrue(ex.AllErrors.Any(e => e.Message.Contains("DotVVM.Framework.Binding.Properties.DataSourceLengthBinding")));
+            StringAssert.Contains(ex.ToString(), "Cannot find collection length from binding '_this'");
         }
 
         [TestMethod]

@@ -106,16 +106,12 @@ namespace DotVVM.Framework.Compilation
             var compilationService = configuration.ServiceProvider.GetService<IDotvvmViewCompilationService>();
             void editCompilationException(DotvvmCompilationException ex)
             {
-                if (ex.FileName == null)
+                var fileName = ex.FileName ?? file.FullPath;
+                if (!Path.IsPathRooted(fileName) && Path.IsPathRooted(file.FullPath))
                 {
-                    ex.FileName = file.FullPath;
+                    fileName = Path.Combine(file.FullPath.Remove(file.FullPath.Length - file.FileName.Length), fileName);
                 }
-                else if (!Path.IsPathRooted(ex.FileName))
-                {
-                    ex.FileName = Path.Combine(
-                        file.FullPath.Remove(file.FullPath.Length - file.FileName.Length),
-                        ex.FileName);
-                }
+                ex.SetFile(fileName, file);
             }
             try
             {

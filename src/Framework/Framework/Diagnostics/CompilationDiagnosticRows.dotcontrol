@@ -1,0 +1,26 @@
+@import DotVVM.Framework.Compilation.DotHtmlFileInfo
+@property DotVVM.Framework.Compilation.DotHtmlFileInfo.CompilationDiagnosticViewModel[] Diagnostics
+@property int DisplayLimit
+@viewModel object
+@noWrapperTag
+
+<dot:Placeholder IncludeInPage={value: _control.Diagnostics.Length > 0}>
+    <dot:Repeater DataSource={value: _control.Diagnostics.Take(_control.DisplayLimit)} RenderWrapperTag=false >
+        <tr Class="row-continues">
+            <td colspan="5">
+                <dotvvm-internal:CompilationDiagnostic style="margin-left: 3rem" />
+            </td>
+        </tr>
+    </dot:Repeater>
+</dot:Placeholder>
+<tr IncludeInPage={value: _control.Diagnostics.Length > _control.DisplayLimit} class=row-continues>
+    <td colspan="5" class="center">
+        plus
+        <span class="error-text" IncludeInPage={value: _control.Diagnostics.Skip(_control.DisplayLimit).Any(d => d.Severity == 'Error')}>
+            <strong>{{value: _control.Diagnostics.Skip(_control.DisplayLimit).Where(d => d.Severity == 'Error').Count()}}</strong> more errors and
+        </span>
+        
+        <span class="warning-text"><strong>{{value: _control.Diagnostics.Skip(_control.DisplayLimit).Where(d => d.Severity == 'Warning').Count()}}</strong> more warnings</span>
+    </td>
+</tr>
+

@@ -71,6 +71,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IAbstractTreeBuilder, ResolvedTreeBuilder>();
             services.TryAddSingleton<Func<ControlUsageValidationVisitor>>(s => () => ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(s));
             services.TryAddSingleton<IViewCompiler, DefaultViewCompiler>();
+            services.AddSingleton<IDiagnosticsCompilationTracer>(s => s.GetRequiredService<DotvvmViewCompilationService.CompilationTracer>());
+            services.TryAddSingleton<CompositeDiagnosticsCompilationTracer>();
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
             services.TryAddSingleton<BindingCompilationService, BindingCompilationService>();
@@ -130,6 +132,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
             services.TryAddSingleton<DotvvmErrorPageRenderer>();
+            services.AddSingleton<DotvvmViewCompilationService.CompilationTracer>();
             services.AddSingleton<IDotvvmViewCompilationService, DotvvmViewCompilationService>();
             services.AddSingleton<CompilationPageApiPresenter>();
 

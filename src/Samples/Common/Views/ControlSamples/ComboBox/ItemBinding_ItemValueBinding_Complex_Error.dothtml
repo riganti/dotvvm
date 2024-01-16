@@ -11,7 +11,7 @@
 
     </h1>
     <dot:ComboBox data-ui="complex-crash"
-                  SelectedValue="{value: SelectedValue}"
+                  SelectedValue="{value: null}"
                   ItemTextBinding="{value:Text}"
                   DataSource="{value:  ComplexData}"
                   ItemValueBinding="{value: NestedComplex}"

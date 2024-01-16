@@ -7,12 +7,12 @@ namespace DotVVM.Framework.Compilation.Static
 {
     internal class DefaultCompilationReportLogger : ICompilationReportLogger
     {
-        public void Log(Stream stream, IEnumerable<CompilationReport> reports)
+        public void Log(Stream stream, IEnumerable<DotvvmCompilationDiagnostic> diagnostics)
         {
             using var writer = new StreamWriter(stream);
-            foreach (var report in reports)
+            foreach (var d in diagnostics)
             {
-                writer.WriteLine($"{report.ViewPath}({report.Line},{report.Column}): {report.Message}");
+                writer.WriteLine($"{d.Location}: {d.Severity.ToString().ToLowerInvariant()}: {d.Message}");
             }
         }
     }

@@ -1,2 +1,2 @@
-DotvvmCompilationException occurred: Validation error in AuthenticatedView at line 6: The WrapperTagName property cannot be set when RenderWrapperTag is false!
-    at void DotVVM.Framework.Compilation.Validation.ControlUsageValidationVisitor.VisitAndAssert(ResolvedTreeRoot view)
+DotvvmCompilationException occurred: AuthenticatedView validation at line 6: The WrapperTagName property cannot be set when RenderWrapperTag is false!
+    at List<DotvvmCompilationDiagnostic> DotVVM.Framework.Compilation.ViewCompiler.DefaultViewCompiler.CheckErrors(string fileName, string sourceCode, Handle tracingHandle, List<DothtmlToken> tokens, DothtmlNode syntaxTree, ResolvedTreeRoot resolvedTree, IEnumerable<DotvvmCompilationDiagnostic> additionalDiagnostics)

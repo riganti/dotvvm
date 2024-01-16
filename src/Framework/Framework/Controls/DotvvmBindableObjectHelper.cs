@@ -485,20 +485,26 @@ namespace DotVVM.Framework.Controls
             return toStringed;
         }
 
-        private static (string? prefix, string tagName) FormatControlName(DotvvmBindableObject control, DotvvmConfiguration? config = null)
+        internal static (string? prefix, string tagName) FormatControlName(DotvvmBindableObject control, DotvvmConfiguration? config)
         {
             var type = control.GetType();
             if (type == typeof(HtmlGenericControl))
                 return (null, ((HtmlGenericControl)control).TagName!);
+            return FormatControlName(type, config);
+        }
+        internal static (string? prefix, string tagName) FormatControlName(Type type, DotvvmConfiguration? config)
+        {
             var reg = config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace && Type.GetType(c.Namespace + "." + type.Name + ", " + c.Assembly) == type) ??
                       config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace) ??
                       config?.Markup.Controls.FirstOrDefault(c => c.Assembly == type.Assembly.GetName().Name);
             var ns = reg?.TagPrefix ?? type.Namespace switch {
+                null => "_",
                 "DotVVM.Framework.Controls" => "dot",
                 "DotVVM.AutoUI.Controls" => "auto",
                 "DotVVM.BusinessPack.Controls" or "DotVVM.BusinessPack.PostBackHandlers" => "bp",
                 "DotVVM.BusinessPack.Controls.FilterOperators" => "op",
                 "DotVVM.BusinessPack.Controls.FilterBuilderFields" => "fp",
+                var x when x.StartsWith("DotVVM.Contrib.") => "dc",
                 _ => "_"
             };
             var optionsAttribute = type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
@@ -538,7 +544,7 @@ namespace DotVVM.Framework.Controls
                 if (ancestor is {} && location.file.Equals(ancestor.TryGetValue(Internal.MarkupFileNameProperty)))
                 {
                     location.line = (int)ancestor.TryGetValue(Internal.MarkupLineNumberProperty)!;
-                    var ancestorName = FormatControlName(ancestor);
+                    var ancestorName = FormatControlName(ancestor, config);
                     location.nearestControlInMarkup = ancestorName.prefix is null ? ancestorName.tagName : $"{ancestorName.prefix}:{ancestorName.tagName}";
                 }
             }

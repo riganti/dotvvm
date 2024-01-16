@@ -17,6 +17,9 @@ namespace DotVVM.Framework.Diagnostics
         public int ActiveTab { get; set; } = 0;
         public string PathBase => Context.TranslateVirtualPath("~/");
 
+        public bool ShowInlineDiagnostics { get; set; } = true;
+        public int DefaultShownDiagnosticLimit { get; set; } = 8;
+
         public CompilationPageViewModel(IDotvvmViewCompilationService viewCompilationService)
         {
             this.viewCompilationService = viewCompilationService;

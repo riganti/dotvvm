@@ -40,7 +40,7 @@ namespace DotVVM.Samples.Tests
                     ,
                         s =>
                             s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException", StringComparison.OrdinalIgnoreCase) &&
-                            s.Contains("Could not resolve type 'invalid'", StringComparison.OrdinalIgnoreCase)
+                            s.Contains("Could not resolve type 'invalid_viewmodel_class'", StringComparison.OrdinalIgnoreCase)
                             );
             });
         }
@@ -85,11 +85,11 @@ namespace DotVVM.Samples.Tests
                 AssertUI.InnerText(browser.First("[class='exceptionMessage']")
                 ,
                         s =>
-                            s.ToLowerInvariant().Contains("was not recognized as a valid boolean.")
-                            , "Expected message is 'was not recognized as a valid Boolean.'");
+                            s.ToLowerInvariant().Contains("cannot contain hard coded value.")
+                            , "Expected message is 'cannot contain hard coded value'");
 
                 AssertUI.InnerText(browser.First("[class='errorUnderline']")
-                    , s => s.Contains("NotAllowedHardCodedValue"));
+                    , s => s.Contains("true"));
             });
         }
 
@@ -349,7 +349,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_UnknownInnerControl);
 
-                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("does not inherit from DotvvmControl and thus cannot be used in content"));
+                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("Content control must inherit from DotvvmControl, but DotVVM.Framework.Controls.ConfirmPostBackHandler doesn't"));
                 AssertUI.InnerText(browser.First("[class='errorUnderline']"), s => s.Contains("<dot:ConfirmPostBackHandler Message=\"Confirmation 1\" />"));
             });
         }
@@ -454,7 +454,7 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidRouteName);
 
                 AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
-                AssertUI.TextEquals(browser.First(".exceptionMessage"), "Validation error in RouteLink at line 18: RouteName \"NonExistingRouteName\" does not exist.",
+                AssertUI.TextEquals(browser.First(".exceptionMessage"), "RouteLink validation at line 18: RouteName \"NonExistingRouteName\" does not exist.",
                    failureMessage: "Exception should contain information about the undefined route name");
             });
         }

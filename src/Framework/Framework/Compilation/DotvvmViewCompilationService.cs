@@ -1,27 +1,31 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Controls.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Binding.Properties;
 
 namespace DotVVM.Framework.Compilation
 {
     public class DotvvmViewCompilationService : IDotvvmViewCompilationService
     {
-        private IControlBuilderFactory controlBuilderFactory;
+        private readonly IControlBuilderFactory controlBuilderFactory;
+        private readonly CompilationTracer tracer;
+        private readonly IMarkupFileLoader markupFileLoader;
         private readonly DotvvmConfiguration dotvvmConfiguration;
 
-        public DotvvmViewCompilationService(DotvvmConfiguration dotvvmConfiguration, IControlBuilderFactory controlBuilderFactory)
+        public DotvvmViewCompilationService(DotvvmConfiguration dotvvmConfiguration, IControlBuilderFactory controlBuilderFactory, CompilationTracer tracer, IMarkupFileLoader markupFileLoader)
         {
             this.dotvvmConfiguration = dotvvmConfiguration;
             this.controlBuilderFactory = controlBuilderFactory;
+            this.tracer = tracer;
+            this.markupFileLoader = markupFileLoader;
             masterPages = new Lazy<ConcurrentDictionary<string, DotHtmlFileInfo>>(InitMasterPagesCollection);
             controls = new Lazy<ImmutableArray<DotHtmlFileInfo>>(InitControls);
             routes = new Lazy<ImmutableArray<DotHtmlFileInfo>>(InitRoutes);
@@ -188,21 +192,101 @@ namespace DotVVM.Framework.Compilation
                 routes.Value.FirstOrDefault(t => t.VirtualPath == file) ??
                 controls.Value.FirstOrDefault(t => t.VirtualPath == file) ??
                 masterPages.Value.GetOrAdd(file, path => new DotHtmlFileInfo(path));
+
+            var tracerData = this.tracer.CompiledViews.GetValueOrDefault(file);
             
+            fileInfo.Exception = null;
+
+            var diagnostics = tracerData?.Diagnostics ?? Enumerable.Empty<DotHtmlFileInfo.CompilationDiagnosticViewModel>();
+
             if (exception is null)
             {
                 fileInfo.Status = CompilationState.CompletedSuccessfully;
-                fileInfo.Exception = null;
             }
             else
             {
                 fileInfo.Status = CompilationState.CompilationFailed;
                 fileInfo.Exception = exception.Message;
+
+                if (exception is DotvvmCompilationException compilationException)
+                {
+                    // overwrite the tracer diagnostics to avoid presenting duplicates
+                    diagnostics = compilationException.AllDiagnostics.Select(x => new DotHtmlFileInfo.CompilationDiagnosticViewModel(x, null)).ToArray();
+
+                    AddSourceLines(diagnostics, compilationException.AllDiagnostics);
+                }
             }
+
+            fileInfo.Errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToImmutableArray();
+            fileInfo.Warnings = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning).ToImmutableArray();
 
             if (descriptor?.MasterPage is { FileName: {} masterPagePath })
             {
                 masterPages.Value.GetOrAdd(masterPagePath, path => new DotHtmlFileInfo(path));
+            }
+        }
+
+        private void AddSourceLines(IEnumerable<DotHtmlFileInfo.CompilationDiagnosticViewModel> viewModels, IEnumerable<DotvvmCompilationDiagnostic> originalDiagnostics)
+        {
+            var markupFiles = new Dictionary<string, MarkupFile?>();
+            foreach (var d in originalDiagnostics)
+            {
+                if (d.Location.FileName is null)
+                    continue;
+                
+                markupFiles[d.Location.FileName] = markupFiles.GetValueOrDefault(d.Location.FileName) ?? d.Location.MarkupFile;
+            }
+            var sourceCodes = new Dictionary<string, string[]?>();
+            foreach (var fileName in viewModels.Where(vm => vm.FileName is {} && vm.LineNumber is {} && vm.SourceLine is null).Select(vm => vm.FileName).Distinct())
+            {
+                var markupFile = markupFiles.GetValueOrDefault(fileName!) ?? markupFileLoader.GetMarkup(this.dotvvmConfiguration, fileName!);
+                var sourceCode = markupFile?.ReadContent();
+                if (sourceCode is {})
+                    sourceCodes.Add(fileName!, sourceCode.Split('\n'));
+            }
+            foreach (var d in viewModels)
+            {
+                if (d.FileName is null || d.LineNumber is not > 0 || d.SourceLine is {})
+                    continue;
+                var source = sourceCodes.GetValueOrDefault(d.FileName);
+                
+                if (source is null || d.LineNumber!.Value > source.Length)
+                    continue;
+
+                d.SourceLine = source[d.LineNumber.Value - 1];
+            }
+        }
+
+        public class CompilationTracer : IDiagnosticsCompilationTracer
+        {
+            internal readonly ConcurrentDictionary<string, Handle> CompiledViews = new ConcurrentDictionary<string, Handle>();
+            public IDiagnosticsCompilationTracer.Handle CompilationStarted(string file, string sourceCode)
+            {
+                return new Handle(this, file);
+            }
+
+            internal sealed class Handle : IDiagnosticsCompilationTracer.Handle, IDisposable
+            {
+                private readonly CompilationTracer compilationTracer;
+                public string File { get; }
+                public DateTime CompiledAt { get; } = DateTime.UtcNow;
+                public List<DotHtmlFileInfo.CompilationDiagnosticViewModel> Diagnostics = new();
+
+                public Handle(CompilationTracer compilationTracer, string file)
+                {
+                    this.compilationTracer = compilationTracer;
+                    this.File = file;
+                }
+
+                public override void CompilationDiagnostic(DotvvmCompilationDiagnostic diagnostic, string? contextLine)
+                {
+                    Diagnostics.Add(new (diagnostic, contextLine));
+                }
+
+                public void Dispose()
+                {
+                    compilationTracer.CompiledViews[this.File] = this;
+                }
             }
         }
     }

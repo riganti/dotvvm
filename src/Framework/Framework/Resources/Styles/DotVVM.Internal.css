@@ -42,7 +42,7 @@ html {
 /* Variables */
 
 :root {
-    --heading-color: #a82f23;
+    --heading-color: #333333;
     --nav-color: #2980b9;
     --activate-color: #de1212;
     --idle-color: #bcbcbc;
@@ -50,6 +50,8 @@ html {
     --hint-color: #bbbbbb;
     --error-color: #de1212;
     --error-dark-color: #a82f23;
+    --warning-color: #ffa322;
+    --warning-dark-color: #940c00;
     --success-color: green;
 
 
@@ -101,6 +103,14 @@ h3 {
     color: var(--hint-color)
 }
 
+.error-text {
+    color: var(--error-dark-color)
+}
+
+.warning-text {
+    color: var(--warning-dark-color)
+}
+
 
 /* Tables */
 table {
@@ -131,16 +141,19 @@ table {
 
     table th,
     table td {
-        border-right: 0.1rem var(--hint-color) solid;
-        border-bottom: 0.1rem var(--hint-color) solid;
-        border-left: 0.1rem transparent solid;
-        border-top: 0.1rem transparent solid;
+        border-right: none;
+        border-bottom: none;
+        border-left: none;
+        border-top: 0.1rem var(--hint-color) solid;
         box-sizing: border-box;
     }
+        table tr:first-child th, table tr:first-child td {
+            border-top: none;
+        }
 
-        table th:last-child,
-        table td:last-child {
-            border-right: 0.1rem transparent solid;
+        table tr.row-continues td {
+            /* border-top: 0.1rem var(--hint-color) dashed; */
+            border-top: none;
         }
 
         table th.explosive,
@@ -152,6 +165,11 @@ table {
         table th.fit,
         table td.fit {
             width: 1px;
+        }
+
+        table td.center,
+        table th.center {
+            text-align: center;
         }
 
     table tr.failure {
@@ -172,13 +190,24 @@ table {
 /* Source code */
 
 .source .source-errorLine {
-    color: #a82f23;
+    color: var(--error-dark-color);
 }
 
 .errorUnderline {
     background-color: #fff7f7;
     border: 0.1rem solid #ff8888;
     color: #ff0909;
+    padding: 0.2rem;
+}
+
+.source .source-warningLine {
+    color: var(--warning-dark-color);
+}
+
+.warningUnderline {
+    background-color: color-mix(in srgb, var(--warning-color) 20%, white 80%);
+    border: 0.1rem solid color-mix(in srgb, var(--warning-color) 50%, white 50%);
+    color: var(--warning-dark-color);
     padding: 0.2rem;
 }
 
