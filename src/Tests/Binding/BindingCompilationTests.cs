@@ -430,11 +430,6 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("DelegateInvoker2('string', (i, a) => StringProp = (i + a))", "with int", "0string")]
         public void BindingCompiler_Valid_LambdaParameter_TypeFromOtherArg(string expr, string expectedResult, string stringPropResult)
         {
-            // while(!Debugger.IsAttached)
-            // {
-            //     System.Threading.Thread.Sleep(100);
-            // }
-
             var viewModel = new TestLambdaCompilation();
             var result = ExecuteBinding(expr, viewModel);
             Assert.AreEqual(expectedResult, result, message: "Result mismatch");
@@ -499,10 +494,6 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("_this.CustomGenericDelegateInvoker(true, as => as.Select(a => !a))", "False,False")]
         public void BindingCompiler_Valid_LambdaParameter_CustomDelegate(string expr, string expectedResult)
         {
-            // while(!Debugger.IsAttached)
-            // {
-            //     System.Threading.Thread.Sleep(100);
-            // }
             var viewModel = new TestLambdaCompilation();
             var result = ExecuteBinding(expr, viewModel);
             Assert.AreEqual(expectedResult, result);

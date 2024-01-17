@@ -706,7 +706,6 @@ namespace DotVVM.Framework.Utils
 
         internal static void ExpandUnifiedTypes(Dictionary<Type, Type> genericAssignment)
         {
-            // var dirty = true;
             var iteration = 0;
             bool dirty;
             do

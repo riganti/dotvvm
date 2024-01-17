@@ -62,6 +62,9 @@ namespace DotVVM.Framework.Tests.Runtime
             public void Test0<T>(T a, string b, string expected) { }
             public void Test1<T>(List<T> a, List<string> b, string expected) { }
             public void Test2<T, U>(Func<T, string> a, Func<int, U> b, int expected, string expected2) { }
+            public void TestTypeUsedMultipleTime0<T>(Func<Func<int>> a, Func<T> b, Func<int> expected) { }
+            public void TestTypeUsedMultipleTime1<T>(Func<Func<int>> a, Func<Func<T>> b, int expected) { }
+            public void TestTypeUsedMultipleTime2<T, U>((IEnumerable<T>, IEnumerable<(int, int)>) a, (IEnumerable<IEnumerable<int>>, IEnumerable<U>) b, IEnumerable<int> expected, (int, int) expected2) { }
             public void TestPartial0<T>(T a, T b, T expected) { }
             public void TestPartial1<T, U>(Func<string, T> a, Func<U, T> b, T expected, string expected2) { }
             public void TestPartial2<T, U>(Tuple<T, string> a, U b, T expected, Tuple<T, string> expected2) { }
