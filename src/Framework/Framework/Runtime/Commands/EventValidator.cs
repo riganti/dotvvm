@@ -154,7 +154,7 @@ namespace DotVVM.Framework.Runtime.Commands
             else if (candidateBindings.All(b => !b.Key.DataContextPathMatch))
             {
                 // nothing in the specified data context path
-                errorMessage = $"Invalid command invocation - Nothing was found inside DataContext '{path}'. Please check if ViewModel is populated.";
+                errorMessage = $"Invalid command invocation - Nothing was found inside DataContext '{string.Join("/", path)}'. Please check if ViewModel is populated.";
             }
             else
             {
