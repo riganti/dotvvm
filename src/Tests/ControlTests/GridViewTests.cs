@@ -131,14 +131,14 @@ namespace DotVVM.Framework.Tests.ControlTests
                             <Before>
                                 <tr colspan=3 IncludeInPage={value: Enabled}>
                                     <td>
-                                        ˯˯˯ enabled customer ˯˯˯
+                                        vvv enabled customer vvv
                                     </td>
                                 </tr>
                             </Before>
                             <After>
                                 <tr colspan=3 IncludeInPage={value: Enabled}>
                                     <td>
-                                        ˄˄˄ enabled customer ˄˄˄
+                                        ^^^ enabled customer ^^^
                                     </td>
                                 </tr>
                             </After>
