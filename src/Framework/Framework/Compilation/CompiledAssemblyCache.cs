@@ -172,12 +172,13 @@ namespace DotVVM.Framework.Compilation
             foreach (var a in GetAllAssemblies())
             {
                 string? lastNs = null; // namespaces come in batches, usually, so no need to hash it everytime when a quick compare says it's the same as last time
-                foreach (var type in a.ExportedTypes)
+                foreach (var type in a.GetLoadableTypes())
                 {
                     var ns = type.Namespace;
                     if (ns is null || lastNs == ns)
                         continue;
-                    result.Add(ns);                   
+                    result.Add(ns);
+                    lastNs = ns;
                 }
             }
             return result;
