@@ -1055,6 +1055,39 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(42, result(42));
         }
 
+        [DataTestMethod]
+        [DataRow("100", typeof(int))]
+        [DataRow("'aa'", null)]
+        [DataRow("NullableDateOnly", null)]
+        [DataRow("DateOnly", typeof(DateOnly))]
+        public void BindingCompiler_GenericMethod_DefaultArgument(string expression, Type resultType)
+        {
+            var result = ExecuteBinding($"_this.GenericDefault({expression})", new [] { new TestViewModel() });
+            if (resultType == null)
+            {
+                Assert.IsNull(result);
+            }
+            else
+            {
+                Assert.AreEqual(resultType, result.GetType(), message: $"_this.GenericDefault({expression}) returned {result} of type {result?.GetType().FullName ?? "null"}");
+                Assert.AreEqual(ReflectionUtils.GetDefaultValue(resultType), result);
+            }
+        }
+
+        [TestMethod]
+        public void BindingCompiler_GenericMethod_ParamsEmpty()
+        {
+            var result = ExecuteBinding("_this.GenericParams<int>()", new [] { new TestViewModel() });
+            Assert.AreEqual((0, 0), result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_GenericMethod_Params()
+        {
+            var result = ExecuteBinding("_this.GenericParams(10, 20, 30)", new [] { new TestViewModel() });
+            Assert.AreEqual((10, 3), result);
+        }
+
         [TestMethod]
         public void BindingCompiler_ComparisonOperators()
         {
@@ -1356,6 +1389,16 @@ namespace DotVVM.Framework.Tests.Binding
         public string MethodWithOverloads(string i) => i;
         public string MethodWithOverloads(DateTime i) => i.ToString();
         public int MethodWithOverloads(int a, int b) => a + b;
+
+        public T GenericDefault<T>(T something, T somethingElse = default)
+        {
+            return somethingElse;
+        }
+
+        public (T, int) GenericParams<T>(params T[] something)
+        {
+            return (something.FirstOrDefault(), something.Length);
+        }
     }
 
 
