@@ -259,6 +259,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 constructorParameters = new[] { element.FullTagName };
                 element.AddError($"The control <{element.FullTagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
             }
+            if (controlMetadata.VirtualPath is {} && controlMetadata.Type.IsAssignableTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))))
+            {
+                element.TagNameNode.AddWarning($"The markup control <{element.FullTagName}> has a baseType DotvvmView. Please make sure that the control file has .dotcontrol file extension. This will work, but causes unexpected issues, for example @js directive will not work in this control.");
+            }
             var control = treeBuilder.BuildControl(controlMetadata, element, dataContext);
             control.ConstructorParameters = constructorParameters;
 
