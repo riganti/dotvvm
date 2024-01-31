@@ -5,7 +5,6 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Testing;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -101,7 +100,7 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(CompilationState.CompletedSuccessfully, route.Status);
             Assert.IsNotNull(masterPage);
             Assert.AreEqual(masterPage, service.GetMasterPages().FirstOrDefault(m => m.VirtualPath == "MasterPage.dothtml"));
-            Assert.AreEqual(CompilationState.None, masterPage.Status);
+            // Assert.AreEqual(CompilationState.None, masterPage.Status); // it's not deterministic, because the master page is built asynchronously after the view asks for its viewmodel type
             service.BuildView(masterPage, out _);
             Assert.AreEqual(CompilationState.CompletedSuccessfully, masterPage.Status);
         }
