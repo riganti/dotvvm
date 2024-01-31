@@ -5,6 +5,11 @@ using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
 
+namespace DotVVM.Framework.Tests.Runtime.ControlTree.TestInternalOnlyNamespace
+{
+    class InternalClass { }
+}
+
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
     [TestClass]
@@ -69,6 +74,46 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsFalse(importDirective.IsNamespace);
             Assert.AreEqual(typeof(List<int>).FullName, importDirective.Type.FullName);
         }
+
+        [TestMethod]
+        public void ResolvedTree_ImportDirective_NamespaceDoesNotExist()
+        {
+            var root = ParseSource(@"
+@viewModel object
+@import This.Namespace.Does.Not.Exist
+");
+            var importDirective = EnsureSingleResolvedImportDirective(root);
+
+            Assert.IsTrue(importDirective.HasError);
+            Assert.AreEqual("This.Namespace.Does.Not.Exist is unknown type or namespace.", importDirective.DothtmlNode.NodeErrors.Single());
+        }
+        [TestMethod]
+        public void ResolvedTree_ImportDirective_NamespaceDoesNotExist_Alias()
+        {
+            var root = ParseSource(@"
+@viewModel object
+@import testns = This.Namespace.Does.Not.Exist
+");
+            var importDirective = EnsureSingleResolvedImportDirective(root);
+
+            Assert.IsTrue(importDirective.HasError);
+            Assert.AreEqual("This.Namespace.Does.Not.Exist is unknown type or namespace.", importDirective.DothtmlNode.NodeErrors.Single());
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ImportDirective_InternalNamespace()
+        {
+            var root = ParseSource(@"
+@viewModel object
+@import DotVVM.Framework.Tests.Runtime.ControlTree.TestInternalOnlyNamespace
+");
+            var importDirective = EnsureSingleResolvedImportDirective(root);
+
+            Assert.IsFalse(importDirective.HasError, message: importDirective.DothtmlNode.NodeErrors.SingleOrDefault());
+            Assert.IsNull(importDirective.Type);
+            Assert.IsTrue(importDirective.IsNamespace);
+        }
+
 
         private static ResolvedImportDirective EnsureSingleResolvedImportDirective(ResolvedTreeRoot root) =>
                 root.Directives["import"]
