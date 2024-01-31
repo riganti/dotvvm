@@ -32,6 +32,16 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
+        public void ResolvedTree_EmptyViewModelType()
+        {
+            var root = ParseSource(@"@viewModel
+");
+
+            var directiveNode = ((DothtmlRootNode)root.DothtmlNode).Directives.First();
+            Assert.IsTrue(directiveNode.HasNodeErrors);
+        }
+
+        [TestMethod]
         public void ResolvedTree_ViewModel_GenericType()
         {
             var root = ParseSource(@"@viewModel System.Collections.Generic.List<System.Collections.Generic.Dictionary<System.String, System.Int32>>");

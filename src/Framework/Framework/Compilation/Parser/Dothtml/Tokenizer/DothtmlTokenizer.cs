@@ -145,6 +145,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             }
             SkipWhitespace(false);
 
+            if (Peek() is '\r' or '\n' or NullChar)
+            {
+                // empty value
+                CreateToken(DothtmlTokenType.DirectiveValue);
+                SkipWhitespace();
+                return;
+            }
+
             // whitespace
             if (LastToken!.Type != DothtmlTokenType.WhiteSpace)
             {
@@ -152,15 +160,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             }
 
             // directive value
-            if (Peek() == '\r' || Peek() == '\n' || Peek() == NullChar)
-            {
-                CreateToken(DothtmlTokenType.DirectiveValue, errorProvider: t => CreateTokenError(t, DothtmlTokenType.DirectiveStart, DothtmlTokenizerErrors.DirectiveValueExpected));
-                SkipWhitespace();
-            }
-            else
-            {
-                ReadTextUntilNewLine(DothtmlTokenType.DirectiveValue);
-            }
+            ReadTextUntilNewLine(DothtmlTokenType.DirectiveValue);
         }
 
         /// <summary>

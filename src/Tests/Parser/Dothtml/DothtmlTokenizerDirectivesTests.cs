@@ -95,19 +95,15 @@ this is a test content";
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveName, tokenizer.Tokens[i++].Type);
 
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
-
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.IsFalse(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
         }
 
         [TestMethod]
-        public void DothtmlTokenizer_DirectiveParsing_Invalid_AtSymbol_DirectiveName()
+        public void DothtmlTokenizer_DirectiveParsing_Invalid_ValueWithoutSpace()
         {
-            var input = @"@viewmodel";
+            var input = @"@viewmodel=something";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
@@ -124,7 +120,28 @@ this is a test content";
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
 
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual("=something", tokenizer.Tokens[i].Text);
+            Assert.IsFalse(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_DirectiveParsing_Valid_EmptyDirective()
+        {
+            var input = @"@viewmodel";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            tokenizer.Tokenize(input);
+            CheckForErrors(tokenizer, input.Length);
+
+            var i = 0;
+            Assert.AreEqual(DothtmlTokenType.DirectiveStart, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual("viewmodel", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.DirectiveName, tokenizer.Tokens[i++].Type);
+
+            Assert.IsFalse(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
         }
@@ -170,11 +187,7 @@ test";
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveName, tokenizer.Tokens[i++].Type);
 
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
-
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.IsFalse(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
 
@@ -184,7 +197,7 @@ test";
         }
 
         [TestMethod]
-        public void DothtmlTokenizer_DirectiveParsing_Invalid_AtSymbol_DirectiveName_NewLine_Content()
+        public void DothtmlTokenizer_DirectiveParsing_DirectiveName_EmptyValue_NewLine_Content()
         {
             var input = "@viewmodel\ntest";
 
@@ -199,11 +212,7 @@ test";
             Assert.AreEqual("viewmodel", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.DirectiveName, tokenizer.Tokens[i++].Type);
 
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
-
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.IsFalse(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
 
@@ -233,7 +242,7 @@ test";
             Assert.AreEqual(2, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
 
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.IsFalse(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
 
@@ -265,7 +274,7 @@ test";
             Assert.AreEqual(2, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
 
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.IsFalse(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
 
