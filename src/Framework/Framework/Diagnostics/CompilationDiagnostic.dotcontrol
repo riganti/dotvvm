@@ -1,4 +1,3 @@
-<%-- @property DotVVM.Framework.Compilation.DotHtmlFileInfo.CompilationDiagnosticViewModel Diagnostic --%>
 @viewModel DotVVM.Framework.Compilation.DotHtmlFileInfo.CompilationDiagnosticViewModel
 
 <div class={value: $"compilation-diagnostic compilation-{Severity.ToString().ToLowerInvariant()}"}>
@@ -8,7 +7,4 @@
         </div>
     </div>
     <pre class="exceptionMessage"><strong class={value: $"{Severity.ToString().ToLowerInvariant()}-text"}>{{value: Severity}}: </strong>{{value: Message}}</pre>
-    <%-- <p class="source file" IncludeInPage={value: FileName != null} >
-        Source File: <strong>{{value: FileName}}</strong>:{{value: LineNumber}}
-    </p> --%>
 </div>

@@ -65,6 +65,10 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
+        /// <summary>
+        /// Assigns locations to the provied exceptions:
+        /// * if a BindingCompilationException with location, it and all its (nested) InnerException are assigned this location
+        /// * the locations are processed using MapBindingLocation to make them useful in the context of a dothtml file </summary>
         Dictionary<Exception, DotvvmCompilationSourceLocation?> AnnotateBindingExceptionWithLocation(ResolvedBinding binding, DotvvmProperty? relatedProperty, IEnumerable<Exception> errors)
         {
             var result = new Dictionary<Exception, DotvvmCompilationSourceLocation?>(new ReferenceEqualityComparer<Exception>());

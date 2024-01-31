@@ -58,7 +58,7 @@
 
                     <dot:AddTemplateDecorator>
                         <After>
-                            <dotvvm-internal:CompilationDiagnosticRows
+                            <_dotvvm-internal:CompilationDiagnosticRows
                                 IncludeInPage={value: _root.ShowInlineDiagnostics && Errors.Length + Warnings.Length > 0}
                                 Diagnostics={value: Enumerable.Concat(Errors, Warnings).ToArray()}
                                 DisplayLimit={value: _root.DefaultShownDiagnosticLimit}  />
@@ -109,7 +109,7 @@
                                    Class-success="{value: Status == 'CompletedSuccessfully' && Warnings.Length == 0}" />
                     <dot:AddTemplateDecorator>
                         <After>
-                            <dotvvm-internal:CompilationDiagnosticRows
+                            <_dotvvm-internal:CompilationDiagnosticRows
                                 IncludeInPage={value: _root.ShowInlineDiagnostics && Errors.Length + Warnings.Length > 0}
                                 Diagnostics={value: Enumerable.Concat(Errors, Warnings).ToArray()}
                                 DisplayLimit={value: _root.DefaultShownDiagnosticLimit}  />
@@ -149,7 +149,7 @@
                                    Class-success="{value: Status == 'CompletedSuccessfully' && Warnings.Length == 0}" />
                     <dot:AddTemplateDecorator>
                         <After>
-                            <dotvvm-internal:CompilationDiagnosticRows
+                            <_dotvvm-internal:CompilationDiagnosticRows
                                 IncludeInPage={value: _root.ShowInlineDiagnostics && Errors.Length + Warnings.Length > 0}
                                 Diagnostics={value: Enumerable.Concat(Errors, Warnings).ToArray()}
                                 DisplayLimit={value: _root.DefaultShownDiagnosticLimit}  />
@@ -208,7 +208,7 @@
                             <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Recompile" class="execute" />
                         </td>
                     </tr>
-                    <dotvvm-internal:CompilationDiagnosticRows
+                    <_dotvvm-internal:CompilationDiagnosticRows
                         IncludeInPage={value: _root.ShowInlineDiagnostics && Errors.Length + Warnings.Length > 0}
                         Diagnostics={value: Enumerable.Concat(Errors, Warnings).ToArray()}
                         DisplayLimit={value: _root.DefaultShownDiagnosticLimit}  />
@@ -225,7 +225,7 @@
                             <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Recompile" class="execute" />
                         </td>
                     </tr>
-                    <dotvvm-internal:CompilationDiagnosticRows
+                    <_dotvvm-internal:CompilationDiagnosticRows
                         IncludeInPage={value: _root.ShowInlineDiagnostics && Errors.Length + Warnings.Length > 0}
                         Diagnostics={value: Enumerable.Concat(Errors, Warnings).ToArray()}
                         DisplayLimit={value: _root.DefaultShownDiagnosticLimit}  />
@@ -240,7 +240,7 @@
                             <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Recompile" class="execute" />
                         </td>
                     </tr>
-                    <dotvvm-internal:CompilationDiagnosticRows
+                    <_dotvvm-internal:CompilationDiagnosticRows
                         IncludeInPage={value: _root.ShowInlineDiagnostics && Errors.Length + Warnings.Length > 0}
                         Diagnostics={value: Enumerable.Concat(Errors, Warnings).ToArray()}
                         DisplayLimit={value: _root.DefaultShownDiagnosticLimit}  />

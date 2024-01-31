@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -33,7 +34,7 @@ namespace DotVVM.Framework.Compilation
 
         /// <summary> Affected tokens of the primary compilation error. </summary>
         [JsonIgnore]
-        public IEnumerable<TokenBase>? Tokens => CompilationError.Location?.Tokens;
+        public ImmutableArray<TokenBase> Tokens => CompilationError.Location?.Tokens ?? ImmutableArray<TokenBase>.Empty;
         /// <summary> Line number of the primary compilation error. </summary>
         public int? LineNumber => CompilationError.Location?.LineNumber;
         /// <summary> Position on the line of the primary compilation error. </summary>

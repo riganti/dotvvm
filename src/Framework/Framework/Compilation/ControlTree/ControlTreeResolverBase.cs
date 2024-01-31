@@ -180,7 +180,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             catch (DotvvmCompilationException ex)
             {
-                if (ex.Tokens is null)
+                if (ex.Tokens.IsEmpty)
                 {
                     var oldLoc = ex.CompilationError.Location;
                     ex.CompilationError = ex.CompilationError with {

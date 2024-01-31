@@ -226,6 +226,7 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
+        /// <summary> Loads the error markup file(s), adds the source line information to <paramref name="viewModels" /> </summary>
         private void AddSourceLines(IEnumerable<DotHtmlFileInfo.CompilationDiagnosticViewModel> viewModels, IEnumerable<DotvvmCompilationDiagnostic> originalDiagnostics)
         {
             var markupFiles = new Dictionary<string, MarkupFile?>();
@@ -233,7 +234,6 @@ namespace DotVVM.Framework.Compilation
             {
                 if (d.Location.FileName is null)
                     continue;
-                
                 markupFiles[d.Location.FileName] = markupFiles.GetValueOrDefault(d.Location.FileName) ?? d.Location.MarkupFile;
             }
             var sourceCodes = new Dictionary<string, string[]?>();

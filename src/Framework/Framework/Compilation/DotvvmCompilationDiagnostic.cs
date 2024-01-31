@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Compilation
         [JsonIgnore]
         public MarkupFile? MarkupFile { get; init; }
         [JsonIgnore]
-        public IEnumerable<TokenBase>? Tokens { get; init; }
+        public ImmutableArray<TokenBase> Tokens { get; init; }
         public int? LineNumber { get; init; }
         public int? ColumnNumber { get; init; }
         public int LineErrorLength { get; init; }
@@ -72,17 +72,16 @@ namespace DotVVM.Framework.Compilation
             int? columnNumber = null,
             int? lineErrorLength = null)
         {
-            if (tokens is {})
+            this.Tokens = tokens?.ToImmutableArray() ?? ImmutableArray<TokenBase>.Empty;
+            if (this.Tokens.Length > 0)
             {
-                tokens = tokens.ToArray();
-                lineNumber ??= tokens.FirstOrDefault()?.LineNumber;
-                columnNumber ??= tokens.FirstOrDefault()?.ColumnNumber;
+                lineNumber ??= this.Tokens[0].LineNumber;
+                columnNumber ??= this.Tokens[0].ColumnNumber;
                 lineErrorLength ??= tokens.Where(t => t.LineNumber == lineNumber).Select(t => (int?)(t.ColumnNumber + t.Length)).LastOrDefault() - columnNumber;
             }
 
             this.MarkupFile = markupFile;
             this.FileName = fileName ?? markupFile?.FileName;
-            this.Tokens = tokens;
             this.LineNumber = lineNumber;
             this.ColumnNumber = columnNumber;
             this.LineErrorLength = lineErrorLength ?? 0;
@@ -109,53 +108,53 @@ namespace DotVVM.Framework.Compilation
         }
 
         public static readonly DotvvmCompilationSourceLocation Unknown = new(fileName: null, null, null);
-        public bool IsUnknown => FileName is null && MarkupFile is null && Tokens is null && LineNumber is null && ColumnNumber is null;
+        public bool IsUnknown => FileName is null && MarkupFile is null && Tokens.IsEmpty && LineNumber is null && ColumnNumber is null;
 
+        /// <summary> Text of the affected tokens. Consecutive tokens are concatenated - usually, this returns a single element array. </summary>
         public string[] AffectedSpans
         {
             get
             {
-                if (Tokens is null || !Tokens.Any())
+                if (Tokens.IsEmpty)
                     return Array.Empty<string>();
-                var ts = Tokens.ToArray();
-                var r = new List<string> { ts[0].Text };
-                for (int i = 1; i < ts.Length; i++)
+                var spans = new List<string> { Tokens[0].Text };
+                for (int i = 1; i < Tokens.Length; i++)
                 {
-                    if (ts[i].StartPosition == ts[i - 1].EndPosition)
-                        r[r.Count - 1] += ts[i].Text;
+                    if (Tokens[i].StartPosition == Tokens[i - 1].EndPosition)
+                        spans[spans.Count - 1] += Tokens[i].Text;
                     else
-                        r.Add(ts[i].Text);
+                        spans.Add(Tokens[i].Text);
                 }
-                return r.ToArray();
+                return spans.ToArray();
             }
         }
 
+        /// <summary> Ranges of the affected tokens (in UTF-16 codepoint positions). Consecutive rangess are merged - usually, this returns a single element array. </summary>
         public (int start, int end)[] AffectedRanges
         {
             get
             {
-                if (Tokens is null || !Tokens.Any())
+                if (Tokens.IsEmpty)
                     return Array.Empty<(int, int)>();
-                var ts = Tokens.ToArray();
-                var r = new (int start, int end)[ts.Length];
-                r[0] = (ts[0].StartPosition, ts[0].EndPosition);
+                var ranges = new (int start, int end)[Tokens.Length];
+                ranges[0] = (Tokens[0].StartPosition, Tokens[0].EndPosition);
                 int ri = 0;
-                for (int i = 1; i < ts.Length; i++)
+                for (int i = 1; i < Tokens.Length; i++)
                 {
-                    if (ts[i].StartPosition == ts[i - 1].EndPosition)
-                        r[i].end = ts[i].EndPosition;
+                    if (Tokens[i].StartPosition == Tokens[i - 1].EndPosition)
+                        ranges[i].end = Tokens[i].EndPosition;
                     else
                     {
                         ri += 1;
-                        r[ri] = (ts[i].StartPosition, ts[i].EndPosition);
+                        ranges[ri] = (Tokens[i].StartPosition, Tokens[i].EndPosition);
                     }
                 }
-                return r.AsSpan(0, ri + 1).ToArray();
+                return ranges.AsSpan(0, ri + 1).ToArray();
             }
         }
 
-        public int? EndLineNumber => Tokens?.LastOrDefault()?.LineNumber ?? LineNumber;
-        public int? EndColumnNumber => (Tokens?.LastOrDefault()?.ColumnNumber + Tokens?.LastOrDefault()?.Length) ?? ColumnNumber;
+        public int? EndLineNumber => Tokens.LastOrDefault()?.LineNumber ?? LineNumber;
+        public int? EndColumnNumber => (Tokens.LastOrDefault()?.ColumnNumber + Tokens.LastOrDefault()?.Length) ?? ColumnNumber;
 
         public override string ToString()
         {

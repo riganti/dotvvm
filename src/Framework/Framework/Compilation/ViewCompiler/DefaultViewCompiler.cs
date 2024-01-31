@@ -127,16 +127,16 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             return errorChecker.Diagnostics;
         }
 
-        private void LogDiagnostics(IDiagnosticsCompilationTracer.Handle tracingHandle, IEnumerable<DotvvmCompilationDiagnostic> diagnostics, string fileName, string sourceCode)
+        private void LogDiagnostics(IDiagnosticsCompilationTracer.Handle tracingHandle, IEnumerable<DotvvmCompilationDiagnostic> allDiagnostics, string fileName, string sourceCode)
         {
-            var warnings = diagnostics.Where(d => d.IsWarning || d.IsError).ToArray();
-            if (warnings.Length == 0) return;
+            var diagnostics = allDiagnostics.Where(d => d.Severity >= DiagnosticSeverity.Warning).ToArray();
+            if (diagnostics.Length == 0) return;
 
             var lines = sourceCode.Split('\n');
             // Currently, all warnings are placed on syntax nodes (even when produced in control tree resolver)
-            foreach (var warning in warnings)
+            foreach (var diag in diagnostics)
             {
-                var loc = warning.Location;
+                var loc = diag.Location;
                 var sourceLine = loc.LineNumber > 0 && loc.LineNumber <= lines.Length ? lines[loc.LineNumber.Value - 1] : null;
                 sourceLine = sourceLine?.TrimEnd();
 
@@ -147,10 +147,10 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
                     highlightLength = Math.Max(1, Math.Min(highlightLength, sourceLine.Length - loc.ColumnNumber.Value + 1));
                 }
 
-                var logEvent = new CompilationDiagnosticLogEvent(warning.Severity, warning.Message, fileName, loc.LineNumber, loc.ColumnNumber, sourceLine, highlightLength);
-                logger?.Log(warning.IsWarning ? LogLevel.Warning : LogLevel.Error, 0, logEvent, null, (x, e) => x.ToString());
+                var logEvent = new CompilationDiagnosticLogEvent(diag.Severity, diag.Message, fileName, loc.LineNumber, loc.ColumnNumber, sourceLine, highlightLength);
+                logger?.Log(diag.IsWarning ? LogLevel.Warning : LogLevel.Error, 0, logEvent, null, (x, e) => x.ToString());
 
-                tracingHandle.CompilationDiagnostic(warning, sourceLine);
+                tracingHandle.CompilationDiagnostic(diag, sourceLine);
             }
         }
 
@@ -178,6 +178,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
             public IEnumerator<KeyValuePair<string, object?>> GetEnumerator()
             {
+                // serilog "integration"
                 yield return new("Message", Message);
                 yield return new("FileName", FileName);
                 yield return new("LineNumber", LineNumber);

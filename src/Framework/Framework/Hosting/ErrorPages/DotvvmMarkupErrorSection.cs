@@ -83,10 +83,10 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     return ErrorFormatter.LoadSourcePiece(compilationException.FileName, compilationException.LineNumber ?? 0,
                         errorColumn: errorColumn,
                         errorLength: errorLength);
-                else if (compilationException.Tokens != null)
+                else if (compilationException.Tokens.Length > 0)
                 {
                     var line = string.Concat(compilationException.Tokens.Select(s => s.Text));
-                    return CreateAnonymousLine(line, lineNumber: compilationException.Tokens.FirstOrDefault()?.LineNumber ?? 0);
+                    return CreateAnonymousLine(line, lineNumber: compilationException.LineNumber ?? 0);
                 }
             }
             return null;

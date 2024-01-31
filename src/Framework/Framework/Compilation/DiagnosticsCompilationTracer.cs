@@ -8,18 +8,27 @@ using DotVVM.Framework.Compilation.ViewCompiler;
 
 namespace DotVVM.Framework.Compilation
 {
-
+    /// <summary> Instrumets DotVVM view compilation, traced events are defined in <see cref="Handle" />.
+    /// The tracers are found using IServiceProvider, to register your tracer, add it to DI with <c>service.AddSingleton&lt;IDiagnosticsCompilationTracer, MyTracer>()</c> </summary>
     public interface IDiagnosticsCompilationTracer
     {
         Handle CompilationStarted(string file, string sourceCode);
+        /// <summary> Traces compilation of a single file, created in the <see cref="CompilationStarted(string, string)"/> method. Note that the class can also implement <see cref="IDisposable" />. </summary>
         abstract class Handle
         {
+            /// <summary> Called after the DotHTML file is parsed and syntax tree is created. Called even when there are errors. </summary>
             public virtual void Parsed(List<DothtmlToken> tokens, DothtmlRootNode syntaxTree) { }
+            /// <summary> Called after the entire tree has resolved types - controls have assigned type, attributes have assigned DotvvmProperty, bindings are compiled, ... </summary>
             public virtual void Resolved(ResolvedTreeRoot tree, ControlBuilderDescriptor descriptor) { }
+            /// <summary> After initial resolving, the tree is post-processed using a number of visitors (<see cref="DataContextPropertyAssigningVisitor"/>, <see cref="Styles.StylingVisitor" />, <see cref="LiteralOptimizationVisitor" />, ...). After each visitor processing, this method is called. </summary>
             public virtual void AfterVisitor(ResolvedControlTreeVisitor visitor, ResolvedTreeRoot tree) { }
+            /// <summary> For each compilation diagnostic (warning/error), this method is called. </summary>
+            /// <param name="contextLine"> The line of code where the error occured. </param>
             public virtual void CompilationDiagnostic(DotvvmCompilationDiagnostic diagnostic, string? contextLine) { }
+            /// <summary> Called if the compilation fails for any reason. Normally, <paramref name="exception"/> will be of type <see cref="DotvvmCompilationDiagnostic" /> </summary>
             public virtual void Failed(Exception exception) { }
         }
+        /// <summary> Singleton tracing handle which does nothing. </summary>
         sealed class NopHandle: Handle
         {
             private NopHandle() { }
