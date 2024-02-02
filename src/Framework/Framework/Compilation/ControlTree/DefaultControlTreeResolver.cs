@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             ((ResolvedTreeRoot)view).ResolveContentAction = () => base.ResolveRootContent(root, view, viewMetadata);
         }
 
-        protected override IControlType CreateControlType(ITypeDescriptor wrapperType, string virtualPath)
+        protected override IControlType CreateControlType(ITypeDescriptor wrapperType, IReadOnlyList<IPropertyDescriptor> markupProperties, string virtualPath)
         {
             return new ControlType(ResolvedTypeDescriptor.ToSystemType(wrapperType), virtualPath: virtualPath);
         }

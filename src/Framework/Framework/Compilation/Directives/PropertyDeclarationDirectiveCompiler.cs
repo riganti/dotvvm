@@ -13,7 +13,7 @@ using System;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
-    public abstract class PropertyDeclarationDirectiveCompiler : DirectiveCompiler<IAbstractPropertyDeclarationDirective, ImmutableList<DotvvmProperty>>
+    public abstract class PropertyDeclarationDirectiveCompiler : DirectiveCompiler<IAbstractPropertyDeclarationDirective, ImmutableList<IPropertyDescriptor>>
     {
         private readonly ITypeDescriptor controlWrapperType;
         private readonly ImmutableList<NamespaceImport> imports;
@@ -103,7 +103,7 @@ namespace DotVVM.Framework.Compilation.Directives
             return new AttributeInfo(type, attributePropertyNameReference, initializer);
         }
 
-        protected override ImmutableList<DotvvmProperty> CreateArtefact(IReadOnlyList<IAbstractPropertyDeclarationDirective> directives)
+        protected override ImmutableList<IPropertyDescriptor> CreateArtefact(IReadOnlyList<IAbstractPropertyDeclarationDirective> directives)
         {
             foreach (var directive in directives)
             {
@@ -130,7 +130,7 @@ namespace DotVVM.Framework.Compilation.Directives
         }
 
         protected abstract bool HasPropertyType(IAbstractPropertyDeclarationDirective directive);
-        protected abstract DotvvmProperty TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective);
+        protected abstract IPropertyDescriptor TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective);
 
         private record AttributeInfo(ActualTypeReferenceBindingParserNode Type, IdentifierNameBindingParserNode Name, BindingParserNode Initializer);
     }
@@ -148,7 +148,7 @@ namespace DotVVM.Framework.Compilation.Directives
         protected override bool HasPropertyType(IAbstractPropertyDeclarationDirective directive)
            => directive.PropertyType is ResolvedTypeDescriptor { Type: not null };
 
-        protected override DotvvmProperty TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective)
+        protected override IPropertyDescriptor TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective)
         {
             if (propertyDeclarationDirective.PropertyType is not ResolvedTypeDescriptor { Type: not null } propertyType) { throw new ArgumentException("propertyDeclarationDirective.PropertyType must be of type ResolvedTypeDescriptor and have non null type."); }
             if (propertyDeclarationDirective.DeclaringType is not ResolvedTypeDescriptor { Type: not null } declaringType) { throw new ArgumentException("propertyDeclarationDirective.DeclaringType must be of type ResolvedTypeDescriptor and have non null type."); }

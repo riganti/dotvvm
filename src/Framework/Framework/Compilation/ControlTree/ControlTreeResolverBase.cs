@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the
             // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
             // actually resolved when the control builder is ready and the metadata are complete.
-            var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(directiveMetadata.BaseType, fileName));
+            var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(directiveMetadata.BaseType, directiveMetadata.Properties, fileName));
 
             var dataContextTypeStack = CreateDataContextTypeStack(directiveMetadata.ViewModelType, null, directiveMetadata.Imports, new BindingExtensionParameter[] {
                 new CurrentMarkupControlExtensionParameter(directiveMetadata.BaseType),
@@ -776,7 +776,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Creates the IControlType identification of the control.
         /// </summary>
-        protected abstract IControlType CreateControlType(ITypeDescriptor wrapperType, string virtualPath);
+        protected abstract IControlType CreateControlType(ITypeDescriptor wrapperType, IReadOnlyList<IPropertyDescriptor> properties, string virtualPath);
 
         /// <summary>
         /// Creates the data context type stack object.
