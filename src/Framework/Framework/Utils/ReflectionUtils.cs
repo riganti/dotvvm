@@ -99,14 +99,17 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static bool IsAssignableToGenericType(this Type givenType, Type genericType, [NotNullWhen(returnValue: true)] out Type? commonType)
         {
-            var interfaceTypes = givenType.GetInterfaces();
-
-            foreach (var it in interfaceTypes)
+            if (genericType.IsInterface)
             {
-                if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+                var interfaceTypes = givenType.GetInterfaces();
+
+                foreach (var it in interfaceTypes)
                 {
-                    commonType = it;
-                    return true;
+                    if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+                    {
+                        commonType = it;
+                        return true;
+                    }
                 }
             }
 
@@ -663,6 +666,116 @@ namespace DotVVM.Framework.Utils
             {
                 yield return baseType;
                 type = baseType;
+            }
+        }
+
+
+        internal static bool TryUnifyGenericTypes(Type a, Type b, Dictionary<Type, Type> genericAssignment)
+        {
+            if (a == b)
+                return true;
+                
+            if (a.IsGenericParameter)
+            {
+                if (genericAssignment.ContainsKey(a))
+                    return TryUnifyGenericTypes(genericAssignment[a], b, genericAssignment);
+
+                genericAssignment.Add(a, b);
+                return true;
+            }
+            else if (b.IsGenericParameter)
+            {
+                if (genericAssignment.ContainsKey(b))
+                    return TryUnifyGenericTypes(a, genericAssignment[b], genericAssignment);
+
+                genericAssignment.Add(b, a);
+                return true;
+            }
+            else if (a.IsGenericType && b.IsGenericType)
+            {
+                if (a.GetGenericTypeDefinition() != b.GetGenericTypeDefinition())
+                    return false;
+
+                var aArgs = a.GetGenericArguments();
+                var bArgs = b.GetGenericArguments();
+                if (aArgs.Length != bArgs.Length)
+                    return false;
+
+                for (var i = 0; i < aArgs.Length; i++)
+                {
+                    if (!TryUnifyGenericTypes(aArgs[i], bArgs[i], genericAssignment))
+                        return false;
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal static void ExpandUnifiedTypes(Dictionary<Type, Type> genericAssignment)
+        {
+            var iteration = 0;
+            bool dirty;
+            do
+            {
+                dirty = false;
+                iteration++;
+                if (iteration > 100)
+                    throw new Exception("Too much recursion in ExpandUnifiedTypes");
+
+                foreach (var (key, value) in genericAssignment.ToArray())
+                {
+                    var expanded = AssignGenericParameters(value, genericAssignment);
+                    if (expanded != value)
+                    {
+                        genericAssignment[key] = expanded;
+                        dirty = true;
+                    }
+                }
+            }
+            while (dirty);
+        }
+
+        internal static Type AssignGenericParameters(Type t, IReadOnlyDictionary<Type, Type> genericAssignment)
+        {
+            if (!t.ContainsGenericParameters)
+                return t;
+
+            if (t.IsGenericParameter)
+            {
+                if (genericAssignment.TryGetValue(t, out var result))
+                    return result;
+                else
+                    return t;
+            }
+            else if (t.IsGenericType)
+            {
+                var args = t.GetGenericArguments();
+                for (var i = 0; i < args.Length; i++)
+                {
+                    args[i] = AssignGenericParameters(args[i], genericAssignment);
+                }
+                if (args.SequenceEqual(t.GetGenericArguments()))
+                    return t;
+                else
+                    return t.GetGenericTypeDefinition().MakeGenericType(args);
+            }
+            else if (t.HasElementType)
+            {
+                var el = AssignGenericParameters(t.GetElementType()!, genericAssignment);
+                if (el == t.GetElementType())
+                    return t;
+                else if (t.IsArray)
+                    return el.MakeArrayType(t.GetArrayRank());
+                else
+                    throw new NotSupportedException();
+            }
+            else
+            {
+                return t;
             }
         }
     }

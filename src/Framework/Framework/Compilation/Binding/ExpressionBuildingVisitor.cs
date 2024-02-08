@@ -457,6 +457,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 for (var paramIndex = 0; paramIndex < typeInferenceData.Parameters!.Length; paramIndex++)
                 {
                     var currentParamType = typeInferenceData.Parameters[paramIndex];
+                    if (currentParamType.ContainsGenericParameters)
+                        throw new BindingCompilationException($"Internal bug: lambda parameter still contains generic arguments: parameters[{paramIndex}] = {currentParamType.ToCode()}", node);
                     node.ParameterExpressions[paramIndex].SetResolvedType(currentParamType);
                 }
             }
@@ -506,26 +508,90 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private Expression CreateLambdaExpression(Expression body, ParameterExpression[] parameters, Type? delegateType)
         {
-            if (delegateType != null && delegateType.Namespace == "System")
-            {
-                if (delegateType.Name == "Action" || delegateType.Name == $"Action`{parameters.Length}")
-                {
-                    // We must validate that lambda body contains a valid statement
-                    if ((body.NodeType != ExpressionType.Default) && (body.NodeType != ExpressionType.Block) && (body.NodeType != ExpressionType.Call) && (body.NodeType != ExpressionType.Assign))
-                        throw new DotvvmCompilationException($"Only method invocations and assignments can be used as statements.");
+            if (delegateType is null || delegateType == typeof(object) || delegateType == typeof(Delegate))
+                // Assume delegate is a System.Func<...>
+                return Expression.Lambda(body, parameters);
 
-                    // Make sure the result type will be void by adding an empty expression
-                    return Expression.Lambda(Expression.Block(body, Expression.Empty()), parameters);
-                }
-                else if (delegateType.Name == "Predicate`1")
-                {
-                    var type = delegateType.GetGenericTypeDefinition().MakeGenericType(parameters.Single().Type);
-                    return Expression.Lambda(type, body, parameters);
-                }
+            if (!delegateType.IsDelegate(out var invokeMethod))
+                throw new DotvvmCompilationException($"Cannot create lambda function, type '{delegateType.ToCode()}' is not a delegate type.");
+
+            if (invokeMethod.ReturnType == typeof(void))
+            {
+                // We must validate that lambda body contains a valid statement
+                if ((body.NodeType != ExpressionType.Default) && (body.NodeType != ExpressionType.Block) && (body.NodeType != ExpressionType.Call) && (body.NodeType != ExpressionType.Assign))
+                    throw new DotvvmCompilationException($"Only method invocations and assignments can be used as statements.");
+
+                // Make sure the result type will be void by adding an empty expression
+                body = Expression.Block(body, Expression.Empty());
             }
 
-            // Assume delegate is a System.Func<...>
-            return Expression.Lambda(body, parameters);
+            // convert body result to the delegate return type
+            if (invokeMethod.ReturnType.ContainsGenericParameters)
+            {
+                if (invokeMethod.ReturnType.IsGenericType)
+                {
+                    // no fancy implicit conversions are supported, only inheritance
+                    if (!ReflectionUtils.IsAssignableToGenericType(body.Type, invokeMethod.ReturnType.GetGenericTypeDefinition(), out var bodyReturnType))
+                    {
+                        throw new DotvvmCompilationException($"Cannot convert lambda function body of type '{body.Type.ToCode()}' to the delegate return type '{invokeMethod.ReturnType.ToCode()}'.");
+                    }
+                    else
+                    {
+                        body = Expression.Convert(body, bodyReturnType);
+                    }
+                }
+                else
+                {
+                    // fine, we will unify it in the next step
+
+                    // Some complex conversions like Tuple<T, List<object>> -> Tuple<T, IEnumerable<T2>>
+                    // will fail, but we don't have to support everything
+                }
+            }
+            else
+            {
+                body = TypeConversion.EnsureImplicitConversion(body, invokeMethod.ReturnType);
+            }
+
+            if (delegateType.ContainsGenericParameters)
+            {
+                var delegateTypeDef = delegateType.GetGenericTypeDefinition();
+                // The delegate is either purely generic (Func<T, T>) or only some of the generic arguments are known (Func<T, bool>)
+                // initialize generic args with the already known types
+                var genericArgs =
+                    delegateTypeDef.GetGenericArguments().Zip(
+                        delegateType.GetGenericArguments(),
+                        (param, argument) => new KeyValuePair<Type, Type>(param, argument)
+                    )
+                    .Where(p => p.Value != p.Key)
+                    .ToDictionary(p => p.Key, p => p.Value);
+
+                var delegateParameters = invokeMethod.GetParameters();
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    if (!ReflectionUtils.TryUnifyGenericTypes(delegateParameters[i].ParameterType, parameters[i].Type, genericArgs))
+                    {
+                        throw new DotvvmCompilationException($"Could not match lambda function parameter '{parameters[i].Type.ToCode()} {parameters[i].Name}' to delegate parameter '{delegateParameters[i].ParameterType.ToCode()} {delegateParameters[i].Name}'.");
+                    }
+                }
+                if (!ReflectionUtils.TryUnifyGenericTypes(invokeMethod.ReturnType, body.Type, genericArgs))
+                {
+                    throw new DotvvmCompilationException($"Could not match lambda function return type '{body.Type.ToCode()}' to delegate return type '{invokeMethod.ReturnType.ToCode()}'.");
+                }
+                ReflectionUtils.ExpandUnifiedTypes(genericArgs);
+
+                if (!delegateTypeDef.GetGenericArguments().All(a => genericArgs.TryGetValue(a, out var v) && !v.ContainsGenericParameters))
+                {
+                    var missingGenericArgs = delegateTypeDef.GetGenericArguments().Where(genericArg => !genericArgs.ContainsKey(genericArg) || genericArgs[genericArg].ContainsGenericParameters);
+                    throw new DotvvmCompilationException($"Could not infer all generic arguments ({string.Join(", ", missingGenericArgs)}) of delegate type '{delegateType.ToCode()}' from lambda expression '({string.Join(", ", parameters.Select(p => $"{p.Type.ToCode()} {p.Name}"))}) => ...'.");
+                }
+
+                delegateType = delegateTypeDef.MakeGenericType(
+                    delegateTypeDef.GetGenericArguments().Select(genericParam => genericArgs[genericParam]).ToArray()
+                );
+            }
+
+            return Expression.Lambda(delegateType, body, parameters);
         }
 
         protected override Expression VisitBlock(BlockBindingParserNode node)
