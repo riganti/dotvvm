@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Compilation
             {
                 lineNumber ??= this.Tokens[0].LineNumber;
                 columnNumber ??= this.Tokens[0].ColumnNumber;
-                lineErrorLength ??= tokens.Where(t => t.LineNumber == lineNumber).Select(t => (int?)(t.ColumnNumber + t.Length)).LastOrDefault() - columnNumber;
+                lineErrorLength ??= this.Tokens.Where(t => t.LineNumber == lineNumber).Select(t => (int?)(t.ColumnNumber + t.Length)).LastOrDefault() - columnNumber;
             }
 
             this.MarkupFile = markupFile;

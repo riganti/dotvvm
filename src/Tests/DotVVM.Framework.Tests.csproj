@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <ProjectReference Include="../Framework/Hosting.Owin/DotVVM.Framework.Hosting.Owin.csproj" />
-    <PackageReference Include="CheckTestOutput" Version="0.4.3" />
+    <PackageReference Include="CheckTestOutput" Version="0.6.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
     <Compile Remove="AspCore/CachingTests.cs" />

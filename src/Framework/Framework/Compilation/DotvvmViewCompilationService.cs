@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -164,8 +165,9 @@ namespace DotVVM.Framework.Compilation
 
                     var pageBuilder = controlBuilderFactory.GetControlBuilder(file.VirtualPath);
 
-                    using var scopedServiceProvider = dotvvmConfiguration.ServiceProvider.CreateScope(); // dependencies that are configured as scoped cannot be resolved from root service provider
-                    var compiledControl = pageBuilder.builder.Value.BuildControl(controlBuilderFactory, scopedServiceProvider.ServiceProvider);
+                    using var scopedServices = dotvvmConfiguration.ServiceProvider.CreateScope(); // dependencies that are configured as scoped cannot be resolved from root service provider
+                    scopedServices.ServiceProvider.GetRequiredService<DotvvmRequestContextStorage>().Context = new ViewCompilationFakeRequestContext(scopedServices.ServiceProvider);
+                    var compiledControl = pageBuilder.builder.Value.BuildControl(controlBuilderFactory, scopedServices.ServiceProvider);
 
                     if (pageBuilder.descriptor.MasterPage is { FileName: {} masterPagePath })
                     {

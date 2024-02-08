@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Hosting
             //load the file
             using (Stream stream = assembly.GetManifestResourceStream(resourceName)!)
             using (StreamReader sr = new StreamReader(stream))
-                return new MarkupFile(resourceName, resourceName, sr.ReadToEnd());
+                return new MarkupFile(virtualPath, virtualPath, sr.ReadToEnd());
         }
 
         /// <summary>

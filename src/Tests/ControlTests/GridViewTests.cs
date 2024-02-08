@@ -128,20 +128,20 @@ namespace DotVVM.Framework.Tests.ControlTests
                         <dot:Decorator Class-enabled="{value: Enabled}" />
 
                         <dot:AddTemplateDecorator>
-                            <Before>
+                            <BeforeTemplate>
                                 <tr colspan=3 IncludeInPage={value: Enabled}>
                                     <td>
-                                        ˯˯˯ enabled customer ˯˯˯
+                                        vvv enabled customer vvv
                                     </td>
                                 </tr>
-                            </Before>
-                            <After>
+                            </BeforeTemplate>
+                            <AfterTemplate>
                                 <tr colspan=3 IncludeInPage={value: Enabled}>
                                     <td>
-                                        ˄˄˄ enabled customer ˄˄˄
+                                        ^^^ enabled customer ^^^
                                     </td>
                                 </tr>
-                            </After>
+                            </AfterTemplate>
                         </dot:AddTemplateDecorator>
                     </RowDecorators>
 

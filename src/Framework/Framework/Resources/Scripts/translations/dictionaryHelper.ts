@@ -8,10 +8,14 @@ export function containsKey<Key, Value>(dictionary: Dictionary<Key, Value>, iden
     return getKeyValueIndex(dictionary, identifier) !== null;
 }
 
-export function getItem<Key, Value>(dictionary: Dictionary<Key, Value>, identifier: Key): Value {
+export function getItem<Key, Value>(dictionary: Dictionary<Key, Value>, identifier: Key, defaultValue?: Value): Value {
     const index = getKeyValueIndex(dictionary, identifier);
     if (index === null) {
-        throw Error("Provided key \"" + identifier + "\" is not present in the dictionary!");
+        if (defaultValue !== undefined) {
+            return defaultValue;
+        } else {
+            throw Error("Provided key \"" + identifier + "\" is not present in the dictionary!");
+        }
     }
 
     return ko.unwrap(ko.unwrap(dictionary[index]).Value);

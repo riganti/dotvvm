@@ -25,5 +25,15 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.Attribute(browser.First("input[type=button]"), "value", "This is text");
             });
         }
+
+        [Fact]
+        public void Feature_EmbeddedResourceControls_PageWithEmbeddedResourceMasterPage()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_EmbeddedResourceControls_PageWithEmbeddedResourceMasterPage);
+
+                AssertUI.TextEquals(browser.Single("p"), "Success");
+            });
+        }
     }
 }

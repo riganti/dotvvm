@@ -9,28 +9,28 @@ namespace DotVVM.Framework.Controls
     {
         /// <summary> Template is rendered after the decorated control. </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate After
+        public ITemplate AfterTemplate
         {
-            get => (ITemplate)GetValue(AfterProperty)!;
-            set => SetValue(AfterProperty, value);
+            get => (ITemplate)GetValue(AfterTemplateProperty)!;
+            set => SetValue(AfterTemplateProperty, value);
         }
-        public static readonly DotvvmProperty AfterProperty =
-            DotvvmProperty.Register<ITemplate, AddTemplateDecorator>(nameof(After));
+        public static readonly DotvvmProperty AfterTemplateProperty =
+            DotvvmProperty.Register<ITemplate, AddTemplateDecorator>(nameof(AfterTemplate));
 
         /// <summary> Template is rendered before the decorated control. </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate Before
+        public ITemplate BeforeTemplate
         {
-            get => (ITemplate)GetValue(BeforeProperty)!;
-            set => SetValue(BeforeProperty, value);
+            get => (ITemplate)GetValue(BeforeTemplateProperty)!;
+            set => SetValue(BeforeTemplateProperty, value);
         }
-        public static readonly DotvvmProperty BeforeProperty =
-            DotvvmProperty.Register<ITemplate, AddTemplateDecorator>(nameof(Before));
+        public static readonly DotvvmProperty BeforeTemplateProperty =
+            DotvvmProperty.Register<ITemplate, AddTemplateDecorator>(nameof(BeforeTemplate));
 
         protected internal override void OnInit(IDotvvmRequestContext context)
         {
-            var after = this.After;
-            var before = this.Before;
+            var after = this.AfterTemplate;
+            var before = this.BeforeTemplate;
 
             if (after is {})
             {
