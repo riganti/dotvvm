@@ -6,6 +6,9 @@ using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Binding;
 using System.Collections.Immutable;
 using DotVVM.Framework.Configuration;
+using System.Security.Cryptography;
+using System.Diagnostics;
+using FastExpressionCompiler;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
@@ -27,7 +30,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             if (CompileDirectiveExpression(directive, nameSyntax, imports) is not StaticClassIdentifierExpression expression)
             {
-                directive.AddError($"Could not resolve type '{nameSyntax.ToDisplayString()}'.");
+                var help = GetMissingTypeHelp(nameSyntax, imports);
+                directive.AddError($"Could not resolve type '{nameSyntax.ToDisplayString()}'.{(help is null ? "" : " " + help)}");
                 return null;
             }
             else return new ResolvedTypeDescriptor(expression.Type);
@@ -86,7 +90,38 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             }
         }
 
-        private Expression? CompileDirectiveExpression(DothtmlDirectiveNode directive, BindingParserNode expressionSyntax, ImmutableList<NamespaceImport> imports)
+        private object? CreateDefaultValue(Type? type)
+        {
+            if (type != null && type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            return null;
+        }
+
+        private string? GetMissingTypeHelp(BindingParserNode syntax, ImmutableList<NamespaceImport> imports)
+        {
+            try
+            {
+                // wrong assembly name:
+                if (syntax is AssemblyQualifiedNameBindingParserNode assemblyQualifiedName)
+                {
+                    var noAssemblyResolve = CompileDirectiveExpression(null, assemblyQualifiedName.TypeName, imports);
+                    if (noAssemblyResolve is StaticClassIdentifierExpression expression)
+                    {
+                        return $"Did you mean the '{expression.Type.Assembly.GetName().Name}' assembly? Note that assembly name is optional.";
+                    }
+                }
+                return null;
+            }
+            catch
+            {
+                Debug.Fail("This should not happen");
+                return null; // just fancy error handling, ignore errors
+            }
+        }
+
+        private Expression? CompileDirectiveExpression(DothtmlDirectiveNode? directive, BindingParserNode expressionSyntax, ImmutableList<NamespaceImport> imports)
         {
             TypeRegistry registry;
             if (expressionSyntax is TypeOrFunctionReferenceBindingParserNode typeOrFunction)
@@ -114,7 +149,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             }
             catch (Exception ex)
             {
-                directive.AddError($"{expressionSyntax.ToDisplayString()} is not a valid type or namespace: {ex.Message}");
+                directive?.AddError($"{expressionSyntax.ToDisplayString()} is not a valid type or namespace: {ex.Message}");
                 return null;
             }
         }

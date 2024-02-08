@@ -112,5 +112,16 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsFalse(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
             Assert.AreEqual(typeof(string), root.DataContextTypeStack.DataContextType);
         }
+
+        [TestMethod]
+        public void ResolvedTree_ViewModel_AssemblyNotFound_Error()
+        {
+            var root = ParseSource($"@viewModel DotVVM.Framework.Controls.IGridViewDataSet, DotVVM.Framework");
+
+            var directive = root.Directives["viewModel"].Single().DothtmlNode;
+            Assert.IsTrue(directive.HasNodeErrors);
+            StringAssert.Contains(directive.NodeErrors.Single(), "'DotVVM.Core'");
+        }
+
     }
 }
