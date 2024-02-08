@@ -1,4 +1,4 @@
-import { getVirtualDirectory, getViewModel, getState, getStateManager } from '../dotvvm-base';
+import { getVirtualDirectory, getViewModel, getState, getStateManager, options } from '../dotvvm-base';
 import { DotvvmPostbackError } from '../shared-classes';
 import { logInfoVerbose, logWarning } from '../utils/logging';
 import { keys } from '../utils/objects';
@@ -25,6 +25,9 @@ export async function postJSON<T>(url: string, postData: any, signal: AbortSigna
     headers.append('Content-Type', 'application/json');
     headers.append('X-DotVVM-PostBack', 'true');
     appendAdditionalHeaders(headers, additionalHeaders);
+    // if (postData.length > 1000 && options.compressPOST) {
+    //     postData = await compressString(postData, headers)
+    // }
 
     return await fetchJson<T>(url, { body: postData, headers: headers, method: "POST", signal });
 }
@@ -102,4 +105,14 @@ function appendAdditionalHeaders(headers: Headers, additionalHeaders?: { [key: s
             headers.append(key, additionalHeaders[key]);
         }
     }
+}
+
+function compressString(data: string, headers: Headers) {
+    if (!window.CompressionStream) {
+        return data
+    }
+    headers.append('Content-Encoding', 'gzip')
+    const blob = new Blob([data], { type: 'text/plain' })
+    const stream = blob.stream().pipeThrough(new CompressionStream('gzip'))
+    return new Response(stream).blob()
 }

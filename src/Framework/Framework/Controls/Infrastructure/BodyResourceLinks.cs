@@ -33,7 +33,12 @@ namespace DotVVM.Framework.Controls
 
             // init on load
             var initCode = $"window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});";
-            if (context.Configuration.ExperimentalFeatures.KnockoutDeferUpdates.IsEnabledForRoute(context.Route?.RouteName))
+            var config = context.Configuration;
+            if (!config.Runtime.CompressPostbacks.IsEnabledForRoute(context.Route?.RouteName, defaultValue: !config.Debug))
+            {
+                initCode = $"dotvvm.options.compressPOST=false;\n{initCode}";
+            }
+            if (config.ExperimentalFeatures.KnockoutDeferUpdates.IsEnabledForRoute(context.Route?.RouteName))
             {
                 initCode = $"ko.options.deferUpdates = true;\n{initCode}";
             }

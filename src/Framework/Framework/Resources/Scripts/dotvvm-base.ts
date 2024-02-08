@@ -10,6 +10,10 @@ import { replaceTypeInfo } from './metadata/typeMap'
 
 import { StateManager } from './state-manager'
 
+export const options = {
+    compressPOST: true
+}
+
 type DotvvmCoreState = {
     _culture: string
     _viewModelCache?: any
