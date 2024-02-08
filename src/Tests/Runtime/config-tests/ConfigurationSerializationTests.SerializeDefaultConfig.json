@@ -351,11 +351,11 @@
       }
     },
     "DotVVM.Framework.Controls.AddTemplateDecorator": {
-      "After": {
+      "AfterTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "mappingMode": "InnerElement"
       },
-      "Before": {
+      "BeforeTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "mappingMode": "InnerElement"
       }
