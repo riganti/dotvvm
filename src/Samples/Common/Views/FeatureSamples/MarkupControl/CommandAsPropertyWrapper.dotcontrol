@@ -2,9 +2,22 @@
 @baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.CommandAsPropertyWrapper, DotVVM.Samples.Common
 
 <dot:Repeater DataSource="{value: Items}">
-    <%--
-    The correct syntax would be Click="{value: _control.Click(_parent.Name, _parent.IsTrue)}"
-    Btw is value binding the right thing, or shall we use resource binding here?
-    --%>
-    <cc:CommandAsProperty Click="{value: _control.Click(_parent.Name, _parent.IsTrue)}" DataContext="{value: Name}" />
+    <div style="display: flex; flex-direction: row; gap: 4em" data-ui="button-list">
+        <div>
+            <h2>Passed as command</h2>
+            <cc:CommandAsProperty Click="{command: _control.Click(_parent.Name, _parent.IsTrue)}" DataContext="{value: Name}" />
+        </div>
+        <div>
+            <h2>Passed as static command</h2>
+            <cc:CommandAsProperty Click="{staticCommand: _control.Click(_parent.Name, _parent.IsTrue)}" DataContext="{value: Name}" />
+        </div>
+        <div>
+            <h2>Passed as value</h2>
+            <cc:CommandAsProperty Click="{value: _control.Click(_parent.Name, _parent.IsTrue)}" DataContext="{value: Name}" />
+        </div>
+        <div>
+            <h2>Passed as resource</h2>
+            <cc:CommandAsProperty Click="{resource: _control.Click(_parent.Name, _parent.IsTrue)}" DataContext="{value: Name}" />
+        </div>
+    </div>
 </dot:Repeater>
