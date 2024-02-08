@@ -27,6 +27,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ViewModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Utils
 {
@@ -135,14 +136,7 @@ namespace DotVVM.Framework.Utils
             // handle null values
             if (value == null)
             {
-                if (type == typeof(bool))
-                    return BoxingUtils.False;
-                else if (type == typeof(int))
-                    return BoxingUtils.Zero;
-                else if (type.IsValueType)
-                    return Activator.CreateInstance(type);
-                else
-                    return null;
+                return GetDefaultValue(type);
             }
 
             if (type.IsInstanceOfType(value)) return value;
@@ -458,6 +452,23 @@ namespace DotVVM.Framework.Utils
         public static Type MakeNullableType(this Type type)
         {
             return type.IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(void) ? typeof(Nullable<>).MakeGenericType(type) : type;
+        }
+
+        /// <summary> Returns the equivalent of default(T) in C#, null for reference and Nullable&lt;T>, zeroed object for structs. </summary>
+        public static object? GetDefaultValue(Type type)
+        {
+            if (!type.IsValueType)
+                return null;
+            if (type.IsNullable())
+                return null;
+
+            if (type == typeof(bool))
+                return BoxingUtils.False;
+            else if (type == typeof(int))
+                return BoxingUtils.Zero;
+            // see https://github.com/dotnet/runtime/issues/90697
+            // notably we can't use Activator.CreateInstance, because C# now allows default constructors in structs
+            return FormatterServices.GetUninitializedObject(type);
         }
 
         public static Type UnwrapTaskType(this Type type)
