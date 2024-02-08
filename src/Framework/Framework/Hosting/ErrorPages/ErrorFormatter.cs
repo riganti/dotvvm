@@ -278,22 +278,63 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             {
                 try
                 {
-                    var lines = File.ReadAllLines(fileName);
-                    if (lineNumber >= 0)
-                    {
-                        result.CurrentLine = lines[Math.Max(0, lineNumber - 1)];
-                        result.PreLines = lines.Skip(lineNumber - additionalLineCount)
-                            .TakeWhile(l => l != result.CurrentLine).ToArray();
-                    }
-                    else additionalLineCount = 30;
-                    result.PostLines = lines.Skip(lineNumber).Take(additionalLineCount).ToArray();
-                    return result;
+                    return SourcePieceFromSource(fileName, File.ReadAllText(fileName), lineNumber, additionalLineCount, errorColumn, errorLength);
                 }
                 catch
                 {
                     result.LoadFailed = true;
                 }
             }
+            return result;
+        }
+
+        public static SourceModel LoadSourcePiece(MarkupFile? file, int lineNumber,
+            int additionalLineCount = 7,
+            int errorColumn = 0,
+            int errorLength = 0)
+        {
+            var result = new SourceModel {
+                FileName = file?.FileName,
+                LineNumber = lineNumber,
+                ErrorColumn = errorColumn,
+                ErrorLength = errorLength
+            };
+
+            if (file != null)
+            {
+                try
+                {
+                    return SourcePieceFromSource(file.FileName, file.ReadContent(), lineNumber, additionalLineCount, errorColumn, errorLength);
+                }
+                catch
+                {
+                    result.LoadFailed = true;
+                }
+            }
+            return result;
+        }
+
+
+        public static SourceModel SourcePieceFromSource(string? fileName, string sourceCode, int lineNumber,
+            int additionalLineCount = 7,
+            int errorColumn = 0,
+            int errorLength = 0)
+        {
+            var result = new SourceModel {
+                FileName = fileName,
+                LineNumber = lineNumber,
+                ErrorColumn = errorColumn,
+                ErrorLength = errorLength
+            };
+            var lines = sourceCode.Split('\n');
+            if (lineNumber >= 0)
+            {
+                result.CurrentLine = lines[Math.Max(0, Math.Min(lines.Length, lineNumber) - 1)];
+                result.PreLines = lines.Skip(lineNumber - additionalLineCount)
+                    .TakeWhile(l => l != result.CurrentLine).ToArray();
+            }
+            else additionalLineCount = 30;
+            result.PostLines = lines.Skip(lineNumber).Take(additionalLineCount).ToArray();
             return result;
         }
 
@@ -402,11 +443,11 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             ));
             f.AddInfoLoader<DotvvmCompilationException>(e => {
                 object[]? objects = null;
-                if (e.Tokens != null && e.Tokens.Any())
+                if (e.Tokens.Length > 0)
                 {
                     objects = new object[]
                     {
-                        $"Error in '{string.Concat(e.Tokens.Select(t => t.Text))}' at line {e.Tokens.First().LineNumber} in {e.SystemFileName}"
+                        $"Error in '{string.Concat(e.Tokens.Select(t => t.Text))}' at line {e.LineNumber} in {e.SystemFileName}"
                     };
                 }
                 return new ExceptionAdditionalInfo(

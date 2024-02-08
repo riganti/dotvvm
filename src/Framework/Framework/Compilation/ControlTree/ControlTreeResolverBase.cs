@@ -180,11 +180,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             catch (DotvvmCompilationException ex)
             {
-                if (ex.Tokens == null)
+                if (ex.Tokens.IsEmpty)
                 {
-                    ex.Tokens = node.Tokens;
-                    ex.ColumnNumber = node.Tokens.First().ColumnNumber;
-                    ex.LineNumber = node.Tokens.First().LineNumber;
+                    var oldLoc = ex.CompilationError.Location;
+                    ex.CompilationError = ex.CompilationError with {
+                        Location = new(oldLoc.FileName, oldLoc.MarkupFile, node.Tokens)
+                    };
                 }
                 if (!LogError(ex, node))
                     throw;

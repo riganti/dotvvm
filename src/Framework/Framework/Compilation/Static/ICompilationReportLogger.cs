@@ -6,6 +6,6 @@ namespace DotVVM.Framework.Compilation.Static
 {
     internal interface ICompilationReportLogger
     {
-        void Log(Stream stream, IEnumerable<CompilationReport> reports);
+        void Log(Stream stream, IEnumerable<DotvvmCompilationDiagnostic> diagnostics);
     }
 }

@@ -18,31 +18,31 @@ namespace DotVVM.Framework.Compilation.Static
 {
     internal static class StaticViewCompiler
     {
-        public static ImmutableArray<CompilationReport> CompileAll(
+        public static ImmutableArray<DotvvmCompilationDiagnostic> CompileAll(
             Assembly dotvvmProjectAssembly,
             string dotvvmProjectDir)
         {
             var configuration = ConfigurationInitializer.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir);
-            var reportsBuilder = ImmutableArray.CreateBuilder<CompilationReport>();
+            var diagnostics = ImmutableArray.CreateBuilder<DotvvmCompilationDiagnostic>();
 
             var markupControls = configuration.Markup.Controls.Select(c => c.Src)
                 .Where(p => !string.IsNullOrWhiteSpace(p))
                 .ToImmutableArray();
             foreach (var markupControl in markupControls)
             {
-                reportsBuilder.AddRange(CompileNoThrow(configuration, markupControl!));
+                diagnostics.AddRange(CompileNoThrow(configuration, markupControl!));
             }
 
             var views = configuration.RouteTable.Select(r => r.VirtualPath).ToImmutableArray();
             foreach(var view in views)
             {
-                reportsBuilder.AddRange(CompileNoThrow(configuration, view));
+                diagnostics.AddRange(CompileNoThrow(configuration, view));
             }
 
-            return reportsBuilder.Distinct().ToImmutableArray();
+            return diagnostics.Distinct().ToImmutableArray();
         }
 
-        private static ImmutableArray<CompilationReport> CompileNoThrow(
+        private static ImmutableArray<DotvvmCompilationDiagnostic> CompileNoThrow(
             DotvvmConfiguration configuration,
             string viewPath)
         {
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Compilation.Static
             var file = fileLoader.GetMarkup(configuration, viewPath);
             if (file is null)
             {
-                return ImmutableArray.Create<CompilationReport>();
+                return ImmutableArray.Create<DotvvmCompilationDiagnostic>();
             }
 
             var sourceCode = file.ReadContent();
@@ -62,14 +62,12 @@ namespace DotVVM.Framework.Compilation.Static
                     sourceCode: sourceCode,
                     fileName: viewPath);
                 _ = builderFactory();
-                // TODO: Reporting compiler errors solely through exceptions is dumb. I have no way of getting all of
-                //       the parser errors at once because they're reported through exceptions one at a time. We need
-                //       to rewrite DefaultViewCompiler and its interface if the static linter/compiler is to be useful.
-                return ImmutableArray.Create<CompilationReport>();
+                // TODO: get warnings from compilation tracer
+                return ImmutableArray.Create<DotvvmCompilationDiagnostic>();
             }
             catch(DotvvmCompilationException e)
             {
-                return ImmutableArray.Create(new CompilationReport(viewPath, e));
+                return e.AllDiagnostics.ToImmutableArray();
             }
         }
     }

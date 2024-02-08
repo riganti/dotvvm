@@ -71,23 +71,23 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         private SourceModel? ExtractSourceFromDotvvmCompilationException(DotvvmCompilationException compilationException)
         {
-            if (compilationException.Tokens != null && compilationException.Tokens.Any())
+            if (compilationException.LineNumber is {} || compilationException.FileName is {})
             {
-                var errorColumn = compilationException.Tokens.FirstOrDefault()?.ColumnNumber ?? 0;
-                var errorLength = compilationException.Tokens.Where(t => t.LineNumber == compilationException.LineNumber).Sum(t => t.Length);
-                if (compilationException.FileName != null)
+                var errorColumn = compilationException.ColumnNumber ?? 0;
+                var errorLength = compilationException.CompilationError.Location.LineErrorLength;
+                if (compilationException.MarkupFile is {})
+                    return ErrorFormatter.LoadSourcePiece(compilationException.MarkupFile, compilationException.LineNumber ?? 0,
+                        errorColumn: errorColumn,
+                        errorLength: errorLength);
+                else if (compilationException.FileName != null)
                     return ErrorFormatter.LoadSourcePiece(compilationException.FileName, compilationException.LineNumber ?? 0,
                         errorColumn: errorColumn,
                         errorLength: errorLength);
-                else
+                else if (compilationException.Tokens.Length > 0)
                 {
                     var line = string.Concat(compilationException.Tokens.Select(s => s.Text));
-                    return CreateAnonymousLine(line, lineNumber: compilationException.Tokens.FirstOrDefault()?.LineNumber ?? 0);
+                    return CreateAnonymousLine(line, lineNumber: compilationException.LineNumber ?? 0);
                 }
-            }
-            else if (compilationException.FileName != null)
-            {
-                return ErrorFormatter.LoadSourcePiece(compilationException.FileName, compilationException.LineNumber ?? 0, errorColumn: compilationException.ColumnNumber ?? 0, errorLength: compilationException.ColumnNumber != null ? 1 : 0);
             }
             return null;
         }

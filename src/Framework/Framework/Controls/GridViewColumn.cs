@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Validation;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Controls
 {
@@ -268,7 +269,9 @@ namespace DotVVM.Framework.Controls
         {
             if (control.Properties.ContainsKey(DataContextProperty))
             {
-                yield return new ControlUsageError("Changing the DataContext property on the GridViewColumn is not supported!", control.DothtmlNode);
+                var node = control.Properties[DataContextProperty].DothtmlNode;
+                node = (node as DothtmlAttributeNode)?.ValueNode ?? node;
+                yield return new ControlUsageError("Changing the DataContext property on the GridViewColumn is not supported!", node);
             }
 
             // disallow attached properties on columns

@@ -85,4 +85,22 @@ namespace DotVVM.Framework.ResourceManagement
                 writer.WriteValue($"{t.FullName}, {assembly}");
         }
     }
+
+    public class DotvvmPropertyJsonConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType) =>
+            typeof(IPropertyDescriptor).IsAssignableFrom(objectType) || typeof(IPropertyGroupDescriptor).IsAssignableFrom(objectType);
+        public override bool CanRead => false;
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) =>
+            throw new NotImplementedException();
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            if (value is null)
+            {
+                writer.WriteNull();
+                return;
+            }
+            writer.WriteValue(value.ToString());
+        }
+    }
 }

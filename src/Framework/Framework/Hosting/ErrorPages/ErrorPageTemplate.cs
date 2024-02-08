@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Collections;
@@ -107,7 +107,7 @@ $@"
         <div class=header-toolbox>
             <button type=button id=save-and-share-button class=execute title='Saves the error as HTML so you can share it with your coworkers'>Save and Share</button>
         </div>
-        <h1>Server Error, HTTP {ErrorCode}: {WebUtility.HtmlEncode(ErrorDescription)}</h1>
+        <h1 class=error-text>Server Error, HTTP {ErrorCode}: {WebUtility.HtmlEncode(ErrorDescription)}</h1>
         <pre class=summary>{WebUtility.HtmlEncode(Summary)}</pre>
         <hr />
         <div>
@@ -164,13 +164,14 @@ $@"
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 DefaultValueHandling = DefaultValueHandling.Ignore,
                 Converters = {
-                new ReflectionTypeJsonConverter(),
-                new ReflectionAssemblyJsonConverter(),
-                new DotvvmTypeDescriptorJsonConverter(),
-                new Controls.DotvvmControlDebugJsonConverter(),
-                new IgnoreStuffJsonConverter(),
-                new BindingDebugJsonConverter()
-            },
+                    new ReflectionTypeJsonConverter(),
+                    new ReflectionAssemblyJsonConverter(),
+                    new DotvvmTypeDescriptorJsonConverter(),
+                    new Controls.DotvvmControlDebugJsonConverter(),
+                    new IgnoreStuffJsonConverter(),
+                    new BindingDebugJsonConverter(),
+                    new DotvvmPropertyJsonConverter()
+                },
                 // suppress any errors that occur during serialization (getters may throw exception, ...)
                 Error = (sender, args) => {
                     args.ErrorContext.Handled = true;

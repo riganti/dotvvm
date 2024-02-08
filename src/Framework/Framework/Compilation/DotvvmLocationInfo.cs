@@ -6,6 +6,7 @@ namespace DotVVM.Framework.Compilation
 {
     /// <summary>
     /// Contains debug information about original binding location.
+    /// Used at runtime, so this object avoids referencing compile-time nodes to allow their garbage collection
     /// </summary>
     public sealed record DotvvmLocationInfo(
         string? FileName,

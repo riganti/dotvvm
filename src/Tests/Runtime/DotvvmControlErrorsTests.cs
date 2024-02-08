@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var dotvvmBuilder = CreateControlRenderer(control, new object());
 
             var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
-            StringAssert.Contains(exc.Message, "Could not initialize binding");
+            StringAssert.Contains(exc.Message, "Could not resolve identifier 'NonExistingCommand'");
         }
 
         [TestMethod]
@@ -104,7 +104,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var dotvvmBuilder = CreateControlRenderer(control, new object());
 
             var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
-            StringAssert.Contains(exc.Message, "Could not initialize binding");
+            StringAssert.Contains(exc.Message, "Could not resolve identifier 'InvalidPropertyName'");
         }
 
         [TestMethod]

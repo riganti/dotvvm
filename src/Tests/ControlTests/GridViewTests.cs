@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                     <dot:GridViewTextColumn DataContext={value: _this} ValueBinding={value: Name} />
                 </dot:GridView>"));
 
-            Assert.IsTrue(exception.Message.Contains("Changing the DataContext property on the GridViewColumn is not supported!"));
+            StringAssert.Contains(exception.Message, "Changing the DataContext property on the GridViewColumn is not supported!");
         }
 
         [TestMethod]

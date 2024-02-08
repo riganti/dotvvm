@@ -7,6 +7,6 @@
 </head>
 <body>
 	<!--  Do not change property value - used in test as identifier -->
-	<dot:CheckBox Checked="NotAllowedHardCodedValue" />
+	<dot:CheckBox Checked="true" />
 </body>
 </html>

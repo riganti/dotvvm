@@ -125,6 +125,9 @@ namespace DotVVM.Framework.Configuration
                     url: Url,
                     virtualPath: "embedded://DotVVM.Framework/Diagnostics/CompilationPage.dothtml");
 
+                config.Markup.AddMarkupControl("_dotvvm-internal", "CompilationDiagnostic", "embedded://DotVVM.Framework/Diagnostics/CompilationDiagnostic.dotcontrol");
+                config.Markup.AddMarkupControl("_dotvvm-internal", "CompilationDiagnosticRows", "embedded://DotVVM.Framework/Diagnostics/CompilationDiagnosticRows.dotcontrol");
+
                 config.Security.RequireSecFetchHeaders.EnableForRoutes(RouteName);
             }
 
