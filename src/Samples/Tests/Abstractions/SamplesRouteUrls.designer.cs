@@ -281,6 +281,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Localization_Localization_FormatString = "FeatureSamples/Localization/Localization_FormatString";
         public const string FeatureSamples_Localization_Localization_NestedPage_Type = "FeatureSamples/Localization/Localization_NestedPage_Type";
         public const string FeatureSamples_MarkupControl_ComboBoxDataSourceBoundToStaticCollection = "FeatureSamples/MarkupControl/ComboBoxDataSourceBoundToStaticCollection";
+        public const string FeatureSamples_MarkupControl_CommandAsPropertyPage = "FeatureSamples/MarkupControl/CommandAsPropertyPage";
         public const string FeatureSamples_MarkupControl_CommandBindingInDataContextWithControlProperty = "FeatureSamples/MarkupControl/CommandBindingInDataContextWithControlProperty";
         public const string FeatureSamples_MarkupControl_CommandBindingInRepeater = "FeatureSamples/MarkupControl/CommandBindingInRepeater";
         public const string FeatureSamples_MarkupControl_CommandPropertiesInMarkupControl = "FeatureSamples/MarkupControl/CommandPropertiesInMarkupControl";

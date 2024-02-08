@@ -11,13 +11,13 @@ namespace DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl
     public class CommandAsProperty : DotvvmMarkupControl
     {
 
-        public Func<string, bool, Task> Click
+        public Func<Task> Click
         {
-            get => (Func<string, bool, Task>)GetValue(ClickProperty)!;
+            get => (Func<Task>)GetValue(ClickProperty)!;
             set => SetValue(ClickProperty, value);
         }
         public static readonly DotvvmProperty ClickProperty
-                = DotvvmProperty.Register<Func<string, bool, Task>, CommandAsProperty>(c => c.Click, null);
+                = DotvvmProperty.Register<Func<Task>, CommandAsProperty>(c => c.Click, null);
 
     }
 }
