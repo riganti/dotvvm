@@ -1,0 +1,40 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- ko if: Customers()?.Items()?.length -->
+		<table data-bind="dotvvm-gridviewdataset: {'mapping':{},'dataSet':Customers()}">
+			<thead>
+				<tr>
+					<th>
+						<span>Name</span>
+					</th>
+				</tr>
+			</thead>
+			<tbody data-bind="foreach: Customers()?.Items">
+				
+				<!-- ko if: Enabled -->
+				<tr colspan="3">
+					<td>
+						vvv enabled customer vvv
+					</td>
+				</tr>
+				<!-- /ko -->
+				<tr data-bind="css: { enabled: Enabled }">
+					<td>
+						<span data-bind="text: Name"></span>
+					</td>
+				</tr>
+				
+				<!-- ko if: Enabled -->
+				<tr colspan="3">
+					<td>
+						^^^ enabled customer ^^^
+					</td>
+				</tr>
+				<!-- /ko -->
+			</tbody>
+		</table>
+		<!-- /ko -->
+	</body>
+</html>

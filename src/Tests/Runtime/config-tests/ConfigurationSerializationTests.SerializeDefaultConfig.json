@@ -350,6 +350,16 @@
         "isCompileTimeOnly": true
       }
     },
+    "DotVVM.Framework.Controls.AddTemplateDecorator": {
+      "AfterTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "BeforeTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      }
+    },
     "DotVVM.Framework.Controls.AuthenticatedView": {
       "AuthenticatedTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
@@ -1970,6 +1980,11 @@
     "DotVVM.Framework.Compilation.Styles.ResolvedControlHelper+LazyRuntimeControl": {
       "assembly": "DotVVM.Framework",
       "baseType": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.AddTemplateDecorator": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.Decorator, DotVVM.Framework",
+      "withoutContent": true
     },
     "DotVVM.Framework.Controls.AuthenticatedView": {
       "assembly": "DotVVM.Framework",

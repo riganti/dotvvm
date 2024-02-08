@@ -119,6 +119,40 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
+        [TestMethod]
+        public async Task GridView_RowDecorators_AddChildren()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <dot:GridView DataSource={value: Customers} RenderSettings.Mode=Client>
+                    <RowDecorators>
+                        <dot:Decorator Class-enabled="{value: Enabled}" />
+
+                        <dot:AddTemplateDecorator>
+                            <BeforeTemplate>
+                                <tr colspan=3 IncludeInPage={value: Enabled}>
+                                    <td>
+                                        vvv enabled customer vvv
+                                    </td>
+                                </tr>
+                            </BeforeTemplate>
+                            <AfterTemplate>
+                                <tr colspan=3 IncludeInPage={value: Enabled}>
+                                    <td>
+                                        ^^^ enabled customer ^^^
+                                    </td>
+                                </tr>
+                            </AfterTemplate>
+                        </dot:AddTemplateDecorator>
+                    </RowDecorators>
+
+                    <Columns>
+                        <dot:GridViewTextColumn HeaderText=Name ValueBinding={value: Name} />
+                    </Columns>
+                </dot:GridView>
+                """);
+            
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
 
         public class BasicTestViewModel: DotvvmViewModelBase
         {
