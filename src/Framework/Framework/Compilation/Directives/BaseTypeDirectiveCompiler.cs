@@ -16,7 +16,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
-    public abstract class BaseTypeDirectiveCompiler : DirectiveCompiler<IAbstractBaseTypeDirective, ITypeDescriptor>
+    public class BaseTypeDirectiveCompiler : DirectiveCompiler<IAbstractBaseTypeDirective, ITypeDescriptor>
     {
         private readonly string fileName;
         private readonly ImmutableList<NamespaceImport> imports;
@@ -68,41 +68,9 @@ namespace DotVVM.Framework.Compilation.Directives
                 }
             }
 
-            if (DirectiveNodesByName.TryGetValue(ParserConstants.PropertyDeclarationDirective, out var propertyDirectives) && propertyDirectives.Any())
-            {
-                wrapperType = CreateDynamicDeclaringType(wrapperType, propertyDirectives) ?? wrapperType;
-            }
-
             return wrapperType;
         }
 
-        /// <summary> Gets or creates dynamic declaring type, and registers on it the properties declared using `@property` directives </summary>
-        protected virtual ITypeDescriptor? CreateDynamicDeclaringType(
-            ITypeDescriptor? originalWrapperType,
-            IEnumerable<DothtmlDirectiveNode> propertyDirectives
-        )
-        {
-            var imports = DirectiveNodesByName.GetValueOrDefault(ParserConstants.ImportNamespaceDirective, Array.Empty<DothtmlDirectiveNode>())
-                .Select(d => d.Value.Trim()).OrderBy(s => s).ToImmutableArray();
-            var properties = propertyDirectives
-                .Select(p => p.Value.Trim()).OrderBy(s => s).ToImmutableArray();
-            var baseType = originalWrapperType ?? DotvvmMarkupControlType;
-
-            using var sha = SHA256.Create();
-            var hashBytes = sha.ComputeHash(
-                new UTF8Encoding(false).GetBytes(
-                    baseType.FullName + "||" + string.Join("|", imports) + "||" + string.Join("|", properties)
-                )
-            );
-            var hash = Convert.ToBase64String(hashBytes, 0, 16);
-
-            var typeName = "DotvvmMarkupControl-" + hash;
-
-            return GetOrCreateDynamicType(baseType, typeName);
-        }
-
-        protected abstract ITypeDescriptor? GetOrCreateDynamicType(ITypeDescriptor baseType, string typeName);
-        
         /// <summary>
         /// Gets the default type of the wrapper for the view.
         /// </summary>

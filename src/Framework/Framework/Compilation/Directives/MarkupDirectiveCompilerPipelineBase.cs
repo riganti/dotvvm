@@ -43,14 +43,14 @@ namespace DotVVM.Framework.Compilation.Directives
             var baseType = baseTypeResult.Artefact;
             resolvedDirectives.AddIfAny(baseTypeCompiler.DirectiveName, baseTypeResult.Directives);
 
-            var viewModuleDirectiveCompiler = CreateViewModuleDirectiveCompiler(directivesByName, baseType);
-            var viewModuleResult = viewModuleDirectiveCompiler.Compile();
-            resolvedDirectives.AddIfAny(viewModuleDirectiveCompiler.DirectiveName, viewModuleResult.Directives);
-
             var propertyDirectiveCompiler = CreatePropertyDirectiveCompiler(directivesByName, imports, baseType);
             var propertyResult = propertyDirectiveCompiler.Compile();
             resolvedDirectives.AddIfAny(propertyDirectiveCompiler.DirectiveName, propertyResult.Directives);
 
+            var viewModuleDirectiveCompiler = CreateViewModuleDirectiveCompiler(directivesByName, propertyResult.Artefact.ModifiedMarkupControlType);
+            var viewModuleResult = viewModuleDirectiveCompiler.Compile();
+            resolvedDirectives.AddIfAny(viewModuleDirectiveCompiler.DirectiveName, viewModuleResult.Directives);
+           
             var defaultResolver = CreateDefaultResolver(directivesByName);
 
             foreach (var directiveGroup in directivesByName)
@@ -66,10 +66,10 @@ namespace DotVVM.Framework.Compilation.Directives
                 imports,
                 masterPageDirectiveResult.Artefact,
                 injectedServicesResult.Artefact,
-                baseType,
+                propertyResult.Artefact.ModifiedMarkupControlType,
                 viewModelType.TypeDescriptor,
                 viewModuleResult.Artefact,
-                propertyResult.Artefact);
+                propertyResult.Artefact.Properties);
         }
 
         protected abstract DefaultDirectiveResolver CreateDefaultResolver(DirectiveDictionary directivesByName);

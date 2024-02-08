@@ -7,11 +7,11 @@ namespace DotVVM.Framework.Compilation.Directives
 {
     public record MarkupPageMetadata(
            IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> Directives,
-           ImmutableList<NamespaceImport> Imports,
+           IReadOnlyList<NamespaceImport> Imports,
            IAbstractDirective? MasterPageDirective,
-           ImmutableList<InjectedServiceExtensionParameter> InjectedServices,
+           IReadOnlyList<InjectedServiceExtensionParameter> InjectedServices,
            ITypeDescriptor BaseType,
            ITypeDescriptor? ViewModelType,
            ViewModuleCompilationResult? ViewModuleResult,
-           ImmutableList<IPropertyDescriptor> Properties);
+           IReadOnlyList<IPropertyDescriptor> Properties);
 }

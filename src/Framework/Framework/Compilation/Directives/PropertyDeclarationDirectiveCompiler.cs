@@ -10,13 +10,22 @@ using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System;
+using System.Text;
+using System.Security.Cryptography;
+using DotVVM.Framework.Controls;
+using System.Reflection.Emit;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
-    public abstract class PropertyDeclarationDirectiveCompiler : DirectiveCompiler<IAbstractPropertyDeclarationDirective, ImmutableList<IPropertyDescriptor>>
+    public record PropertyDirectiveCompilerResult(IReadOnlyList<IPropertyDescriptor> Properties, ITypeDescriptor ModifiedMarkupControlType);
+
+    public abstract class PropertyDeclarationDirectiveCompiler : DirectiveCompiler<IAbstractPropertyDeclarationDirective, PropertyDirectiveCompilerResult>
     {
         private readonly ITypeDescriptor controlWrapperType;
         private readonly ImmutableList<NamespaceImport> imports;
+
+        protected virtual ITypeDescriptor DotvvmMarkupControlType => new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl));
 
         public override string DirectiveName => ParserConstants.PropertyDeclarationDirective;
 
@@ -103,14 +112,18 @@ namespace DotVVM.Framework.Compilation.Directives
             return new AttributeInfo(type, attributePropertyNameReference, initializer);
         }
 
-        protected override ImmutableList<IPropertyDescriptor> CreateArtefact(IReadOnlyList<IAbstractPropertyDeclarationDirective> directives)
+        protected override PropertyDirectiveCompilerResult CreateArtefact(IReadOnlyList<IAbstractPropertyDeclarationDirective> directives)
         {
+            var generatedWrapperType = directives.Any()
+                    ? (CreateDynamicDeclaringType(controlWrapperType, directives) ?? controlWrapperType)
+                    : controlWrapperType;
+
             foreach (var directive in directives)
             {
-                directive.DeclaringType = controlWrapperType;
+                directive.DeclaringType = generatedWrapperType;
             }
 
-            return directives
+            var properties = directives
             .Where(HasPropertyType)
             .GroupBy(
                 directive => directive.NameSyntax.Name,
@@ -127,42 +140,40 @@ namespace DotVVM.Framework.Compilation.Directives
                 })
             .Select(TryCreateDotvvmPropertyFromDirective)
             .ToImmutableList();
+
+            return new PropertyDirectiveCompilerResult(properties, generatedWrapperType);
         }
+
+        /// <summary> Gets or creates dynamic declaring type, and registers on it the properties declared using `@property` directives </summary>
+        protected virtual ITypeDescriptor? CreateDynamicDeclaringType(
+            ITypeDescriptor? originalWrapperType,
+            IReadOnlyList<IAbstractPropertyDeclarationDirective> propertyDirectives
+        )
+        {
+            var imports = DirectiveNodesByName.GetValueOrDefault(ParserConstants.ImportNamespaceDirective, Array.Empty<DothtmlDirectiveNode>())
+                .Select(d => d.Value.Trim()).OrderBy(s => s).ToImmutableArray();
+            var properties = propertyDirectives
+                .Select(p => p.Value.Trim()).OrderBy(s => s).ToImmutableArray();
+            var baseType = originalWrapperType ?? DotvvmMarkupControlType;
+
+            using var sha = SHA256.Create();
+            var hashBytes = sha.ComputeHash(
+                new UTF8Encoding(false).GetBytes(
+                    baseType.FullName + "||" + string.Join("|", imports) + "||" + string.Join("|", properties)
+                )
+            );
+            var hash = Convert.ToBase64String(hashBytes, 0, 16);
+
+            var typeName = "DotvvmMarkupControl-" + hash;
+
+            return GetOrCreateDynamicType(baseType, typeName, propertyDirectives);
+        }
+
+        protected abstract ITypeDescriptor? GetOrCreateDynamicType(ITypeDescriptor baseType, string typeName, IReadOnlyList<IAbstractPropertyDeclarationDirective> propertyDirectives);
 
         protected abstract bool HasPropertyType(IAbstractPropertyDeclarationDirective directive);
         protected abstract IPropertyDescriptor TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective);
 
         private record AttributeInfo(ActualTypeReferenceBindingParserNode Type, IdentifierNameBindingParserNode Name, BindingParserNode Initializer);
     }
-
-    public class ResolvedPropertyDeclarationDirectiveCompiler : PropertyDeclarationDirectiveCompiler
-    {
-        public ResolvedPropertyDeclarationDirectiveCompiler(
-            IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName,
-            IAbstractTreeBuilder treeBuilder, ITypeDescriptor controlWrapperType,
-            ImmutableList<NamespaceImport> imports)
-            : base(directiveNodesByName, treeBuilder, controlWrapperType, imports)
-        {
-        }
-
-        protected override bool HasPropertyType(IAbstractPropertyDeclarationDirective directive)
-           => directive.PropertyType is ResolvedTypeDescriptor { Type: not null };
-
-        protected override IPropertyDescriptor TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective)
-        {
-            if (propertyDeclarationDirective.PropertyType is not ResolvedTypeDescriptor { Type: not null } propertyType) { throw new ArgumentException("propertyDeclarationDirective.PropertyType must be of type ResolvedTypeDescriptor and have non null type."); }
-            if (propertyDeclarationDirective.DeclaringType is not ResolvedTypeDescriptor { Type: not null } declaringType) { throw new ArgumentException("propertyDeclarationDirective.DeclaringType must be of type ResolvedTypeDescriptor and have non null type."); }
-
-            return DotvvmProperty.Register(
-                propertyDeclarationDirective.NameSyntax.Name,
-                propertyType.Type,
-                declaringType.Type,
-                propertyDeclarationDirective.InitialValue,
-                false,
-                null,
-                propertyDeclarationDirective,
-                false);
-        }
-    }
-
 }

@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Compilation.Directives
                         resourceRepository);
 
         protected override BaseTypeDirectiveCompiler CreateBaseTypeCompiler(string fileName, DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports)
-            => new ResolvedBaseTypeDirectiveCompiler(directivesByName, treeBuilder, fileName, imports);
+            => new BaseTypeDirectiveCompiler (directivesByName, treeBuilder, fileName, imports);
         protected override ServiceDirectiveCompiler CreateServiceCompiler(DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports)
             => new(directivesByName, treeBuilder, imports);
         protected override MasterPageDirectiveCompiler CreateMasterPageDirectiveCompiler(DirectiveDictionary directivesByName)
