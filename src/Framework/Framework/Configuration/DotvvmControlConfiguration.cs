@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Configuration
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                FreezableUtils.Error(nameof(DotvvmControlConfiguration));
+                throw FreezableUtils.Error(nameof(DotvvmControlConfiguration));
         }
         public void Freeze()
         {

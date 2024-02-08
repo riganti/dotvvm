@@ -20,7 +20,8 @@ namespace DotVVM.Framework.Binding
             interpret = config.Debug;
         }
         public Delegate Compile(LambdaExpression expression) =>
-            interpret ? expression.Compile(preferInterpretation: interpret) :
+            // the interpreter is broken: https://github.com/dotnet/runtime/issues/96385
+            // interpret ? expression.Compile(preferInterpretation: interpret) :
             expression.Compile();
         // TODO: use FastExpressionCompiler
         // we can't do that atm since it still has some bugs, when these are fixed we should use that for all bindings

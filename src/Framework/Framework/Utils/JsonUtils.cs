@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Utils
                             else
                             {
                                 var targetJson = $@"{{""Time"": ""{item.Value}""}}";
-                                targetTime = JObject.Parse(targetJson)["Time"].ToObject<DateTime>();
+                                targetTime = JObject.Parse(targetJson)["Time"]!.ToObject<DateTime>();
                             }
 
                             if (!sourceTime.Equals(targetTime))
@@ -174,7 +174,7 @@ namespace DotVVM.Framework.Utils
             {
                 var val = target[prop.Key];
                 if (val == null) target[prop.Key] = prop.Value;
-                else if (prop.Value.Type == JTokenType.Null && removeOnNull || (prop.Value as JConstructor)?.Name == "$rm") target.Remove(prop.Key);
+                else if (prop.Value!.Type == JTokenType.Null && removeOnNull || (prop.Value as JConstructor)?.Name == "$rm") target.Remove(prop.Key);
                 else target[prop.Key] = PatchItem(val, prop.Value, removeOnNull);
             }
         }

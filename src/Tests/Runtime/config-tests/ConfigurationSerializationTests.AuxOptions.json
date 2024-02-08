@@ -33,7 +33,9 @@
         "enabled": true
       }
     },
-    "runtime": {},
+    "runtime": {
+      "reloadMarkupFiles": {}
+    },
     "defaultCulture": "cs-CZ",
     "clientSideValidation": false,
     "experimentalFeatures": {},

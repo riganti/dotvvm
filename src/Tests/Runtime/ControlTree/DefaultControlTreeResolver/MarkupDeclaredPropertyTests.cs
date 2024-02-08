@@ -3,6 +3,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Utils;
 using System;
+using DotVVM.Framework.Testing;
 using System.Collections.Generic;
 using DotVVM.Framework.Compilation;
 
@@ -103,10 +104,11 @@ fileName: "control.dotcontrol");
         [TestMethod]
         public void ResolvedTree_MarkupDeclaredProperty_GlobalImportUsed()
         {
-            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("System.Collections.Generic"));
-            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("System"));
+            var config = DotvvmTestHelper.CreateConfiguration();
+            config.Markup.ImportedNamespaces.Add(new NamespaceImport("System.Collections.Generic"));
+            config.Markup.ImportedNamespaces.Add(new NamespaceImport("System"));
 
-            var root = ParseSource(@$"
+            var root = DotvvmTestHelper.ParseResolvedTree(@$"
 @viewModel object
 @property List<Guid> Items
 
@@ -114,7 +116,7 @@ fileName: "control.dotcontrol");
    <li>{{{{value: _this}}}}</li>
 </dot:Repeater>
 ",
-fileName: "control.dotcontrol");
+fileName: "control.dotcontrol", configuration: config);
 
             CheckPropertyAndBinding(root, typeof(List<Guid>), "Items");
         }

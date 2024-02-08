@@ -11,6 +11,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime.Tracing;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Testing
@@ -53,5 +54,14 @@ namespace DotVVM.Framework.Testing
         }
 
         public CustomResponsePropertiesManager CustomResponseProperties { get; } = new CustomResponsePropertiesManager();
+
+
+        public TestDotvvmRequestContext() { }
+        public TestDotvvmRequestContext(IServiceProvider services)
+        {
+            this.Services = services;
+            this.Configuration = services.GetService<DotvvmConfiguration>();
+            this.ResourceManager = services.GetService<ResourceManager>();
+        }
     }
 }

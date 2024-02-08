@@ -4,6 +4,7 @@ using System.CommandLine.Invocation;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using DotVVM.Framework.Utils;
 using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
 
@@ -81,7 +82,7 @@ namespace DotVVM.CommandLine
             var outputDir = Path.Combine(projectDir, project.OutputPath, configuration, framework);
             while (!Directory.Exists(outputDir))
             {
-                outputDir = Directory.GetParent(outputDir).FullName;
+                outputDir = Directory.GetParent(outputDir).NotNull().FullName;
             }
 
             compilerArgs.Add(Path.Combine(outputDir, $"{project.AssemblyName}.dll"));
@@ -96,7 +97,7 @@ namespace DotVVM.CommandLine
                 pinfo.ArgumentList.Add(a);
             }
 
-            var process = System.Diagnostics.Process.Start(pinfo);
+            var process = System.Diagnostics.Process.Start(pinfo).NotNull();
             process.WaitForExit();
 
             return process.ExitCode;

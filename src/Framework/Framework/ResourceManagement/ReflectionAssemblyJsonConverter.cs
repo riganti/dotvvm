@@ -13,7 +13,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public override bool CanConvert(Type objectType) => typeof(Assembly).IsAssignableFrom(objectType);
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             if (reader.Value is string name)
             {
@@ -22,9 +22,9 @@ namespace DotVVM.Framework.ResourceManagement
             else throw new NotSupportedException();
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            writer.WriteValue(((Assembly)value).GetName().ToString());
+            writer.WriteValue(((Assembly?)value)?.GetName().ToString());
         }
     }
 
@@ -32,7 +32,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public override bool CanConvert(Type objectType) => typeof(Type).IsAssignableFrom(objectType);
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             if (reader.Value is string name)
             {
@@ -41,8 +41,14 @@ namespace DotVVM.Framework.ResourceManagement
             else throw new NotSupportedException();
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
+            if (value is null)
+            {
+                writer.WriteNull();
+                return;
+            }
+
             var t = ((Type)value);
             if (t.Assembly == typeof(string).Assembly)
                 writer.WriteValue(t.FullName);
@@ -54,7 +60,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public override bool CanConvert(Type objectType) => typeof(ITypeDescriptor).IsAssignableFrom(objectType);
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             if (reader.Value is string name)
             {
@@ -63,8 +69,13 @@ namespace DotVVM.Framework.ResourceManagement
             else throw new NotSupportedException();
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
+            if (value is null)
+            {
+                writer.WriteNull();
+                return;
+            }
             var t = ((ITypeDescriptor)value);
             var coreAssembly = typeof(string).Assembly.GetName().Name;
             var assembly = t.Assembly?.Split(new char[] { ',' }, 2)[0];

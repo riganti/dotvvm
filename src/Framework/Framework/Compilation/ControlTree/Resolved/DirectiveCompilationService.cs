@@ -9,6 +9,7 @@ using DotVVM.Framework.Configuration;
 using System.Security.Cryptography;
 using System.Diagnostics;
 using FastExpressionCompiler;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -63,7 +64,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public object? ResolvePropertyInitializer(DothtmlDirectiveNode directive, Type propertyType, BindingParserNode? initializer, ImmutableList<NamespaceImport> imports)
         {
-            if (initializer == null) { return CreateDefaultValue(propertyType); }
+            if (initializer == null) { return ReflectionUtils.GetDefaultValue(propertyType); }
 
             var registry = RegisterImports(TypeRegistry.DirectivesDefault(compiledAssemblyCache), imports);
                 
@@ -79,13 +80,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 var lambda = Expression.Lambda<Func<object?>>(Expression.Block(Expression.Convert(TypeConversion.EnsureImplicitConversion(initializerExpression, propertyType), typeof(object))));
                 var lambdaDelegate = lambda.Compile(true);
 
-                return lambdaDelegate.Invoke() ?? CreateDefaultValue(propertyType);
+                return lambdaDelegate.Invoke() ?? ReflectionUtils.GetDefaultValue(propertyType);
             }
             catch (Exception ex)
             {
                 directive.AddError("Could not initialize property value.");
                 directive.AddError(ex.Message);
-                return CreateDefaultValue(propertyType);
+                return ReflectionUtils.GetDefaultValue(propertyType);
             }
         }
 

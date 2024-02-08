@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else if (arg.Type == StaticCommandParameterType.Constant)
                 {
-                    array.Add(JToken.FromObject(arg.Arg));
+                    array.Add(arg.Arg is null ? JValue.CreateNull() : JToken.FromObject(arg.Arg));
                 }
                 else if (arg.Type == StaticCommandParameterType.DefaultValue)
                 {
@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else throw new NotSupportedException(arg.Type.ToString());
             }
-            while (array.Last.Type == JTokenType.Null)
+            while (array.Last!.Type == JTokenType.Null)
                 array.Last.Remove();
             return array;
         }
@@ -84,19 +84,21 @@ namespace DotVVM.Framework.Compilation.Binding
         public static StaticCommandInvocationPlan DeserializePlan(JToken planInJson)
         {
             var jarray = (JArray)planInJson;
-            var typeName = jarray[0].Value<string>();
-            var methodName = jarray[1].Value<string>();
-            var genericTypeNames = jarray[2].Value<JArray>();
-            var parametersCount = jarray[3].Value<int>();
-            var parameterTypeNames = jarray[4].Value<JArray>();
+            if (jarray.Count < 6)
+                throw new NotSupportedException("Invalid static command plan.");
+            var typeName = jarray[0]!.Value<string>()!;
+            var methodName = jarray[1]!.Value<string>()!;
+            var genericTypeNames = jarray[2]!.Value<JArray>();
+            var parametersCount = jarray[3]!.Value<int>();
+            var parameterTypeNames = jarray[4]!.Value<JArray>();
             var hasOtherOverloads = parameterTypeNames != null;
-            var argTypes = jarray[5].ToObject<byte[]>().Select(a => (StaticCommandParameterType)a).ToArray();
+            var argTypes = jarray[5]!.ToObject<byte[]>()!.Select(a => (StaticCommandParameterType)a).ToArray();
 
             MethodInfo? method;
             if (hasOtherOverloads)
             {
                 // There are multiple overloads available, therefore exact parameters need to be resolved first
-                var parameters = parameterTypeNames!.Select(n => Type.GetType(n.Value<string>()).NotNull()).ToArray();
+                var parameters = parameterTypeNames!.Select(n => Type.GetType(n.Value<string>()!).NotNull()).ToArray();
                 method = Type.GetType(typeName)?.GetMethod(methodName, parameters);
             }
             else
@@ -110,7 +112,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (method.IsGenericMethod)
             {
-                var generics = genericTypeNames.Select(n => Type.GetType(n.Value<string>()).NotNull()).ToArray();
+                var generics = genericTypeNames.NotNull().Select(n => Type.GetType(n.Value<string>()!).NotNull()).ToArray();
                 method = method.MakeGenericMethod(generics);
             }
 
@@ -123,11 +125,11 @@ namespace DotVVM.Framework.Compilation.Binding
                         case StaticCommandParameterType.Argument:
                         case StaticCommandParameterType.Inject:
                             if (a.arg.Type == JTokenType.Null)
-                                return new StaticCommandParameterPlan(a.type, a.parameter?.ParameterType ?? method.DeclaringType);
+                                return new StaticCommandParameterPlan(a.type, a.parameter?.ParameterType ?? method.DeclaringType.NotNull());
                             else
-                                return new StaticCommandParameterPlan(a.type, a.arg.Value<string>().Apply(Type.GetType));
+                                return new StaticCommandParameterPlan(a.type, a.arg.Value<string>()!.Apply(Type.GetType));
                         case StaticCommandParameterType.Constant:
-                            return new StaticCommandParameterPlan(a.type, a.arg.ToObject(a.parameter?.ParameterType ?? method.DeclaringType));
+                            return new StaticCommandParameterPlan(a.type, a.arg.ToObject(a.parameter?.ParameterType ?? method.DeclaringType.NotNull()));
                         case StaticCommandParameterType.DefaultValue:
                             return new StaticCommandParameterPlan(a.type, a.parameter?.DefaultValue);
                         case StaticCommandParameterType.Invocation:

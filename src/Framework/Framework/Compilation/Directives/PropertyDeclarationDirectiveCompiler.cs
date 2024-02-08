@@ -77,11 +77,11 @@ namespace DotVVM.Framework.Compilation.Directives
                 return new AttributeInfo(
                     typeRef,
                     new SimpleNameBindingParserNode("") { StartPosition = attributeReference.EndPosition },
-                    new LiteralExpressionBindingParserNode("") { StartPosition = attributeReference.EndPosition });
+                    new SimpleNameBindingParserNode("") { StartPosition = attributeReference.EndPosition });
             }
 
             var attributePropertyReference = assignment.FirstExpression as MemberAccessBindingParserNode;
-            var initializer = assignment.SecondExpression as LiteralExpressionBindingParserNode;
+            var initializer = assignment.SecondExpression; 
             var attributeTypeReference = attributePropertyReference?.TargetExpression;
             var attributePropertyNameReference = attributePropertyReference?.MemberNameExpression;
 
@@ -93,10 +93,9 @@ namespace DotVVM.Framework.Compilation.Directives
                 attributeTypeReference = attributeTypeReference ?? new SimpleNameBindingParserNode("");
                 attributePropertyNameReference = attributePropertyNameReference ?? new SimpleNameBindingParserNode("") { StartPosition = attributeTypeReference.EndPosition };
             }
-            if (initializer == null)
+            if (assignment.SecondExpression is not LiteralExpressionBindingParserNode)
             {
                 directiveNode.AddError($"Value for property {attributeTypeReference.ToDisplayString()} of attribute {attributePropertyNameReference.ToDisplayString()} is missing or not a constant.");
-                initializer = new LiteralExpressionBindingParserNode("") { StartPosition = attributePropertyNameReference.EndPosition };
             }
 
             var type = new ActualTypeReferenceBindingParserNode(attributeTypeReference);
@@ -120,7 +119,7 @@ namespace DotVVM.Framework.Compilation.Directives
         protected abstract bool HasPropertyType(IAbstractPropertyDeclarationDirective directive);
         protected abstract DotvvmProperty TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective);
 
-        private record AttributeInfo(ActualTypeReferenceBindingParserNode Type, IdentifierNameBindingParserNode Name, LiteralExpressionBindingParserNode Initializer);
+        private record AttributeInfo(ActualTypeReferenceBindingParserNode Type, IdentifierNameBindingParserNode Name, BindingParserNode Initializer);
     }
 
     public class ResolvedPropertyDeclarationDirectiveCompiler : PropertyDeclarationDirectiveCompiler

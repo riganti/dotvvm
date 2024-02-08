@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Compilation.Inference
     {
         public MethodGroupExpression? Target { get; set; }
         public Expression[] Arguments { get; set; }
-        public Dictionary<string, Type> Generics { get; set; }
+        public Dictionary<Type, Type> Generics { get; set; }
         public int CurrentArgumentIndex { get; set; }
         public bool IsExtensionCall { get; set; }
 
@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Compilation.Inference
         {
             this.Target = target;
             this.Arguments = new Expression[argsCount];
-            this.Generics = new Dictionary<string, Type>();
+            this.Generics = new();
         }
     }
 }

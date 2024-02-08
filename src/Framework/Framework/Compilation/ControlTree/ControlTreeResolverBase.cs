@@ -259,6 +259,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 constructorParameters = new[] { element.FullTagName };
                 element.AddError($"The control <{element.FullTagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
             }
+            if (controlMetadata.VirtualPath is {} && controlMetadata.Type.IsAssignableTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))))
+            {
+                element.TagNameNode.AddWarning($"The markup control <{element.FullTagName}> has a baseType DotvvmView. Please make sure that the control file has .dotcontrol file extension. This will work, but causes unexpected issues, for example @js directive will not work in this control.");
+            }
             var control = treeBuilder.BuildControl(controlMetadata, element, dataContext);
             control.ConstructorParameters = constructorParameters;
 
@@ -451,28 +455,43 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (property is IGroupedPropertyDescriptor groupedProperty &&
                 property.UsedInCapabilities.Any(c => c.PropertyType.IsEqualTo(typeof(HtmlCapability))))
             {
-                var pGroup = groupedProperty.PropertyGroup;
-                var name = groupedProperty.GroupMemberName;
-                var prefix = attribute.AttributeFullName.Substring(0, attribute.AttributeFullName.Length - name.Length);
-                // If the HTML attribute is used with a prefix such as `Item`, it might be clearer if the first character is uppercased
-                // e.g. ItemClass reads better than Itemclass
-                // we supress the warning in such case
-                var allowFirstCharacterUppercase = prefix.Length > 0 && char.IsLetter(prefix[prefix.Length - 1]);
-                if (pGroup.Name.EndsWith("Attributes") &&
-                    name.Substring(allowFirstCharacterUppercase ? 1 : 0).ToLowerInvariant() != name.Substring(allowFirstCharacterUppercase ? 1 : 0))
-                {
-                    // properties with at most two typos
-                    var similarNameProperties =
-                        control.Metadata.AllProperties
-                        .Where(p => StringSimilarity.DamerauLevenshteinDistance(p.Name.ToLowerInvariant(), (prefix + name).ToLowerInvariant()) <= 2)
-                        .Select(p => p.Name)
-                        .ToArray();
-                    var similarPropertyHelp =
-                        similarNameProperties.Any() ? $" Did you mean {string.Join(", ", similarNameProperties)}, or another DotVVM property?" : " Did you intent to use a DotVVM property instead?";
-                    attribute.AttributeNameNode.AddWarning(
-                        $"HTML attribute name '{name}' should not contain uppercase letters." + similarPropertyHelp
-                    );
-                }
+                AddHtmlAttributeWarning(control, attribute, groupedProperty);
+            }
+        }
+
+        // some SVG attributes contain uppercase letters, we don't want to warn about those
+        static HashSet<string> uppercaseHtmlAttributeList = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "attributeName", "baseFrequency", "calcMode", "clipPathUnits", "diffuseConstant", "edgeMode", "edgeMode", "filterUnits", "gradientTransform", "gradientTransform", "gradientUnits", "gradientUnits", "kernelMatrix", "kernelUnitLength", "kernelUnitLength", "kernelUnitLength", "keyPoints", "keySplines", "keyTimes", "lengthAdjust", "limitingConeAngle", "markerHeight", "markerUnits", "markerWidth", "maskContentUnits", "maskUnits", "numOctaves", "pathLength", "patternContentUnits", "patternTransform", "patternUnits", "pointsAtX", "pointsAtY", "pointsAtZ", "preserveAlpha", "preserveAspectRatio", "primitiveUnits", "refX", "refX", "refY", "refY", "repeatCount", "repeatDur", "requiredExtensions", "specularConstant", "specularExponent", "specularExponent", "spreadMethod", "spreadMethod", "startOffset", "stdDeviation", "stdDeviation", "stitchTiles", "surfaceScale", "surfaceScale", "systemLanguage", "tableValues", "targetX", "targetY", "textLength", "textLength", "viewBox", "xChannelSelector", "yChannelSelector", "zoomAndPan" };
+        private static void AddHtmlAttributeWarning(IAbstractControl control, DothtmlAttributeNode attribute, IGroupedPropertyDescriptor groupedProperty)
+        {
+            var pGroup = groupedProperty.PropertyGroup;
+            var name = groupedProperty.GroupMemberName;
+
+
+            var prefix = attribute.AttributeFullName.Substring(0, attribute.AttributeFullName.Length - name.Length);
+            // If the HTML attribute is used with a prefix such as `Item`, it might be clearer if the first character is uppercased
+            // e.g. ItemClass reads better than Itemclass
+            // we supress the warning in such case
+            var allowFirstCharacterUppercase = prefix.Length > 0 && char.IsLetter(prefix[prefix.Length - 1]);
+
+
+            // Ignore SVG attributes (unless they also start with an uppercase letter)
+            if ((allowFirstCharacterUppercase || !char.IsUpper(name[0])) && uppercaseHtmlAttributeList.Contains(name))
+                return;
+
+            if (pGroup.Name.EndsWith("Attributes") &&
+                name.Substring(allowFirstCharacterUppercase ? 1 : 0).ToLowerInvariant() != name.Substring(allowFirstCharacterUppercase ? 1 : 0))
+            {
+                // properties with at most two typos
+                var similarNameProperties =
+                    control.Metadata.AllProperties
+                    .Where(p => StringSimilarity.DamerauLevenshteinDistance(p.Name.ToLowerInvariant(), (prefix + name).ToLowerInvariant()) <= 2)
+                    .Select(p => p.Name)
+                    .ToArray();
+                var similarPropertyHelp =
+                    similarNameProperties.Any() ? $" Did you mean {string.Join(", ", similarNameProperties)}, or another DotVVM property?" : " Did you intent to use a DotVVM property instead?";
+                attribute.AttributeNameNode.AddWarning(
+                    $"HTML attribute name '{name}' should not contain uppercase letters." + similarPropertyHelp
+                );
             }
         }
 

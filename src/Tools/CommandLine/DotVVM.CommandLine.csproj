@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
     <AssemblyName>dotnet-dotvvm</AssemblyName>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <OutputType>Exe</OutputType>
@@ -50,8 +50,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Compiler\DotVVM.Compiler.csproj">
         <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-        <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
-        <AdditionalProperties>PublishDir=$(OutputPath)tools\netcoreapp3.1\any</AdditionalProperties>
+        <SetTargetFramework>TargetFramework=net6.0</SetTargetFramework>
+        <AdditionalProperties>PublishDir=$(OutputPath)tools\net6.0\any</AdditionalProperties>
         <Targets>Publish</Targets>
     </ProjectReference>
     <ProjectReference Include="..\Compiler\DotVVM.Compiler.csproj" Condition=" '$(OS)' == 'Windows_NT' ">

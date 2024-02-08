@@ -15,7 +15,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return ReflectionUtils.IsCustomPrimitiveType(objectType);
         }
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType is JsonToken.String
                 or JsonToken.Boolean
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             if (value == null)
             {

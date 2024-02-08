@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             ElementInitializers = elementInitializers;
         }
 
-        public override IEnumerable<BindingParserNode> EnumerateChildNodes() => base.EnumerateNodes().Concat(ElementInitializers);
+        public override IEnumerable<BindingParserNode> EnumerateChildNodes() => ElementInitializers;
 
         public override string ToDisplayString() => $"[ {(string.Join(", ", ElementInitializers.Select(arg => arg.ToDisplayString())))} ]";
     }

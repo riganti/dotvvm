@@ -247,8 +247,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (b is null) throw new ArgumentNullException(nameof(b));
             if (operatorName is null) throw new ArgumentNullException(nameof(b));
 
-            var searchTypes = new [] { a.Type, b.Type, a.Type.UnwrapNullableType(), b.Type.UnwrapNullableType() }.OfType<Type>().Distinct().ToArray();
-
+            var searchTypes = new [] { a.Type, b.Type, a.Type.UnwrapNullableType(), b.Type.UnwrapNullableType() }.WhereNotNull().Distinct().ToArray();
 
             // https://github.com/dotnet/csharpstandard/blob/standard-v6/standard/expressions.md#1145-binary-operator-overload-resolution
             // The set of candidate user-defined operators provided by X and Y for the operation operator «op»(x, y) is determined. The set consists of the union of the candidate operators provided by X and the candidate operators provided by Y, each determined using the rules of §11.4.6.
@@ -416,6 +415,28 @@ namespace DotVVM.Framework.Compilation.Binding
             public bool HasParamsAttribute { get; set; }
         }
 
+        private Expression GetDefaultValue(ParameterInfo parameter)
+        {
+            if (parameter.HasDefaultValue)
+            {
+                var value = parameter.DefaultValue;
+                if (value is null && parameter.ParameterType.IsValueType)
+                {
+                    // null with struct type means `default(T)`
+                    value = ReflectionUtils.GetDefaultValue(parameter.ParameterType);
+                }
+                return Expression.Constant(value, parameter.ParameterType);
+            }
+            else if (parameter.IsDefined(ParamArrayAttributeType))
+            {
+                return Expression.NewArrayInit(parameter.ParameterType.GetElementType().NotNull());
+            }
+            else
+            {
+                throw new Exception($"Internal error: parameter {parameter.Name} of method {parameter.Member.Name} does not have a default value.");
+            }
+        }
+
         private MethodRecognitionResult? TryCallMethod(MethodInfo method, Type[]? typeArguments, Expression[] positionalArguments, IDictionary<string, Expression>? namedArguments)
         {
             if (positionalArguments.Contains(null)) throw new ArgumentNullException("positionalArguments[]");
@@ -446,7 +467,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (typeArgs[genericArgumentPosition] == null)
                     {
                         // try to resolve from arguments
-                        var argType = GetGenericParameterType(genericArguments[genericArgumentPosition], parameterTypes, args.Select(s => s.Type).ToArray());
+                        var argType = GetGenericParameterType(genericArguments[genericArgumentPosition], parameterTypes, args.Select(s => s?.Type).ToArray());
                         automaticTypeArgs++;
                         if (argType != null) typeArgs[genericArgumentPosition] = argType;
                         else return null;
@@ -467,11 +488,15 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             else if (typeArguments != null) return null;
 
-            // cast arguments
+            // cast arguments and fill defaults
             for (int i = 0; i < args.Length; i++)
             {
+                if (args[i] == null)
+                {
+                    args[i] = GetDefaultValue(parameters[i]);
+                }
                 Type elm;
-                if (args.Length == i + 1 && hasParamsArrayAttributes && !args[i].Type.IsArray)
+                if (args.Length == i + 1 && hasParamsArrayAttributes && !args[i]!.Type.IsArray)
                 {
                     elm = parameters[i].ParameterType.GetElementType().NotNull();
                     if (positionalArguments.Skip(i).Any(s => TypeConversion.ImplicitConversion(s, elm) is null))
@@ -483,7 +508,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     elm = parameters[i].ParameterType;
                 }
-                var casted = TypeConversion.ImplicitConversion(args[i], elm);
+                var casted = TypeConversion.ImplicitConversion(args[i]!, elm);
                 if (casted == null)
                 {
                     return null;
@@ -493,7 +518,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     castCount++;
                     args[i] = casted;
                 }
-                if (args.Length == i + 1 && hasParamsArrayAttributes && !args[i].Type.IsArray)
+                if (args.Length == i + 1 && hasParamsArrayAttributes && !args[i]!.Type.IsArray)
                 {
                     var converted = positionalArguments.Skip(i)
                         .Select(a => TypeConversion.EnsureImplicitConversion(a, elm))
@@ -506,13 +531,13 @@ namespace DotVVM.Framework.Compilation.Binding
                 automaticTypeArgCount: automaticTypeArgs,
                 castCount: castCount,
                 method: method,
-                arguments: args,
+                arguments: args!,
                 paramsArrayCount: positionalArguments.Length - args.Length,
                 hasParamsAttribute: hasParamsArrayAttributes,
                 isExtension: false
             );
         }
-        private static bool TryPrepareArguments(ParameterInfo[] parameters, Expression[] positionalArguments, IDictionary<string, Expression>? namedArguments, [MaybeNullWhen(false)] out Expression[] arguments, out int castCount)
+        private static bool TryPrepareArguments(ParameterInfo[] parameters, Expression[] positionalArguments, IDictionary<string, Expression>? namedArguments, [MaybeNullWhen(false)] out Expression?[] arguments, out int castCount)
         {
             castCount = 0;
             arguments = null;
@@ -523,7 +548,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (!hasParamsArrayAttribute && parameters.Length < positionalArguments.Length)
                 return false;
 
-            arguments = new Expression[parameters.Length];
+            arguments = new Expression?[parameters.Length];
             var copyItemsCount = !hasParamsArrayAttribute ? positionalArguments.Length : parameters.Length;
 
             if (hasParamsArrayAttribute && parameters.Length > positionalArguments.Length)
@@ -531,8 +556,9 @@ namespace DotVVM.Framework.Compilation.Binding
                 var parameter = parameters.Last();
                 var elementType = parameter.ParameterType.GetElementType().NotNull();
 
-                // User specified no arguments for the `params` array, we need to create an empty array
-                arguments[arguments.Length - 1] = Expression.NewArrayInit(elementType);
+                // User specified no arguments for the `params` array => use default value
+                // created later by the GetDefaultValue, after we know the generic arguments
+                arguments[arguments.Length - 1] = null;
 
                 // Last argument was just generated => do not copy
                 addedArguments++;
@@ -562,7 +588,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 else if (parameters[i].HasDefaultValue)
                 {
                     castCount++;
-                    arguments[i] = Expression.Constant(parameters[i].DefaultValue, parameters[i].ParameterType);
+                    arguments[i] = null;
                 }
                 else if (parameters[i].IsDefined(ParamArrayAttributeType))
                 {
@@ -578,29 +604,30 @@ namespace DotVVM.Framework.Compilation.Binding
             return true;
         }
 
-        private Type? GetGenericParameterType(Type genericArg, Type[] searchedGenericTypes, Type[] expressionTypes)
+        private Type? GetGenericParameterType(Type genericArg, Type[] searchedGenericTypes, Type?[] expressionTypes)
         {
             for (var i = 0; i < searchedGenericTypes.Length; i++)
             {
                 if (expressionTypes.Length <= i) return null;
+                var expression = expressionTypes[i];
+                if (expression == null) continue;
                 var sgt = searchedGenericTypes[i];
                 if (sgt == genericArg)
                 {
-                    return expressionTypes[i];
+                    return expression;
                 }
                 if (sgt.IsArray)
                 {
                     var elementType = sgt.GetElementType();
-                    var expressionElementType = expressionTypes[i].GetElementType();
+                    var expressionElementType = expression.GetElementType();
                     if (elementType == genericArg)
                         return expressionElementType;
                     else
-                        return GetGenericParameterType(genericArg, searchedGenericTypes[i].GetGenericArguments(), expressionTypes[i].GetGenericArguments());
+                        return GetGenericParameterType(genericArg, searchedGenericTypes[i].GetGenericArguments(), expression.GetGenericArguments());
                 }
                 else if (sgt.IsGenericType)
                 {
                     Type[]? genericArguments = null;
-                    var expression = expressionTypes[i];
 
                     if (expression.IsArray)
                     {

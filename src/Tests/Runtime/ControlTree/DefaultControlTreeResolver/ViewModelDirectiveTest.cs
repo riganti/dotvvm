@@ -4,6 +4,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -28,6 +29,16 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var directiveNode = ((DothtmlRootNode)root.DothtmlNode).Directives.First();
             Assert.IsTrue(directiveNode.HasNodeErrors);
             Assert.IsTrue(directiveNode.NodeErrors.First().Contains("Could not resolve type"));
+        }
+
+        [TestMethod]
+        public void ResolvedTree_EmptyViewModelType()
+        {
+            var root = ParseSource(@"@viewModel
+");
+
+            var directiveNode = ((DothtmlRootNode)root.DothtmlNode).Directives.First();
+            Assert.IsTrue(directiveNode.HasNodeErrors);
         }
 
         [TestMethod]
@@ -70,9 +81,10 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void ResolvedTree_ViewModel_TypeFromGlobalImportedAliasedType()
         {
-            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("DotVVM.Framework.Tests.Runtime.ControlTree.TestViewModel", "viewModelAlias"));
+            var config = DotvvmTestHelper.CreateConfiguration();
+            config.Markup.ImportedNamespaces.Add(new NamespaceImport("DotVVM.Framework.Tests.Runtime.ControlTree.TestViewModel", "viewModelAlias"));
 
-            var root = ParseSource(@"@viewModel viewModelAlias");
+            var root = DotvvmTestHelper.ParseResolvedTree(@"@viewModel viewModelAlias", configuration: config);
 
             Assert.IsFalse(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
             Assert.AreEqual(typeof(TestViewModel), root.DataContextTypeStack.DataContextType);
@@ -81,9 +93,10 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void ResolvedTree_ViewModel_TypeFromGlobalImportedNamespace()
         {
-            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("DotVVM.Framework.Tests.Runtime.ControlTree"));
+            var config = DotvvmTestHelper.CreateConfiguration();
+            config.Markup.ImportedNamespaces.Add(new NamespaceImport("DotVVM.Framework.Tests.Runtime.ControlTree"));
 
-            var root = ParseSource(@"@viewModel TestViewModel");
+            var root = DotvvmTestHelper.ParseResolvedTree(@"@viewModel TestViewModel", configuration: config);
 
             Assert.IsFalse(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
             Assert.AreEqual(typeof(TestViewModel), root.DataContextTypeStack.DataContextType);

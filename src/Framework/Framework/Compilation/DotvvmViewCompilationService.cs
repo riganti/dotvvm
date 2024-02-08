@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -10,6 +10,8 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -105,10 +107,11 @@ namespace DotVVM.Framework.Compilation
                 var discoveredMasterPages = new ConcurrentDictionary<string, DotHtmlFileInfo>();
 
 
-                Func<DotHtmlFileInfo, Action> compilationTaskFactory = t => new Action(() => {
-                    BuildView(t, out var masterPage);
-                    if (masterPage != null && masterPage.Status == CompilationState.None) discoveredMasterPages.TryAdd(masterPage.VirtualPath, masterPage);
-                });
+                var compilationTaskFactory = (DotHtmlFileInfo t) => () => {
+                    BuildView(t, forceRecompile, out var masterPage);
+                    if (masterPage != null && masterPage.Status == CompilationState.None)
+                        discoveredMasterPages.TryAdd(masterPage.VirtualPath, masterPage);
+                };
 
                 var compileTasks = filesToCompile.Select(compilationTaskFactory).ToArray();
                 await ExecuteCompileTasks(compileTasks, buildInParallel);
@@ -144,17 +147,24 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        public bool BuildView(DotHtmlFileInfo file, out DotHtmlFileInfo? masterPage)
+        public bool BuildView(DotHtmlFileInfo file, out DotHtmlFileInfo? masterPage) =>
+            BuildView(file, false, out masterPage);
+        public bool BuildView(DotHtmlFileInfo file, bool forceRecompile, out DotHtmlFileInfo? masterPage)
         {
             masterPage = null;
             if (file.Status != CompilationState.NonCompilable)
             {
                 try
                 {
+                    if (forceRecompile)
+                        // TODO: next major version - add method to interface
+                        (controlBuilderFactory as DefaultControlBuilderFactory)?.InvalidateCache(file.VirtualPath);
+
                     var pageBuilder = controlBuilderFactory.GetControlBuilder(file.VirtualPath);
 
-                    using var scopedServiceProvider = dotvvmConfiguration.ServiceProvider.CreateScope(); // dependencies that are configured as scoped cannot be resolved from root service provider
-                    var compiledControl = pageBuilder.builder.Value.BuildControl(controlBuilderFactory, scopedServiceProvider.ServiceProvider);
+                    using var scopedServices = dotvvmConfiguration.ServiceProvider.CreateScope(); // dependencies that are configured as scoped cannot be resolved from root service provider
+                    scopedServices.ServiceProvider.GetRequiredService<DotvvmRequestContextStorage>().Context = new ViewCompilationFakeRequestContext(scopedServices.ServiceProvider);
+                    var compiledControl = pageBuilder.builder.Value.BuildControl(controlBuilderFactory, scopedServices.ServiceProvider);
 
                     if (pageBuilder.descriptor.MasterPage is { FileName: {} masterPagePath })
                     {

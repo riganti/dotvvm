@@ -6,7 +6,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class DotvvmDateOnlyConverter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             if (value == null)
             {
@@ -35,10 +35,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else if (reader.TokenType == JsonToken.Date)
             {
-                return (DateOnly)reader.Value;
+                return (DateOnly)reader.Value!;
             }
             else if (reader.TokenType == JsonToken.String
-                     && DateOnly.TryParseExact((string)reader.Value, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+                     && DateOnly.TryParseExact((string)reader.Value!, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
             {
                 return date;
             }

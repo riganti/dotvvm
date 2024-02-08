@@ -681,6 +681,20 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(() => default(IReadOnlyDictionary<Generic.T, Generic.T>)!.ContainsKey(null!), containsKey);
             AddMethodTranslator(() => default(IDictionary<Generic.T, Generic.T>)!.Remove(null!), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("remove").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
+
+            var getValueOrDefault = new GenericMethodCompiler((JsExpression[] args, MethodInfo method) => {
+                var defaultValue =
+                    args.Length > 3 ? args[3] :
+                    new JsLiteral(ReflectionUtils.GetDefaultValue(method.GetGenericArguments().Last()));
+                return new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("getItem").Invoke(args[1], args[2], defaultValue);
+            });
+#if DotNetCore
+            AddMethodTranslator(() => default(IReadOnlyDictionary<Generic.T, Generic.T>)!.GetValueOrDefault(null!), getValueOrDefault);
+            AddMethodTranslator(() => default(IReadOnlyDictionary<Generic.T, Generic.T>)!.GetValueOrDefault(null!, null), getValueOrDefault);
+#endif
+            AddMethodTranslator(() => default(IImmutableDictionary<Generic.T, Generic.T>)!.GetValueOrDefault(null!), getValueOrDefault);
+            AddMethodTranslator(() => default(IImmutableDictionary<Generic.T, Generic.T>)!.GetValueOrDefault(null!, null), getValueOrDefault);
+            AddMethodTranslator(() => FunctionalExtensions.GetValueOrDefault(default(IReadOnlyDictionary<Generic.T, Generic.T>)!, null!, null!, false), getValueOrDefault);
         }
 
         private bool IsDictionary(Type type) =>

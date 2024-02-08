@@ -67,7 +67,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Reads the JSON representation of the object.
         /// </summary>
-        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             if (existingValue is {})
             {
@@ -111,8 +111,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Writes the JSON representation of the object.
         /// </summary>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
             var evSuppressLevel = evWriter.Value.SuppressedLevel;
             try
             {

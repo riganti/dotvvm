@@ -51,11 +51,10 @@ namespace DotVVM.Framework.Routing
         private static string AppendQueryParam(ref string urlSuffix, string name, string? value)
         {
             urlSuffix += (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&");
-            var hasValue = !string.IsNullOrWhiteSpace(value);
 
-            return (!hasValue) ?
+            return string.IsNullOrWhiteSpace(value) ?
                 urlSuffix += Uri.EscapeDataString(name) :
-                urlSuffix += $"{Uri.EscapeDataString(name)}={value}";
+                urlSuffix += $"{Uri.EscapeDataString(name)}={Uri.EscapeDataString(value)}";
         }
 
         /// <summary>
@@ -137,16 +136,15 @@ namespace DotVVM.Framework.Routing
             }
             else if (ReflectionUtils.TryGetCustomPrimitiveTypeRegistration(value.GetType()) is { } registration)
             {
-                return Uri.EscapeDataString(registration.ToStringMethod(value));
+                return registration.ToStringMethod(value);
             }
             else if (value is IConvertible convertible)
             {
-                return Uri.EscapeDataString(convertible.ToString(CultureInfo.InvariantCulture));
+                return convertible.ToString(CultureInfo.InvariantCulture);
             }
             else
             {
-                var strVal = value.ToString();
-                return strVal == null ? null : Uri.EscapeDataString(strVal);
+                return value.ToString();
             }
         }
     }

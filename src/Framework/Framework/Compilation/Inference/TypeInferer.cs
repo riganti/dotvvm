@@ -74,11 +74,11 @@ namespace DotVVM.Framework.Compilation.Inference
                 return;
 
             var newCandidates = new List<MethodInfo>();
-            var newInstantiations = new Dictionary<string, HashSet<Type>>();
+            var newInstantiations = new Dictionary<Type, HashSet<Type>>();
 
             // Check if we can remove some candidates
             // Also try to infer generics based on provided argument
-            var tempInstantiations = new Dictionary<string, Type>();
+            var tempInstantiations = new Dictionary<Type, Type>();
             foreach (var candidate in context.Target.Candidates!.Where(c => c.GetParameters().Length > index))
             {
                 tempInstantiations.Clear();
@@ -87,12 +87,12 @@ namespace DotVVM.Framework.Compilation.Inference
 
                 if (parameterType.IsGenericParameter)
                 {
-                    tempInstantiations.Add(parameterType.Name, argumentType);
+                    tempInstantiations.Add(parameterType, argumentType);
                 }
                 else if (parameterType.ContainsGenericParameters)
                 {
                     // Check if we already inferred instantiation for these generics
-                    if (!parameterType.GetGenericArguments().Any(param => !context.Generics.ContainsKey(param.Name)))
+                    if (!parameterType.GetGenericArguments().Any(param => !context.Generics.ContainsKey(param)))
                         continue;
 
                     // Try to infer instantiation based on given argument
@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Compilation.Inference
             context.Target.Candidates = newCandidates;
         }
 
-        private bool TryInferInstantiation(Type generic, Type concrete, Dictionary<string, Type> generics)
+        private bool TryInferInstantiation(Type generic, Type concrete, Dictionary<Type, Type> generics)
         {
             if (generic == concrete)
                 return true;
@@ -127,7 +127,7 @@ namespace DotVVM.Framework.Compilation.Inference
             if (generic.IsGenericParameter)
             {
                 // We found the instantiation
-                generics.Add(generic.Name, concrete);
+                generics.Add(generic, concrete);
                 return true;
             }
             else if (ReflectionUtils.IsEnumerable(generic))

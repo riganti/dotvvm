@@ -538,6 +538,18 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("dotvvm.translations.dictionary.getItem(ReadOnlyDictionary(),1)", result);
         }
 
+        [DataTestMethod]
+        [DataRow("Dictionary")]
+        [DataRow("ReadOnlyDictionary")]
+        public void JsTranslator_Dictionary_GetValueOrDefault(string property)
+        {
+            var imports = new NamespaceImport[] { new("System.Collections.Generic"), new("DotVVM.Framework.Utils") };
+            var result = CompileBinding($"{property}.GetValueOrDefault(1)", imports, typeof(TestViewModel5));
+            Assert.AreEqual($"dotvvm.translations.dictionary.getItem({property}(),1,0)", result);
+            var result2 = CompileBinding($"{property}.GetValueOrDefault(1, 1024)", imports, typeof(TestViewModel5));
+            Assert.AreEqual($"dotvvm.translations.dictionary.getItem({property}(),1,1024)", result2);
+        }
+
         [TestMethod]
         public void JsTranslator_DictionaryIndexer_Set()
         {

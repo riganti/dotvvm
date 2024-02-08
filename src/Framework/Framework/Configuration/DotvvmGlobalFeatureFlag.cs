@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Configuration
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                FreezableUtils.Error($"{nameof(DotvvmGlobalFeatureFlag)} {this.FlagName}");
+                throw FreezableUtils.Error($"{nameof(DotvvmGlobalFeatureFlag)} {this.FlagName}");
         }
 
         public void Freeze()

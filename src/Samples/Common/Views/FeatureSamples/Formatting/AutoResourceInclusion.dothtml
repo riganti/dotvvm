@@ -1,0 +1,26 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Formatting.AutoResourceInclusionViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/Formatting/AutoResourceInclusionMaster.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+    <h1>Makes sure that Globalize resource is added correctly</h1>
+
+    <dot:AuthenticatedView>
+        <AuthenticatedTemplate>
+            {{value: Number}}
+        </AuthenticatedTemplate>
+    </dot:AuthenticatedView>
+
+    <dot:Repeater DataSource="{value: Items}">
+        <EmptyDataTemplate>
+            test
+        </EmptyDataTemplate>
+        <ItemTemplate>
+            <p>
+                <dot:RouteLink RouteName="RepeaterRouteLink-PageDetail" Param-Id="{value: Id}" Text="{value: Id}" />
+                <br />
+                {{value: DateCreated.ToString("g")}}
+            </p>
+        </ItemTemplate>
+    </dot:Repeater>
+
+</dot:Content>

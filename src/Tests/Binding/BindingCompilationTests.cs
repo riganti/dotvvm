@@ -23,6 +23,7 @@ using System.Runtime.Serialization;
 using CheckTestOutput;
 using DotVVM.Framework.Tests.Runtime;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -436,6 +437,18 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("Enumerable.Repeat(LongArray, 3).SelectMany(l => l.AsEnumerable())", typeof(IEnumerable<long>))]
+        [DataRow("Enumerable.Repeat(LongArray, 3).SelectMany(l => l)", typeof(IEnumerable<long>))]
+        [DataRow("Enumerable.Repeat(LongArray, 3).SelectMany(l => l.ToList())", typeof(IEnumerable<long>))]
+        // SelectMany expects IEnumerable<TResult> return type, but it might be List<T> or T[]
+        public void BindingCompiler_Valid_Lambda_PolymorphicReturnType(string expr, Type expectedType)
+        {
+            var viewModel = new TestViewModel();
+            var result = ExecuteBinding(expr, viewModel);
+            XAssert.IsAssignableFrom(expectedType, result);
+        }
+
+        [TestMethod]
         [DataRow("(int? arg) => arg.Value + 1", typeof(Func<int?, int>))]
         [DataRow("(double? arg) => arg.Value + 0.1", typeof(Func<double?, double>))]
         public void BindingCompiler_Valid_LambdaParameter_Nullable(string expr, Type type)
@@ -469,6 +482,21 @@ namespace DotVVM.Framework.Tests.Binding
             var viewModel = new TestLambdaCompilation();
             var result = ExecuteBinding(expr, viewModel);
             Assert.AreEqual(type, result.GetType());
+        }
+
+        [DataTestMethod]
+        [DataRow("_this.CustomDelegateInvoker((string a, int b) => $'{a}-{b}')", "a-1")]
+        [DataRow("_this.CustomDelegateInvoker((a, b) => $'{a}-{b}')", "a-1")]
+        [DataRow("_this.CustomListDelegateInvoker((List<string> as) => as.Select(a => a + 'vv'))", "avv,bvv")]
+        [DataRow("_this.CustomListDelegateInvoker((as) => as.Select(a => a + 'vv'))", "avv,bvv")]
+        [DataRow("_this.CustomGenericDelegateInvoker(1, (List<int> as) => as.Select(a => a + 1))", "2,2")]
+        [DataRow("_this.CustomGenericDelegateInvoker(1, as => as.Select(a => a + 1))", "2,2")]
+        [DataRow("_this.CustomGenericDelegateInvoker(true, as => as.Select(a => !a))", "False,False")]
+        public void BindingCompiler_Valid_LambdaParameter_CustomDelegate(string expr, string expectedResult)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual(expectedResult, result);
         }
 
         [TestMethod]
@@ -1055,6 +1083,39 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(42, result(42));
         }
 
+        [DataTestMethod]
+        [DataRow("100", typeof(int))]
+        [DataRow("'aa'", null)]
+        [DataRow("NullableDateOnly", null)]
+        [DataRow("DateOnly", typeof(DateOnly))]
+        public void BindingCompiler_GenericMethod_DefaultArgument(string expression, Type resultType)
+        {
+            var result = ExecuteBinding($"_this.GenericDefault({expression})", new [] { new TestViewModel() });
+            if (resultType == null)
+            {
+                Assert.IsNull(result);
+            }
+            else
+            {
+                Assert.AreEqual(resultType, result.GetType(), message: $"_this.GenericDefault({expression}) returned {result} of type {result?.GetType().FullName ?? "null"}");
+                Assert.AreEqual(ReflectionUtils.GetDefaultValue(resultType), result);
+            }
+        }
+
+        [TestMethod]
+        public void BindingCompiler_GenericMethod_ParamsEmpty()
+        {
+            var result = ExecuteBinding("_this.GenericParams<int>()", new [] { new TestViewModel() });
+            Assert.AreEqual((0, 0), result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_GenericMethod_Params()
+        {
+            var result = ExecuteBinding("_this.GenericParams(10, 20, 30)", new [] { new TestViewModel() });
+            Assert.AreEqual((10, 3), result);
+        }
+
         [TestMethod]
         public void BindingCompiler_ComparisonOperators()
         {
@@ -1356,6 +1417,16 @@ namespace DotVVM.Framework.Tests.Binding
         public string MethodWithOverloads(string i) => i;
         public string MethodWithOverloads(DateTime i) => i.ToString();
         public int MethodWithOverloads(int a, int b) => a + b;
+
+        public T GenericDefault<T>(T something, T somethingElse = default)
+        {
+            return somethingElse;
+        }
+
+        public (T, int) GenericParams<T>(params T[] something)
+        {
+            return (something.FirstOrDefault(), something.Length);
+        }
     }
 
 
@@ -1393,6 +1464,17 @@ namespace DotVVM.Framework.Tests.Binding
 
         public string DelegateInvoker2<T>(T x, Action<T> func) { func(x); return "plain"; }
         public string DelegateInvoker2<T>(T x, Action<int, T> action) { action(0, x); return "with int"; }
+
+        public delegate string CustomDelegate(string a, int b);
+
+        public string CustomDelegateInvoker(CustomDelegate func) => func("a", 1);
+
+        public delegate IEnumerable<T> CustomGenericDelegate<T>(List<T> a);
+
+        public string CustomListDelegateInvoker(CustomGenericDelegate<string> func) =>
+            string.Join(",", func(new List<string>() { "a", "b" }));
+        public string CustomGenericDelegateInvoker<T>(T item, CustomGenericDelegate<T> func) =>
+            string.Join(",", func(new List<T>() { item, item }));
     }
 
     class TestViewModel2

@@ -231,7 +231,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Finds expected DataContext, gets the delegate from command binding and evaluates it with `args`
         /// </summary>
-        public static object? Evaluate(this ICommandBinding binding, DotvvmBindableObject control, params Func<Type, object>[] args)
+        public static object? Evaluate(this ICommandBinding binding, DotvvmBindableObject control, params Func<Type, object?>[] args)
         {
             var action = binding.GetCommandDelegate(control);
             if (action is null)

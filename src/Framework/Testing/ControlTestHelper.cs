@@ -299,7 +299,7 @@ namespace DotVVM.Framework.Testing
         public ControlTestHelper TestHelper { get; }
         public string FilePath { get; }
         public JObject ResultJson { get; }
-        public JObject ViewModelJson => (JObject)ResultJson["viewModel"];
+        public JObject ViewModelJson => (JObject)ResultJson["viewModel"].NotNull();
         public dynamic ViewModel => ViewModelJson;
         public string OutputString { get; }
         public string? HeadResources { get; }
@@ -359,7 +359,7 @@ namespace DotVVM.Framework.Testing
                 if (applyChanges)
                 {
                     JsonUtils.Patch(
-                        (JObject)this.ResultJson["viewModel"],
+                        (JObject)this.ResultJson["viewModel"]!,
                         r.ViewModelJson!
                     );
                 }
