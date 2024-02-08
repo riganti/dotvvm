@@ -10,8 +10,6 @@ const s = getStateManager() as StateManager<any>
 s.doUpdateNow()
 
 test("Stress test - simple increments", async () => {
-    jest.setTimeout(120_000);
-
     // watchEvents()
 
     await fc.assert(fc.asyncProperty(
@@ -44,7 +42,7 @@ test("Stress test - simple increments", async () => {
                 })
         }
     ), { timeout: 20000 })
-})
+}, 120_000)
 
 test("Stress test - simple increments with postbacks in background", async () => {
     jest.setTimeout(120_000);
@@ -88,4 +86,4 @@ test("Stress test - simple increments with postbacks in background", async () =>
                 })
         }
     ), { timeout: 20000 })
-})
+}, 120_000)

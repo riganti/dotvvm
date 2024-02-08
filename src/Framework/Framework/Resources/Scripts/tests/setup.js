@@ -7,7 +7,7 @@ global.compileConstants = { isSpa: true, debug: true }
 global.ko = require("../knockout-latest.debug")
 global.dotvvm_Globalize = require("../Globalize/globalize")
 
-const expect = require("expect")
+const { expect } = require("expect")
 
 expect.extend({
     observable(obj) {

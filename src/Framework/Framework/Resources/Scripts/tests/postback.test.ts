@@ -228,8 +228,6 @@ test("Postback: don't update unrelated properties", async () => {
 // })
 
 test("Run postbacks [Queue | no failures]", async () => {
-    jest.setTimeout(120_000);
-
     // watchEvents()
 
     await fc.assert(fc.asyncProperty(
@@ -266,11 +264,9 @@ test("Run postbacks [Queue | no failures]", async () => {
             expect(state().Property1).toBe(parallelism)
         }
     ), { timeout: 2000 })
-})
+}, 120_000)
 
 test("Run postbacks [Queue + Deny | no failures]", async () => {
-    jest.setTimeout(120_000);
-
     // watchEvents()
 
     await fc.assert(fc.asyncProperty(
@@ -330,11 +326,9 @@ test("Run postbacks [Queue + Deny | no failures]", async () => {
             await initDenyPostback
         }
     ), { timeout: 2000 })
-})
+}, 120_000)
 
 test("Run postbacks [Queue + Default | no failures]", async () => {
-    jest.setTimeout(120_000);
-
     // watchEvents()
 
     await fc.assert(fc.asyncProperty(
@@ -401,7 +395,7 @@ test("Run postbacks [Queue + Default | no failures]", async () => {
             expect(state().Property2).toBe(index2)
         }
     ), { timeout: 2000 })
-})
+}, 120_000)
 
 test("Postback: AbortSignal", async () => {
 
@@ -422,8 +416,6 @@ test("Postback: AbortSignal", async () => {
 })
 
 test("Run postbacks [Queue + Default | no failures]", async () => {
-    jest.setTimeout(120_000);
-
     // watchEvents()
 
     await fc.assert(fc.asyncProperty(
@@ -511,4 +503,4 @@ test("Run postbacks [Queue + Default | no failures]", async () => {
             }
         }
     ), { timeout: 2000 })
-})
+}, 120_000)

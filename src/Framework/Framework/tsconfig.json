@@ -8,11 +8,11 @@
     "removeComments": false,
     "sourceMap": true,
     "inlineSources": true,
-    "target": "ES2018",
+    "target": "ES2020",
     "declaration": true,
     "moduleResolution": "node",
     "strictNullChecks": true,
-    "lib": [ "dom", "es2015.promise", "es5", "es6" ],
+    "lib": [ "dom", "ES2020" ],
     "module": "ES2015"
   },
   "exclude": ["obj/**", "Resources/Scripts/tests", "node_modules/**"],
