@@ -74,6 +74,10 @@
     <None Remove="Views\Errors\ExceptionInRender.dothtml" />
     <None Remove="Views\Errors\InvalidServiceDirective.dothtml" />
     <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
+    <None Remove="Views\Errors\MarkupControlInvalidViewModel.dothtml" />
+    <None Remove="Views\Errors\MarkupControlPropertiesSameName.dotcontrol" />
+    <None Remove="Views\Errors\MarkupControlPropertiesSameNameWithBase.dotcontrol" />
+    <None Remove="Views\Errors\MarkupControlPropertiesSameNameWithBase.dothtml" />
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
     <None Remove="Views\FeatureSamples\Api\ApiInSpa_Master.dotmaster" />
     <None Remove="Views\FeatureSamples\Api\ApiInSpa_PageA.dothtml" />

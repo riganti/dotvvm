@@ -179,6 +179,8 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_InvalidViewModel = "Errors/InvalidViewModel";
         public const string Errors_MalformedBinding = "Errors/MalformedBinding";
         public const string Errors_MarkupControlInvalidViewModel = "Errors/MarkupControlInvalidViewModel";
+        public const string Errors_MarkupControlPropertiesSameName = "Errors/MarkupControlPropertiesSameName";
+        public const string Errors_MarkupControlPropertiesSameNameWithBase = "Errors/MarkupControlPropertiesSameNameWithBase";
         public const string Errors_MasterPageRequiresDifferentViewModel = "Errors/MasterPageRequiresDifferentViewModel";
         public const string Errors_MissingRequiredProperty = "Errors/MissingRequiredProperty";
         public const string Errors_MissingRequiredProperty2 = "Errors/MissingRequiredProperty2";

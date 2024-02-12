@@ -487,6 +487,17 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        [Fact]
+        public void Error_MarkupControlPropertiesSameName()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_MarkupControlPropertiesSameName);
+
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("already defined"));
+                AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("@property bool MyProperty"));
+            });
+        }
+
         public ErrorsTests(ITestOutputHelper output) : base(output)
         {
         }
