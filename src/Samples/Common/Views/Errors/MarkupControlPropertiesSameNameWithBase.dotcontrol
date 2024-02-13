@@ -1,0 +1,6 @@
+﻿@viewModel object
+@baseType DotVVM.Samples.Common.ViewModels.Errors.MarkupControlPropertiesSameNameWithBase
+
+@property bool MyProperty
+
+{{value: _control.MyProperty}}

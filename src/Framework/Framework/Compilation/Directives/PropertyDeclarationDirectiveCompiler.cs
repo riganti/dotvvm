@@ -112,6 +112,19 @@ namespace DotVVM.Framework.Compilation.Directives
 
             return directives
             .Where(HasPropertyType)
+            .GroupBy(
+                directive => directive.NameSyntax.Name,
+                directive => directive,
+                (name, directiveOfSameName) => {
+                    if (directiveOfSameName.Count() > 1)
+                    {
+                        foreach (var sameNameDirective in directiveOfSameName.Skip(1))
+                        {
+                            sameNameDirective.DothtmlNode?.AddError("Property with the same name is already defined.");
+                        };
+                    }
+                    return directiveOfSameName.First();
+                })
             .Select(TryCreateDotvvmPropertyFromDirective)
             .ToImmutableList();
         }

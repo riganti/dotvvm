@@ -1,8 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver;
 using System.Linq;
 using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -81,6 +79,34 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(2, property.Attributes.Count);
             AssertEx.BindingNode(property.Attributes[0].Initializer, "True", 62, 5);
             AssertEx.BindingNode(property.Attributes[1].Initializer, "False", 106, 6);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_PropertyDirectiveSameName_ErrorReported()
+        {
+            var root = ParseSource("""
+                @viewModel object
+                @property int MyProperty
+                @property bool MyProperty
+                @property string MyProperty
+
+                {{value: _control.MyProperty}}
+""", "control.dotcontrol");
+
+            var firstProperty = root.Directives["property"][0] as IAbstractPropertyDeclarationDirective;
+            var secondProperty = root.Directives["property"][1] as IAbstractPropertyDeclarationDirective;
+            var thirdProperty = root.Directives["property"][2] as IAbstractPropertyDeclarationDirective;
+
+            var property = root.Metadata.FindProperty("MyProperty");
+
+            //First property wins
+            Assert.AreEqual(property.PropertyType, typeof(int));
+
+            Assert.IsFalse(firstProperty.DothtmlNode.HasNodeErrors);
+            Assert.IsTrue(secondProperty.DothtmlNode.HasNodeErrors);
+            Assert.IsTrue(thirdProperty.DothtmlNode.HasNodeErrors);
+
+
         }
     }
 }
