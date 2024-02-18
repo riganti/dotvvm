@@ -25,8 +25,8 @@ namespace DotVVM.Framework.ViewModel.Validation
 
                 switch (attribute)
                 {
-                    case RequiredAttribute _:
-                        validationRule.ClientRuleName = "required";
+                    case RequiredAttribute required:
+                        validationRule.ClientRuleName = required.AllowEmptyStrings ? "notnull" : "required";
                         break;
                     case RegularExpressionAttribute regularExpressionAttr:
                         validationRule.ClientRuleName = "regularExpression";
