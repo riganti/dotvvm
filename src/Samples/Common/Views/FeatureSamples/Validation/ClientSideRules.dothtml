@@ -1,0 +1,87 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.ClientSideRulesViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>Int32 Range(10, 20)</td>
+            <td>
+                <dot:TextBox Text={value: RangeInt32} Type=number data-ui="textbox-RangeInt32" />
+                <dot:Button Click={staticCommand: RangeInt32 = null} data-ui="setnull-RangeInt32">Set null</dot:Button>
+            </td>
+        </tr>
+        <tr>
+            <td>Float64 Range(12.345678901, Inf)</td>
+            <td>
+                <dot:TextBox Text={value: RangeFloat64} data-ui="textbox-RangeFloat64" />
+                <dot:Button Click={staticCommand: RangeFloat64 = null} data-ui="setnull-RangeFloat64">Set null</dot:Button>
+            </td>
+        </tr>
+        <tr>
+            <td>Date Range in 2015</td>
+            <td>
+                <dot:TextBox Text={value: RangeDate} Type=date />
+                <dot:TextBox Text={value: RangeDate} FormatString="yyyy-MM-dd"  data-ui="textbox-RangeDate" />
+                <dot:Button Click={staticCommand: RangeDate = null} data-ui="setnull-RangeDate">Set null</dot:Button>
+            </td>
+        <tr>
+            <td>String Required</td>
+            <td>
+                <dot:TextBox Text={value: RequiredString} data-ui="textbox-RequiredString" />
+                <dot:Button Click={staticCommand: RequiredString = null} data-ui="setnull-RequiredString">Set null</dot:Button>
+            </td>
+        </tr>
+        <tr>
+            <td>String NotNull</td>
+            <td>
+                <dot:TextBox Text={value: NotNullString} data-ui="textbox-NotNullString" />
+                <dot:Button Click={staticCommand: NotNullString = null} data-ui="setnull-NotNullString">Set null</dot:Button>
+            </td>
+        </tr>
+        <tr>
+            <td>String Email</td>
+            <td>
+                <dot:TextBox Text={value: EmailString} data-ui="textbox-EmailString" />
+                <dot:Button Click={staticCommand: EmailString = null} data-ui="setnull-EmailString">Set null</dot:Button>
+            </td>
+        </tr>
+    </table>
+    <hr>
+    <dot:ValidationSummary data-ui="errors" />
+    <p>
+        Server requests: <span data-ui="request-count" InnerText={value: ServerRequestCount} />,
+        Logical postbacks: <span data-ui="postback-count" InnerText={value: ClientPostbackCount} />
+    </p>
+    <p>
+        Result: <span data-ui="result" InnerText={value: Result} />
+    </p>
+    <p>
+        <dot:Button Click={command: Command()} onclick="dotvvm.validation.events.validationErrorsChanged.unsubscribe(validationSupressor)" Text="Submit" data-ui="submit-button" />
+        <dot:Button Click={command: Command()} onclick="dotvvm.validation.events.validationErrorsChanged.subscribeOnce(validationSupressor)" Text="Submit without client-side validation" data-ui="submit-button-serverside" />
+        <dot:Button Click={command: 0} Validation.Target={value: 0} Text="Clear errors" data-ui="clear-button" /> 
+    </p>
+
+    <dot:InlineScript>
+        dotvvm.events.postbackHandlersStarted.subscribe(() => {
+            dotvvm.patchState({ Result: "" })
+        })
+        dotvvm.events.postbackCommitInvoked.subscribe(() => {
+            dotvvm.patchState({ ServerRequestCount: dotvvm.state.ServerRequestCount + 1 })
+        })
+        dotvvm.events.afterPostback.subscribe(() => {
+            dotvvm.patchState({ ClientPostbackCount: dotvvm.state.ClientPostbackCount + 1 })
+        })
+        const validationSupressor = () => {
+            for (const e of [...dotvvm.validation.errors]) {
+                e.detach()
+            }
+        }
+    </dot:InlineScript>
+</body>
+</html>
+

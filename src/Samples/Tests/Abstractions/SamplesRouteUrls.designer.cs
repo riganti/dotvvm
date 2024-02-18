@@ -363,6 +363,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_StringInterpolation_StringInterpolation = "FeatureSamples/StringInterpolation/StringInterpolation";
         public const string FeatureSamples_UsageValidation_OverrideValidation = "FeatureSamples/UsageValidation/OverrideValidation";
         public const string FeatureSamples_Validation_ClientSideObservableUpdate = "FeatureSamples/Validation/ClientSideObservableUpdate";
+        public const string FeatureSamples_Validation_ClientSideRules = "FeatureSamples/Validation/ClientSideRules";
         public const string FeatureSamples_Validation_CustomValidation = "FeatureSamples/Validation/CustomValidation";
         public const string FeatureSamples_Validation_DateTimeValidation = "FeatureSamples/Validation/DateTimeValidation";
         public const string FeatureSamples_Validation_DateTimeValidation_NullableDateTime = "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
