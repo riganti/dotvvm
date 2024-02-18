@@ -1,0 +1,79 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ModalDialog.ModalDialogViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <style>
+        .button-active {
+            background-color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Modal dialogs</h1>
+    
+    <p>
+        <dot:Button data-ui="btn-open-simple" Text="Simple dialog" Click="{staticCommand: Dialog1Shown = true}" Class-button-active={value: Dialog1Shown} />
+        <dot:Button data-ui="btn-open-chained1" Text="Chained dialog" Click="{staticCommand: DialogChained1Shown = true}" Class-button-active={value: DialogChained1Shown} />
+        <dot:Button data-ui="btn-open-close-event" Text="Dialog with clickable backdrop and close event" Click="{staticCommand: CloseEventDialogShown = true}" Class-button-active={value: CloseEventDialogShown} />
+        <dot:Button data-ui="btn-open-view-model" Text="Dialog with view model" Click="{command: ShowDialogWithModel()}" Class-button-active={value: DialogWithModel != null} />
+        <dot:Button data-ui="btn-open-int" Text="Dialog controlled by nullable number" Click="{command: NullableIntController = 0}" Class-button-active={value: NullableIntController != null} />
+        <dot:Button data-ui="btn-open-string" Text="Dialog controlled by nullable string" Click="{staticCommand: NullableStringController = ""}" Class-button-active={value: NullableStringController != null} />
+    </p>
+    <p>
+        Close events: <span data-ui="close-event-counter" InnerText={value: CloseEventCounter} />
+    </p>
+
+    <dot:ModalDialog Open={value: Dialog1Shown} data-ui=simple>
+        <form>
+            This is a simple modal dialog, close it by pressing ESC or clicking the <button data-ui=btn-close formmethod="dialog" type="submit">Form method=dialog</button> button.
+        </form>
+    </dot:ModalDialog>
+
+    <dot:ModalDialog Open={value: DialogChained1Shown} data-ui=chained1>
+        <p>This is the first chained modal dialog.</p>
+        <form>
+            <dot:Button data-ui=btn-next Text="Next" Click={staticCommand: DialogChained1Shown = false; DialogChained2Shown = true} />
+            <button data-ui=btn-close formmethod="dialog" type="submit">Cancel</button>
+        </form>
+    </dot:ModalDialog>
+
+    <dot:ModalDialog Open={value: DialogChained2Shown} data-ui=chained2>
+        <p>This is the second chained modal dialog.</p>
+        <dot:Button data-ui=btn-close Text="Close" Click={staticCommand: DialogChained2Shown = false} />
+    </dot:ModalDialog>
+
+    <dot:ModalDialog Open={value: CloseEventDialogShown} CloseOnBackdropClick Close={staticCommand: CloseEventCounter = CloseEventCounter + 1} data-ui=close-event>
+        Closing the dialog will increase the counter. Either
+        <ul>
+            <li>Click the backdrop</li>
+            <li>Press ESC</li>
+            <li><dot:Button data-ui=btn-close1 Click={staticCommand: CloseEventDialogShown=false}>Use staticCommand</dot:Button></li>
+            <li><dot:Button data-ui=btn-close2 Click={command: CloseDialogWithEvent()}>Use command</dot:Button></li>
+            <li> <form method="dialog"><button data-ui=btn-close3 type="submit">Form method=dialog</button></form></li>
+        </ul>
+    </dot:ModalDialog>
+
+    <dot:ModalDialog Open={value: DialogWithModel} data-ui=view-model>
+        <p>Edit this field: <dot:TextBox Text={value: DialogWithModel.Property} /> </p>
+        <p>
+            <dot:Button data-ui=btn-save Text="Save" Click={command: DialogWithModel = null} />
+            <form method="dialog"><button data-ui=btn-close type="submit">Cancel</button></form>
+        </p>
+    </dot:ModalDialog>
+
+    <dot:ModalDialog Open={value: NullableIntController} data-ui=int>
+        the number: <dot:TextBox data-ui=editor Text={value: NullableIntController} />
+        <form method="dialog"><button data-ui=btn-close type="submit">Close</button></form>
+    </dot:ModalDialog>
+
+    <dot:ModalDialog Open={value: NullableStringController} data-ui=string>
+        the string: <dot:TextBox data-ui=editor Text={value: NullableStringController} />
+        <form method="dialog"><button data-ui=btn-close type="submit">Close</button></form>
+    </dot:ModalDialog>
+</body>
+</html>
+
