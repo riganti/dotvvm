@@ -292,6 +292,29 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_PostBack_RequestCompression()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_RequestCompression);
+                AssertUI.InnerTextEquals(browser.Single("field-length", SelectByDataUi), "100000");
+                browser.Single("button-command", SelectByDataUi).Click();
+                AssertUI.InnerTextEquals(browser.Single("field-length", SelectByDataUi), "100001");
+                int requestSize = int.Parse(browser.Last("request-size", SelectByDataUi).GetInnerText());
+                Assert.InRange(requestSize, 100, 2_000);
+                
+                browser.Single("button-static-command", SelectByDataUi).Click();
+                AssertUI.InnerTextEquals(browser.Single("field-length", SelectByDataUi), "100002");
+                requestSize = int.Parse(browser.Last("request-size", SelectByDataUi).GetInnerText());
+                Assert.InRange(requestSize, 100, 2_000);
+                browser.FindElements("request-size", SelectByDataUi).ThrowIfDifferentCountThan(2);
+
+                browser.Single("button-client-side", SelectByDataUi).Click();
+                AssertUI.InnerTextEquals(browser.Single("field-length", SelectByDataUi), "100003");
+                browser.FindElements("request-size", SelectByDataUi).ThrowIfDifferentCountThan(2);
+            });
+        }
+
         public PostBackTests(ITestOutputHelper output) : base(output)
         {
         }

@@ -25,9 +25,9 @@ export async function postJSON<T>(url: string, postData: any, signal: AbortSigna
     headers.append('Content-Type', 'application/json');
     headers.append('X-DotVVM-PostBack', 'true');
     appendAdditionalHeaders(headers, additionalHeaders);
-    // if (postData.length > 1000 && options.compressPOST) {
-    //     postData = await compressString(postData, headers)
-    // }
+    if (postData.length > 1000 && options.compressPOST) {
+        postData = await compressString(postData, headers)
+    }
 
     return await fetchJson<T>(url, { body: postData, headers: headers, method: "POST", signal });
 }

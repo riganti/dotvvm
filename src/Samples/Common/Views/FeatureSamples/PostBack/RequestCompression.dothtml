@@ -1,0 +1,51 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack.RequestCompressionViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>POST Request Gzip Compression</h1>
+
+    <p>
+        LargeField.Length = <span InnerText={value: LargeField.Length} data-ui="field-length"></span>
+    </p>
+    <p>
+        Request/Response Body size:
+        <table>
+            <dot:Repeater WrapperTagName="tr"  DataSource={value: RequestSizes} >
+                <td data-ui="request-size">{{value: _this}}</td>
+            </dot:Repeater>
+            <dot:Repeater WrapperTagName="tr"  DataSource={value: ResponseSizes} >
+                <td data-ui="response-size">{{value: _this}}</td>
+            </dot:Repeater>
+        </table>
+    </p>
+
+    <p>
+        <dot:Button Click={command: Command()} data-ui="button-command">Command</dot:Button>
+        <dot:Button Click={staticCommand: LargeField = RootViewModel.StaticCommand(LargeField)} data-ui="button-static-command"> StaticCommand</dot:Button>
+        <dot:Button Click={staticCommand: LargeField = LargeField + "d"} data-ui="button-client-side">Client-side StaticCommand</dot:Button>
+    </p>
+
+    <script type="text/javascript">
+        const fetchBackup = window.fetch;
+        window.fetch = function (url, init) {
+            console.log('fetch', url, init);
+            if (url == location.pathname && init.method == 'POST') {
+                const size = init.body?.size ?? new Blob([init.body]).size;
+                dotvvm.updateState(x => ({...x, RequestSizes: [...x.RequestSizes, size]}));
+            }
+            const result = fetchBackup.apply(window, arguments);
+            // result.then(async response => {
+            //     const responseSize = response.headers.get('Content-Length')
+            //     dotvvm.updateState(x => ({...x, ResponseSizes: [...x.ResponseSizes, responseSize]}));
+            // });
+            return result;
+        };
+    </script>
+</body>
+</html>
+
