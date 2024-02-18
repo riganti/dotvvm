@@ -19,6 +19,7 @@ namespace DotVVM.Framework.Runtime
     public static class HotReloadMetadataUpdateHandler
     {
         internal static readonly ConcurrentBag<WeakReference<ViewModelSerializationMapper>> SerializationMappers = new();
+        internal static readonly ConcurrentBag<WeakReference<ViewModelTypeMetadataSerializer>> TypeMetadataSerializer = new();
         internal static readonly ConcurrentBag<WeakReference<UserColumnMappingCache>> UserColumnMappingCaches = new();
         internal static readonly ConcurrentBag<WeakReference<ExtensionMethodsCache>> ExtensionMethodsCaches = new();
         public static void ClearCache(Type[]? updatedTypes)
@@ -36,6 +37,11 @@ namespace DotVVM.Framework.Runtime
                             problematicTypes.Add(u);
                     }
             }
+            foreach (var tRef in TypeMetadataSerializer)
+            {
+                if (tRef.TryGetTarget(out var t))
+                    t.ClearCaches(updatedTypes);
+            }
             foreach (var cRef in UserColumnMappingCaches)
             {
                 if (cRef.TryGetTarget(out var c))
@@ -47,7 +53,6 @@ namespace DotVVM.Framework.Runtime
                     e.ClearCaches(updatedTypes);
             }
 
-            ViewModelTypeMetadataSerializer.ClearCaches(updatedTypes);
             DefaultViewModelLoader.ClearCaches(updatedTypes);
             AttributeViewModelParameterBinder.ClearCaches(updatedTypes);
             ChildViewModelsCache.ClearCaches(updatedTypes);
