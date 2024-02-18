@@ -133,12 +133,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (viewModelConverter.EncryptedValues.Count > 0)
                 viewModelToken["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(Formatting.None), context);
 
-            // serialize validation rules
-            bool useClientSideValidation = context.Configuration.ClientSideValidation;
-            var validationRules = useClientSideValidation ?
-                SerializeValidationRules(viewModelConverter) :
-                null;
-
             // create result object
             var result = new JObject();
             result["viewModel"] = viewModelToken;
@@ -161,9 +155,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 result["renderedResources"] = JArray.FromObject(context.ResourceManager.GetNamedResourcesInOrder().Select(r => r.Name));
             }
-
-            // TODO: do not send on postbacks
-            if (validationRules?.Count > 0) result["validationRules"] = validationRules;
 
             if (commandResult != null) result["commandResult"] = WriteCommandData(commandResult, serializer, "the command result");
             AddCustomPropertiesIfAny(context, serializer, result);
@@ -263,28 +254,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             return resourceObj;
         }
-
-        /// <summary>
-        /// Serializes the validation rules.
-        /// </summary>
-        private JObject SerializeValidationRules(ViewModelJsonConverter viewModelConverter)
-        {
-            var validationRules = new JObject();
-            foreach (var map in viewModelConverter.UsedSerializationMaps)
-            {
-                var rule = new JObject();
-
-                foreach (var property in map.Properties)
-                {
-                    if (property.ValidationRules.Count > 0 && property.ClientValidationRules.Any())
-                        rule[property.Name] = JToken.FromObject(property.ClientValidationRules);
-                }
-                if (rule.Count > 0) validationRules[map.Type.GetTypeHash()] = rule;
-            }
-            return validationRules;
-        }
-
-
 
         /// <summary>
         /// Serializes the redirect action.

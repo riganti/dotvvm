@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 using CheckTestOutput;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
@@ -71,6 +74,34 @@ namespace DotVVM.Framework.Tests.ViewModel
 
                 var checker = new OutputChecker("testoutputs");
                 checker.CheckJsonObject(result);
+            });
+        }
+
+        [TestMethod]
+        public void ViewModelTypeMetadata_ValidationRules()
+        {
+            CultureUtils.RunWithCulture("en-US", () => {
+                var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
+                var result = typeMetadataSerializer.SerializeTypeMetadata(new[] { mapper.GetMap(typeof(TestViewModel)) });
+
+                var rules = XAssert.IsType<JArray>(result[typeof(TestViewModel).GetTypeHash()]["properties"]["ServerToClient"]["validationRules"]);
+                XAssert.Single(rules);
+                Assert.AreEqual("required", rules[0]["ruleName"].Value<string>());
+                Assert.AreEqual("ServerToClient is required!", rules[0]["errorMessage"].Value<string>());
+            });
+        }
+
+        [TestMethod]
+        public void ViewModelTypeMetadata_ValidationDisabled()
+        {
+            CultureUtils.RunWithCulture("en-US", () => {
+                var config = DotvvmTestHelper.CreateConfiguration();
+                config.ClientSideValidation = false;
+
+                var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper, config);
+                var result = typeMetadataSerializer.SerializeTypeMetadata(new[] { mapper.GetMap(typeof(TestViewModel)) });
+
+                XAssert.Null(result[typeof(TestViewModel).GetTypeHash()]["properties"]["ServerToClient"]["validationRules"]);
             });
         }
 
