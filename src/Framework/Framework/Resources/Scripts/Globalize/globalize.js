@@ -241,7 +241,7 @@ Globalize.cultures[ "default" ] = {
 			    // G is a combination of the short date ("d") and short time ("T") patterns, separated by a space
 				G: "M/d/yyyy h:mm:ss tt"
 			},
-			additionalDefaultPatterns: ["h:mm", "h:mm:ss"]
+			additionalDefaultPatterns: ["H:mm", "H:mm:ss"]
 			// optional fields for each calendar:
 			/*
 			monthsGenitive:
