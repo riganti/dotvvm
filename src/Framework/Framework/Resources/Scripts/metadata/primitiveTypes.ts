@@ -230,6 +230,10 @@ function validateTimeSpan(value: any) {
     if (typeof value === "number") {
         return { value: serializeTimeSpan(value), wasCoerced: true };
     }
+
+    if (value instanceof Date) {
+        return { value: serializeTimeOnly(value, false), wasCoerced: true };
+    }
 }
 
 function validateDateTimeOffset(value: any) {

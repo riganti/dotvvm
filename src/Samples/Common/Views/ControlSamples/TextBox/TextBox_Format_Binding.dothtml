@@ -49,7 +49,7 @@
         TimeSpan Format: <br>
         <dot:textbox ID="timespanTextbox"
                      ClientIDMode="Static"
-                     Text="{value: TimeSpanValue.ToString('HH\:mm') }"
+                     Text="{value: TimeSpanValue.ToString('HH:mm') }"
                      style="height: 20px; width: 200px;"/>
         <dot:Literal ID="timespanValueText"
                      ClientIDMode="Static"

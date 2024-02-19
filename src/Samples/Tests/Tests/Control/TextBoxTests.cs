@@ -166,7 +166,7 @@ window.getSelectionText = function (dataui) {
                 AssertUI.InnerTextEquals(nullableNumberValueText, 123.123456789.ToString(culture));
 
                 var timespanTextbox = browser.First("#timespanTextbox");
-                AssertUI.Attribute(timespanTextbox, "value", new TimeSpan(11, 48, 25).ToString("HH:mm"));
+                AssertUI.Attribute(timespanTextbox, "value", new TimeSpan(11, 48, 25).ToString("h\\:mm"));
 
                 var timespanValueText = browser.First("#timespanValueText");
                 AssertUI.InnerTextEquals(timespanValueText, new TimeSpan(11, 48, 25).ToString());
@@ -186,11 +186,14 @@ window.getSelectionText = function (dataui) {
                 //write invalid values
                 dateTextBox.Clear().SendKeys("dsasdasd");
                 numberTextbox.Clear().SendKeys("000//a");
+                timespanTextbox.Clear().SendKeys("10:23");
                 dateTextBox.Click();
 
                 //check displayed values (behavior change in 3.0 - previous values should stay there)
                 AssertUI.InnerTextEquals(dateText, new DateTime(2018, 12, 27).ToString("G", culture));
                 AssertUI.InnerTextEquals(numberValueText, 2000.ToString(culture));
+                AssertUI.InnerTextEquals(timespanTextbox, new TimeSpan(10, 23, 0).ToString("h\\:mm"));
+                AssertUI.InnerTextEquals(timespanValueText, new TimeSpan(10, 23, 0).ToString());
 
                 AssertUI.Attribute(numberTextbox, "value", "000//a");
                 AssertUI.Attribute(dateTextBox, "value", "dsasdasd");
@@ -198,11 +201,13 @@ window.getSelectionText = function (dataui) {
                 //write new valid values
                 dateTextBox.Clear().SendKeys(new DateTime(2018, 1, 1).ToString("d", culture));
                 numberTextbox.Clear().SendKeys(1000.550277.ToString(culture));
+                timespanTextbox.Clear().SendKeys(new TimeSpan(11, 48, 25).ToString("h\\:mm"));
                 dateTextBox.Click();
 
                 //check new values
                 AssertUI.InnerTextEquals(dateText, new DateTime(2018, 1, 1).ToString("G", culture));
                 AssertUI.InnerTextEquals(numberValueText, 1000.550277.ToString(culture));
+                AssertUI.InnerTextEquals(timespanValueText, new TimeSpan(11, 48, 0).ToString());
 
                 AssertUI.Attribute(numberTextbox, "value", 1000.550277.ToString("n4", culture));
                 AssertUI.Attribute(dateTextBox, "value", dateResult3);
@@ -215,6 +220,10 @@ window.getSelectionText = function (dataui) {
                 nullableDateTextBox.Clear().SendKeys(new DateTime(2020, 4, 2).ToString("d", culture)).SendKeys(Keys.Tab);
                 AssertUI.Attribute(nullableDateTextBox, "value", new DateTime(2020, 4, 2).ToString("G", culture));
                 AssertUI.InnerTextEquals(nullableDateText, new DateTime(2020, 4, 2).ToString("G", culture));
+
+                timespanTextbox.Clear().SendKeys(new TimeSpan(10, 23, 45).ToString("t", culture)).SendKeys(Keys.Tab);
+                AssertUI.InnerTextEquals(timespanTextbox, new TimeSpan(10, 23, 45).ToString("h\\:mm"));
+                AssertUI.InnerTextEquals(timespanValueText, new TimeSpan(10, 23, 45).ToString());
             });
         }
 
