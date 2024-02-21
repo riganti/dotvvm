@@ -21,6 +21,7 @@
     <PackageId>DotVVM.CommandLine</PackageId>
     <Description>Command-line tools for DotVVM.</Description>
     <PackageTags>$(PackageTags);cli</PackageTags>
+    <RollForward>Major</RollForward> <!-- allows running on newer .NET version if the requested net6.0 is not installed -->
   </PropertyGroup>
 
   <ItemGroup>
