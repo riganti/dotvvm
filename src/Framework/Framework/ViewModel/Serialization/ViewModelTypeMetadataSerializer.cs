@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
 using FastExpressionCompiler;
 using Newtonsoft.Json.Linq;
@@ -18,13 +19,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
         private readonly bool debug;
-        private static readonly ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies> cachedObjectMetadata = new ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies>();
-        private static readonly ConcurrentDictionary<Type, JObject> cachedEnumMetadata = new ConcurrentDictionary<Type, JObject>();
+        private readonly bool serializeValidationRules;
+        private readonly ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies> cachedObjectMetadata = new ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies>();
+        private readonly ConcurrentDictionary<Type, JObject> cachedEnumMetadata = new ConcurrentDictionary<Type, JObject>();
 
         public ViewModelTypeMetadataSerializer(IViewModelSerializationMapper viewModelSerializationMapper, DotvvmConfiguration? config = null)
         {
             this.viewModelSerializationMapper = viewModelSerializationMapper;
             this.debug = config != null && config.Debug;
+            this.serializeValidationRules = config is null || config.ClientSideValidation;
+
+            HotReloadMetadataUpdateHandler.TypeMetadataSerializer.Add(new(this));
         }
 
         public JObject SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, ISet<string>? ignoredTypes = null)
@@ -128,7 +133,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     prop["update"] = "no";
                 }
 
-                if (property.ValidationRules.Any() && property.ClientValidationRules.Any())
+                if (serializeValidationRules && property.ValidationRules.Any() && property.ClientValidationRules.Any())
                 {
                     prop["validationRules"] = JToken.FromObject(property.ClientValidationRules);
                 }
@@ -275,7 +280,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         }
 
         /// <summary> Clear caches for the specified types </summary>
-        internal static void ClearCaches(Type[] types)
+        internal void ClearCaches(Type[] types)
         {
             foreach (var t in types)
                 cachedEnumMetadata.TryRemove(t, out _);
