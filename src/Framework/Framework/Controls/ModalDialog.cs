@@ -26,13 +26,13 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> A value indicating whether the dialog is open. The value can either be a boolean or an object (not false or not null -> shown). On close, the value is written back into the Open binding. </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
-        public object Open
+        public object? Open
         {
-            get { return (bool?)GetValue(OpenProperty) ?? false; }
+            get { return GetValue(OpenProperty); }
             set { SetValue(OpenProperty, value); }
         }
         public static readonly DotvvmProperty OpenProperty =
-            DotvvmProperty.Register<object, ModalDialog>(nameof(Open), false);
+            DotvvmProperty.Register<object, ModalDialog>(nameof(Open), null);
 
         /// <summary> Add an event handler which closes the dialog when the backdrop is clicked. </summary>
         public bool CloseOnBackdropClick

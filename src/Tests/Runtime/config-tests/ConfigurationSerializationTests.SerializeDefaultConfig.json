@@ -1177,6 +1177,20 @@
         "defaultValue": ""
       }
     },
+    "DotVVM.Framework.Controls.ModalDialog": {
+      "Close": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework",
+        "isCommand": true
+      },
+      "CloseOnBackdropClick": {
+        "type": "System.Boolean",
+        "defaultValue": false
+      },
+      "Open": {
+        "type": "System.Object",
+        "onlyBindings": true
+      }
+    },
     "DotVVM.Framework.Controls.MultiSelector": {
       "SelectedValues": {
         "type": "System.Object",
@@ -2215,6 +2229,10 @@
       "assembly": "DotVVM.Framework",
       "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
       "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.ModalDialog": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework"
     },
     "DotVVM.Framework.Controls.MultiSelect": {
       "assembly": "DotVVM.Framework",
