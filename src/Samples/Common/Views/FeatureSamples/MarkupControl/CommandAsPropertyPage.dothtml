@@ -13,9 +13,9 @@
     <cc:CommandAsPropertyWrapper Click="{command: (string name, bool isTrue) => _root.MyFunction(name, isTrue)}" />
     <hr />
 
-    <%--<h1>Pass as static command</h1>
-    <cc:CommandAsPropertyWrapper Click="{staticCommand: (string name, bool isTrue) => (_root.Name = name; _root.IsTrue = isTrue)}" />
-    <hr />--%>
+    <h1>Pass as static command</h1>
+    <cc:CommandAsPropertyWrapper Click="{staticCommand: (string name, bool isTrue) => (_root.SelectedItem.Name = name; _root.SelectedItem.IsTrue = isTrue)}" />
+    <hr />
 
     <%--<h1>Pass as value</h1>
     <cc:CommandAsPropertyWrapper Click="{value: (string name, bool isTrue) => _root.MyFunction(name, isTrue)}" />
