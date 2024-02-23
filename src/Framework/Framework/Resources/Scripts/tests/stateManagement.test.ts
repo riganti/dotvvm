@@ -682,3 +682,13 @@ test("changing dynamic type property notifies when dynamic types are different -
     }
     expect(notifyCount).toBe(1);
 });
+
+test("state is frozen", () => {
+    expect(Object.isFrozen(vm.state)).toBe(true);
+    expect(Object.isFrozen(s.state)).toBe(true);
+    expect(Object.isFrozen(vm.Dynamic.state)).toBe(true);
+
+    vm.Dynamic.setState({ x: 1 })
+    s.doUpdateNow()
+    expect(Object.isFrozen(vm.Dynamic.state)).toBe(true);
+})
