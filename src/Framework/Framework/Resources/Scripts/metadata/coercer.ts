@@ -52,7 +52,8 @@ export function tryCoerce(value: any, type: TypeDefinition | null | undefined, o
     if (result instanceof CoerceError) {
         return result;      // we cannot freeze CoerceError because we modify its path property
     }
-    return Object.freeze(result);
+    Object.freeze(result.value)
+    return result
 }
 
 export function coerce(value: any, type: TypeDefinition, originalValue: any = undefined): any {
