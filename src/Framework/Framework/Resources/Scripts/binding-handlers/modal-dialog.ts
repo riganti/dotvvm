@@ -14,18 +14,19 @@ export default {
                   shouldOpen = value != null && value !== false;
             if (shouldOpen != element.open) {
                 if (shouldOpen) {
+                    element.returnValue = "" // reset returnValue, ESC key leaves the old return value
                     element.showModal()
                 } else {
-                    element.close()
+                    element.close("_dotvvm_modal_supress_onclose")
                 }
             }
         },
     },
-    "dotvvm-model-backdrop-close": {
+    "dotvvm-modal-backdrop-close": {
         init(element: HTMLDialogElement, valueAccessor: () => any) {
             // closes the dialog when the backdrop is clicked
             element.addEventListener("click", (e) => {
-            if (e.target == element) {
+                if (e.target == element) {
                     const elementRect = element.getBoundingClientRect(),
                           x = e.clientX,
                           y = e.clientY;

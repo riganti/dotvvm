@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty CloseOnBackdropClickProperty =
             DotvvmProperty.Register<bool, ModalDialog>(nameof(CloseOnBackdropClick), false);
 
-        /// <summary> Triggered when the dialog is closed. Called regardless if it was closed by user input or by <see cref="Open"/> change. </summary>
+        /// <summary> Triggered when the dialog is closed. Called only if it was closed by user input, not by <see cref="Open"/> change. </summary>
         public Command? Close
         {
             get { return (Command?)GetValue(CloseProperty); }
@@ -67,12 +67,13 @@ namespace DotVVM.Framework.Controls
 
             if (GetValueOrBinding<bool>(CloseOnBackdropClickProperty) is {} x && !x.ValueEquals(false))
             {
-                writer.AddKnockoutDataBind("dotvvm-model-backdrop-close", x.GetJsExpression(this));
+                writer.AddKnockoutDataBind("dotvvm-modal-backdrop-close", x.GetJsExpression(this));
             }
 
             if (GetCommandBinding(CloseProperty) is {} close)
             {
-                writer.AddAttribute("onclose", KnockoutHelper.GenerateClientPostBackScript(nameof(Close), close, this, returnValue: null));
+                var postbackScript = KnockoutHelper.GenerateClientPostBackScript(nameof(Close), close, this, returnValue: null);
+                writer.AddAttribute("onclose", "if (event.target.returnValue!=\"_dotvvm_modal_supress_onclose\") {" + postbackScript + "}");
             }
 
             base.AddAttributesToRender(writer, context);

@@ -51,9 +51,9 @@
         <ul>
             <li>Click the backdrop</li>
             <li>Press ESC</li>
-            <li><dot:Button data-ui=btn-close1 Click={staticCommand: CloseEventDialogShown=false}>Use staticCommand</dot:Button></li>
-            <li><dot:Button data-ui=btn-close2 Click={command: CloseDialogWithEvent()}>Use command</dot:Button></li>
-            <li> <form method="dialog"><button data-ui=btn-close3 type="submit">Form method=dialog</button></form></li>
+            <li><dot:Button data-ui=btn-close-staticcommand Click={staticCommand: CloseEventDialogShown=false}>Use staticCommand</dot:Button></li>
+            <li><dot:Button data-ui=btn-close-command Click={command: CloseDialogWithEvent()}>Use command</dot:Button></li>
+            <li> <form method="dialog"><button data-ui=btn-close-form type="submit">Form method=dialog</button></form></li>
         </ul>
     </dot:ModalDialog>
 

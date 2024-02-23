@@ -76,14 +76,14 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ModalDialog_ModalDialog);
 
-                CheckDialogCloses(browser, "close-event", dialog => dialog.Single("btn-close1", SelectByDataUi).Click());
+                CheckDialogCloses(browser, "close-event", dialog => dialog.Single("btn-close-staticcommand", SelectByDataUi).Click());
+                AssertUI.InnerTextEquals(browser.Single("close-event-counter", SelectByDataUi), "0");
+                CheckDialogCloses(browser, "close-event", dialog => dialog.Single("btn-close-command", SelectByDataUi).Click());
+                AssertUI.InnerTextEquals(browser.Single("close-event-counter", SelectByDataUi), "0");
+                CheckDialogCloses(browser, "close-event", dialog => dialog.Single("btn-close-form", SelectByDataUi).Click());
                 AssertUI.InnerTextEquals(browser.Single("close-event-counter", SelectByDataUi), "1");
-                CheckDialogCloses(browser, "close-event", dialog => dialog.Single("btn-close2", SelectByDataUi).Click());
-                AssertUI.InnerTextEquals(browser.Single("close-event-counter", SelectByDataUi), "2");
-                CheckDialogCloses(browser, "close-event", dialog => dialog.Single("btn-close3", SelectByDataUi).Click());
-                AssertUI.InnerTextEquals(browser.Single("close-event-counter", SelectByDataUi), "3");
                 CheckDialogCloses(browser, "close-event", dialog => dialog.SendKeys(Keys.Escape));
-                AssertUI.InnerTextEquals(browser.Single("close-event-counter", SelectByDataUi), "4");
+                AssertUI.InnerTextEquals(browser.Single("close-event-counter", SelectByDataUi), "2");
 
                 CheckDialogCloses(browser, "close-event", dialog => {
                     // dialog click
@@ -91,7 +91,9 @@ namespace DotVVM.Samples.Tests.Feature
                     AssertUI.IsDisplayed(dialog);
                     // backdrop click
                     new Actions(browser.Driver).MoveToLocation(1, 1).Click().Perform();
+
                 });
+                AssertUI.InnerTextEquals(browser.Single("close-event-counter", SelectByDataUi), "3");
             });
         }
 
