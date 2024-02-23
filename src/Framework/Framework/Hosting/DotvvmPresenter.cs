@@ -200,7 +200,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     // perform the postback
                     string postData;
-                    using (var sr = new StreamReader(context.HttpContext.Request.Body))
+                    using (var sr = new StreamReader(ReadRequestBody(context.HttpContext.Request, context.Route?.RouteName)))
                     {
                         postData = await sr.ReadToEndAsync();
                     }
@@ -344,7 +344,7 @@ namespace DotVVM.Framework.Hosting
             try
             {
                 JObject postData;
-                using (var jsonReader = new JsonTextReader(new StreamReader(context.HttpContext.Request.Body)))
+                using (var jsonReader = new JsonTextReader(new StreamReader(ReadRequestBody(context.HttpContext.Request, routeName: null))))
                 {
                     postData = await JObject.LoadAsync(jsonReader);
                 }
@@ -546,6 +546,25 @@ namespace DotVVM.Framework.Hosting
                 else
                     await context.RejectRequest($"Cannot load a DotVVM page with Sec-Fetch-Dest: {dest}.");
             }
+        }
+
+        Stream ReadRequestBody(IHttpRequest request, string? routeName)
+        {
+            request.Headers.TryGetValue("Content-Encoding", out var encodingValue);
+            var encoding = encodingValue?.FirstOrDefault();
+            var limitLengthHelp = "To increase the maximum request size, use the DotvvmConfiguration.Runtime.MaxPostbackSizeBytes option.";
+            if (encoding is null)
+                return LimitLengthStream.LimitLength(request.Body, configuration.Runtime.MaxPostbackSizeBytes, limitLengthHelp);
+            if (encoding is "gzip")
+            {
+                var enabled = routeName is null ? this.configuration.Runtime.CompressPostbacks.IsEnabledForAnyRoute(defaultValue: true) : this.configuration.Runtime.CompressPostbacks.IsEnabledForRoute(routeName, defaultValue: true);
+                if (!enabled)
+                    throw new Exception($"Content-Encoding: gzip must be enabled in DotvvmConfiguration.Runtime.CompressPostbacks.");
+                var gzipStream = new System.IO.Compression.GZipStream(request.Body, System.IO.Compression.CompressionMode.Decompress);
+                return LimitLengthStream.LimitLength(gzipStream, configuration.Runtime.MaxPostbackSizeBytes, limitLengthHelp);
+            }
+            else
+                throw new Exception($"Unsupported Content-Encoding {encoding}");
         }
 
         [Obsolete("Use context.RequestType == DotvvmRequestType.StaticCommand")]

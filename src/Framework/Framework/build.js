@@ -11,8 +11,8 @@ async function build({ debug, spa, output, input = "dotvvm-root.ts" }) {
         entryPoints: [`./Resources/Scripts/${input}`],
         outfile: `./obj/javascript/${output}/dotvvm-root.js`,
         define: {
-            "compileConstants.isSpa": spa,
-            "compileConstants.debug": debug,
+            "compileConstants.isSpa": String(spa),
+            "compileConstants.debug": String(debug),
         },
         target: [
             'es2020'

@@ -1,4 +1,4 @@
-import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager } from "./dotvvm-base"
+import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager, options } from "./dotvvm-base"
 import * as events from './events'
 import * as spa from "./spa/spa"
 import * as validation from './validation/validation'
@@ -121,6 +121,7 @@ const dotvvmExports = {
         logPostBackScriptError,
         level
     },
+    options,
     translations: translations as any,
     StateManager,
     DotvvmEvent,

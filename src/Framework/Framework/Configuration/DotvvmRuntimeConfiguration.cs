@@ -23,6 +23,18 @@ namespace DotVVM.Framework.Configuration
         public DotvvmGlobal3StateFeatureFlag ReloadMarkupFiles { get; } = new("Dotvvm3StateFeatureFlag.ReloadMarkupFiles");
 
         /// <summary>
+        /// When enabled, command and staticCommand requests are compressed client-side and DotVVM accepts the compressed requests.
+        /// It is enabled by default in Production mode.
+        /// See <see cref="MaxPostbackSizeBytes" /> to limit the impact of potential decompression bomb. Although compression may be enabled only for specific routes, DotVVM does not check authentication before decompressing the request.
+        /// </summary>
+        [JsonProperty("compressPostbacks")]
+        public Dotvvm3StateFeatureFlag CompressPostbacks { get; } = new("DotvvmFeatureFlag.CompressPostbacks");
+        
+        /// <summary> Maximum size of command/staticCommand request body after decompression (does not affect file upload). Default = 128MB, lower limit is a basic protection against decompression bomb attack. Set to -1 to disable the limit. </summary>
+        [JsonProperty("maxPostbackSizeBytes")]
+        public long MaxPostbackSizeBytes { get; set; } = 1024 * 1024 * 128; // 128 MB
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRuntimeConfiguration"/> class.
         /// </summary>
         public DotvvmRuntimeConfiguration()

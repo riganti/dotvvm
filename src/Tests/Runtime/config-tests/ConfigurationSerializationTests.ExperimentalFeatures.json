@@ -33,7 +33,9 @@
       }
     },
     "runtime": {
-      "reloadMarkupFiles": {}
+      "reloadMarkupFiles": {},
+      "compressPostbacks": {},
+      "maxPostbackSizeBytes": 134217728
     },
     "defaultCulture": "en-US",
     "experimentalFeatures": {

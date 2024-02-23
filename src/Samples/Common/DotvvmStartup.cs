@@ -87,6 +87,12 @@ namespace DotVVM.Samples.BasicSamples
 
             config.Resources.RegisterStylesheetFile("bulma", "node_modules/bulma/css/bulma.css");
 
+            config.Runtime.CompressPostbacks.IncludeRoute("FeatureSamples_PostBack_RequestCompression");
+            if (config.ExperimentalFeatures.LazyCsrfToken.Enabled)
+                config.ExperimentalFeatures.LazyCsrfToken.ExcludeRoute("FeatureSamples_PostBack_RequestCompression");
+            if (config.ExperimentalFeatures.ServerSideViewModelCache.Enabled)
+                config.ExperimentalFeatures.ServerSideViewModelCache.ExcludeRoute("FeatureSamples_PostBack_RequestCompression");
+
             config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(typeof(JavascriptTranslationTestMethods),
                     nameof(JavascriptTranslationTestMethods.Unwrap),
                          new GenericMethodCompiler((a) =>
