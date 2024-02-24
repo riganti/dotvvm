@@ -27,6 +27,9 @@ namespace DotVVM.Samples.Tests.Base
         public By SelectByUiTestName(string selector)
                     => SelectBy.CssSelector($"[data-uitest-name='{selector}']");
 
+        public By SelectByButtonText(string text) =>
+            By.XPath($".//button[normalize-space(.)='{text}'] | .//input[(@type='submit' or @type='button') and normalize-space(@value)='{text}']");
+
         public virtual void RunInAllBrowsers(Action<IBrowserWrapper> testBody,
             [CallerMemberName] string callerMemberName = "",
             [CallerFilePath] string callerFilePath = "",
