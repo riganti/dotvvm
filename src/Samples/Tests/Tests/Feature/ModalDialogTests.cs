@@ -87,7 +87,8 @@ namespace DotVVM.Samples.Tests.Feature
 
                 CheckDialogCloses(browser, "close-event", dialog => {
                     // dialog click
-                    new Actions(browser.Driver).MoveToElement(dialog.WebElement, 1, 1).Click().Perform();
+                    this.TestOutput.WriteLine($"Dialog location: {dialog.WebElement.Location}");
+                    new Actions(browser.Driver).MoveToLocation(dialog.WebElement.Location.X + 10, dialog.WebElement.Location.Y + 10).Click().Perform();
                     AssertUI.IsDisplayed(dialog);
                     // backdrop click
                     new Actions(browser.Driver).MoveToLocation(1, 1).Click().Perform();
