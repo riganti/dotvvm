@@ -70,49 +70,55 @@ namespace DotVVM.Framework.Tests.ControlTests
         [TestMethod]
         public async Task Literal_ClientServerRendering()
         {
-            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-                <!-- literal syntax, client rendering -->
-                <span>
-                    {{value: Integer}}
-                    {{value: Float}}
-                    {{value: DateTime}}
-                    {{value: NullableString}}
-                </span>
-                <!-- literal syntax, server rendering -->
-                <span RenderSettings.Mode=Server>
-                    {{value: Integer}}
-                    {{value: Float}}
-                    {{value: DateTime}}
-                    {{value: NullableString}}
-                </span>
-                <!-- control syntax, client rendering -->
-                <span RenderSettings.Mode=Client>
-                    <dot:Literal Text={value: Integer} />
-                    <dot:Literal Text={value: Float} />
-                    <dot:Literal Text={value: DateTime} />
-                </span>
-                <!-- control syntax, server rendering -->
-                <span RenderSettings.Mode=Server>
-                    <dot:Literal Text={value: Integer} />
-                    <dot:Literal Text={value: Float} />
-                    <dot:Literal Text={value: DateTime} />
-                </span>
-                <!-- control syntax, client rendering, format string -->
-                <span RenderSettings.Mode=Client>
-                    <dot:Literal Text={value: Integer} FormatString=X />
-                    <dot:Literal Text={value: Float} FormatString=P2 />
-                    <dot:Literal Text={value: DateTime} FormatString=dddd />
-                </span>
-                <!-- control syntax, server rendering, format string -->
-                <span RenderSettings.Mode=Server>
-                    <dot:Literal Text={value: Integer} FormatString=X />
-                    <dot:Literal Text={value: Float} FormatString=P2 />
-                    <dot:Literal Text={value: DateTime} FormatString=dddd />
-                </span>
-                "
-            );
-
-            check.CheckString(r.FormattedHtml, fileExtension: "html");
+            await DotvvmTestHelper.RunInCultureAsync(new CultureInfo("sv"), async () => {
+                await Task.Delay(1);
+                Assert.AreEqual("sv", CultureInfo.CurrentCulture.Name);
+                var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                    <!-- literal syntax, client rendering -->
+                    {{resource: System.Globalization.CultureInfo.CurrentCulture.Name}}
+                    <span>
+                        {{value: Integer}}
+                        {{value: Float}}
+                        {{value: DateTime}}
+                        {{value: NullableString}}
+                    </span>
+                    <!-- literal syntax, server rendering -->
+                    <span RenderSettings.Mode=Server>
+                        {{value: Integer}}
+                        {{value: Float}}
+                        {{value: DateTime}}
+                        {{value: NullableString}}
+                    </span>
+                    <!-- control syntax, client rendering -->
+                    <span RenderSettings.Mode=Client>
+                        <dot:Literal Text={value: Integer} />
+                        <dot:Literal Text={value: Float} />
+                        <dot:Literal Text={value: DateTime} />
+                    </span>
+                    <!-- control syntax, server rendering -->
+                    <span RenderSettings.Mode=Server>
+                        <dot:Literal Text={value: Integer} />
+                        <dot:Literal Text={value: Float} />
+                        <dot:Literal Text={value: DateTime} />
+                    </span>
+                    <!-- control syntax, client rendering, format string -->
+                    <span RenderSettings.Mode=Client>
+                        <dot:Literal Text={value: Integer} FormatString=X />
+                        <dot:Literal Text={value: Float} FormatString=P2 />
+                        <dot:Literal Text={value: DateTime} FormatString=dddd />
+                    </span>
+                    <!-- control syntax, server rendering, format string -->
+                    <span RenderSettings.Mode=Server>
+                        <dot:Literal Text={value: Integer} FormatString=X />
+                        <dot:Literal Text={value: Float} FormatString=P2 />
+                        <dot:Literal Text={value: DateTime} FormatString=dddd />
+                    </span>
+                    """,
+                    culture: new CultureInfo("sv")
+                );
+                Assert.AreEqual("sv", CultureInfo.CurrentCulture.Name);
+                check.CheckString(r.FormattedHtml, fileExtension: "html");
+            });
         }
 
         [TestMethod]

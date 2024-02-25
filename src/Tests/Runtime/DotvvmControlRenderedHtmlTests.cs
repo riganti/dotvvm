@@ -197,7 +197,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void Literal_DateTimeToBrowserLocalTime_RenderOnServer()
         {
-            DotvvmTestHelper.RunInCulture(new CultureInfo("en-US"), () =>
+            DotvvmTestHelper.RunInCulture(new CultureInfo("sv"), () =>
             {
                 var vm = new LiteralDateTimeViewModel();
                 var control = $@"@viewModel {vm.GetType().FullName}
@@ -207,7 +207,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 var context = CreateContext(vm);
                 var html = InvokeLifecycleAndRender(dotvvmBuilder.BuildView(context), context);
 
-                Assert.AreEqual(@"<span>1/2/2021 3:04:05 AM</span><span>1/2/2021 3:04:05 AM</span>", html);
+                Assert.AreEqual(@"<span>2021-01-02 03:04:05</span><span>2021-01-02 03:04:05</span>", html);
             });
         }
 

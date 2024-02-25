@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
@@ -190,19 +190,35 @@ namespace DotVVM.Framework.Testing
 
         public static void RunInCulture(CultureInfo cultureInfo, Action action)
         {
-            var originalCulture = Thread.CurrentThread.CurrentCulture;
-            var originalUICulture = Thread.CurrentThread.CurrentUICulture;
+            var originalCulture = CultureInfo.CurrentCulture;
+            var originalUICulture = CultureInfo.CurrentUICulture;
 
-            Thread.CurrentThread.CurrentCulture = cultureInfo;
-            Thread.CurrentThread.CurrentUICulture = cultureInfo;
+            CultureInfo.CurrentCulture = cultureInfo;
+            CultureInfo.CurrentUICulture = cultureInfo;
             try
             {
                 action();
             }
             finally
             {
-                Thread.CurrentThread.CurrentCulture = originalCulture;
-                Thread.CurrentThread.CurrentUICulture = originalUICulture;
+                CultureInfo.CurrentCulture = originalCulture;
+                CultureInfo.CurrentUICulture = originalUICulture;
+            }
+        }
+        public static async Task RunInCultureAsync(CultureInfo cultureInfo, Func<Task> action)
+        {
+            var originalCulture = CultureInfo.CurrentCulture;
+            var originalUICulture = CultureInfo.CurrentUICulture;
+
+            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = cultureInfo;
+            try
+            {
+                await action();
+            }
+            finally
+            {
+                CultureInfo.CurrentCulture = originalCulture;
+                CultureInfo.CurrentUICulture = originalUICulture;
             }
         }
 
