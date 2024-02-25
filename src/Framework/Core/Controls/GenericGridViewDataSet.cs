@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -112,6 +113,24 @@ namespace DotVVM.Framework.Controls
             {
                 PagingOptions = options.PagingOptions;
             }
+        }
+
+        public GridViewDataSetOptions<TFilteringOptions, TSortingOptions, TPagingOptions> GetOptions()
+        {
+            return new()
+            {
+                FilteringOptions = FilteringOptions,
+                SortingOptions = SortingOptions,
+                PagingOptions = PagingOptions
+            };
+        }
+
+        public void ApplyResult(GridViewDataSetResult<T, TFilteringOptions, TSortingOptions, TPagingOptions> result)
+        {
+            Items = result.Items.ToList();
+            FilteringOptions = result.FilteringOptions;
+            SortingOptions = result.SortingOptions;
+            PagingOptions = result.PagingOptions;
         }
     }
 }
