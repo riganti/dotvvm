@@ -51,6 +51,9 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public List<CustomerData> Null { get; set; }
 
+        public GridViewDataSet<CustomerData> NullDataSet { get; set; }
+
+
         public string CustomNameForName { get; set; } = "Name";
 
         public override Task PreRender()

@@ -131,7 +131,10 @@ namespace DotVVM.Framework.Controls
             var clickBinding = GetCommandBinding(ClickProperty);
             if (clickBinding != null)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, this), true, ";");
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(
+                        nameof(Click), clickBinding, this,
+                        new PostbackScriptOptions(commandArgs: BindingHelper.GetParametrizedCommandArgs(this, ClickArguments))),
+                    append: true, appendSeparator: ";");
             }
         }
 

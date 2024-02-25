@@ -3,7 +3,7 @@
 	<body>
 		
 		<!-- ko if: List()?.Items()?.length -->
-		<table data-bind="dotvvm-gridviewdataset: {'mapping':{},'dataSet':List()}">
+		<table data-bind="dotvvm-gridviewdataset: { dataSet: List(), mapping: {} }">
 			<thead>
 				<tr>
 					<th class="">
