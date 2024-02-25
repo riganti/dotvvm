@@ -155,7 +155,7 @@ namespace DotVVM.Framework.Tests.Binding
             Func<TestViewModel[], object> compile(Expression e) =>
                 Expression.Lambda<Func<TestViewModel[], object>>(Expression.Convert(e, typeof(object)), parameter)
                     // .CompileFast();
-                    .Compile(preferInterpretation: true);
+                    .Compile(preferInterpretation: false);
 
             var withNullChecks = compile(exprWithChecks);
             var withoutNullChecks = compile(expr);
@@ -224,7 +224,7 @@ namespace DotVVM.Framework.Tests.Binding
         private object EvalExpression<T>(Expression<Func<T, object>> a, T val)
         {
             var nullChecked = ExpressionNullPropagationVisitor.PropagateNulls(a.Body, _ => true);
-            var d = a.Update(body: nullChecked, a.Parameters).Compile(preferInterpretation: true);
+            var d = a.Update(body: nullChecked, a.Parameters).Compile(preferInterpretation: false);
             return d(val);
         }
 
