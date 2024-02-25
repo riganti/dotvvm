@@ -13,6 +13,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Controls;
 
@@ -245,7 +246,7 @@ public class GridViewDataSetBindingProvider
             new object[]
             {
                 new ParsedExpressionBindingProperty(expression),
-                new OriginalStringBindingProperty($"DataPager: _dataSet.{methodName}({string.Join(", ", arguments.AsEnumerable())})"), // For ID generation
+                new OriginalStringBindingProperty($"DataPager({dataSet.Type.ToCode()}): {dataSet.ToCSharpString().TrimEnd(';')}.{methodName}({string.Join(", ", arguments.AsEnumerable())})"), // For ID generation
                 dataContextStack
             });
     }
