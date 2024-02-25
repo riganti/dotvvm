@@ -258,23 +258,21 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static CodeParameterAssignment? GetParametrizedCommandArgs(DotvvmControl control, IEnumerable<object?>? argumentsCollection)
         {
+            if (argumentsCollection is null) return null;
             var builder = new ParametrizedCode.Builder();
             var isFirst = true;
 
             builder.Add("[");
-            if (argumentsCollection is not null)
+            foreach (var arg in argumentsCollection)
             {
-                foreach (var arg in argumentsCollection)
+                if (!isFirst)
                 {
-                    if (!isFirst)
-                    {
-                        builder.Add(",");
-                    }
-
-                    isFirst = false;
-
-                    builder.Add(ValueOrBinding<object>.FromBoxedValue(arg).GetParametrizedJsExpression(control));
+                    builder.Add(",");
                 }
+
+                isFirst = false;
+
+                builder.Add(ValueOrBinding<object>.FromBoxedValue(arg).GetParametrizedJsExpression(control));
             }
 
             builder.Add("]");
