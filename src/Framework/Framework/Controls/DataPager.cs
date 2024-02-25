@@ -166,22 +166,24 @@ namespace DotVVM.Framework.Controls
 
             pagerBindings = gridViewDataSetBindingProvider.GetDataPagerCommands(this.GetDataContextType().NotNull(), dataSetBinding, commandType);
 
-            var enabled = GetValueOrBinding<bool>(EnabledProperty)!;
+            var globalEnabled = GetValueOrBinding<bool>(EnabledProperty)!;
 
             ContentWrapper = CreateWrapperList();
             Children.Add(ContentWrapper);
 
             if (typeof(IPageableGridViewDataSet<IPagingFirstPageCapability>).IsAssignableFrom(dataSetType))
             {
-                GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, enabled, pagerBindings.GoToFirstPage!, context);
-                GoToFirstPageButton.CssClasses.Add(DisabledItemCssClass, new ValueOrBinding<bool>(pagerBindings.IsFirstPage.NotNull()));
+                var disabled = new ValueOrBinding<bool>(pagerBindings.IsFirstPage.NotNull());
+                GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, globalEnabled.And(disabled.Negate()), pagerBindings.GoToFirstPage!, context);
+                GoToFirstPageButton.CssClasses.Add(DisabledItemCssClass, disabled);
                 ContentWrapper.Children.Add(GoToFirstPageButton);
             }
 
             if (typeof(IPageableGridViewDataSet<IPagingPreviousPageCapability>).IsAssignableFrom(dataSetType))
             {
-                GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate, enabled, pagerBindings.GoToPreviousPage!, context);
-                GoToPreviousPageButton.CssClasses.Add(DisabledItemCssClass, new ValueOrBinding<bool>(pagerBindings.IsFirstPage.NotNull()));
+                var disabled = new ValueOrBinding<bool>(pagerBindings.IsFirstPage.NotNull());
+                GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate, globalEnabled.And(disabled.Negate()), pagerBindings.GoToPreviousPage!, context);
+                GoToPreviousPageButton.CssClasses.Add(DisabledItemCssClass, disabled);
                 ContentWrapper.Children.Add(GoToPreviousPageButton);
             }
 
@@ -195,7 +197,7 @@ namespace DotVVM.Framework.Controls
                 var link = new LinkButton();
                 link.SetBinding(ButtonBase.ClickProperty, pagerBindings.GoToPage.NotNull());
                 link.SetBinding(ButtonBase.TextProperty, pagerBindings.PageNumberText.NotNull());
-                if (!true.Equals(enabled)) link.SetValue(LinkButton.EnabledProperty, enabled);
+                if (!true.Equals(globalEnabled)) link.SetValue(LinkButton.EnabledProperty, globalEnabled);
                 liTemplate.Children.Add(link);
                 if (!this.RenderLinkForCurrentPage)
                 {
@@ -216,15 +218,17 @@ namespace DotVVM.Framework.Controls
 
             if (typeof(IPageableGridViewDataSet<IPagingNextPageCapability>).IsAssignableFrom(dataSetType))
             {
-                GoToNextPageButton = CreateNavigationButton("»", NextPageTemplate, enabled, pagerBindings.GoToNextPage!, context);
-                GoToNextPageButton.CssClasses.Add(DisabledItemCssClass, new ValueOrBinding<bool>(pagerBindings.IsLastPage.NotNull()));
+                var disabled = new ValueOrBinding<bool>(pagerBindings.IsLastPage.NotNull());
+                GoToNextPageButton = CreateNavigationButton("»", NextPageTemplate, globalEnabled.And(disabled.Negate()), pagerBindings.GoToNextPage!, context);
+                GoToNextPageButton.CssClasses.Add(DisabledItemCssClass, disabled);
                 ContentWrapper.Children.Add(GoToNextPageButton);
             }
 
             if (typeof(IPageableGridViewDataSet<IPagingLastPageCapability>).IsAssignableFrom(dataSetType))
             {
-                GoToLastPageButton = CreateNavigationButton("»»", LastPageTemplate, enabled, pagerBindings.GoToLastPage!, context);
-                GoToLastPageButton.CssClasses.Add(DisabledItemCssClass, new ValueOrBinding<bool>(pagerBindings.IsLastPage.NotNull()));
+                var disabled = new ValueOrBinding<bool>(pagerBindings.IsLastPage.NotNull());
+                GoToLastPageButton = CreateNavigationButton("»»", LastPageTemplate, globalEnabled.And(disabled.Negate()), pagerBindings.GoToLastPage!, context);
+                GoToLastPageButton.CssClasses.Add(DisabledItemCssClass, disabled);
                 ContentWrapper.Children.Add(GoToLastPageButton);
             }
         }
