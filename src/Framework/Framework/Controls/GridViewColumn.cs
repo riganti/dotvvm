@@ -189,7 +189,7 @@ namespace DotVVM.Framework.Controls
             EditTemplate.BuildContent(context, container);
         }
 
-        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, ICommandBinding? sortCommandBinding, HtmlGenericControl cell, IGridViewDataSet? gridViewDataSet)
+        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, GridViewCommands gridViewCommands, ICommandBinding? sortCommandBindingOverride, HtmlGenericControl cell, IGridViewDataSet? gridViewDataSet)
         {
             if (HeaderTemplate != null)
             {
@@ -199,6 +199,7 @@ namespace DotVVM.Framework.Controls
 
             if (AllowSorting)
             {
+                var sortCommandBinding = gridViewCommands.SetSortExpression ?? sortCommandBindingOverride;
                 if (sortCommandBinding == null)
                 {
                     throw new DotvvmControlException(this, "Cannot use column sorting where no sort command is specified. Either put IGridViewDataSet in the DataSource property of the GridView, or set the SortChanged command on the GridView to implement custom sorting logic!");
@@ -213,7 +214,7 @@ namespace DotVVM.Framework.Controls
 
                 linkButton.SetBinding(ButtonBase.ClickProperty, sortCommandBinding);
 
-                SetSortedCssClass(cell, gridViewDataSet, gridView.GetValueBinding(ItemsControl.DataSourceProperty)!);
+                SetSortedCssClass(cell, gridViewDataSet, gridViewCommands);
             }
             else
             {
@@ -233,27 +234,33 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? gridViewDataSet, IValueBinding dataSourceBinding)
+        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? gridViewDataSet, GridViewCommands gridViewCommands)
         {
-            // TODO: support multiple criteria
-            if (gridViewDataSet is ISortableGridViewDataSet<ISortingSingleCriterionCapability> sortableGridViewDataSet)
+            if (gridViewDataSet is ISortableGridViewDataSet<ISortingStateCapability> sortableGridViewDataSet)
             {
+                var sortExpression = GetSortExpression();
+
                 var cellAttributes = cell.Attributes;
                 if (!RenderOnServer)
                 {
-                    // TODO: change how the css class binding is generated
-                    var gridViewDataSetExpr = dataSourceBinding.GetKnockoutBindingExpression(cell, unwrapped: true);
-                    cellAttributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ({gridViewDataSetExpr}).SortingOptions().SortExpression() == '{GetSortExpression()}' && ({gridViewDataSetExpr}).SortingOptions().SortDescending(), '{SortAscendingHeaderCssClass}': ({gridViewDataSetExpr}).SortingOptions().SortExpression() == '{GetSortExpression()}' && !({gridViewDataSetExpr}).SortingOptions().SortDescending()}}";
-                }
-                else if (sortableGridViewDataSet.SortingOptions.SortExpression == GetSortExpression())
-                {
-                    if (sortableGridViewDataSet.SortingOptions.SortDescending)
+                    if (!string.IsNullOrWhiteSpace(SortAscendingHeaderCssClass))
                     {
-                        cellAttributes["class"] = SortDescendingHeaderCssClass;
+                        cell.AddCssClass(SortAscendingHeaderCssClass, gridViewCommands.GetIsColumnSortedAscendingBinding(sortExpression));
                     }
-                    else
+                    if (!string.IsNullOrWhiteSpace(SortDescendingHeaderCssClass))
+                    {
+                        cell.AddCssClass(SortDescendingHeaderCssClass, gridViewCommands.GetIsColumnSortedDescendingBinding(sortExpression));
+                    }
+                }
+                else
+                {
+                    if (sortableGridViewDataSet.SortingOptions.IsColumnSortedAscending(sortExpression))
                     {
                         cellAttributes["class"] = SortAscendingHeaderCssClass;
+                    }
+                    else if (sortableGridViewDataSet.SortingOptions.IsColumnSortedDescending(sortExpression))
+                    {
+                        cellAttributes["class"] = SortDescendingHeaderCssClass;
                     }
                 }
             }

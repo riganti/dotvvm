@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Controls
     // TODO: comments
     public class NextTokenHistoryPagingOptions : IPagingFirstPageCapability, IPagingPreviousPageCapability, IPagingPageIndexCapability
     {
-        public List<string?> TokenHistory { get; set; } = new List<string?> { null };
+        public List<string?> TokenHistory { get; set; } = new();
 
         public int PageIndex { get; set; } = 0;
 
@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets a list of page indexes near the current page. Override this method to provide your own strategy.
         /// </summary>
-        public virtual IList<int> GetNearPageIndexes()
+        protected virtual IList<int> GetNearPageIndexes()
         {
             return GetDefaultNearPageIndexes(5);
         }

@@ -137,6 +137,12 @@ public class GridViewDataSetBindingProvider
                 ? CreateCommandBinding<T>(commandType, dataSetExpr, dataContextStack, methodName, arguments, transformExpression)
                 : null;
         }
+        IValueBinding<TResult>? GetValueBindingOrNull<T, TResult>(DataContextStack dataContextStack, string methodName, Expression[] arguments, Func<Expression, Expression>? transformExpression)
+        {
+            return typeof(T).IsAssignableFrom(dataSetExpr.Type)
+                ? CreateValueBinding<T, TResult>(dataSetExpr, dataContextStack, methodName, arguments, transformExpression)
+                : null;
+        }
 
         var setSortExpressionParam = Expression.Parameter(typeof(string), "_sortExpression");
         return new GridViewCommands()
@@ -146,8 +152,44 @@ public class GridViewDataSetBindingProvider
                 nameof(ISortingSetSortExpressionCapability.SetSortExpression),
                 new Expression[] { setSortExpressionParam },
                 // transform to sortExpression => command lambda
-                e => Expression.Lambda(e, setSortExpressionParam))
+                e => Expression.Lambda(e, setSortExpressionParam)),
+            IsColumnSortedAscending = GetValueBindingOrNull<ISortableGridViewDataSet<ISortingStateCapability>, Func<string, bool>>(
+                dataContextStack,
+                nameof(ISortingStateCapability.IsColumnSortedAscending),
+                new Expression[] { setSortExpressionParam },
+                // transform to sortExpression => command lambda
+                e => Expression.Lambda(e, setSortExpressionParam)),
+            IsColumnSortedDescending = GetValueBindingOrNull<ISortableGridViewDataSet<ISortingStateCapability>, Func<string, bool>>(
+                dataContextStack,
+                nameof(ISortingStateCapability.IsColumnSortedDescending),
+                new Expression[] { setSortExpressionParam },
+                // transform to sortExpression => command lambda
+                e => Expression.Lambda(e, setSortExpressionParam)),
         };
+    }
+
+    private IValueBinding<TResult> CreateValueBinding<TDataSetInterface, TResult>(Expression dataSet, DataContextStack dataContextStack, string methodName, Expression[] arguments, Func<Expression, Expression>? transformExpression = null)
+    {
+        // get concrete type from implementation of IXXXableGridViewDataSet<?>
+        var optionsConcreteType = GetOptionsConcreteType<TDataSetInterface>(dataSet.Type, out var optionsProperty);
+
+        // call dataSet.XXXOptions.Method(...);
+        Expression expression = Expression.Call(
+            Expression.Convert(Expression.Property(dataSet, optionsProperty), optionsConcreteType),
+            optionsConcreteType.GetMethod(methodName)!,
+            arguments);
+
+        if (transformExpression != null)
+        {
+            expression = transformExpression(expression);
+        }
+
+        return new ValueBindingExpression<TResult>(service,
+                new object[]
+                {
+                    new ParsedExpressionBindingProperty(expression),
+                    dataContextStack
+                });
     }
 
     private ICommandBinding CreateCommandBinding<TDataSetInterface>(GridViewDataSetCommandType commandType, Expression dataSet, DataContextStack dataContextStack, string methodName, Expression[] arguments, Func<Expression, Expression>? transformExpression = null)
