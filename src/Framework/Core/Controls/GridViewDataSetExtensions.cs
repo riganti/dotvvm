@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Controls
 {
@@ -62,6 +63,21 @@ namespace DotVVM.Framework.Controls
         {
             dataSet.PagingOptions.GoToPage(pageIndex);
             (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
+        }
+
+
+        public static async Task LoadAsync<T, TFilteringOptions, TSortingOptions, TPagingOptions, TRowInsertOptions, TRowEditOptions>(
+            this GenericGridViewDataSet<T, TFilteringOptions, TSortingOptions, TPagingOptions, TRowInsertOptions, TRowEditOptions> dataSet,
+            Func<GridViewDataSetOptions<TFilteringOptions, TSortingOptions, TPagingOptions>, Task<GridViewDataSetResult<T, TFilteringOptions, TSortingOptions, TPagingOptions>>> loadMethod)
+                where TFilteringOptions : IFilteringOptions
+                where TSortingOptions : ISortingOptions
+                where TPagingOptions : IPagingOptions
+                where TRowInsertOptions : IRowInsertOptions
+                where TRowEditOptions : IRowEditOptions
+        {
+            var options = dataSet.GetOptions();
+            var result = await loadMethod(options);
+            dataSet.ApplyResult(result);
         }
 
     }

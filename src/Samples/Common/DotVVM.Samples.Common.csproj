@@ -104,6 +104,7 @@
     <None Remove="Views\FeatureSamples\CustomPrimitiveTypes\RouteLink.dothtml" />
     <None Remove="Views\FeatureSamples\CustomPrimitiveTypes\TextBox.dothtml" />
     <None Remove="Views\FeatureSamples\CustomPrimitiveTypes\UsedInControls.dothtml" />
+    <None Remove="Views\FeatureSamples\DataSet\GitHubApiStaticCommands.dothtml" />
     <None Remove="Views\FeatureSamples\EmbeddedResourceControls\EmbeddedResourceMasterPage.dotmaster" />
     <None Remove="Views\FeatureSamples\EmbeddedResourceControls\PageWithEmbeddedResourceMasterPage.dothtml" />
     <None Remove="Views\FeatureSamples\Formatting\AutoResourceInclusion.dothtml" />
