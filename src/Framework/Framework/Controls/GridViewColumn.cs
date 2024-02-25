@@ -208,7 +208,7 @@ namespace DotVVM.Framework.Controls
                 
                 var linkButton = new LinkButton();
                 linkButton.SetValue(ButtonBase.TextProperty, GetValueRaw(HeaderTextProperty));
-                linkButton.ClickArguments.Add(sortExpression);
+                linkButton.ClickArguments = new object?[] { sortExpression };
                 cell.Children.Add(linkButton);
 
                 linkButton.SetBinding(ButtonBase.ClickProperty, sortCommandBinding);
