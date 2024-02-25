@@ -4,23 +4,35 @@ using System.Linq;
 
 namespace DotVVM.Framework.Controls
 {
-    // TODO: comments
+    /// <summary>
+    /// Token-based paging options that can navigate to next and all previous pages.
+    /// </summary>
     public class NextTokenHistoryPagingOptions : IPagingFirstPageCapability, IPagingPreviousPageCapability, IPagingPageIndexCapability, IPagingNextPageCapability
     {
+        /// <summary> List of all known pages, including the current page. First page has a <c>null</c> token. </summary>
         public List<string?> TokenHistory { get; set; } = new();
 
+        /// <summary> Zero-based index of the current page in the <see cref="TokenHistory"/> </summary>
         public int PageIndex { get; set; } = 0;
 
+        /// <summary> Gets if we are on the first page (<c>null</c> token, zero page index). </summary>
         public bool IsFirstPage => PageIndex == 0;
 
+        /// <summary> Navigates to the first page, resets the <see cref="PageIndex"/> to zero. </summary>
         public void GoToFirstPage() => PageIndex = 0;
 
+        /// <summary> Gets whether the <see cref="PageIndex" /> represents the last page. </summary>
         public bool IsLastPage => PageIndex == TokenHistory.Count - 1;
 
-        public void GoToNextPage() => PageIndex++;
+        /// <summary> Navigates to the next page, if possible </summary>
+        public void GoToNextPage() =>
+            PageIndex = Math.Min(PageIndex + 1, TokenHistory.Count - 1);
 
-        public void GoToPreviousPage() => PageIndex--;
+        /// <summary> Navigates to the previous page, if possible </summary>
+        public void GoToPreviousPage() =>
+            PageIndex = Math.Max(PageIndex - 1, 0);
 
+        /// <summary> Navigates to the page specified using a zero-based index. </summary>
         public void GoToPage(int pageIndex)
         {
             if (TokenHistory.Count <= pageIndex)

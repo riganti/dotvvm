@@ -55,10 +55,12 @@ export const translations = {
     NextTokenPagingOptions: {
         goToFirstPage(options: NextTokenPagingOptions) {
             options.CurrentToken = null;
+            options.NextPageToken = null;
         },
         goToNextPage(options: NextTokenPagingOptions) {
-            if (options.NextPageToken) {
+            if (options.NextPageToken != null) {
                 options.CurrentToken = options.NextPageToken;
+                options.NextPageToken = null;
             }
         }
     },
