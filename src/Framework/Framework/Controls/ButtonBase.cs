@@ -42,13 +42,13 @@ namespace DotVVM.Framework.Controls
         /// This property is typically used from the code-behind to allow sharing the same binding expressions among multiple buttons.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public List<object?> ClickArguments
+        public object?[]? ClickArguments
         {
-            get { return (List<object?>)GetValue(ClickArgumentsProperty)!; }
+            get { return (object?[])GetValue(ClickArgumentsProperty)!; }
             set { SetValue(ClickArgumentsProperty, value); }
         }
         public static readonly DotvvmProperty ClickArgumentsProperty
-            = DotvvmProperty.Register<List<object?>, ButtonBase>(c => c.ClickArguments, null);
+            = DotvvmProperty.Register<object?[]?, ButtonBase>(c => c.ClickArguments, null);
 
         /// <summary>
         /// Gets or sets a value indicating whether the button is enabled and can be clicked on.
@@ -77,7 +77,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public ButtonBase(string tagName) : base(tagName)
         {
-            ClickArguments = new List<object>();
         }
 
 

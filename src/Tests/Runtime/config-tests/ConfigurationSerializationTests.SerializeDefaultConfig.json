@@ -419,7 +419,7 @@
         "isCommand": true
       },
       "ClickArguments": {
-        "type": "System.Collections.Generic.List`1[[System.Object, CoreLibrary]]",
+        "type": "System.Object[]",
         "mappingMode": "Exclude"
       },
       "Enabled": {

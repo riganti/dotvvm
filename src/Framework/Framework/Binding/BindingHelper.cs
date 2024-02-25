@@ -256,22 +256,27 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets command arguments parametrized code from the arguments collection.
         /// </summary>
-        public static CodeParameterAssignment? GetParametrizedCommandArgs(DotvvmControl control, IEnumerable<object?> argumentsCollection)
+        public static CodeParameterAssignment? GetParametrizedCommandArgs(DotvvmControl control, IEnumerable<object?>? argumentsCollection)
         {
             var builder = new ParametrizedCode.Builder();
             var isFirst = true;
 
             builder.Add("[");
-            foreach (var arg in argumentsCollection)
+            if (argumentsCollection is not null)
             {
-                if (!isFirst)
+                foreach (var arg in argumentsCollection)
                 {
-                    builder.Add(",");
-                }
-                isFirst = false;
+                    if (!isFirst)
+                    {
+                        builder.Add(",");
+                    }
 
-                builder.Add(ValueOrBinding<object>.FromBoxedValue(arg).GetParametrizedJsExpression(control));
+                    isFirst = false;
+
+                    builder.Add(ValueOrBinding<object>.FromBoxedValue(arg).GetParametrizedJsExpression(control));
+                }
             }
+
             builder.Add("]");
 
             return builder.Build(OperatorPrecedence.Max);
