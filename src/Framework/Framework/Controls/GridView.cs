@@ -251,7 +251,7 @@ namespace DotVVM.Framework.Controls
             var decoratedHeaderRow = Decorator.ApplyDecorators(headerRow, HeaderRowDecorators);
             head.Children.Add(decoratedHeaderRow);
 
-            var sortCommandBinding = BuildSortCommandBinding();
+            var (gridViewCommands, sortCommandBindingOverride) = GetGridViewCommandsAndSortBinding();
             foreach (var column in Columns.NotNull("GridView.Columns must be set"))
             {
                 var cell = new HtmlGenericControl("th");
@@ -259,7 +259,7 @@ namespace DotVVM.Framework.Controls
                 var decoratedCell = Decorator.ApplyDecorators(cell, column.HeaderCellDecorators);
                 headerRow.Children.Add(decoratedCell);
                 
-                column.CreateHeaderControls(context, this, sortCommandBinding, cell, gridViewDataSet);
+                column.CreateHeaderControls(context, this, gridViewCommands, sortCommandBindingOverride, cell, gridViewDataSet);
                 if (FilterPlacement == GridViewFilterPlacement.HeaderRow)
                 {
                     column.CreateFilterControls(context, this, cell, gridViewDataSet);
@@ -280,21 +280,18 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private ICommandBinding? BuildSortCommandBinding()
+        private (GridViewCommands gridViewCommands, ICommandBinding? sortCommandBindingOverride) GetGridViewCommandsAndSortBinding()
         {
             if (SortChanged is { } && LoadData is { })
             {
                 throw new DotvvmControlException(this, $"The {nameof(LoadData)} and {nameof(SortChanged)} properties cannot be used together!");
             }
 
-            if (SortChanged is { })
-            {
-                return BuildDefaultSortCommandBinding();
-            }
-            else
-            {
-                return BuildLoadDataSortCommandBinding();
-            }
+            var dataContextStack = this.GetDataContextType()!;
+            var commandType = LoadData is { } ? GridViewDataSetCommandType.LoadDataDelegate : GridViewDataSetCommandType.Default;
+            var gridViewCommands = gridViewDataSetBindingProvider.GetGridViewCommands(dataContextStack, GetDataSourceBinding(), commandType);
+
+            return (gridViewCommands, SortChanged is { } ? BuildDefaultSortCommandBinding() : null);
         }
 
         protected virtual ICommandBinding BuildDefaultSortCommandBinding()
@@ -318,14 +315,7 @@ namespace DotVVM.Framework.Controls
                     new IdBindingProperty($"{this.GetDotvvmUniqueId().GetValue()}_sortBinding")
                 });
         }
-
-        protected virtual ICommandBinding? BuildLoadDataSortCommandBinding()
-        {
-            var dataContextStack = this.GetDataContextType()!;
-            var commandType = LoadData is { } ? GridViewDataSetCommandType.LoadDataDelegate : GridViewDataSetCommandType.Default;
-            return gridViewDataSetBindingProvider.GetGridViewCommands(dataContextStack, GetDataSourceBinding(), commandType).SetSortExpression;
-        }
-
+        
         private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)
         {
             var cellAttributes = cell.Attributes;

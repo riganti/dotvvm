@@ -7,6 +7,10 @@
     <title></title>
     <style>
         .disabled a { color: gray; text-decoration: none; }
+        .sort-asc:after { content: "▲"; color: blue }
+        .sort-desc:after { content: "▼"; color: blue }
+        ul { display: flex; gap: 2em; }
+        li { list-style-type: none; }
     </style>
 </head>
 <body>
@@ -58,7 +62,9 @@
             </Columns>
         </dot:GridView>
         <dot:DataPager DataSet="{value: MultiSortDataSet}" LoadData="{staticCommand: RootViewModel.LoadMultiSort}" />
-        
+        <dot:Repeater DataSource="{value: MultiSortDataSet.SortingOptions.Criteria}" WrapperTagName="ul">
+            <li>{{value: SortExpression}} {{value: SortDescending ? "DESC" : "ASC"}}</li>
+        </dot:Repeater>
     </div>
 </body>
 </html>

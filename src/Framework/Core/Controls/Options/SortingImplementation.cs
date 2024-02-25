@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Framework.Controls
+namespace DotVVM.Framework.Controls.Options
 {
     public static class SortingImplementation
     {

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Framework.Controls.Options;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
@@ -9,7 +10,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Represents a default implementation of the sorting options.
     /// </summary>
-    public class SortingOptions : ISortingOptions, ISortingSingleCriterionCapability, ISortingSetSortExpressionCapability, IApplyToQueryable
+    public class SortingOptions : ISortingOptions, ISortingStateCapability, ISortingSetSortExpressionCapability, IApplyToQueryable
     {
         /// <summary>
         /// Gets or sets whether the sort order should be descending.
@@ -54,5 +55,11 @@ namespace DotVVM.Framework.Controls
         {
             return SortingImplementation.ApplySortingToQueryable(queryable, SortExpression, SortDescending);
         }
+
+        /// <inheritdoc />
+        public bool IsColumnSortedAscending(string? sortExpression) => SortExpression == sortExpression && !SortDescending;
+
+        /// <inheritdoc />
+        public bool IsColumnSortedDescending(string? sortExpression) => SortExpression == sortExpression && SortDescending;
     }
 }

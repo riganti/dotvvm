@@ -889,9 +889,29 @@ namespace DotVVM.Framework.Compilation.Javascript
                     .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
 
             // SortingOptions
-            AddMethodTranslator(() => default(SortingOptions)!.SetSortExpression(default(string?)), new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("SortingOptions").Member("setSortExpression")
-                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
+            AddSetSortExpressionTranslation<SortingOptions>();
+            AddSortingStateTranslation<SortingOptions>();
+            AddSetSortExpressionTranslation<MultiCriteriaSortingOptions>();
+            AddSortingStateTranslation<MultiCriteriaSortingOptions>();
+
+            void AddSetSortExpressionTranslation<TSortingOptions>(string? clientTypeName = null)
+                where TSortingOptions : ISortingOptions, ISortingSetSortExpressionCapability
+            {
+                AddMethodTranslator(typeof(TSortingOptions), nameof(ISortingSetSortExpressionCapability.SetSortExpression), new GenericMethodCompiler(args =>
+                    new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member(clientTypeName ?? typeof(TSortingOptions).Name).Member("setSortExpression")
+                        .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
+            }
+
+            void AddSortingStateTranslation<TSortingOptions>(string? clientTypeName = null)
+                where TSortingOptions : ISortingOptions, ISortingStateCapability
+            {
+                AddMethodTranslator(typeof(TSortingOptions), nameof(ISortingStateCapability.IsColumnSortedAscending), new GenericMethodCompiler(args =>
+                    new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member(clientTypeName ?? typeof(TSortingOptions).Name).Member("isColumnSortedAscending")
+                        .Invoke(new JsIdentifierExpression("ko").Member("toJS").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance)), args[1])));
+                AddMethodTranslator(typeof(TSortingOptions), nameof(ISortingStateCapability.IsColumnSortedDescending), new GenericMethodCompiler(args =>
+                    new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member(clientTypeName ?? typeof(TSortingOptions).Name).Member("isColumnSortedDescending")
+                        .Invoke(new JsIdentifierExpression("ko").Member("toJS").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance)), args[1])));
+            }
         }
 
         public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] args, MethodInfo method)

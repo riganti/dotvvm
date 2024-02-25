@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Returns the near page indexes in the maximum specified distance from the current page index.
         /// </summary>
-        protected IList<int> GetDefaultNearPageIndexes(int distance)
+        protected virtual IList<int> GetDefaultNearPageIndexes(int distance)
         {
             var firstIndex = Math.Max(PageIndex - distance, 0);
             var lastIndex = Math.Min(PageIndex + distance + 1, PagesCount);
@@ -110,12 +110,12 @@ namespace DotVVM.Framework.Controls
                 .ToList();
         }
 
-        public IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
+        public virtual IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
         {
             return PagingImplementation.ApplyPagingToQueryable(queryable, this);
         }
 
-        public void ProcessLoadedItems<T>(IQueryable<T> filteredQueryable, IList<T> items)
+        public virtual void ProcessLoadedItems<T>(IQueryable<T> filteredQueryable, IList<T> items)
         {
             TotalItemsCount = filteredQueryable.Count();
         }

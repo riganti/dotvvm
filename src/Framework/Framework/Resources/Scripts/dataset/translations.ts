@@ -18,6 +18,16 @@ type SortingOptions = {
     SortDescending: boolean
 };
 
+type MultiCriteriaSortingOptions = {
+    Criteria: SortCriterion[],
+    MaxSortCriteriaCount: number
+};
+
+type SortCriterion = {
+    SortExpression: string,
+    SortDescending: boolean
+};
+
 export const translations = {
     PagingOptions: {
         goToFirstPage(options: PagingOptions) {
@@ -86,6 +96,43 @@ export const translations = {
                 options.SortExpression = sortExpression;
                 options.SortDescending = false;
             }
+        },
+        isColumnSortedAscending(options: SortingOptions, sortExpression: string) {
+            return options.SortExpression === sortExpression && !options.SortDescending;
+        },
+        isColumnSortedDescending(options: SortingOptions, sortExpression: string) {
+            return options.SortExpression === sortExpression && options.SortDescending;
+        }
+    },
+    MultiCriteriaSortingOptions: {
+        setSortExpression(options: MultiCriteriaSortingOptions, sortExpression: string) {
+            if (sortExpression == null) {
+                options.Criteria = [];
+                return;
+            }
+
+            const index = options.Criteria.findIndex(c => c.SortExpression == sortExpression);
+            if (index === 0) {
+                options.Criteria[index].SortDescending = !options.Criteria[index].SortDescending;
+            }
+            else if (index > 0) {
+                options.Criteria.splice(index, 1);
+                options.Criteria.unshift({ SortExpression: sortExpression, SortDescending: false });
+            }
+            else {
+                options.Criteria.unshift({ SortExpression: sortExpression, SortDescending: false });
+            }
+
+            if (options.Criteria.length > options.MaxSortCriteriaCount)
+            {
+                options.Criteria.splice(options.MaxSortCriteriaCount, options.Criteria.length - options.MaxSortCriteriaCount);
+            }
+        },
+        isColumnSortedAscending(options: MultiCriteriaSortingOptions, sortExpression: string) {
+            return options.Criteria.some(c => c.SortExpression === sortExpression && !c.SortDescending);
+        },
+        isColumnSortedDescending(options: MultiCriteriaSortingOptions, sortExpression: string) {
+            return options.Criteria.some(c => c.SortExpression === sortExpression && c.SortDescending);
         }
     }
 };

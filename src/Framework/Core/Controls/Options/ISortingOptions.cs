@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
@@ -28,30 +26,18 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Represents sorting options that can specify one sorting criterion.
     /// </summary>
-    public interface ISortingSingleCriterionCapability : ISortingOptions
-    {
-
-        /// <summary>
-        /// Gets or sets whether the sort order should be descending.
-        /// </summary>
-        bool SortDescending { get; }
-
-        /// <summary>
-        /// Gets or sets the name of the property that is used for sorting. Null means the grid should not be sorted.
-        /// </summary>
-        string? SortExpression { get; }
-
-    }
-
-    /// <summary>
-    /// Represents sorting options which support multiple sort criteria.
-    /// </summary>
-    public interface ISortingMultipleCriteriaCapability : ISortingOptions
+    public interface ISortingStateCapability : ISortingOptions
     {
         /// <summary>
-        /// Gets or sets the list of sort criteria.
+        /// Determines whether the column with specified sort expression is sorted in ascending order.
         /// </summary>
-        IList<SortCriterion> Criteria { get; }
+        bool IsColumnSortedAscending(string? sortExpression);
+
+        /// <summary>
+        /// Determines whether the column with specified sort expression is sorted in descending order.
+        /// </summary>
+        bool IsColumnSortedDescending(string? sortExpression);
+
     }
 
     /// <summary>
