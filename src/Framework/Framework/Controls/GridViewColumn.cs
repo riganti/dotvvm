@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Controls
                 }
 
                 var sortExpression = GetSortExpression();
-                
+
                 var linkButton = new LinkButton();
                 linkButton.SetValue(ButtonBase.TextProperty, GetValueRaw(HeaderTextProperty));
                 linkButton.ClickArguments = new object?[] { sortExpression };
