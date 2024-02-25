@@ -5,7 +5,7 @@ using System.Linq;
 namespace DotVVM.Framework.Controls
 {
     // TODO: comments
-    public class NextTokenHistoryPagingOptions : IPagingFirstPageCapability, IPagingPreviousPageCapability, IPagingPageIndexCapability
+    public class NextTokenHistoryPagingOptions : IPagingFirstPageCapability, IPagingPreviousPageCapability, IPagingPageIndexCapability, IPagingNextPageCapability
     {
         public List<string?> TokenHistory { get; set; } = new();
 
@@ -26,6 +26,39 @@ namespace DotVVM.Framework.Controls
             if (TokenHistory.Count <= pageIndex)
                 throw new ArgumentOutOfRangeException(nameof(pageIndex));
             PageIndex = pageIndex;
+        }
+
+        /// <summary>
+        /// Gets the token for loading the current page. The first page token is always null.
+        /// </summary>
+        public virtual string? GetCurrentPageToken()
+        {
+            if (TokenHistory.Count == 0)
+            {
+                TokenHistory.Add(null);
+            }
+
+            return PageIndex < TokenHistory.Count ? TokenHistory[PageIndex] : throw new InvalidOperationException($"Cannot get token for page {PageIndex}, because the token history contains only {TokenHistory.Count} items.");
+        }
+
+        /// <summary>
+        /// Saves the token for loading the next page to the token history.
+        /// </summary>
+        public virtual void SaveNextPageToken(string? nextPageToken)
+        {
+            if (TokenHistory.Count == 0)
+            {
+                TokenHistory.Add(null);
+            }
+
+            if (IsLastPage && nextPageToken != null)
+            {
+                TokenHistory.Add(nextPageToken);
+            }
+            else if (PageIndex > TokenHistory.Count)
+            {
+                throw new InvalidOperationException($"Cannot save token for page {PageIndex}, because the token history contains only {TokenHistory.Count} items..");
+            }
         }
 
         public IList<int> NearPageIndexes => GetNearPageIndexes();

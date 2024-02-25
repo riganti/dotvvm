@@ -1,0 +1,41 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.DataSet.GitHubApiViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>GitHub Issue Browser</h1>
+
+    <div style="display: flex; gap: 2em">
+        <div>
+            <h2>NextToken</h2>
+            <dot:DataPager DataSet="{value: Issues}" />
+            <dot:GridView DataSource="{value: Issues}">
+                <dot:GridViewTextColumn ValueBinding="{value: Id}" HeaderText="Id" />
+                <dot:GridViewTextColumn ValueBinding="{value: Number}" HeaderText="Number" />
+                <dot:GridViewTextColumn ValueBinding="{value: Title}" HeaderText="Title" />
+                <dot:GridViewTextColumn ValueBinding="{value: State}" HeaderText="State" />
+            </dot:GridView>
+        </div>
+
+        <div>
+            <h2>NextTokenHistory</h2>
+            <dot:DataPager DataSet="{value: Issues2}" />
+            <dot:GridView DataSource="{value: Issues2}">
+                <dot:GridViewTextColumn ValueBinding="{value: Id}" HeaderText="Id" />
+                <dot:GridViewTextColumn ValueBinding="{value: Number}" HeaderText="Number" />
+                <dot:GridViewTextColumn ValueBinding="{value: Title}" HeaderText="Title" />
+                <dot:GridViewTextColumn ValueBinding="{value: State}" HeaderText="State" />
+            </dot:GridView>
+        </div>
+    </div>
+
+</body>
+</html>
+
+
