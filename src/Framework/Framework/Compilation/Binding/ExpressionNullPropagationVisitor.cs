@@ -206,15 +206,11 @@ namespace DotVVM.Framework.Compilation.Binding
                 return expression;
             else if (expression.Type == typeof(Nullable<>).MakeGenericType(expectedType))
             {
-                var tmp = Expression.Parameter(expression.Type);
-                var nreCtor = typeof(NullReferenceException).GetConstructor(new [] { typeof(string) })!;
-                return Expression.Block(new [] { tmp },
-                    Expression.Assign(tmp, expression),
-                    Expression.Condition(
-                        Expression.Property(tmp, "HasValue"),
-                        Expression.Property(tmp, "Value"),
-                        Expression.Throw(Expression.New(nreCtor, Expression.Constant($"Binding expression '{formattedExpression}' of type '{expectedType}' has evaluated to null.")), expectedType)
-                    )
+                return Expression.Call(
+                    ThrowHelpers.UnwrapNullableMethod.MakeGenericMethod(expectedType),
+                    expression,
+                    Expression.Constant(formattedExpression, typeof(string)),
+                    Expression.Constant(expectedType.FullName, typeof(string))
                 );
             }
             else
@@ -282,6 +278,18 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var v = new ExpressionNullPropagationVisitor(canBeNull);
             return v.Visit(expr);
+        }
+
+
+        internal class ThrowHelpers
+        {
+            public static readonly MethodInfo ThrowNullReferenceMethod = typeof(ThrowHelpers).GetMethod(nameof(ThrowNullReference))!;
+            public static T ThrowNullReference<T>(string expression, string type) =>
+                throw new NullReferenceException($"Binding expression '{expression}' of type '{type}' has evaluated to null.");
+
+            public static readonly MethodInfo UnwrapNullableMethod = typeof(ThrowHelpers).GetMethod(nameof(UnwrapNullable))!;
+            public static T UnwrapNullable<T>(T? value, string expression, string type) where T : struct =>
+                value ?? ThrowNullReference<T>(expression, type);
         }
     }
 }
