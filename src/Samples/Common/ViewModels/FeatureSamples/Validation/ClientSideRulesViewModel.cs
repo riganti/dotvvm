@@ -15,8 +15,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
         [Range(12.345678901, double.PositiveInfinity)]
         public double? RangeFloat64 { get; set; } = null;
 
-        [Range(typeof(DateOnly), "2015-01-01", "2015-12-31")]
-        public DateOnly? RangeDate { get; set; } = null;
+        [Range(typeof(DateTime), "2015-01-01T00:00:00", "2015-12-31T23:59:59", ErrorMessage = "{0} must be between {1:s} and {2:s}.")]
+        public DateTime? RangeDate { get; set; } = null;
 
         [Required(AllowEmptyStrings = false)]
         public string RequiredString { get; set; } = "abc";

@@ -90,7 +90,7 @@ namespace DotVVM.Samples.Tests.Feature
         [InlineData(null, null)]
         [InlineData("-1", "The field RangeInt32 must be between 10 and 20.")]
         [InlineData("0", "The field RangeInt32 must be between 10 and 20.")]
-        public void Feature_Validation_ClienSideRules_RangeInt32(string value, string error)
+        public void Feature_Validation_ClientSideRules_RangeInt32(string value, string error)
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ClientSideRules);
@@ -110,7 +110,7 @@ namespace DotVVM.Samples.Tests.Feature
         [InlineData(null, null)]
         [InlineData("12.345678900", "The field RangeFloat64 must be between 12.345678901 and ∞.")]
         // [InlineData("-Infinity", "The field RangeFloat64 must be between 12.345678901 and ∞.")]
-        public void Feature_Validation_ClienSideRules_RangeFloat64(string value, string error)
+        public void Feature_Validation_ClientSideRules_RangeFloat64(string value, string error)
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ClientSideRules);
@@ -128,8 +128,8 @@ namespace DotVVM.Samples.Tests.Feature
         [InlineData("2015-12-31", null)]
         [InlineData(null, null)]
         [InlineData("", null)]
-        [InlineData("2024-01-01", "The field RangeDate must be between 1/1/2015 and 12/31/2015.")]
-        public void Feature_Validation_ClienSideRules_RangeDate(string value, string error)
+        [InlineData("2024-01-01", "RangeDate must be between 2015-01-01T00:00:00 and 2015-12-31T23:59:59.")]
+        public void Feature_Validation_ClientSideRules_RangeDate(string value, string error)
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ClientSideRules);
@@ -148,7 +148,7 @@ namespace DotVVM.Samples.Tests.Feature
         [InlineData("", "The RequiredString field is required.")]
         [InlineData("   ", "The RequiredString field is required.")]
         [InlineData(null, "The RequiredString field is required.")]
-        public void Feature_Validation_ClienSideRules_RequiredString(string value, string error)
+        public void Feature_Validation_ClientSideRules_RequiredString(string value, string error)
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ClientSideRules);
@@ -167,7 +167,7 @@ namespace DotVVM.Samples.Tests.Feature
         [InlineData("", null)]
         [InlineData("   ", null)]
         [InlineData(null, "The NotNullString field is required.")]
-        public void Feature_Validation_ClienSideRules_NotNullString(string value, string error)
+        public void Feature_Validation_ClientSideRules_NotNullString(string value, string error)
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ClientSideRules);
@@ -186,7 +186,7 @@ namespace DotVVM.Samples.Tests.Feature
         [InlineData("@handle", "The EmailString field is not a valid e-mail address.")]
         [InlineData("incomplete@", "The EmailString field is not a valid e-mail address.")]
         [InlineData("", "The EmailString field is not a valid e-mail address.")]
-        public void Feature_Validation_ClienSideRules_EmailString(string value, string error)
+        public void Feature_Validation_ClientSideRules_EmailString(string value, string error)
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ClientSideRules);
