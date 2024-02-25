@@ -26,7 +26,7 @@
             <td>Date Range in 2015</td>
             <td>
                 <dot:TextBox Text={value: RangeDate} Type=date />
-                <dot:TextBox Text={value: RangeDate} FormatString="yyyy-MM-dd"  data-ui="textbox-RangeDate" />
+                <dot:TextBox Text={value: RangeDate} FormatString="yyyy-MM-dd" data-ui="textbox-RangeDate" />
                 <dot:Button Click={staticCommand: RangeDate = null} data-ui="setnull-RangeDate">Set null</dot:Button>
             </td>
         <tr>
