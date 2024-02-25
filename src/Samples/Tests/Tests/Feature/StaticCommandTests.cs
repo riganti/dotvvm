@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
@@ -816,16 +819,34 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
-        public void Feature_List_Translation_Remove_Reverse()
+        public async Task Feature_List_Translation_Remove_Reverse()
         {
+            var wasError = false;
+
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+
+                browser.Wait(1000);
+                if (browser.FindElements(".exceptionMessage").Count > 0)
+                {
+                    wasError = true;
+                    return;
+                }
 
                 var rows = GetSortedRow(browser, "Reverse");
                 var column = GetColumnContent(rows, 0);
                 browser.WaitFor(() => Assert.Equal(10, column.Count), 500);
                 Assert.Equal(new List<string> { "10", "9", "8", "7", "6", "5", "4", "3", "2", "1" }, column);
             });
+
+            if (wasError)
+            {
+                // error page - extension methods not found
+                var client = new HttpClient();
+                var json = await client.GetStringAsync(TestSuiteRunner.Configuration.BaseUrls[0].TrimEnd('/') + "/dump-extension-methods");
+                TestOutput.WriteLine(json);
+                throw new Exception("Test failed");
+            }
         }
 
         protected IElementWrapperCollection<IElementWrapper, IBrowserWrapper> GetSortedRow(IBrowserWrapper browser, string btn)
