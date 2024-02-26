@@ -156,16 +156,17 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.ElementAt("input[type=button]", 1).Click();
 
-                Thread.Sleep(10000);
-                var before = int.Parse(browser.Single(".result-before").GetInnerText().Trim());
-                var rejected = int.Parse(browser.Single(".result-rejected").GetInnerText().Trim());
-                var after = int.Parse(browser.Single(".result-after").GetInnerText().Trim());
-                var value = int.Parse(browser.Single(".result-value").GetInnerText().Trim());
+                browser.WaitFor(() => {
+                    var before = int.Parse(browser.Single(".result-before").GetInnerText().Trim());
+                    var rejected = int.Parse(browser.Single(".result-rejected").GetInnerText().Trim());
+                    var after = int.Parse(browser.Single(".result-after").GetInnerText().Trim());
+                    var value = int.Parse(browser.Single(".result-value").GetInnerText().Trim());
 
-                Assert.True(0 < value && value <= 100);
-                Assert.Equal(100, before);
-                Assert.Equal(100, after);
-                Assert.Equal(0, rejected);
+                    Assert.InRange(value, 1, 100);
+                    Assert.Equal(100, before);
+                    Assert.Equal(100, after);
+                    Assert.Equal(0, rejected);
+                }, timeout: 30_000);
             });
         }
 
@@ -178,15 +179,16 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.ElementAt("input[type=button]", 3).Click();
 
-                Thread.Sleep(10000);
-                var before = int.Parse(browser.Single(".result-before").GetInnerText().Trim());
-                var rejected = int.Parse(browser.Single(".result-rejected").GetInnerText().Trim());
-                var after = int.Parse(browser.Single(".result-after").GetInnerText().Trim());
-                var value = int.Parse(browser.Single(".result-value").GetInnerText().Trim());
+                browser.WaitFor(() => {
+                    var before = int.Parse(browser.Single(".result-before").GetInnerText().Trim());
+                    var rejected = int.Parse(browser.Single(".result-rejected").GetInnerText().Trim());
+                    var after = int.Parse(browser.Single(".result-after").GetInnerText().Trim());
+                    var value = int.Parse(browser.Single(".result-value").GetInnerText().Trim());
 
-                Assert.True(0 < value && value <= 100);
-                Assert.Equal(100, before + rejected);
-                Assert.Equal(100, after);
+                    Assert.InRange(value, 1, 100);
+                    Assert.Equal(100, before + rejected);
+                    Assert.Equal(100, after);
+                }, timeout: 30_000);
             });
         }
 
@@ -199,16 +201,17 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.ElementAt("input[type=button]", 5).Click();
 
-                Thread.Sleep(10000);
-                var before = int.Parse(browser.Single(".result-before").GetInnerText().Trim());
-                var rejected = int.Parse(browser.Single(".result-rejected").GetInnerText().Trim());
-                var after = int.Parse(browser.Single(".result-after").GetInnerText().Trim());
-                var value = int.Parse(browser.Single(".result-value").GetInnerText().Trim());
+                browser.WaitFor(() => {
+                    var before = int.Parse(browser.Single(".result-before").GetInnerText().Trim());
+                    var rejected = int.Parse(browser.Single(".result-rejected").GetInnerText().Trim());
+                    var after = int.Parse(browser.Single(".result-after").GetInnerText().Trim());
+                    var value = int.Parse(browser.Single(".result-value").GetInnerText().Trim());
 
-                Assert.Equal(100, value);
-                Assert.Equal(100, before);
-                Assert.Equal(100, after);
-                Assert.Equal(0, rejected);
+                    Assert.Equal(100, value);
+                    Assert.Equal(100, before);
+                    Assert.Equal(100, after);
+                    Assert.Equal(0, rejected);
+                }, timeout: 30_000);
             });
         }
 

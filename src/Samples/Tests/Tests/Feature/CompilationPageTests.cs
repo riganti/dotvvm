@@ -19,15 +19,18 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl("/_dotvvm/diagnostics/compilation");
-                browser.Single("compile-all-button", By.Id).Click();
+                browser.WaitFor(() => { browser.Single("compile-all-button", By.Id).Click(); }, timeout: 15_000);
                 browser.Single("Routes", SelectByButtonText).Click();
 
                 // shows failed pages
-                Assert.InRange(browser.FindElements("tbody tr.success").Count, 10, int.MaxValue);
-                Assert.InRange(browser.FindElements("tbody tr.failure").Count, 10, int.MaxValue);
                 browser.WaitFor(() => {
-                    AssertUI.HasClass(TableRow(browser, "FeatureSamples_CompilationPage_BindingsTestError"), "failure", waitForOptions: WaitForOptions.Disabled);
-                }, timeout: 10_000);
+                    Assert.InRange(browser.FindElements("tbody tr.success").Count, 10, int.MaxValue);
+                    Assert.InRange(browser.FindElements("tbody tr.failure").Count, 10, int.MaxValue);
+                    var failedRow = () => TableRow(browser, "FeatureSamples_CompilationPage_BindingsTestError");
+                    AssertUI.InnerTextEquals(failedRow().ElementAt("td", 1), "FeatureSamples/CompilationPage/BindingsTestError");
+                    AssertUI.InnerTextEquals(failedRow().ElementAt("td", 3), "CompilationFailed");
+                    AssertUI.HasClass(failedRow(), "failure", waitForOptions: WaitForOptions.Disabled);
+                }, timeout: 60_000);
                 AssertUI.HasNotClass(TableRow(browser, "FeatureSamples_CompilationPage_BindingsTest"), "failure");
 
                 // shows some errors and warnings
