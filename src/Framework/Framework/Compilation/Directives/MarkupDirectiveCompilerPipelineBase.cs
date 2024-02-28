@@ -4,19 +4,20 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using DirectiveDictionary = System.Collections.Generic.Dictionary<string, System.Collections.Generic.IReadOnlyList<DotVVM.Framework.Compilation.Parser.Dothtml.Parser.DothtmlDirectiveNode>>;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
+    using DirectiveDictionary = ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>>;
+
     public abstract class MarkupDirectiveCompilerPipelineBase : IMarkupDirectiveCompilerPipeline
     {
         public MarkupPageMetadata Compile(DothtmlRootNode dothtmlRoot, string fileName)
         {
             var directivesByName = dothtmlRoot.Directives
                 .GroupBy(d => d.Name, StringComparer.OrdinalIgnoreCase)
-                .ToDictionary(d => d.Key, d => (IReadOnlyList<DothtmlDirectiveNode>)d.ToList(), StringComparer.OrdinalIgnoreCase);
+                .ToImmutableDictionary(d => d.Key, d => d.ToImmutableList(), StringComparer.OrdinalIgnoreCase);
 
-            var resolvedDirectives = new Dictionary<string, IReadOnlyList<IAbstractDirective>>();
+            var resolvedDirectives = new Dictionary<string, ImmutableList<IAbstractDirective>>();
 
             var importCompiler = CreateImportCompiler(directivesByName);
             var importResult = importCompiler.Compile();
@@ -43,14 +44,14 @@ namespace DotVVM.Framework.Compilation.Directives
             var baseType = baseTypeResult.Artefact;
             resolvedDirectives.AddIfAny(baseTypeCompiler.DirectiveName, baseTypeResult.Directives);
 
-            var viewModuleDirectiveCompiler = CreateViewModuleDirectiveCompiler(directivesByName, baseType);
-            var viewModuleResult = viewModuleDirectiveCompiler.Compile();
-            resolvedDirectives.AddIfAny(viewModuleDirectiveCompiler.DirectiveName, viewModuleResult.Directives);
-
             var propertyDirectiveCompiler = CreatePropertyDirectiveCompiler(directivesByName, imports, baseType);
             var propertyResult = propertyDirectiveCompiler.Compile();
             resolvedDirectives.AddIfAny(propertyDirectiveCompiler.DirectiveName, propertyResult.Directives);
 
+            var viewModuleDirectiveCompiler = CreateViewModuleDirectiveCompiler(directivesByName, propertyResult.Artefact.ModifiedMarkupControlType);
+            var viewModuleResult = viewModuleDirectiveCompiler.Compile();
+            resolvedDirectives.AddIfAny(viewModuleDirectiveCompiler.DirectiveName, viewModuleResult.Directives);
+           
             var defaultResolver = CreateDefaultResolver(directivesByName);
 
             foreach (var directiveGroup in directivesByName)
@@ -62,14 +63,14 @@ namespace DotVVM.Framework.Compilation.Directives
             }
 
             return new MarkupPageMetadata(
-                resolvedDirectives,
+                resolvedDirectives.ToImmutableDictionary(),
                 imports,
                 masterPageDirectiveResult.Artefact,
                 injectedServicesResult.Artefact,
-                baseType,
+                propertyResult.Artefact.ModifiedMarkupControlType,
                 viewModelType.TypeDescriptor,
                 viewModuleResult.Artefact,
-                propertyResult.Artefact);
+                propertyResult.Artefact.Properties);
         }
 
         protected abstract DefaultDirectiveResolver CreateDefaultResolver(DirectiveDictionary directivesByName);
@@ -84,11 +85,11 @@ namespace DotVVM.Framework.Compilation.Directives
 
     internal static class DirectivesExtensions
     {
-        internal static void AddIfAny(this Dictionary<string, IReadOnlyList<IAbstractDirective>> resolvedDirectives, string directiveName, IReadOnlyList<IAbstractDirective> newDirectives)
+        internal static void AddIfAny(this Dictionary<string, ImmutableList<IAbstractDirective>> resolvedDirectives, string directiveName, IReadOnlyList<IAbstractDirective> newDirectives)
         {
             if (newDirectives.Any())
             {
-                resolvedDirectives.Add(directiveName, newDirectives);
+                resolvedDirectives.Add(directiveName, newDirectives.ToImmutableList());
             }
         }
     }

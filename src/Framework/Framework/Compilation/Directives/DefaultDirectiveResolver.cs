@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
+    using DirectiveDictionary = ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>>;
+
     public class DefaultDirectiveResolver : DirectiveResolver<IAbstractDirective>
     {
         private readonly IAbstractTreeBuilder treeBuilder;
 
-        public DefaultDirectiveResolver(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder)
+        public DefaultDirectiveResolver(DirectiveDictionary directiveNodesByName, IAbstractTreeBuilder treeBuilder)
             : base(directiveNodesByName)
         {
             this.treeBuilder = treeBuilder;

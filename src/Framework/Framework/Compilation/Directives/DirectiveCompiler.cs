@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
@@ -8,13 +7,15 @@ using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
+    using DirectiveDictionary = ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>>;
+
     public abstract class DirectiveCompiler<TDirective, TArtefact> : DirectiveResolver<TDirective>
         where TDirective : IAbstractDirective
     {
         public abstract string DirectiveName { get; }
         protected IAbstractTreeBuilder TreeBuilder { get; }
 
-        public DirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder)
+        public DirectiveCompiler(DirectiveDictionary directiveNodesByName, IAbstractTreeBuilder treeBuilder)
             : base(directiveNodesByName)
         {
             TreeBuilder = treeBuilder;
@@ -29,7 +30,7 @@ namespace DotVVM.Framework.Compilation.Directives
                 );
         }
 
-        protected abstract TArtefact CreateArtefact(IReadOnlyList<TDirective> resolvedDirectives);
+        protected abstract TArtefact CreateArtefact(ImmutableList<TDirective> resolvedDirectives);
 
         protected BindingParserNode ParseDirective(DothtmlDirectiveNode directiveNode, Func<BindingParser, BindingParserNode> parserFunc)
         {

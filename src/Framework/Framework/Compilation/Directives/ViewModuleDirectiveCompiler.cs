@@ -1,19 +1,21 @@
-﻿using System.Collections.Generic;
-using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+﻿using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Parser;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.ResourceManagement;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
+    using DirectiveDictionary = ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>>;
+
     public class ViewModuleDirectiveCompiler : DirectiveCompiler<IAbstractViewModuleDirective, ViewModuleCompilationResult?>
     {
         private readonly bool isMarkupControl;
         private readonly DotvvmResourceRepository resourceRepo;
 
-        public ViewModuleDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, bool isMarkupControl, DotvvmResourceRepository resourceRepo)
+        public ViewModuleDirectiveCompiler(DirectiveDictionary directiveNodesByName, IAbstractTreeBuilder treeBuilder, bool isMarkupControl, DotvvmResourceRepository resourceRepo)
             : base(directiveNodesByName, treeBuilder)
         {
             this.isMarkupControl = isMarkupControl;
@@ -22,12 +24,12 @@ namespace DotVVM.Framework.Compilation.Directives
 
         public override string DirectiveName => ParserConstants.ViewModuleDirective;
 
-        protected override ViewModuleCompilationResult? CreateArtefact(IReadOnlyList<IAbstractViewModuleDirective> resolvedDirectives)
+        protected override ViewModuleCompilationResult? CreateArtefact(ImmutableList<IAbstractViewModuleDirective> resolvedDirectives)
         {
             return ResolveImportedViewModules(resolvedDirectives);
         }
 
-        private ViewModuleCompilationResult? ResolveImportedViewModules(IReadOnlyList<IAbstractViewModuleDirective> moduleDirectives)
+        private ViewModuleCompilationResult? ResolveImportedViewModules(ImmutableList<IAbstractViewModuleDirective> moduleDirectives)
         {
             if (moduleDirectives.Count == 0)
             {
