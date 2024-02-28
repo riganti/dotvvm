@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
@@ -9,11 +8,13 @@ using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
+    using DirectiveDictionary = ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>>;
+
     public class ImportDirectiveCompiler : DirectiveCompiler<IAbstractImportDirective, ImmutableList<NamespaceImport>>
     {
         public override string DirectiveName => ParserConstants.ImportNamespaceDirective;
 
-        public ImportDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder)
+        public ImportDirectiveCompiler(DirectiveDictionary directiveNodesByName, IAbstractTreeBuilder treeBuilder)
             : base(directiveNodesByName, treeBuilder)
         {
         }
@@ -37,13 +38,11 @@ namespace DotVVM.Framework.Compilation.Directives
             return TreeBuilder.BuildImportDirective(directiveNode, alias, name);
         }
 
-        protected override ImmutableList<NamespaceImport> CreateArtefact(IReadOnlyList<IAbstractImportDirective> directives)
-            => ResolveNamespaceImportsCore(directives).ToImmutableList();
-
-        private IEnumerable<NamespaceImport> ResolveNamespaceImportsCore(IReadOnlyList<IAbstractImportDirective> directives)
+        protected override ImmutableList<NamespaceImport> CreateArtefact(ImmutableList<IAbstractImportDirective> directives)
             => directives
             .Where(d => !d.HasError)
-            .Select(d => new NamespaceImport(d.NameSyntax.ToDisplayString(), d.AliasSyntax.As<IdentifierNameBindingParserNode>()?.Name));
+            .Select(d => new NamespaceImport(d.NameSyntax.ToDisplayString(), d.AliasSyntax.As<IdentifierNameBindingParserNode>()?.Name))
+            .ToImmutableList();
     }
 
 }

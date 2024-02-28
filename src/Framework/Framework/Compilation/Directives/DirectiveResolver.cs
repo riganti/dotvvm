@@ -8,6 +8,8 @@ using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
+    using DirectiveDictionary = ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>>;
+
     public abstract class DirectiveResolver<TDirective>
         where TDirective : IAbstractDirective
     {
@@ -19,9 +21,9 @@ namespace DotVVM.Framework.Compilation.Directives
             ParserConstants.ViewModelDirectiveName
         };
 
-        protected IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> DirectiveNodesByName { get; }
+        protected DirectiveDictionary DirectiveNodesByName { get; }
 
-        public DirectiveResolver(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName)
+        public DirectiveResolver(DirectiveDictionary directiveNodesByName)
         {
             DirectiveNodesByName = directiveNodesByName;
         }

@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
-using System.Reflection;
-using System.Reflection.Emit;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Utils;
 using System.Linq;
 using System.Collections.Immutable;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
+    using DirectiveDictionary = ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>>;
+
     public class BaseTypeDirectiveCompiler : DirectiveCompiler<IAbstractBaseTypeDirective, ITypeDescriptor>
     {
         private readonly string fileName;
@@ -27,7 +23,7 @@ namespace DotVVM.Framework.Compilation.Directives
         protected virtual ITypeDescriptor DotvvmMarkupControlType => new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl));
 
         public BaseTypeDirectiveCompiler(
-            IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, string fileName, ImmutableList<NamespaceImport> imports)
+            DirectiveDictionary directiveNodesByName, IAbstractTreeBuilder treeBuilder, string fileName, ImmutableList<NamespaceImport> imports)
             : base(directiveNodesByName, treeBuilder)
         {
             this.fileName = fileName;
@@ -37,7 +33,7 @@ namespace DotVVM.Framework.Compilation.Directives
         protected override IAbstractBaseTypeDirective Resolve(DothtmlDirectiveNode directiveNode)
             => TreeBuilder.BuildBaseTypeDirective(directiveNode, ParseDirective(directiveNode, p => p.ReadDirectiveTypeName()), imports);
 
-        protected override ITypeDescriptor CreateArtefact(IReadOnlyList<IAbstractBaseTypeDirective> resolvedDirectives)
+        protected override ITypeDescriptor CreateArtefact(ImmutableList<IAbstractBaseTypeDirective> resolvedDirectives)
         {
             var wrapperType = GetDefaultWrapperType();
 

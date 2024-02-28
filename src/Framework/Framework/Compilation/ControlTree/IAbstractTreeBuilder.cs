@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public interface IAbstractTreeBuilder
     {
-        IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, IAbstractControlBuilderDescriptor? masterPage);
+        IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, ImmutableDictionary<string, ImmutableList<IAbstractDirective>> directives, IAbstractControlBuilderDescriptor? masterPage);
 
         IAbstractControl BuildControl(IControlResolverMetadata metadata, DothtmlNode? node, IDataContextStack dataContext);
 

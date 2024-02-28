@@ -1,21 +1,21 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
-using DotVVM.Framework.Utils;
 using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
+    using DirectiveDictionary = ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>>;
+
     public class ServiceDirectiveCompiler : DirectiveCompiler<IAbstractServiceInjectDirective, ImmutableList<InjectedServiceExtensionParameter>>
     {
         private readonly ImmutableList<NamespaceImport> imports;
 
         public override string DirectiveName => ParserConstants.ServiceInjectDirective;
 
-        public ServiceDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, ImmutableList<NamespaceImport> imports)
+        public ServiceDirectiveCompiler(DirectiveDictionary directiveNodesByName, IAbstractTreeBuilder treeBuilder, ImmutableList<NamespaceImport> imports)
             : base(directiveNodesByName, treeBuilder)
         {
             this.imports = imports;
@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Compilation.Directives
             }
         }
 
-        protected override ImmutableList<InjectedServiceExtensionParameter> CreateArtefact(IReadOnlyList<IAbstractServiceInjectDirective> directives) =>
+        protected override ImmutableList<InjectedServiceExtensionParameter> CreateArtefact(ImmutableList<IAbstractServiceInjectDirective> directives) =>
             directives
             .Where(d => d.Type != null)
             .Select(d => new InjectedServiceExtensionParameter(d.NameSyntax.Name, d.Type!))

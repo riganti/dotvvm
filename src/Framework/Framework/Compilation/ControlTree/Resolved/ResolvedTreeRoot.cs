@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 return null;
         }
 
-        public ResolvedTreeRoot(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, ControlBuilderDescriptor? masterPage)
+        public ResolvedTreeRoot(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext, ImmutableDictionary<string, ImmutableList<IAbstractDirective>> directives, ControlBuilderDescriptor? masterPage)
             : base(metadata, node, null, dataContext)
         {
             this.MasterPage = masterPage;

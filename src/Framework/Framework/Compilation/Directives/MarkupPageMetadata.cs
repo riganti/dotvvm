@@ -1,17 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using DotVVM.Framework.Binding;
+﻿using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
     public record MarkupPageMetadata(
-           IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> Directives,
-           IReadOnlyList<NamespaceImport> Imports,
+           ImmutableDictionary<string, ImmutableList<IAbstractDirective>> Directives,
+           ImmutableList<NamespaceImport> Imports,
            IAbstractDirective? MasterPageDirective,
-           IReadOnlyList<InjectedServiceExtensionParameter> InjectedServices,
+           ImmutableList<InjectedServiceExtensionParameter> InjectedServices,
            ITypeDescriptor BaseType,
            ITypeDescriptor? ViewModelType,
            ViewModuleCompilationResult? ViewModuleResult,
-           IReadOnlyList<IPropertyDescriptor> Properties);
+           ImmutableList<IPropertyDescriptor> Properties);
 }

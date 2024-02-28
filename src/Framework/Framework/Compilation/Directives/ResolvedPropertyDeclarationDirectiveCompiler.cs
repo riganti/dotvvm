@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Binding;
@@ -15,7 +14,7 @@ namespace DotVVM.Framework.Compilation.Directives
         private static readonly Lazy<ModuleBuilder> DynamicMarkupControlAssembly = new(CreateDynamicMarkupControlAssembly);
 
         public ResolvedPropertyDeclarationDirectiveCompiler(
-            IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName,
+            ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>> directiveNodesByName,
             IAbstractTreeBuilder treeBuilder, ITypeDescriptor controlWrapperType,
             ImmutableList<NamespaceImport> imports)
             : base(directiveNodesByName, treeBuilder, controlWrapperType, imports)
@@ -44,7 +43,7 @@ namespace DotVVM.Framework.Compilation.Directives
         protected override ITypeDescriptor? GetOrCreateDynamicType(
             ITypeDescriptor baseType,
             string typeName,
-            IReadOnlyList<IAbstractPropertyDeclarationDirective> propertyDirectives)
+            ImmutableList<IAbstractPropertyDeclarationDirective> propertyDirectives)
         {
             if (DynamicMarkupControlAssembly.Value.GetType(typeName) is { } type)
             {

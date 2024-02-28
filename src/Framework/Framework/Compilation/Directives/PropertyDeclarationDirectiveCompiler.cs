@@ -7,18 +7,15 @@ using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
-using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System;
 using System.Text;
 using System.Security.Cryptography;
 using DotVVM.Framework.Controls;
-using System.Reflection.Emit;
-using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
-    public record PropertyDirectiveCompilerResult(IReadOnlyList<IPropertyDescriptor> Properties, ITypeDescriptor ModifiedMarkupControlType);
+    public record PropertyDirectiveCompilerResult(ImmutableList<IPropertyDescriptor> Properties, ITypeDescriptor ModifiedMarkupControlType);
 
     public abstract class PropertyDeclarationDirectiveCompiler : DirectiveCompiler<IAbstractPropertyDeclarationDirective, PropertyDirectiveCompilerResult>
     {
@@ -29,7 +26,7 @@ namespace DotVVM.Framework.Compilation.Directives
 
         public override string DirectiveName => ParserConstants.PropertyDeclarationDirective;
 
-        public PropertyDeclarationDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, ITypeDescriptor controlWrapperType, ImmutableList<NamespaceImport> imports)
+        public PropertyDeclarationDirectiveCompiler(ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, ITypeDescriptor controlWrapperType, ImmutableList<NamespaceImport> imports)
             : base(directiveNodesByName, treeBuilder)
         {
             this.controlWrapperType = controlWrapperType;
@@ -112,7 +109,7 @@ namespace DotVVM.Framework.Compilation.Directives
             return new AttributeInfo(type, attributePropertyNameReference, initializer);
         }
 
-        protected override PropertyDirectiveCompilerResult CreateArtefact(IReadOnlyList<IAbstractPropertyDeclarationDirective> directives)
+        protected override PropertyDirectiveCompilerResult CreateArtefact(ImmutableList<IAbstractPropertyDeclarationDirective> directives)
         {
             var generatedWrapperType = directives.Any()
                     ? (CreateDynamicDeclaringType(controlWrapperType, directives) ?? controlWrapperType)
@@ -147,10 +144,10 @@ namespace DotVVM.Framework.Compilation.Directives
         /// <summary> Gets or creates dynamic declaring type, and registers on it the properties declared using `@property` directives </summary>
         protected virtual ITypeDescriptor? CreateDynamicDeclaringType(
             ITypeDescriptor? originalWrapperType,
-            IReadOnlyList<IAbstractPropertyDeclarationDirective> propertyDirectives
+            ImmutableList<IAbstractPropertyDeclarationDirective> propertyDirectives
         )
         {
-            var imports = DirectiveNodesByName.GetValueOrDefault(ParserConstants.ImportNamespaceDirective, Array.Empty<DothtmlDirectiveNode>())
+            var imports = DirectiveNodesByName.GetValueOrDefault(ParserConstants.ImportNamespaceDirective, ImmutableList<DothtmlDirectiveNode>.Empty)
                 .Select(d => d.Value.Trim()).OrderBy(s => s).ToImmutableArray();
             var properties = propertyDirectives
                 .Select(p => p.Value.Trim()).OrderBy(s => s).ToImmutableArray();
@@ -169,7 +166,7 @@ namespace DotVVM.Framework.Compilation.Directives
             return GetOrCreateDynamicType(baseType, typeName, propertyDirectives);
         }
 
-        protected abstract ITypeDescriptor? GetOrCreateDynamicType(ITypeDescriptor baseType, string typeName, IReadOnlyList<IAbstractPropertyDeclarationDirective> propertyDirectives);
+        protected abstract ITypeDescriptor? GetOrCreateDynamicType(ITypeDescriptor baseType, string typeName, ImmutableList<IAbstractPropertyDeclarationDirective> propertyDirectives);
 
         protected abstract bool HasPropertyType(IAbstractPropertyDeclarationDirective directive);
         protected abstract IPropertyDescriptor TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective);

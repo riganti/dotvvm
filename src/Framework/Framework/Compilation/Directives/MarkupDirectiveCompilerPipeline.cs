@@ -2,13 +2,13 @@
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
-using System.Linq;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using DirectiveDictionary = System.Collections.Generic.Dictionary<string, System.Collections.Generic.IReadOnlyList<DotVVM.Framework.Compilation.Parser.Dothtml.Parser.DothtmlDirectiveNode>>;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
+    using DirectiveDictionary = ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>>;
+
     public class MarkupDirectiveCompilerPipeline : MarkupDirectiveCompilerPipelineBase
     {
         private readonly IAbstractTreeBuilder treeBuilder;
