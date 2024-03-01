@@ -425,12 +425,13 @@ namespace DotVVM.Framework.Compilation.Binding
             return new ThisBindingProperty(thisBinding);
         }
 
-        public CollectionElementDataContextBindingProperty GetCollectionElementDataContext(DataContextStack dataContext, ResultTypeBindingProperty resultType)
+        public CollectionElementDataContextBindingProperty GetCollectionElementDataContext(DataContextStack dataContext, ResultTypeBindingProperty resultType, IBinding binding)
         {
             return new CollectionElementDataContextBindingProperty(DataContextStack.Create(
                 ReflectionUtils.GetEnumerableType(resultType.Type).NotNull(),
                 parent: dataContext,
-                extensionParameters: new CollectionElementDataContextChangeAttribute(0).GetExtensionParameters(new ResolvedTypeDescriptor(dataContext.DataContextType)).ToArray()
+                extensionParameters: new CollectionElementDataContextChangeAttribute(0).GetExtensionParameters(new ResolvedTypeDescriptor(dataContext.DataContextType)).ToArray(),
+                serverSideOnly: binding is not IValueBinding
             ));
         }
 

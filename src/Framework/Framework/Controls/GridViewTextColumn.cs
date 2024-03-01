@@ -43,13 +43,13 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets a binding which retrieves the value to display from the current data item.
         /// </summary>
         [MarkupOptions(Required = true)]
-        public IValueBinding? ValueBinding
+        public IStaticValueBinding? ValueBinding
         {
-            get { return GetValueBinding(ValueBindingProperty); }
+            get { return (IStaticValueBinding?)GetBinding(ValueBindingProperty); }
             set { SetValue(ValueBindingProperty, value); }
         }
         public static readonly DotvvmProperty ValueBindingProperty =
-            DotvvmProperty.Register<IValueBinding?, GridViewTextColumn>(c => c.ValueBinding);
+            DotvvmProperty.Register<IStaticValueBinding?, GridViewTextColumn>(c => c.ValueBinding);
 
         [MarkupOptions(AllowBinding = false)]
         public ValidatorPlacement ValidatorPlacement
@@ -75,13 +75,18 @@ namespace DotVVM.Framework.Controls
 
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {
+            var binding = ValueBinding;
+            if (binding is null)
+                throw new DotvvmControlException(this, "The 'ValueBinding' property is required.");
+
             var literal = new Literal();
             literal.FormatString = FormatString;
 
             CopyProperty(UITests.NameProperty, literal, UITests.NameProperty);
 
-            literal.SetBinding(Literal.TextProperty, ValueBinding);
-            Validator.Place(literal, container.Children, ValueBinding, ValidatorPlacement);
+            literal.SetBinding(Literal.TextProperty, binding);
+            if (binding is IValueBinding v)
+                Validator.Place(literal, container.Children, v, ValidatorPlacement);
             container.Children.Add(literal);
         }
 
@@ -98,7 +103,8 @@ namespace DotVVM.Framework.Controls
 
             textBox.SetBinding(TextBox.TextProperty, ValueBinding);
             textBox.SetBinding(TextBox.ChangedProperty, ChangedBinding);
-            Validator.Place(textBox, container.Children, ValueBinding, ValidatorPlacement);
+            if (ValueBinding is IValueBinding v)
+                Validator.Place(textBox, container.Children, v, ValidatorPlacement);
             container.Children.Add(textBox);
         }
     }

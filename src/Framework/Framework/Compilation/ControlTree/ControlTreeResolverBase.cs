@@ -13,6 +13,8 @@ using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Compilation.Directives;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ViewCompiler;
+using DotVVM.Framework.Binding.Expressions;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -276,13 +278,18 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             if (control.TryGetProperty(DotvvmBindableObject.DataContextProperty, out var dataContextProperty) && dataContextProperty is IAbstractPropertyBinding { Binding: var dataContextBinding })
             {
+                var serverOnly = !typeof(IValueBinding).IsAssignableFrom(dataContextBinding.BindingType);
                 if (dataContextBinding?.ResultType != null)
                 {
-                    dataContext = CreateDataContextTypeStack(dataContextBinding.ResultType, parentDataContextStack: dataContext);
+                    dataContext = CreateDataContextTypeStack(
+                        dataContextBinding.ResultType,
+                        parentDataContextStack: dataContext,
+                        serverSideOnly: serverOnly
+                    );
                 }
                 else
                 {
-                    dataContext = CreateDataContextTypeStack(null, dataContext);
+                    dataContext = CreateDataContextTypeStack(null, dataContext, serverSideOnly: serverOnly);
                 }
                 control.DataContextTypeStack = dataContext;
             }
@@ -393,12 +400,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding.");
                 }
                 var binding = ProcessBinding(bindingNode, dataContext, property);
+                if (property.IsBindingProperty)
+                {
+                    // check that binding types are compatible
+                    if (!property.PropertyType.IsAssignableFrom(ResolvedTypeDescriptor.Create(binding.BindingType)))
+                    {
+                        attribute.ValueNode.AddError($"The property '{property.FullName}' cannot contain a binding of type '{binding.BindingType}'!");
+                    }
+                }
                 var bindingProperty = treeBuilder.BuildPropertyBinding(property, binding, attribute);
                 if (!treeBuilder.AddProperty(control, bindingProperty, out var error)) attribute.AddError(error);
             }
             else
             {
-                // hard-coded value in markup
                 var textValue = (DothtmlValueTextNode)attribute.ValueNode;
 
                 try
@@ -745,10 +759,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             try
             {
-                var (type, extensionParameters) = ApplyContextChange(dataContext, attributes, control, property);
+                var (type, extensionParameters, serverOnly) = ApplyContextChange(dataContext, attributes, control, property);
 
                 if (type == null) return dataContext;
-                else return CreateDataContextTypeStack(type, parentDataContextStack: dataContext, extensionParameters: extensionParameters.ToArray());
+                else return CreateDataContextTypeStack(type, parentDataContextStack: dataContext, extensionParameters: extensionParameters.ToArray(), serverSideOnly: serverOnly);
             }
             catch (Exception exception)
             {
@@ -759,8 +773,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
-        public static (ITypeDescriptor? type, List<BindingExtensionParameter> extensionParameters) ApplyContextChange(IDataContextStack dataContext, DataContextChangeAttribute[] attributes, IAbstractControl control, IPropertyDescriptor? property)
+        public static (ITypeDescriptor? type, List<BindingExtensionParameter> extensionParameters, bool serverOnly) ApplyContextChange(IDataContextStack dataContext, DataContextChangeAttribute[] attributes, IAbstractControl control, IPropertyDescriptor? property)
         {
+            var serverOnly = dataContext.ServerSideOnly;
             var type = dataContext.DataContextType;
             var extensionParameters = new List<BindingExtensionParameter>();
             foreach (var attribute in attributes.OrderBy(a => a.Order))
@@ -768,8 +783,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 if (type == null) break;
                 extensionParameters.AddRange(attribute.GetExtensionParameters(type));
                 type = attribute.GetChildDataContextType(type, dataContext, control, property);
+                serverOnly = attribute.IsServerSideOnly(dataContext, control, property) ?? serverOnly;
             }
-            return (type, extensionParameters);
+            return (type, extensionParameters, serverOnly);
         }
 
 
@@ -781,7 +797,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Creates the data context type stack object.
         /// </summary>
-        protected abstract IDataContextStack CreateDataContextTypeStack(ITypeDescriptor? viewModelType, IDataContextStack? parentDataContextStack = null, IReadOnlyList<NamespaceImport>? imports = null, IReadOnlyList<BindingExtensionParameter>? extensionParameters = null);
+        protected abstract IDataContextStack CreateDataContextTypeStack(ITypeDescriptor? viewModelType, IDataContextStack? parentDataContextStack = null, IReadOnlyList<NamespaceImport>? imports = null, IReadOnlyList<BindingExtensionParameter>? extensionParameters = null, bool serverSideOnly = false);
 
         /// <summary>
         /// Converts the value to the property type.
