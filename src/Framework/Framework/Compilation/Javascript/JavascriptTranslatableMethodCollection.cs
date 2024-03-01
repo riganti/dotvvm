@@ -81,6 +81,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(method, translator);
         }
 
+        public void AddMethodTranslator(Expression<Action> methodCall, IJavascriptMethodTranslator translator)
+        {
+            var method = (MethodInfo)MethodFindingHelper.GetMethodFromExpression(methodCall);
+            CheckNotAccidentalDefinition(method);
+            AddMethodTranslator(method, translator);
+        }
+
         private void CheckNotAccidentalDefinition(MethodBase m)
         {
             if (m.DeclaringType == typeof(object))
@@ -102,12 +109,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                     throw new NotSupportedException($"Property {property} does not have a setter");
                 AddMethodTranslator(property.SetMethod, setter);
             }
-        }
-
-        public void AddMethodTranslator(Expression<Action> methodCall, IJavascriptMethodTranslator translator)
-        {
-            var method = (MethodInfo)MethodFindingHelper.GetMethodFromExpression(methodCall);
-            AddMethodTranslator(method, translator);
         }
 
         public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, int parameterCount, bool allowMultipleMethods = false, Func<ParameterInfo[], bool>? parameterFilter = null)
