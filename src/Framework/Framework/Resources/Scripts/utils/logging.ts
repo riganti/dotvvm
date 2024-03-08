@@ -21,7 +21,7 @@ export type DotvvmLoggingArea = (
 
 export function logInfoVerbose(area: DotvvmLoggingArea, ...args: any[]) {
     if (compileConstants.debug && level === "verbose") {
-        console.log(`%c${area}`, ...args);
+        console.log(area, ...args);
     }
 }
 
