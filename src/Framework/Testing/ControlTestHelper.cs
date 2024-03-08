@@ -115,13 +115,13 @@ namespace DotVVM.Framework.Testing
             CultureInfo? culture = null
         )
         {
-            CultureInfo.CurrentCulture = culture ?? new CultureInfo("en-US");
-            CultureInfo.CurrentUICulture = culture ?? new CultureInfo("en-US");
+            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture =
+                culture ?? new CultureInfo("en-US");
 
             Configuration.Freeze();
             fileName = (fileName ?? "testpage") + ".dothtml";
             var (_, controlBuilder) = CompilePage(markup, fileName, markupFiles);
-            return PrepareRequest(fileName, user: user);
+            return PrepareRequest(fileName, user: user, culture: culture);
         }
 
         public async Task<PageRunResult> RunPage(

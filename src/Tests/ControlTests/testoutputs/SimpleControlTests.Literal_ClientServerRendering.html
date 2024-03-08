@@ -2,11 +2,11 @@
 	<head></head>
 	<body>
 		
-		<!-- literal syntax, client rendering -->
-		<span data-bind="text: dotvvm.globalize.bindingNumberToString(int)() + &quot;\n                    &quot; + dotvvm.globalize.bindingNumberToString(float)() + &quot;\n                    &quot; + (dotvvm.globalize.bindingDateToString(date)() ?? &quot;&quot;) + &quot;\n                    &quot; + (NullableString() ?? &quot;&quot;)"></span>
+		<!-- literal syntax, client rendering --> sv
+		<span data-bind="text: dotvvm.globalize.bindingNumberToString(int)() + &quot;\n    &quot; + dotvvm.globalize.bindingNumberToString(float)() + &quot;\n    &quot; + (dotvvm.globalize.bindingDateToString(date)() ?? &quot;&quot;) + &quot;\n    &quot; + (NullableString() ?? &quot;&quot;)"></span>
 		
 		<!-- literal syntax, server rendering -->
-		<span data-bind="text: dotvvm.globalize.bindingNumberToString(int)() + &quot;\n                    &quot; + dotvvm.globalize.bindingNumberToString(float)() + &quot;\n                    &quot; + (dotvvm.globalize.bindingDateToString(date)() ?? &quot;&quot;) + &quot;\n                    &quot; + (NullableString() ?? &quot;&quot;)">10000000                     0.11111                     8/11/2020 4:01:44 PM
+		<span data-bind="text: dotvvm.globalize.bindingNumberToString(int)() + &quot;\n    &quot; + dotvvm.globalize.bindingNumberToString(float)() + &quot;\n    &quot; + (dotvvm.globalize.bindingDateToString(date)() ?? &quot;&quot;) + &quot;\n    &quot; + (NullableString() ?? &quot;&quot;)">10000000     0,11111     2020-08-11 16:01:44
 		</span>
 		
 		<!-- control syntax, client rendering -->
@@ -19,8 +19,8 @@
 		<!-- control syntax, server rendering -->
 		<span>
 			<span data-bind="text: int">10000000</span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, float, &quot;double&quot;)">0.11111</span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, date, &quot;datetime&quot;)">8/11/2020 4:01:44 PM</span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, float, &quot;double&quot;)">0,11111</span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, date, &quot;datetime&quot;)">2020-08-11 16:01:44</span>
 		</span>
 		
 		<!-- control syntax, client rendering, format string -->
@@ -33,8 +33,8 @@
 		<!-- control syntax, server rendering, format string -->
 		<span>
 			<span data-bind="text: dotvvm.globalize.formatString(&quot;X&quot;, int, &quot;int32&quot;)">989680</span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;P2&quot;, float, &quot;double&quot;)">11.11%</span>
-			<span data-bind="text: dotvvm.globalize.formatString(&quot;dddd&quot;, date, &quot;datetime&quot;)">Tuesday</span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;P2&quot;, float, &quot;double&quot;)">11,11 %</span>
+			<span data-bind="text: dotvvm.globalize.formatString(&quot;dddd&quot;, date, &quot;datetime&quot;)">tisdag</span>
 		</span>
 	</body>
 </html>
