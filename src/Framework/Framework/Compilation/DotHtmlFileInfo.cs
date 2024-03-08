@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Compilation
         )
         {
             public string? SourceLine { get; set; } = SourceLine;
-            public string? SourceLinePrefix => SourceLine?.Remove(ColumnNumber ?? 0);
+            public string? SourceLinePrefix => SourceLine?.Substring(0, ColumnNumber ?? 0);
             public string? SourceLineHighlight =>
                 HighlightLength is {} len ? SourceLine?.Substring(ColumnNumber ?? 0, len)
                                           : SourceLine?.Substring(ColumnNumber ?? 0);
