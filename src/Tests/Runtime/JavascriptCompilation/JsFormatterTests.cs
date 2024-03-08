@@ -30,6 +30,12 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
+        public void JsFormatter_MemberAccessIndexer()
+        {
+            AssertFormatting("a['']['some-name'].if.$type['12']['1x']['a\u200Bb']".Replace('\'', '"'), new JsIdentifierExpression("a").Member("").Member("some-name").Member("if").Member("$type").Member("12").Member("1x").Member("a\u200Bb"));
+        }
+
+        [TestMethod]
         public void JsFormatter_Invocation()
         {
             AssertFormatting("a.b(4,5)", new JsIdentifierExpression("a").Member("b").Invoke(new JsLiteral(4), new JsLiteral(5)));
