@@ -70,8 +70,13 @@ export function serializeDateOnly(date: Date): string {
     return padNumber(date.getFullYear(), 4) + "-" + padNumber(date.getMonth() + 1, 2) + "-" + padNumber(date.getDate(), 2)
 }
 
-export function serializeTimeOnly(date: Date): string {
-    return padNumber(date.getHours(), 2) + ':' + padNumber(date.getMinutes(), 2) + ':' + padNumber(date.getSeconds(), 2) + '.' + padNumber(date.getMilliseconds(), 3) + '0000';
+export function serializeTimeOnly(date: Date, useMilliseconds: boolean = true): string {
+    const result = padNumber(date.getHours(), 2) + ':' + padNumber(date.getMinutes(), 2) + ':' + padNumber(date.getSeconds(), 2);
+    if (useMilliseconds) {
+        return result + '.' + padNumber(date.getMilliseconds(), 3) + '0000';
+    } else{
+        return result;
+    }
 }
 
 export function serializeTimeSpan(ticks: number): string {

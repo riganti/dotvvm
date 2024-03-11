@@ -131,7 +131,7 @@ namespace DotVVM.Framework.Controls
             {
                 return FormatValueType.DateOnly;
             }
-            else if (binding != null && (binding.ResultType == typeof(TimeOnly) || binding.ResultType == typeof(TimeOnly?)))
+            else if (binding != null && (binding.ResultType == typeof(TimeOnly) || binding.ResultType == typeof(TimeOnly?) || binding.ResultType == typeof(TimeSpan) || binding.ResultType == typeof(TimeSpan?)))
             {
                 return FormatValueType.TimeOnly;
             }
