@@ -92,7 +92,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddScoped<IRequestTracer>(s => {
                 var config = s.GetRequiredService<DotvvmConfiguration>();
-                return (config.Diagnostics.PerfWarnings.IsEnabled ? (IRequestTracer)s.GetService<PerformanceWarningTracer>() : null) ?? NullRequestTracer.Instance;
+                return (config.Diagnostics.PerfWarnings.IsEnabled ? (IRequestTracer?)s.GetService<PerformanceWarningTracer>() : null) ?? NullRequestTracer.Instance;
             });
             services.TryAddSingleton<JsonSizeAnalyzer>();
             services.TryAddScoped<PerformanceWarningTracer>();
@@ -143,12 +143,15 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static void ConfigureWithServices<TObject, TService>(this IServiceCollection services, Action<TObject, TService> configure)
             where TObject: class
+            where TService: notnull
         {
             services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureOptions<TObject>(o => configure(o, s.GetRequiredService<TService>())));
         }
 
         public static void ConfigureWithServices<TObject, TService1, TService2>(this IServiceCollection services, Action<TObject, TService1, TService2> configure)
             where TObject: class
+            where TService1: notnull
+            where TService2: notnull
         {
             services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureOptions<TObject>(o => configure(o, s.GetRequiredService<TService1>(), s.GetRequiredService<TService2>())));
         }

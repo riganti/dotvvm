@@ -143,19 +143,19 @@ namespace DotVVM.Framework.Compilation
                         }
                         Interlocked.Increment(ref DotvvmMetrics.BareCounters.ViewsCompiledOk);
 
-                        compilationService.RegisterCompiledView(file.FileName, descriptor, null);
+                        compilationService?.RegisterCompiledView(file.FileName, descriptor, null);
                         return result;
                     }
                     catch (DotvvmCompilationException ex)
                     {
                         Interlocked.Increment(ref DotvvmMetrics.BareCounters.ViewsCompiledFailed);
                         editCompilationException(ex);
-                        compilationService.RegisterCompiledView(file.FileName, descriptor, ex);
+                        compilationService?.RegisterCompiledView(file.FileName, descriptor, ex);
                         throw;
                     }
                     catch (Exception ex)
                     {
-                        compilationService.RegisterCompiledView(file.FileName, descriptor, ex);
+                        compilationService?.RegisterCompiledView(file.FileName, descriptor, ex);
                         throw;
                     }
                     finally
@@ -176,12 +176,12 @@ namespace DotVVM.Framework.Compilation
             catch (DotvvmCompilationException ex)
             {
                 editCompilationException(ex);
-                compilationService.RegisterCompiledView(file.FileName, null, ex);
+                compilationService?.RegisterCompiledView(file.FileName, null, ex);
                 throw;
             }
             catch (Exception ex)
             {
-                compilationService.RegisterCompiledView(file.FileName, null, ex);
+                compilationService?.RegisterCompiledView(file.FileName, null, ex);
                 throw;
             }
         }

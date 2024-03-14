@@ -463,7 +463,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 if (newVM != context.ViewModel)
                 {
-                    logger.LogInformation("Instance of root view model {ViewModelType} was replaced during deserialization.", context.ViewModel!.GetType());
+                    logger?.LogInformation("Instance of root view model {ViewModelType} was replaced during deserialization.", context.ViewModel!.GetType());
                     context.ViewModel = newVM;
                     if (context.View is not null)
                         context.View.DataContext = newVM;

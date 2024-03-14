@@ -12,6 +12,9 @@ namespace DotVVM.Framework.Compilation
         {
             return Task.Run(async () => {
                 var compilationService = config.ServiceProvider.GetService<IDotvvmViewCompilationService>();
+                if (compilationService is null)
+                    return;
+
                 if (compilationConfiguration.BackgroundCompilationDelay != null)
                 {
                     await Task.Delay(compilationConfiguration.BackgroundCompilationDelay.Value);
