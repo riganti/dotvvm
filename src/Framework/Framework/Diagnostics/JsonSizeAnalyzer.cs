@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using FastExpressionCompiler;
-using Newtonsoft.Json.Linq;
+// using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Diagnostics
 {
@@ -19,75 +20,74 @@ namespace DotVVM.Framework.Diagnostics
             this.viewModelMapper = viewModelMapper;
         }
         /// <summary> Computes the inclusive and exclusive size of each JSON property. </summary>
-        public JsonSizeProfile Analyze(JObject json)
+        public JsonSizeProfile Analyze(JsonElement json)
         {
-            Dictionary<string, ClassSizeProfile> results = new();
-            // returns the length of the token. Recursively calls itself for arrays and objects.
-            AtomicSizeProfile analyzeToken(JToken token)
-            {
-                switch (token.Type)
-                {
-                    case JTokenType.Object:
-                        return new (InclusiveSize: analyzeObject((JObject)token), ExclusiveSize: 2);
-                    case JTokenType.Array: {
-                        var r = new AtomicSizeProfile(0);
-                        foreach (var item in (JArray)token)
-                        {
-                            r += analyzeToken(item);
-                        }
-                        return r;
-                    }
-                    case JTokenType.String:
-                        return new ((((string?)token)?.Length ?? 4) + 2);
-                    case JTokenType.Integer:
-                        // This should be the same as token.ToString().Length, but I didn't want to allocate the string unnecesarily
-                        return new((int)Math.Log10(Math.Abs((long)token) + 1) + 1);
-                    case JTokenType.Float:
-                        return new(((double)token).ToString().Length);
-                    case JTokenType.Boolean:
-                        return new(((bool)token) ? 4 : 5);
-                    case JTokenType.Null:
-                        return new(4);
-                    case JTokenType.Guid:
-                        return new(36 + 2);
-                    case JTokenType.Date:
-                        return new(23 + 2);
-                    default:
-                        Debug.Assert(false, $"Unexpected token type {token.Type}");
-                        return new(token.ToString().Length);
-                }
-            }
-            int analyzeObject(JObject j)
-            {
-                var type = ((string?)j.Property("$type")?.Value)?.Apply(viewModelMapper.GetMapByTypeId);
+            throw new NotImplementedException(); // TODO
+            // Dictionary<string, ClassSizeProfile> results = new();
+            // // returns the length of the token. Recursively calls itself for arrays and objects.
+            // AtomicSizeProfile analyzeToken(JsonElement token)
+            // {
+            //     switch (token.ValueKind)
+            //     {
+            //         case JsonValueKind.Object:
+            //             return new (InclusiveSize: analyzeObject(token), ExclusiveSize: 2);
+            //         case JsonValueKind.Array: {
+            //             var r = new AtomicSizeProfile(0);
+            //             foreach (var item in token.EnumerateArray())
+            //             {
+            //                 r += analyzeToken(item);
+            //             }
+            //             return r;
+            //         }
+            //         case JsonValueKind.String:
+            //             return new ((((string?)token)?.Length ?? 4) + 2);
+            //         case JsonValueKind.Integer:
+            //             // This should be the same as token.ToString().Length, but I didn't want to allocate the string unnecesarily
+            //             return new((int)Math.Log10(Math.Abs((long)token) + 1) + 1);
+            //         case JsonValueKind.Number:
+            //             return new(((double)token).ToString().Length);
+            //         case JsonValueKind.True:
+            //             return new(4);
+            //         case JsonValueKind.False:
+            //             return new(5);
+            //         case JsonValueKind.Null:
+            //             return new(4);
+            //         default:
+            //             Debug.Assert(false, $"Unexpected token type {token.ValueKind}");
+            //             return new(token.ToString().Length);
+            //     }
+            // }
+            // int analyzeObject(JsonElement j)
+            // {
+            //     var type = ((string?)j.GetPropertyOrNull("$type")?.GetString())?.Apply(viewModelMapper.GetMapByTypeId);
 
-                var typeName = type?.Type.ToCode(stripNamespace: true) ?? "UnknownType";
-                var props = new Dictionary<string, AtomicSizeProfile>();
+            //     var typeName = type?.Type.ToCode(stripNamespace: true) ?? "UnknownType";
+            //     var props = new Dictionary<string, AtomicSizeProfile>();
 
-                var totalSize = new AtomicSizeProfile(0);
-                foreach (var prop in j.Properties())
-                {
-                    var propSize = analyzeToken(prop.Value);
-                    props[prop.Name] = propSize;
+            //     var totalSize = new AtomicSizeProfile(0);
+            //     foreach (var prop in j.Properties())
+            //     {
+            //         var propSize = analyzeToken(prop.Value);
+            //         props[prop.Name] = propSize;
 
-                    totalSize += propSize;
-                    totalSize += 4 + prop.Name.Length; // 2 for the quotes, 1 for :, 1 for ,
-                }
+            //         totalSize += propSize;
+            //         totalSize += 4 + prop.Name.Length; // 2 for the quotes, 1 for :, 1 for ,
+            //     }
 
-                var classSize = new ClassSizeProfile(totalSize, props);
-                if (results.TryGetValue(typeName, out var existing))
-                {
-                    results[typeName] = existing + classSize;
-                }
-                else
-                {
-                    results[typeName] = classSize;
-                }
-                return totalSize.InclusiveSize;
-            }
+            //     var classSize = new ClassSizeProfile(totalSize, props);
+            //     if (results.TryGetValue(typeName, out var existing))
+            //     {
+            //         results[typeName] = existing + classSize;
+            //     }
+            //     else
+            //     {
+            //         results[typeName] = classSize;
+            //     }
+            //     return totalSize.InclusiveSize;
+            // }
 
-            var totalSize = analyzeObject(json);
-            return new JsonSizeProfile(results, totalSize);
+            // var totalSize = analyzeObject(json);
+            // return new JsonSizeProfile(results, totalSize);
         }
 
 

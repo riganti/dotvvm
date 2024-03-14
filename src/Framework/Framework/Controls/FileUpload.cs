@@ -1,11 +1,12 @@
 using System;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -257,7 +258,7 @@ namespace DotVVM.Framework.Controls
                 writer.AddAttribute("capture", Capture);
             }
 
-            writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonConvert.SerializeObject(new { url = context.TranslateVirtualPath(GetFileUploadHandlerUrl()) }));
+            writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonSerializer.Serialize(new { url = context.TranslateVirtualPath(GetFileUploadHandlerUrl()) }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
             writer.RenderSelfClosingTag("input");
         }
 

@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ViewModel.Serialization;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Controls
         /// <summary> Adds the specified value as a JSON serialized constant expression. </summary>
         public virtual void AddValue(string name, object? value)
         {
-            var expression = JsonConvert.SerializeObject(value, DefaultSerializerSettingsProvider.Instance.Settings);
+            var expression = JsonSerializer.Serialize(value, DefaultSerializerSettingsProvider.Instance.Settings);
             Add(name, expression);
         }
 
@@ -111,7 +111,7 @@ namespace DotVVM.Framework.Controls
                 if (MayBeUnquoted(Name))
                     return Name + ": " + Expression;
                 else
-                    return JsonConvert.ToString(Name, '"', StringEscapeHandling.EscapeHtml) + ": " + Expression;
+                    return KnockoutHelper.MakeStringLiteral(Name) + ": " + Expression;
             }
 
             private static bool MayBeUnquoted(string s)

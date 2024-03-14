@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.ViewModel.Validation;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Runtime;
+using Microsoft.Extensions.Logging;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -20,31 +22,38 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IViewModelValidationMetadataProvider validationMetadataProvider;
         private readonly IPropertySerialization propertySerialization;
         private readonly DotvvmConfiguration configuration;
+        private readonly ILogger<ViewModelSerializationMapper>? logger;
 
         public ViewModelSerializationMapper(IValidationRuleTranslator validationRuleTranslator, IViewModelValidationMetadataProvider validationMetadataProvider,
-            IPropertySerialization propertySerialization, DotvvmConfiguration configuration)
+            IPropertySerialization propertySerialization, DotvvmConfiguration configuration, ILogger<ViewModelSerializationMapper>? logger)
         {
             this.validationRuleTranslator = validationRuleTranslator;
             this.validationMetadataProvider = validationMetadataProvider;
             this.propertySerialization = propertySerialization;
             this.configuration = configuration;
+            this.logger = logger;
 
             HotReloadMetadataUpdateHandler.SerializationMappers.Add(new(this));
         }
 
         private readonly ConcurrentDictionary<string, ViewModelSerializationMap> serializationMapCache = new();
         public ViewModelSerializationMap GetMap(Type type) => serializationMapCache.GetOrAdd(type.GetTypeHash(), t => CreateMap(type));
+        public ViewModelSerializationMap<T> GetMap<T>() => (ViewModelSerializationMap<T>)serializationMapCache.GetOrAdd(typeof(T).GetTypeHash(), _ => CreateMap<T>());
         public ViewModelSerializationMap GetMapByTypeId(string typeId) => serializationMapCache[typeId];
 
         /// <summary>
         /// Creates the serialization map for specified type.
         /// </summary>
-        protected virtual ViewModelSerializationMap CreateMap(Type type)
+        protected virtual ViewModelSerializationMap CreateMap(Type type) =>
+            (ViewModelSerializationMap)CreateMapGenericMethod.MakeGenericMethod(type).Invoke(this, Array.Empty<object>())!;
+        static MethodInfo CreateMapGenericMethod = typeof(ViewModelSerializationMapper).GetMethod(nameof(CreateMap), 1, BindingFlags.NonPublic | BindingFlags.Instance, null, [], [])!;
+        protected virtual ViewModelSerializationMap<T> CreateMap<T>()
         {
+            var type = typeof(T);
             // constructor which takes properties as parameters
             // if it exists, we always need to recreate the viewmodel
             var valueConstructor = GetConstructor(type);
-            return new ViewModelSerializationMap(type, GetProperties(type, valueConstructor), valueConstructor, configuration);
+            return new ViewModelSerializationMap<T>(GetProperties(type, valueConstructor), valueConstructor, configuration);
         }
 
         protected virtual MethodBase? GetConstructor(Type type)
@@ -52,13 +61,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (ReflectionUtils.IsPrimitiveType(type) || ReflectionUtils.IsEnumerable(type))
                 return null;
 
-            if (type.GetMethods(BindingFlags.Static | BindingFlags.Public).FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))) is {} factory)
+            if (type.GetMethods(BindingFlags.Static | BindingFlags.Public).FirstOrDefault(c => SerialiationMapperAttributeHelper.IsJsonConstructor(c)) is {} factory)
                 return factory;
 
             if (type.IsAbstract)
                 return null;
 
-            if (type.GetConstructors().FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))) is {} ctor)
+            if (type.GetConstructors().FirstOrDefault(c => SerialiationMapperAttributeHelper.IsJsonConstructor(c)) is {} ctor)
                 return ctor;
             
             if (type.GetConstructor(Type.EmptyTypes) is {} emptyCtor)
@@ -107,7 +116,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Array.Sort(properties, (a, b) => StringComparer.Ordinal.Compare(a.Name, b.Name));
             foreach (var property in properties)
             {
-                if (property.IsDefined(typeof(JsonIgnoreAttribute))) continue;
+                if (SerialiationMapperAttributeHelper.IsJsonIgnore(property)) continue;
 
                 var ctorParam = ctorParams?.GetValueOrDefault(property.Name);
 
@@ -119,10 +128,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     transferToServer: ctorParam is {} || IsSetterSupported(property),
                     transferAfterPostback: property.GetMethod != null && property.GetMethod.IsPublic,
                     transferFirstRequest: property.GetMethod != null && property.GetMethod.IsPublic,
-                    populate: ViewModelJsonConverter.CanConvertType(property.PropertyType) && property.GetMethod != null
+                    populate: (ViewModelJsonConverter.CanConvertType(property.PropertyType) || property.PropertyType == typeof(object)) && property.GetMethod != null
                 );
                 propertyMap.ConstructorParameter = ctorParam;
                 propertyMap.JsonConverter = GetJsonConverter(property);
+                propertyMap.AllowDynamicDispatch = property.PropertyType.IsAbstract || property.PropertyType == typeof(object);
 
                 foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())
                 {
@@ -133,6 +143,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (bindAttribute != null)
                 {
                     propertyMap.Bind(bindAttribute.Direction);
+                    propertyMap.AllowDynamicDispatch = bindAttribute.AllowsDynamicDispatch(propertyMap.AllowDynamicDispatch);
                 }
 
                 var viewModelProtectionAttribute = property.GetCustomAttribute<ProtectAttribute>();
@@ -171,6 +182,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var converterType = property.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType;
             if (converterType == null)
             {
+                if (SerialiationMapperAttributeHelper.HasNewtonsoftJsonConvert(property))
+                {
+                    this.logger?.LogWarning($"Property {property.DeclaringType?.FullName}.{property.Name} has Newtonsoft.Json.JsonConverterAttribute, which is not supported by DotVVM anymore. Use System.Text.Json.Serialization.JsonConverterAttribute instead.");
+                }
                 return null;
             }
             try

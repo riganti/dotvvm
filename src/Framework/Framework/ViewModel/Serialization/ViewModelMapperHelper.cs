@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -22,9 +21,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return mapper;
         }
 
+        public static IViewModelSerializationMapper Map<T>(this IViewModelSerializationMapper mapper, Action<ViewModelSerializationMap<T>> action)
+        {
+            var map = mapper.GetMap<T>();
+            action(map);
+            map.ResetFunctions();
+            return mapper;
+        }
+
         public static void SetConstructor(this ViewModelSerializationMap map, ObjectFactory factory)
         {
-            map.SetConstructor(p => factory.Invoke(p, new object[0]));
+            map.SetConstructorUntyped(p => factory.Invoke(p, []));
         }
 
         public static void AllowDependencyInjection(this ViewModelSerializationMap map)
@@ -69,7 +76,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return property;
         }
 
-        public static ViewModelPropertyMap SetJsonConverter(this ViewModelPropertyMap property, JsonConverter converter)
+        public static ViewModelPropertyMap SetJsonConverter(this ViewModelPropertyMap property, System.Text.Json.Serialization.JsonConverter converter)
         {
             property.JsonConverter = converter;
             return property;

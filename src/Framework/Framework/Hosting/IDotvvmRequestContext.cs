@@ -7,7 +7,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -23,14 +23,12 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         string? CsrfToken { get; set; }
 
-        JObject? ReceivedViewModelJson { get; set; }
+        JsonDocument? ReceivedViewModelJson { get; set; }
 
         /// <summary>
         /// Gets the view model for the current request.
         /// </summary>
         object? ViewModel { get; set; }
-
-        JObject? ViewModelJson { get; set; }
 
         /// <summary>
         /// Gets the top-level control representing the whole view for the current request.
@@ -118,6 +116,11 @@ namespace DotVVM.Framework.Hosting
 
         IServiceProvider Services { get; }
         CustomResponsePropertiesManager CustomResponseProperties { get; }
+    }
+
+    public class ReceivedViewModelData
+    {
+
     }
 
     public enum DotvvmRequestType

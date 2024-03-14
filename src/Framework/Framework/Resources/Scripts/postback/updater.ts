@@ -7,7 +7,7 @@ import { defer } from '../utils/promise';
 const diffEqual = {}
 
 export function cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
-    for (const id of keys(resultObject.updatedControls)) {
+    for (const id of keys(resultObject.updatedControls ?? {})) {
         const control = getElementByDotvvmId(id);
         if (control) {
             const dataContext = ko.contextFor(control);
@@ -21,7 +21,7 @@ export function cleanUpdatedControls(resultObject: any, updatedControls: any = {
 }
 
 export function restoreUpdatedControls(resultObject: any, updatedControls: any) {
-    for (const id of keys(resultObject.updatedControls)) {
+    for (const id of keys(resultObject.updatedControls ?? {})) {
         const updatedControl = updatedControls[id];
         if (updatedControl) {
             const wrapper = document.createElement(updatedControls[id].parent.tagName || "div");

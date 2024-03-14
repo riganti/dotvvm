@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ResourceManagement
 {

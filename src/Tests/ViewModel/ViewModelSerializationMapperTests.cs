@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Testing;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using FastExpressionCompiler;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
@@ -18,10 +20,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         [TestMethod]
         public void ViewModelSerializationMapper_Name_JsonPropertyVsBindAttribute()
         {
-            var mapper = new ViewModelSerializationMapper(new ViewModelValidationRuleTranslator(),
-                new AttributeViewModelValidationMetadataProvider(),
-                new DefaultPropertySerialization(),
-                DotvvmConfiguration.CreateDefault());
+            var mapper = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>();
             var map = mapper.GetMap(typeof(JsonPropertyVsBindAttribute));
 
             Assert.AreEqual("NoAttribute", map.Property("NoAttribute").Name);
@@ -36,14 +35,11 @@ namespace DotVVM.Framework.Tests.ViewModel
         [TestMethod]
         public void ViewModelSerializationMapper_Name_MemberShadowing()
         {
-            var mapper = new ViewModelSerializationMapper(new ViewModelValidationRuleTranslator(),
-                new AttributeViewModelValidationMetadataProvider(),
-                new DefaultPropertySerialization(),
-                DotvvmConfiguration.CreateDefault());
+            var mapper = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>();
 
-            Assert.ThrowsException<InvalidOperationException>(() => mapper.GetMap(typeof(MemberShadowingViewModelB)),
-                $"Detected member shadowing on property \"{nameof(MemberShadowingViewModelB.Property)}\" " +
-                $"while building serialization map for \"{typeof(MemberShadowingViewModelB).ToCode()}\"");
+            var exception = XAssert.ThrowsAny<Exception>(() => mapper.GetMap(typeof(MemberShadowingViewModelB)));
+            XAssert.IsType<InvalidOperationException>(exception.GetBaseException());
+            XAssert.Equal($"Detected member shadowing on property \"{nameof(MemberShadowingViewModelB.Property)}\" while building serialization map for \"{typeof(MemberShadowingViewModelB).ToCode()}\"", exception.GetBaseException().Message);
         }
 
         public class MemberShadowingViewModelA
@@ -69,18 +65,17 @@ namespace DotVVM.Framework.Tests.ViewModel
             [Bind]
             public string BindWithoutName { get; set; }
 
-            [JsonProperty("jsonProperty1")]
+            [JsonPropertyName("jsonProperty1")]
             public string JsonPropertyWithName { get; set; }
 
-            [JsonProperty]
             public string JsonPropertyWithoutName { get; set; }
 
             [Bind(Name = "bind2")]
-            [JsonProperty("jsonProperty2")]
+            [JsonPropertyName("jsonProperty2")]
             public string BothWithName { get; set; }
 
             [Bind()]
-            [JsonProperty("jsonProperty3")]
+            [JsonPropertyName("jsonProperty3")]
             public string BindWithoutNameJsonPropertyWithName { get; set; }
 
         }

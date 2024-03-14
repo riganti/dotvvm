@@ -49,8 +49,8 @@ public class AutoUIResourcesTests
             );
             //check.CheckString(r.FormattedHtml, fileExtension: "html", checkName: culture);
 
-            r.ViewModel.Entity1.FirstName = "very long value is set in the field";
-            r.ViewModel.Entity1.Email = "invalid mail";
+            r.ViewModelJson["Entity1"]["FirstName"] = "very long value is set in the field";
+            r.ViewModelJson["Entity1"]["Email"] = "invalid mail";
 
             var validationResult = await r.RunCommand("Test()", applyChanges: false, culture: new CultureInfo(culture));
             check.CheckString(validationResult.ResultText, fileExtension: "json", checkName: culture);

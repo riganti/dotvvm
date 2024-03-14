@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Diagnostics.Models;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Diagnostics
 {
@@ -31,11 +31,10 @@ namespace DotVVM.Framework.Diagnostics
                     try
                     {
                         await client.ConnectAsync(hostname, port.Value);
-                        using (var stream = new StreamWriter(client.GetStream()))
+                        using (var stream = client.GetStream())
                         {
-                            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-                            await stream.WriteAsync(JsonConvert.SerializeObject(information, settings));
-                            await stream.FlushAsync();
+                            var settings = DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe;
+                            await JsonSerializer.SerializeAsync(stream, information, settings);
                         }
                     }
                     catch (Exception)

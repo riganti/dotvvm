@@ -12,7 +12,6 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
-using Newtonsoft.Json;
 
 public static class ValueOrBindingExtensions
 {

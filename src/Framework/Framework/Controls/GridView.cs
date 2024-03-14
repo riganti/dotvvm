@@ -13,8 +13,8 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
-using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
+using System.Text.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -524,7 +524,7 @@ namespace DotVVM.Framework.Controls
             var itemType = ReflectionUtils.GetEnumerableType(GetDataSourceBinding().ResultType);
             var userColumnMappingService = context.Services.GetRequiredService<UserColumnMappingCache>();
             var mapping = userColumnMappingService.GetMapping(itemType!);
-            var mappingJson = JsonConvert.SerializeObject(mapping);
+            var mappingJson = JsonSerializer.Serialize(mapping, new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
 
             writer.AddKnockoutDataBind("dotvvm-gridviewdataset", $"{{'mapping':{mappingJson},'dataSet':{GetDataSourceBinding().GetKnockoutBindingExpression(this, unwrapped: true)}}}");
             base.AddAttributesToRender(writer, context);

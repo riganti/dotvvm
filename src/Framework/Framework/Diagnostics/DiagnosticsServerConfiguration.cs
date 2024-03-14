@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using DotVVM.Framework.Configuration;
-using Newtonsoft.Json;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Diagnostics
 {
@@ -11,13 +12,15 @@ namespace DotVVM.Framework.Diagnostics
     {
         private DateTime configurationLastWriteTimeUtc;
 
-        [JsonIgnore]
         public static string? DiagnosticsFilePath => Environment.GetEnvironmentVariable("TEMP") is string tmpPath
                 ? Path.Combine(tmpPath, "DotVVM/diagnosticsConfiguration.json")
                 : null;
 
-        public string? HostName { get; set; }
-        public int Port { get; set; }
+
+        private Configuration config = new();
+
+        public string? HostName => config.HostName;
+        public int Port => config.Port;
 
         public string? GetFreshHostName()
         {
@@ -44,14 +47,20 @@ namespace DotVVM.Framework.Diagnostics
                     configurationLastWriteTimeUtc = info.LastWriteTimeUtc;
 
                     var diagnosticsJson = File.ReadAllText(path);
-                    var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-                    JsonConvert.PopulateObject(diagnosticsJson, this, settings);
+                    var settings = DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe;
+                    this.config = JsonSerializer.Deserialize<Configuration>(diagnosticsJson, settings).NotNull();
                 }
             }
             catch
             {
                 // ignored
             }
+        }
+
+        class Configuration
+        {
+            public string? HostName { get; set; }
+            public int Port { get; set; }
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Testing
 {
@@ -33,19 +34,28 @@ namespace DotVVM.Framework.Testing
             set => throw new NotSupportedException();
         }
 
-        public void Write(string text) => Write(Encoding.UTF8.GetBytes(text));
+        public void Write(string text) => Write(StringUtils.Utf8.GetBytes(text));
 
+        public void Write(ReadOnlyMemory<char> text) => Write(StringUtils.Utf8.GetBytes(text.ToArray()));
+        public void Write(ReadOnlyMemory<byte> data) => Body.Write(data.Span);
         public void Write(byte[] data) => Body.Write(data, 0, data.Length);
 
         public void Write(byte[] data, int offset, int count) => Body.Write(data, offset, count);
 
         public Task WriteAsync(string text) => WriteAsync(text, default);
 
-        public async Task WriteAsync(string text, CancellationToken token)
+        public Task WriteAsync(ReadOnlyMemory<char> text, CancellationToken token = default) =>
+            WriteAsync(StringUtils.Utf8.GetBytes(text.ToArray()), token);
+
+        public async Task WriteAsync(string text, CancellationToken token) =>
+            await WriteAsync(StringUtils.Utf8.GetBytes(text), token);
+
+        public async Task WriteAsync(ReadOnlyMemory<byte> data, CancellationToken token = default)
         {
             if (AsyncWriteDelay > TimeSpan.Zero)
                 await Task.Delay(AsyncWriteDelay, token);
-            Write(text);
+            Write(data);
         }
+
     }
 }

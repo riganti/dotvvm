@@ -50,8 +50,10 @@ namespace DotVVM.Framework.Compilation.Binding
 
         }
 
-        public static Expression UnwrapNullable(this Expression expression) =>
-            expression.Type.IsNullable() ? Expression.Property(expression, "Value") : expression;
+        public static Expression UnwrapNullable(this Expression expression, bool throwOnNull = true) =>
+            !expression.Type.IsNullable() ? expression :
+            throwOnNull ? Expression.Property(expression, "Value") :
+            Expression.Call(expression, "GetValueOrDefault", Type.EmptyTypes);
 
         public static Expression GetIndexer(Expression expr, Expression index)
         {

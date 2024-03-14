@@ -8,8 +8,8 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using System;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Binding;
-using Newtonsoft.Json;
 using DotVVM.Framework.Binding.Expressions;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Compilation
 {

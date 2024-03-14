@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
@@ -13,7 +14,6 @@ using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Serialization;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Controls
                     if (pinfo.Js is {})
                     {
                         js.Append("{Key: ")
-                          .Append(JsonConvert.ToString(p.GroupMemberName, '"', StringEscapeHandling.EscapeHtml))
+                          .Append(KnockoutHelper.MakeStringLiteral(p.GroupMemberName, htmlSafe: true))
                           .Append(", Value: ")
                           .Append(pinfo.Js)
                           .Append("},");
@@ -125,9 +125,7 @@ namespace DotVVM.Framework.Controls
             var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
             if (viewModule is {})
             {
-                var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
-                settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
-                var binding = $"{{ modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}";
+                var binding = $"{{ modules: {JsonSerializer.Serialize(viewModule.ReferencedModules, DefaultSerializerSettingsProvider.Instance.Settings)} }}";
                 if (RendersHtmlTag)
                     writer.AddKnockoutDataBind("dotvvm-with-view-modules", binding);
                 else
@@ -162,12 +160,9 @@ namespace DotVVM.Framework.Controls
         {
             if (ContainsPropertyStaticValue(property))
             {
-                var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
-                settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
-
                 return new PropertySerializeInfo(
                     property,
-                    JsonConvert.SerializeObject(GetValue(property), Formatting.None, settings)
+                    JsonSerializer.Serialize(GetValue(property), DefaultSerializerSettingsProvider.Instance.Settings)
                 );
             }
             else if (GetBinding(property) is IValueBinding valueBinding)

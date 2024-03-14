@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
@@ -11,6 +10,8 @@ using System.Globalization;
 using DotVVM.Framework.Compilation.Parser;
 using System.Reflection;
 using DotVVM.Framework.Testing;
+using System.Text.Json;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -71,9 +72,8 @@ namespace DotVVM.Framework.Tests.Runtime
             });
             config1.Resources.RegisterScript("rs8", new JQueryGlobalizeResourceLocation(CultureInfo.GetCultureInfo("en-US")));
 
-            var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
-            settings.TypeNameHandling = TypeNameHandling.Auto;
-            var config2 = JsonConvert.DeserializeObject<DotvvmConfiguration>(JsonConvert.SerializeObject(config1, settings), settings);
+            var settings = VisualStudioHelper.GetSerializerOptions();
+            var config2 = JsonSerializer.Deserialize<DotvvmConfiguration>(JsonSerializer.Serialize(config1, settings), settings);
 
             //test 
             Assert.IsTrue(config2.Resources.FindResource("rs1") is ScriptResource rs1 &&
@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Tests.Runtime
     }}
 }}", ResourceConstants.GlobalizeResourceName);
             var configuration = DotvvmTestHelper.CreateConfiguration();
-            JsonConvert.PopulateObject(json.Replace("'", "\""), configuration);
+            SystemTextJsonHacks.Populate(configuration, json.Replace("'", "\""), DefaultSerializerSettingsProvider.Instance.Settings);
 
             Assert.IsTrue(configuration.Resources.FindResource(ResourceConstants.GlobalizeResourceName) is ScriptResource);
             Assert.IsTrue(configuration.Resources.FindResource("newResource") is StylesheetResource);
@@ -121,7 +121,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var cultureInfo = new CultureInfo("cs-cz");
             var json = JQueryGlobalizeScriptCreator.BuildCultureInfoJson(cultureInfo);
-            Assert.IsTrue(json.SelectToken("calendars.standard.days.namesAbbr").Values<string>().SequenceEqual(cultureInfo.DateTimeFormat.AbbreviatedDayNames));
+            Assert.IsTrue(json["calendars"]["standard"]["days"]["namesAbbr"].AsArray().Select(x => (string)x).SequenceEqual(cultureInfo.DateTimeFormat.AbbreviatedDayNames));
             // TODO: add more assertions
         }
     }

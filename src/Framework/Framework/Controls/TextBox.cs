@@ -3,7 +3,6 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace DotVVM.Framework.Controls

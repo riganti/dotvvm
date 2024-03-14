@@ -4,9 +4,9 @@ using System.Linq;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using System.IO;
-using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -16,7 +16,17 @@ namespace DotVVM.Framework.ResourceManagement
     public abstract class LinkResourceBase : ResourceBase, ILinkResource
     {
         /// <summary>Location property is required!</summary>
+        [JsonIgnore]
         public IResourceLocation Location { get; set; }
+
+        [JsonPropertyName("LocationType")]
+        [JsonInclude]
+        internal Type? LocationTypeJsonHack => Location?.GetType();
+
+        [JsonPropertyName("Location")] // it will not do converter dispatch on IResourceLocation, but will happily do it on System.Object
+        [JsonInclude]
+        internal object? LocationJsonHack => Location;
+
         public ResourceLocationFallback? LocationFallback { get; set; }
         public string MimeType { get; private set; }
         [DefaultValue(true)]
@@ -74,7 +84,7 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 writer.AddAttribute("type", "text/javascript");
                 writer.RenderBeginTag("script");
-                var script = JsonConvert.ToString(link, '\'').Replace("<", "\\u003c");
+                var script = KnockoutHelper.MakeStringLiteral(link);
                 writer.WriteUnencodedText(GetLoadingScript(javascriptCondition, script));
                 writer.RenderEndTag();
             }
@@ -144,7 +154,11 @@ namespace DotVVM.Framework.ResourceManagement
         /// Javascript expression which return true (truthy value) when the script IS NOT correctly loaded
         /// </summary>
         public string JavascriptCondition { get; }
+        [JsonIgnore]
         public List<IResourceLocation> AlternativeLocations { get; }
+        
+        [JsonPropertyName(nameof(AlternativeLocations))]
+        internal IEnumerable<object> AlternativeLocationsJsonHack => AlternativeLocations;
 
         public ResourceLocationFallback(string javascriptCondition, params IResourceLocation[] alternativeLocations)
         {

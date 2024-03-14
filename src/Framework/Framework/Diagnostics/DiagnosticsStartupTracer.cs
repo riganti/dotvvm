@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Diagnostics
         {
             return new DiagnosticsInformation(
                 new RequestDiagnostics(
-                    RequestType.Init,
+                    DotvvmRequestType.Unknown,
                     "",
                     "{APPLICATION_STARTUP}",
                     Enumerable.Empty<HttpHeaderItem>(),

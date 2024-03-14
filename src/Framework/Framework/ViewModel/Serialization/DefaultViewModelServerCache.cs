@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
-using Newtonsoft.Json.Bson;
-using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -20,15 +21,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.viewModelStore = viewModelStore;
         }
 
-        public string StoreViewModel(IDotvvmRequestContext context, JObject viewModelToken)
+        public string StoreViewModel(IDotvvmRequestContext context, Stream data)
         {
-            var cacheData = PackViewModel(viewModelToken);
+            var cacheData = PackViewModel(data);
             var hash = Convert.ToBase64String(SHA256.Create().ComputeHash(cacheData));
             viewModelStore.Store(hash, cacheData);
             return hash;
         }
 
-        public JObject TryRestoreViewModel(IDotvvmRequestContext context, string viewModelCacheId, JObject viewModelDiffToken)
+        public JsonElement TryRestoreViewModel(IDotvvmRequestContext context, string viewModelCacheId, JsonElement viewModelDiffToken)
         {
             var cachedData = viewModelStore.Retrieve(viewModelCacheId);
             var routeLabel = new KeyValuePair<string, object?>("route", context.Route!.RouteName);
@@ -42,29 +43,30 @@ namespace DotVVM.Framework.ViewModel.Serialization
             DotvvmMetrics.ViewModelCacheBytesLoaded.Add(cachedData.Length, routeLabel);
 
             var result = UnpackViewModel(cachedData);
-            JsonUtils.Patch(result, viewModelDiffToken);
-            return result;
+            var resultJson = JsonNode.Parse(result)!.AsObject();
+            // TODO: this is just bad
+            JsonUtils.Patch(resultJson, JsonObject.Create(viewModelDiffToken)!);
+            var jsonData = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(jsonData))
+            {
+                resultJson.WriteTo(writer);
+            }
+            return JsonDocument.Parse(jsonData.ToMemory()).RootElement;
         }
 
-        protected virtual byte[] PackViewModel(JObject viewModelToken)
+        protected virtual byte[] PackViewModel(Stream data)
         {
-            using (var ms = new MemoryStream())
-            using (var bsonWriter = new BsonDataWriter(ms))
+            var output = new MemoryStream();
+            using (var compressed = new System.IO.Compression.DeflateStream(output, System.IO.Compression.CompressionLevel.Fastest))
             {
-                viewModelToken.WriteTo(bsonWriter);
-                bsonWriter.Flush();
-
-                return ms.ToArray();
+                data.CopyTo(compressed);
             }
+            return output.ToArray();
         }
 
-        protected virtual JObject UnpackViewModel(byte[] cachedData)
+        protected virtual Stream UnpackViewModel(byte[] cachedData)
         {
-            using (var ms = new MemoryStream(cachedData))
-            using (var bsonReader = new BsonDataReader(ms))
-            {
-                return (JObject)JToken.ReadFrom(bsonReader);                
-            }
+            return new DeflateStream(new MemoryStream(cachedData), CompressionMode.Decompress);
         }
     }
 }

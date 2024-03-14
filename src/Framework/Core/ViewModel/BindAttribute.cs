@@ -21,6 +21,11 @@ namespace DotVVM.Framework.ViewModel
         /// </summary>
         public string? Name { get; set; }
 
+        public bool? _allowDynamicDispatch;
+        public bool AllowDynamicDispatch { get => _allowDynamicDispatch ?? false; set => _allowDynamicDispatch = value; }
+
+        public bool AllowsDynamicDispatch(bool defaultValue) => _allowDynamicDispatch ?? defaultValue;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BindAttribute"/> class.

@@ -149,9 +149,9 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
 
-            Assert.AreEqual(10000000, (int)r.ViewModel.@int);
+            Assert.AreEqual(10000000, (int)r.ViewModelJson["int"]);
             await r.RunCommand("Integer = 15", "list-item2".Equals);
-            Assert.AreEqual(15, (int)r.ViewModel.@int);
+            Assert.AreEqual(15, (int)r.ViewModelJson["int"]);
         }
 
         [TestMethod]

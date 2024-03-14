@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Compilation;
 using System.Reflection;
@@ -9,6 +8,7 @@ using System.ComponentModel;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -17,21 +17,21 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets the registered control namespaces.
         /// </summary>
-        [JsonProperty("controls")]
+        [JsonPropertyName("controls")]
         public IList<DotvvmControlConfiguration> Controls => _controls;
         private readonly FreezableList<DotvvmControlConfiguration> _controls;
 
         /// <summary>
         /// Gets or sets the list of referenced assemblies.
         /// </summary>
-        [JsonProperty("assemblies")]
+        [JsonPropertyName("assemblies")]
         public IList<string> Assemblies => _assemblies;
         private readonly FreezableList<string> _assemblies;
 
         /// <summary>
         /// Gets a list of HTML attribute transforms.
         /// </summary>
-        //[JsonProperty("htmlAttributeTransforms")]
+        //[JsonPropertyName("htmlAttributeTransforms")]
         [JsonIgnore]
         public IDictionary<HtmlTagAttributePair, HtmlAttributeTransformConfiguration> HtmlAttributeTransforms => _htmlAttributeTransforms;
         private readonly FreezableDictionary<HtmlTagAttributePair, HtmlAttributeTransformConfiguration> _htmlAttributeTransforms;
@@ -39,13 +39,13 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets a list of HTML attribute transforms.
         /// </summary>
-        [JsonProperty("defaultDirectives")]
+        [JsonPropertyName("defaultDirectives")]
         public IDictionary<string, string> DefaultDirectives => _defaultDirectives;
         private readonly FreezableDictionary<string, string> _defaultDirectives;
         /// <summary>
         /// Gets or sets list of namespaces imported in bindings
         /// </summary>
-        [JsonProperty("importedNamespaces")]
+        [JsonPropertyName("importedNamespaces")]
         public IList<NamespaceImport> ImportedNamespaces
         {
             get => _importedNamespaces;
@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Configuration
         private readonly Lazy<JavascriptTranslatorConfiguration> _javascriptTranslator;
 
 
-        [JsonProperty("defaultExtensionParameters")]
+        [JsonPropertyName("defaultExtensionParameters")]
         public IList<BindingExtensionParameter> DefaultExtensionParameters
         {
             get => _defaultExtensionParameters;
@@ -78,10 +78,8 @@ namespace DotVVM.Framework.Configuration
             DefaultExtensionParameters.Add(new InjectedServiceExtensionParameter(identifier, new ResolvedTypeDescriptor(type)));
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DotvvmMarkupConfiguration"/> class.
-        /// </summary>
-        public DotvvmMarkupConfiguration(Lazy<JavascriptTranslatorConfiguration>? javascriptConfig = null)
+        public DotvvmMarkupConfiguration(): this(null) { }
+        public DotvvmMarkupConfiguration(Lazy<JavascriptTranslatorConfiguration>? javascriptConfig)
         {
             this._javascriptTranslator = javascriptConfig ?? new Lazy<JavascriptTranslatorConfiguration>(() => new JavascriptTranslatorConfiguration());
             this._controls = new FreezableList<DotvvmControlConfiguration>();

@@ -6,14 +6,14 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using FastExpressionCompiler;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
-    [JsonConverter(typeof(ResourceManagement.DotvvmTypeDescriptorJsonConverter))]
+    [JsonConverter(typeof(ResourceManagement.DotvvmTypeDescriptorJsonConverter<ResolvedTypeDescriptor>))]
     public sealed class ResolvedTypeDescriptor : ITypeDescriptor
     {
         private static ConcurrentDictionary<(Type, string), ResolvedTypeDescriptor?> cache = new ConcurrentDictionary<(Type, string), ResolvedTypeDescriptor?>();

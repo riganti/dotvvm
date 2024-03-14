@@ -2,14 +2,6 @@
   "dotvvmVersion": "*.*.*.*",
   "config": {
     "markup": {
-      "importedNamespaces": [
-        {
-          "namespace": "DotVVM.Framework.Binding.HelperNamespace"
-        },
-        {
-          "namespace": "System.Linq"
-        }
-      ],
       "defaultExtensionParameters": [
         {
           "$type": "DotVVM.Framework.Configuration.RestApiRegistrationHelpers+ApiExtensionParameter, DotVVM.Framework",
@@ -18,9 +10,7 @@
           "Inherit": true
         }
       ],
-      "ViewCompilation": {
-        "compileInParallel": true
-      }
+      "ViewCompilation": {}
     },
     "resources": {
       "DotVVM.Framework.ResourceManagement.InlineScriptResource": {
@@ -38,45 +28,23 @@
         "apiClient_testApi": {
           "Defer": true,
           "Location": {
-            "$type": "DotVVM.Framework.ResourceManagement.FileResourceLocation, DotVVM.Framework",
             "FilePath": "./apiscript.js",
             "DebugFilePath": "./apiscript.js"
           },
+          "LocationType": "DotVVM.Framework.ResourceManagement.FileResourceLocation, DotVVM.Framework",
           "MimeType": "text/javascript",
+          "VerifyResourceIntegrity": true,
           "RenderPosition": "Anywhere"
         }
       }
     },
-    "security": {
-      "xssProtectionHeader": {
-        "enabled": true
-      },
-      "contentTypeOptionsHeader": {
-        "enabled": true
-      },
-      "verifySecFetchForPages": {
-        "enabled": true
-      },
-      "verifySecFetchForCommands": {
-        "enabled": true
-      },
-      "referrerPolicy": {
-        "enabled": true
-      }
-    },
-    "runtime": {
-      "reloadMarkupFiles": {},
-      "compressPostbacks": {},
-      "maxPostbackSizeBytes": 134217728
-    },
+    "security": {},
+    "runtime": {},
     "defaultCulture": "en-US",
     "experimentalFeatures": {},
-    "debug": false,
     "diagnostics": {
       "compilationPage": {},
-      "perfWarnings": {
-        "bigViewModelBytes": 5242880.0
-      }
+      "perfWarnings": {}
     }
   }
 }

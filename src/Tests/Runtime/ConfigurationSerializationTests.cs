@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var serialized = DotVVM.Framework.Hosting.VisualStudioHelper.SerializeConfig(config, includeProperties);
             // Unify package versions
             serialized = Regex.Replace(serialized, "Version=[0-9.]+", "Version=***");
-            serialized = Regex.Replace(serialized, "\"dotvvmVersion\": \"[0-9]\\.[0-9]\\.[0-9]\\.[0-9]\"", "\"dotvvmVersion\": \"*.*.*.*\"");
+            serialized = Regex.Replace(serialized, "\"dotvvmVersion\": *\"[0-9]\\.[0-9]\\.[0-9]\\.[0-9]\"", "\"dotvvmVersion\": \"*.*.*.*\"");
             // Unify all occurrences of mscorlib and system.private.corelib
             serialized = serialized.Replace("mscorlib, Version=***, Culture=neutral, PublicKeyToken=b77a5c561934e089", "CoreLibrary");
             serialized = serialized.Replace("System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e", "CoreLibrary");
@@ -41,11 +41,13 @@ namespace DotVVM.Framework.Tests.Runtime
             serialized = serialized.Replace("System.IServiceProvider, CoreLibrary", "System.IServiceProvider, ComponentLibrary");
             serialized = serialized.Replace("System.IServiceProvider, System.ComponentModel, Version=***, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.IServiceProvider, ComponentLibrary");
 
+            Console.WriteLine(serialized);
+
             var jobject = JObject.Parse(serialized);
             void removeTestStuff(JToken token)
             {
-                if (token is object)
-                    foreach (var testControl in ((JObject)token).Properties().Where(p => p.Name.Contains(".Tests.")).ToArray())
+                if (token is JObject obj)
+                    foreach (var testControl in obj.Properties().Where(p => p.Name.Contains(".Tests.")).ToArray())
                         testControl.Remove();
             }
             removeTestStuff(jobject["properties"]);
@@ -188,6 +190,11 @@ namespace DotVVM.Framework.Tests.Runtime
             c.ApplicationPhysicalPath = "/opt/myApp";
             c.ClientSideValidation = false;
             c.DefaultCulture = "cs-CZ";
+
+            c.Markup.ViewCompilation.CompileInParallel = false;
+            c.Markup.ViewCompilation.BackgroundCompilationDelay = TimeSpan.FromSeconds(30);
+            c.Markup.ViewCompilation.Mode = ViewCompilationMode.Lazy;
+            c.Runtime.MaxPostbackSizeBytes = 100;
 
             checkConfig(c);
         }

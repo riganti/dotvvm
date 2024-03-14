@@ -2,62 +2,56 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
-    public class DotvvmByteArrayConverter : JsonConverter
+    public class DotvvmByteArrayConverter : JsonConverter<byte[]>
     {
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override byte[]? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonToken.Null)
+            if (reader.TokenType == JsonTokenType.Null)
             {
                 return null;
             }
-            else if (reader.TokenType == JsonToken.StartArray)
+            else if (reader.TokenType == JsonTokenType.StartArray)
             {
                 var list = new List<byte>();
                 while (reader.Read())
                 {
                     switch (reader.TokenType)
                     {
-                        case JsonToken.Integer:
-                            list.Add(Convert.ToByte(reader.Value));
+                        case JsonTokenType.Number:
+                            list.Add((byte)reader.GetUInt16());
                             break;
-                        case JsonToken.EndArray:
+                        case JsonTokenType.EndArray:
                             return list.ToArray();
                         default:
-                            throw new FormatException($"Unexpected token while reading byte array: {reader.TokenType}");
+                            throw new JsonException($"Unexpected token while reading byte array: {reader.TokenType}");
                     }
                 }
 
-                throw new FormatException($"Unexpected end of array!");
+                throw new JsonException($"Unexpected end of array!");
             }
             else
             {
-                throw new FormatException($"Expected StartArray token, but instead got {reader.TokenType}!");
+                throw new JsonException($"Expected StartArray token, but instead got {reader.TokenType}!");
             }
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, byte[] array, JsonSerializerOptions options)
         {
-            if (value == null)
+            if (array is null)
             {
-                writer.WriteNull();
+                writer.WriteNullValue();
                 return;
             }
-
-            var array = (byte[])value;
             writer.WriteStartArray();
             foreach (var item in array)
-                writer.WriteValue(item);
+                writer.WriteNumberValue(item);
             writer.WriteEndArray();
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(byte[]);
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Configuration
 {
     /// <summary> Overrides an automatically enabled feature by always enabling or disabling it for the entire application. </summary>
-    public class DotvvmGlobal3StateFeatureFlag
+    public class DotvvmGlobal3StateFeatureFlag: IEquatable<DotvvmGlobal3StateFeatureFlag>
     {
         [JsonIgnore]
         public string FlagName { get; }
@@ -15,7 +15,8 @@ namespace DotVVM.Framework.Configuration
         }
 
         /// <summary> Gets or sets whether the feature is enabled or disabled. </summary>
-        [JsonProperty("enabled")]
+        [JsonPropertyName("enabled")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public bool? Enabled
         {
             get => _enabled;
@@ -60,5 +61,12 @@ namespace DotVVM.Framework.Configuration
         }
 
         public override string ToString() => $"Feature flag {FlagName}: {Enabled switch { null => "Default", true => "Enabled", false => "Disabled"}}";
+
+        public bool Equals(DotvvmGlobal3StateFeatureFlag? other) =>
+            other is not null && this.Enabled == other.Enabled;
+
+        public override bool Equals(object? obj) => obj is DotvvmGlobal3StateFeatureFlag other && Equals(other);
+        public override int GetHashCode() => throw new NotSupportedException("Use ReferenceEqualityComparer");
+
     }
 }

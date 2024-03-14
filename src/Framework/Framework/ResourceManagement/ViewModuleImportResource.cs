@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -29,7 +28,7 @@ namespace DotVVM.Framework.ResourceManagement
             this.ResourceName = name;
             this.Dependencies = new string[] { "dotvvm" }.Concat(dependencies).ToArray();
 
-            this.registrationScript = $"dotvvm.viewModules.registerMany({{{string.Join(", ", this.ReferencedModules.Select((m, i) => JsonConvert.ToString(m, '\'', StringEscapeHandling.EscapeHtml) + ": m" + i))}}});";
+            this.registrationScript = $"dotvvm.viewModules.registerMany({{{string.Join(", ", this.ReferencedModules.Select((m, i) => KnockoutHelper.MakeStringLiteral(m) + ": m" + i))}}});";
         }
 
         public void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
@@ -54,7 +53,7 @@ namespace DotVVM.Framework.ResourceManagement
                 writer.WriteUnencodedText("import * as m");
                 writer.WriteUnencodedText(i.ToString());
                 writer.WriteUnencodedText(" from ");
-                writer.WriteUnencodedText(JsonConvert.ToString(location, '\'', StringEscapeHandling.EscapeHtml));
+                writer.WriteUnencodedText(KnockoutHelper.MakeStringLiteral(location));
                 writer.WriteUnencodedText(";");
 
                 i += 1;
