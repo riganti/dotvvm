@@ -58,7 +58,7 @@ namespace DotVVM.Framework.Controls
             var result = "";
             // propagate warnings to JS console
             var collector = context.Services.GetService<RuntimeWarningCollector>();
-            if (!collector.Enabled) return result;
+            if (collector is null || !collector.Enabled) return result;
 
             foreach (var w in collector.GetWarnings())
             {

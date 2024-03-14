@@ -250,7 +250,7 @@ namespace DotVVM.Framework.Configuration
         {
             var services = CreateDefaultServiceCollection();
             registerServices?.Invoke(services);
-            return new ServiceLocator(services, serviceProviderFactoryMethod).GetService<DotvvmConfiguration>();
+            return new ServiceLocator(services, serviceProviderFactoryMethod).GetService<DotvvmConfiguration>().NotNull();
         }
 
         /// <summary>

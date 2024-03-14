@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Configuration
             return BuildServiceProvider(serviceCollection.NotNull());
         }
 
-        public T GetService<T>()
+        public T? GetService<T>()
             => GetServiceProvider().GetService<T>();
 
         /// <summary>
