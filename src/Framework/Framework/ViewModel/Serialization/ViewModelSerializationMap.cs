@@ -625,7 +625,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return null;
         }
 
-        private Expression? TrySerializePrimitive(Expression reader, Expression value)
+        private Expression? TrySerializePrimitive(Expression writer, Expression value)
         {
             var type = value.Type;
             Debug.Assert(!ReflectionUtils.IsNullableType(type));
@@ -633,14 +633,19 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // writer.WriteValue
             // Newtonsoft.Json.JsonWriter nj = default;
             if (type == typeof(bool))
-                return Call(reader, "WriteBooleanValue", Type.EmptyTypes, value);
-            if (type == typeof(decimal) || type == typeof(double) || type == typeof(float) ||
+                return Call(writer, "WriteBooleanValue", Type.EmptyTypes, value);
+            if (type == typeof(float) || type == typeof(double))
+                return Call(
+                    typeof(SystemTextJsonUtils).GetMethod(nameof(SystemTextJsonUtils.WriteFloatValue), [ typeof(Utf8JsonWriter), type ])!,
+                    writer, value
+                );
+            if (type == typeof(decimal) ||
                 type == typeof(int) || type == typeof(uint) || type == typeof(long) || type == typeof(ulong))
-                return Call(reader, "WriteNumberValue", Type.EmptyTypes, value);
+                return Call(writer, "WriteNumberValue", Type.EmptyTypes, value);
             if (type == typeof(short) || type == typeof(ushort) || type == typeof(sbyte) || type == typeof(byte))
-                return Call(reader, "WriteNumberValue", Type.EmptyTypes, Convert(value, typeof(int)));
+                return Call(writer, "WriteNumberValue", Type.EmptyTypes, Convert(value, typeof(int)));
             if (type == typeof(string) || type == typeof(Guid)) // TODO: datetime too?
-                return Call(reader, "WriteStringValue", Type.EmptyTypes, value);
+                return Call(writer, "WriteStringValue", Type.EmptyTypes, value);
 
             return null;
         }

@@ -9,6 +9,8 @@
     <PackageId>DotVVM</PackageId>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <Nullable>enable</Nullable>
+    <!-- allo unsafe-->
+    <AllowUnsafeBlocks Condition="'$(TargetFramework)' == 'net472'">true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />

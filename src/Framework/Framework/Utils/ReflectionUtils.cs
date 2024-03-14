@@ -334,6 +334,13 @@ namespace DotVVM.Framework.Utils
             type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
             );
 
+        public static bool IsJsonDom(Type type) =>
+            type == typeof(JsonElement) ||
+            type == typeof(JsonDocument) ||
+            typeof(System.Text.Json.Nodes.JsonNode).IsAssignableFrom(type) ||
+            type.Namespace == "Newtonsoft.Json.Linq";
+
+
         public static bool IsEnumerable(Type type)
         {
             return typeof(IEnumerable).IsAssignableFrom(type);
