@@ -35,11 +35,13 @@ namespace DotVVM.Framework.Configuration
                     new DotvvmDateTimeConverter(),
                     new DotvvmDateOnlyConverter(),
                     new DotvvmTimeOnlyConverter(),
+                    new DotvvmObjectConverter(),
                     new DotvvmEnumConverter(),
                     new DotvvmDictionaryConverter(),
                     new DotvvmByteArrayConverter(),
                     new DotvvmCustomPrimitiveTypeConverter()
                 },
+                NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
                 Encoder = HtmlSafeLessParaoidEncoder,
                 MaxDepth = defaultMaxSerializationDepth
             };

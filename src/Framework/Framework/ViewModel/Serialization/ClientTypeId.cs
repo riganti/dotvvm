@@ -28,7 +28,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (data.Length > 15) throw new ArgumentException("Data too long");
             controlByte = (byte)(data.Length | (isHash ? 0x10 : 0));
-            data.CopyTo(MemoryMarshal.CreateSpan(ref dataByte1, data.Length));
+#if DotNetCore
+            data.CopyTo(MemoryMarshal.CreateSpan(ref dataByte1, 15));
+#else
+            unsafe
+            {
+                fixed (byte* ptr = &dataByte1)
+                {
+                    data.CopyTo(new Span<byte>(ptr, 15));
+                }
+            }
+#endif
         }
 
         struct Utf8StringCtor {}
@@ -36,7 +46,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (utf8Hash.Length != 16) throw new ArgumentException("Hash must be 16 bytes long");
             controlByte = (byte)(12 | 0x10);
+#if DotNetCore
             System.Buffers.Text.Base64.DecodeFromUtf8(utf8Hash, MemoryMarshal.CreateSpan(ref dataByte1, 12), out var _, out var _);
+#else
+            unsafe
+            {
+                fixed (byte* ptr = &dataByte1)
+                {
+                    System.Buffers.Text.Base64.DecodeFromUtf8(utf8Hash, new Span<byte>(ptr, 12), out var _, out var _);
+                }
+            }
+#endif
         }
 
         public static ClientTypeId CreateHash(ReadOnlySpan<byte> data) => new ClientTypeId(true, data);
@@ -48,7 +68,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
         bool IsHash => ((controlByte >> 4) & 1) != 0;
         bool IsEmpty => controlByte == 0;
 
-        ReadOnlySpan<byte> Data => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in dataByte1), Length);
+        ReadOnlySpan<byte> Data =>
+#if DotNetCore
+            MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in dataByte1), Length);
+#else
+            throw new NotImplementedException();
+#endif
 
         public void WriteJson(System.Text.Json.Utf8JsonWriter writer)
         {
@@ -80,11 +105,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (IsEmpty) return "[Empty]";
             if (IsHash)
-                return Convert.ToBase64String(Data);
+                return Convert.ToBase64String(Data
+#if !DotNetCore
+                    .ToArray()
+#endif
+                );
             else
-                return StringUtils.Utf8.GetString(Data);
+                return StringUtils.Utf8Decode(Data);
         }
-        public override int GetHashCode() => HashCode.Combine(a, b);
+        public override int GetHashCode() => (a, b).GetHashCode();
         public override bool Equals(object? obj) => obj is ClientTypeId id && id.a == a && id.b == b;
         public bool Equals(ClientTypeId other) => other.a == a && other.b == b;
         public int CompareTo(ClientTypeId other) => a == other.a ? b.CompareTo(other.b) : a.CompareTo(other.a);

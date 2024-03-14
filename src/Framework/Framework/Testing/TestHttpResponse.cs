@@ -37,7 +37,12 @@ namespace DotVVM.Framework.Testing
         public void Write(string text) => Write(StringUtils.Utf8.GetBytes(text));
 
         public void Write(ReadOnlyMemory<char> text) => Write(StringUtils.Utf8.GetBytes(text.ToArray()));
-        public void Write(ReadOnlyMemory<byte> data) => Body.Write(data.Span);
+        public void Write(ReadOnlyMemory<byte> data) =>
+#if DotNetCore
+            Body.Write(data.Span);
+#else
+            Body.Write(data.Span.ToArray(), 0, data.Span.Length);
+#endif
         public void Write(byte[] data) => Body.Write(data, 0, data.Length);
 
         public void Write(byte[] data, int offset, int count) => Body.Write(data, offset, count);

@@ -32,8 +32,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     // TODO: utf8 parsing?
                     var registration = ReflectionUtils.TryGetCustomPrimitiveTypeRegistration(typeToConvert)!;
                     var str = reader.TokenType is JsonTokenType.String ? reader.GetString() :
-                              reader.HasValueSequence ? StringUtils.Utf8.GetString(reader.ValueSequence.ToArray()) :
-                              StringUtils.Utf8.GetString(reader.ValueSpan);
+                              reader.HasValueSequence ? StringUtils.Utf8Decode(reader.ValueSequence.ToArray()) :
+                              StringUtils.Utf8Decode(reader.ValueSpan);
                     var parseResult = registration.TryParseMethod(str!);
                     if (!parseResult.Successful)
                     {

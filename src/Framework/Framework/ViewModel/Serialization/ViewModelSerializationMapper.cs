@@ -10,6 +10,7 @@ using DotVVM.Framework.Runtime;
 using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -46,7 +47,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual ViewModelSerializationMap CreateMap(Type type) =>
             (ViewModelSerializationMap)CreateMapGenericMethod.MakeGenericMethod(type).Invoke(this, Array.Empty<object>())!;
-        static MethodInfo CreateMapGenericMethod = typeof(ViewModelSerializationMapper).GetMethod(nameof(CreateMap), 1, BindingFlags.NonPublic | BindingFlags.Instance, null, [], [])!;
+        static MethodInfo CreateMapGenericMethod =
+            // typeof(ViewModelSerializationMapper).GetMethod(nameof(CreateMap), 1, BindingFlags.NonPublic | BindingFlags.Instance, null, [], [])!;
+            (MethodInfo)MethodFindingHelper.GetMethodFromExpression(() => default(ViewModelSerializationMapper)!.CreateMap<MethodFindingHelper.Generic.T>());
         protected virtual ViewModelSerializationMap<T> CreateMap<T>()
         {
             var type = typeof(T);

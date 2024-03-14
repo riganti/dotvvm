@@ -76,9 +76,44 @@ namespace DotVVM.Framework.Utils
             }
         }
 
+        public static void WriteFloatValue(Utf8JsonWriter writer, double number)
+        {
+#if DotNetCore
+            if (double.IsFinite(number))
+#else
+            if (!double.IsInfinity(number) && double.IsNaN(number))
+#endif
+                writer.WriteNumberValue(number);
+            else
+                WriteNonFiniteFloatValue(writer, (float)number);
+        }
+        public static void WriteFloatValue(Utf8JsonWriter writer, float number)
+        {
+#if DotNetCore
+            if (float.IsFinite(number))
+#else
+            if (!float.IsInfinity(number) && float.IsNaN(number))
+#endif
+                writer.WriteNumberValue(number);
+            else
+                WriteNonFiniteFloatValue(writer, number);
+        }
+
+        static void WriteNonFiniteFloatValue(Utf8JsonWriter writer, float number)
+        {
+            if (double.IsNaN(number))
+                writer.WriteStringValue("NaN"u8);
+            else if (double.IsPositiveInfinity(number))
+                writer.WriteStringValue("+Infinity"u8);
+            else if (double.IsNegativeInfinity(number))
+                writer.WriteStringValue("-Infinity"u8);
+            else
+                throw new NotSupportedException();
+        }
+
 
         /// <summary> Deserializes JSON primitive values to dotnet primitives, mimicking the Newtonsoft.Json behavior to some degree </summary>
-        public static object DeserializeObject(ref Utf8JsonReader reader, JsonSerializerOptions options)
+        public static object? DeserializeObject(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.String)
             {
@@ -90,17 +125,17 @@ namespace DotVVM.Framework.Utils
             }
             if (reader.TokenType == JsonTokenType.True)
             {
-                return true;
+                return BoxingUtils.True;
             }
             if (reader.TokenType == JsonTokenType.False)
             {
-                return false;
+                return BoxingUtils.False;
             }
             if (reader.TokenType == JsonTokenType.Null)
             {
-                return null!;
+                return null;
             }
-            return JsonSerializer.Deserialize<object>(ref reader, options)!;
+            return JsonElement.ParseValue(ref reader);
         }
 
         public static T Deserialize<T>(ref Utf8JsonReader reader, JsonSerializerOptions options)

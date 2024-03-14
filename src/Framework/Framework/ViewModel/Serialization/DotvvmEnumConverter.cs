@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ViewModel.Serialization
@@ -18,7 +19,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
             (JsonConverter?)CreateConverterGenericMethod.MakeGenericMethod(typeToConvert).Invoke(this, []);
 
-        static MethodInfo CreateConverterGenericMethod = typeof(DotvvmEnumConverter).GetMethod(nameof(CreateConverter), genericParameterCount: 1, []).NotNull();
+        static MethodInfo CreateConverterGenericMethod = (MethodInfo)MethodFindingHelper.GetMethodFromExpression(() => default(DotvvmEnumConverter)!.CreateConverter<MethodFindingHelper.Generic.Enum>());
         public JsonConverter<TEnum> CreateConverter<TEnum>() where TEnum : unmanaged, Enum
         {
             // if (!ReflectionUtils.EnumInfo<TEnum>.HasEnumMemberField)

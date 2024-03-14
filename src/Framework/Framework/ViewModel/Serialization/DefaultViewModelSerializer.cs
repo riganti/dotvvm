@@ -82,7 +82,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             //     context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff(receivedVM, responseVM, false, i => ShouldIncludeProperty(i.TypeId, i.Property));
             //     context.ViewModelJson.Remove("viewModel");
             // }
-            var result = StringUtils.Utf8.GetString(utf8json.ToSpan());
+            var result = StringUtils.Utf8Decode(utf8json.ToSpan());
 
             context.HttpContext.SetItem("dotvvm-viewmodel-size-bytes", utf8json.Length); // for PerformanceWarningTracer
             var routeLabel = context.RouteLabel();
@@ -199,14 +199,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 }
                 AddCustomPropertiesIfAny(context, sentJsonWriter, sentJsonBuffer);
 
-                if (serializeNewResources)
-                {
-                    AddNewResources(context, sentJsonWriter);
-                }
-
                 if (postbackUpdatedControls is not null)
                 {
                     AddPostBackUpdatedControls(context, sentJsonWriter, postbackUpdatedControls);
+                }
+
+                if (serializeNewResources)
+                {
+                    AddNewResources(context, sentJsonWriter);
                 }
 
                 SerializeTypeMetadata(context, sentJsonWriter, state.UsedSerializationMaps);
@@ -419,9 +419,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 // load encrypted values
                 readEncryptedValues = JsonNode.Parse(viewModelProtector.Unprotect(encryptedValuesBytes, context))!.AsObject();
-                readEncryptedValues = new JsonObject([ new("0", readEncryptedValues) ]); // accomodate for the DeserializationHelper hack
-                // readEncryptedValues = new JsonObject([ new("0", readEncryptedValues) ]);
-                // readEncryptedValues = new JsonObject([ new("0", readEncryptedValues) ]);
+                readEncryptedValues = new JsonObject([ new("0", readEncryptedValues) ]);
             }
             else
             {
@@ -489,7 +487,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var controlUniqueId = data.GetPropertyOrNull("controlUniqueId"u8)?.GetString();
             var args = data.TryGetProperty("commandArgs"u8, out var argsJson) ?
                        argsJson.EnumerateArray().Select(a => (Func<Type, object?>)(t => {
-                          using var state = DotvvmSerializationState.Create(isPostback: true, context.Services);
+                          using var state = DotvvmSerializationState.Create(isPostback: true, context.Services, readEncryptedValues: new JsonObject());
                           return JsonSerializer.Deserialize(a, t, ViewModelJsonOptions);
                        })).ToArray() :
                        new Func<Type, object?>[0];

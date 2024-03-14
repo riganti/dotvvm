@@ -23,6 +23,5 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             throw new Exception("The value specified in the JSON could not be converted to DateTime!");
         }
-
     }
 }

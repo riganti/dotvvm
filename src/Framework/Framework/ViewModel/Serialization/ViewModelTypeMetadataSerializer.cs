@@ -183,7 +183,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 else
                     json.WriteStringValue(GetPrimitiveTypeName(type));
             }
-            else if (type == typeof(object))
+            else if (type == typeof(object) || ReflectionUtils.IsJsonDom(type))
             {
                 json.WriteStartObject();
                 json.WriteString("type"u8, "dynamic"u8);

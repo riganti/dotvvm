@@ -17,6 +17,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Text.Json.Serialization.Metadata;
+using System.Text.Encodings.Web;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -171,9 +172,9 @@ $@"
                     new ReflectionAssemblyJsonConverter(),
                     new DotvvmTypeDescriptorJsonConverter<ITypeDescriptor>(),
                     new Controls.DotvvmControlDebugJsonConverter(),
-                    new DelegateJsonConverter(),
                     new BindingDebugJsonConverter(),
-                    new DotvvmPropertyJsonConverter()
+                    new DotvvmPropertyJsonConverter(),
+                    new UnsupportedTypeJsonConverterFactory(),
                 },
                 TypeInfoResolver = new IgnoreUnsupportedResolver(),
                 // suppress any errors that occur during serialization (getters may throw exception, ...)
@@ -289,7 +290,7 @@ $@"
                     }
                     else
                     {
-                        WriteText(p.Value.ToJsonString());
+                        WriteText(p.Value.ToJsonString(new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
                     }
                     Write("</div>");
                 }
@@ -408,15 +409,26 @@ $@"
             builder.AppendLine();
         }
 
-        class DelegateJsonConverter : JsonConverter<Delegate>
+        class UnsupportedTypeJsonConverterFactory : JsonConverterFactory
         {
-            public override Delegate? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-                throw new NotImplementedException();
-            public override void Write(Utf8JsonWriter writer, Delegate value, JsonSerializerOptions options)
-            {
-                writer.WriteStringValue("<delegate>");
-            }
+            public override bool CanConvert(Type typeToConvert) =>
+                typeToConvert.IsDelegate() || typeof(MemberInfo).IsAssignableFrom(typeToConvert);
+            public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
+                (JsonConverter?)Activator.CreateInstance(typeof(Inner<>).MakeGenericType([ typeToConvert ]));
 
+            class Inner<T> : JsonConverter<T>
+            {
+                public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+                public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+                {
+                    if (value is null)
+                        writer.WriteNullValue();
+                    else if (value is Delegate)
+                        writer.WriteStringValue("<delegate>");
+                    else
+                        writer.WriteStringValue(value.ToString());
+                }
+            }
         }
     }
 }

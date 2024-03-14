@@ -491,7 +491,7 @@ namespace DotVVM.Framework.Controls
                 // try to allocate only the result string if it short enough
                 Span<char> buffer = stackalloc char[128];
                 buffer[0] = '"';
-                encoder.Encode(source: value, destination: buffer.Slice(1), out var consumed, out var written);
+                encoder.Encode(source: value.AsSpan(), destination: buffer.Slice(1), out var consumed, out var written);
                 if (consumed == value.Length && written + 2 <= buffer.Length)
                 {
                     buffer[written + 1] = '"';

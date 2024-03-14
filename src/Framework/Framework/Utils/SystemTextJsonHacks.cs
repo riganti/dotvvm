@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Utils
             try
             {
                 """{"X":"""u8.CopyTo(bytes.AsSpan().Slice(0, 5));
-                StringUtils.Utf8.GetBytes(input, bytes.AsSpan(5));
+                StringUtils.Utf8Encode(input, bytes.AsSpan(5));
                 bytes[length - 1] = (byte)'}';
                 var reader = new Utf8JsonReader(bytes.AsSpan().Slice(0, length));
                 var result = JsonSerializer.Deserialize<PopulateClass<T>>(ref reader, options)?.X;

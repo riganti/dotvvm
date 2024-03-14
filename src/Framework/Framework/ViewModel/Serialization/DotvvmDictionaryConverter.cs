@@ -75,7 +75,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         }
                         else
                         {
-                            throw new JsonException($"Unexpected property {reader.GetString()}.");
+                            reader.Read();
+                            reader.Skip();
+                            reader.Read();
                         }
                     }
                     dict.Add(item.key!, item.value);

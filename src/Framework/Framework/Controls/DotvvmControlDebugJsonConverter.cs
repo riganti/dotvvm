@@ -24,7 +24,8 @@ namespace DotVVM.Framework.Controls
             w.WriteStartObject("Properties");
             foreach (var kvp in obj.Properties.OrderBy(p => (p.Key.DeclaringType.IsAssignableFrom(obj.GetType()), p.Key.Name)))
             {
-                var (p, rawValue) = kvp;
+                var p = kvp.Key;
+                var rawValue = kvp.Value;
                 var isAttached = !p.DeclaringType.IsAssignableFrom(obj.GetType());
                 var name = isAttached ? p.DeclaringType.Name + "." + p.Name : p.Name;
                 if (rawValue is null)

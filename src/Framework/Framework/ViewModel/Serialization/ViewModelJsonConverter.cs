@@ -33,6 +33,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             !ReflectionUtils.IsEnumerable(type) &&
             ReflectionUtils.IsComplexType(type) &&
             !ReflectionUtils.IsTupleLike(type) &&
+            !ReflectionUtils.IsJsonDom(type) &&
             type != typeof(object);
 
         /// <summary>
