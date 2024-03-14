@@ -10,13 +10,16 @@ using DotVVM.Framework.Runtime.Commands;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Binding;
 using System.Collections.Immutable;
 using RecordExceptions;
+using System.Text.Json;
+using System.Buffers;
+using System.Text.Json.Nodes;
+using System.Net.NetworkInformation;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -35,44 +38,57 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IViewModelSerializationMapper viewModelMapper;
         private readonly IViewModelServerCache viewModelServerCache;
         private readonly IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer;
+        private readonly ViewModelJsonConverter viewModelConverter;
+        private readonly ILogger<DefaultViewModelSerializer>? logger;
 
         public bool SendDiff { get; set; } = true;
 
-        public Formatting JsonFormatting { get; set; }
+        public JsonSerializerOptions ViewModelJsonOptions { get; }
+        /// <summary> JsonOptions without the <see cref="ViewModelJsonConverter" /> </summary>
+        public JsonSerializerOptions PlainJsonOptions { get; }
 
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
         /// </summary>
-        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper, IViewModelServerCache viewModelServerCache, IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer)
+        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper, IViewModelServerCache viewModelServerCache, IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer, ViewModelJsonConverter viewModelConverter, ILogger<DefaultViewModelSerializer>? logger)
         {
             this.viewModelProtector = protector;
-            this.JsonFormatting = configuration.Debug ? Formatting.Indented : Formatting.None;
             this.viewModelMapper = serializationMapper;
             this.viewModelServerCache = viewModelServerCache;
             this.viewModelTypeMetadataSerializer = viewModelTypeMetadataSerializer;
+            this.viewModelConverter = viewModelConverter;
+            this.logger = logger;
+            this.ViewModelJsonOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
+                Converters = { viewModelConverter },
+                WriteIndented = configuration.Debug,
+            };
+            this.PlainJsonOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
+                WriteIndented = configuration.Debug,
+            };
         }
 
         /// <summary>
         /// Serializes the view model.
         /// </summary>
-        public string SerializeViewModel(IDotvvmRequestContext context)
+        public string SerializeViewModel(IDotvvmRequestContext context, object? commandResult = null, IEnumerable<(string name, string html)>? postbackUpdatedControls = null, bool serializeNewResources = false)
         {
             var timer = ValueStopwatch.StartNew();
+            var utf8json = BuildViewModel(context, commandResult, postbackUpdatedControls, serializeNewResources);
 
-            context.ViewModelJson ??= new JObject();
-            if (SendDiff && context.ReceivedViewModelJson?["viewModel"] is JObject receivedVM && context.ViewModelJson["viewModel"] is JObject responseVM)
-            {
-                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff(receivedVM, responseVM, false, i => ShouldIncludeProperty(i.TypeId, i.Property));
-                context.ViewModelJson.Remove("viewModel");
-            }
-            var result = context.ViewModelJson.ToString(JsonFormatting);
+            // context.ViewModelJson ??= new JObject();
+            // if (SendDiff && context.ReceivedViewModelJson?["viewModel"] is JObject receivedVM && context.ViewModelJson["viewModel"] is JObject responseVM)
+            // {
+            //     context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff(receivedVM, responseVM, false, i => ShouldIncludeProperty(i.TypeId, i.Property));
+            //     context.ViewModelJson.Remove("viewModel");
+            // }
+            var result = StringUtils.Utf8.GetString(utf8json.ToSpan());
 
-            context.HttpContext.SetItem("dotvvm-viewmodel-size-bytes", result.Length); // for PerformanceWarningTracer
+            context.HttpContext.SetItem("dotvvm-viewmodel-size-bytes", utf8json.Length); // for PerformanceWarningTracer
             var routeLabel = context.RouteLabel();
             var requestType = context.RequestTypeLabel();
             DotvvmMetrics.ViewModelStringificationTime.Record(timer.ElapsedSeconds, routeLabel, requestType);
-            DotvvmMetrics.ViewModelSize.Record(result.Length, routeLabel, requestType);
+            DotvvmMetrics.ViewModelSize.Record(utf8json.Length, routeLabel, requestType);
 
             return result;
         }
@@ -101,145 +117,225 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public void BuildViewModel(IDotvvmRequestContext context, object? commandResult)
+        public MemoryStream BuildViewModel(IDotvvmRequestContext context, object? commandResult, IEnumerable<(string name, string html)>? postbackUpdatedControls = null, bool serializeNewResources = false)
         {
             var timer = ValueStopwatch.StartNew();
             // serialize the ViewModel
-            var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(IsPostBack(context), viewModelMapper, context.Services);
-            serializer.Converters.Add(viewModelConverter);
-            var writer = new JTokenWriter();
+            var vmCoreBuffer = new MemoryStream();
+            
+            using var state = DotvvmSerializationState.Create(context.IsPostBack, context.Services);
             try
             {
-                serializer.Serialize(writer, context.ViewModel);
+                using var jsonWriter = new Utf8JsonWriter(vmCoreBuffer, new JsonWriterOptions { Indented = this.ViewModelJsonOptions.WriteIndented, Encoder = ViewModelJsonOptions.Encoder });
+                jsonWriter.WriteStartArray(); // Hack increase indent to align with the rest of the JSON
+                JsonSerializer.Serialize(jsonWriter, context.ViewModel, context.ViewModel!.GetType(), ViewModelJsonOptions);
+                jsonWriter.WriteEndArray();
             }
             catch (Exception ex)
             {
-                throw new SerializationException(true, context.ViewModel!.GetType(), writer.Path, ex);
+                var failurePath = SystemTextJsonUtils.GetFailurePath(vmCoreBuffer.ToSpan());
+                throw new SerializationException(true, context.ViewModel!.GetType(), string.Join("/", failurePath), ex);
             }
-            var viewModelToken = writer.Token.NotNull();
+            vmCoreBuffer.Position = 0;
 
             string? viewModelCacheId = null;
             if (context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route?.RouteName))
             {
-                viewModelCacheId = viewModelServerCache.StoreViewModel(context, (JObject)viewModelToken);
+                viewModelCacheId = viewModelServerCache.StoreViewModel(context, vmCoreBuffer);
+                vmCoreBuffer.Position = 0;
             }
 
-            // persist CSRF token
-            if (context.CsrfToken is object)
-                viewModelToken["$csrfToken"] = context.CsrfToken;
-
-            // persist encrypted values
-            if (viewModelConverter.EncryptedValues.Count > 0)
-                viewModelToken["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(Formatting.None), context);
-
-            // create result object
-            var result = new JObject();
-            result["viewModel"] = viewModelToken;
-            if (viewModelCacheId != null)
+            var sentJsonBuffer = new MemoryStream();
+            using (var sentJsonWriter = new Utf8JsonWriter(sentJsonBuffer, new JsonWriterOptions {
+                Indented = this.ViewModelJsonOptions.WriteIndented,
+                Encoder = ViewModelJsonOptions.Encoder,
+                SkipValidation = true, // for the hack with WriteRawValue
+            }))
             {
-                result["viewModelCacheId"] = viewModelCacheId;
-            }
-            result["url"] = context.HttpContext?.Request?.Url?.PathAndQuery;
-            result["virtualDirectory"] = context.HttpContext?.Request?.PathBase?.Value?.Trim('/') ?? "";
-            if (context.ResultIdFragment != null)
-            {
-                result["resultIdFragment"] = context.ResultIdFragment;
-            }
+                sentJsonWriter.WriteStartObject();
+                sentJsonWriter.WritePropertyName("viewModel"u8);
+                sentJsonWriter.WriteStartObject();
+                var coreViewModelHack = TrimJsonObject(vmCoreBuffer.ToSpan());
+                if (coreViewModelHack.Length > 0)
+                    sentJsonWriter.WriteRawValue(coreViewModelHack, skipInputValidation: true); // TODO: get rid of this by moving $csrfToken elsewhere?
+                // persist CSRF token
+                if (context.CsrfToken is object)
+                    sentJsonWriter.WriteString("$csrfToken"u8, context.CsrfToken);
 
-            if (context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaNavigate)
-            {
-                result["action"] = "successfulCommand";
+                // persist encrypted values
+                if (state.WriteEncryptedValues is not null &&
+                    state.WriteEncryptedValues.ToSpan() is not [] and not [(byte)'{', (byte)'}'])
+                    sentJsonWriter.WriteBase64String("$encryptedValues"u8, viewModelProtector.Protect(state.WriteEncryptedValues.ToArray(), context));
+
+                sentJsonWriter.WriteEndObject();
+
+                if (viewModelCacheId != null)
+                {
+                    sentJsonWriter.WriteString("viewModelCacheId"u8, viewModelCacheId);
+                }
+                sentJsonWriter.WriteString("url"u8, context.HttpContext?.Request?.Url?.PathAndQuery);
+                sentJsonWriter.WriteString("virtualDirectory"u8, context.HttpContext?.Request?.PathBase?.Value?.Trim('/') ?? "");
+                if (context.ResultIdFragment != null)
+                {
+                    sentJsonWriter.WriteString("resultIdFragment"u8, context.ResultIdFragment);
+                }
+
+                if (context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaNavigate)
+                {
+                    sentJsonWriter.WriteString("action"u8, "successfulCommand"u8);
+                }
+                else
+                {
+                    sentJsonWriter.WriteStartArray("renderedResources"u8);
+                    foreach (var resource in context.ResourceManager.GetNamedResourcesInOrder())
+                        sentJsonWriter.WriteStringValue(resource.Name);
+                    sentJsonWriter.WriteEndArray();
+                }
+
+                if (commandResult != null)
+                {
+                    sentJsonWriter.WritePropertyName("commandResult"u8);
+                    WriteCommandData(commandResult, sentJsonWriter, sentJsonBuffer);
+                }
+                AddCustomPropertiesIfAny(context, sentJsonWriter, sentJsonBuffer);
+
+                if (serializeNewResources)
+                {
+                    AddNewResources(context, sentJsonWriter);
+                }
+
+                if (postbackUpdatedControls is not null)
+                {
+                    AddPostBackUpdatedControls(context, sentJsonWriter, postbackUpdatedControls);
+                }
+
+                SerializeTypeMetadata(context, sentJsonWriter, state.UsedSerializationMaps);
+                sentJsonWriter.WriteEndObject();
             }
-            else
-            {
-                result["renderedResources"] = JArray.FromObject(context.ResourceManager.GetNamedResourcesInOrder().Select(r => r.Name));
-            }
-
-            if (commandResult != null) result["commandResult"] = WriteCommandData(commandResult, serializer, "the command result");
-            AddCustomPropertiesIfAny(context, serializer, result);
-
-            result["typeMetadata"] = SerializeTypeMetadata(context, viewModelConverter);
-
-            context.ViewModelJson = result;
 
             DotvvmMetrics.ViewModelSerializationTime.Record(timer.ElapsedSeconds, context.RouteLabel(), context.RequestTypeLabel());
+
+            return sentJsonBuffer;
         }
 
-        private JObject SerializeTypeMetadata(IDotvvmRequestContext context, ViewModelJsonConverter viewModelJsonConverter)
+        static ReadOnlySpan<byte> TrimJsonObject(ReadOnlySpan<byte> json)
         {
-            var knownTypeIds = context.ReceivedViewModelJson?["knownTypeMetadata"]?.Values<string>().WhereNotNull().ToImmutableHashSet();
-            return viewModelTypeMetadataSerializer.SerializeTypeMetadata(viewModelJsonConverter.UsedSerializationMaps, knownTypeIds);
+            if (json[0] == '[' && json[json.Length - 1] == ']')
+            {
+                json = json.Slice(1, json.Length - 2);
+                json = TrimStart(TrimEnd(json));
+            }
+            // Trim { and }
+            if (json.Length < 2 || json[0] != '{' || json[json.Length - 1] != '}')
+                throw new InvalidOperationException("Internal bug.");
+            json = json.Slice(1, json.Length - 2);
+            // trim (ASCII) whitespace from end
+            return TrimEnd(json);
         }
 
-        public void AddNewResources(IDotvvmRequestContext context)
+        static ReadOnlySpan<byte> TrimStart(ReadOnlySpan<byte> json)
         {
-            var renderedResources = new HashSet<string>(context.ReceivedViewModelJson?["renderedResources"]?.Values<string>().WhereNotNull<string>() ?? new string[] { });
-            var resourcesObject = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
-            if (resourcesObject.Count > 0)
-                context.ViewModelJson!["resources"] = resourcesObject;
+            while (json.Length > 0 && char.IsWhiteSpace((char)json[0]))
+                json = json.Slice(1);
+            return json;
         }
 
-        public string BuildStaticCommandResponse(IDotvvmRequestContext context, object? result, string[]? knownTypeMetadata = null)
+        static ReadOnlySpan<byte> TrimEnd(ReadOnlySpan<byte> json)
+        {
+            while (json.Length > 0 && char.IsWhiteSpace((char)json[json.Length - 1]))
+                json = json.Slice(0, json.Length - 1);
+            return json;
+        }
+
+
+        private void SerializeTypeMetadata(IDotvvmRequestContext context, Utf8JsonWriter writer, IEnumerable<ViewModelSerializationMap> usedSerializationMaps)
+        {
+            var knownTypeIds = context.ReceivedViewModelJson?.RootElement.GetPropertyOrNull("knownTypeMetadata"u8)?.EnumerateArray().Select(e => e.GetString()).WhereNotNull().ToHashSet(StringComparer.OrdinalIgnoreCase);
+            viewModelTypeMetadataSerializer.SerializeTypeMetadata(usedSerializationMaps, writer, "typeMetadata"u8, knownTypeIds);
+        }
+
+        private void AddNewResources(IDotvvmRequestContext context, Utf8JsonWriter writer)
+        {
+            var renderedResources =
+                context.ReceivedViewModelJson
+                ?.RootElement.GetPropertyOrNull("renderedResources"u8)
+                ?.EnumerateArray().Select(e => e.GetString())
+                .WhereNotNull()
+                .ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new HashSet<string>();
+
+            var newResources = SerializeResources(context, rn => !renderedResources.Contains(rn));
+            if (newResources.Count == 0)
+                return;
+
+            writer.WriteStartObject("resources"u8);
+            foreach (var resource in newResources)
+            {
+                writer.WriteString(resource.Name, resource.GetRenderedTextCached(context));
+            }
+            writer.WriteEndObject();
+        }
+
+        public ReadOnlyMemory<byte> BuildStaticCommandResponse(IDotvvmRequestContext context, object? result, string[]? knownTypeMetadata = null)
         {
             var timer = ValueStopwatch.StartNew();
 
-            var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(isPostback: true, viewModelMapper, context.Services);
-            serializer.Converters.Add(viewModelConverter);
-            var response = new JObject();
-            response["result"] = WriteCommandData(result, serializer, "the static command result");
-
-            var typeMetadata = viewModelTypeMetadataSerializer.SerializeTypeMetadata(viewModelConverter.UsedSerializationMaps, knownTypeMetadata?.ToHashSet());
-            if (typeMetadata.Count > 0)
+            using var state = DotvvmSerializationState.Create(isPostback: true, context.Services);
+            var outputBuffer = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(outputBuffer, new JsonWriterOptions { Indented = this.ViewModelJsonOptions.WriteIndented, Encoder = ViewModelJsonOptions.Encoder }))
             {
-                response["typeMetadata"] = typeMetadata;
-            }
-            AddCustomPropertiesIfAny(context, serializer, response);
-            var resultJson = response.ToString(JsonFormatting);
+                writer.WriteStartObject();
+                writer.WritePropertyName("result"u8);
+                WriteCommandData(result, writer, outputBuffer);
 
-            DotvvmMetrics.ViewModelSize.Record(resultJson.Length, context.RouteLabel(), context.RequestTypeLabel());
+                viewModelTypeMetadataSerializer.SerializeTypeMetadata(state.UsedSerializationMaps, writer, "typeMetadata"u8, knownTypeMetadata?.ToHashSet());
+                AddCustomPropertiesIfAny(context, writer, outputBuffer);
+                writer.WriteEndObject();
+            }
+
+            DotvvmMetrics.ViewModelSize.Record(outputBuffer.Length, context.RouteLabel(), context.RequestTypeLabel());
             DotvvmMetrics.ViewModelSerializationTime.Record(timer.ElapsedSeconds, context.RouteLabel(), context.RequestTypeLabel());
-            return resultJson;
+            return outputBuffer.ToMemory();
         }
 
-        private static void AddCustomPropertiesIfAny(IDotvvmRequestContext context, JsonSerializer serializer, JObject response)
+        private void AddCustomPropertiesIfAny(IDotvvmRequestContext context, Utf8JsonWriter writer, MemoryStream outputBuffer)
         {
             if (context.CustomResponseProperties.Properties.Count > 0)
             {
-                var props = context.CustomResponseProperties.Properties
-                                .Select(s => new JProperty(s.Key, WriteCommandData(s.Value, serializer, $"custom properties['{s.Key}']")))
-                                .ToArray();
-                response["customProperties"] = new JObject(props);
+                writer.WriteStartObject("customProperties"u8);
+                foreach (var prop in context.CustomResponseProperties.Properties)
+                {
+                    writer.WritePropertyName(prop.Key);
+                    WriteCommandData(prop.Value, writer, outputBuffer);
+                }
+                writer.WriteEndObject();
             }
             context.CustomResponseProperties.PropertiesSerialized = true;
         }
 
-        private static JToken WriteCommandData(object? data, JsonSerializer serializer, string description)
+        private void WriteCommandData(object? data, Utf8JsonWriter writer, MemoryStream outputBuffer)
         {
-            var writer = new JTokenWriter();
+            Debug.Assert(DotvvmSerializationState.Current is {});
             try
             {
-                serializer.Serialize(writer, data);
+                JsonSerializer.Serialize(writer, data, this.ViewModelJsonOptions);
             }
             catch (Exception ex)
             {
-                throw new SerializationException(true, data?.GetType(), writer.Path, ex);
+                writer.Flush();
+                var path = SystemTextJsonUtils.GetFailurePath(outputBuffer.ToSpan());
+                throw new SerializationException(true, data?.GetType(), string.Join("/", path), ex);
             }
-            return writer.Token.NotNull();
         }
 
-        protected virtual JsonSerializer CreateJsonSerializer() => DefaultSerializerSettingsProvider.Instance.Settings.Apply(JsonSerializer.Create);
-
-        public JObject BuildResourcesJson(IDotvvmRequestContext context, Func<string, bool> predicate)
+        private List<NamedResource> SerializeResources(IDotvvmRequestContext context, Func<string, bool> predicate)
         {
+            var resources = new List<NamedResource>();
             var manager = context.ResourceManager;
-            var resourceObj = new JObject();
             foreach (var resource in manager.GetNamedResourcesInOrder())
             {
                 if (predicate(resource.Name))
                 {
-                    resourceObj[resource.Name] = JValue.CreateString(resource.GetRenderedTextCached(context));
+                    resources.Add(resource);
                 }
             }
 
@@ -248,11 +344,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (warningScript != "")
             {
                 var name = "warnings" + Guid.NewGuid();
-                var resource = new NamedResource(name, new InlineScriptResource(warningScript));
-
-                resourceObj[resource.Name] = JValue.CreateString(resource.GetRenderedTextCached(context));
+                resources.Add(new NamedResource(name, new InlineScriptResource(warningScript)));
             }
-            return resourceObj;
+            return resources;
         }
 
         /// <summary>
@@ -261,12 +355,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public static string GenerateRedirectActionResponse(string url, bool replace, bool allowSpa)
         {
             // create result object
-            var result = new JObject();
-            result["url"] = url;
-            result["action"] = "redirect";
-            if (replace) result["replace"] = true;
-            if (allowSpa) result["allowSpa"] = true;
-            return result.ToString(Formatting.None);
+            return JsonSerializer.Serialize(new {
+                url,
+                action = "redirect",
+                replace,
+                allowSpa
+            }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
         }
 
         /// <summary>
@@ -275,21 +369,21 @@ namespace DotVVM.Framework.ViewModel.Serialization
         internal static string GenerateMissingCachedViewModelResponse()
         {
             // create result object
-            var result = new JObject();
-            result["action"] = "viewModelNotCached";
-            return result.ToString(Formatting.None);
+            return JsonSerializer.Serialize(new { action = "viewModelNotCached" }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
         }
 
         /// <summary>
         /// Serializes the validation errors in case the viewmodel was not valid.
         /// </summary>
-        public string SerializeModelState(IDotvvmRequestContext context)
+        public byte[] SerializeModelState(IDotvvmRequestContext context)
         {
             // create result object
-            var result = new JObject();
-            result["modelState"] = JArray.FromObject(context.ModelState.Errors);
-            result["action"] = "validationErrors";
-            return result.ToString(JsonFormatting);
+            using var state = DotvvmSerializationState.Create(isPostback: true, context.Services);
+            return JsonSerializer.SerializeToUtf8Bytes(new
+            {
+                modelState = context.ModelState.Errors,
+                action = "validationErrors"
+            }, this.PlainJsonOptions);
         }
 
 
@@ -297,49 +391,79 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// Populates the view model from the data received from the request.
         /// </summary>
         /// <returns></returns>
-        public void PopulateViewModel(IDotvvmRequestContext context, string serializedPostData)
+        public void PopulateViewModel(IDotvvmRequestContext context, ReadOnlyMemory<byte> serializedPostData)
         {
             // get properties
-            var data = context.ReceivedViewModelJson = JObject.Parse(serializedPostData);
-            JObject viewModelToken;
-            if (data["viewModelCacheId"]?.Value<string>() is string viewModelCacheId)
+            var vmDocument = context.ReceivedViewModelJson = JsonDocument.Parse(serializedPostData);
+            var root = vmDocument.RootElement;
+            JsonElement viewModelElement;
+            if (root.GetPropertyOrNull("viewModelCacheId"u8)?.GetString() is {} viewModelCacheId)
             {
                 if (!context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route?.RouteName))
                 {
                     throw new InvalidOperationException("The server-side viewmodel caching is not enabled for the current route!");
                 }
 
-                viewModelToken = viewModelServerCache.TryRestoreViewModel(context, viewModelCacheId, (JObject)data["viewModelDiff"]!);
-                data["viewModel"] = viewModelToken;
+                viewModelElement = viewModelServerCache.TryRestoreViewModel(context, viewModelCacheId, root.GetProperty("viewModelDiff"u8));
             }
             else
             {
-                viewModelToken = (JObject)data["viewModel"]!;
+                viewModelElement = root.GetProperty("viewModel"u8);
             }
 
             // load CSRF token
-            context.CsrfToken = viewModelToken["$csrfToken"]?.Value<string>();
+            context.CsrfToken = viewModelElement.GetPropertyOrNull("$csrfToken"u8)?.GetString();
 
-            ViewModelJsonConverter viewModelConverter;
-            if (viewModelToken["$encryptedValues"]?.Value<string>() is string encryptedValuesString)
+            JsonObject readEncryptedValues;
+            if (viewModelElement.TryGetProperty("$encryptedValues"u8, out var evJson) && evJson.GetBytesFromBase64() is {} encryptedValuesBytes)
             {
                 // load encrypted values
-                viewModelConverter = new ViewModelJsonConverter(IsPostBack(context), viewModelMapper, context.Services, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
+                readEncryptedValues = JsonNode.Parse(viewModelProtector.Unprotect(encryptedValuesBytes, context))!.AsObject();
+                readEncryptedValues = new JsonObject([ new("0", readEncryptedValues) ]); // accomodate for the DeserializationHelper hack
+                // readEncryptedValues = new JsonObject([ new("0", readEncryptedValues) ]);
+                // readEncryptedValues = new JsonObject([ new("0", readEncryptedValues) ]);
             }
-            else viewModelConverter = new ViewModelJsonConverter(IsPostBack(context), viewModelMapper, context.Services);
+            else
+            {
+                readEncryptedValues = new JsonObject();
+            }
+
+            using var state = DotvvmSerializationState.Create(isPostback: true, context.Services, readEncryptedValues: readEncryptedValues);
 
             // get validation path
-            context.ModelState.ValidationTargetPath = (string?)data["validationTargetPath"];
+            context.ModelState.ValidationTargetPath = root.GetPropertyOrNull("validationTargetPath"u8)?.GetString();
 
             // populate the ViewModel
-            var serializer = CreateJsonSerializer();
-            serializer.Converters.Add(viewModelConverter);
-            var reader = viewModelToken.CreateReader();
+            var reader = new Utf8JsonReader(serializedPostData.Span);
+            reader.Read();
             try
             {
-                var newVM = viewModelConverter.Populate(reader, serializer, context.ViewModel!);
+                if (reader.TokenType != JsonTokenType.StartObject)
+                    throw new Exception("The JSON must start with an object.");
+                reader.Read();
+                while (reader.TokenType == JsonTokenType.PropertyName && !reader.ValueTextEquals("viewModel"u8))
+                {
+                    reader.Skip();
+                    reader.Read();
+                }
+                Debug.Assert(reader.TokenType is JsonTokenType.PropertyName or JsonTokenType.EndObject);
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    throw new Exception("The JSON must contain a property \"viewModel\".");
+                reader.Read();
+                if (reader.TokenType != JsonTokenType.StartObject)
+                    throw new Exception("Property \"viewModel\" must be an object.");
+
+                Debug.Assert(context.ViewModel is not null);
+
+                var converter = this.viewModelConverter.GetConverterCached(context.ViewModel.GetType());
+                var newVM = converter.PopulateUntyped(ref reader, context.ViewModel.GetType(), context.ViewModel, ViewModelJsonOptions, state);
+                // var helperObject = new DeserializationHelper() { ViewModel = context.ViewModel };
+                // var newHelper = converter.Populate(ref reader, JsonOptions, helperObject, state);
+                // Debug.Assert(newHelper == (object)helperObject);
+
                 if (newVM != context.ViewModel)
                 {
+                    logger.LogInformation("Instance of root view model {ViewModelType} was replaced during deserialization.", context.ViewModel!.GetType());
                     context.ViewModel = newVM;
                     if (context.View is not null)
                         context.View.DataContext = newVM;
@@ -347,26 +471,32 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             catch (Exception ex)
             {
-                throw new SerializationException(false, context.ViewModel?.GetType(), reader.Path, ex);
+                var documentSlice = serializedPostData.Span.Slice(0, (int)reader.BytesConsumed);
+                var path = SystemTextJsonUtils.GetFailurePath(documentSlice);
+                throw new SerializationException(false, context.ViewModel?.GetType(), string.Join("/", path), ex);
             }
         }
 
         /// <summary>
         /// Resolves the command for the specified post data.
         /// </summary>
-        public ActionInfo? ResolveCommand(IDotvvmRequestContext context, DotvvmView view)
+        public ActionInfo ResolveCommand(IDotvvmRequestContext context, DotvvmView view)
         {
             // get properties
-            var data = context.ReceivedViewModelJson ?? throw new NotSupportedException("Could not find ReceivedViewModelJson in request context.");
-            var path = data["currentPath"].NotNull("currentPath is required").Values<string>().ToArray();
-            var command = data["command"].NotNull("command is required").Value<string>();
-            var controlUniqueId = data["controlUniqueId"]?.Value<string>();
-            var args = data["commandArgs"] is JArray argsJson ?
-                       argsJson.Select(a => (Func<Type, object?>)(t => a.ToObject(t))).ToArray() :
+            var data = context.ReceivedViewModelJson?.RootElement ?? throw new NotSupportedException("Could not find ReceivedViewModelJson in request context.");
+            var path = data.GetProperty("currentPath"u8).EnumerateArray().Select(e => e.GetString().NotNull()).ToArray();
+            var command = data.GetProperty("command"u8).GetString();
+            var controlUniqueId = data.GetPropertyOrNull("controlUniqueId"u8)?.GetString();
+            var args = data.TryGetProperty("commandArgs"u8, out var argsJson) ?
+                       argsJson.EnumerateArray().Select(a => (Func<Type, object?>)(t => {
+                          using var state = DotvvmSerializationState.Create(isPostback: true, context.Services);
+                          return JsonSerializer.Deserialize(a, t, ViewModelJsonOptions);
+                       })).ToArray() :
                        new Func<Type, object?>[0];
 
             // empty command
-            if (string.IsNullOrEmpty(command)) return null;
+            if (string.IsNullOrEmpty(command))
+                throw new Exception("Command is not specified!");
 
             // find the command target
             if (!string.IsNullOrEmpty(controlUniqueId))
@@ -387,20 +517,29 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Adds the post back updated controls.
         /// </summary>
-        public void AddPostBackUpdatedControls(IDotvvmRequestContext context, IEnumerable<(string name, string html)> postBackUpdatedControls)
+        private void AddPostBackUpdatedControls(IDotvvmRequestContext context, Utf8JsonWriter writer, IEnumerable<(string name, string html)> postBackUpdatedControls)
         {
-            var result = new JObject();
+            var first = true;
             foreach (var (controlId, html) in postBackUpdatedControls)
             {
-                result[controlId] = JValue.CreateString(html);
+                if (first)
+                {
+                    writer.WriteStartObject("updatedControls"u8);
+                    first = false;
+                }
+                writer.WriteString(controlId, html);
             }
 
-            if (context.ViewModelJson == null)
+            if (!first)
             {
-                context.ViewModelJson = new JObject();
+                writer.WriteEndObject();
             }
-
-            context.ViewModelJson["updatedControls"] = result;
         }
+
+        // class DeserializationHelper
+        // {
+        //     [Bind(Name = "viewModel", AllowDynamicDispatch = true)]
+        //     public object? ViewModel { get; set; } = null;
+        // }
     }
 }

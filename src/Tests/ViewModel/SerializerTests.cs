@@ -1,8 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using STJ = System.Text.Json;
+using STJS = System.Text.Json.Serialization;
 using System.IO;
 using System;
 using System.Collections.Generic;
@@ -11,60 +11,64 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Testing;
+using DotVVM.Framework.Utils;
 using System.Text;
 using DotVVM.Framework.Controls;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using System.Runtime.Serialization;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
     [TestClass]
     public class SerializerTests
     {
-        static ViewModelJsonConverter CreateConverter(bool isPostback, JObject encryptedValues = null)
+        static ViewModelJsonConverter jsonConverter = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
+        static STJ.JsonSerializerOptions jsonOptions = new STJ.JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
+            Converters = { jsonConverter },
+            WriteIndented = true
+        };
+        static DotvvmSerializationState CreateState(bool isPostback, JsonObject? readEncryptedValues = null)
         {
             var config = DotvvmTestHelper.DefaultConfig;
-            return new ViewModelJsonConverter(
+            return DotvvmSerializationState.Create(
                 isPostback,
-                config.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>(),
                 config.ServiceProvider,
-                encryptedValues
+                readEncryptedValues is null ? null : new JsonObject([ new("0", readEncryptedValues) ])
             );
         }
 
-        static string Serialize<T>(T viewModel, out JObject encryptedValues, bool isPostback = false)
+        static string Serialize<T>(T viewModel, out JsonObject encryptedValues, bool isPostback = false)
         {
-            encryptedValues = new JObject();
-            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-            var serializer = JsonSerializer.Create(settings);
-            serializer.Converters.Add(CreateConverter(isPostback, encryptedValues));
+            using var state = CreateState(isPostback, null);
 
-            var output = new StringWriter();
-            serializer.Serialize(output, viewModel);
-            return output.ToString();
+            var json = STJ.JsonSerializer.Serialize(viewModel, jsonOptions);
+            var ev = state.WriteEncryptedValues.ToSpan();
+            encryptedValues = ev.Length > 0 ? JsonNode.Parse(ev).AsObject() : new JsonObject();
+            return json;
         }
 
-        static T Deserialize<T>(string json, JObject encryptedValues = null)
+        static T Deserialize<T>(string json, JsonObject encryptedValues = null)
         {
-            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-            var serializer = JsonSerializer.Create(settings);
-            serializer.Converters.Add(CreateConverter(true, encryptedValues));
+            using var state = CreateState(false, encryptedValues ?? new JsonObject());
 
-            return serializer.Deserialize<T>(new JsonTextReader(new StringReader(json)));
+            return STJ.JsonSerializer.Deserialize<T>(json, jsonOptions);
         }
 
-        static T PopulateViewModel<T>(string json, T existingValue, JObject encryptedValues = null)
+        static T PopulateViewModel<T>(string json, T existingValue, JsonObject encryptedValues = null)
         {
-            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-            var serializer = JsonSerializer.Create(settings);
-            var dotvvmConverter = CreateConverter(true, encryptedValues);
-            serializer.Converters.Add(dotvvmConverter);
-            return (T)dotvvmConverter.Populate(new JsonTextReader(new StringReader(json)), serializer, existingValue);
+            using var state = CreateState(true, encryptedValues ?? new JsonObject());
+            var specificConverter = jsonConverter.CreateConverter<T>();
+            var jsonReader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
+            return (T)specificConverter.Populate(ref jsonReader, jsonOptions, existingValue, state);
         }
 
-        internal static (T vm, JObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
+        internal static (T vm, JsonObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
         {
             var json = Serialize<T>(viewModel, out var encryptedValues, isPostback);
             var viewModel2 = Deserialize<T>(json, encryptedValues);
-            return (viewModel2, JObject.Parse(json));
+            return (viewModel2, JsonNode.Parse(json).AsObject());
         }
 
         [TestMethod]
@@ -171,24 +175,19 @@ namespace DotVVM.Framework.Tests.ViewModel
         [DataRow(new byte[] { 1, 2, 3 })]
         public void CustomJsonConverters_ByteArray(byte[] array)
         {
+            var converter = new DotvvmByteArrayConverter();
             using var stream = new MemoryStream();
             // Serialize array
-            using (var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, 4096, leaveOpen: true)))
+            using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }))
             {
-                new DotvvmByteArrayConverter().WriteJson(writer, array, new JsonSerializer());
-                writer.Flush();
+                converter.Write(writer, array, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
             }
 
             // Deserialize array
-            stream.Position = 0;
             byte[] deserialized;
-            using (var reader = new JsonTextReader(new StreamReader(stream, Encoding.UTF8)))
-            {
-                while (reader.TokenType == JsonToken.None)
-                    reader.Read();
-
-                deserialized = (byte[])new DotvvmByteArrayConverter().ReadJson(reader, typeof(byte[]), null, new JsonSerializer());
-            }
+            var reader = new Utf8JsonReader(stream.ToSpan());
+            reader.Read();
+            deserialized = (byte[])converter.Read(ref reader, typeof(byte[]), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
 
             CollectionAssert.AreEqual(array, deserialized);
         }
@@ -228,7 +227,10 @@ namespace DotVVM.Framework.Tests.ViewModel
                     }
                 )
             };
-            var obj2 = SerializeAndDeserialize(obj, isPostback: true).vm;
+            var (obj2, json) = SerializeAndDeserialize(obj, isPostback: true);
+
+            Assert.AreEqual("""{"Item1":9,"Item2":8,"Item3":7,"Item4":6}""", json["P1"].ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
+            Assert.AreEqual("", json["P2"].ToString());
 
             Assert.AreEqual(obj.P1, obj2.P1);
             Assert.AreEqual(obj.P2, obj2.P2);
@@ -389,7 +391,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual(obj.Property1, obj2.Property1);
             Assert.AreEqual(obj.GetService(), obj2.GetService());
             Assert.AreEqual(obj.Property1, (string)json["Property1"]);
-            Assert.IsNull(json.Property("Service"));
+            Assert.IsNull(json["Service"]);
         }
 
         [TestMethod]
@@ -406,7 +408,116 @@ namespace DotVVM.Framework.Tests.ViewModel
             CollectionAssert.Contains(obj2.SignedDictionary, new KeyValuePair<string, string>("a", "x"));
             CollectionAssert.Contains(obj2.SignedDictionary, new KeyValuePair<string, string>("b", "y"));
             Assert.AreEqual(obj.SignedDictionary.Count, obj2.SignedDictionary.Count);
-            Assert.IsNotNull(json.Property("SignedDictionary"));
+            Assert.IsNotNull(json["SignedDictionary"]);
+        }
+
+        [TestMethod]
+        public void SupportsDateTime()
+        {
+            var obj = new TestViewModelWithDateTimes() {
+                DateTime1 = new DateTime(2000, 1, 1, 15, 0, 0, DateTimeKind.Utc),
+                DateTime2 = new DateTime(2000, 1, 1, 15, 0, 0, DateTimeKind.Local),
+                DateTime3 = new DateTime(2000, 1, 1, 15, 0, 0, DateTimeKind.Unspecified),
+                DateOnly = new DateOnly(2000, 1, 1),
+                TimeOnly = new TimeOnly(15, 0, 0)
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+            Console.WriteLine(json);
+            Assert.AreEqual(obj.DateTime1, obj2.DateTime1);
+            Assert.AreEqual(DateTimeKind.Unspecified, obj2.DateTime1.Kind);
+            Assert.AreEqual(obj.DateTime2, obj2.DateTime2);
+            Assert.AreEqual(DateTimeKind.Unspecified, obj2.DateTime2.Kind);
+            Assert.AreEqual(obj.DateTime3, obj2.DateTime3);
+            Assert.AreEqual(DateTimeKind.Unspecified, obj2.DateTime3.Kind);
+            Assert.AreEqual(obj.DateOnly, obj2.DateOnly);
+            Assert.AreEqual(obj.TimeOnly, obj2.TimeOnly);
+
+            Assert.AreEqual("2000-01-01", json["DateOnly"].GetValue<string>());
+            Assert.AreEqual("15:00:00.0000000", json["TimeOnly"].GetValue<string>());
+            Assert.AreEqual("2000-01-01T15:00:00", json["DateTime1"].GetValue<string>());
+            Assert.AreEqual("2000-01-01T15:00:00", json["DateTime2"].GetValue<string>());
+            Assert.AreEqual("2000-01-01T15:00:00", json["DateTime3"].GetValue<string>());
+        }
+
+        [TestMethod]
+        public void SupportsEnums()
+        {
+            var obj = new TestViewModelWithEnums() {
+                Byte = TestViewModelWithEnums.ByteEnum.C,
+                SByte = TestViewModelWithEnums.SByteEnum.B,
+                UInt16 = TestViewModelWithEnums.UInt16Enum.B,
+                Int16 = TestViewModelWithEnums.Int16Enum.D,
+                UInt32 = TestViewModelWithEnums.UInt32Enum.B,
+                Int32 = TestViewModelWithEnums.Int32Enum.D,
+                UInt64 = TestViewModelWithEnums.UInt64Enum.B,
+                Int64 = TestViewModelWithEnums.Int64Enum.B,
+                DateTimeKind = DateTimeKind.Utc,
+                DuplicateName = TestViewModelWithEnums.DuplicateNameEnum.DAndAlsoLonger,
+                EnumMember = TestViewModelWithEnums.EnumMemberEnum.B,
+                Int32Flags = TestViewModelWithEnums.Int32FlagsEnum.ABC,
+                UInt64Flags = TestViewModelWithEnums.UInt64FlagsEnum.F1 | TestViewModelWithEnums.UInt64FlagsEnum.F2 | TestViewModelWithEnums.UInt64FlagsEnum.F64
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual("member-b", json["EnumMember"].GetValue<string>());
+            Assert.AreEqual(obj.Byte, obj2.Byte);
+            Assert.AreEqual(obj.SByte, obj2.SByte);
+            Assert.AreEqual(obj.UInt16, obj2.UInt16);
+            Assert.AreEqual(obj.Int16, obj2.Int16);
+            Assert.AreEqual(obj.UInt32, obj2.UInt32);
+            Assert.AreEqual(obj.Int32, obj2.Int32);
+            Assert.AreEqual(obj.UInt64, obj2.UInt64);
+            Assert.AreEqual(obj.Int64, obj2.Int64);
+            Assert.AreEqual(obj.DateTimeKind, obj2.DateTimeKind);
+            Assert.AreEqual(obj.DuplicateName, obj2.DuplicateName);
+            Assert.AreEqual(obj.EnumMember, obj2.EnumMember);
+            Assert.AreEqual(obj.Int32Flags, obj2.Int32Flags);
+            Assert.AreEqual(obj.UInt64Flags, obj2.UInt64Flags);
+        }
+
+        [DataTestMethod]
+        [DataRow(DateTimeKind.Local, "'Local'", true)]
+        [DataRow(TestViewModelWithEnums.ByteEnum.A, "'A'", true)]
+        [DataRow(TestViewModelWithEnums.ByteEnum.B, "'B'", true)]
+        [DataRow(TestViewModelWithEnums.ByteEnum.C, "'C'", true)]
+        [DataRow(TestViewModelWithEnums.EnumMemberEnum.A, "'member-a'", true)]
+        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.A, "'A'", true)]
+        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.B, "'A'", true)]
+        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.C, "'C'", true)]
+        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.DAndAlsoLonger, "'D'", true)]
+        [DataRow(TestViewModelWithEnums.Int32FlagsEnum.ABC, "'a+b+c'", true)]
+        [DataRow(TestViewModelWithEnums.Int32FlagsEnum.A | TestViewModelWithEnums.Int32FlagsEnum.BCD, "'b+c+d,a'", true)]
+        [DataRow((TestViewModelWithEnums.Int32FlagsEnum)2356543, "2356543", false)]
+        [DataRow((TestViewModelWithEnums.Int32FlagsEnum)0, "0", true)]
+        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)0, "0", true)]
+        [DataRow(TestViewModelWithEnums.UInt64FlagsEnum.F1 | TestViewModelWithEnums.UInt64FlagsEnum.F2 | TestViewModelWithEnums.UInt64FlagsEnum.F64, "'F64,F2,F1'", true)]
+        public void TestEnumSerialization(object enumValue, string serializedValue, bool canDeserialize)
+        {
+            var json = JsonSerializer.Serialize(enumValue, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+            Assert.AreEqual(serializedValue.Replace("'", "\""), json);
+            if (canDeserialize)
+            {
+                var deserialized = JsonSerializer.Deserialize(json, enumValue.GetType(), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+                Assert.AreEqual(enumValue, deserialized);
+            }
+            else
+            {
+                XAssert.ThrowsAny<Exception>(() => JsonSerializer.Deserialize(json, enumValue.GetType(), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
+            }
+        }
+
+        [TestMethod]
+        public void TestEnumSerializationRoundtrip()
+        {
+            foreach (var type in typeof(TestViewModelWithEnums).GetNestedTypes())
+            {
+                foreach (var value in Enum.GetValues(type))
+                {
+                    var json = JsonSerializer.Serialize(value, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+                    var deserialized = JsonSerializer.Deserialize(json, value.GetType(), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+                    Assert.AreEqual(value, deserialized, message: $"{value} != {deserialized} for enum value {type.Name}.{value}");
+                }
+            }
         }
 
         [TestMethod]
@@ -517,7 +628,7 @@ namespace DotVVM.Framework.Tests.ViewModel
     {
         [Bind(Name = "property ONE")]
         public string P1 { get; set; } = "value 1";
-        [JsonProperty("property TWO")]
+        [JsonPropertyName("property TWO")]
         public string P2 { get; set; } = "value 2";
         [Bind(Direction.ClientToServer)]
         public string ClientToServer { get; set; } = "default";
@@ -582,5 +693,77 @@ namespace DotVVM.Framework.Tests.ViewModel
     public class ParentClassWithBrokenGetters
     {
         public ClassWithBrokenGetters NestedVM { get; set; } = new ClassWithBrokenGetters();
+    }
+
+    public class TestViewModelWithEnums
+    {
+        public DateTimeKind DateTimeKind { get; set; }
+        public DuplicateNameEnum DuplicateName { get; set; }
+        public Int32Enum Int32 { get; set; }
+        public SByteEnum SByte { get; set; }
+        public Int16Enum Int16 { get; set; }
+        public Int64Enum Int64 { get; set; }
+        public ByteEnum Byte { get; set; }
+        public UInt16Enum UInt16 { get; set; }
+        public UInt32Enum UInt32 { get; set; }
+        public UInt64Enum UInt64 { get; set; }
+        public EnumMemberEnum EnumMember { get; set; }
+        public Int32FlagsEnum Int32Flags { get; set; }
+        public UInt64FlagsEnum UInt64Flags { get; set; }
+
+        public enum DuplicateNameEnum { A = 0, B = 0, C = 1, DButLonger = 2, D = 2, DAndAlsoLonger = 2 }
+
+        public enum Int32Enum : int { A, B = int.MinValue, C = -1, D = int.MaxValue }
+        public enum SByteEnum : sbyte { A, B }
+        public enum Int16Enum : short { A, B = short.MinValue, C = -1, D = short.MaxValue }
+        public enum Int64Enum : long { A, B = long.MinValue, C = -1, D = long.MaxValue }
+        public enum ByteEnum : byte { A, B, C = 255 }
+        public enum UInt16Enum : ushort { A, B = ushort.MaxValue }
+        public enum UInt32Enum : uint { A, B = uint.MaxValue }
+        public enum UInt64Enum : ulong { A, B = ulong.MaxValue }
+        public enum EnumMemberEnum
+        {
+            [EnumMember(Value = "member-a")]
+            A,
+            [EnumMember(Value = "member-b")]
+            B
+        }
+
+        [Flags]
+        public enum Int32FlagsEnum : int
+        {
+            [EnumMember(Value = "a")]
+            A = 1,
+            [EnumMember(Value = "b")]
+            B = 2,
+            [EnumMember(Value = "c")]
+            C = 4,
+            [EnumMember(Value = "a+b+c")]
+            ABC = 7,
+            [EnumMember(Value = "a+b+c+d+e")]
+            ABCDE = 31,
+            [EnumMember(Value = "b+c+d")]
+            BCD = 14,
+            [EnumMember(Value = "everything")]
+            Everything = -1
+        }
+
+        [Flags]
+        public enum UInt64FlagsEnum: long
+        {
+            F1 = 1,
+            F2 = 2,
+            F64 = 1L << 63,
+        }
+    }
+
+    public class TestViewModelWithDateTimes
+    {
+        public DateTime DateTime1 { get; set; }
+        public DateTime DateTime2 { get; set; }
+        public DateTime DateTime3 { get; set; }
+
+        public DateOnly DateOnly { get; set; }
+        public TimeOnly TimeOnly { get; set; }
     }
 }

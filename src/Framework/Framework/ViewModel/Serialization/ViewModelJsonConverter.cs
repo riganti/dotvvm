@@ -3,53 +3,32 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Configuration;
 using System.Reflection;
 using DotVVM.Framework.Utils;
 using System.Security;
 using System.Diagnostics;
+using System.Text.Json;
+using System.IO;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
     /// <summary>
     /// A JSON.NET converter that handles special features of DotVVM ViewModel serialization.
     /// </summary>
-    public class ViewModelJsonConverter : JsonConverter
+    public class ViewModelJsonConverter : JsonConverterFactory
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
 
-        public ViewModelJsonConverter(bool isPostback, IViewModelSerializationMapper viewModelSerializationMapper, IServiceProvider services, JObject? encryptedValues = null)
+        public ViewModelJsonConverter(IViewModelSerializationMapper viewModelSerializationMapper)
         {
-            Services = services;
-            IsPostback = isPostback;
-            EncryptedValues = encryptedValues ?? new JObject();
-            evReader = new Lazy<EncryptedValuesReader>(() => {
-                evWriter = new Lazy<EncryptedValuesWriter>(() => { throw new Exception("Can't use EncryptedValuesWriter at the same time as EncryptedValuesReader."); });
-                return new EncryptedValuesReader(EncryptedValues);
-            });
-            evWriter = new Lazy<EncryptedValuesWriter>(() => {
-                evReader = new Lazy<EncryptedValuesReader>(() => { throw new Exception("Can't use EncryptedValuesReader at the same time as EncryptedValuesWriter."); });
-                return new EncryptedValuesWriter(EncryptedValues.CreateWriter());
-            });
             this.viewModelSerializationMapper = viewModelSerializationMapper;
         }
-
-        public JObject EncryptedValues { get; }
-        private Lazy<EncryptedValuesReader> evReader;
-        private Lazy<EncryptedValuesWriter> evWriter;
-
-
-        public HashSet<ViewModelSerializationMap> UsedSerializationMaps { get; } = new();
-        public IServiceProvider Services { get; }
-        public bool IsPostback { get; private set; }
-
-        private ViewModelSerializationMap GetSerializationMapForType(Type type)
-        {
-            return viewModelSerializationMapper.GetMap(type);
-        }
-
         public static bool CanConvertType(Type type) =>
             !ReflectionUtils.IsEnumerable(type) &&
             ReflectionUtils.IsComplexType(type) &&
@@ -64,101 +43,209 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return CanConvertType(objectType);
         }
 
-        /// <summary>
-        /// Reads the JSON representation of the object.
-        /// </summary>
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) => CreateConverter(typeToConvert);
+        public JsonConverter CreateConverter(Type typeToConvert) =>
+            (JsonConverter)Activator.CreateInstance(typeof(VMConverter<>).MakeGenericType(typeToConvert), this)!;
+
+        public VMConverter<T> CreateConverter<T>() => new VMConverter<T>(this);
+
+        private ConcurrentDictionary<Type, IVMConverter> converterCache = new();
+        internal IVMConverter GetConverterCached(Type type) =>
+            converterCache.GetOrAdd(type, t => (IVMConverter)CreateConverter(t));
+
+        internal interface IVMConverter
         {
-            if (existingValue is {})
+            public object? ReadUntyped(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, DotvvmSerializationState state);
+            public object? PopulateUntyped(ref Utf8JsonReader reader, Type typeToConvert, object? value, JsonSerializerOptions options, DotvvmSerializationState state);
+            public void WriteUntyped(Utf8JsonWriter writer, object? value, JsonSerializerOptions options, DotvvmSerializationState state);
+        }
+        public class VMConverter<T>(ViewModelJsonConverter factory): JsonConverter<T>, IVMConverter
+        {
+            ViewModelSerializationMap<T> SerializationMap { get; } = factory.viewModelSerializationMapper.GetMap<T>();
+
+            public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+                this.Read(ref reader, typeToConvert, options, DotvvmSerializationState.Current!);
+            public T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, DotvvmSerializationState state)
             {
-                Debug.Assert(objectType.IsInstanceOfType(existingValue));
+                if (state is null)
+                    throw new ArgumentNullException(nameof(state), "DotvvmSerializationState must be created before calling the ViewModelJsonConverter.");
 
-                // the existingValue might be more specific type than objectType.
-                // this important for deserialization of IPagingOptions which are pre-populated with PagingOptions
-                // otherwise, we'd not be able to deserialize the interface, because it has no constructor
-
-                objectType = existingValue.GetType();
-            }
-            // handle null keyword
-            if (reader.TokenType == JsonToken.Null)
-            {
-                if (objectType.GetTypeInfo().IsValueType)
-                    throw new InvalidOperationException(string.Format("Received NULL for value type. Path: " + reader.Path));
-
-                return null;
-            }
-
-            var evSuppressed = evReader.Value.Suppressed;
-
-            try
-            {
-                // deserialize
-                var serializationMap = GetSerializationMapForType(objectType);
-                return serializationMap.ReaderFactory(reader, serializer, existingValue, evReader.Value, Services);
-            }
-            finally
-            {
-                // safety check: we are not leaking suppressed reader accidentally
-                if (evSuppressed != evReader.Value.Suppressed)
+                if (reader.TokenType == JsonTokenType.Null)
                 {
-                    // Newtonsoft.Json may catch and consume the exception - kill the reader to be sure that deserialization cannot continue
-                    reader.Close();
-                    throw new SecurityException("encrypted values state corrupted.");
+                    Debug.Assert(!typeof(T).IsValueType);
+                    return default;
                 }
+
+                ReadObjectStart(ref reader);
+                var evSuppressed = state.EVReader!.Suppressed;
+
+                try
+                {
+                    // deserialize
+                    var result = SerializationMap.ReaderFactory.Invoke(ref reader, options, default!, false, state.EVReader, state);
+                    ReadEndObject(ref reader);
+                    return result;
+                }
+                finally
+                {
+                    // safety check: we are not leaking suppressed reader accidentally
+                    if (evSuppressed != state.EVReader.Suppressed)
+                    {
+                        // read everything to prevent any further deserialization
+                        while (reader.Read())
+                            ;
+                        throw new SecurityException("encrypted values state corrupted.");
+                    }
+                }
+            }
+
+            static void ReadObjectStart(ref Utf8JsonReader reader)
+            {
+                if (reader.TokenType == JsonTokenType.None) reader.Read();
+                if (reader.TokenType != JsonTokenType.StartObject)
+                    throw new JsonException($"Expected StartObject token, but reader.TokenType={reader.TokenType}");
+                reader.Read();
+            }
+            static void ReadEndObject(ref Utf8JsonReader reader)
+            {
+                if (reader.TokenType != JsonTokenType.EndObject)
+                    throw new JsonException($"Expected EndObject token, but reader.TokenType={reader.TokenType}");
+            }
+
+            public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
+                this.Write(writer, value, options, DotvvmSerializationState.Current!);
+            public void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options, DotvvmSerializationState state, bool requireTypeField = true)
+            {
+                if (state is null)
+                    throw new ArgumentNullException(nameof(state), "DotvvmSerializationState must be created before calling the ViewModelJsonConverter.");
+                if (value is null)
+                {
+                    writer.WriteNullValue();
+                    return;
+                }
+                var evSuppressLevel = state.EVWriter!.SuppressedLevel;
+                try
+                {
+                    state.UsedSerializationMaps.Add(SerializationMap);
+
+                    SerializationMap.WriterFactory.Invoke(writer, value, options, requireTypeField, state.EVWriter, state);
+                }
+                finally
+                {
+                    // safety check: we are not leaking suppressed reader accidentally
+                    if (evSuppressLevel != state.EVWriter.SuppressedLevel)
+                    {
+                        writer.Dispose(); // make sure nothing else is written
+                        throw new SecurityException("encrypted values state corrupted.");
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Populates the specified JObject.
+            /// </summary>
+            public T? Populate(ref Utf8JsonReader reader, JsonSerializerOptions options, T value) =>
+                this.Populate(ref reader, options, value, DotvvmSerializationState.Current!);
+            public T? Populate(ref Utf8JsonReader reader, JsonSerializerOptions options, T? value, DotvvmSerializationState state)
+            {
+                if (state is null)
+                    throw new ArgumentNullException(nameof(state), "DotvvmSerializationState must be created before calling the ViewModelJsonConverter.");
+
+                if (reader.TokenType == JsonTokenType.Null)
+                {
+                    Debug.Assert(!typeof(T).IsValueType);
+                    return default;
+                }
+                ReadObjectStart(ref reader);
+                var evSuppressed = state.EVReader!.Suppressed;
+                try
+                {
+                    var result = SerializationMap.ReaderFactory.Invoke(ref reader, options, value, value is not null, state.EVReader, state);
+                    ReadEndObject(ref reader);
+                    return result;
+                }
+                finally
+                {
+                    // safety check: we are not leaking suppressed reader accidentally
+                    if (evSuppressed != state.EVReader.Suppressed)
+                    {
+                        // read everything to prevent any further deserialization
+                        while (reader.Read())
+                            ;
+                        throw new SecurityException("encrypted values state corrupted.");
+                    }
+                }
+            }
+
+            public object? ReadUntyped(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, DotvvmSerializationState state) =>
+                this.Read(ref reader, typeToConvert, options, state);
+            public object? PopulateUntyped(ref Utf8JsonReader reader, Type typeToConvert, object? value, JsonSerializerOptions options, DotvvmSerializationState state) =>
+                this.Populate(ref reader, options, (T)value!, state);
+            public void WriteUntyped(Utf8JsonWriter writer, object? value, JsonSerializerOptions options, DotvvmSerializationState state) =>
+                this.Write(writer, (T)value!, options, state);
+        }
+    }
+
+    public class DotvvmSerializationState: IDisposable
+    {
+        [ThreadStatic]
+        private static DotvvmSerializationState? current;
+
+        internal static DotvvmSerializationState? Current => current;
+
+        internal static DotvvmSerializationState Create(
+            bool isPostback,
+            IServiceProvider services,
+            JsonObject? readEncryptedValues = null)
+        {
+            if (current is not null)
+                throw new InvalidOperationException("ThreadStatic DotvvmSerializationState is already set.");
+            return current = new DotvvmSerializationState(isPostback, services, readEncryptedValues);
+        }
+
+
+        public IServiceProvider Services { get; }
+        public bool IsPostback { get; }
+        public JsonObject? ReadEncryptedValues { get; }
+        public EncryptedValuesReader? EVReader { get; }
+        public EncryptedValuesWriter? EVWriter { get; }
+        private MemoryStream? writeEncryptedValuesData;
+        private Utf8JsonWriter? writeEncryptedValuesWriter;
+        public HashSet<ViewModelSerializationMap> UsedSerializationMaps { get; } = new();
+
+        public MemoryStream? WriteEncryptedValues
+        {
+            get
+            {
+                this.writeEncryptedValuesWriter?.Flush();
+                return writeEncryptedValuesData;
             }
         }
 
-        /// <summary>
-        /// Writes the JSON representation of the object.
-        /// </summary>
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+
+        private DotvvmSerializationState(bool isPostback, IServiceProvider services, JsonObject? readEncryptedValues)
         {
-            if (value == null)
+            Services = services;
+            IsPostback = isPostback;
+            ReadEncryptedValues = readEncryptedValues;
+            if (readEncryptedValues is not null)
             {
-                writer.WriteNull();
-                return;
+                EVReader = new EncryptedValuesReader(readEncryptedValues);
             }
-            var evSuppressLevel = evWriter.Value.SuppressedLevel;
-            try
+            else
             {
-                var serializationMap = GetSerializationMapForType(value.GetType());
-                UsedSerializationMaps.Add(serializationMap);
-                serializationMap.WriterFactory(writer, value, serializer, evWriter.Value, IsPostback);
+                writeEncryptedValuesData = new MemoryStream();
+                writeEncryptedValuesWriter = new Utf8JsonWriter(writeEncryptedValuesData, new JsonWriterOptions { Indented = false, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+                EVWriter = new EncryptedValuesWriter(writeEncryptedValuesWriter);
             }
-            finally
-            {
-                // safety check: we are not leaking suppressed reader accidentally
-                if (evSuppressLevel != evWriter.Value.SuppressedLevel)
-                {
-                    // Newtonsoft.Json may catch and consume the exception - kill the writer to be sure that serialization cannot continue
-                    writer.Close();
-                    throw new SecurityException("encrypted values state corrupted.");
-                }
-            }
+
         }
 
-        /// <summary>
-        /// Populates the specified JObject.
-        /// </summary>
-        public virtual object Populate(JsonReader reader, JsonSerializer serializer, object value)
+        public void Dispose()
         {
-            var evSuppressed = evReader.Value.Suppressed;
-            try
-            {
-                if (reader.TokenType == JsonToken.None) reader.Read();
-                var serializationMap = GetSerializationMapForType(value.GetType());
-                return serializationMap.ReaderFactory(reader, serializer, value, evReader.Value, Services);
-            }
-            finally
-            {
-                // safety check: we are not leaking suppressed reader accidentally
-                if (evSuppressed != evReader.Value.Suppressed)
-                {
-                    // Newtonsoft.Json may catch and consume the exception - kill the reader to be sure that deserialization cannot continue
-                    reader.Close();
-                    throw new SecurityException("encrypted values state corrupted.");
-                }
-            }
+            if (current != this)
+                throw new InvalidOperationException("ThreadStatic DotvvmSerializationState is different.");
+            current = null;
         }
     }
 }

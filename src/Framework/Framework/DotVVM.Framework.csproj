@@ -70,7 +70,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <PackageReference Include="Portable.System.DateTimeOnly" Version="6.0.2" />
     <Reference Include="Microsoft.CSharp" />
-    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />

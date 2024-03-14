@@ -1,5 +1,4 @@
 
-using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,6 +12,7 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.Configuration;
 using System.Collections;
 using DotVVM.Framework.Runtime;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.ResourceManagement
 {

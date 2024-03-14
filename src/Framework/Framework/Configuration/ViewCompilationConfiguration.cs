@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Compilation;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the mode under which the view compilation (pages, controls, ... ) is done. By default, view are precompiled asynchronously after the application starts.
         /// </summary>
-        [JsonProperty("mode")]
+        [JsonPropertyName("mode")]
         [DefaultValue(ViewCompilationMode.AfterApplicationStart)]
         public ViewCompilationMode Mode
         {
@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the delay before view compilation will be done. This compilation delay can be set only in precompilation modes.
         /// </summary>
-        [JsonProperty("backgroundCompilationDelay")]
+        [JsonPropertyName("backgroundCompilationDelay")]
         public TimeSpan? BackgroundCompilationDelay
         {
             get => backgroundCompilationDelay;
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets whether the view compilation will be performed in parallel or in series.
         /// </summary>
-        [JsonProperty("compileInParallel")]
+        [JsonPropertyName("compileInParallel")]
         public bool CompileInParallel
         {
             get => compileInParallel;
@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// By default, view precompilation is disabled in Debug mode, to make startup time faster. This options controls this behavior.
         /// </summary>
-        [JsonProperty("precompileEvenInDebug")]
+        [JsonPropertyName("precompileEvenInDebug")]
         public bool PrecompileEvenInDebug
         {
             get => precompileEvenInDebug;

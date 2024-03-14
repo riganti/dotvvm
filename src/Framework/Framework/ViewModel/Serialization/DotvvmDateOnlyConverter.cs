@@ -1,54 +1,28 @@
 ﻿using System;
 using System.Globalization;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
-    public class DotvvmDateOnlyConverter : JsonConverter
+    public class DotvvmDateOnlyConverter : JsonConverter<DateOnly>
     {
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, DateOnly date, JsonSerializerOptions options)
         {
-            if (value == null)
-            {
-                writer.WriteNull();
-            }
-            else
-            {
-                var date = (DateOnly)value;
-                var dateWithoutTimezone = new DateOnly(date.Year, date.Month, date.Day);
-                writer.WriteValue(dateWithoutTimezone.ToString("O", CultureInfo.InvariantCulture));
-            }
+            var dateWithoutTimezone = new DateOnly(date.Year, date.Month, date.Day);
+            writer.WriteStringValue(dateWithoutTimezone.ToString("O", CultureInfo.InvariantCulture)); // TODO: utf8
         }
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonToken.Null)
-            {
-                if (objectType == typeof(DateOnly))
-                {
-                    return DateOnly.MinValue;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else if (reader.TokenType == JsonToken.Date)
-            {
-                return (DateOnly)reader.Value!;
-            }
-            else if (reader.TokenType == JsonToken.String
-                     && DateOnly.TryParseExact((string)reader.Value!, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            if (reader.TokenType == JsonTokenType.String
+                     && DateOnly.TryParseExact(reader.GetString(), "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
             {
                 return date;
             }
 
-            throw new JsonSerializationException("The value specified in the JSON could not be converted to DateTime!");
+            throw new Exception("The value specified in the JSON could not be converted to DateTime!");
         }
 
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(DateOnly) || objectType == typeof(DateOnly?);
-        }
     }
 }

@@ -117,7 +117,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             if (node.Annotation<ViewModelInfoAnnotation>() is { Type: {}, SerializationMap: null } vmAnnotation)
             {
-                vmAnnotation.SerializationMap = mapper.GetMap(vmAnnotation.Type);
+                if (!vmAnnotation.Type.IsPrimitive && vmAnnotation.Type != typeof(void))
+                    vmAnnotation.SerializationMap = mapper.GetMap(vmAnnotation.Type);
             }
         }
 

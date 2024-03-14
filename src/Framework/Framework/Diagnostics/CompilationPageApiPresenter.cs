@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Text.Json;
+using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Diagnostics
 {
@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Diagnostics
 
             response.StatusCode = 500;
             response.ContentType = "application/json";
-            await response.WriteAsync(JsonConvert.SerializeObject(compilationService.GetFilesWithFailedCompilation()));
+            await response.WriteAsync(JsonSerializer.Serialize(compilationService.GetFilesWithFailedCompilation(), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
         }
     }
 }

@@ -10,24 +10,27 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
     [TestClass]
     public class ViewModelTypeMetadataSerializerTests
     {
-        private static ViewModelSerializationMapper mapper;
+        private static IViewModelSerializationMapper mapper = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>();
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        string GetSerializedString(Action<Utf8JsonWriter> action)
         {
-            mapper = new ViewModelSerializationMapper(new ViewModelValidationRuleTranslator(),
-                new AttributeViewModelValidationMetadataProvider(),
-                new DefaultPropertySerialization(),
-                DotvvmConfiguration.CreateDefault());
+            var buffer = new System.IO.MemoryStream();
+            using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }))
+            {
+                action(writer);
+            }
+            return Encoding.UTF8.GetString(buffer.ToArray());
         }
 
 #if DotNetCore
@@ -56,10 +59,20 @@ namespace DotVVM.Framework.Tests.ViewModel
             var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
             var dependentObjectTypes = new HashSet<Type>();
             var dependentEnumTypes = new HashSet<Type>();
-            var result = typeMetadataSerializer.GetTypeIdentifier(type, dependentObjectTypes, dependentEnumTypes);
-            Assert.AreEqual(expected.Replace("'", "\""), result.ToString(Formatting.None));
+            var typeName = GetSerializedString(json => typeMetadataSerializer.WriteTypeIdentifier(json, type, dependentObjectTypes, dependentEnumTypes));
+            Assert.AreEqual(expected.Replace("'", "\""), typeName);
         }
 #endif
+
+        JsonObject SerializeMetadata(ViewModelTypeMetadataSerializer serializer, params Type[] types)
+        {
+            var json = GetSerializedString(writer => {
+                writer.WriteStartObject();
+                serializer.SerializeTypeMetadata(types.Select(mapper.GetMap), writer, "typeMetadata"u8);
+                writer.WriteEndObject();
+            });
+            return JsonNode.Parse(json).AsObject()["typeMetadata"].AsObject();
+        }
 
         [TestMethod]
         public void ViewModelTypeMetadata_TypeMetadata()
@@ -67,10 +80,8 @@ namespace DotVVM.Framework.Tests.ViewModel
             CultureUtils.RunWithCulture("en-US", () =>
             {
                 var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
-                var result = typeMetadataSerializer.SerializeTypeMetadata(new[]
-                {
-                    mapper.GetMap(typeof(TestViewModel))
-                });
+
+                var result = SerializeMetadata(typeMetadataSerializer, typeof(TestViewModel));
 
                 var checker = new OutputChecker("testoutputs");
                 checker.CheckJsonObject(result);
@@ -82,12 +93,12 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             CultureUtils.RunWithCulture("en-US", () => {
                 var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
-                var result = typeMetadataSerializer.SerializeTypeMetadata(new[] { mapper.GetMap(typeof(TestViewModel)) });
+                var result = SerializeMetadata(typeMetadataSerializer, typeof(TestViewModel));
 
-                var rules = XAssert.IsType<JArray>(result[typeof(TestViewModel).GetTypeHash()]["properties"]["ServerToClient"]["validationRules"]);
+                var rules = XAssert.IsType<JsonArray>(result[typeof(TestViewModel).GetTypeHash()]["properties"]["ServerToClient"]["validationRules"]);
                 XAssert.Single(rules);
-                Assert.AreEqual("required", rules[0]["ruleName"].Value<string>());
-                Assert.AreEqual("ServerToClient is required!", rules[0]["errorMessage"].Value<string>());
+                Assert.AreEqual("required", rules[0]["ruleName"].GetValue<string>());
+                Assert.AreEqual("ServerToClient is required!", rules[0]["errorMessage"].GetValue<string>());
             });
         }
 
@@ -99,7 +110,7 @@ namespace DotVVM.Framework.Tests.ViewModel
                 config.ClientSideValidation = false;
 
                 var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper, config);
-                var result = typeMetadataSerializer.SerializeTypeMetadata(new[] { mapper.GetMap(typeof(TestViewModel)) });
+                var result = SerializeMetadata(typeMetadataSerializer, typeof(TestViewModel));
 
                 XAssert.Null(result[typeof(TestViewModel).GetTypeHash()]["properties"]["ServerToClient"]["validationRules"]);
             });
@@ -118,7 +129,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             [Bind(Name = "property ONE")]
             public Guid P1 { get; set; }
 
-            [JsonProperty("property TWO")]
+            [JsonPropertyName("property TWO")]
             public SampleEnum?[] P2 { get; set; }
 
             [Bind(Direction.ClientToServer)]

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
@@ -22,8 +22,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// </summary>
         public string LiteralValue
         {
-            get => JavascriptCompilationHelper.CompileConstant(Value);
-            set => Value = JsonConvert.DeserializeObject(value, DefaultSerializerSettingsProvider.Instance.Settings);
+            get => JavascriptCompilationHelper.CompileConstant(Value, htmlSafe: false).Replace("<", "\\u003C");
+            set => Value = JsonDocument.Parse(value).RootElement;
         }
 
         public JsLiteral() { }

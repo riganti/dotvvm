@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using DotVVM.Framework.Binding;
 using FastExpressionCompiler;
 
@@ -8,6 +9,7 @@ namespace DotVVM.Framework.Utils
 {
     public static class StringUtils
     {
+        public static readonly UTF8Encoding Utf8 = new UTF8Encoding(false, throwOnInvalidBytes: true);
         public static string LimitLength(this string source, int length, string ending = "...")
         {
             if (length < source.Length)

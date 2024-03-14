@@ -5,7 +5,6 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {

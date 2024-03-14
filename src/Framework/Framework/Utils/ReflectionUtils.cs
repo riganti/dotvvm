@@ -19,8 +19,6 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using FastExpressionCompiler;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using RecordExceptions;
 using System.ComponentModel;
 using DotVVM.Framework.Compilation;
@@ -28,6 +26,8 @@ using DotVVM.Framework.Routing;
 using DotVVM.Framework.ViewModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace DotVVM.Framework.Utils
 {
@@ -569,7 +569,7 @@ namespace DotVVM.Framework.Utils
             }
             else if (EnumInfo<T>.IsFlags)
             {
-                return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value))!;
+                return JsonSerializer.Deserialize<string>(JsonSerializer.Serialize(instance.Value, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe))!;
             }
             else
             {

@@ -77,9 +77,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
         public static string[] GetEncryptionPurposes()
         {
-            return new[] {
-                "StaticCommand",
-            };
+            return [ "StaticCommand" ];
         }
         public static StaticCommandInvocationPlan DeserializePlan(JToken planInJson)
         {

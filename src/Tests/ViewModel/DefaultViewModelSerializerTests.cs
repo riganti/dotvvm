@@ -16,8 +16,11 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Testing;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
+using DotVVM.Framework.Utils;
+using System.Text.Json.Nodes;
+using System.Text.Json;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -67,14 +70,13 @@ namespace DotVVM.Framework.Tests.Runtime
                 Property5 = null
             };
             context.ViewModel = oldViewModel;
-            serializer.BuildViewModel(context, null);
-            var result = context.GetSerializedViewModel();
+            var result = serializer.SerializeViewModel(context);
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new TestViewModel();
             context.ViewModel = newViewModel;
-            serializer.PopulateViewModel(context, result);
+            serializer.PopulateViewModel(context, StringUtils.Utf8.GetBytes(result));
 
             Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
             Assert.AreEqual(oldViewModel.Property2, newViewModel.Property2);
@@ -145,8 +147,8 @@ namespace DotVVM.Framework.Tests.Runtime
 
             var response = PrepareResponse(viewModel, commandResult);
 
-            var responseModel = response["viewModel"].ToObject<TestViewModel2>();
-            var responseResult = response["commandResult"].ToObject<TestViewModel12>();
+            var responseModel = JsonSerializer.Deserialize<TestViewModel2>(response["viewModel"]);
+            var responseResult = JsonSerializer.Deserialize<TestViewModel12>(response["commandResult"]);
 
             Assert.AreEqual("a", responseModel.PropertyA);
             Assert.AreEqual(1, responseModel.PropertyB);
@@ -163,9 +165,9 @@ namespace DotVVM.Framework.Tests.Runtime
             };
             var response = PrepareResponse(viewModel, null);
 
-            var responseModel = response["viewModel"].ToObject<TestViewModel2>();
+            var responseModel = JsonSerializer.Deserialize<TestViewModel2>(response["viewModel"]);
 
-            Assert.IsFalse(response.TryGetValue("commandResult", out var _));
+            Assert.IsFalse(response.ContainsKey("commandResult"));
             Assert.AreEqual("a", responseModel.PropertyA);
             Assert.AreEqual(1, responseModel.PropertyB);
         }
@@ -179,9 +181,9 @@ namespace DotVVM.Framework.Tests.Runtime
             };
             var response = PrepareResponse(viewModel, null);
 
-            var responseModel = response["viewModel"].ToObject<TestViewModel2>();
+            var responseModel = JsonSerializer.Deserialize<TestViewModel2>(response["viewModel"]);
 
-            Assert.IsFalse(response.TryGetValue("customProperties", out var _));
+            Assert.IsFalse(response.ContainsKey("customProperties"));
             Assert.AreEqual("a", responseModel.PropertyA);
             Assert.AreEqual(1, responseModel.PropertyB);
         }
@@ -199,9 +201,9 @@ namespace DotVVM.Framework.Tests.Runtime
                 {"prop2", "Hello"}
             });
 
-            var responseModel = response["viewModel"].ToObject<TestViewModel2>();
-            var prop1 = response["customProperties"]["prop1"].ToObject<TestViewModel13>();
-            var prop2 = response["customProperties"]["prop2"].ToObject<string>();
+            var responseModel = JsonSerializer.Deserialize<TestViewModel2>(response["viewModel"]);
+            var prop1 = JsonSerializer.Deserialize<TestViewModel13>(response["customProperties"]["prop1"]);
+            var prop2 = response["customProperties"]["prop2"].GetValue<string>();
 
             Assert.AreEqual("a", responseModel.PropertyA);
             Assert.AreEqual(1, responseModel.PropertyB);
@@ -218,9 +220,9 @@ namespace DotVVM.Framework.Tests.Runtime
                 {"prop2", "Hello"}
             });
 
-            var commandResult = response["result"].ToObject<string>();
-            var prop1 = response["customProperties"]["prop1"].ToObject<TestViewModel13>();
-            var prop2 = response["customProperties"]["prop2"].ToObject<string>();
+            var commandResult = response["result"].GetValue<string>();
+            var prop1 = JsonSerializer.Deserialize<TestViewModel13>(response["customProperties"]["prop1"]);
+            var prop2 = response["customProperties"]["prop2"].GetValue<string>();
 
             Assert.AreEqual("Test", commandResult);
 
@@ -233,11 +235,11 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var response = PrepareStaticCommandResponse("Test");
 
-            var commandResult = response["result"].ToObject<string>();
+            var commandResult = response["result"].GetValue<string>();
 
             Assert.AreEqual("Test", commandResult);
 
-            Assert.IsFalse(response.TryGetValue("customProperties", out var _));
+            Assert.IsFalse(response.ContainsKey("customProperties"));
         }
 
         [TestMethod]
@@ -255,7 +257,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void ViewModelResponse_AlreadySerializedProperties_Throws()
         {
             context.ViewModel = new TestViewModel { };
-            serializer.BuildViewModel(context, null);
+            serializer.SerializeViewModel(context, null);
 
             Assert.ThrowsException<InvalidOperationException>(() => {
 
@@ -263,7 +265,7 @@ namespace DotVVM.Framework.Tests.Runtime
             });
         }
 
-        private JObject PrepareResponse(object viewModel, object commandResult, Dictionary<string, object> customProperties = null)
+        private JsonObject PrepareResponse(object viewModel, object commandResult, Dictionary<string, object> customProperties = null)
         {
             context.ViewModel = viewModel;
 
@@ -272,13 +274,12 @@ namespace DotVVM.Framework.Tests.Runtime
                 context.CustomResponseProperties.Add(prop.Key, prop.Value);
             }
 
-            serializer.BuildViewModel(context, commandResult);
-            var result = context.GetSerializedViewModel();
+            var result = serializer.SerializeViewModel(context, commandResult);
 
-            return JObject.Parse(result);
+            return JsonNode.Parse(result).AsObject();
         }
 
-        private JObject PrepareStaticCommandResponse(object commandResult, Dictionary<string, object> customProperties = null)
+        private JsonObject PrepareStaticCommandResponse(object commandResult, Dictionary<string, object> customProperties = null)
         {
             foreach (var prop in customProperties ?? new Dictionary<string, object>())
             {
@@ -287,7 +288,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
             var result = serializer.BuildStaticCommandResponse(context, commandResult);
 
-            return JObject.Parse(result);
+            return JsonNode.Parse(result.Span).AsObject();
         }
 
         private string SerializeViewModel(object viewModel)
@@ -295,15 +296,16 @@ namespace DotVVM.Framework.Tests.Runtime
             context.ViewModel = viewModel;
 
             serializer.SendDiff = false;
-            serializer.BuildViewModel(context, null);
-            return UnwrapSerializedViewModel(serializer.SerializeViewModel(context));
+            return UnwrapSerializedViewModel(serializer.SerializeViewModel(context, null));
         }
 
         private void PopulateViewModel(object viewModel, string json)
         {
             context.ViewModel = viewModel;
             serializer.PopulateViewModel(context,
-                "{'validationTargetPath': null,'viewModel':" + json + "}");
+                StringUtils.Utf8.GetBytes(
+                    $$"""{"validationTargetPath": null, "viewModel": {{json}}  }""")
+            );
         }
 
         public class TestViewModelWithTuple
@@ -358,14 +360,13 @@ namespace DotVVM.Framework.Tests.Runtime
             };
             context.ViewModel = oldViewModel;
 
-            serializer.BuildViewModel(context, null);
-            var result = context.GetSerializedViewModel();
+            var result = serializer.SerializeViewModel(context);
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new TestViewModel3();
             context.ViewModel = newViewModel;
-            serializer.PopulateViewModel(context, result);
+            serializer.PopulateViewModel(context, StringUtils.Utf8.GetBytes(result));
 
             Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
             Assert.AreEqual(oldViewModel.Property2, newViewModel.Property2);
@@ -382,17 +383,11 @@ namespace DotVVM.Framework.Tests.Runtime
             var oldViewModel = new ViewModelWithInvalidProtectionSettings();
             context.ViewModel = oldViewModel;
 
-            Assert.ThrowsException<DotvvmCompilationException>(() => {
-                try
-                {
-                    serializer.BuildViewModel(context, null);
-                    context.GetSerializedViewModel();
-                }
-                catch (Exception ex)
-                {
-                    throw ex.InnerException;
-                }
+            var e = XAssert.ThrowsAny<Exception>(() => {
+                serializer.SerializeViewModel(context);
             });
+            var eBase = e.GetBaseException();
+            Assert.AreEqual("The property ReadOnlyProperty of type System.Int32 uses the Protect attribute, therefore its Bind Direction must be set to Both.", eBase.Message);
         }
 
         public class ViewModelWithInvalidProtectionSettings
@@ -440,14 +435,14 @@ namespace DotVVM.Framework.Tests.Runtime
             };
             context.ViewModel = oldViewModel;
 
-            serializer.BuildViewModel(context, null);
-            var result = context.GetSerializedViewModel();
+            
+            var result = serializer.SerializeViewModel(context);
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new TestViewModel5();
             context.ViewModel = newViewModel;
-            serializer.PopulateViewModel(context, result);
+            serializer.PopulateViewModel(context, StringUtils.Utf8.GetBytes(result));
 
             Assert.AreEqual(oldViewModel.ProtectedNullable, newViewModel.ProtectedNullable);
         }
@@ -467,14 +462,13 @@ namespace DotVVM.Framework.Tests.Runtime
                 Property1 = TestEnum.Second
             };
             context.ViewModel = oldViewModel;
-            serializer.BuildViewModel(context, null);
-            var result = context.GetSerializedViewModel();
+            var result = serializer.SerializeViewModel(context);
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new EnumTestViewModel();
             context.ViewModel = newViewModel;
-            serializer.PopulateViewModel(context, result);
+            serializer.PopulateViewModel(context, StringUtils.Utf8.GetBytes(result));
 
             Assert.IsFalse(result.Contains(typeof(TestEnum).FullName));
             Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
@@ -517,14 +511,13 @@ namespace DotVVM.Framework.Tests.Runtime
             };
 
             context.ViewModel = oldViewModel;
-            serializer.BuildViewModel(context, null);
-            var result = context.GetSerializedViewModel();
+            var result = serializer.SerializeViewModel(context);
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new EnumCollectionTestViewModel() { Children = new List<EnumTestViewModel>() };
             context.ViewModel = newViewModel;
-            serializer.PopulateViewModel(context, result);
+            serializer.PopulateViewModel(context, StringUtils.Utf8.GetBytes(result));
 
             Assert.IsFalse(result.Contains(typeof(TestEnum).FullName));
             Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
@@ -564,7 +557,7 @@ namespace DotVVM.Framework.Tests.Runtime
         /// </summary>
         private static string UnwrapSerializedViewModel(string result)
         {
-            return JObject.Parse(result)["viewModel"].ToString();
+            return JsonNode.Parse(result)["viewModel"].ToString();
         }
 
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Configuration;
@@ -9,10 +10,8 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 namespace DotVVM.Framework.Hosting
 {
     public class StaticCommandExecutor
@@ -22,9 +21,9 @@ namespace DotVVM.Framework.Hosting
         private readonly IViewModelProtector viewModelProtector;
         private readonly IStaticCommandArgumentValidator validator;
         private readonly DotvvmConfiguration configuration;
-        private readonly JsonSerializer jsonDeserializer;
+        private readonly JsonSerializerOptions jsonOptions;
 
-        public StaticCommandExecutor(IStaticCommandServiceLoader serviceLoader, IViewModelProtector viewModelProtector, IStaticCommandArgumentValidator validator, DotvvmConfiguration configuration)
+        public StaticCommandExecutor(IStaticCommandServiceLoader serviceLoader, IViewModelSerializer serializer, IViewModelProtector viewModelProtector, IStaticCommandArgumentValidator validator, DotvvmConfiguration configuration)
         {
             this.serviceLoader = serviceLoader;
             this.viewModelProtector = viewModelProtector;
@@ -32,11 +31,13 @@ namespace DotVVM.Framework.Hosting
             this.configuration = configuration;
             if (configuration.ExperimentalFeatures.UseDotvvmSerializationForStaticCommandArguments.Enabled)
             {
-                this.jsonDeserializer = DefaultSerializerSettingsProvider.CreateJsonSerializer();
+                this.jsonOptions = serializer.ViewModelJsonOptions;
             }
             else
             {
-                this.jsonDeserializer = JsonSerializer.Create();
+                this.jsonOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
+                    WriteIndented = configuration.Debug
+                };
             }
         }
 #pragma warning restore CS0618
@@ -48,14 +49,14 @@ namespace DotVVM.Framework.Hosting
         }
         public Task<object?> Execute(
             StaticCommandInvocationPlan plan,
-            IEnumerable<JToken> arguments,
+            JsonElement arguments,
             IEnumerable<string?>? argumentValidationPaths,
             IDotvvmRequestContext context
-        ) => Execute(plan, new Queue<JToken>(arguments), argumentValidationPaths is null ? null : new Queue<string?>(argumentValidationPaths), context);
+        ) => Execute(plan, new Queue<JsonElement>(arguments.EnumerateArray()), argumentValidationPaths is null ? null : new Queue<string?>(argumentValidationPaths), context);
 
         public async Task<object?> Execute(
             StaticCommandInvocationPlan plan,
-            Queue<JToken> arguments,
+            Queue<JsonElement> arguments,
             Queue<string?>? argumentValidationPaths,
             IDotvvmRequestContext context
         )
@@ -70,7 +71,8 @@ namespace DotVVM.Framework.Hosting
                 if (!parameterType!.IsAssignableFrom(type))
                     throw new Exception($"Argument {index} has an invalid type");
                 var arg = arguments.Dequeue();
-                return arg.ToObject(type, this.jsonDeserializer);
+                using var state = DotvvmSerializationState.Create(true, context.Services, new System.Text.Json.Nodes.JsonObject());
+                return JsonSerializer.Deserialize(arg, type, this.jsonOptions);
             }
             var methodArgs = new List<object?>();
             var methodArgsPaths = argumentValidationPaths is null ? null : new List<string?>();

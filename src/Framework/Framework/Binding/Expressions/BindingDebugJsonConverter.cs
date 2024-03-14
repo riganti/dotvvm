@@ -1,20 +1,17 @@
 using System;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
-    internal class BindingDebugJsonConverter: JsonConverter
+    internal class BindingDebugJsonConverter: JsonConverter<IBinding>
     {
-        public override bool CanConvert(Type objectType) =>
-            typeof(IBinding).IsAssignableFrom(objectType);
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) =>
+        public override IBinding Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
             throw new NotImplementedException("Deserializing dotvvm bindings from JSON is not supported.");
-        public override void WriteJson(JsonWriter w, object? valueObj, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, IBinding obj, JsonSerializerOptions options)
         {
-            var obj = valueObj;
-            w.WriteValue(obj?.ToString());
+            writer.WriteStringValue(obj?.ToString());
 
             // w.WriteStartObject();
             // w.WritePropertyName("ToString");

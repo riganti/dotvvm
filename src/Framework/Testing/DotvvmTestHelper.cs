@@ -26,6 +26,7 @@ using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Framework.Testing
 {
@@ -33,41 +34,37 @@ namespace DotVVM.Framework.Testing
     {
         public class FakeProtector : IViewModelProtector
         {
-            // I hope I will not see this message anywhere on the web ;)
-            public const string WarningPrefix = "WARNING - Message not encryped: ";
             public static readonly byte[] WarningPrefixBytes = Convert.FromBase64String("WARNING/NOT/ENCRYPTED+++");
 
-            public string Protect(string serializedData, IDotvvmRequestContext context)
+            public byte[] Protect(byte[] serializedData, IDotvvmRequestContext context)
             {
-                return WarningPrefix + ": " + serializedData;
+                // I hope I will not see this message anywhere on the web ;)
+                return [ ..WarningPrefixBytes, ..serializedData];
             }
 
             public byte[] Protect(byte[] plaintextData, params string[] purposes)
             {
-                var result = new List<byte>();
-                result.AddRange(WarningPrefixBytes);
-                result.AddRange(plaintextData);
-                return result.ToArray();
+                return [ ..WarningPrefixBytes, ..plaintextData];
             }
 
-            public string Unprotect(string protectedData, IDotvvmRequestContext context)
+            public byte[] Unprotect(byte[] protectedData, IDotvvmRequestContext context)
             {
-                if (!protectedData.StartsWith(WarningPrefix + ": ", StringComparison.Ordinal)) throw new SecurityException($"");
-                return protectedData.Remove(0, WarningPrefix.Length + 2);
+                if (!protectedData.AsSpan().StartsWith(WarningPrefixBytes)) throw new SecurityException($"");
+                return protectedData.AsSpan(WarningPrefixBytes.Length).ToArray();
             }
 
             public byte[] Unprotect(byte[] protectedData, params string[] purposes)
             {
-                if (!protectedData.Take(WarningPrefixBytes.Length).SequenceEqual(WarningPrefixBytes)) throw new SecurityException($"");
-                return protectedData.Skip(WarningPrefixBytes.Length).ToArray();
+                if (!protectedData.AsSpan().StartsWith(WarningPrefixBytes)) throw new SecurityException($"");
+                return protectedData.AsSpan(WarningPrefixBytes.Length).ToArray();
             }
         }
 
         public class NopProtector : IViewModelProtector
         {
-            public string Protect(string serializedData, IDotvvmRequestContext context) => "XXX";
+            public byte[] Protect(byte[] serializedData, IDotvvmRequestContext context) => Convert.FromBase64String("XXXX");
             public byte[] Protect(byte[] plaintextData, params string[] purposes) => Convert.FromBase64String("XXXX");
-            public string Unprotect(string protectedData, IDotvvmRequestContext context) => throw new NotImplementedException();
+            public byte[] Unprotect(byte[] protectedData, IDotvvmRequestContext context) => throw new NotImplementedException();
             public byte[] Unprotect(byte[] protectedData, params string[] purposes) => throw new NotImplementedException();
         }
 
@@ -111,6 +108,9 @@ namespace DotVVM.Framework.Testing
         public static DotvvmConfiguration CreateConfiguration(Action<IServiceCollection>? customServices = null) =>
             DotvvmConfiguration.CreateDefault(s => {
                 s.AddSingleton<ITestSingletonService, TestSingletonService>();
+                LoggingServiceCollectionExtensions.AddLogging(s, log => {
+                    log.AddConsole();
+                });
                 customServices?.Invoke(s);
                 RegisterMockServices(s);
             });

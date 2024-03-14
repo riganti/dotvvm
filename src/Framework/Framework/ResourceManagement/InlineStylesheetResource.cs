@@ -1,9 +1,9 @@
 using System;
 using System.IO;
+using System.Text.Json.Serialization;
 using System.Threading;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -18,7 +18,15 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Gets the CSS code that will be embedded in the page.
         /// </summary>
+        [JsonIgnore]
         public string Code => code?.Value ?? throw new Exception("`ILocalResourceLocation` cannot be read using property `Code`.");
+
+
+        [JsonInclude]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyName(nameof(Code))]
+        internal string? CodeJsonHack => code?.Value; // ignore if code is in location
+
 
         [JsonConstructor]
         public InlineStylesheetResource(ILocalResourceLocation resourceLocation) : base(ResourceRenderPosition.Head)
@@ -33,7 +41,6 @@ namespace DotVVM.Framework.ResourceManagement
             _ = this.code.Value;
         }
 
-        public bool ShouldSerializeCode() => code?.IsValueCreated == true;
 
         internal static void InlineStyleContentGuard(string code)
         {

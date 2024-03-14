@@ -1,53 +1,48 @@
 using System;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Controls
 {
-    internal class DotvvmControlDebugJsonConverter : JsonConverter
+    internal class DotvvmControlDebugJsonConverter : JsonConverter<DotvvmBindableObject>
     {
         // public bool IncludeChildren { get; set; } = false;
         // public DotvvmConfiguration? Configuration { get; set; } = null;
 
-        public override bool CanConvert(Type objectType) =>
-            typeof(DotvvmBindableObject).IsAssignableFrom(objectType);
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) =>
+        public override DotvvmBindableObject? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
             throw new NotImplementedException("Deserializing dotvvm control from JSON is not supported.");
-        public override void WriteJson(JsonWriter w, object? valueObj, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter w, DotvvmBindableObject obj, JsonSerializerOptions options)
         {
-            if (valueObj is null)
-            {
-                w.WriteNull();
-                return;
-            }
-            var obj = (DotvvmBindableObject)valueObj;
             w.WriteStartObject();
 
             w.WritePropertyName("Control");
-            w.WriteValue(obj.GetType().Name);
+            w.WriteStringValue(obj.GetType().Name);
             
-            w.WritePropertyName("Properties");
-            var properties = new JObject(
-                from kvp in obj.Properties
-                let p = kvp.Key
-                let rawValue = kvp.Value
-                let isAttached = !p.DeclaringType.IsAssignableFrom(obj.GetType())
-                orderby !isAttached, p.Name
-                let name = isAttached ? p.DeclaringType.Name + "." + p.Name : p.Name
-                let value = rawValue is null     ? JValue.CreateNull() :
-                            rawValue is IBinding ? JValue.CreateString(rawValue.ToString()) :
-                                                   JToken.FromObject(rawValue, serializer)
-                select new JProperty(name, value)
-            );
-            properties.WriteTo(w);
+            w.WriteStartObject("Properties");
+            foreach (var kvp in obj.Properties.OrderBy(p => (p.Key.DeclaringType.IsAssignableFrom(obj.GetType()), p.Key.Name)))
+            {
+                var (p, rawValue) = kvp;
+                var isAttached = !p.DeclaringType.IsAssignableFrom(obj.GetType());
+                var name = isAttached ? p.DeclaringType.Name + "." + p.Name : p.Name;
+                if (rawValue is null)
+                    w.WriteNull(name);
+                else if (rawValue is IBinding)
+                    w.WriteString(name, rawValue.ToString());
+                else
+                {
+                    w.WritePropertyName(name);
+                    JsonSerializer.Serialize(w, rawValue, options);
+                }
+            }
+            w.WriteEndObject();
 
             if (obj is DotvvmControl control)
             {
                 w.WritePropertyName("LifecycleRequirements");
-                w.WriteValue(control.LifecycleRequirements.ToString());
+                w.WriteStringValue(control.LifecycleRequirements.ToString());
             }
 
 

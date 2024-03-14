@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.ViewModel
 {
@@ -19,10 +19,10 @@ namespace DotVVM.Framework.ViewModel
             if (string.IsNullOrEmpty(bindAttribute?.Name))
             {
                 // use JsonProperty name if Bind attribute is not present or doesn't specify it
-                var jsonPropertyAttribute = propertyInfo.GetCustomAttribute<JsonPropertyAttribute>();
-                if (!string.IsNullOrEmpty(jsonPropertyAttribute?.PropertyName))
+                var jsonPropertyAttribute = propertyInfo.GetCustomAttribute<JsonPropertyNameAttribute>();
+                if (!string.IsNullOrEmpty(jsonPropertyAttribute?.Name))
                 {
-                    return jsonPropertyAttribute!.PropertyName!;
+                    return jsonPropertyAttribute!.Name!;
                 }
             }
 
