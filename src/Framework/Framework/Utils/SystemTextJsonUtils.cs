@@ -76,12 +76,32 @@ namespace DotVVM.Framework.Utils
             }
         }
 
+        public static void AssertToken(this in Utf8JsonReader reader, JsonTokenType type)
+        {
+            if (reader.TokenType != type)
+            {
+                throw new JsonException($"Expected token of type {type}, but got {reader.TokenType}.");
+            }
+        }
+
+        public static void AssertRead(this ref Utf8JsonReader reader, JsonTokenType type)
+        {
+            AssertToken(in reader, type);
+            if (!reader.Read())
+                throw new JsonException($"Expected token of type {type}, but got {reader.TokenType}.");
+        }
+        
+        public static int GetValueLength(this in Utf8JsonReader reader)
+        {
+            return reader.HasValueSequence ? checked((int)reader.ValueSequence.Length) : reader.ValueSpan.Length;
+        }
+
         public static void WriteFloatValue(Utf8JsonWriter writer, double number)
         {
 #if DotNetCore
             if (double.IsFinite(number))
 #else
-            if (!double.IsInfinity(number) && double.IsNaN(number))
+            if (!double.IsInfinity(number) && !double.IsNaN(number))
 #endif
                 writer.WriteNumberValue(number);
             else
@@ -92,7 +112,7 @@ namespace DotVVM.Framework.Utils
 #if DotNetCore
             if (float.IsFinite(number))
 #else
-            if (!float.IsInfinity(number) && float.IsNaN(number))
+            if (!float.IsInfinity(number) && !float.IsNaN(number))
 #endif
                 writer.WriteNumberValue(number);
             else

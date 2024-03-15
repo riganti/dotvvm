@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Diagnostics.Models;
@@ -34,6 +35,12 @@ namespace DotVVM.Framework.Diagnostics
             }
             events.Add(CreateEventTiming(eventName));
             return TaskUtils.GetCompletedTask();
+        }
+
+
+        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Lazy<Stream> viewModelBuffer)
+        {
+            // TODO
         }
 
         private EventTiming CreateEventTiming(string eventName)

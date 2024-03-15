@@ -9,7 +9,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         static readonly Type? JsonConstructorNJ = Type.GetType("Newtonsoft.Json.JsonConstructorAttribute, Newtonsoft.Json");
         static readonly Type? JsonIgnoreNJ = Type.GetType("Newtonsoft.Json.JsonIgnoreAttribute, Newtonsoft.Json");
-        static readonly Type? JsonPropertyNJ = Type.GetType("Newtonsoft.Json.JsonPropertyAttribute, Newtonsoft.Json");
         static readonly Type? JsonConverterNJ = Type.GetType("Newtonsoft.Json.JsonConverterAttribute, Newtonsoft.Json");
 
         public static bool IsJsonConstructor(MethodBase constructor) =>

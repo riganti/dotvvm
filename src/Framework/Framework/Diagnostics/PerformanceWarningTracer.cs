@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Tracing;
+using DotVVM.Framework.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Framework.Diagnostics
@@ -54,60 +56,60 @@ namespace DotVVM.Framework.Diagnostics
                 "We recommend using MiniProfiler when to keep an eye on runtime performance: https://www.dotvvm.com/docs/latest/pages/concepts/diagnostics-and-profiling/miniprofiler"
             ));
         }
-        void WarnLargeViewModel(long viewModelSize, IDotvvmRequestContext context)
+
+
+
+        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Lazy<Stream> viewModelBuffer)
         {
-            // if (context.ViewModelJson is null) TODO
-            //     return;
+            if (viewModelSize >= config.BigViewModelBytes)
+            {
+                WarnLargeViewModel(context, viewModelSize, viewModelBuffer.Value);
+            }
+        }
 
-            // try
-            // {
-            //     var vmAnalysis = jsonSizeAnalyzer.Analyze(context.ViewModelJson);
+        void WarnLargeViewModel(IDotvvmRequestContext context, int viewModelSize, Stream viewModelBuffer)
+        {
+            try
+            {
+                var vmAnalysis = jsonSizeAnalyzer.Analyze(viewModelBuffer.ReadToMemory().Span, context.ViewModel?.GetType());
 
-            //     var topClasses =
-            //         vmAnalysis.Classes
-            //         .OrderByDescending(c => c.Value.Size.ExclusiveSize)
-            //         .Take(3)
-            //         // only classes which have at least 5% impact
-            //         .Where(c => c.Value.Size.ExclusiveSize > vmAnalysis.TotalSize / 20)
-            //         .ToArray();
-            //     var topProperties =
-            //         vmAnalysis.Classes
-            //         .SelectMany(c => c.Value.Properties.Select(p => (Key: c.Key + "." + p.Key, p.Value)))
-            //         .OrderByDescending(c => c.Value.ExclusiveSize)
-            //         .Take(3)
-            //         // only properties which have at least 5% impact
-            //         .Where(c => c.Value.ExclusiveSize > vmAnalysis.TotalSize / 20)
-            //         .ToArray();
+                var topClasses =
+                    vmAnalysis.Classes
+                    .OrderByDescending(c => c.Value.Size.ExclusiveSize)
+                    .Take(3)
+                    // only classes which have at least 5% impact
+                    .Where(c => c.Value.Size.ExclusiveSize > vmAnalysis.TotalSize / 20)
+                    .ToArray();
+                var topProperties =
+                    vmAnalysis.Classes
+                    .SelectMany(c => c.Value.Properties.Select(p => (Key: c.Key + "." + p.Key, p.Value)))
+                    .OrderByDescending(c => c.Value.ExclusiveSize)
+                    .Take(3)
+                    // only properties which have at least 5% impact
+                    .Where(c => c.Value.ExclusiveSize > vmAnalysis.TotalSize / 20)
+                    .ToArray();
 
-            //     var byteToPercent = 100.0 / vmAnalysis.TotalSize;
+                var byteToPercent = 100.0 / vmAnalysis.TotalSize;
 
-            //     var msg = $"The serialized view model has {viewModelSize / 1024.0 / 1024.0:0.0}MB, which may make your application quite slow. " +
-            //         string.Join(", ",
-            //             topProperties.Select(c => $"Property {c.Key} takes {c.Value.ExclusiveSize * byteToPercent:0}%").Concat(
-            //             topClasses.Select(c => $"Class {c.Key} takes {c.Value.Size.ExclusiveSize * byteToPercent:0}%")));
+                var msg = $"The serialized view model has {viewModelSize / 1024.0 / 1024.0:0.0}MB, which may make your application quite slow. " +
+                    string.Join(", ",
+                        topProperties.Select(c => $"Property {c.Key} takes {c.Value.ExclusiveSize * byteToPercent:0}%").Concat(
+                        topClasses.Select(c => $"Class {c.Key} takes {c.Value.Size.ExclusiveSize * byteToPercent:0}%")));
 
-            //     logger.Warn(new DotvvmRuntimeWarning(
-            //         msg
-            //     ));
-            // }
-            // catch (Exception ex)
-            // {
-            //     tracerLogger?.LogWarning(ex, $"Failed to analyze view model size. The serialized view model has {viewModelSize / 1024.0 / 1024.0:0.0}MB, which may make your application quite slow");
-            // }
-            tracerLogger?.LogWarning($"Failed to analyze view model size. The serialized view model has {viewModelSize / 1024.0 / 1024.0:0.0}MB, which may make your application quite slow");
+                logger.Warn(new DotvvmRuntimeWarning(
+                    msg
+                ));
+            }
+            catch (Exception ex)
+            {
+                tracerLogger?.LogWarning(ex, $"Failed to analyze view model size. The serialized view model has {viewModelSize / 1024.0 / 1024.0:0.0}MB, which may make your application quite slow");
+            }
         }
         public Task EndRequest(IDotvvmRequestContext context)
         {
             var elapsed = stopwatch.Elapsed;
             if (elapsed.TotalSeconds > config.SlowRequestSeconds)
                 WarnSlowRequest(elapsed);
-
-
-            var viewModelSize = context.HttpContext.GetItem<int>("dotvvm-viewmodel-size-bytes");
-            if (viewModelSize > config.BigViewModelBytes)
-            {
-                WarnLargeViewModel(viewModelSize, context);
-            }
 
             return Task.CompletedTask;
         }

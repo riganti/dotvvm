@@ -11,6 +11,11 @@ namespace DotVVM.Framework.Utils
         public static Memory<byte> ToMemory(this MemoryStream stream) =>
             stream.TryGetBuffer(out var buffer) ? buffer.AsMemory().Slice(0, (int)stream.Length) : stream.ToArray();
 
+        public static MemoryStream CloneReadOnly(this MemoryStream stream)
+        {
+            return new MemoryStream(stream.GetBuffer(), 0, (int)stream.Length, false);
+        }
+
         public static ReadOnlySpan<T> Readonly<T>(this Span<T> span) => span;
         public static ReadOnlyMemory<T> Readonly<T>(this Memory<T> span) => span;
 
@@ -20,7 +25,7 @@ namespace DotVVM.Framework.Utils
             stream.CopyTo(buffer);
             return buffer.ToMemory();
         }
-        public static async Task<Memory<byte>> ReadToMemoryAsnc(this Stream stream)
+        public static async Task<Memory<byte>> ReadToMemoryAsync(this Stream stream)
         {
             using var buffer = new MemoryStream();
             await stream.CopyToAsync(buffer);

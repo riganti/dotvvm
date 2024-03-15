@@ -20,6 +20,8 @@ using System.Text.Json.Nodes;
 using System.Net.NetworkInformation;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using DotVVM.Framework.Runtime.Tracing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -40,7 +42,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer;
         private readonly ViewModelJsonConverter viewModelConverter;
         private readonly ILogger<DefaultViewModelSerializer>? logger;
-
         public bool SendDiff { get; set; } = true;
 
         public JsonSerializerOptions ViewModelJsonOptions { get; }
@@ -82,9 +83,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             //     context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff(receivedVM, responseVM, false, i => ShouldIncludeProperty(i.TypeId, i.Property));
             //     context.ViewModelJson.Remove("viewModel");
             // }
+            var requestTracers = context.Services.GetService<IEnumerable<IRequestTracer>>();
+            requestTracers?.TracingSerialized(context, (int)utf8json.Length, () => utf8json.CloneReadOnly());
             var result = StringUtils.Utf8Decode(utf8json.ToSpan());
 
-            context.HttpContext.SetItem("dotvvm-viewmodel-size-bytes", utf8json.Length); // for PerformanceWarningTracer
             var routeLabel = context.RouteLabel();
             var requestType = context.RequestTypeLabel();
             DotvvmMetrics.ViewModelStringificationTime.Record(timer.ElapsedSeconds, routeLabel, requestType);
