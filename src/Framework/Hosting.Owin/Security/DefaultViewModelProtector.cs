@@ -22,10 +22,10 @@ namespace DotVVM.Framework.Security
             this.protectionProvider = protectionProvider;
         }
 
-        public string Protect(string serializedData, IDotvvmRequestContext context)
+        public byte[] Protect(byte[] serializedData, IDotvvmRequestContext context)
         {
             if (serializedData == null) throw new ArgumentNullException(nameof(serializedData));
-            if (string.IsNullOrWhiteSpace(serializedData)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(serializedData));
+            if (serializedData.Length == 0) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(serializedData));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             // Construct protector with purposes
@@ -34,9 +34,7 @@ namespace DotVVM.Framework.Security
             var protector = this.protectionProvider.Create(PRIMARY_PURPOSE, userIdentity, requestIdentity);
 
             // Return protected view model data
-            var dataToProtect = Encoding.UTF8.GetBytes(serializedData);
-            var protectedData = protector.Protect(dataToProtect);
-            return Convert.ToBase64String(protectedData);
+            return protector.Protect(serializedData);
         }
 
         public byte[] Protect(byte[] data, params string[] purposes) =>
@@ -44,10 +42,10 @@ namespace DotVVM.Framework.Security
             .Create(ConcatPurposes(PRIMARY_PURPOSE, purposes))
             .Protect(data);
 
-        public string Unprotect(string protectedData, IDotvvmRequestContext context)
+        public byte[] Unprotect(byte[] protectedData, IDotvvmRequestContext context)
         {
             if (protectedData == null) throw new ArgumentNullException(nameof(protectedData));
-            if (string.IsNullOrWhiteSpace(protectedData)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(protectedData));
+            if (protectedData.Length == 0) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(protectedData));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             // Construct protector with purposes
@@ -56,9 +54,7 @@ namespace DotVVM.Framework.Security
             var protector = this.protectionProvider.Create(PRIMARY_PURPOSE, userIdentity, requestIdentity);
 
             // Return unprotected view model data
-            var dataToUnprotect = Convert.FromBase64String(protectedData);
-            var unprotectedData = protector.Unprotect(dataToUnprotect);
-            return Encoding.UTF8.GetString(unprotectedData);
+            return protector.Unprotect(protectedData);
         }
 
         public byte[] Unprotect(byte[] protectedData, params string[] purposes) =>

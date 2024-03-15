@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -202,30 +203,39 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     else
                     {
                         var valueLength = reader.HasValueSequence ? (int)reader.ValueSequence.Length : reader.ValueSpan.Length;
-                        Span<byte> buffer = valueLength < 512 ? stackalloc byte[valueLength] : new byte[valueLength];
-                        var bufferLength = reader.CopyString(buffer);
-                        buffer = buffer.Slice(0, bufferLength);
-
-                        ulong result = 0;
-                        while (true)
+                        byte[]? rentedBuffer = null;
+                        try
                         {
-                            buffer = buffer.Slice(buffer[0] == ' ' ? 1 : 0);
+                            Span<byte> buffer = valueLength < 512 ? stackalloc byte[valueLength] : (rentedBuffer = ArrayPool<byte>.Shared.Rent(valueLength));
+                            var bufferLength = reader.CopyString(buffer);
+                            buffer = buffer.Slice(0, bufferLength);
 
-                            var nextIndex = MemoryExtensions.IndexOf(buffer, (byte)',');
-                            if (nextIndex == 0)
-                                return ThrowInvalidEnumName(buffer);
+                            ulong result = 0;
+                            while (true)
+                            {
+                                buffer = buffer.Slice(buffer[0] == ' ' ? 1 : 0);
 
-                            var token = nextIndex < 0 ? buffer : buffer.Slice(0, nextIndex);
+                                var nextIndex = MemoryExtensions.IndexOf(buffer, (byte)',');
+                                if (nextIndex == 0)
+                                    return ThrowInvalidEnumName(buffer);
 
-                            var value = FindEnumName(token);
-                            result |= ToBits(value);
+                                var token = nextIndex < 0 ? buffer : buffer.Slice(0, nextIndex);
 
-                            if (nextIndex < 0)
-                                break;
-                            buffer = buffer.Slice(nextIndex + 1);
+                                var value = FindEnumName(token);
+                                result |= ToBits(value);
+
+                                if (nextIndex < 0)
+                                    break;
+                                buffer = buffer.Slice(nextIndex + 1);
+                            }
+
+                            return Unsafe.As<ulong, TEnum>(ref result);
                         }
-
-                        return Unsafe.As<ulong, TEnum>(ref result);
+                        finally
+                        {
+                            if (rentedBuffer is {})
+                                ArrayPool<byte>.Shared.Return(rentedBuffer);
+                        }
                     }
                 }
                 else

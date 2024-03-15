@@ -201,7 +201,7 @@ namespace DotVVM.Framework.Hosting
                     ReadOnlyMemory<byte> postData;
                     using (var stream = ReadRequestBody(context.HttpContext.Request, context.Route?.RouteName))
                     {
-                        postData = await stream.ReadToMemoryAsnc();
+                        postData = await stream.ReadToMemoryAsync();
                     }
                     ViewModelSerializer.PopulateViewModel(context, postData);
 

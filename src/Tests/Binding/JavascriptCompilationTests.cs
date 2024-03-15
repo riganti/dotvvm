@@ -17,6 +17,7 @@ using System.Linq.Expressions;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -1395,6 +1396,16 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("VehicleNumber()==\"123\"", result);
         }
 
+        [DataTestMethod]
+        // [DataRow("BindAttribute", "bind_attribute")]
+        // [DataRow("SystemTextJson", "system_text_json")]
+        [DataRow("NewtonsoftJson", "newtonsoft_json")]
+        public void JavascriptCompilation_PropertyRenaming(string csharpName, string jsName)
+        {
+            var result = CompileBinding($"{csharpName} == 0", typeof(TestPropertyRenamingViewModel));
+            Assert.AreEqual($"{jsName}()==0", result);
+        }
+
         public class TestMarkupControl: DotvvmMarkupControl
         {
             public string SomeProperty
@@ -1406,6 +1417,17 @@ namespace DotVVM.Framework.Tests.Binding
                 DotvvmProperty.Register<string, TestMarkupControl>(nameof(SomeProperty));
 
             public string NonUsableProperty { get; set; }
+        }
+
+
+        public class TestPropertyRenamingViewModel
+        {
+            [Bind(Name = "bind_attribute")]
+            public int BindAttribute { get; }
+            [JsonPropertyName("system_text_json")]
+            public int SystemTextJson { get; }
+            [Newtonsoft.Json.JsonProperty("newtonsoft_json")]
+            public int NewtonsoftJson { get; }
         }
     }
 

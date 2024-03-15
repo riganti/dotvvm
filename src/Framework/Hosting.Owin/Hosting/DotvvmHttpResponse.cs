@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Buffers;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Owin;
@@ -51,13 +54,31 @@ namespace DotVVM.Framework.Hosting
         {
             OriginalResponse.Body.Write(data, offset, count);
         }
-
-        public Task WriteAsync(string text)
+        public void Write(ReadOnlyMemory<char> text)
         {
-            return OriginalResponse.WriteAsync(text);
+            OriginalResponse.Write(text.ToString());
+        }
+        public void Write(ReadOnlyMemory<byte> data)
+        {
+            if (MemoryMarshal.TryGetArray(data, out var array))
+                OriginalResponse.Write(array.Array, array.Offset, array.Count);
+            else
+                OriginalResponse.Write(data.ToArray());
+        }
+        public Task WriteAsync(ReadOnlyMemory<byte> data, CancellationToken token = default)
+        {
+            if (MemoryMarshal.TryGetArray(data, out var array))
+                return OriginalResponse.WriteAsync(array.Array, array.Offset, array.Count, token);
+            else
+                return OriginalResponse.WriteAsync(data.ToArray(), token);
         }
 
-        public Task WriteAsync(string text, CancellationToken token)
+        public Task WriteAsync(ReadOnlyMemory<char> text, CancellationToken token = default)
+        {
+            return OriginalResponse.WriteAsync(text.ToString(), token);
+        }
+
+        public Task WriteAsync(string text, CancellationToken token = default)
         {
             return OriginalResponse.WriteAsync(text, token);
         }

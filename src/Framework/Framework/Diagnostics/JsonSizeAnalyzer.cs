@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using FastExpressionCompiler;
@@ -20,74 +21,105 @@ namespace DotVVM.Framework.Diagnostics
             this.viewModelMapper = viewModelMapper;
         }
         /// <summary> Computes the inclusive and exclusive size of each JSON property. </summary>
-        public JsonSizeProfile Analyze(JsonElement json)
+        public JsonSizeProfile Analyze(ReadOnlySpan<byte> json, Type? rootViewModelType)
         {
-            throw new NotImplementedException(); // TODO
-            // Dictionary<string, ClassSizeProfile> results = new();
-            // // returns the length of the token. Recursively calls itself for arrays and objects.
-            // AtomicSizeProfile analyzeToken(JsonElement token)
-            // {
-            //     switch (token.ValueKind)
-            //     {
-            //         case JsonValueKind.Object:
-            //             return new (InclusiveSize: analyzeObject(token), ExclusiveSize: 2);
-            //         case JsonValueKind.Array: {
-            //             var r = new AtomicSizeProfile(0);
-            //             foreach (var item in token.EnumerateArray())
-            //             {
-            //                 r += analyzeToken(item);
-            //             }
-            //             return r;
-            //         }
-            //         case JsonValueKind.String:
-            //             return new ((((string?)token)?.Length ?? 4) + 2);
-            //         case JsonValueKind.Integer:
-            //             // This should be the same as token.ToString().Length, but I didn't want to allocate the string unnecesarily
-            //             return new((int)Math.Log10(Math.Abs((long)token) + 1) + 1);
-            //         case JsonValueKind.Number:
-            //             return new(((double)token).ToString().Length);
-            //         case JsonValueKind.True:
-            //             return new(4);
-            //         case JsonValueKind.False:
-            //             return new(5);
-            //         case JsonValueKind.Null:
-            //             return new(4);
-            //         default:
-            //             Debug.Assert(false, $"Unexpected token type {token.ValueKind}");
-            //             return new(token.ToString().Length);
-            //     }
-            // }
-            // int analyzeObject(JsonElement j)
-            // {
-            //     var type = ((string?)j.GetPropertyOrNull("$type")?.GetString())?.Apply(viewModelMapper.GetMapByTypeId);
+            var reader = new Utf8JsonReader(json);
+            return Analyze(ref reader, rootViewModelType);
+        }
 
-            //     var typeName = type?.Type.ToCode(stripNamespace: true) ?? "UnknownType";
-            //     var props = new Dictionary<string, AtomicSizeProfile>();
+        /// <summary> Computes the inclusive and exclusive size of each JSON property. </summary>
+        public JsonSizeProfile Analyze(ref Utf8JsonReader json, Type? rootViewModelType)
+        {
+            Dictionary<string, ClassSizeProfile> results = new();
+            // returns the length of the token. Recursively calls itself for arrays and objects.
+            AtomicSizeProfile analyzeNode(ref Utf8JsonReader json, Type? type)
+            {
+                switch (json.TokenType)
+                {
+                    case JsonTokenType.StartObject:
+                        return new (InclusiveSize: analyzeObject(ref json, type), ExclusiveSize: 2);
+                    case JsonTokenType.StartArray: {
+                        json.Read();
+                        var elementType = type?.GetEnumerableType();
+                        var r = new AtomicSizeProfile(0);
+                        while (json.TokenType != JsonTokenType.EndArray)
+                        {
+                            r = new AtomicSizeProfile(r.InclusiveSize + analyzeNode(ref json, elementType).InclusiveSize);
+                            json.Read();
+                        }
+                        if (json.TokenType != JsonTokenType.EndArray)
+                            throw new JsonException($"Expected EndArray, found {json.TokenType}.");
+                        return r;
+                    }
+                    case JsonTokenType.String:
+                        return new (json.GetValueLength() + 2);
+                    case JsonTokenType.Number:
+                        return new (json.GetValueLength());
+                    case JsonTokenType.True:
+                        return new(4);
+                    case JsonTokenType.False:
+                        return new(5);
+                    case JsonTokenType.Null:
+                        return new(4);
+                    default: {
+                        Debug.Assert(false, $"Unexpected token type {json.TokenType}");
+                        var start = json.TokenStartIndex;
+                        json.Skip();
+                        return new((int)(json.BytesConsumed - start));
+                    }
+                }
+            }
+            int analyzeObject(ref Utf8JsonReader json, Type? type)
+            {
+                var typeMap = type is null ? null : viewModelMapper.GetMap(type);
+                var typeName = type?.ToCode(stripNamespace: true) ?? "UnknownType";
 
-            //     var totalSize = new AtomicSizeProfile(0);
-            //     foreach (var prop in j.Properties())
-            //     {
-            //         var propSize = analyzeToken(prop.Value);
-            //         props[prop.Name] = propSize;
+                var props = new Dictionary<string, AtomicSizeProfile>();
 
-            //         totalSize += propSize;
-            //         totalSize += 4 + prop.Name.Length; // 2 for the quotes, 1 for :, 1 for ,
-            //     }
+                var startIndex = json.TokenStartIndex;
+                var exclusiveSize = 2;
 
-            //     var classSize = new ClassSizeProfile(totalSize, props);
-            //     if (results.TryGetValue(typeName, out var existing))
-            //     {
-            //         results[typeName] = existing + classSize;
-            //     }
-            //     else
-            //     {
-            //         results[typeName] = classSize;
-            //     }
-            //     return totalSize.InclusiveSize;
-            // }
+                json.AssertRead(JsonTokenType.StartObject);
+                while (json.TokenType == JsonTokenType.PropertyName)
+                {
+                    var propName = json.GetString().NotNull();
+                    var propNameLength = json.GetValueLength();
+                    json.Read();
+                    if (propName == "$type")
+                    {
+                        typeMap = viewModelMapper.GetMapByTypeId(json.GetString().NotNull("$type"));
+                        type = typeMap.Type;
+                        typeName = typeMap.Type.ToCode(stripNamespace: true);
+                    }
 
-            // var totalSize = analyzeObject(json);
-            // return new JsonSizeProfile(results, totalSize);
+                    var propertyMap = typeMap?.Properties.FirstOrDefault(p => p.Name == propName);
+
+                    var propSize = analyzeNode(ref json, propertyMap?.Type);
+                    props[propertyMap?.PropertyInfo?.Name ?? propName] = propSize + new AtomicSizeProfile(propNameLength + 4); // 2 for the quotes, 1 for :, 1 for ,
+                    exclusiveSize += propNameLength + 4;
+                    json.Read();
+                }
+                if (json.TokenType != JsonTokenType.EndObject)
+                    throw new JsonException($"Expected EndObject but found {json.TokenType}");
+
+                var inclusiveSize = (int)(json.BytesConsumed - startIndex);
+                var classSize = new ClassSizeProfile(new AtomicSizeProfile(inclusiveSize, exclusiveSize), props);
+                if (results.TryGetValue(typeName, out var existing))
+                {
+                    results[typeName] = existing + classSize;
+                }
+                else
+                {
+                    results[typeName] = classSize;
+                }
+                return inclusiveSize;
+            }
+            
+            if (json.TokenType == JsonTokenType.None)
+                json.AssertRead(JsonTokenType.None);
+
+            var totalSize = analyzeObject(ref json, rootViewModelType);
+            return new JsonSizeProfile(results, totalSize);
         }
 
 
@@ -122,7 +154,6 @@ namespace DotVVM.Framework.Diagnostics
 
             public static AtomicSizeProfile operator +(AtomicSizeProfile a, AtomicSizeProfile b) => new AtomicSizeProfile(a.InclusiveSize + b.InclusiveSize, a.ExclusiveSize + b.ExclusiveSize);
             public static AtomicSizeProfile operator +(AtomicSizeProfile a, int c) => new AtomicSizeProfile(a.InclusiveSize + c, a.ExclusiveSize + c);
-
         }
     }
 }
