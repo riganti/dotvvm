@@ -393,12 +393,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var isPostback = Property(dotvvmState, "IsPostback");
 
             // curly brackets are used for variables and methods from the scope of this factory method
-            // writer.WriteStartObject();
-            block.Add(Call(writer, nameof(Utf8JsonWriter.WriteStartObject), Type.EmptyTypes));
-
-            // encryptedValuesWriter.Nest();
-            block.Add(Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Nest), Type.EmptyTypes));
-
             // if (requireTypeField)
             //     writer.WriteString("$type", "{Type}");
             block.Add(IfThen(requireTypeField,
@@ -503,12 +497,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 block.Add(Expression.Label(endPropertyLabel));
             }
 
-            // writer.WriteEndObject();
-            block.Add(ExpressionUtils.Replace<Utf8JsonWriter>(w => w.WriteEndObject(), writer));
-
-            // encryptedValuesWriter.End();
-            block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes));
-
             // compile the expression
             var ex = Lambda<WriterDelegate<T>>(
                 Block(new[] { value }, block).OptimizeConstants(), writer, value, jsonOptions, requireTypeField, encryptedValuesWriter, dotvvmState);
@@ -576,7 +564,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options, DotvvmSerializationState state)
             if (converter is ViewModelJsonConverter.IVMConverter)
             {
-                return Call(Constant(converter), nameof(ViewModelJsonConverter.VMConverter<object>.Write), Type.EmptyTypes, writer, value, jsonOptions, dotvvmState, Expression.Constant(true));
+                return Call(Constant(converter), nameof(ViewModelJsonConverter.VMConverter<object>.Write), Type.EmptyTypes, writer, value, jsonOptions, dotvvmState, Constant(true), Constant(true));
             }
             else
             {

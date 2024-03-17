@@ -17,12 +17,7 @@ namespace System
     /// int lastElement = someArray[^1]; // lastElement = 5
     /// </code>
     /// </remarks>
-#if SYSTEM_PRIVATE_CORELIB
-    public
-#else
-    internal
-#endif
-    readonly struct Index : IEquatable<Index>
+    internal readonly struct Index : IEquatable<Index>
     {
         private readonly int _value;
 
