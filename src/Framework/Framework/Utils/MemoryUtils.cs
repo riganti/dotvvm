@@ -31,5 +31,22 @@ namespace DotVVM.Framework.Utils
             await stream.CopyToAsync(buffer);
             return buffer.ToMemory();
         }
+
+        public static int CopyTo(this Stream stream, byte[] buffer, int offset)
+        {
+            var readBytesTotal = 0;
+
+            while (true)
+            {
+                var maxLength = buffer.Length - readBytesTotal - offset;
+                if (maxLength == 0)
+                    return readBytesTotal;
+                var count = stream.Read(buffer, readBytesTotal + offset, maxLength);
+                if (count == 0)
+                    return readBytesTotal;
+
+                readBytesTotal += count;
+            }
+        }
     }
 }

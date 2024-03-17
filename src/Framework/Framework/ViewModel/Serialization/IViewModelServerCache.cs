@@ -14,7 +14,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         string StoreViewModel(IDotvvmRequestContext context, Stream data);
 
-        JsonElement TryRestoreViewModel(IDotvvmRequestContext context, string viewModelCacheId, JsonElement viewModelDiffToken);
+        ReadOnlyMemory<byte> TryRestoreViewModel(IDotvvmRequestContext context, string viewModelCacheId, JsonElement viewModelDiffToken);
 
     }
 }

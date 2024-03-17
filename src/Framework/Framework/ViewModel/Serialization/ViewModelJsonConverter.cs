@@ -58,7 +58,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             public object? ReadUntyped(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, DotvvmSerializationState state);
             public object? PopulateUntyped(ref Utf8JsonReader reader, Type typeToConvert, object? value, JsonSerializerOptions options, DotvvmSerializationState state);
-            public void WriteUntyped(Utf8JsonWriter writer, object? value, JsonSerializerOptions options, DotvvmSerializationState state);
+            public void WriteUntyped(Utf8JsonWriter writer, object? value, JsonSerializerOptions options, DotvvmSerializationState state, bool requireTypeField = true, bool wrapObject = true);
         }
         public class VMConverter<T>(ViewModelJsonConverter factory): JsonConverter<T>, IVMConverter
         {
@@ -115,7 +115,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
                 this.Write(writer, value, options, DotvvmSerializationState.Current!);
-            public void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options, DotvvmSerializationState state, bool requireTypeField = true)
+            public void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options, DotvvmSerializationState state, bool requireTypeField = true, bool wrapObject = true)
             {
                 if (state is null)
                     throw new ArgumentNullException(nameof(state), "DotvvmSerializationState must be created before calling the ViewModelJsonConverter.");
@@ -127,9 +127,24 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var evSuppressLevel = state.EVWriter!.SuppressedLevel;
                 try
                 {
-                    state.UsedSerializationMaps.Add(SerializationMap);
+                    if (requireTypeField)
+                    {
+                        // $type not required -> serialization map is already known from the parent
+                        state.UsedSerializationMaps.Add(SerializationMap);
+                    }
+                    if (wrapObject)
+                    {
+                        writer.WriteStartObject();
+                    }
+                    state.EVWriter.Nest();
 
                     SerializationMap.WriterFactory.Invoke(writer, value, options, requireTypeField, state.EVWriter, state);
+
+                    if (wrapObject)
+                    {
+                        writer.WriteEndObject();
+                    }
+                    state.EVWriter.End();
                 }
                 finally
                 {
@@ -182,8 +197,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 this.Read(ref reader, typeToConvert, options, state);
             public object? PopulateUntyped(ref Utf8JsonReader reader, Type typeToConvert, object? value, JsonSerializerOptions options, DotvvmSerializationState state) =>
                 this.Populate(ref reader, options, (T)value!, state);
-            public void WriteUntyped(Utf8JsonWriter writer, object? value, JsonSerializerOptions options, DotvvmSerializationState state) =>
-                this.Write(writer, (T)value!, options, state);
+            public void WriteUntyped(Utf8JsonWriter writer, object? value, JsonSerializerOptions options, DotvvmSerializationState state, bool requireTypeField = true, bool wrapObject = true) =>
+                this.Write(writer, (T)value!, options, state, requireTypeField, wrapObject);
         }
     }
 

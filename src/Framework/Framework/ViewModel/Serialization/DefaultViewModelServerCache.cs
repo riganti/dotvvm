@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -29,7 +30,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return hash;
         }
 
-        public JsonElement TryRestoreViewModel(IDotvvmRequestContext context, string viewModelCacheId, JsonElement viewModelDiffToken)
+        public ReadOnlyMemory<byte> TryRestoreViewModel(IDotvvmRequestContext context, string viewModelCacheId, JsonElement viewModelDiffToken)
         {
             var cachedData = viewModelStore.Retrieve(viewModelCacheId);
             var routeLabel = new KeyValuePair<string, object?>("route", context.Route!.RouteName);
@@ -42,31 +43,53 @@ namespace DotVVM.Framework.ViewModel.Serialization
             DotvvmMetrics.ViewModelCacheHit.Add(1, routeLabel);
             DotvvmMetrics.ViewModelCacheBytesLoaded.Add(cachedData.Length, routeLabel);
 
-            var result = UnpackViewModel(cachedData);
-            var resultJson = JsonNode.Parse(result)!.AsObject();
-            // TODO: this is just bad
-            JsonUtils.Patch(resultJson, JsonObject.Create(viewModelDiffToken)!);
-            var jsonData = new MemoryStream();
-            using (var writer = new Utf8JsonWriter(jsonData))
+            var unpacked = UnpackViewModel(cachedData);
+            var unpackedBuffer = ArrayPool<byte>.Shared.Rent(unpacked.length + 2);
+            try
             {
-                resultJson.WriteTo(writer);
+                var copiedLength = unpacked.data.CopyTo(unpackedBuffer, 1);
+                if (copiedLength != unpacked.length)
+                    throw new Exception($"DefaultViewModelServerCache.PackViewModel returned incorrect length");
+                unpackedBuffer[0] = (byte)'{';
+                unpackedBuffer[unpacked.length + 1] = (byte)'}';
+
+                var resultJson = JsonNode.Parse(unpackedBuffer.AsSpan()[..(unpacked.length + 2)])!.AsObject();
+                // TODO: this is just bad
+                JsonUtils.Patch(resultJson, JsonObject.Create(viewModelDiffToken)!);
+                var jsonData = new MemoryStream();
+                using (var writer = new Utf8JsonWriter(jsonData))
+                {
+                    resultJson.WriteTo(writer);
+                }
+                return jsonData.ToMemory();
             }
-            return JsonDocument.Parse(jsonData.ToMemory()).RootElement;
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(unpackedBuffer);
+            }
         }
 
         protected virtual byte[] PackViewModel(Stream data)
         {
             var output = new MemoryStream();
-            using (var compressed = new System.IO.Compression.DeflateStream(output, System.IO.Compression.CompressionLevel.Fastest))
+            using (var compressed = new System.IO.Compression.DeflateStream(output, System.IO.Compression.CompressionLevel.Fastest, leaveOpen: true))
             {
                 data.CopyTo(compressed);
             }
+            output.Write(BitConverter.GetBytes((int)data.Position), 0, 4); // 4 bytes uncompressed length at the end
+
             return output.ToArray();
         }
 
-        protected virtual Stream UnpackViewModel(byte[] cachedData)
+        protected virtual (Stream data, int length) UnpackViewModel(byte[] cachedData)
         {
-            return new DeflateStream(new MemoryStream(cachedData), CompressionMode.Decompress);
+            var inflate = new DeflateStream(new ReadOnlyMemoryStream(cachedData.AsMemory()[..^4]), CompressionMode.Decompress);
+            var length = BitConverter.ToInt32(cachedData.AsSpan()[^4..]
+#if !DotNetCore
+                .ToArray(), 0
+#endif
+            );
+            return (inflate, length);
         }
     }
 }
