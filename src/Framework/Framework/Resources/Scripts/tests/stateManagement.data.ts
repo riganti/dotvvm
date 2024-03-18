@@ -9,6 +9,7 @@ initDotvvm({
             $type: "t2",
             Id: 1
         }],
+        Enums: [ "A", "B", "A, B" ],
         ArrayWillBe: null,
         Inner: {
             $type: "t3",
@@ -32,6 +33,9 @@ initDotvvm({
                     type: [
                         "t2"
                     ]
+                },
+                Enums: {
+                    type: [ "e1" ]
                 },
                 ArrayWillBe: {
                     type: [
@@ -100,6 +104,16 @@ initDotvvm({
                 "B": {
                     type: "String"
                 }
+            }
+        },
+        e1: {
+            type: "enum",
+            isFlags: true,
+            values: {
+                "A": 1,
+                "B": 2,
+                "C": 4,
+                "D": 8,
             }
         }
     }
