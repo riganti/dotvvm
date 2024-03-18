@@ -7,10 +7,8 @@ export {
     clear,
     distinct,
     contains,
-    firstOrDefault,
     insert,
     insertRange,
-    lastOrDefault,
     max,
     min,
     orderBy,
@@ -70,16 +68,6 @@ function contains<T>(array: T[], value: T): boolean {
     return array.map(e => ko.unwrap(e)).includes(value);
 }
 
-function firstOrDefault<T>(array: T[], predicate: (s: T) => boolean): T | null {
-    for (const item of array) {
-        const itemUnwrapped = ko.unwrap(item)
-        if (predicate(itemUnwrapped)) {
-            return itemUnwrapped
-        }
-    }
-    return null;
-}
-
 function insert<T>(observable: any, index: number, element: T): void {
     let array = Array.from<T>(observable.state);
     array.splice(index, 0, element);
@@ -92,21 +80,8 @@ function insertRange<T>(observable: any, index: number, elements: T[]): void {
     observable.setState(array);
 }
 
-function lastOrDefault<T>(array: T[], predicate: (s: T) => boolean): T | null {
-    for (let i = array.length - 1; i >= 0; i--) {
-        const itemUnwrapped = ko.unwrap(array[i])
-        if (predicate(itemUnwrapped)) {
-            return itemUnwrapped
-        }
-    }
-    return null;
-}
-
-function max<T>(array: T[], selector: (item: T) => number, throwIfEmpty: boolean): number | null {
+function max<T>(array: T[], selector: (item: T) => number): number | null {
     if (array.length === 0) {
-        if (throwIfEmpty) {
-            throw new Error("Source is empty! Max operation cannot be performed.");
-        }
         return null;
     }
 
@@ -119,11 +94,8 @@ function max<T>(array: T[], selector: (item: T) => number, throwIfEmpty: boolean
     return max;
 }
 
-function min<T>(array: T[], selector: (item: T) => number, throwIfEmpty: boolean): number | null {
+function min<T>(array: T[], selector: (item: T) => number): number | null {
     if (array.length === 0) {
-        if (throwIfEmpty) {
-            throw new Error("Source is empty! Min operation cannot be performed.");
-        }
         return null;
     }
 

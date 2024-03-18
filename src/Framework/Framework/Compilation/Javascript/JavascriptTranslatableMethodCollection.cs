@@ -562,18 +562,24 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(() => ImmutableArrayExtensions.ElementAtOrDefault(default(ImmutableArray<Generic.T>), 0),
                 new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
 
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(), new GenericMethodCompiler((args, m) => BuildIndexer(args[1], new JsLiteral(0), m)));
-            AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>)), new GenericMethodCompiler((args, m) => BuildIndexer(args[1], new JsLiteral(0), m)));
+            var firstOrDefault = new GenericMethodCompiler((args, m) => BuildIndexer(args[1], new JsLiteral(0), m).WithAnnotation(MayBeNullAnnotation.Instance));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(), firstOrDefault);
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().First(), firstOrDefault);
+            AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>)), firstOrDefault);
+            AddMethodTranslator(() => ImmutableArrayExtensions.First(default(ImmutableArray<Generic.T>)), firstOrDefault);
+
             var firstOrDefaultPred = new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("firstOrDefault").Invoke(args[1], args[2]).WithAnnotation(MayBeNullAnnotation.Instance));
+                args[1].Member("find").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(_ => true), firstOrDefaultPred);
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().First(_ => true), firstOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>), _ => true), firstOrDefaultPred);
+            AddMethodTranslator(() => ImmutableArrayExtensions.First(default(ImmutableArray<Generic.T>), _ => true), firstOrDefaultPred);
 
             var lastOrDefault = new GenericMethodCompiler(args => args[1].Member("at").Invoke(new JsLiteral(-1)).WithAnnotation(MayBeNullAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(), lastOrDefault);
             AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>)), lastOrDefault);
             var lastOrDefaultPred = new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("lastOrDefault").Invoke(args[1], args[2]).WithAnnotation(MayBeNullAnnotation.Instance));
+                args[1].Member("findLast").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(_ => false), lastOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>), _ => false), lastOrDefaultPred);
 
@@ -631,12 +637,16 @@ namespace DotVVM.Framework.Compilation.Javascript
                     if (m.Name is "Max" or "Min" && parameters.Length == 1 && itemType.UnwrapNullableType().IsNumericType())
                     {
                         AddMethodTranslator(m, new GenericMethodCompiler(args =>
-                            new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member(m.Name is "Min" ? "min" : "max").Invoke(args[1], selectIdentityFunc.Clone(), new JsLiteral(!itemType.IsNullable()))));
+                            new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member(m.Name is "Min" ? "min" : "max").Invoke(args[1], selectIdentityFunc.Clone())
+                                .WithAnnotation(MayBeNullAnnotation.Instance)
+                        ));
                     }
                     else if (m.Name is "Max" or "Min" && parameters.Length == 2 && selectorResultType?.UnwrapNullableType().IsNumericType() == true)
                     {
                         AddMethodTranslator(m, new GenericMethodCompiler(args =>
-                        new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member(m.Name is "Min" ? "min" : "max").Invoke(args[1], args[2], new JsLiteral(!selectorResultType.IsNullable()))));
+                            new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member(m.Name is "Min" ? "min" : "max").Invoke(args[1], args[2])
+                                .WithAnnotation(MayBeNullAnnotation.Instance)
+                        ));
                     }
 
                     else if (m.Name is "Sum" && parameters.Length == 1 && itemType.UnwrapNullableType().IsNumericType())
