@@ -4,24 +4,26 @@ type LogLevel = "normal" | "verbose";
 
 export const level = getLogLevel();
 
-let logger = function defaultLogger(level: "warn" | "log" | "error" | "trace", area: DotvvmLoggingArea, ...args: any) {
+type ConsoleLogLevel = "warn" | "log" | "error" | "trace";
+
+let logger = function defaultLogger(level: ConsoleLogLevel, area: DotvvmLoggingArea, ...args: any) {
     console[level](area, ...args)
 }
 
 /**
  * Instead of calling console.log, console.warn or console.error, DotVVM will call this function instead.
- * Please keep in mind that the exact wording of error message is not DotVVM public API and may change without notice.
+ * Please keep in mind that the exact wording of log messages is not DotVVM public API and may change without notice.
  * @example
- * dotvvm.log.setLogger((previous, level, area, ...args) => {
+ * dotvvm.log.setLogger((next, level, area, ...args) => {
  *     if (area == "validation" && /^This message should be an error$/.test(args[0])) {
  *          level = "error"
  *     }
 *      previous(level, area, ...args) // call the default logger
  * })
  */
-export function setLogger(newLogger: (previous: typeof logger, level: "warn" | "log" | "error" | "trace", area: DotvvmLoggingArea, ...args: any) => void) {
-    const previousLogger = logger;
-    logger = (...args) => newLogger(previousLogger, ...args);
+export function setLogger(newLogger: (next: typeof logger, level: ConsoleLogLevel, area: DotvvmLoggingArea, ...args: any) => void) {
+    const nextLogger = logger;
+    logger = (...args) => newLogger(nextLogger, ...args);
 }
 
 export type DotvvmLoggingArea = (

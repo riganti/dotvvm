@@ -2,6 +2,7 @@
 import { globalValidationObject as validation, ValidationErrorDescriptor } from "../validation/validation"
 import { createComplexObservableSubViewmodel, createComplexObservableViewmodel, ObservableHierarchy, ObservableSubHierarchy } from "./observableHierarchies"
 import { getErrors } from "../validation/error"
+import { setLogger } from "../utils/logging";
 
 
 describe("DotVVM.Validation - public API", () => {
@@ -136,6 +137,36 @@ describe("DotVVM.Validation - public API", () => {
         }
         finally {
             warnMock.mockRestore();
+        }
+    })
+
+    test("addErrors - second level nonexistent property (setLogger capture)", () => {
+        //Setup
+        const vm = createComplexObservableViewmodel();
+        const logMessages: any[][] = []
+        let captureLog = true
+        setLogger((next, level, area, ...args) => {
+            if (captureLog && level == "warn")
+                logMessages.push([ "area", ...args ])
+            else
+                next(level, area, ...args)
+        })
+
+        try {
+            //Act
+            validation.addErrors(
+                [
+                    { errorMessage: "Does not matter", propertyPath: "/Prop1/NonExistent" },
+                ],
+                { root: ko.observable(vm) }
+            );
+
+            //Check
+            expect(logMessages.length).toBe(1);
+            expect(logMessages[0][1]).toContain("Validation error could not been applied to property specified by propertyPath /Prop1/NonExistent. Property with name NonExistent does not exist on /Prop1.");
+        }
+        finally {
+            captureLog = false
         }
     })
 
