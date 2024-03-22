@@ -2,8 +2,11 @@ import { CoerceError } from "../shared-classes"
 import { isNumber } from "../utils/isNumber"
 import { keys } from "../utils/objects"
 
-export function enumStringToInt(value: number | string, type: EnumTypeMetadata): number | null {
+export function enumStringToInt(value: number | string | null | undefined, type: EnumTypeMetadata): number | null {
     // if it's number already, just return it
+    if (value == null) {
+        return null
+    }
     if (isNumber(value)) {
         return +value
     }

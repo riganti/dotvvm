@@ -719,7 +719,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableFirstOrDefaultParametrized(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.translations.array.firstOrDefault(LongArray(),(item)=>ko.unwrap(item)>0)", result);
+            Assert.AreEqual("LongArray().find((item)=>ko.unwrap(item)>0)", result);
         }
 
         [TestMethod]
@@ -770,7 +770,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableLastOrDefaultParametrized(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.translations.array.lastOrDefault(LongArray(),(item)=>ko.unwrap(item)>0)", result);
+            Assert.AreEqual("LongArray().findLast((item)=>ko.unwrap(item)>0)", result);
         }
 
         [TestMethod]
@@ -806,7 +806,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMax(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.max({property}(),(arg)=>ko.unwrap(arg),{(!nullable).ToString().ToLowerInvariant()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.max({property}(),(arg)=>ko.unwrap(arg))", result);
         }
 
         [TestMethod]
@@ -833,7 +833,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMax_WithSelector(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.max({property}(),(item)=>-ko.unwrap(item),{(!nullable).ToString().ToLowerInvariant()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.max({property}(),(item)=>-ko.unwrap(item))", result);
         }
 
         [TestMethod]
@@ -860,7 +860,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMin(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.min({property}(),(arg)=>ko.unwrap(arg),{(!nullable).ToString().ToLowerInvariant()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.min({property}(),(arg)=>ko.unwrap(arg))", result);
         }
 
         [TestMethod]
@@ -887,7 +887,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMin_WithSelector(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.min({property}(),(item)=>-ko.unwrap(item),{(!nullable).ToString().ToLowerInvariant()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.min({property}(),(item)=>-ko.unwrap(item))", result);
         }
 
         [DataRow("Int32Array")]

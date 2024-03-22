@@ -140,43 +140,27 @@ test("ListExtensions::RemoveLast", () => {
     expect(vm.Array()[3]().Id()).toBe(4);
 })
 
-test("Enumerable::FirstOrDefault", () => {
-    prepareArray();
-    expect(arrayHelper.firstOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 !== 0 }).Id()).toBe(1);
-    expect(arrayHelper.firstOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 === 0 }).Id()).toBe(2);
-})
-
-test("Enumerable::LastOrDefault", () => {
-    prepareArray();
-    expect(arrayHelper.lastOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 !== 0 }).Id()).toBe(5);
-    expect(arrayHelper.lastOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 === 0 }).Id()).toBe(4);
-})
-
 test("Enumerable::Max", () => {
     prepareArray();
-    expect(arrayHelper.max(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, true)).toBe(5);
-    expect(arrayHelper.max(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, false)).toBe(5);
+    expect(arrayHelper.max(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) })).toBe(5);
 
     arrayHelper.clear(vm.Array);
     s.doUpdateNow();
-    expect(() => arrayHelper.max(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, true)).toThrowError("Source is empty! Max operation cannot be performed.");
-    expect(arrayHelper.max(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, false)).toBe(null);
+    expect(arrayHelper.max(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) })).toBe(null);
 })
 
 test("Enumerable::Min", () => {
     prepareArray();
-    expect(arrayHelper.min(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, true)).toBe(1);
-    expect(arrayHelper.min(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, false)).toBe(1);
+    expect(arrayHelper.min(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) })).toBe(1);
 
     arrayHelper.clear(vm.Array);
     s.doUpdateNow();
-    expect(() => arrayHelper.min(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, true)).toThrowError("Source is empty! Min operation cannot be performed.");
-    expect(arrayHelper.min(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, false)).toBe(null);
+    expect(arrayHelper.min(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) })).toBe(null);
 })
 
 test("Enumerable::OrderBy", () => {
     prepareArray();
-    const result = arrayHelper.orderBy(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, "t2");
+    const result = arrayHelper.orderBy(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, null);
     expect(result.length).toBe(5);
     expect(result[0]().Id()).toBe(1);
     expect(result[1]().Id()).toBe(2);
@@ -187,7 +171,7 @@ test("Enumerable::OrderBy", () => {
 
 test("Enumerable::OrderByDescending", () => {
     prepareArray();
-    const result = arrayHelper.orderByDesc(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, "t2");
+    const result = arrayHelper.orderByDesc(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) }, null);
     expect(result.length).toBe(5);
     expect(result[0]().Id()).toBe(5);
     expect(result[1]().Id()).toBe(4);
@@ -195,6 +179,52 @@ test("Enumerable::OrderByDescending", () => {
     expect(result[3]().Id()).toBe(2);
     expect(result[4]().Id()).toBe(1);
 })
+
+test("Enumerable::OrderBy with nulls", () => {
+    vm.Array.setState([ { Id: -1 }, { Id: 4 }, { Id: 0 }, { Id: 3 } ])
+    s.doUpdateNow()
+    const result = arrayHelper.orderBy(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) || null }, null);
+    expect(result.length).toBe(4);
+    expect(result[0]().Id()).toBe(0);
+    expect(result[1]().Id()).toBe(-1);
+    expect(result[2]().Id()).toBe(3);
+    expect(result[3]().Id()).toBe(4);
+})
+
+test("Enumerable::OrderBy with enums", () => {
+    vm.Enums.setState([ 'D', 'A', 0, 'A, D', 'B', 123432 ])
+    s.doUpdateNow()
+    const result = arrayHelper.orderBy(vm.Enums(), function (arg: any) { return ko.unwrap(arg) }, "e1");
+    expect(result.length).toBe(6);
+    expect(result[0]()).toBe(0);
+    expect(result[1]()).toBe('A');
+    expect(result[2]()).toBe('B');
+    expect(result[3]()).toBe('D');
+    expect(result[4]()).toBe('A,D');
+    expect(result[5]()).toBe(123432);
+})
+
+test("Enumerable::OrderBy stable", () => {
+    prepareArray()
+    const result = arrayHelper.orderBy(vm.Array(), function (arg: any) { return 1 }, null);
+    expect(result.length).toBe(5);
+    expect(result[0]().Id()).toBe(1);
+    expect(result[1]().Id()).toBe(2);
+    expect(result[2]().Id()).toBe(3);
+    expect(result[3]().Id()).toBe(4);
+    expect(result[4]().Id()).toBe(5);
+})
+test("Enumerable::OrderByDescending stable", () => {
+    prepareArray()
+    const result = arrayHelper.orderBy(vm.Array(), function (arg: any) { return 1 }, null);
+    expect(result.length).toBe(5);
+    expect(result[0]().Id()).toBe(1);
+    expect(result[1]().Id()).toBe(2);
+    expect(result[2]().Id()).toBe(3);
+    expect(result[3]().Id()).toBe(4);
+    expect(result[4]().Id()).toBe(5);
+})
+
 
 function prepareArray() {
     arrayHelper.clear(vm.Array);
