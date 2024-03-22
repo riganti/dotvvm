@@ -22,7 +22,7 @@ import * as api from './api/api'
 import * as eventHub from './api/eventHub'
 import * as viewModuleManager from './viewModules/viewModuleManager'
 import { notifyModuleLoaded } from './postback/resourceLoader'
-import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
+import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError, setLogger } from "./utils/logging"
 import * as metadataHelper from './metadata/metadataHelper'
 import { StateManager } from "./state-manager"
 import { DotvvmEvent } from "./events"
@@ -119,7 +119,8 @@ const dotvvmExports = {
         logInfo,
         logInfoVerbose,
         logPostBackScriptError,
-        level
+        level,
+        setLogger
     },
     options,
     translations: translations as any,
