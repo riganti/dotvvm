@@ -409,5 +409,29 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitFor(() => AssertUI.InnerTextEquals(browser.First("[data-ui=counter]"), "2"), 2000);
             });
         }
+
+        [Fact]
+        public void Feature_MarkupControl_CommandAsPropertyPage()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_CommandAsPropertyPage);
+
+                var lists = browser.FindElements("div[data-ui=button-list]");
+                for (var j = 0; j < 4; j++)
+                {
+                    for (var i = 0; i < lists.Count; i++)
+                    {
+                        lists[i].ElementAt("input[type=button]", j).Click();
+                        AssertUI.InnerTextEquals(browser.Single("p[data-ui=result]"), (i % 3) switch {
+                            0 => "Selected item: One, true",
+                            1 => "Selected item: Two, false",
+                            _ => "Selected item: Three, true"
+                        });
+
+                        i++;
+                    }
+                }
+            });
+        }
     }
 }

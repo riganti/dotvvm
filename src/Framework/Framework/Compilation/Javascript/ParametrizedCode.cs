@@ -50,9 +50,14 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         // TODO(exyi): add WriteTo(StringBuilder)
         /// <summary>
-        /// Converts this to string and assigns all parameters using `parameterAssignment`. If there is any missing, exception is thrown.
+        /// Converts this to string and assigns all parameters using `parameterAssignment`.
         /// </summary>
+        /// <exception cref="MissingAssignmentException">Thrown when some parameter is not assigned and has no default value.</exception>
         public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment) => ToString(parameterAssignment, out var _);
+        /// <summary>
+        /// Converts this to string and assigns all parameters using `parameterAssignment`.
+        /// </summary>
+        /// <exception cref="MissingAssignmentException">Thrown when some parameter is not assigned and has no default value.</exception>
         public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment, out bool allIsDefault)
         {
             allIsDefault = true;
@@ -205,7 +210,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     {
                         pp[i] = parameters[i].DefaultAssignment;
                         if (pp[i].Code == null)
-                            throw new InvalidOperationException($"Assignment of parameter '{parameters[i].Parameter}' was not found.");
+                            throw new MissingAssignmentException(parameters[i], this);
                     }
                 }
                 else
@@ -227,6 +232,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                         yield return inner;
                 }
             }
+        }
+
+        public record MissingAssignmentException(CodeParameterInfo Parameter, ParametrizedCode FullCode): RecordExceptions.RecordException
+        {
+            public override string Message => $"Assignment of parameter '{Parameter.Parameter}' was not found.";
         }
 
         /// <summary>

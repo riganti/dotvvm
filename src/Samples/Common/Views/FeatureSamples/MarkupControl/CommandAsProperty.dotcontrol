@@ -1,0 +1,6 @@
+﻿@viewModel System.String, mscorlib
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.CommandAsProperty, DotVVM.Samples.Common
+
+<%-- both options are legit --%>
+<dot:Button Text="{value: _this}" Click="{command: _control.Click}" />
+<dot:Button Text="{value: _this}" Click="{staticCommand: _control.Click}" />

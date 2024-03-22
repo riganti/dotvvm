@@ -9,6 +9,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
@@ -263,18 +264,26 @@ namespace DotVVM.Framework.Controls
 
             string SubstituteArguments(ParametrizedCode parametrizedCode)
             {
-                return parametrizedCode.ToString(p =>
-                    p == JavascriptTranslator.CurrentElementParameter ? options.ElementAccessor :
-                    p == CommandBindingExpression.CurrentPathParameter ? CodeParameterAssignment.FromIdentifier(getContextPath(control)) :
-                    p == CommandBindingExpression.ControlUniqueIdParameter ? uniqueControlId?.GetParametrizedJsExpression(control) ?? CodeParameterAssignment.FromLiteral("") :
-                    p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
-                    p == JavascriptTranslator.KnockoutViewModelParameter ? viewModel :
-                    p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :
-                    p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
-                    p == CommandBindingExpression.PostbackHandlersParameter ? CodeParameterAssignment.FromIdentifier(getHandlerScript()) :
-                    p == CommandBindingExpression.AbortSignalParameter ? abortSignal :
-                    default
-                );
+                try
+                {
+                    return parametrizedCode.ToString(p =>
+                        p == JavascriptTranslator.CurrentElementParameter ? options.ElementAccessor :
+                        p == CommandBindingExpression.CurrentPathParameter ? CodeParameterAssignment.FromIdentifier(getContextPath(control)) :
+                        p == CommandBindingExpression.ControlUniqueIdParameter ? uniqueControlId?.GetParametrizedJsExpression(control) ?? CodeParameterAssignment.FromLiteral("") :
+                        p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
+                        p == JavascriptTranslator.KnockoutViewModelParameter ? viewModel :
+                        p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :
+                        p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
+                        p == CommandBindingExpression.PostbackHandlersParameter ? CodeParameterAssignment.FromIdentifier(getHandlerScript()) :
+                        p == CommandBindingExpression.AbortSignalParameter ? abortSignal :
+                        default
+                    );
+                }
+                catch (ParametrizedCode.MissingAssignmentException e) when (e.Parameter.Parameter == CommandBindingExpression.CommandArgumentsParameter)
+                {
+                    var returnType = expression.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type;
+                    throw new DotvvmControlException(control, $"The binding {expression} of type {returnType?.ToCode(stripNamespace: true) ?? "?"} requires arguments, but none were provided to the KnockoutHelper.GenerateClientPostback method.", innerException: e) { RelatedBinding = expression };
+                }
             }
         }
 
