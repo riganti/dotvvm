@@ -94,6 +94,17 @@ namespace DotVVM.Samples.BasicSamples
         }
 
         private string GetApplicationPath(IWebHostEnvironment env)
-            => Path.Combine(Path.GetDirectoryName(env.ContentRootPath), "Common");
+        {
+            var common = Path.Combine(Path.GetDirectoryName(env.ContentRootPath), "Common");
+            if (Directory.Exists(common))
+            {
+                return common;
+            }
+            if (File.Exists(Path.Combine(env.ContentRootPath, "Views/Default.dothtml")))
+            {
+                return env.ContentRootPath;
+            }
+            throw new DirectoryNotFoundException("Cannot find the 'Common' directory nor the 'Views' directory in the application root.");
+        }
     }
 }
