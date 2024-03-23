@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -817,35 +818,38 @@ namespace DotVVM.Samples.Tests.Feature
                 Assert.Equal(new List<string> { "1", "2", "8", "9", "10" }, column);
             });
         }
-
+        
         [Fact]
-        public async Task Feature_List_Translation_Remove_Reverse()
+        public void Feature_List_Translation_Remove_Reverse()
         {
-            var wasError = false;
-
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
-
-                browser.Wait(1000);
-                if (browser.FindElements(".exceptionMessage").Count > 0)
-                {
-                    wasError = true;
-                    return;
-                }
 
                 var rows = GetSortedRow(browser, "Reverse");
                 var column = GetColumnContent(rows, 0);
                 browser.WaitFor(() => Assert.Equal(10, column.Count), 500);
                 Assert.Equal(new List<string> { "10", "9", "8", "7", "6", "5", "4", "3", "2", "1" }, column);
             });
+        }
 
+        [Fact]
+        public async Task Feature_ExtensionMethodsNotResolvedOnStartup()
+        {
+            var client = new HttpClient();
+
+            // try to visit the page
+            var pageResponse = await client.GetAsync(TestSuiteRunner.Configuration.BaseUrls[0].TrimEnd('/') + "/" + SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+            TestOutput.WriteLine($"Page response: {(int)pageResponse.StatusCode}");
+            var wasError = pageResponse.StatusCode != HttpStatusCode.OK;
+
+            // dump extension methods on the output
+            var json = await client.GetStringAsync(TestSuiteRunner.Configuration.BaseUrls[0].TrimEnd('/') + "/dump-extension-methods");
+            TestOutput.WriteLine(json);
+            
             if (wasError)
             {
-                // error page - extension methods not found
-                var client = new HttpClient();
-                var json = await client.GetStringAsync(TestSuiteRunner.Configuration.BaseUrls[0].TrimEnd('/') + "/dump-extension-methods");
-                TestOutput.WriteLine(json);
-                throw new Exception("Test failed");
+                // fail the test on error
+                throw new Exception("Extension methods were not resolved on application startup.");
             }
         }
 

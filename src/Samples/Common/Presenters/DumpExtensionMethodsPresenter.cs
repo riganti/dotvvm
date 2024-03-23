@@ -39,7 +39,7 @@ namespace DotVVM.Samples.Common.Presenters
             }))
             .OrderBy(m => m.Namespace).ThenBy(m => m.Name);
 
-            await context.HttpContext.Response.WriteAsync("ExtensionMethodsCache dump: " + JsonConvert.SerializeObject(dump));
+            await context.HttpContext.Response.WriteAsync("ExtensionMethodsCache dump: " + JsonConvert.SerializeObject(dump, Formatting.Indented));
         }
     }
 }

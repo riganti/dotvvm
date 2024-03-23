@@ -99,7 +99,7 @@ namespace DotVVM.Samples.BasicSamples
             app.UseStaticFiles();
 
             app.UseEndpoints(endpoints => {
-                // endpoints.MapDotvvmHotReload();
+                endpoints.MapDotvvmHotReload();
                 endpoints.MapMetrics(); // prometheus metrics on /metrics
             });
         }
