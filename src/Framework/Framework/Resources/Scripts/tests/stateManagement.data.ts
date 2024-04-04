@@ -115,6 +115,16 @@ initDotvvm({
                 "C": 4,
                 "D": 8,
             }
+        },
+        tValidated: {
+            type: "object",
+            properties: {
+                RegexValidated: {
+                    validationRules: [
+                        { ruleName: "regularExpression", errorMessage: "Must have even length", parameters: ["^(..)+$"] }
+                    ]
+                }
+            }
         }
     }
 })
