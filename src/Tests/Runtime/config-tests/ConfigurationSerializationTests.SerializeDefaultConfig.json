@@ -1127,7 +1127,8 @@
     "DotVVM.Framework.Controls.JsComponent": {
       "Global": {
         "type": "System.Boolean",
-        "defaultValue": false
+        "defaultValue": false,
+        "onlyHardcoded": true
       },
       "Html:ID": {
         "type": "System.String",
@@ -1140,11 +1141,13 @@
       },
       "Name": {
         "type": "System.String",
-        "required": true
+        "required": true,
+        "onlyHardcoded": true
       },
       "WrapperTagName": {
         "type": "System.String",
-        "defaultValue": "div"
+        "defaultValue": "div",
+        "onlyHardcoded": true
       }
     },
     "DotVVM.Framework.Controls.Label": {
