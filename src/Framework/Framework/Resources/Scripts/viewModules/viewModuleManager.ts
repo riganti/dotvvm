@@ -133,7 +133,7 @@ export function findComponent(
         return [null, globalComponent[name]]
     if (compileConstants.debug) {
         if (viewIdOrElement == null) {
-            throw Error(`Cannot find a global JsComponent ${name}. Make sure it is registred using dotvvm.registerGlobalComponent(${JSON.stringify(name)}, ...)`)
+            throw Error(`Cannot find a global JsComponent ${name}. Make sure it is registered using dotvvm.registerGlobalComponent(${JSON.stringify(name)}, ...)`)
         } else {
             const moduleNames = [...getModules(viewIdOrElement)].map(m => m.moduleName)
             throw Error(`Cannot find a JsComponent ${name} in modules ${moduleNames.join(", ")}, or the global registry. Make sure it is exported as $controls: { ${JSON.stringify(name)}: ... }`)

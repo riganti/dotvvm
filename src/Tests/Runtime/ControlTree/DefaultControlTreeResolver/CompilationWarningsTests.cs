@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 <js:Test />
             """);
             Assert.AreEqual(1, warnings.Length);
-            StringAssert.Contains(warnings[0].warning, "This view does not have any view modules registred");
+            StringAssert.Contains(warnings[0].warning, "This view does not have any view modules registered");
             Assert.AreEqual("Test", warnings[0].tokens.Trim());
         }
 

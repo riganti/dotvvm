@@ -170,9 +170,23 @@ namespace DotVVM.Framework.Controls
                 control.GetProperty(GlobalProperty) is null or ResolvedPropertyValue { Value: false })
             {
                 yield return new ControlUsageError(
-                    $"This view does not have any view modules registred, only global JsComponent will work. Add the `Global` property to this component, to make the intent clear.",
+                    $"This view does not have any view modules registered, only global JsComponent will work. Add the `Global` property to this component, to make the intent clear.",
                     DiagnosticSeverity.Warning,
                     (control.DothtmlNode as DothtmlElementNode)?.TagNameNode
+                );
+            }
+
+            var props = control.GetPropertyGroup(PropsGroupDescriptor);
+            var templates = control.GetPropertyGroup(TemplatesGroupDescriptor);
+
+            foreach (var name in props.Keys.Intersect(templates.Keys))
+            {
+                var templateElement = templates[name].DothtmlNode;
+                yield return new ControlUsageError(
+                    $"JsComponent property and template must not share the same name ('{name}').",
+                    DiagnosticSeverity.Error,
+                    props[name].DothtmlNode,
+                    (templateElement as DothtmlElementNode)?.TagNameNode ?? templateElement
                 );
             }
         }
