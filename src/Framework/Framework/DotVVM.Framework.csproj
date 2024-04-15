@@ -47,7 +47,6 @@
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="FastExpressionCompiler" Version="3.3.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RecordException" Version="0.1.2" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />

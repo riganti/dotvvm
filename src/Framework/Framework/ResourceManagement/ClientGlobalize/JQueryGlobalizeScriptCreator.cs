@@ -165,6 +165,7 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
                 eras = di.Calendar.Eras.Select(era => new { offset = 0, start = (string?)null, name = di.GetEraName(era) }).ToArray(),
                 twoDigitYearMax = di.Calendar.TwoDigitYearMax,
                 patterns = new JsonObject {
+                    // must be JsonObject, otherwise we get "Members 'd' and 'D' on type '<>f__AnonymousType...' cannot both bind with parameter 'd' in the deserialization constructor."
                     ["d"] = di.ShortDatePattern,
                     ["D"] = di.LongDatePattern,
                     ["t"] = di.ShortTimePattern,

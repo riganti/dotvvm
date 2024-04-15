@@ -350,7 +350,7 @@ namespace DotVVM.Framework.Hosting
 
                 var knownTypes = postData.RootElement.GetPropertyOrNull("knownTypeMetadata"u8)?.EnumerateStringArray().WhereNotNull().ToArray() ?? [];
                 var argumentPaths = postData.RootElement.GetPropertyOrNull("argumentPaths"u8)?.EnumerateStringArray().ToArray();
-                var command = postData.RootElement.GetProperty("command"u8).GetString().NotNull("command is required");
+                var command = postData.RootElement.GetProperty("command"u8).GetBytesFromBase64();
                 var arguments = postData.RootElement.GetProperty("args"u8);
                 var executionPlan = StaticCommandExecutor.DecryptPlan(command);
 

@@ -50,8 +50,6 @@
     <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
     <PackageReference Include="Microsoft.Owin.Security" Version="4.2.2" />
     <PackageReference Include="Microsoft.Owin.StaticFiles" Version="4.2.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
     <PackageReference Include="Owin" Version="1.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
   </ItemGroup>

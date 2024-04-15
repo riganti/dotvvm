@@ -1,7 +1,6 @@
 using System;
 using System.Reflection;
 using STJ = System.Text.Json.Serialization;
-using NJ = Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {

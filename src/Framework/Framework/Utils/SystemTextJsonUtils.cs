@@ -87,10 +87,33 @@ namespace DotVVM.Framework.Utils
         public static void AssertRead(this ref Utf8JsonReader reader, JsonTokenType type)
         {
             AssertToken(in reader, type);
-            if (!reader.Read())
-                throw new JsonException($"Expected token of type {type}, but got {reader.TokenType}.");
+            AssertRead(ref reader);
         }
-        
+
+        public static void AssertRead(this ref Utf8JsonReader reader)
+        {
+            if (!reader.Read())
+                throw new JsonException($"Expected end of stream.");
+        }
+
+        public static string? ReadString(this ref Utf8JsonReader reader)
+        {
+            if (reader.TokenType is JsonTokenType.Null)
+            {
+                return null!;
+            }
+            else if (reader.TokenType is JsonTokenType.String or JsonTokenType.PropertyName)
+            {
+                var value = reader.GetString()!;
+                reader.AssertRead();
+                return value;
+            }
+            else
+            {
+                throw new JsonException($"Expected string, but got {reader.TokenType}.");
+            }
+        }
+
         public static int GetValueLength(this in Utf8JsonReader reader)
         {
             return reader.HasValueSequence ? checked((int)reader.ValueSequence.Length) : reader.ValueSpan.Length;

@@ -42,10 +42,11 @@ namespace DotVVM.Framework.Hosting
         }
 #pragma warning restore CS0618
 
-        public StaticCommandInvocationPlan DecryptPlan(string encrypted)
+        public StaticCommandInvocationPlan DecryptPlan(byte[] encrypted)
         {
-            var decrypted = StaticCommandExecutionPlanSerializer.DecryptJson(Convert.FromBase64String(encrypted), viewModelProtector);
-            return StaticCommandExecutionPlanSerializer.DeserializePlan(decrypted);
+            var decrypted = StaticCommandExecutionPlanSerializer.DecryptJson(encrypted, viewModelProtector);
+            var reader = new Utf8JsonReader(decrypted.AsSpan());
+            return StaticCommandExecutionPlanSerializer.DeserializePlan(ref reader);
         }
         public Task<object?> Execute(
             StaticCommandInvocationPlan plan,
