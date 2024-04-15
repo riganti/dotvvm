@@ -201,10 +201,21 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(HtmlGenericControl), control.Metadata.Type);
             Assert.AreEqual(1, control.ConstructorParameters.Length);
             Assert.AreEqual("dot:xxxButton", control.ConstructorParameters[0]);
-            Assert.IsTrue(control.DothtmlNode.HasNodeErrors);
-            Assert.IsTrue(control.DothtmlNode.NodeErrors.First().Contains("could not be resolved"));
+            var node = (control.DothtmlNode as DothtmlElementNode).TagNameNode;
+            Assert.AreEqual("The control <dot:xxxButton> could not be resolved! Did you mean dot:LinkButton, dot:Button, or other DotVVM control?", XAssert.Single(node.NodeErrors));
 
             Assert.AreEqual(root, control.Parent);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_UnknownPrefix()
+        {
+            var root = ParseSource(@"@viewModel string
+<bp:Button />");
+
+            var control = root.Content.First();
+            var node = (control.DothtmlNode as DothtmlElementNode).TagNameNode;
+            Assert.AreEqual("The control <bp:Button> could not be resolved! Did you mean dot:Button, or other DotVVM control? Otherwise, make sure that the tagPrefix 'bp' is registered in DotvvmConfiguration.Markup.Controls collection!", XAssert.Single(node.NodeErrors));
         }
 
         [TestMethod]

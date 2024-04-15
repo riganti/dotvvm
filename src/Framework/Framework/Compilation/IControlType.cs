@@ -11,5 +11,9 @@ namespace DotVVM.Framework.Compilation
 
         ITypeDescriptor? DataContextRequirement { get; }
 
+        string PrimaryName { get; }
+
+        string[] AlternativeNames { get; }
+
     }
 }

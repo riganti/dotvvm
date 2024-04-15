@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     public static class ControlTreeHelper
     {
         public static bool HasEmptyContent(this IAbstractControl control)
-            => control.Content.All(c => !DothtmlNodeHelper.IsNotEmpty(c.DothtmlNode)); // allow only whitespace literals
+            => control.Content.All(c => DothtmlNodeHelper.IsEmpty(c.DothtmlNode)); // allow only whitespace literals
 
         public static bool HasProperty(this IAbstractControl control, IPropertyDescriptor property)
         {

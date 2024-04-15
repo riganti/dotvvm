@@ -39,5 +39,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         {
             return base.EnumerateNodes().Concat(EnumerateChildNodes().SelectMany(n=> n.EnumerateNodes()));
         }
+
+        public override string ToString() => BindingNode.ToString();
     }
 }

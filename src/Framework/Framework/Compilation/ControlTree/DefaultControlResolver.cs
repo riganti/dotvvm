@@ -300,6 +300,39 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new ControlResolverMetadata((ControlType)type);
         }
 
+        public override IEnumerable<(string tagPrefix, IControlType type)> EnumerateControlTypes()
+        {
+            var markupControls = new HashSet<(string, string)>(); // don't report MarkupControl with @baseType twice
+
+            foreach (var control in configuration.Markup.Controls)
+            {
+                if (!string.IsNullOrEmpty(control.Src))
+                {
+                    var markupControl = FindMarkupControl(control.Src);
+                    markupControls.Add((control.TagPrefix!, control.TagName!));
+                }
+            }
+
+            foreach (var assemblyGroup in configuration.Markup.Controls.Where(c => !string.IsNullOrEmpty(c.Assembly) && string.IsNullOrEmpty(c.Src)).GroupBy(c => c.Assembly!))
+            {
+                var assembly = compiledAssemblyCache.GetAssembly(assemblyGroup.Key);
+                if (assembly is null)
+                    continue;
+
+                var namespaces = assemblyGroup.GroupBy(c => c.Namespace ?? "").ToDictionary(g => g.Key, g => g.First());
+                foreach (var type in assembly.GetLoadableTypes())
+                {
+                    if (type.IsPublic && !type.IsAbstract &&
+                        type.DeclaringType is null &&
+                        typeof(DotvvmBindableObject).IsAssignableFrom(type) &&
+                        namespaces.TryGetValue(type.Namespace ?? "", out var controlConfig))
+                    {
+                        yield return (controlConfig.TagPrefix!, new ControlType(type));
+                    }
+                }
+            }
+        }
+
         protected override IPropertyDescriptor? FindGlobalPropertyOrGroup(string name, MappingMode requiredMode)
         {
             // try to find property

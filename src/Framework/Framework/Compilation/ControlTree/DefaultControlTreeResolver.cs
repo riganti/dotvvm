@@ -5,6 +5,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Directives;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.ViewCompiler;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -23,8 +24,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             IControlResolver controlResolver,
             IAbstractTreeBuilder treeBuilder,
             IControlBuilderFactory controlBuilderFactory,
-            IMarkupDirectiveCompilerPipeline direrectiveCompilerPipeline)
-            : base(controlResolver, treeBuilder, direrectiveCompilerPipeline)
+            IMarkupDirectiveCompilerPipeline direrectiveCompilerPipeline,
+            DotvvmConfiguration configuration)
+            : base(controlResolver, treeBuilder, direrectiveCompilerPipeline, configuration)
         {
             this.controlBuilderFactory = controlBuilderFactory;
         }

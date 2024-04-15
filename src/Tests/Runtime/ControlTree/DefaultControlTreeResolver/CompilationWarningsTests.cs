@@ -91,6 +91,64 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
+        public void DefaultViewCompiler_NonExistentPropertyWarning_InnerElement()
+        {
+           var markup = $@"
+@viewModel bool
+<dot:Repeater>
+    <EmptyDataTemplate>empty</EmptyDataTemplate>
+    <SepratrorTemplate> --- </SepratrorTemplate>
+    <TextBox Text=AA />
+    test
+    <SeparatorTemplate> ---- </SeparatorTemplate>
+</dot:Repeater>
+";
+            var repeater = ParseSource(markup)
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Repeater));
+
+            var elementNode = (DothtmlElementNode)repeater.DothtmlNode;
+            var correctTemplateElement = elementNode.Content.OfType<DothtmlElementNode>().Single(e => e.TagName == "EmptyDataTemplate");
+            var mistakeTemplateElement = elementNode.Content.OfType<DothtmlElementNode>().Single(e => e.TagName == "SepratrorTemplate");
+            var mistakeTextBoxElement = elementNode.Content.OfType<DothtmlElementNode>().Single(e => e.TagName == "TextBox");
+            var lateTemplate = elementNode.Content.OfType<DothtmlElementNode>().Single(e => e.TagName == "SeparatorTemplate");
+
+            XAssert.Empty(correctTemplateElement.TagNameNode.NodeWarnings);
+            Assert.AreEqual("HTML element name 'SepratrorTemplate' should not contain uppercase letters. Did you mean SeparatorTemplate, or another DotVVM property?", XAssert.Single(mistakeTemplateElement.TagNameNode.NodeWarnings));
+            Assert.AreEqual("HTML element name 'TextBox' should not contain uppercase letters. Did you mean dot:CheckBox, dot:ListBox, dot:TextBox, or another DotVVM control?", XAssert.Single(mistakeTextBoxElement.TagNameNode.NodeWarnings));
+            Assert.AreEqual("This element looks like an inner element property Repeater.SeparatorTemplate, but it isn't, because it is prefixed by other content ('<SepratrorTemplate>')).", XAssert.Single(lateTemplate.TagNameNode.NodeWarnings));
+        }
+
+        [TestMethod]
+        public void DefaultViewCompiler_DisallowedContentControlType()
+        {
+           var markup = $@"
+@viewModel System.Collections.Generic.IEnumerable<string>
+<dot:GridView DataSource={{value: _this}}>
+    <EmtyDataTemplate>empty</EmtyDataTemplate>
+    <dot:GridViewTemplateColumn>test</dot:GridViewTemplateColumn>
+    <dot:TextBox Text={{value: _this}} />
+</dot:GridView>
+";
+            var repeater = ParseSource(markup)
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(GridView));
+
+            var elementNode = (DothtmlElementNode)repeater.DothtmlNode;
+            var fine = elementNode.Content.OfType<DothtmlElementNode>().Single(e => e.TagName == "GridViewTemplateColumn");
+            var unallowedType = elementNode.Content.OfType<DothtmlElementNode>().Single(e => e.TagName == "TextBox");
+            var mistypedTemplate = elementNode.Content.OfType<DothtmlElementNode>().Single(e => e.TagName == "EmtyDataTemplate");
+
+            XAssert.Empty(fine.TagNameNode.NodeWarnings);
+            XAssert.Empty(fine.TagNameNode.NodeErrors);
+
+            Assert.AreEqual("Control type DotVVM.Framework.Controls.TextBox can't be used in a property of type DotVVM.Framework.Controls.GridViewColumn.", XAssert.Single(unallowedType.TagNameNode.NodeErrors));
+            Assert.AreEqual("Control type DotVVM.Framework.Controls.HtmlGenericControl can't be used in a property of type DotVVM.Framework.Controls.GridViewColumn. Did you mean EmptyDataTemplate, or another DotVVM property?", XAssert.Single(mistypedTemplate.TagNameNode.NodeErrors));
+            Assert.AreEqual("HTML element name 'EmtyDataTemplate' should not contain uppercase letters. Did you mean EmptyDataTemplate, or another DotVVM property?", XAssert.Single(mistypedTemplate.TagNameNode.NodeWarnings));
+        }
+
+
+        [TestMethod]
         public void DefaultViewCompiler_UnsupportedCallSite_ResourceBinding_Warning()
         {
             var markup = @"

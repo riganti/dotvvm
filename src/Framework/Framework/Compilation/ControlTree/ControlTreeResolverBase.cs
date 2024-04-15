@@ -13,6 +13,7 @@ using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Compilation.Directives;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ViewCompiler;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -24,6 +25,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         protected readonly IControlResolver controlResolver;
         protected readonly IAbstractTreeBuilder treeBuilder;
         private readonly IMarkupDirectiveCompilerPipeline markupDirectiveCompilerPipeline;
+        protected readonly DotvvmConfiguration configuration;
         protected Lazy<IControlResolverMetadata> rawLiteralMetadata;
         protected Lazy<IControlResolverMetadata> literalMetadata;
         protected Lazy<IControlResolverMetadata> placeholderMetadata;
@@ -31,11 +33,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlTreeResolverBase"/> class.
         /// </summary>
-        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, IMarkupDirectiveCompilerPipeline markupDirectiveCompilerPipeline)
+        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, IMarkupDirectiveCompilerPipeline markupDirectiveCompilerPipeline, DotvvmConfiguration configuration)
         {
             this.controlResolver = controlResolver;
             this.treeBuilder = treeBuilder;
             this.markupDirectiveCompilerPipeline = markupDirectiveCompilerPipeline;
+            this.configuration = configuration;
             rawLiteralMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RawLiteral))));
             literalMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(Literal))));
             placeholderMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(PlaceHolder))));
@@ -258,7 +261,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 controlMetadata = controlResolver.ResolveControl("", element.TagName, out constructorParameters).NotNull();
                 constructorParameters = new[] { element.FullTagName };
-                element.AddError($"The control <{element.FullTagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
+                var similarControls = FindSimilarControls(element.TagPrefix, element.TagName, controlBaseType: controlMetadata.Type);
+                var similarNameHelp = similarControls.Any() ? $" Did you mean {string.Join(", ", similarControls.Select(c => c.tagPrefix + ":" + c.name))}, or other DotVVM control?" : "";
+                var tagPrefixHelp = configuration.Markup.Controls.Any(c => string.Equals(c.TagPrefix, element.TagPrefix, StringComparison.OrdinalIgnoreCase))
+                                        ? ""
+                                        : $" {(similarNameHelp is null ? "Make" : "Otherwise, make")} sure that the tagPrefix '{element.TagPrefix}' is registered in DotvvmConfiguration.Markup.Controls collection!";
+                element.TagNameNode.AddError($"The control <{element.FullTagName}> could not be resolved!{similarNameHelp}{tagPrefixHelp}");
             }
             if (controlMetadata.VirtualPath is {} && controlMetadata.Type.IsAssignableTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))))
             {
@@ -288,7 +296,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             if (controlMetadata.DataContextConstraint != null && dataContext != null && !controlMetadata.DataContextConstraint.IsAssignableFrom(dataContext.DataContextType))
             {
-                ((DothtmlNode?)dataContextAttribute ?? element)
+                ((DothtmlNode?)dataContextAttribute ?? element.TagNameNode)
                    .AddError($"The control '{controlMetadata.Type.CSharpName}' requires a DataContext of type '{controlMetadata.DataContextConstraint.CSharpFullName}'!");
             }
 
@@ -476,7 +484,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
 
             // Ignore SVG attributes (unless they also start with an uppercase letter)
-            if ((allowFirstCharacterUppercase || !char.IsUpper(name[0])) && uppercaseHtmlAttributeList.Contains(name))
+            if ((allowFirstCharacterUppercase || !char.IsUpper(name, 0)) && uppercaseHtmlAttributeList.Contains(name))
                 return;
 
             if (pGroup.Name.EndsWith("Attributes") &&
@@ -486,7 +494,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 var similarNameProperties =
                     control.Metadata.AllProperties
                     .Where(p => StringSimilarity.DamerauLevenshteinDistance(p.Name.ToLowerInvariant(), (prefix + name).ToLowerInvariant()) <= 2)
-                    .Select(p => p.Name)
+                    // suggest the alias if the property is obsolete
+                    .Select(p => p.ObsoleteAttribute is null && p is PropertyAliasAttribute alias ? alias.AliasedPropertyName : p.Name)
                     .ToArray();
                 var similarPropertyHelp =
                     similarNameProperties.Any() ? $" Did you mean {string.Join(", ", similarNameProperties)}, or another DotVVM property?" : " Did you intent to use a DotVVM property instead?";
@@ -496,17 +505,67 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
+        private (string tagPrefix, string name, IControlType)[] FindSimilarControls(string? tagPrefix, string elementName, ITypeDescriptor? controlBaseType = null, int threshold = 4, int limit = 5)
+        {
+            return (
+                from c in this.controlResolver.EnumerateControlTypes()
+                where controlBaseType is null || c.type.Type.IsAssignableTo(controlBaseType)
+                let prefixScore = tagPrefix is null ? 0 : StringSimilarity.DamerauLevenshteinDistance(c.tagPrefix, tagPrefix)
+                where prefixScore <= threshold
+                from controlName in Enumerable.Concat([ c.type.Type.Name ], c.type.AlternativeNames)
+                let nameScore = StringSimilarity.DamerauLevenshteinDistance(elementName.ToLowerInvariant(), controlName.ToLowerInvariant())
+                where prefixScore + nameScore <= threshold
+                orderby prefixScore + nameScore descending
+                select (c.tagPrefix, controlName, c.type)
+            ).Take(limit).ToArray();
+        }
+
+        private string? GetMissingElementPropertyDiagnostic(IAbstractControl parentControl, DothtmlElementNode element, ITypeDescriptor? allowedControlTypes = null)
+        {
+            // * warning: content allowed, but element has uppercase letter
+            // * error: content not allowed, no property matches
+            // * error: content allowed, HtmlGenericControl isn't allowed, no property matches
+            var isUppercase = char.IsUpper(element.TagName, 0);
+            var similarNameControls =
+                !parentControl.Metadata.IsContentAllowed && parentControl.Metadata.DefaultContentProperty is null
+                    ? []
+                    : FindSimilarControls(element.TagPrefix, element.TagName, allowedControlTypes);
+            var similarNameProperties =
+                parentControl.Metadata.AllProperties
+                .Where(p => p.MarkupOptions.MappingMode.HasFlag(MappingMode.InnerElement) &&
+                            StringSimilarity.DamerauLevenshteinDistance(p.Name.ToLowerInvariant(), element.FullTagName.ToLowerInvariant()) <= 4)
+                .Select(p => p.Name)
+                .ToArray();
+            if (similarNameControls.Any() && similarNameProperties.Any())
+            {
+                return $" Did you mean property {string.Join(", ", similarNameProperties)}, or control {string.Join(", ", similarNameControls.Select(c => c.tagPrefix + ":" + c.name))}?";
+            }
+            else if (similarNameProperties.Any())
+            {
+                return $" Did you mean {string.Join(", ", similarNameProperties)}, or another DotVVM property?";
+            }
+            else if (similarNameControls.Any())
+            {
+                return $" Did you mean {string.Join(", ", similarNameControls.Select(c => c.tagPrefix + ":" + c.name))}, or another DotVVM control?";
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         /// Processes the content of the control node.
         /// </summary>
         public void ProcessControlContent(IAbstractControl control, IEnumerable<DothtmlNode> nodes)
         {
+            var allowsContent = control.Metadata.IsContentAllowed || control.Metadata.DefaultContentProperty is {};
             var content = new List<DothtmlNode>();
             bool properties = true;
             foreach (var node in nodes)
             {
                 var element = node as DothtmlElementNode;
-                if (element != null && properties)
+                if (element is {} && properties)
                 {
                     var property = controlResolver.FindProperty(control.Metadata, element.TagName, MappingMode.InnerElement);
                     if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode.HasFlag(MappingMode.InnerElement))
@@ -515,10 +574,33 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         if (!treeBuilder.AddProperty(control, ProcessElementProperty(control, property, element.Content, element), out var error)) element.AddError(error);
 
                         foreach (var attr in element.Attributes)
-                            attr.AddError("Attributes can't be set on element property.");
+                            attr.AttributeNameNode.AddError("Attributes can't be set on element property.");
+
+                        if (char.IsLower(element.TagName, 0) &&
+                            property is not IGroupedPropertyDescriptor &&
+                            !property.Name.Equals(element.TagName, StringComparison.Ordinal))
+                        {
+                            // lowercase inner element property can be easily confused with html elements
+                            element.TagNameNode.AddWarning($"The first letter is lowercase, indicating this is an HTML element. However, DotVVM maps the element to property '{property.FullName}'. Please make the first letter uppercase to avoid the ambiguity.");
+                        }
                     }
                     else
                     {
+                        if (!allowsContent)
+                        {
+                            var compositeControlHelp =
+                                control.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(CompositeControl))) ?
+                                " CompositeControls don't allow content by default and Content or ContentTemplate property is missing on this control." : null;
+                            var propertyHelp = GetMissingElementPropertyDiagnostic(control, element, ResolvedTypeDescriptor.Create(typeof(void)));
+                            element.TagNameNode.AddError($"Content not allowed inside {control.Metadata.Type.CSharpName}.{propertyHelp}{compositeControlHelp}");
+                        }
+                        else if (string.IsNullOrEmpty(element.TagPrefix) && char.IsUpper(element.TagName, 0))
+                        {
+                            var propertyHelp = GetMissingElementPropertyDiagnostic(control, element) ?? "Did you intent to use a DotVVM property or control instead?";
+                            element.TagNameNode.AddWarning(
+                                $"HTML element name '{element.TagName}' should not contain uppercase letters.{propertyHelp}"
+                            );
+                        }
                         content.Add(node);
                         if (node.IsNotEmpty())
                         {
@@ -529,12 +611,33 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 else
                 {
                     content.Add(node);
+                    if (node.IsNotEmpty())
+                    {
+                        // properties = false; // TODO: next major version
+                        if (!allowsContent)
+                            node.AddError($"Content not allowed inside {control.Metadata.Type.CSharpName}.");
+
+                        // uppercase starting HTML element - warn about properties
+                        if (element is {} && string.IsNullOrEmpty(element.TagPrefix) && char.IsUpper(element.TagName, 0))
+                        {
+                            if (controlResolver.FindProperty(control.Metadata, element.TagName, MappingMode.InnerElement) is {} property)
+                            {
+                                element.TagNameNode.AddWarning($"This element looks like an inner element property {property.FullName}, but it isn't, because it is prefixed by other content ('{content.FirstOrDefault(c => c.IsNotEmpty())}')).");
+                            }
+                            else
+                            {
+                                element.TagNameNode.AddWarning(
+                                    $"HTML element name '{element.TagName}' should not contain uppercase letters.{GetMissingElementPropertyDiagnostic(control, element)}"
+                                );
+                            }
+                        }
+                    }
                 }
             }
             if (control.Metadata.DefaultContentProperty is IPropertyDescriptor contentProperty)
             {
                 // don't assign the property, when content is empty
-                if (content.All(c => !c.IsNotEmpty()))
+                if (content.All(c => c.IsEmpty()))
                     return;
 
                 if (control.HasProperty(contentProperty))
@@ -551,21 +654,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             else
             {
-                if (!control.Metadata.IsContentAllowed)
+                if (control.Metadata.IsContentAllowed)
                 {
-                    foreach (var item in content)
-                    {
-                        if (item.IsNotEmpty())
-                        {
-                            var compositeControlHelp =
-                                control.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor
-                            (typeof(CompositeControl))) ?
-                                " CompositeControls don't allow content by default and Content or ContentTemplate property is missing on this control." : "";
-                            item.AddError($"Content not allowed inside {control.Metadata.Type.CSharpName}.{compositeControlHelp}");
-                        }
-                    }
+                    ResolveControlContentImmediately(control, content);
                 }
-                else ResolveControlContentImmediately(control, content);
             }
         }
 
@@ -597,9 +689,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 FilterOrError(controls,
                         c => c is object && c.Metadata.Type.IsAssignableTo(type),
                         c => {
-                            // empty nodes are only filtered, non-empty nodes cause errors
+                            // empty nodes are only filtered out, non-empty nodes cause errors
                             if (c.DothtmlNode.IsNotEmpty())
-                                c.DothtmlNode.AddError($"Control type {c.Metadata.Type.CSharpFullName} can't be used in collection of type {type.CSharpFullName}.");
+                            {
+                                // when used without explicit property wrapper element, add information about available content properties
+                                var propertyHelp = propertyWrapperElement is null && c.DothtmlNode is DothtmlElementNode element ? GetMissingElementPropertyDiagnostic(control, element, type) : null;
+                                ((c.DothtmlNode as DothtmlElementNode)?.TagNameNode ?? c.DothtmlNode)
+                                    .AddError($"Control type {c.Metadata.Type.CSharpFullName} can't be used in a property of type {type.CSharpFullName}.{propertyHelp}");
+                            }
                         });
 
             // resolve data context
