@@ -47,14 +47,14 @@ namespace DotVVM.Framework.Hosting
 
         public static void RegisterHealthCheck(IServiceCollection services)
         {
-            services.ConfigureWithServices<HealthCheckServiceOptions>((options, s) => {
+            services.Configure<HealthCheckServiceOptions>(options => {
                 if (options.Registrations.Any(c => c.Name == "DotVVM"))
                     return;
 
                 options.Registrations.Add(
                     new HealthCheckRegistration(
                         "DotVVM",
-                        ActivatorUtilities.CreateInstance<DotvvmHealthCheck>(s),
+                        s => ActivatorUtilities.CreateInstance<DotvvmHealthCheck>(s),
                         null,
                         new [] { "dotvvm" }
                     )
