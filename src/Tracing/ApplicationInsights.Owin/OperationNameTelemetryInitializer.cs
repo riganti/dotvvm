@@ -10,10 +10,11 @@ public class OperationNameTelemetryInitializer : ITelemetryInitializer
 {
     public void Initialize(ITelemetry telemetry)
     {
-        var url = HttpContext.Current?.GetOwinContext()?.GetDotvvmContext()?.Route?.Url;
-        if (string.IsNullOrWhiteSpace(url) == false && telemetry is RequestTelemetry)
+        var context = HttpContext.Current;
+        var url = context?.GetOwinContext()?.GetDotvvmContext()?.Route?.Url;
+        if (url != null && telemetry is RequestTelemetry)
         {
-            var method = HttpContext.Current.Request.HttpMethod;
+            var method = context.Request.HttpMethod;
             var operationName = $"{method} /{url}";
 
             var requestTelemetry = telemetry as RequestTelemetry;
