@@ -18,6 +18,7 @@ using System.Text.Json.Serialization;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.Encodings.Web;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -156,19 +157,13 @@ $@"
             return builder.ToString();
         }
 
-        public void ObjectBrowser(object? obj)
+        internal static JsonNode SerializeObjectForBrowser(object? obj)
         {
-            if (obj is null)
-            {
-                WriteText("null");
-                return;
-            }
-
             var settings = new JsonSerializerOptions() {
                 ReferenceHandler = ReferenceHandler.IgnoreCycles,
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
                 Converters = {
-                    new ReflectionTypeJsonConverter(),
+                    new DebugReflectionTypeJsonConverter(),
                     new ReflectionAssemblyJsonConverter(),
                     new DotvvmTypeDescriptorJsonConverter<ITypeDescriptor>(),
                     new Controls.DotvvmControlDebugJsonConverter(),
@@ -177,13 +172,45 @@ $@"
                     new UnsupportedTypeJsonConverterFactory(),
                 },
                 TypeInfoResolver = new IgnoreUnsupportedResolver(),
-                // suppress any errors that occur during serialization (getters may throw exception, ...)
-                // Error = (sender, args) => { // TODO: how?
-                //     args.ErrorContext.Handled = true;
-                // }
             };
-            var jobject = JsonSerializer.SerializeToElement(obj, settings);
-            ObjectBrowser(JsonObject.Create(jobject)!);
+            return JsonSerializer.SerializeToNode(obj, settings)!;
+        }
+
+        public void ObjectBrowser(object? obj)
+        {
+            if (obj is null)
+            {
+                WriteText("null");
+                return;
+            }
+
+            
+            try
+            {
+                switch (SerializeObjectForBrowser(obj))
+                {
+                    case JsonObject jobject:
+                        ObjectBrowser(jobject);
+                        break;
+                    case JsonArray jarray:
+                        ObjectBrowser(jarray);
+                        break;
+                    case var node:
+                        WriteText(node.ToString());
+                        break;
+                };
+            }
+            catch
+            {
+                try
+                {
+                    WriteText(obj.ToString());
+                }
+                catch
+                {
+                    WriteText("<serialization error>");
+                }
+            }
         }
 
         class IgnoreUnsupportedResolver: DefaultJsonTypeInfoResolver
@@ -412,7 +439,7 @@ $@"
         class UnsupportedTypeJsonConverterFactory : JsonConverterFactory
         {
             public override bool CanConvert(Type typeToConvert) =>
-                typeToConvert.IsDelegate() || typeof(MemberInfo).IsAssignableFrom(typeToConvert);
+                typeToConvert.IsDelegate() || typeof(ICustomAttributeProvider).IsAssignableFrom(typeToConvert);
             public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
                 (JsonConverter?)Activator.CreateInstance(typeof(Inner<>).MakeGenericType([ typeToConvert ]));
 
@@ -424,7 +451,7 @@ $@"
                     if (value is null)
                         writer.WriteNullValue();
                     else if (value is Delegate)
-                        writer.WriteStringValue("<delegate>");
+                        writer.WriteStringValue($"[delegate {value.GetType().ToCode()}]");
                     else
                         writer.WriteStringValue(value.ToString());
                 }

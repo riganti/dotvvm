@@ -22,7 +22,14 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// </summary>
         public string LiteralValue
         {
-            get => JavascriptCompilationHelper.CompileConstant(Value, htmlSafe: false).Replace("<", "\\u003C");
+            // this is a compile-time AST node, so the values should not be controlled by an adversary
+            // plus, the value often contains base-64 encoded data (command IDs) which is affected by
+            // System.Text.Json the HTML-safe encoder (they encode + sign)
+            // However, since the value may end up in a HTML comment, we manually escape < and > to be on the safe side
+            // (> is necessary to escape the comment, > just to be sure)
+            get => JavascriptCompilationHelper.CompileConstant(Value, htmlSafe: false)
+                                              .Replace("<", "\\u003C")
+                                              .Replace(">", "\\u003E");
             set => Value = JsonDocument.Parse(value).RootElement;
         }
 

@@ -53,12 +53,6 @@ namespace DotVVM.Framework.Configuration
                             !object.Equals(value, def) && // null
                             (value is not IEnumerable valE || def is not IEnumerable defE || !valE.Cast<object>().SequenceEqual(defE.Cast<object>()));
                     }
-                    // else if (property.Name == "compiledViewsAssemblies" && info.Type == typeof(DotvvmConfiguration))
-                    // {
-                    //     property.ShouldSerialize = (obj, value) =>
-                    //         originalCondition(obj, value) &&
-                    //         (value is not IEnumerable<string> c || !new [] { "CompiledViews.dll" }.SequenceEqual(c));
-                    // }
                     else
                     {
                         property.ShouldSerialize = (obj, value) =>
@@ -73,12 +67,6 @@ namespace DotVVM.Framework.Configuration
                     property.ShouldSerialize = (obj, value) =>
                         originalCondition(obj, value) && !(value is IEnumerable e && !e.Cast<object>().Any());
                 }
-
-                // if (type.GetMethod("ShouldSerialize" + property.Name, 0, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, Array.Empty<ParameterModifier>()) is {} shouldSerializeMethod)
-                // {
-                //     property.ShouldSerialize = (obj, value) =>
-                //         originalCondition(obj, value) && (bool)shouldSerializeMethod.Invoke(obj, Array.Empty<object>());
-                // }
             }
             return info;
         }

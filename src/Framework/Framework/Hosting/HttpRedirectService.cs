@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Hosting
             else
             {
                 httpContext.Response.StatusCode = 200;
-                httpContext.Response.ContentType = "application/json";
+                httpContext.Response.ContentType = "application/json; charset=utf-8";
                 httpContext.Response
                     .WriteAsync(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, replaceInHistory, allowSpaRedirect))
                     .GetAwaiter().GetResult();

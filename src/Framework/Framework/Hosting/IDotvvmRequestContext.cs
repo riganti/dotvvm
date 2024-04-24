@@ -118,11 +118,6 @@ namespace DotVVM.Framework.Hosting
         CustomResponsePropertiesManager CustomResponseProperties { get; }
     }
 
-    public class ReceivedViewModelData
-    {
-
-    }
-
     public enum DotvvmRequestType
     {
         Unknown,

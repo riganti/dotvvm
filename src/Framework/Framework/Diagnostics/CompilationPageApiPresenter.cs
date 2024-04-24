@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Diagnostics
             }
 
             response.StatusCode = 500;
-            response.ContentType = "application/json";
+            response.ContentType = "application/json; charset=utf-8";
             await response.WriteAsync(JsonSerializer.Serialize(compilationService.GetFilesWithFailedCompilation(), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
         }
     }

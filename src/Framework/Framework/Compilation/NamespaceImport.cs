@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation
 {
-	public struct NamespaceImport: IEquatable<NamespaceImport>
+	public readonly struct NamespaceImport: IEquatable<NamespaceImport>
 	{
 		[JsonPropertyName("namespace")]
-		public readonly string Namespace { get; }
+		public string Namespace { get; }
 		[JsonPropertyName("alias")]
-		public readonly string? Alias { get; }
+		public string? Alias { get; }
 
 		[JsonIgnore]
 		public bool HasAlias => Alias is not null;

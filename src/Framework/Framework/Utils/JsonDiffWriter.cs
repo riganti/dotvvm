@@ -3,6 +3,8 @@
 // using System.Text.Json;
 // using System.Diagnostics;
 // using System.Buffers;
+// using DotVVM.Framework.ViewModel.Serialization;
+// using System.Runtime.CompilerServices;
 
 // namespace DotVVM.Framework.Utils
 // {
@@ -30,67 +32,158 @@
 //             var depth = reader.CurrentDepth;
 //             while (reader.CurrentDepth >= depth)
 //             {
-//                 switch (reader.TokenType)
-//                 {
-//                     case JsonTokenType.False:
-//                     case JsonTokenType.True:
-//                     case JsonTokenType.Null:
-//                     case JsonTokenType.String:
-//                     case JsonTokenType.Number: {
-//                         if (reader.HasValueSequence)
-//                             writer.WriteRawValue(reader.ValueSequence);
-//                         else
-//                             writer.WriteRawValue(reader.ValueSpan);
-//                         break;
-//                     }
-//                     case JsonTokenType.PropertyName: {
-//                         var length = reader.HasValueSequence ? reader.ValueSequence.Length : reader.ValueSpan.Length;
-//                         Span<byte> buffer = length <= 1024 ? stackalloc byte[(int)length] : new byte[length];
-//                         var realLength = reader.CopyString(buffer);
-//                         writer.WritePropertyName(buffer.Slice(0, realLength));
-//                         break;
-//                     }
-//                     case JsonTokenType.StartArray: {
-//                         writer.WriteStartArray();
-//                         break;
-//                     }
-//                     case JsonTokenType.EndArray: {
-//                         writer.WriteEndArray();
-//                         break;
-//                     }
-//                     case JsonTokenType.StartObject: {
-//                         writer.WriteStartObject();
-//                         break;
-//                     }
-//                     case JsonTokenType.EndObject: {
-//                         writer.WriteEndObject();
-//                         break;
-//                     }
-//                     default: {
-//                         throw new JsonException($"Unexpected token {reader.TokenType}.");
-//                     }
-//                 }
+//                 CopyToken(ref reader, writer);
 //                 reader.Read();
+//             }
+//         }
+
+//         static void CopyToken(ref Utf8JsonReader reader, Utf8JsonWriter writer)
+//         {
+//             switch (reader.TokenType)
+//             {
+//                 case JsonTokenType.False:
+//                 case JsonTokenType.True:
+//                 case JsonTokenType.Null:
+//                 case JsonTokenType.String:
+//                 case JsonTokenType.Number: {
+//                     if (reader.HasValueSequence)
+//                         writer.WriteRawValue(reader.ValueSequence);
+//                     else
+//                         writer.WriteRawValue(reader.ValueSpan);
+//                     break;
+//                 }
+//                 case JsonTokenType.PropertyName: {
+//                     var length = reader.HasValueSequence ? reader.ValueSequence.Length : reader.ValueSpan.Length;
+//                     Span<byte> buffer = length <= 1024 ? stackalloc byte[(int)length] : new byte[length];
+//                     var realLength = reader.CopyString(buffer);
+//                     writer.WritePropertyName(buffer.Slice(0, realLength));
+//                     break;
+//                 }
+//                 case JsonTokenType.StartArray: {
+//                     writer.WriteStartArray();
+//                     break;
+//                 }
+//                 case JsonTokenType.EndArray: {
+//                     writer.WriteEndArray();
+//                     break;
+//                 }
+//                 case JsonTokenType.StartObject: {
+//                     writer.WriteStartObject();
+//                     break;
+//                 }
+//                 case JsonTokenType.EndObject: {
+//                     writer.WriteEndObject();
+//                     break;
+//                 }
+//                 default: {
+//                     throw new JsonException($"Unexpected token {reader.TokenType}.");
+//                 }
 //             }
 //         }
         
 //         public delegate bool? IncludePropertyDelegate(string typeId, ReadOnlySpan<byte> propertyName);
 //         private readonly IncludePropertyDelegate? includePropertyOverride;
+
+//         private Utf8JsonReader reader;
+//         private ReadOnlySequence<byte> remainingPreviousInput;
+
 //         private byte[]? nameBufferRented;
 //         private Span<byte> nameBuffer;
 //         private int nameBufferPosition;
 //         private RefList<int> lazyWriteStack;
 //         private readonly Utf8JsonWriter writer;
+//         private RefList<JsonElement> sourceElementStack;
+//         private RefList<ClientTypeId> objectTypeIds;
+//         private JsonDiffState state;
 
 //         private JsonDiffWriter(
 //             IncludePropertyDelegate? includePropertyOverride,
 //             Span<byte> nameBuffer,
-//             Utf8JsonWriter writer
+//             Utf8JsonWriter writer,
+//             JsonElement sourceElement
 //         )
 //         {
 //             this.includePropertyOverride = includePropertyOverride;
 //             this.nameBuffer = nameBuffer;
 //             this.writer = writer;
+//             this.sourceElementStack = new RefList<JsonElement>(default);
+//             this.sourceElementStack.Enlarge(32);
+//             this.sourceElementStack.Add(sourceElement);
+//             this.objectTypeIds = new RefList<ClientTypeId>(default);
+//             this.objectTypeIds.Enlarge(32);
+//             this.objectTypeIds.Add(default);
+//         }
+
+//         public (int bytesRead, bool isDone) ContinueDiff(Span<byte> target, bool isFinalBlock)
+//         {
+//             var startPosition = reader.BytesConsumed;
+//             var position = startPosition;
+//             if (startPosition == 0)
+//             {
+//                 reader = new Utf8JsonReader(target, isFinalBlock, default);
+//             }
+//             else
+//             {
+//                 reader = new Utf8JsonReader(target, isFinalBlock, reader.CurrentState);
+//             }
+//             if (!reader.Read())
+//                 goto EndOfInput;
+
+//             while (true)
+//             {
+//                 if (state == JsonDiffState.Copying)
+//                 {
+//                     CopyToken(ref reader, writer);
+//                     reader.Read();
+//                 }
+//                 switch (reader.TokenType)
+//                 {
+//                     case JsonTokenType.StartObject:
+//                         if (sourceElementStack.Last.ValueKind != JsonValueKind.Object)
+//                         {
+//                             CopyValue(ref reader, writer);
+//                             state = JsonDiffState.Copying;
+//                         }
+//                         else
+//                         {
+//                             state = JsonDiffState.DiffObject;
+//                         }
+//                         break;
+//                     case JsonTokenType.EndObject:
+//                         break;
+//                     case JsonTokenType.StartArray:
+//                         break;
+//                     case JsonTokenType.EndArray:
+//                         break;
+//                     case JsonTokenType.PropertyName: {
+//                         var name = ReadName(ref reader);
+//                         if (!reader.Read())
+//                         {
+//                             state = JsonDiffState.DiffValue;
+//                             goto EndOfInput;
+//                         }
+//                         break;
+//                     }
+//                     case JsonTokenType.Comment:
+//                         break;
+//                     case JsonTokenType.String:
+//                         break;
+//                     case JsonTokenType.Number:
+//                         break;
+//                     case JsonTokenType.True:
+//                         break;
+//                     case JsonTokenType.False:
+//                         break;
+//                     case JsonTokenType.Null:
+//                         break;
+//                 }
+//             }
+
+//             return ((int)(reader.BytesConsumed - startPosition), true);
+
+
+//             EndOfInput:
+//             return ((int)(reader.BytesConsumed - startPosition), false);
 //         }
 
 //         Span<byte> ReadName(ref Utf8JsonReader reader)
@@ -132,7 +225,7 @@
 //         {
 //             lazyWriteStack.Add(0);
 //         }
-        
+
 //         void DiffObject(in JsonElement source, ref Utf8JsonReader target)
 //         {
 //             AssertToken(ref target, JsonTokenType.StartObject);
@@ -223,6 +316,13 @@
 //             return diff;
 //         }
 
+//         enum JsonDiffState
+//         {
+//             DiffValue,
+//             DiffObject,
+//             Copying
+//         }
+
 
 //         ref struct RefList<T>
 //         {
@@ -257,9 +357,19 @@
 //                 buffer[count++] = item;
 //             }
 
+//             public void Pop()
+//             {
+//                 count--;
+//                 if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+//                     buffer[count] = default!;
+//             }
+
 //             public void Clear()
 //             {
 //                 count = 0;
+
+//                 if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+//                     buffer.Fill(default!);
 //             }
 
 //             public T? LastOrDefault() => count > 0 ? buffer[count - 1] : default;

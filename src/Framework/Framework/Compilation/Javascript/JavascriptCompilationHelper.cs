@@ -1,12 +1,11 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
-using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -17,8 +16,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                 null => "null",
                 true => "true",
                 false => "false",
+                int i => i.ToString(CultureInfo.InvariantCulture).DotvvmInternString(trySystemIntern: false),
                 string s => KnockoutHelper.MakeStringLiteral(s, htmlSafe),
-                int i => i.ToString(),
                 _ => JsonSerializer.Serialize(obj, htmlSafe ? DefaultSerializerSettingsProvider.Instance.Settings : DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe)
             };
 

@@ -2,14 +2,12 @@
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -50,6 +48,15 @@ namespace DotVVM.Framework.ResourceManagement
                 writer.WriteStringValue($"{t.FullName}, {t.Assembly.GetName().Name}");
         }
     }
+
+    /// <summary> Formats type as C# type identifier </summary>
+    public class DebugReflectionTypeJsonConverter(): GenericWriterJsonConverter<Type>(
+        (writer, value, options) => {
+            writer.WriteStringValue(value.ToCode());
+        })
+    {
+    }
+
     public class DotvvmTypeDescriptorJsonConverter<T> : JsonConverter<T>
         where T: ITypeDescriptor
     {
@@ -77,25 +84,16 @@ namespace DotVVM.Framework.ResourceManagement
         }
     }
 
-    public class DotvvmPropertyJsonConverter : JsonConverter<IControlAttributeDescriptor>
-    {
-        public override IControlAttributeDescriptor Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-            throw new NotImplementedException();
-        public override void Write(Utf8JsonWriter writer, IControlAttributeDescriptor value, JsonSerializerOptions options)
-        {
+    public class DotvvmPropertyJsonConverter() : GenericWriterJsonConverter<IControlAttributeDescriptor>(
+        (writer, value, options) => {
             writer.WriteStringValue(value.ToString());
-        }
+        })
+    {
     }
 
-    public class DataContextChangeAttributeConverter : JsonConverter<DataContextChangeAttribute>
+    public class DataContextChangeAttributeConverter() : GenericWriterJsonConverter<DataContextChangeAttribute>(WriteObjectReflection)
     {
-        public override DataContextChangeAttribute? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-        public override void Write(Utf8JsonWriter writer, DataContextChangeAttribute attribute, JsonSerializerOptions options)
-        {
-            WriteObjectReflction(writer, attribute, options);
-        }
-
-        internal static void WriteObjectReflction(Utf8JsonWriter writer, object attribute, JsonSerializerOptions options)
+        internal static void WriteObjectReflection(Utf8JsonWriter writer, object attribute, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
             writer.WriteString("$type", attribute.GetType().ToString());
@@ -113,12 +111,22 @@ namespace DotVVM.Framework.ResourceManagement
         }
     }
 
-    public class DataContextManipulationAttributeConverter : JsonConverter<DataContextStackManipulationAttribute>
+    public class DataContextManipulationAttributeConverter() : GenericWriterJsonConverter<DataContextStackManipulationAttribute>(DataContextChangeAttributeConverter.WriteObjectReflection)
     {
-        public override DataContextStackManipulationAttribute Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-        public override void Write(Utf8JsonWriter writer, DataContextStackManipulationAttribute value, JsonSerializerOptions options)
+    }
+
+    public class GenericWriterJsonConverter<T>(Action<Utf8JsonWriter, T, JsonSerializerOptions> write) : JsonConverterFactory
+    {
+        public override bool CanConvert(Type typeToConvert) => typeof(T).IsAssignableFrom(typeToConvert);
+        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
+            Activator.CreateInstance(typeof(Inner<>).MakeGenericType(typeof(T), typeToConvert), write) as JsonConverter;
+
+        private class Inner<TActual>(Action<Utf8JsonWriter, T, JsonSerializerOptions> write) : JsonConverter<TActual>
         {
-            DataContextChangeAttributeConverter.WriteObjectReflction(writer, value, options);
+            public override TActual Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+                throw new NotImplementedException();
+            public override void Write(Utf8JsonWriter writer, TActual value, JsonSerializerOptions options) =>
+                write(writer, (T)(object)value!, options);
         }
     }
 }

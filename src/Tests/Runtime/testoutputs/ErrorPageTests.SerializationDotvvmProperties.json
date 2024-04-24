@@ -1,0 +1,9 @@
+{
+	"normal": "DotvvmControl.IncludeInPage",
+	"interfaceType": "DotvvmControl.IncludeInPage",
+	"alias": "TestObject.Alias",
+	"withFallback": "ButtonBase.Enabled",
+	"capability": "ButtonBase.TextOrContentCapability",
+	"group": "DotVVM.Framework.Compilation.ControlTree.DotvvmPropertyGroup",
+	"groupMember": "HtmlGenericControl.Attributes:class"
+}

@@ -3,12 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Compilation.Javascript;
 using System.Text.Json.Nodes;
 using System.Text.Json;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
 {
@@ -224,7 +222,7 @@ if ( typeof require !== 'undefined'
     // Global variable
     Globalize = window.dotvvm_Globalize;
 }
-Globalize.addCultureInfo({{JavascriptCompilationHelper.CompileConstant(ci.Name)}}, 'default', {{cultureJson}});
+Globalize.addCultureInfo({{KnockoutHelper.MakeStringLiteral(ci.Name)}}, 'default', {{cultureJson}});
 }(this));
 """;
         }

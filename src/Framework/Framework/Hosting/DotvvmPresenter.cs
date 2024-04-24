@@ -343,6 +343,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     postData = await JsonDocument.ParseAsync(requestBody);
                 }
+                context.ReceivedViewModelJson = postData;
 
                 // validate csrf token
                 context.CsrfToken = postData.RootElement.GetProperty("$csrfToken"u8).GetString().NotNull("$csrfToken is required");
@@ -464,7 +465,7 @@ namespace DotVVM.Framework.Hosting
                 modelState = staticCommandModelState.Errors
             });
 
-            context.HttpContext.Response.ContentType = "application/json";
+            context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
             await context.HttpContext.Response.WriteAsync(result);
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ArgumentsValidationFailed, "Argument contain validation errors!");
         }

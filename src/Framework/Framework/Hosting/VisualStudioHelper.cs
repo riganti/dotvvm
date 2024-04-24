@@ -38,10 +38,6 @@ namespace DotVVM.Framework.Hosting
         {
             return new JsonSerializerOptions {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                // ReferenceHandler = ReferenceHandler.IgnoreCycles, // doesn't work together with JsonObjectCreationHandling.Populate
-                // Error = (sender, args) => { // TODO: how? https://github.com/dotnet/runtime/issues/38049
-                //     args.ErrorContext.Handled = true;
-                // },
                 WriteIndented = true,
                 Converters = {
                     new ReflectionTypeJsonConverter(),
@@ -53,7 +49,7 @@ namespace DotVVM.Framework.Hosting
                     new DataContextManipulationAttributeConverter()
                 },
                 TypeInfoResolver = new DotvvmConfigurationSerializationResolver(),
-                Encoder = DefaultSerializerSettingsProvider.Instance.HtmlSafeLessParaoidEncoder
+                Encoder = DefaultSerializerSettingsProvider.Instance.HtmlSafeLessParanoidEncoder
             };
         }
 

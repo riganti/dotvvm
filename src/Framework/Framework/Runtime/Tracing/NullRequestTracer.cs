@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Runtime.Tracing
             return TaskUtils.GetCompletedTask();
         }
 
-        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Lazy<Stream> viewModelBuffer)
+        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Func<Stream> viewModelBuffer)
         {
         }
 

@@ -79,7 +79,7 @@ namespace DotVVM.Tracing.MiniProfiler
             return GetProfilerCurrent().StepIf(name, minDuration, includeChildren);
         }
 
-        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Lazy<Stream> viewModelBuffer)
+        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Func<Stream> viewModelBuffer)
         {
         }
     }

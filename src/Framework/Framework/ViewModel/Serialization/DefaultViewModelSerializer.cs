@@ -80,19 +80,20 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // context.ViewModelJson ??= new JObject();
             // if (SendDiff && context.ReceivedViewModelJson?["viewModel"] is JObject receivedVM && context.ViewModelJson["viewModel"] is JObject responseVM)
             // {
+            //     TODO: revive diffs
             //     context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff(receivedVM, responseVM, false, i => ShouldIncludeProperty(i.TypeId, i.Property));
             //     context.ViewModelJson.Remove("viewModel");
             // }
             var requestTracers = context.Services.GetService<IEnumerable<IRequestTracer>>();
-            requestTracers?.TracingSerialized(context, (int)utf8json.Length, () => utf8json.CloneReadOnly());
+            requestTracers?.TracingSerialized(context, (int)utf8json.Length, utf8json);
             var result = StringUtils.Utf8Decode(utf8json.ToSpan());
 
             var routeLabel = context.RouteLabel();
             var requestType = context.RequestTypeLabel();
-            DotvvmMetrics.ViewModelStringificationTime.Record(timer.ElapsedSeconds, routeLabel, requestType);
+            DotvvmMetrics.ViewModelSerializationTime.Record(timer.ElapsedSeconds, routeLabel, requestType);
             DotvvmMetrics.ViewModelSize.Record(utf8json.Length, routeLabel, requestType);
 
-            return result;
+            return result; // TODO: write Utf-8 directly
         }
 
         private bool? ShouldIncludeProperty(string typeId, string property)
@@ -158,8 +159,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public MemoryStream BuildViewModel(IDotvvmRequestContext context, object? commandResult, IEnumerable<(string name, string html)>? postbackUpdatedControls = null, bool serializeNewResources = false)
         {
-            var timer = ValueStopwatch.StartNew();
-
             (int, int) viewModelBodyPosition;
 
             var buffer = new MemoryStream();
@@ -227,8 +226,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 SerializeTypeMetadata(context, writer, state.UsedSerializationMaps);
                 writer.WriteEndObject();
             }
-
-            DotvvmMetrics.ViewModelSerializationTime.Record(timer.ElapsedSeconds, context.RouteLabel(), context.RequestTypeLabel());
 
             return buffer;
         }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Runtime.Tracing
 {
@@ -17,12 +18,18 @@ namespace DotVVM.Framework.Runtime.Tracing
             }
         }
 
-        public static void TracingSerialized(this IEnumerable<IRequestTracer> requestTracers, IDotvvmRequestContext context, int viewModelSize, Func<Stream> stream)
+        public static void TracingSerialized(this IEnumerable<IRequestTracer> requestTracers, IDotvvmRequestContext context, int viewModelSize, MemoryStream stream)
         {
+            bool calledSynchronously = false;
             foreach (var tracer in requestTracers)
             {
-                tracer.ViewModelSerialized(context, viewModelSize, new Lazy<Stream>(stream));
+                tracer.ViewModelSerialized(context, viewModelSize, () => {
+                    if (!calledSynchronously) // make sure we can optimize this later to use buffers from ArrayPool
+                        throw new InvalidOperationException("The stream factory function is being invoked too late.");
+                    return stream.CloneReadOnly();
+                });
             }
+            calledSynchronously = true;
         }
 
         public static async Task TracingEndRequest(this IEnumerable<IRequestTracer> requestTracers, IDotvvmRequestContext context)

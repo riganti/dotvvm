@@ -11,9 +11,7 @@ namespace DotVVM.Framework.Compilation
         public static Task Precompile(this ViewCompilationConfiguration compilationConfiguration, DotvvmConfiguration config, IStartupTracer startupTracer)
         {
             return Task.Run(async () => {
-                var compilationService = config.ServiceProvider.GetService<IDotvvmViewCompilationService>();
-                if (compilationService is null)
-                    return;
+                var compilationService = config.ServiceProvider.GetRequiredService<IDotvvmViewCompilationService>();
 
                 if (compilationConfiguration.BackgroundCompilationDelay != null)
                 {

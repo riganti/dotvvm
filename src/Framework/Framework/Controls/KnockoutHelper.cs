@@ -485,7 +485,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public static string MakeStringLiteral(string value, bool htmlSafe = true)
         {
-            var encoder = htmlSafe ? DefaultSerializerSettingsProvider.Instance.HtmlSafeLessParaoidEncoder : JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+            var encoder = htmlSafe ? DefaultSerializerSettingsProvider.Instance.HtmlSafeLessParanoidEncoder : JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
             if (value.Length < 64)
             {
                 // try to allocate only the result string if it short enough

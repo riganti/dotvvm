@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Configuration
         // https://tc39.es/ecma262/multipage/ecmascript-language-lexical-grammar.html#prod-DoubleStringCharacter
         //   - it says « SourceCharacter [=any Unicode code point] but not one of " or \ or LineTerminator »
         // ...which isn't allowed in JSON in any context anyway
-        internal readonly JavaScriptEncoder HtmlSafeLessParaoidEncoder;
+        internal readonly JavaScriptEncoder HtmlSafeLessParanoidEncoder;
 
         private JsonSerializerOptions CreateSettings()
         {
@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Configuration
                     new DotvvmCustomPrimitiveTypeConverter()
                 },
                 NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
-                Encoder = HtmlSafeLessParaoidEncoder,
+                Encoder = HtmlSafeLessParanoidEncoder,
                 MaxDepth = defaultMaxSerializationDepth
             };
         }
@@ -63,15 +63,12 @@ namespace DotVVM.Framework.Configuration
             var encoderSettings = new TextEncoderSettings();
             encoderSettings.AllowRange(UnicodeRanges.All);
             encoderSettings.ForbidCharacters('>', '<');
-            HtmlSafeLessParaoidEncoder = JavaScriptEncoder.Create(encoderSettings);
-            // JsonConvert.DefaultSettings = () => new JsonSerializerSettings() { MaxDepth = defaultMaxSerializationDepth };
+            HtmlSafeLessParanoidEncoder = JavaScriptEncoder.Create(encoderSettings);
             Settings = CreateSettings();
             SettingsHtmlUnsafe = new JsonSerializerOptions(Settings)
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             };
         }
-
-        // public static JsonSerializer CreateJsonSerializer() => JsonSerializer.Serialize(
     }
 }

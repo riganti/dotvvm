@@ -20,6 +20,9 @@ namespace DotVVM.Framework.Diagnostics
             this.configuration = configuration;
         }
 
+        public DiagnosticsInformationSenderState State =>
+            configuration.GetFreshHostName() is {} && configuration.Port != 0 ? DiagnosticsInformationSenderState.Full : DiagnosticsInformationSenderState.Disconnected;
+
         public async Task SendInformationAsync(DiagnosticsInformation information)
         {
             var hostname = configuration.GetFreshHostName();

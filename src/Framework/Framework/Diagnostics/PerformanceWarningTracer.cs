@@ -59,11 +59,11 @@ namespace DotVVM.Framework.Diagnostics
 
 
 
-        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Lazy<Stream> viewModelBuffer)
+        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Func<Stream> viewModelBuffer)
         {
             if (viewModelSize >= config.BigViewModelBytes)
             {
-                WarnLargeViewModel(context, viewModelSize, viewModelBuffer.Value);
+                WarnLargeViewModel(context, viewModelSize, viewModelBuffer());
             }
         }
 
