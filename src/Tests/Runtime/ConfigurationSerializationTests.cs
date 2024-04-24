@@ -11,8 +11,10 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Encodings.Web;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -43,19 +45,19 @@ namespace DotVVM.Framework.Tests.Runtime
 
             Console.WriteLine(serialized);
 
-            var jobject = JObject.Parse(serialized);
-            void removeTestStuff(JToken token)
+            var jobject = JsonNode.Parse(serialized).AsObject();
+            void removeTestStuff(JsonNode token)
             {
-                if (token is JObject obj)
-                    foreach (var testControl in obj.Properties().Where(p => p.Name.Contains(".Tests.")).ToArray())
-                        testControl.Remove();
+                if (token is JsonObject obj)
+                    foreach (var testControl in obj.Where(p => p.Key.Contains(".Tests.")).ToArray())
+                        obj.Remove(testControl.Key);
             }
             removeTestStuff(jobject["properties"]);
             removeTestStuff(jobject["propertyGroups"]);
             removeTestStuff(jobject["capabilities"]);
             removeTestStuff(jobject["controls"]);
-            jobject["assemblies"]?.Parent.Remove(); // there are user specific paths
-            check.CheckString(jobject.ToString(), checkName, fileExtension, memberName, sourceFilePath);
+            jobject.Remove("assemblies"); // there are user specific paths
+            check.CheckString(jobject.ToJsonString(new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping, WriteIndented = true }), checkName, fileExtension, memberName, sourceFilePath);
         }
 
         [TestMethod]

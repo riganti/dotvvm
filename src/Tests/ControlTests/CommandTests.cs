@@ -2,7 +2,6 @@ using CheckTestOutput;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
 

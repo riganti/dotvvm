@@ -7,7 +7,6 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using FastExpressionCompiler;
-// using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Diagnostics
 {

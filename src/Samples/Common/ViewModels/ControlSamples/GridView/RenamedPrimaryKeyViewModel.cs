@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
-using Newtonsoft.Json;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 {

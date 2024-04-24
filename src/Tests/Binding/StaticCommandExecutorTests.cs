@@ -14,7 +14,6 @@ using DotVVM.Framework.Testing;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 using static DotVVM.Framework.Testing.DotvvmTestHelper;
 
 namespace DotVVM.Framework.Tests.Binding
