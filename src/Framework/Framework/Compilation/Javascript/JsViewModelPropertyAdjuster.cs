@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                         memberAccess.MemberName = propertyMap.Name;
                     }
                 }
-                else if (member is FieldInfo)
+                else if (member is FieldInfo && propAnnotation.SerializationMap?.IsAvailableOnClient() != true)
                     throw new NotSupportedException($"Cannot translate field '{member}' to Javascript");
 
                 if (targetAnnotation is { IsControl: true } &&

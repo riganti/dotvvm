@@ -32,7 +32,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public static bool CanConvertType(Type type) =>
             !ReflectionUtils.IsEnumerable(type) &&
             ReflectionUtils.IsComplexType(type) &&
-            !ReflectionUtils.IsTupleLike(type) &&
             !ReflectionUtils.IsJsonDom(type) &&
             type != typeof(object);
 

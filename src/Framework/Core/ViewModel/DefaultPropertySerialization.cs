@@ -8,7 +8,7 @@ namespace DotVVM.Framework.ViewModel
     {
         static readonly Type? JsonPropertyNJ = Type.GetType("Newtonsoft.Json.JsonPropertyAttribute, Newtonsoft.Json");
         static readonly PropertyInfo? JsonPropertyNJPropertyName = JsonPropertyNJ?.GetProperty("PropertyName");
-        public string ResolveName(PropertyInfo propertyInfo)
+        public string ResolveName(MemberInfo propertyInfo)
         {
             var bindAttribute = propertyInfo.GetCustomAttribute<BindAttribute>();
             if (bindAttribute != null)

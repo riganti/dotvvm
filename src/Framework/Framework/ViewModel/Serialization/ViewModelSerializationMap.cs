@@ -107,7 +107,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Creates the constructor for this object.
         /// </summary>
-        private Expression CallConstructor(Expression services, Dictionary<PropertyInfo, ParameterExpression> propertyVariables, bool throwImmediately = false)
+        private Expression CallConstructor(Expression services, Dictionary<ViewModelPropertyMap, ParameterExpression> propertyVariables, bool throwImmediately = false)
         {
             if (constructorFactory != null)
                 return Invoke(Constant(constructorFactory), services);
@@ -142,9 +142,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (!prop.TransferToServer)
                     throw new Exception($"Can not deserialize {Type.ToCode()}, property {prop.Name} is not transferred to server, but it's used in constructor.");
 
-                Debug.Assert(propertyVariables.ContainsKey(prop.PropertyInfo));
+                Debug.Assert(propertyVariables.ContainsKey(prop));
 
-                return propertyVariables[prop.PropertyInfo];
+                return propertyVariables[prop];
             }).ToArray();
             return Constructor switch {
                 ConstructorInfo c =>
@@ -184,20 +184,20 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var propertyVars = Properties
                 .Where(p => p.TransferToServer)
                 .ToDictionary(
-                    p => p.PropertyInfo,
+                    p => p,
                     p => Expression.Variable(p.Type, "prop_" + p.Name)
                 );
 
             // If we have constructor property or if we have { get; init; } property, we always create new instance
             var alwaysCallConstructor = Properties.Any(p => p.TransferToServer && (
                 p.ConstructorParameter is {} ||
-                p.PropertyInfo.IsInitOnly()));
+                (p.PropertyInfo as PropertyInfo)?.IsInitOnly() == true));
             
             // We don't want to clone IDotvvmViewModel automatically, because the user is likely to register this specific instance somewhere
             if (alwaysCallConstructor && typeof(IDotvvmViewModel).IsAssignableFrom(Type) && Constructor is {} && !SerialiationMapperAttributeHelper.IsJsonConstructor(Constructor))
             {
                 var cloneReason =
-                    Properties.FirstOrDefault(p => p.TransferToServer && p.PropertyInfo.IsInitOnly()) is {} initProperty
+                    Properties.FirstOrDefault(p => p.TransferToServer && (p.PropertyInfo as PropertyInfo)?.IsInitOnly() == true) is {} initProperty
                         ? $"init-only property {initProperty.Name} is transferred client → server" :
                     Properties.FirstOrDefault(p => p.TransferToServer && p.ConstructorParameter is {}) is {} ctorProperty
                         ? $"property {ctorProperty.Name} must be injected into constructor parameter {ctorProperty.ConstructorParameter!.Name}" : "internal bug";
@@ -223,8 +223,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     Type.IsValueType ? Constant(true) : NotEqual(value, Constant(null)),
                     Block(
                         propertyVars
-                            .Where(p => p.Key.GetMethod is not null)
-                            .Select(p => Expression.Assign(p.Value, Expression.Property(value, p.Key)))
+                            .Where(p => p.Key.PropertyInfo is not PropertyInfo { GetMethod: null })
+                            .Select(p => Expression.Assign(p.Value, MemberAccess(value, p.Key)))
                     )
                 ));
             }
@@ -243,7 +243,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 {
                     continue;
                 }
-                var propertyVar = propertyVars[property.PropertyInfo];
+                var propertyVar = propertyVars[property];
 
                 var existingValue =
                     property.Populate ?
@@ -357,8 +357,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 var propertySettingExpressions =
                     Properties
-                        .Where(p => p is { PropertyInfo.SetMethod: not null, ConstructorParameter: null, TransferToServer: true })
-                        .Select(p => Assign(Property(value, p.PropertyInfo), propertyVars[p.PropertyInfo]))
+                        .Where(p => p is { ConstructorParameter: null, TransferToServer: true, PropertyInfo: PropertyInfo { SetMethod: not null } or FieldInfo { IsInitOnly: false } })
+                        .Select(p => Assign(MemberAccess(value, p), propertyVars[p]))
                         .ToList();
 
                 if (propertySettingExpressions.Any())
@@ -375,6 +375,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 Block(typeof(T), [ currentProperty, readerTmp, ..propertyVars.Values ], block).OptimizeConstants(),
                 reader, jsonOptions, value, allowPopulate, encryptedValuesReader, state);
             return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression | CompilerFlags.EnableDelegateDebugInfo);
+        }
+
+        Expression MemberAccess(Expression obj, ViewModelPropertyMap property)
+        {
+            if (property.PropertyInfo is PropertyInfo pi)
+                return Property(obj, pi);
+            if (property.PropertyInfo is FieldInfo fi)
+                return Field(obj, fi);
+            throw new NotSupportedException();
         }
 
         /// <summary>
@@ -405,7 +414,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var property = Properties[propertyIndex];
                 var endPropertyLabel = Expression.Label("end_property_" + property.Name);
                 
-                if (property.TransferToClient && property.PropertyInfo.GetMethod != null)
+                if (property.TransferToClient && property.PropertyInfo is not PropertyInfo { GetMethod: null })
                 {
                     if (property.TransferFirstRequest != property.TransferAfterPostback)
                     {
@@ -424,7 +433,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     }
 
                     // (object)value.{property.PropertyInfo.Name}
-                    var prop = Expression.Property(value, property.PropertyInfo);
+                    var prop = MemberAccess(value, property);
 
                     var writeEV = property.ViewModelProtection == ProtectMode.EncryptData ||
                         property.ViewModelProtection == ProtectMode.SignData;

@@ -75,6 +75,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             
             if (type.GetConstructor(Type.EmptyTypes) is {} emptyCtor)
                 return emptyCtor;
+            if (ReflectionUtils.IsTupleLike(type))
+            {
+                var ctors = type.GetConstructors();
+                if (ctors.Length == 1)
+                    return ctors[0];
+                else
+                    throw new NotSupportedException($"Type {type.FullName} is a tuple-like type, but it has {ctors.Length} constructors.");
+            }
             return GetRecordConstructor(type);
         }
 
@@ -115,11 +123,30 @@ namespace DotVVM.Framework.ViewModel.Serialization
         protected virtual IEnumerable<ViewModelPropertyMap> GetProperties(Type type, MethodBase? constructor)
         {
             var ctorParams = constructor?.GetParameters().ToDictionary(p => p.Name.NotNull(), StringComparer.OrdinalIgnoreCase);
-            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            
+            var properties = type.GetAllMembers(BindingFlags.Public | BindingFlags.Instance)
+                                 .Where(m => m is PropertyInfo or FieldInfo)
+                                 .ToArray();
             Array.Sort(properties, (a, b) => StringComparer.Ordinal.Compare(a.Name, b.Name));
-            foreach (var property in properties)
+            foreach (MemberInfo property in properties)
             {
-                if (SerialiationMapperAttributeHelper.IsJsonIgnore(property)) continue;
+                var bindAttribute = property.GetCustomAttribute<BindAttribute>();
+                var include = !SerialiationMapperAttributeHelper.IsJsonIgnore(property) && bindAttribute is not { Direction: Direction.None };
+                if (property is FieldInfo)
+                {
+                    // fields are ignored by default, unless marked with [Bind(not None)], [JsonInclude] or defined in ValueTuple<...>
+                    include = include ||
+                        !(bindAttribute is null or { Direction: Direction.None }) ||
+                        property.IsDefined(typeof(JsonIncludeAttribute)) ||
+                        (property.DeclaringType.IsGenericType && property.DeclaringType.FullName.StartsWith("System.ValueTuple`"));
+                }
+                if (!include) continue;
+
+                var (propertyType, canGet, canSet) = property switch {
+                    PropertyInfo p => (p.PropertyType, p.GetMethod is { IsPublic: true }, p.SetMethod is { IsPublic: true }),
+                    FieldInfo f => (f.FieldType, true, !f.IsInitOnly && !f.IsLiteral),
+                    _ => throw new NotSupportedException()
+                };
 
                 var ctorParam = ctorParams?.GetValueOrDefault(property.Name);
 
@@ -127,22 +154,21 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     property,
                     propertySerialization.ResolveName(property),
                     ProtectMode.None,
-                    property.PropertyType,
-                    transferToServer: ctorParam is {} || IsSetterSupported(property),
-                    transferAfterPostback: property.GetMethod != null && property.GetMethod.IsPublic,
-                    transferFirstRequest: property.GetMethod != null && property.GetMethod.IsPublic,
-                    populate: (ViewModelJsonConverter.CanConvertType(property.PropertyType) || property.PropertyType == typeof(object)) && property.GetMethod != null
+                    propertyType,
+                    transferToServer: ctorParam is {} || canSet,
+                    transferAfterPostback: canGet,
+                    transferFirstRequest: canGet,
+                    populate: (ViewModelJsonConverter.CanConvertType(propertyType) || propertyType == typeof(object)) && canGet
                 );
                 propertyMap.ConstructorParameter = ctorParam;
                 propertyMap.JsonConverter = GetJsonConverter(property);
-                propertyMap.AllowDynamicDispatch = property.PropertyType.IsAbstract || property.PropertyType == typeof(object);
+                propertyMap.AllowDynamicDispatch = propertyType.IsAbstract || propertyType == typeof(object);
 
                 foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())
                 {
                     attr.SetOptions(propertyMap);
                 }
 
-                var bindAttribute = property.GetCustomAttribute<BindAttribute>();
                 if (bindAttribute != null)
                 {
                     propertyMap.Bind(bindAttribute.Direction);
@@ -169,18 +195,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 yield return propertyMap;
             }
         }
-        /// <summary>
-        /// Returns whether DotVVM serialization supports setter of given property. 
-        /// </summary>
-        private static bool IsSetterSupported(PropertyInfo property)
-        {
-            // support all properties of KeyValuePair<,>
-            if (property.DeclaringType!.IsGenericType && property.DeclaringType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)) return true;
 
-            return property.SetMethod != null && property.SetMethod.IsPublic;
-        }
-
-        protected virtual JsonConverter? GetJsonConverter(PropertyInfo property)
+        protected virtual JsonConverter? GetJsonConverter(MemberInfo property)
         {
             var converterType = property.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType;
             if (converterType == null)

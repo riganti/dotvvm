@@ -11,7 +11,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class ViewModelPropertyMap
     {
-        public ViewModelPropertyMap(PropertyInfo propertyInfo, string name, ProtectMode viewModelProtection, Type type, bool transferToServer, bool transferAfterPostback, bool transferFirstRequest, bool populate)
+        public ViewModelPropertyMap(MemberInfo propertyInfo, string name, ProtectMode viewModelProtection, Type type, bool transferToServer, bool transferAfterPostback, bool transferFirstRequest, bool populate)
         {
             PropertyInfo = propertyInfo;
             Name = name;
@@ -23,7 +23,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Populate = populate;
         }
 
-        public PropertyInfo PropertyInfo { get; set; }
+        /// <summary> The serialized property, or in rare cases the serialized field (when declared in ValueTuple`? or when explicitly marked with [Bind] attribute). </summary>
+        public MemberInfo PropertyInfo { get; set; }
 
         /// <summary> Property name, as seen in the serialized JSON and client-side. Note that it will be different than `PropertyInfo.Name`, if `[Bind(Name = X)]` or `[JsonPropertyName(X)]` is used. </summary>
         public string Name { get; set; } 
@@ -33,6 +34,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public ProtectMode ViewModelProtection { get; set; }
 
+        /// <summary> Type of the property </summary>
         public Type Type { get; set; }
 
         public Direction BindDirection { get; set; } = Direction.None;
@@ -66,6 +68,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public bool IsFullyTransferred()
         {
             return TransferToServer && TransferToClient;
+        }
+        
+        /// <summary> Returns the runtime property value using reflection </summary>
+        public object? GetValue(object obj)
+        {
+            return PropertyInfo switch {
+                PropertyInfo p => p.GetValue(obj),
+                FieldInfo f => f.GetValue(obj),
+                _ => throw new NotSupportedException()
+            };
         }
 
         public override string ToString()
