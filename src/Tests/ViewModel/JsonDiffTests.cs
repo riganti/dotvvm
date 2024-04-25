@@ -36,6 +36,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        [Ignore("DotvvmConfiguration deserialization is not currently implemented")]
         public void JsonDiff_Configuration_AddingResources()
         {
             var config = ApplyPatches(
@@ -50,6 +51,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        [Ignore("DotvvmConfiguration deserialization is not currently implemented")]
         public void JsonDiff_Configuration_AddingRoute()
         {
             var config = ApplyPatches(

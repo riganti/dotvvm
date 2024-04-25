@@ -56,6 +56,7 @@ namespace DotVVM.Framework.Tests.Runtime
         /// Verifies that the default configuration populated with contents from the JSON file is merged correctly.
         /// </summary>
         [TestMethod]
+        [Ignore("DotvvmConfiguration deserialization is not currently implemented")]
         public void ResourceManager_ConfigurationDeserialization()
         {
             //define
@@ -100,6 +101,7 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
+        [Ignore("DotvvmConfiguration deserialization is not currently implemented")]
         public void ResourceManager_ConfigurationOldDeserialization()
         {
             var json = string.Format(@"

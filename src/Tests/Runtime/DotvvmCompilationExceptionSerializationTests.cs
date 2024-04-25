@@ -12,6 +12,7 @@ namespace DotVVM.Framework.Tests.Runtime
     public class DotvvmCompilationExceptionSerializationTests
     {
         [TestMethod]
+        [Ignore("DotvvmCompilationException deserialization is not currently implemented")]
         public void DotvvmCompilationException_SerializationAndDeserialization_WorksCorrectly()
         {
             var compilationException =

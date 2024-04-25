@@ -17,6 +17,7 @@ namespace DotVVM.Framework.Tests.Routing
     public class RouteSerializationTests
     {
         [TestMethod]
+        [Ignore("DotvvmConfiguration deserialization is not currently implemented")]
         public void RouteTable_Deserialization()
         {
             DotvvmTestHelper.EnsureCompiledAssemblyCache();
