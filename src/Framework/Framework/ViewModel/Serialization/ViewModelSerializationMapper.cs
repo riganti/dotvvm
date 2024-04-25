@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using DotVVM.Framework.Compilation.Javascript;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -117,6 +118,40 @@ namespace DotVVM.Framework.ViewModel.Serialization
             static Type unwrapByRef(Type t) => t.IsByRef ? t.GetElementType()! : t;
         }
 
+        protected virtual MemberInfo[] ResolveShadowing(Type type, MemberInfo[] members)
+        {
+            var shadowed = new Dictionary<string, MemberInfo>();
+            foreach (var member in members)
+            {
+                if (shadowed.TryAdd(member.Name, member))
+                    continue;
+                var previous = shadowed[member.Name];
+                if (member.DeclaringType == previous.DeclaringType)
+                    throw new InvalidOperationException($"Two or more members named '{member.Name}' on type '{member.DeclaringType!.ToCode()}' are not allowed.");
+                var (inherited, replacing) = member.DeclaringType!.IsAssignableFrom(previous.DeclaringType!) ? (member, previous) : (previous, member);
+                var inheritedType = inherited.GetResultType();
+                var replacingType = replacing.GetResultType();
+
+                // collections are special case, since everything is serialized as array, we don't have to care about the actual type, only the element type
+                // this is neccessary for IGridViewDataSet hierarchy to work...
+                while (ReflectionUtils.IsCollection(inheritedType) && ReflectionUtils.IsCollection(replacingType))
+                {
+                    inheritedType = ReflectionUtils.GetEnumerableType(inheritedType) ?? typeof(object);
+                    replacingType = ReflectionUtils.GetEnumerableType(replacingType) ?? typeof(object);
+                }
+
+                if (inheritedType.IsAssignableFrom(replacingType))
+                {
+                    shadowed[member.Name] = replacing;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Detected forbidden member shadowing of '{inherited.DeclaringType.ToCode(stripNamespace: true)}.{inherited.Name}: {inherited.GetResultType().ToCode(stripNamespace: true)}' by '{replacing.DeclaringType.ToCode(stripNamespace: true)}.{replacing.Name}: {replacing.GetResultType().ToCode(stripNamespace: true)}' while building serialization map for '{type.ToCode(stripNamespace: true)}'");
+                }
+            }
+            return shadowed.Values.ToArray();
+        }
+
         /// <summary>
         /// Gets the properties of the specified type.
         /// </summary>
@@ -127,6 +162,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var properties = type.GetAllMembers(BindingFlags.Public | BindingFlags.Instance)
                                  .Where(m => m is PropertyInfo or FieldInfo)
                                  .ToArray();
+            properties = ResolveShadowing(type, properties);
             Array.Sort(properties, (a, b) => StringComparer.Ordinal.Compare(a.Name, b.Name));
             foreach (MemberInfo property in properties)
             {
@@ -138,7 +174,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     include = include ||
                         !(bindAttribute is null or { Direction: Direction.None }) ||
                         property.IsDefined(typeof(JsonIncludeAttribute)) ||
-                        (property.DeclaringType.IsGenericType && property.DeclaringType.FullName.StartsWith("System.ValueTuple`"));
+                        (type.IsGenericType && type.FullName.StartsWith("System.ValueTuple`"));
                 }
                 if (!include) continue;
 

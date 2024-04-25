@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.Configuration;
-using System.Reflection;
 using DotVVM.Framework.Utils;
 using System.Security;
 using System.Diagnostics;
@@ -12,9 +10,7 @@ using System.Text.Json;
 using System.IO;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
-using DotVVM.Framework.Controls;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -69,6 +65,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 if (state is null)
                     throw new ArgumentNullException(nameof(state), "DotvvmSerializationState must be created before calling the ViewModelJsonConverter.");
+                if (typeof(T) != typeToConvert)
+                    throw new ArgumentException("typeToConvert must be the same as T", nameof(typeToConvert));
 
                 if (reader.TokenType == JsonTokenType.Null)
                 {
@@ -103,13 +101,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 if (reader.TokenType == JsonTokenType.None) reader.Read();
                 if (reader.TokenType != JsonTokenType.StartObject)
-                    throw new JsonException($"Expected StartObject token, but reader.TokenType={reader.TokenType}");
+                    throw new JsonException($"Cannot deserialize '{typeof(T).ToCode()}': Expected StartObject token, but reader.TokenType = {reader.TokenType}");
                 reader.Read();
             }
             static void ReadEndObject(ref Utf8JsonReader reader)
             {
                 if (reader.TokenType != JsonTokenType.EndObject)
-                    throw new JsonException($"Expected EndObject token, but reader.TokenType={reader.TokenType}");
+                    throw new JsonException($"Expected EndObject token, but reader.TokenType = {reader.TokenType}");
             }
 
             public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>

@@ -7,7 +7,7 @@ namespace DotVVM.Framework.ViewModel
     /// <summary>
     /// Specifies the binding direction.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public class BindAttribute : Attribute
     {
 
@@ -24,8 +24,8 @@ namespace DotVVM.Framework.ViewModel
         public bool? _allowDynamicDispatch;
         /// <summary>
         /// When true, DotVVM serializer will select the JSON converter based on the runtime type, instead of deciding it ahead of time.
-        /// This essentially enables serialization of properties defined derived types, but does not enable derive type deserialization.
-        /// By default, dynamic dispatch is enabled for abstract types (including interfaces).
+        /// This essentially enables serialization of properties defined derived types, but does not enable derive type deserialization, unless an instance of the correct type is prepopulated into the property.
+        /// By default, dynamic dispatch is enabled for abstract types (including interfaces and System.Object).
         /// </summary>
         public bool AllowDynamicDispatch { get => _allowDynamicDispatch ?? false; set => _allowDynamicDispatch = value; }
 

@@ -409,7 +409,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             CollectionAssert.Contains(obj2.SignedDictionary, new KeyValuePair<string, string>("a", "x"));
             CollectionAssert.Contains(obj2.SignedDictionary, new KeyValuePair<string, string>("b", "y"));
             Assert.AreEqual(obj.SignedDictionary.Count, obj2.SignedDictionary.Count);
-            Assert.IsNotNull(json["SignedDictionary"]);
+            XAssert.IsType<JsonArray>(json["SignedDictionary"]);
         }
 
         [TestMethod]
@@ -578,6 +578,52 @@ namespace DotVVM.Framework.Tests.ViewModel
             public ViewModelWithUnmatchedConstuctorProperty2(TestViewModelWithByteArray x) { }
         }
 
+
+        [TestMethod]
+        public void PropertyShadowing()
+        {
+            var obj = new TestViewModelWithPropertyShadowing.Inner {
+                EnumerableToList = ["x", "y"],
+                ObjectToList = ["z" ],
+                InterfaceToInteger = 5,
+                ObjectToInteger = 6,
+                ShadowedByField = 7
+            };
+
+            var (obj2, json) = SerializeAndDeserialize(obj);
+            XAssert.Equal(obj.EnumerableToList, obj2.EnumerableToList);
+            XAssert.Equal(obj.ObjectToList, obj2.ObjectToList);
+            XAssert.Equal(obj.InterfaceToInteger, obj2.InterfaceToInteger);
+            XAssert.Equal(obj.ObjectToInteger, obj2.ObjectToInteger);
+            XAssert.Equal(obj.ShadowedByField, obj2.ShadowedByField);
+            XAssert.IsType<JsonArray>(json["EnumerableToList"]);
+        }
+        [TestMethod]
+        public void PropertyShadowing_BaseTypeDeserialized()
+        {
+            var obj = new TestViewModelWithPropertyShadowing.Inner {
+                EnumerableToList = ["x", "y"],
+                ObjectToList = ["z" ],
+                InterfaceToInteger = 5,
+                ObjectToInteger = 6,
+                ShadowedByField = 7
+            };
+            // Serialized Inner but deserializes the base type
+            var (obj2Box, json) = SerializeAndDeserialize<DynamicDispatchVMContainer<TestViewModelWithPropertyShadowing>>(new() { Value = obj });
+            var obj2 = obj2Box.Value;
+            json = json["Value"].AsObject();
+            XAssert.Equal(typeof(TestViewModelWithPropertyShadowing), obj2.GetType());
+
+            XAssert.Equal(obj.EnumerableToList, obj2.EnumerableToList);
+            XAssert.IsType<JsonElement>(obj2.ObjectToList);
+            XAssert.Null(obj2.InterfaceToInteger);
+            XAssert.Equal(6d, XAssert.IsType<double>(obj2.ObjectToInteger));
+            XAssert.Equal(7d, XAssert.IsType<double>(obj2.ShadowedByField));
+            XAssert.Equal(5, (int)json["InterfaceToInteger"]);
+            XAssert.Equal(6, (int)json["ObjectToInteger"]);
+            XAssert.Equal(7, (double)json["ShadowedByField"]);
+            XAssert.IsType<JsonArray>(json["EnumerableToList"]);
+        }
     }
 
     public class DataNode
@@ -766,5 +812,46 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         public DateOnly DateOnly { get; set; }
         public TimeOnly TimeOnly { get; set; }
+    }
+
+    public class TestViewModelWithPropertyShadowing
+    {
+        public object ObjectToInteger { get; set; }
+        [JsonIgnore] // does not "inherit" to shadowed property
+        public IComparable InterfaceToInteger { get; set; }
+
+        public IEnumerable<string> EnumerableToList { get; set; }
+        public object ObjectToList { get; set; }
+
+        public object ShadowedByField { get; set; }
+
+        public class Inner: TestViewModelWithPropertyShadowing
+        {
+            public new int ObjectToInteger { get; set; } = 123;
+            public new int InterfaceToInteger { get; set; } = 1234;
+
+            public new List<string> EnumerableToList { get; set; } = [ "A", "B" ];
+            public new List<string> ObjectToList { get; set; } = [ "C", "D" ];
+
+            public new double ShadowedByField { get; set; } = 12345;
+        }
+    }
+
+    class DynamicDispatchVMContainer<TStatic>
+    {
+        [Bind(AllowDynamicDispatch = true)]
+        public TStatic Value { get; set; }
+    }
+
+    class StaticDispatchVMContainer<TStatic>
+    {
+        [Bind(AllowDynamicDispatch = false)]
+        public TStatic Value { get; set; }
+    }
+
+    class DefaultDispatchVMContainer<TStatic>
+    {
+        [Bind(AllowDynamicDispatch = false)]
+        public TStatic Value { get; set; }
     }
 }

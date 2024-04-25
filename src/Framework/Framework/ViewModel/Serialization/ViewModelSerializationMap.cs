@@ -62,13 +62,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private void ValidatePropertyMap()
         {
-            var hashset = new HashSet<string>();
+            var dict = new Dictionary<string, ViewModelPropertyMap>();
             foreach (var propertyMap in Properties)
             {
-                if (!hashset.Add(propertyMap.Name))
+                if (!dict.TryAdd(propertyMap.Name, propertyMap))
                 {
-                    throw new InvalidOperationException($"Detected member shadowing on property \"{propertyMap.Name}\" " +
-                        $"while building serialization map for \"{Type.ToCode()}\"");
+                    var other = dict[propertyMap.Name];
+                    throw new InvalidOperationException($"Serialization map for '{Type.ToCode()}' has a name conflict between a {(propertyMap.PropertyInfo is FieldInfo ? "field" : "property")} '{propertyMap.PropertyInfo.Name}' and {(other.PropertyInfo is FieldInfo ? "field" : "property")} '{other.PropertyInfo.Name}' — both are named '{propertyMap.Name}' in JSON.");
                 }
             }
         }
@@ -673,7 +673,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (this.viewModelJsonConverter.CanConvert(type))
             {
                 var defaultConverter = this.viewModelJsonConverter.CreateConverter(type);
-                if (property.AllowDynamicDispatch)
+                if (property.AllowDynamicDispatch && !type.IsSealed)
                 {
                     return Call(
                         JsonSerializationCodegenFragments.DeserializeViewModelDynamicMethod.MakeGenericMethod(type),
@@ -728,7 +728,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             if (this.viewModelJsonConverter.CanConvert(value.Type))
             {
-                if (property.AllowDynamicDispatch)
+                if (property.AllowDynamicDispatch && !value.Type.IsSealed)
                 {
                     // TODO: ??
                     // return Call(
@@ -745,7 +745,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 }
             }
 
-            return Call(JsonSerializationCodegenFragments.SerializeValueMethod.MakeGenericMethod(value.Type), writer, jsonOptions, value, Constant(property.AllowDynamicDispatch));
+            return Call(JsonSerializationCodegenFragments.SerializeValueMethod.MakeGenericMethod(value.Type), writer, jsonOptions, value, Constant(property.AllowDynamicDispatch && !value.Type.IsSealed));
         }
     }
 

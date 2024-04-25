@@ -46,7 +46,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public bool TransferFirstRequest { get; set; }
         /// <summary> When true, an existing object in this property will be preserved during deserialization. A new object will only be created if the property is null, or if we need to call the constructor to set some properties. </summary>
         public bool Populate { get; set; }
-        /// <summary> If true, DotVVM serializer will use JSON converter for the runtime type, instead of resolving one statically </summary>
+        /// <summary> If true, DotVVM serializer will use JSON converter for the runtime type, instead of resolving one statically. Affects mostly serialization, but also deserialization into an existing instance. </summary>
         public bool AllowDynamicDispatch { get; set; }
 
         /// <summary> List of validation rules (~= validation attributes) on this property. Includes rules which can't be run client-side </summary>
