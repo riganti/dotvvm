@@ -244,6 +244,40 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void SupportTuplesPopulate()
+        {
+            var obj = new TestViewModelWithTuples() {
+                P4 = (10, new TestViewModelWithBind { P1 = "1" }),
+                P5 = new (new TestViewModelWithBind { P1 = "2" }, new TestViewModelWithBind { P1 = "3" }),
+                P6 = new(new TestViewModelWithBind { P1 = "4" }, 5)
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+            var obj2 = new TestViewModelWithTuples() {
+                P4 = (0, new TestViewModelWithBind()),
+                P5 = new (new TestViewModelWithBind(), new TestViewModelWithBind()),
+                P6 = new (new TestViewModelWithBind(), 0)
+            };
+            var originalInstances = (
+                P4: obj2.P4.b,
+                P5Key: obj2.P5.Key,
+                P5Value: obj2.P5.Value,
+                P6a: obj2.P6.Item1
+            );
+            var objPopulated = PopulateViewModel(json, obj2);
+            Assert.AreEqual(10, objPopulated.P4.a);
+            Assert.AreEqual("1", objPopulated.P4.b.P1);
+            Assert.AreEqual("2", objPopulated.P5.Key.P1);
+            Assert.AreEqual("3", objPopulated.P5.Value.P1);
+            Assert.AreEqual("4", objPopulated.P6.Item1.P1);
+            Assert.AreEqual(5, objPopulated.P6.Item2);
+            Assert.AreSame(objPopulated, obj2);
+            Assert.AreSame(originalInstances.P4, objPopulated.P4.b);
+            Assert.AreSame(originalInstances.P5Key, objPopulated.P5.Key);
+            Assert.AreSame(originalInstances.P5Value, objPopulated.P5.Value);
+            Assert.AreSame(originalInstances.P6a, objPopulated.P6.Item1);
+        }
+
+        [TestMethod]
         public void DoesNotCloneSettableRecord()
         {
             var obj = new TestViewModelWithRecords() {
@@ -598,6 +632,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             XAssert.Equal(obj.ShadowedByField, obj2.ShadowedByField);
             XAssert.IsType<JsonArray>(json["EnumerableToList"]);
         }
+
         [TestMethod]
         public void PropertyShadowing_BaseTypeDeserialized()
         {
@@ -624,6 +659,53 @@ namespace DotVVM.Framework.Tests.ViewModel
             XAssert.Equal(7, (double)json["ShadowedByField"]);
             XAssert.IsType<JsonArray>(json["EnumerableToList"]);
         }
+
+        [TestMethod]
+        public void InterfaceDeserialization_Error()
+        {
+            var obj = new VMWithInterface();
+            var ex = XAssert.ThrowsAny<Exception>(() => SerializeAndDeserialize(new StaticDispatchVMContainer<IVMInterface1> { Value = obj }));
+            XAssert.Contains("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerTests.IVMInterface1 because it's abstract.", ex.Message);
+        }
+
+        [TestMethod]
+        public void InterfaceSerialization_Static()
+        {
+            var obj = new VMWithInterface() {
+                Property1 = "x",
+                Property2 = "y",
+                Property3 = "z"
+            };
+            var jsonStr = Serialize(new StaticDispatchVMContainer<IVMInterface1> { Value = obj }, out var _, false);
+            Console.WriteLine(jsonStr);
+            var json = JsonNode.Parse(jsonStr).AsObject()["Value"].AsObject();
+            XAssert.DoesNotContain("Property3", json);
+            XAssert.Equal("x", (string)json["Property1"]);
+            XAssert.Equal("y", (string)json["Property2"]);
+
+            var obj2 = new StaticDispatchVMContainer<IVMInterface1> { Value = new VMWithInterface() };
+            var obj2Populated = PopulateViewModel(jsonStr, obj2);
+            Assert.AreSame(obj2, obj2Populated);
+            XAssert.Equal(obj.Property1, obj2.Value.Property1);
+            XAssert.Equal(obj.Property2, obj2.Value.Property2);
+        }
+
+        class VMWithInterface: IVMInterface1
+        {
+            public string Property1 { get; set; }
+            public string Property2 { get; set; }
+            public string Property3 { get; set; }
+        }
+
+        interface IVMInterface1: IVMInterface2
+        {
+            string Property1 { get; set; }
+        }
+        interface IVMInterface2
+        {
+            string Property2 { get; set; }
+        }
+
     }
 
     public class DataNode
@@ -669,6 +751,8 @@ namespace DotVVM.Framework.Tests.ViewModel
         public (int a, int b, int c, int d) P2 { get; set; } = (1, 2, 3, 4);
         public List<KeyValuePair<int, int>> P3 { get; set; } = new List<KeyValuePair<int, int>>();
         public (int a, TestViewModelWithBind b) P4 { get; set; } = (1, new TestViewModelWithBind());
+        public KeyValuePair<TestViewModelWithBind, TestViewModelWithBind> P5 { get; set; }
+        public Tuple<TestViewModelWithBind, int> P6 { get; set; }
     }
 
     public class TestViewModelWithBind
