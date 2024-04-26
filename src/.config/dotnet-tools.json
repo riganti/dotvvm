@@ -13,6 +13,12 @@
       "commands": [
         "sign"
       ]
+    },
+    "dotnet-stryker": {
+      "version": "4.0.4",
+      "commands": [
+        "dotnet-stryker"
+      ]
     }
   }
 }

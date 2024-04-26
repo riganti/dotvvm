@@ -1,0 +1,24 @@
+{
+  "stryker-config": {
+    "mutation-level": "Advanced",
+    "mutate": [
+      "**/*"
+    ],
+    "target-framework": "net8.0",
+    "coverage-analysis": "off",
+    "disable-bail": false,
+    "disable-mix-mutants": false,
+    "verbosity": "info",
+    "reporters": [ "progress", "html", "json" ],
+    "since": {
+      "enabled": false,
+      "target": "main"
+    },
+    "test-projects": [
+        "Tests/DotVVM.Framework.Tests.csproj"
+    ],
+    // stryker needs to be able to build the solution, but DotVVM.sln is not buildable on Linux and DotVVM.Crossplatform.slnf is not a solution file
+    "solution": "DotVVM.Stryker.sln",
+    "report-file-name": "strykker-report"
+  }
+}
