@@ -33,8 +33,6 @@ namespace DotVVM.Framework.Configuration
             {
                 Converters = {
                     new DotvvmDateTimeConverter(),
-                    new DotvvmDateOnlyConverter(),
-                    new DotvvmTimeOnlyConverter(),
                     new DotvvmObjectConverter(),
                     new DotvvmEnumConverter(),
                     new DotvvmDictionaryConverter(),

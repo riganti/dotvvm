@@ -468,10 +468,28 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual(obj.TimeOnly, obj2.TimeOnly);
 
             Assert.AreEqual("2000-01-01", json["DateOnly"].GetValue<string>());
-            Assert.AreEqual("15:00:00.0000000", json["TimeOnly"].GetValue<string>());
+            Assert.AreEqual("15:00:00", json["TimeOnly"].GetValue<string>());
             Assert.AreEqual("2000-01-01T15:00:00", json["DateTime1"].GetValue<string>());
             Assert.AreEqual("2000-01-01T15:00:00", json["DateTime2"].GetValue<string>());
             Assert.AreEqual("2000-01-01T15:00:00", json["DateTime3"].GetValue<string>());
+        }
+        
+        [TestMethod]
+        public void SupportsDateTime_MicrosecondPrecision()
+        {
+            var obj = new TestViewModelWithDateTimes() {
+                DateTime1 = new DateTime(2000, 1, 2, 15, 16, 17).AddMilliseconds(123.456),
+                TimeOnly = new TimeOnly(15, 16, 17).Add(TimeSpan.FromMilliseconds(123.456))
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+            Console.WriteLine(json);
+            Assert.AreEqual(obj.DateTime1, obj2.DateTime1);
+            Assert.AreEqual(DateTimeKind.Unspecified, obj2.DateTime1.Kind);
+            Assert.AreEqual(obj.TimeOnly, obj2.TimeOnly);
+            Assert.AreEqual(obj.TimeOnly.Ticks, obj2.TimeOnly.Ticks);
+
+            Assert.AreEqual("2000-01-02T15:16:17.123456", json["DateTime1"].GetValue<string>());
+            Assert.AreEqual("15:16:17.1234560", json["TimeOnly"].GetValue<string>());
         }
 
         [TestMethod]

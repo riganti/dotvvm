@@ -46,44 +46,40 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             public override TDictionary? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                if (reader.TokenType != JsonTokenType.StartArray)
-                    throw new JsonException($"Expected StartArray, but got {reader.TokenType}.");
-                reader.Read();
+                reader.AssertRead(JsonTokenType.StartArray);
                 var dict = new Dictionary<K, V>();
                 while (reader.TokenType != JsonTokenType.EndArray)
                 {
-                    if (reader.TokenType != JsonTokenType.StartObject)
-                        throw new JsonException($"Expected StartObject, but got {reader.TokenType}.");
-                    reader.Read();
+                    reader.AssertRead(JsonTokenType.StartObject);
                     (K key, V value) item = default;
+                    bool hasKey = false, hasValue = false;
                     while (reader.TokenType != JsonTokenType.EndObject)
                     {
-                        if (reader.TokenType != JsonTokenType.PropertyName)
-                            throw new JsonException($"Expected PropertyName, but got {reader.TokenType}.");
+                        reader.AssertToken(JsonTokenType.PropertyName);
                         
                         if (reader.ValueTextEquals("Key"u8))
                         {
-                            reader.Read();
+                            reader.AssertRead();
                             item.key = SystemTextJsonUtils.Deserialize<K>(ref reader, options)!;
-                            reader.Read();
+                            hasKey = true;
                         }
                         else if (reader.ValueTextEquals("Value"u8))
                         {
-                            reader.Read();
+                            reader.AssertRead();
                             item.value = SystemTextJsonUtils.Deserialize<V>(ref reader, options)!;
-                            reader.Read();
+                            hasValue = true;
                         }
                         else
                         {
-                            reader.Read();
+                            reader.AssertRead();
                             reader.Skip();
-                            reader.Read();
                         }
+                        reader.AssertRead();
                     }
+                    if (!hasKey || !hasValue) throw new JsonException("Missing Key or Value property in dictionary item.");
                     dict.Add(item.key!, item.value);
-                    reader.Read();
+                    reader.AssertRead(JsonTokenType.EndObject);
                 }
-                reader.Read();
 
                 if (dict is TDictionary result)
                     return result;

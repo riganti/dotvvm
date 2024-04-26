@@ -140,7 +140,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 method = method.MakeGenericMethod(generics);
             }
 
-            var methodParameters = method.GetParameters();
+            ParameterInfo?[] methodParameters = method.GetParameters();
             if (!method.IsStatic)
             {
                 methodParameters = [ null, ..methodParameters ];
@@ -153,11 +153,11 @@ namespace DotVVM.Framework.Compilation.Binding
                 args[i] = type switch
                 {
                     StaticCommandParameterType.Argument or StaticCommandParameterType.Inject =>
-                        new StaticCommandParameterPlan(type, json.TokenType == JsonTokenType.Null ? paramType : Type.GetType(json.GetString())),
+                        new StaticCommandParameterPlan(type, json.TokenType == JsonTokenType.Null ? paramType : Type.GetType(json.GetString()!)),
                     StaticCommandParameterType.Constant =>
                         new StaticCommandParameterPlan(type, JsonSerializer.Deserialize(ref json, paramType)),
                     StaticCommandParameterType.DefaultValue =>
-                        new StaticCommandParameterPlan(type, methodParameters[i].DefaultValue),
+                        new StaticCommandParameterPlan(type, methodParameters[i]!.DefaultValue),
                     StaticCommandParameterType.Invocation =>
                         new StaticCommandParameterPlan(type, DeserializePlan(ref json)),
                     _ => throw new NotSupportedException(type.ToString())

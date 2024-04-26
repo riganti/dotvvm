@@ -24,7 +24,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     switch (reader.TokenType)
                     {
                         case JsonTokenType.Number:
-                            list.Add((byte)reader.GetUInt16());
+                            list.Add(checked((byte)reader.GetUInt16()));
                             break;
                         case JsonTokenType.EndArray:
                             return list.ToArray();

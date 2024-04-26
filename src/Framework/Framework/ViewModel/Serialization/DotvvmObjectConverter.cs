@@ -6,6 +6,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
+    /// <summary> Mimicks Newtonsoft.Json behavior for System.Object - number -> double, string -> string, true/false -> bool, otherwise JsonElement </summary>
     public class DotvvmObjectConverter : JsonConverter<object?>
     {
         public override void Write(Utf8JsonWriter writer, object? value, JsonSerializerOptions options)

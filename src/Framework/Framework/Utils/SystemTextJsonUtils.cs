@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace DotVVM.Framework.Utils
@@ -76,12 +77,19 @@ namespace DotVVM.Framework.Utils
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AssertToken(this in Utf8JsonReader reader, JsonTokenType type)
         {
             if (reader.TokenType != type)
-            {
-                throw new JsonException($"Expected token of type {type}, but got {reader.TokenType}.");
-            }
+                ThrowUnexpectedToken(in reader, type);
+        }
+
+        static void ThrowUnexpectedToken(in Utf8JsonReader reader, JsonTokenType expected)
+        {
+            var value = reader.TokenType is JsonTokenType.String or JsonTokenType.PropertyName or JsonTokenType.Number
+                        ? $" (\"{StringUtils.Utf8Decode(reader.HasValueSequence ? reader.ValueSequence.ToArray() : reader.ValueSpan.ToArray())}\")"
+                        : "";
+            throw new JsonException($"Expected token of type {expected}, but got {reader.TokenType}{value} at position {reader.BytesConsumed}.");
         }
 
         public static void AssertRead(this ref Utf8JsonReader reader, JsonTokenType type)
@@ -90,10 +98,16 @@ namespace DotVVM.Framework.Utils
             AssertRead(ref reader);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AssertRead(this ref Utf8JsonReader reader)
         {
             if (!reader.Read())
-                throw new JsonException($"Expected end of stream.");
+                ThrowUnexpectedEndOfStream(in reader);
+        }
+
+        public static void ThrowUnexpectedEndOfStream(in Utf8JsonReader reader)
+        {
+            throw new JsonException($"Unexpected end of stream at position {reader.BytesConsumed}.");
         }
 
         public static string? ReadString(this ref Utf8JsonReader reader)
