@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
     public class PropertyDisplayMetadata
     {
 
-        public MemberInfo PropertyInfo { get; set; }
+        public PropertyInfo PropertyInfo { get; set; }
 
         public string DisplayName { get; set; }
 

@@ -24,15 +24,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IViewModelValidationMetadataProvider validationMetadataProvider;
         private readonly IPropertySerialization propertySerialization;
         private readonly DotvvmConfiguration configuration;
+        private readonly IDotvvmJsonOptionsProvider jsonOptions;
         private readonly ILogger<ViewModelSerializationMapper>? logger;
 
         public ViewModelSerializationMapper(IValidationRuleTranslator validationRuleTranslator, IViewModelValidationMetadataProvider validationMetadataProvider,
-            IPropertySerialization propertySerialization, DotvvmConfiguration configuration, ILogger<ViewModelSerializationMapper>? logger)
+            IPropertySerialization propertySerialization, DotvvmConfiguration configuration, IDotvvmJsonOptionsProvider jsonOptions, ILogger<ViewModelSerializationMapper>? logger)
         {
             this.validationRuleTranslator = validationRuleTranslator;
             this.validationMetadataProvider = validationMetadataProvider;
             this.propertySerialization = propertySerialization;
             this.configuration = configuration;
+            this.jsonOptions = jsonOptions;
             this.logger = logger;
 
             HotReloadMetadataUpdateHandler.SerializationMappers.Add(new(this));
@@ -57,7 +59,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // constructor which takes properties as parameters
             // if it exists, we always need to recreate the viewmodel
             var valueConstructor = GetConstructor(type);
-            return new ViewModelSerializationMap<T>(GetProperties(type, valueConstructor), valueConstructor, configuration);
+            return new ViewModelSerializationMap<T>(GetProperties(type, valueConstructor), valueConstructor, jsonOptions.ViewModelJsonOptions, configuration);
         }
 
         protected virtual MethodBase? GetConstructor(Type type)
@@ -123,8 +125,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var shadowed = new Dictionary<string, MemberInfo>();
             foreach (var member in members)
             {
-                if (shadowed.TryAdd(member.Name, member))
+                if (!shadowed.ContainsKey(member.Name))
+                {
+                    shadowed.Add(member.Name, member);
                     continue;
+                }
                 var previous = shadowed[member.Name];
                 if (member.DeclaringType == previous.DeclaringType)
                     throw new InvalidOperationException($"Two or more members named '{member.Name}' on type '{member.DeclaringType!.ToCode()}' are not allowed.");
@@ -174,7 +179,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     include = include ||
                         !(bindAttribute is null or { Direction: Direction.None }) ||
                         property.IsDefined(typeof(JsonIncludeAttribute)) ||
-                        (type.IsGenericType && type.FullName.StartsWith("System.ValueTuple`"));
+                        (type.IsGenericType && type.FullName!.StartsWith("System.ValueTuple`"));
                 }
                 if (!include) continue;
 
@@ -198,7 +203,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 );
                 propertyMap.ConstructorParameter = ctorParam;
                 propertyMap.JsonConverter = GetJsonConverter(property);
-                propertyMap.AllowDynamicDispatch = propertyType.IsAbstract || propertyType == typeof(object);
+                propertyMap.AllowDynamicDispatch = propertyMap.JsonConverter is null && (propertyType.IsAbstract || propertyType == typeof(object));
 
                 foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())
                 {
@@ -209,6 +214,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 {
                     propertyMap.Bind(bindAttribute.Direction);
                     propertyMap.AllowDynamicDispatch = bindAttribute.AllowsDynamicDispatch(propertyMap.AllowDynamicDispatch);
+
+                    if (propertyMap.AllowDynamicDispatch && propertyMap.JsonConverter is {})
+                        throw new NotSupportedException($"Property '{property.DeclaringType?.ToCode()}.{property.Name}' cannot use dynamic dispatch, because it has an explicit JsonConverter.");
                 }
 
                 var viewModelProtectionAttribute = property.GetCustomAttribute<ProtectAttribute>();

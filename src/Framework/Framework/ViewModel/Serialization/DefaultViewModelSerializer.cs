@@ -40,33 +40,22 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IViewModelSerializationMapper viewModelMapper;
         private readonly IViewModelServerCache viewModelServerCache;
         private readonly IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer;
-        private readonly ViewModelJsonConverter viewModelConverter;
+        private readonly IDotvvmJsonOptionsProvider jsonOptions;
         private readonly ILogger<DefaultViewModelSerializer>? logger;
         public bool SendDiff { get; set; } = true;
-
-        public JsonSerializerOptions ViewModelJsonOptions { get; }
-        /// <summary> JsonOptions without the <see cref="ViewModelJsonConverter" /> </summary>
-        public JsonSerializerOptions PlainJsonOptions { get; }
 
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
         /// </summary>
-        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper, IViewModelServerCache viewModelServerCache, IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer, ViewModelJsonConverter viewModelConverter, ILogger<DefaultViewModelSerializer>? logger)
+        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper, IViewModelServerCache viewModelServerCache, IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer, IDotvvmJsonOptionsProvider jsonOptions, ILogger<DefaultViewModelSerializer>? logger)
         {
             this.viewModelProtector = protector;
             this.viewModelMapper = serializationMapper;
             this.viewModelServerCache = viewModelServerCache;
             this.viewModelTypeMetadataSerializer = viewModelTypeMetadataSerializer;
-            this.viewModelConverter = viewModelConverter;
+            this.jsonOptions = jsonOptions;
             this.logger = logger;
-            this.ViewModelJsonOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
-                Converters = { viewModelConverter },
-                WriteIndented = configuration.Debug,
-            };
-            this.PlainJsonOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
-                WriteIndented = configuration.Debug,
-            };
         }
 
         /// <summary>
@@ -119,13 +108,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         (int vmStart, int vmEnd) WriteViewModelJson(Utf8JsonWriter writer, IDotvvmRequestContext context, DotvvmSerializationState state)
         {
-            var converter = this.viewModelConverter.GetConverterCached(context.ViewModel!.GetType());
+            var converter = jsonOptions.GetRootViewModelConverter(context.ViewModel!.GetType());
 
             writer.WriteStartObject();
             writer.Flush();
             var vmStart = (int)writer.BytesCommitted; // needed for server side VM cache - we only store the object body, without $csrfToken and $encryptedValues
 
-            converter.WriteUntyped(writer, context.ViewModel, ViewModelJsonOptions, state, wrapObject: false);
+            converter.WriteUntyped(writer, context.ViewModel, jsonOptions.ViewModelJsonOptions, state, wrapObject: false);
 
             writer.Flush();
             var vmEnd = (int)writer.BytesCommitted;
@@ -163,8 +152,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             var buffer = new MemoryStream();
             using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions {
-                Indented = this.ViewModelJsonOptions.WriteIndented,
-                Encoder = ViewModelJsonOptions.Encoder,
+                Indented = jsonOptions.ViewModelJsonOptions.WriteIndented,
+                Encoder = jsonOptions.ViewModelJsonOptions.Encoder,
                 //SkipValidation = true, // for the hack with WriteRawValue
             }))
             {
@@ -293,7 +282,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             using var state = DotvvmSerializationState.Create(isPostback: true, context.Services);
             var outputBuffer = new MemoryStream();
-            using (var writer = new Utf8JsonWriter(outputBuffer, new JsonWriterOptions { Indented = this.ViewModelJsonOptions.WriteIndented, Encoder = ViewModelJsonOptions.Encoder }))
+            using (var writer = new Utf8JsonWriter(outputBuffer, new JsonWriterOptions { Indented = jsonOptions.ViewModelJsonOptions.WriteIndented, Encoder = jsonOptions.ViewModelJsonOptions.Encoder }))
             {
                 writer.WriteStartObject();
                 writer.WritePropertyName("result"u8);
@@ -329,7 +318,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Debug.Assert(DotvvmSerializationState.Current is {});
             try
             {
-                JsonSerializer.Serialize(writer, data, this.ViewModelJsonOptions);
+                JsonSerializer.Serialize(writer, data, jsonOptions.ViewModelJsonOptions);
             }
             catch (Exception ex)
             {
@@ -395,7 +384,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 modelState = context.ModelState.Errors,
                 action = "validationErrors"
-            }, this.PlainJsonOptions);
+            }, jsonOptions.PlainJsonOptions);
         }
 
 
@@ -472,8 +461,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 Debug.Assert(context.ViewModel is not null);
 
-                var converter = this.viewModelConverter.GetConverterCached(context.ViewModel.GetType());
-                var newVM = converter.PopulateUntyped(ref reader, context.ViewModel.GetType(), context.ViewModel, ViewModelJsonOptions, state);
+                var converter = jsonOptions.GetRootViewModelConverter(context.ViewModel.GetType());
+                var newVM = converter.PopulateUntyped(ref reader, context.ViewModel.GetType(), context.ViewModel, jsonOptions.ViewModelJsonOptions, state);
                 // var helperObject = new DeserializationHelper() { ViewModel = context.ViewModel };
                 // var newHelper = converter.Populate(ref reader, JsonOptions, helperObject, state);
                 // Debug.Assert(newHelper == (object)helperObject);
@@ -507,7 +496,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var args = data.TryGetProperty("commandArgs"u8, out var argsJson) ?
                        argsJson.EnumerateArray().Select(a => (Func<Type, object?>)(t => {
                           using var state = DotvvmSerializationState.Create(isPostback: true, context.Services, readEncryptedValues: new JsonObject());
-                          return JsonSerializer.Deserialize(a, t, ViewModelJsonOptions);
+                          return JsonSerializer.Deserialize(a, t, jsonOptions.ViewModelJsonOptions);
                        })).ToArray() :
                        new Func<Type, object?>[0];
 

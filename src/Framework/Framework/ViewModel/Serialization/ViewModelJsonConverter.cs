@@ -15,7 +15,7 @@ using FastExpressionCompiler;
 namespace DotVVM.Framework.ViewModel.Serialization
 {
     /// <summary>
-    /// A JSON.NET converter that handles special features of DotVVM ViewModel serialization.
+    /// A System.Text.Json converter that handles special features of DotVVM ViewModel serialization.
     /// </summary>
     public class ViewModelJsonConverter : JsonConverterFactory
     {
@@ -29,6 +29,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             !ReflectionUtils.IsEnumerable(type) &&
             ReflectionUtils.IsComplexType(type) &&
             !ReflectionUtils.IsJsonDom(type) &&
+            !type.IsDefined(typeof(JsonConverterAttribute), true) &&
             type != typeof(object);
 
         /// <summary>
@@ -39,29 +40,25 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return CanConvertType(objectType);
         }
 
-        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) => CreateConverter(typeToConvert);
-        public JsonConverter CreateConverter(Type typeToConvert) =>
+        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) => (JsonConverter)GetDotvvmConverter(typeToConvert);
+        private JsonConverter CreateConverterReally(Type typeToConvert) =>
             (JsonConverter)Activator.CreateInstance(typeof(VMConverter<>).MakeGenericType(typeToConvert), this)!;
 
         public VMConverter<T> CreateConverter<T>() => new VMConverter<T>(this);
 
-        private ConcurrentDictionary<Type, IVMConverter> converterCache = new();
-        internal IVMConverter GetConverterCached(Type type) =>
-            converterCache.GetOrAdd(type, t => (IVMConverter)CreateConverter(t));
+        private ConcurrentDictionary<Type, IDotvvmJsonConverter> converterCache = new();
+        internal IDotvvmJsonConverter GetDotvvmConverter(Type type) =>
+            converterCache.GetOrAdd(type, t => (IDotvvmJsonConverter)CreateConverterReally(t));
+        internal JsonConverter GetConverter(Type type) =>
+            (JsonConverter)GetDotvvmConverter(type);
 
-        internal interface IVMConverter
-        {
-            public object? ReadUntyped(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, DotvvmSerializationState state);
-            public object? PopulateUntyped(ref Utf8JsonReader reader, Type typeToConvert, object? value, JsonSerializerOptions options, DotvvmSerializationState state);
-            public void WriteUntyped(Utf8JsonWriter writer, object? value, JsonSerializerOptions options, DotvvmSerializationState state, bool requireTypeField = true, bool wrapObject = true);
-        }
-        public class VMConverter<T>(ViewModelJsonConverter factory): JsonConverter<T>, IVMConverter
+        public class VMConverter<T>(ViewModelJsonConverter factory): JsonConverter<T>, IDotvvmJsonConverter<T>
         {
             ViewModelSerializationMap<T> SerializationMap { get; } = factory.viewModelSerializationMapper.GetMap<T>();
 
             public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
                 this.Read(ref reader, typeToConvert, options, DotvvmSerializationState.Current!);
-            public T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, DotvvmSerializationState state)
+            public T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, DotvvmSerializationState state)
             {
                 if (state is null)
                     throw new ArgumentNullException(nameof(state), "DotvvmSerializationState must be created before calling the ViewModelJsonConverter.");
@@ -71,7 +68,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (reader.TokenType == JsonTokenType.Null)
                 {
                     Debug.Assert(!typeof(T).IsValueType);
-                    return default;
+                    return default!;
                 }
 
                 ReadObjectStart(ref reader);
@@ -158,8 +155,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             /// Populates the specified JObject.
             /// </summary>
             public T? Populate(ref Utf8JsonReader reader, JsonSerializerOptions options, T value) =>
-                this.Populate(ref reader, options, value, DotvvmSerializationState.Current!);
-            public T? Populate(ref Utf8JsonReader reader, JsonSerializerOptions options, T? value, DotvvmSerializationState state)
+                this.Populate(ref reader, typeof(T), value, options, DotvvmSerializationState.Current!);
+            public T Populate(ref Utf8JsonReader reader, Type typeToConvert, T value, JsonSerializerOptions options, DotvvmSerializationState state)
             {
                 if (state is null)
                     throw new ArgumentNullException(nameof(state), "DotvvmSerializationState must be created before calling the ViewModelJsonConverter.");
@@ -167,7 +164,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (reader.TokenType == JsonTokenType.Null)
                 {
                     Debug.Assert(!typeof(T).IsValueType);
-                    return default;
+                    return default!;
                 }
                 ReadObjectStart(ref reader);
                 var evSuppressed = state.EVReader!.Suppressed;
@@ -193,7 +190,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             public object? ReadUntyped(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, DotvvmSerializationState state) =>
                 this.Read(ref reader, typeToConvert, options, state);
             public object? PopulateUntyped(ref Utf8JsonReader reader, Type typeToConvert, object? value, JsonSerializerOptions options, DotvvmSerializationState state) =>
-                this.Populate(ref reader, options, (T)value!, state);
+                this.Populate(ref reader, typeof(T), (T)value!, options, state);
             public void WriteUntyped(Utf8JsonWriter writer, object? value, JsonSerializerOptions options, DotvvmSerializationState state, bool requireTypeField = true, bool wrapObject = true) =>
                 this.Write(writer, (T)value!, options, state, requireTypeField, wrapObject);
         }

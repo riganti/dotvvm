@@ -24,6 +24,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     /// </summary>
     public abstract class ViewModelSerializationMap
     {
+        protected readonly JsonSerializerOptions jsonOptions;
         protected readonly DotvvmConfiguration configuration;
         protected readonly ViewModelJsonConverter viewModelJsonConverter;
 
@@ -45,8 +46,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModelSerializationMap"/> class.
         /// </summary>
-        internal ViewModelSerializationMap(Type type, IEnumerable<ViewModelPropertyMap> properties, MethodBase? constructor, DotvvmConfiguration configuration)
+        internal ViewModelSerializationMap(Type type, IEnumerable<ViewModelPropertyMap> properties, MethodBase? constructor, JsonSerializerOptions jsonOptions, DotvvmConfiguration configuration)
         {
+            this.jsonOptions = jsonOptions;
             this.configuration = configuration;
             this.viewModelJsonConverter = configuration.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
             Type = type;
@@ -62,10 +64,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private void ValidatePropertyMap()
         {
-            var dict = new Dictionary<string, ViewModelPropertyMap>();
+            var dict = new Dictionary<string, ViewModelPropertyMap>(capacity: Properties.Length);
             foreach (var propertyMap in Properties)
             {
-                if (!dict.TryAdd(propertyMap.Name, propertyMap))
+                if (!dict.ContainsKey(propertyMap.Name))
+                {
+                    dict.Add(propertyMap.Name, propertyMap);
+                }
+                else
                 {
                     var other = dict[propertyMap.Name];
                     throw new InvalidOperationException($"Serialization map for '{Type.ToCode()}' has a name conflict between a {(propertyMap.PropertyInfo is FieldInfo ? "field" : "property")} '{propertyMap.PropertyInfo.Name}' and {(other.PropertyInfo is FieldInfo ? "field" : "property")} '{other.PropertyInfo.Name}' — both are named '{propertyMap.Name}' in JSON.");
@@ -79,8 +85,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
     }
     public sealed class ViewModelSerializationMap<T> : ViewModelSerializationMap
     {
-        public ViewModelSerializationMap(IEnumerable<ViewModelPropertyMap> properties, MethodBase? constructor, DotvvmConfiguration configuration): 
-            base(typeof(T), properties, constructor, configuration)
+        public ViewModelSerializationMap(IEnumerable<ViewModelPropertyMap> properties, MethodBase? constructor, JsonSerializerOptions jsonOptions, DotvvmConfiguration configuration): 
+            base(typeof(T), properties, constructor, jsonOptions, configuration)
         {
         }
         public override void ResetFunctions()
@@ -375,6 +381,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 Block(typeof(T), [ currentProperty, readerTmp, ..propertyVars.Values ], block).OptimizeConstants(),
                 reader, jsonOptions, value, allowPopulate, encryptedValuesReader, state);
             return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression | CompilerFlags.EnableDelegateDebugInfo);
+            // return ex.Compile();
         }
 
         Expression MemberAccess(Expression obj, ViewModelPropertyMap property)
@@ -510,6 +517,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var ex = Lambda<WriterDelegate<T>>(
                 Block(new[] { value }, block).OptimizeConstants(), writer, value, jsonOptions, requireTypeField, encryptedValuesWriter, dotvvmState);
             return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression | CompilerFlags.EnableDelegateDebugInfo);
+            // return ex.Compile();
         }
 
         /// <summary>
@@ -530,29 +538,29 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (property.JsonConverter is null)
                 return null;
             if (property.JsonConverter is JsonConverterFactory factory)
-                return factory.CreateConverter(type, DefaultSerializerSettingsProvider.Instance.Settings);
+                return factory.CreateConverter(type, jsonOptions);
             return property.JsonConverter;
         }
 
-        private Expression CallPropertyConverterRead(JsonConverter converter, Expression reader, Expression jsonOptions, Expression dotvvmState, Expression? existingValue)
+        private Expression CallPropertyConverterRead(JsonConverter converter, Type type, Expression reader, Expression jsonOptions, Expression dotvvmState, Expression? existingValue)
         {
             Debug.Assert(reader.Type == typeof(Utf8JsonReader).MakeByRefType() || reader.Type == typeof(Utf8JsonReader), $"{reader.Type} != {typeof(Utf8JsonReader).MakeByRefType()}");
             Debug.Assert(jsonOptions.Type == typeof(JsonSerializerOptions));
             Debug.Assert(dotvvmState.Type == typeof(DotvvmSerializationState));
 
 
-            if (converter is ViewModelJsonConverter.IVMConverter)
+            if (converter is IDotvvmJsonConverter)
             {
-                // T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, DotvvmSerializationState state)
-                // T Populate(ref Utf8JsonReader reader, JsonSerializerOptions options, T value, DotvvmSerializationState state)
+                // T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, DotvvmSerializationState state)
+                // T Populate(ref Utf8JsonReader reader, Type typeToConvert, T value, JsonSerializerOptions options, DotvvmSerializationState state);
                 if (existingValue is null)
-                    return Call(Constant(converter), "Read", Type.EmptyTypes, reader, Expression.Constant(Type), jsonOptions, dotvvmState);
+                    return Call(Constant(converter), "Read", Type.EmptyTypes, reader, Constant(type), jsonOptions, dotvvmState);
                 else
-                    return Call(Constant(converter), "Populate", Type.EmptyTypes, reader, jsonOptions, existingValue, dotvvmState);
+                    return Call(Constant(converter), "Populate", Type.EmptyTypes, reader, Constant(type), existingValue, jsonOptions, dotvvmState);
             }
             else
             {
-                var read = Call(Constant(converter), "Read", Type.EmptyTypes, reader, Expression.Constant(Type), jsonOptions);
+                var read = Call(Constant(converter), "Read", Type.EmptyTypes, reader, Constant(type), jsonOptions);
                 if (read.Type.IsValueType)
                     return read;
                 else
@@ -570,14 +578,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Debug.Assert(jsonOptions.Type == typeof(JsonSerializerOptions));
             Debug.Assert(dotvvmState.Type == typeof(DotvvmSerializationState));
 
-            // void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options, DotvvmSerializationState state)
-            if (converter is ViewModelJsonConverter.IVMConverter)
+            // void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options, DotvvmSerializationState state, bool requireTypeField = true, bool wrapObject = true)
+            if (converter is IDotvvmJsonConverter)
             {
-                return Call(Constant(converter), nameof(ViewModelJsonConverter.VMConverter<object>.Write), Type.EmptyTypes, writer, value, jsonOptions, dotvvmState, Constant(true), Constant(true));
+                return Call(Constant(converter), nameof(IDotvvmJsonConverter<object>.Write), Type.EmptyTypes, writer, value, jsonOptions, dotvvmState, Constant(true), Constant(true));
             }
             else
             {
-                return Call(Constant(converter), nameof(ViewModelJsonConverter.VMConverter<object>.Write), Type.EmptyTypes, writer, value, jsonOptions);
+                return Call(Constant(converter), nameof(IDotvvmJsonConverter<object>.Write), Type.EmptyTypes, writer, value, jsonOptions);
             }
         }
 
@@ -662,7 +670,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             if (GetPropertyConverter(property, type) is {} customConverter)
             {
-                return CallPropertyConverterRead(customConverter, reader, jsonOptions, dotvvmState, property.Populate ? existingValue : null);
+                return CallPropertyConverterRead(customConverter, type, reader, jsonOptions, dotvvmState, property.Populate ? existingValue : null);
             }
 
             if (TryDeserializePrimitive(reader, type) is {} primitive)
@@ -670,36 +678,35 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 return primitive;
             }
 
-            if (this.viewModelJsonConverter.CanConvert(type))
+            var converter = this.jsonOptions.GetConverter(type);
+            if (!converter.CanConvert(type))
             {
-                var defaultConverter = this.viewModelJsonConverter.CreateConverter(type);
-                if (property.AllowDynamicDispatch && !type.IsSealed)
+                throw new Exception($"JsonOptions returned an invalid converter {converter} for type {type}.");
+            }
+            if (property.AllowDynamicDispatch && !type.IsSealed)
+            {
+                if (converter is IDotvvmJsonConverter)
                 {
                     return Call(
                         JsonSerializationCodegenFragments.DeserializeViewModelDynamicMethod.MakeGenericMethod(type),
                         reader, jsonOptions, existingValue, Constant(property.Populate), // ref Utf8JsonReader reader, JsonSerializerOptions options, TVM? existingValue, bool populate
                         Constant(this.viewModelJsonConverter), // ViewModelJsonConverter factory
-                        Constant(defaultConverter), // ViewModelJsonConverter.VMConverter<TVM>? defaultConverter
+                        Constant(converter), // ViewModelJsonConverter.VMConverter<TVM>? defaultConverter
                         dotvvmState); // DotvvmSerializationState state
                 }
                 else
                 {
-                    return CallPropertyConverterRead(defaultConverter, reader, jsonOptions, dotvvmState, property.Populate ? existingValue : null);
+                    return Call(
+                        JsonSerializationCodegenFragments.DeserializeValueDynamicMethod.MakeGenericMethod(property.Type),
+                        reader, jsonOptions, existingValue, // ref Utf8JsonReader reader, JsonSerializerOptions options, TValue? existingValue
+                        Constant(property.Populate), // bool populate
+                        Constant(this.viewModelJsonConverter), // ViewModelJsonConverter factory
+                        dotvvmState); // DotvvmSerializationState state
                 }
-            }
-
-            if (property.AllowDynamicDispatch && !type.IsSealed && !type.IsValueType)
-            {
-                return Call(
-                    JsonSerializationCodegenFragments.DeserializeValueDynamicMethod.MakeGenericMethod(property.Type),
-                    reader, jsonOptions, existingValue, // ref Utf8JsonReader reader, JsonSerializerOptions options, TValue? existingValue
-                    Constant(property.Populate), // bool populate
-                    Constant(this.viewModelJsonConverter), // ViewModelJsonConverter factory
-                    dotvvmState); // DotvvmSerializationState state
             }
             else
             {
-                return Call(JsonSerializationCodegenFragments.DeserializeValueStaticMethod.MakeGenericMethod(property.Type), reader, jsonOptions);
+                return CallPropertyConverterRead(converter, type, reader, jsonOptions, dotvvmState, property.Populate ? existingValue : null);
             }
         }
 
@@ -740,7 +747,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 }
                 else
                 {
-                    var defaultConverter = this.viewModelJsonConverter.CreateConverter(value.Type);
+                    var defaultConverter = this.viewModelJsonConverter.GetConverter(value.Type);
                     return CallPropertyConverterWrite(defaultConverter, writer, value, jsonOptions, dotvvmState);
                 }
             }
@@ -804,7 +811,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // otherwise, just JsonSerializer.Deserialize with the specific type
             if (factory.CanConvert(type))
             {
-                var converter = factory.GetConverterCached(type);
+                var converter = factory.GetDotvvmConverter(type);
                 return populate ? (TValue?)converter.PopulateUntyped(ref reader, type, existingValue, options, state)
                                 : (TValue?)converter.ReadUntyped(ref reader, type, options, state);
             }
@@ -813,7 +820,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         }
 
         public static readonly MethodInfo DeserializeViewModelDynamicMethod = typeof(JsonSerializationCodegenFragments).GetMethod(nameof(DeserializeViewModelDynamic), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
-        private static TVM? DeserializeViewModelDynamic<TVM>(ref Utf8JsonReader reader, JsonSerializerOptions options, TVM? existingValue, bool populate, ViewModelJsonConverter factory, ViewModelJsonConverter.VMConverter<TVM> defaultConverter, DotvvmSerializationState state)
+        private static TVM? DeserializeViewModelDynamic<TVM>(ref Utf8JsonReader reader, JsonSerializerOptions options, TVM? existingValue, bool populate, ViewModelJsonConverter factory, IDotvvmJsonConverter<TVM> defaultConverter, DotvvmSerializationState state)
             where TVM: class
         {
             if (reader.TokenType == JsonTokenType.Null)
@@ -828,11 +835,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (defaultConverter is {} && realType == typeof(TVM))
             {
                 return populate && existingValue is {}
-                        ? defaultConverter.Populate(ref reader, options, existingValue, state)
+                        ? defaultConverter.Populate(ref reader, typeof(TVM), existingValue, options, state)
                         : defaultConverter.Read(ref reader, typeof(TVM), options, state);
             }
 
-            var converter = factory.GetConverterCached(realType);
+            var converter = factory.GetDotvvmConverter(realType);
             return populate ? (TVM?)converter.PopulateUntyped(ref reader, realType, existingValue, options, state)
                             : (TVM?)converter.ReadUntyped(ref reader, realType, options, state);
         }

@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Hosting
         private readonly DotvvmConfiguration configuration;
         private readonly JsonSerializerOptions jsonOptions;
 
-        public StaticCommandExecutor(IStaticCommandServiceLoader serviceLoader, IViewModelSerializer serializer, IViewModelProtector viewModelProtector, IStaticCommandArgumentValidator validator, DotvvmConfiguration configuration)
+        public StaticCommandExecutor(IStaticCommandServiceLoader serviceLoader, IDotvvmJsonOptionsProvider jsonOptions, IViewModelProtector viewModelProtector, IStaticCommandArgumentValidator validator, DotvvmConfiguration configuration)
         {
             this.serviceLoader = serviceLoader;
             this.viewModelProtector = viewModelProtector;
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Hosting
             this.configuration = configuration;
             if (configuration.ExperimentalFeatures.UseDotvvmSerializationForStaticCommandArguments.Enabled)
             {
-                this.jsonOptions = serializer.ViewModelJsonOptions;
+                this.jsonOptions = jsonOptions.ViewModelJsonOptions;
             }
             else
             {

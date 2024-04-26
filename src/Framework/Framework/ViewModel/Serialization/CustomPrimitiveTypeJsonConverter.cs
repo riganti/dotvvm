@@ -20,8 +20,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         class InnerConverter<T>: JsonConverter<T> where T: IDotvvmPrimitiveType
         {
-            private CustomPrimitiveTypeRegistration registration = ReflectionUtils.TryGetCustomPrimitiveTypeRegistration(typeof(T))!;
-            // TODO: make this converter factory?
+            private CustomPrimitiveTypeRegistration registration = ReflectionUtils.TryGetCustomPrimitiveTypeRegistration(typeof(T)) ?? throw new InvalidOperationException($"The type {typeof(T)} is not a custom primitive type!");
             public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
                 if (reader.TokenType is JsonTokenType.String
@@ -30,7 +29,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     or JsonTokenType.Number)
                 {
                     // TODO: utf8 parsing?
-                    var registration = ReflectionUtils.TryGetCustomPrimitiveTypeRegistration(typeToConvert)!;
                     var str = reader.TokenType is JsonTokenType.String ? reader.GetString() :
                               reader.HasValueSequence ? StringUtils.Utf8Decode(reader.ValueSequence.ToArray()) :
                               StringUtils.Utf8Decode(reader.ValueSpan);

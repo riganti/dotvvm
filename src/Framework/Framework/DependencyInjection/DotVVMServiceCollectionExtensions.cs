@@ -58,6 +58,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IValidationErrorPathExpander, ValidationErrorPathExpander>();
             services.TryAddSingleton<IViewModelValidator, ViewModelValidator>();
             services.TryAddSingleton<IStaticCommandArgumentValidator, StaticCommandArgumentValidator>();
+            services.TryAddSingleton<IDotvvmJsonOptionsProvider, DotvvmJsonOptionsProvider>();
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
             services.TryAddSingleton<ViewModelJsonConverter>();
             services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();

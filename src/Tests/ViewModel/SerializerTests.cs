@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             Converters = { jsonConverter },
             WriteIndented = true
         };
-        static DotvvmSerializationState CreateState(bool isPostback, JsonObject? readEncryptedValues = null)
+        static DotvvmSerializationState CreateState(bool isPostback, JsonObject readEncryptedValues = null)
         {
             var config = DotvvmTestHelper.DefaultConfig;
             return DotvvmSerializationState.Create(
@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             using var state = CreateState(true, encryptedValues ?? new JsonObject());
             var specificConverter = jsonConverter.CreateConverter<T>();
             var jsonReader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
-            return (T)specificConverter.Populate(ref jsonReader, jsonOptions, existingValue, state);
+            return (T)specificConverter.Populate(ref jsonReader, typeof(T), existingValue, jsonOptions, state);
         }
 
         internal static (T vm, JsonObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
@@ -747,6 +747,43 @@ namespace DotVVM.Framework.Tests.ViewModel
             string Property2 { get; set; }
         }
 
+
+        [TestMethod]
+        public void SupportCustomConverters()
+        {
+            var obj = new TestViewModelWithCustomConverter() { Property1 = "A", Property2 = "B" };
+            var (obj2, json) = SerializeAndDeserialize(new StaticDispatchVMContainer<TestViewModelWithCustomConverter> { Value = obj });
+            Console.WriteLine(json);
+            json = json["Value"].AsObject();
+            Assert.AreEqual(obj.Property1, obj2.Value.Property1);
+            Assert.AreEqual(obj.Property2, obj2.Value.Property2);
+            Assert.AreEqual("A", (string)json["Property1"]);
+            Assert.AreEqual(null, json["Property2"]);
+            Assert.AreEqual("A,B", (string)json["Properties"]);
+
+            var obj3 = Deserialize<TestViewModelWithCustomConverter>("""{"Properties":"C,D"}""");
+            Assert.AreEqual("C", obj3.Property1);
+            Assert.AreEqual("D", obj3.Property2);
+        }
+
+        [TestMethod]
+        public void SupportCustomConverters_DynamicDispatch()
+        {
+            var obj = new TestViewModelWithCustomConverter() { Property1 = "A", Property2 = "B" };
+            var jsonStr = Serialize(new DefaultDispatchVMContainer<object> { Value = obj }, out var _, false);
+            Console.WriteLine(jsonStr);
+            var obj2 = new DefaultDispatchVMContainer<object> { Value = new TestViewModelWithCustomConverter() };
+            var obj2Populated = PopulateViewModel(jsonStr, obj2);
+            Assert.AreSame(obj2, obj2Populated);
+            Assert.AreEqual(obj.Property1, ((TestViewModelWithCustomConverter)obj2.Value).Property1);
+            Assert.AreEqual(obj.Property2, ((TestViewModelWithCustomConverter)obj2.Value).Property2);
+
+            var json = JsonNode.Parse(jsonStr).AsObject()["Value"].AsObject();
+            Assert.AreEqual("A", (string)json["Property1"]);
+            Assert.AreEqual(null, json["Property2"]);
+            Assert.AreEqual("A,B", (string)json["Properties"]);
+        }
+
     }
 
     public class DataNode
@@ -959,6 +996,47 @@ namespace DotVVM.Framework.Tests.ViewModel
             public new List<string> ObjectToList { get; set; } = [ "C", "D" ];
 
             public new double ShadowedByField { get; set; } = 12345;
+        }
+    }
+
+    [JsonConverter(typeof(TestViewModelWithCustomConverter.Converter))]
+    class TestViewModelWithCustomConverter
+    {
+        public string Property1 { get; set; }
+        public string Property2 { get; set; }
+
+        public class Converter : JsonConverter<TestViewModelWithCustomConverter>
+        {
+            public override TestViewModelWithCustomConverter Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                var result = new TestViewModelWithCustomConverter();
+                while (reader.TokenType != JsonTokenType.EndObject && reader.Read())
+                {
+                    if (reader.ValueTextEquals("Properties"))
+                    {
+                        reader.Read();
+                        var val = reader.GetString().Split(',');
+                        result.Property1 = val[0];
+                        result.Property2 = val[1];
+                        reader.Read();
+                    }
+                    else
+                    {
+                        reader.Read();
+                        reader.Skip();
+                        reader.Read();
+                    }
+                }
+                return result;
+            }
+
+            public override void Write(Utf8JsonWriter writer, TestViewModelWithCustomConverter value, JsonSerializerOptions options)
+            {
+                writer.WriteStartObject();
+                writer.WriteString("Properties"u8, $"{value.Property1},{value.Property2}");
+                writer.WriteString("Property1"u8, value.Property1);
+                writer.WriteEndObject();
+            }
         }
     }
 
