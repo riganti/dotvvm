@@ -400,7 +400,13 @@ namespace DotVVM.Framework.Binding
                 return dataContextType;
             }
 
-            var (childType, extensionParameters) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
+            var (childType, extensionParameters, addLayer) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
+
+            if (!addLayer)
+            {
+                Debug.Assert(childType == dataContextType.DataContextType);
+                return DataContextStack.Create(dataContextType.DataContextType, dataContextType.Parent, dataContextType.NamespaceImports, extensionParameters.Concat(dataContextType.ExtensionParameters).ToArray(), dataContextType.BindingPropertyResolvers);
+            }
 
             if (childType is null) return null; // childType is null in case there is some error in processing (e.g. enumerable was expected).
             else return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
@@ -423,7 +429,13 @@ namespace DotVVM.Framework.Binding
                 return dataContextType;
             }
 
-            var (childType, extensionParameters) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
+            var (childType, extensionParameters, addLayer) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
+
+            if (!addLayer)
+            {
+                Debug.Assert(childType == dataContextType.DataContextType);
+                return DataContextStack.Create(dataContextType.DataContextType, dataContextType.Parent, dataContextType.NamespaceImports, extensionParameters.Concat(dataContextType.ExtensionParameters).ToArray(), dataContextType.BindingPropertyResolvers);
+            }
 
             if (childType is null)
                 childType = typeof(UnknownTypeSentinel);
@@ -431,33 +443,43 @@ namespace DotVVM.Framework.Binding
             return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
         }
 
-        public static (Type? type, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContext, DataContextChangeAttribute[] attributes, ResolvedControl control, DotvvmProperty? property)
+        public static (Type? type, List<BindingExtensionParameter> extensionParameters, bool addLayer) ApplyDataContextChange(DataContextStack dataContext, DataContextChangeAttribute[] attributes, ResolvedControl control, DotvvmProperty? property)
         {
             var type = ResolvedTypeDescriptor.Create(dataContext.DataContextType);
             var extensionParameters = new List<BindingExtensionParameter>();
+            var addLayer = false;
             foreach (var attribute in attributes.OrderBy(a => a.Order))
             {
                 if (type == null) break;
                 extensionParameters.AddRange(attribute.GetExtensionParameters(type));
-                type = attribute.GetChildDataContextType(type, dataContext, control, property);
+                if (attribute.NestDataContext)
+                {
+                    addLayer = true;
+                    type = attribute.GetChildDataContextType(type, dataContext, control, property);
+                }
             }
-            return (ResolvedTypeDescriptor.ToSystemType(type), extensionParameters);
+            return (ResolvedTypeDescriptor.ToSystemType(type), extensionParameters, addLayer);
         }
 
 
-        private static (Type? childType, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)
+        private static (Type? childType, List<BindingExtensionParameter> extensionParameters, bool addLayer) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)
         {
             Type? type = dataContextType.DataContextType;
             var extensionParameters = new List<BindingExtensionParameter>();
+            var addLayer = false;
 
             foreach (var attribute in attributes.OrderBy(a => a.Order))
             {
                 if (type == null) break;
                 extensionParameters.AddRange(attribute.GetExtensionParameters(new ResolvedTypeDescriptor(type)));
-                type = attribute.GetChildDataContextType(type, dataContextType, obj, property);
+                if (attribute.NestDataContext)
+                {
+                    addLayer = true;
+                    type = attribute.GetChildDataContextType(type, dataContextType, obj, property);
+                }
             }
 
-            return (type, extensionParameters);
+            return (type, extensionParameters, addLayer);
         }
 
         /// <summary>

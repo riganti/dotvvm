@@ -16,6 +16,7 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Binding;
 using FastExpressionCompiler;
 using DotVVM.Framework.Binding.Expressions;
+using System.Reflection.Metadata;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -29,9 +30,9 @@ namespace DotVVM.Framework.Tests.ControlTests
         [TestMethod]
         public async Task CommandDataPager()
         {
-            var r = await cth.RunPage(typeof(GridViewModel), @"
+            var r = await cth.RunPage(typeof(GridViewModel), """
                 <dot:DataPager DataSet={value: Customers} />
-                "
+                """
             );
 
             var commandExpressions = r.Commands
@@ -49,6 +50,49 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             await r.RunCommand((CommandBindingExpression)nextPage.command, nextPage.control);
             Assert.AreEqual(1, (int)r.ViewModel.Customers.PagingOptions.PageIndex);
+        }
+
+        [TestMethod]
+        public async Task StaticCommandPager()
+        {
+            var r = await cth.RunPage(typeof(GridViewModel), """
+                <dot:DataPager DataSet={value: Customers} LoadData={staticCommand: RootViewModel.LoadCustomers} />
+                """
+            );
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task StaticCommandApendablePager()
+        {
+            var r = await cth.RunPage(typeof(GridViewModel), """
+                <dot:AppendableDataPager DataSet={value: Customers} LoadData={staticCommand: RootViewModel.LoadCustomers}>
+                    <LoadTemplate>
+                        <div DataContext={value: 1}>
+                            <dot:Button Text="Load more" Click="{staticCommand: _dataPager.Load()}" />
+                        </div>
+                    </LoadTemplate>
+                    <EndTemplate> end </EndTemplate>
+                </dot:AppendableDataPager>
+                """
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+
+            var commandExpressions = r.Commands
+                .Select(c => (c.control, c.command, str: c.command.GetProperty<ParsedExpressionBindingProperty>().Expression.ToCSharpString().Trim().TrimEnd(';')))
+                .OrderBy(c => c.str)
+                .ToArray();
+            check.CheckLines(commandExpressions.GroupBy(c => c.command).Select(c => c.First().str), checkName: "command-bindings", fileExtension: "txt");
+
+            var nextPage = commandExpressions.Single(c => c.str.Contains(".GoToNextPage()"));
+            var prevPage = commandExpressions.Single(c => c.str.Contains(".GoToPreviousPage()"));
+            var firstPage = commandExpressions.Single(c => c.str.Contains(".GoToFirstPage()"));
+            var lastPage = commandExpressions.Single(c => c.str.Contains(".GoToLastPage()"));
+
+            await r.RunCommand((CommandBindingExpression)nextPage.command, nextPage.control);
+            Assert.AreEqual(1, (int)r.ViewModel.Customers.PagingOptions.PageIndex);
+
         }
 
         public class GridViewModel: DotvvmViewModelBase
@@ -76,6 +120,12 @@ namespace DotVVM.Framework.Tests.ControlTests
                 public int Id { get; set; }
                 [Required]
                 public string Name { get; set; }
+            }
+
+            [AllowStaticCommand]
+            public static GridViewDataSetResult<CustomerData, NoFilteringOptions, SortingOptions, PagingOptions> LoadCustomers(GridViewDataSetOptions request)
+            {
+                throw new NotImplementedException();
             }
         }
     }

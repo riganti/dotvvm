@@ -1,0 +1,44 @@
+<html>
+	<head></head>
+	<body>
+		<ul data-bind="dotvvm-gridviewdataset: { dataSet: Customers(), loadDataSet: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkNvbnRyb2xUZXN0cy5EYXRhUGFnZXJUZXN0cytHcmlkVmlld01vZGVsLCBEb3RWVk0uRnJhbWV3b3JrLlRlc3RzIiwiTG9hZEN1c3RvbWVycyIsW10sMSxudWxsLCJBQT09Il0=&quot;, [args[0]], options),$element,[],args,$context)) }, visible: Customers()?.PagingOptions()?.PagesCount() > 1">
+			<li class="disabled" data-bind="css: { disabled: Customers()?.PagingOptions()?.IsFirstPage }">
+				<a data-bind="dotvvm-enable: !Customers()?.PagingOptions()?.IsFirstPage()" href="javascript:;" onclick="dotvvm.applyPostbackHandlers(async (options) => {
+	let cx = options.knockoutContext;
+	return await dotvvm.dataSet.loadDataSet(options.viewModel.Customers, (options) => dotvvm.dataSet.translations.PagingOptions.goToFirstPage(ko.unwrap(options).PagingOptions), cx.$gridViewDataSetHelper.loadDataSet, cx.$gridViewDataSetHelper.postProcessor);
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">««</a>
+			</li>
+			<li class="disabled" data-bind="css: { disabled: Customers()?.PagingOptions()?.IsFirstPage }">
+				<a data-bind="dotvvm-enable: !Customers()?.PagingOptions()?.IsFirstPage()" href="javascript:;" onclick="dotvvm.applyPostbackHandlers(async (options) => {
+	let cx = options.knockoutContext;
+	return await dotvvm.dataSet.loadDataSet(options.viewModel.Customers, (options) => dotvvm.dataSet.translations.PagingOptions.goToPreviousPage(ko.unwrap(options).PagingOptions), cx.$gridViewDataSetHelper.loadDataSet, cx.$gridViewDataSetHelper.postProcessor);
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">«</a>
+			</li>
+			<!-- ko foreach: { data: Customers()?.PagingOptions()?.NearPageIndexes } -->
+			<li data-bind="css: { active: $data == $parent.Customers()?.PagingOptions()?.PageIndex() }">
+				<!-- ko if: $data != $parent.Customers()?.PagingOptions()?.PageIndex() -->
+				<a data-bind="text: $data + 1" href="javascript:;" onclick="dotvvm.applyPostbackHandlers(async (options) => {
+	let cx = options.knockoutContext;
+	return await dotvvm.dataSet.loadDataSet(cx.$parent.Customers, (options) => dotvvm.dataSet.translations.PagingOptions.goToPage(ko.unwrap(options).PagingOptions, cx.$rawData.state), cx.$gridViewDataSetHelper.loadDataSet, cx.$gridViewDataSetHelper.postProcessor);
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;"></a>
+				<!-- /ko -->
+				<!-- ko if: $data == $parent.Customers()?.PagingOptions()?.PageIndex() -->
+				<span data-bind="text: $data + 1"></span>
+				<!-- /ko -->
+			</li>
+			<!-- /ko -->
+			<li data-bind="css: { disabled: Customers()?.PagingOptions()?.IsLastPage }">
+				<a data-bind="dotvvm-enable: !Customers()?.PagingOptions()?.IsLastPage()" href="javascript:;" onclick="dotvvm.applyPostbackHandlers(async (options) => {
+	let cx = options.knockoutContext;
+	return await dotvvm.dataSet.loadDataSet(options.viewModel.Customers, (options) => dotvvm.dataSet.translations.PagingOptions.goToNextPage(ko.unwrap(options).PagingOptions), cx.$gridViewDataSetHelper.loadDataSet, cx.$gridViewDataSetHelper.postProcessor);
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">»</a>
+			</li>
+			<li data-bind="css: { disabled: Customers()?.PagingOptions()?.IsLastPage }">
+				<a data-bind="dotvvm-enable: !Customers()?.PagingOptions()?.IsLastPage()" href="javascript:;" onclick="dotvvm.applyPostbackHandlers(async (options) => {
+	let cx = options.knockoutContext;
+	return await dotvvm.dataSet.loadDataSet(options.viewModel.Customers, (options) => dotvvm.dataSet.translations.PagingOptions.goToLastPage(ko.unwrap(options).PagingOptions), cx.$gridViewDataSetHelper.loadDataSet, cx.$gridViewDataSetHelper.postProcessor);
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">»»</a>
+			</li>
+		</ul>
+	</body>
+</html>

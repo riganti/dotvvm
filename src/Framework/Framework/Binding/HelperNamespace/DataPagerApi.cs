@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using DotVVM.Core.Storage;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript.Ast;
@@ -24,7 +23,7 @@ namespace DotVVM.Framework.Binding.HelperNamespace
             }
 
             public override JsExpression GetJsTranslation(JsExpression dataContext) =>
-                new JsObjectExpression();
+                dataContext;
             public override Expression GetServerEquivalent(Expression controlParameter) =>
                 Expression.New(typeof(DataPagerApi));
         }
@@ -44,6 +43,7 @@ namespace DotVVM.Framework.Binding.HelperNamespace
                 dataContext;
             public override Type? GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty? property = null) => dataContext;
 
+            public override bool NestDataContext => false;
             public override IEnumerable<BindingExtensionParameter> GetExtensionParameters(ITypeDescriptor dataContext)
             {
                 return new BindingExtensionParameter[] {

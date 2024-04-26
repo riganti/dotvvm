@@ -191,8 +191,6 @@ namespace DotVVM.Framework.Controls
             {
                 // number fields
                 var liTemplate = new HtmlGenericControl("li");
-                // li.SetDataContextType(currentPageTextContext);
-                // li.SetBinding(DataContextProperty, GetNearIndexesBinding(context, i, dataContextType));
                 liTemplate.CssClasses.Add(ActiveItemCssClass, new ValueOrBinding<bool>(pagerBindings.IsActivePage.NotNull()));
                 var link = new LinkButton();
                 link.SetBinding(ButtonBase.ClickProperty, pagerBindings.GoToPage.NotNull());

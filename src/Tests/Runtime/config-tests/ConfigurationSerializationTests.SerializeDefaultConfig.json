@@ -384,6 +384,7 @@
           {
             "$type": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute, DotVVM.Framework",
             "Name": "_dataPager",
+            "NestDataContext": false,
             "TypeId": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute, DotVVM.Framework"
           }
         ],

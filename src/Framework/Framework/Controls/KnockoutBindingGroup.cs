@@ -87,7 +87,11 @@ namespace DotVVM.Framework.Controls
             if (entries.Count == 0) return "{}";
             bool multiline = false;
             foreach (var entry in entries)
+#if DotNetCore
+                if (entry.Expression.Contains('\n'))
+#else
                 if (entry.Expression.Contains("\n"))
+#endif
                 {
                     multiline = true;
                     break;

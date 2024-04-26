@@ -745,9 +745,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             try
             {
-                var (type, extensionParameters) = ApplyContextChange(dataContext, attributes, control, property);
+                var (type, extensionParameters, addLayer) = ApplyContextChange(dataContext, attributes, control, property);
 
                 if (type == null) return dataContext;
+                else if (!addLayer) return CreateDataContextTypeStack(dataContext.DataContextType, dataContext.Parent, dataContext.NamespaceImports, extensionParameters.Concat(dataContext.ExtensionParameters).ToArray());
                 else return CreateDataContextTypeStack(type, parentDataContextStack: dataContext, extensionParameters: extensionParameters.ToArray());
             }
             catch (Exception exception)
@@ -759,17 +760,23 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
-        public static (ITypeDescriptor? type, List<BindingExtensionParameter> extensionParameters) ApplyContextChange(IDataContextStack dataContext, DataContextChangeAttribute[] attributes, IAbstractControl control, IPropertyDescriptor? property)
+        public static (ITypeDescriptor? type, List<BindingExtensionParameter> extensionParameters, bool addLayer) ApplyContextChange(IDataContextStack dataContext, DataContextChangeAttribute[] attributes, IAbstractControl control, IPropertyDescriptor? property)
         {
             var type = dataContext.DataContextType;
             var extensionParameters = new List<BindingExtensionParameter>();
+            var addLayer = false;
             foreach (var attribute in attributes.OrderBy(a => a.Order))
             {
                 if (type == null) break;
                 extensionParameters.AddRange(attribute.GetExtensionParameters(type));
-                type = attribute.GetChildDataContextType(type, dataContext, control, property);
+                if (attribute.NestDataContext)
+                {
+                    addLayer = true;
+                    type = attribute.GetChildDataContextType(type, dataContext, control, property);
+                }
+
             }
-            return (type, extensionParameters);
+            return (type, extensionParameters, addLayer);
         }
 
 

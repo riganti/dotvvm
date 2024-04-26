@@ -72,7 +72,10 @@ namespace DotVVM.Framework.Controls
 
             if (LoadTemplate != null)
             {
-                LoadTemplate.BuildContent(context, this);
+                var container = new PlaceHolder();
+                container.SetDataContextType(LoadTemplateProperty.GetDataContextType(this));
+                LoadTemplate.BuildContent(context, container);
+                Children.Add(container);
             }
 
             if (EndTemplate != null)
