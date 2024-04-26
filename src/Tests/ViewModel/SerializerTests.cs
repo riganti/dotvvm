@@ -690,6 +690,29 @@ namespace DotVVM.Framework.Tests.ViewModel
             XAssert.Equal(obj.Property2, obj2.Value.Property2);
         }
 
+        [TestMethod]
+        public void InterfaceSerialization_Dynamic()
+        {
+            var obj = new VMWithInterface() {
+                Property1 = "x",
+                Property2 = "y",
+                Property3 = "z"
+            };
+            var jsonStr = Serialize(new DefaultDispatchVMContainer<IVMInterface1> { Value = obj }, out var _, false);
+            Console.WriteLine(jsonStr);
+            var json = JsonNode.Parse(jsonStr).AsObject()["Value"].AsObject();
+            XAssert.Equal("x", (string)json["Property1"]);
+            XAssert.Equal("y", (string)json["Property2"]);
+            XAssert.Equal("z", (string)json["Property3"]);
+
+            var obj2 = new DefaultDispatchVMContainer<IVMInterface1> { Value = new VMWithInterface() };
+            var obj2Populated = PopulateViewModel(jsonStr, obj2);
+            Assert.AreSame(obj2, obj2Populated);
+            XAssert.Equal(obj.Property1, obj2.Value.Property1);
+            XAssert.Equal(obj.Property2, obj2.Value.Property2);
+            XAssert.Equal(obj.Property3, ((VMWithInterface)obj2.Value).Property3);
+        }
+
         class VMWithInterface: IVMInterface1
         {
             public string Property1 { get; set; }
@@ -935,7 +958,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
     class DefaultDispatchVMContainer<TStatic>
     {
-        [Bind(AllowDynamicDispatch = false)]
+        [Bind(Name = "Value")] // make sure that the attribute presence does not affect the default behavior
         public TStatic Value { get; set; }
     }
 }

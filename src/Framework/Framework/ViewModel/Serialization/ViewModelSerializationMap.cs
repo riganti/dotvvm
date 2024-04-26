@@ -813,27 +813,28 @@ namespace DotVVM.Framework.ViewModel.Serialization
         }
 
         public static readonly MethodInfo DeserializeViewModelDynamicMethod = typeof(JsonSerializationCodegenFragments).GetMethod(nameof(DeserializeViewModelDynamic), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
-        private static TVM? DeserializeViewModelDynamic<TVM>(ref Utf8JsonReader reader, JsonSerializerOptions options, TVM? existingValue, bool populate, ViewModelJsonConverter factory, ViewModelJsonConverter.VMConverter<TVM>? defaultConverter, DotvvmSerializationState state)
+        private static TVM? DeserializeViewModelDynamic<TVM>(ref Utf8JsonReader reader, JsonSerializerOptions options, TVM? existingValue, bool populate, ViewModelJsonConverter factory, ViewModelJsonConverter.VMConverter<TVM> defaultConverter, DotvvmSerializationState state)
             where TVM: class
         {
             if (reader.TokenType == JsonTokenType.Null)
                 return default;
 
-            if (existingValue is null && defaultConverter is null)
+            if (existingValue is null)
             {
-                throw new Exception($"Cannot deserialize {typeof(TVM).ToCode()} dynamically, originalValue is null and type is abstract.");
+                return defaultConverter.Read(ref reader, typeof(TVM), options, state);
             }
 
-            if (defaultConverter is {} && (existingValue is null || existingValue.GetType() == typeof(TVM)))
+            var realType = existingValue?.GetType() ?? typeof(TVM);
+            if (defaultConverter is {} && realType == typeof(TVM))
             {
                 return populate && existingValue is {}
                         ? defaultConverter.Populate(ref reader, options, existingValue, state)
                         : defaultConverter.Read(ref reader, typeof(TVM), options, state);
             }
 
-            var converter = factory.GetConverterCached(typeof(TVM));
-            return populate ? (TVM?)converter.PopulateUntyped(ref reader, typeof(TVM), existingValue, options, state)
-                            : (TVM?)converter.ReadUntyped(ref reader, typeof(TVM), options, state);
+            var converter = factory.GetConverterCached(realType);
+            return populate ? (TVM?)converter.PopulateUntyped(ref reader, realType, existingValue, options, state)
+                            : (TVM?)converter.ReadUntyped(ref reader, realType, options, state);
         }
 
         public static readonly MethodInfo ReadEncryptedValueMethod = typeof(JsonSerializationCodegenFragments).GetMethod(nameof(ReadEncryptedValue), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
