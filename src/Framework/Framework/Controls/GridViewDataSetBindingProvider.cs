@@ -361,6 +361,7 @@ public class GridViewDataSetBindingProvider
 
         var interfaces = dataSetConcreteType.GetInterfaces()
             .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericInterface)
+            .Distinct()
             .ToList();
         if (interfaces.Count < 1)
         {
@@ -368,7 +369,7 @@ public class GridViewDataSetBindingProvider
         }
         else if (interfaces.Count > 1)
         {
-            throw new ArgumentException($"The {dataSetConcreteType} implements multiple interfaces where {genericInterface.Name}<TOptions>. Only one implementation is allowed.");
+            throw new ArgumentException($"The {dataSetConcreteType} implements multiple interfaces where {genericInterface.Name}<TOptions> ({interfaces.Select(i => i.ToCode()).StringJoin(", ")}). Only one implementation is allowed.");
         }
 
         var pagingOptionsConcreteType = interfaces[0].GetGenericArguments()[0];
