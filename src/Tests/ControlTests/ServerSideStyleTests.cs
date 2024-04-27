@@ -443,6 +443,67 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+
+
+        [TestMethod]
+        public async Task AddResourceWithMasterPage()
+        {
+            var cth = createHelper(c => {
+
+                c.Resources.Register("test-resource1", new InlineScriptResource("alert(1)"));
+                c.Resources.Register("test-resource2", new InlineScriptResource("alert(2)"));
+                c.Resources.Register("test-resource3", new InlineScriptResource("alert(3)"));
+                c.Resources.Register("test-resource4", new InlineScriptResource("alert(4)"));
+                c.Resources.Register("test-resource5", new InlineScriptResource("alert(5)"));
+
+                c.Styles.RegisterRoot()
+                    .AddRequiredResource(cx => {
+                        return cx.Control.TreeRoot.Directives.TryGetValue("custom_resource_import", out var x) ? x.Select(d => d.Value).ToArray() : new string[0];
+                    });
+            });
+
+            var r = await cth.RunPage(typeof(object), """
+
+                <dot:Content ContentPlaceHolderID="nested-body">
+                    real body
+                </dot:Content>
+
+                <dot:RequiredResource Name="test-resource5" />
+            """,
+            directives: """
+                @masterPage master1.dotmaster
+                @custom_resource_import test-resource1
+            """,
+            markupFiles: new Dictionary<string, string> {
+                ["master1.dotmaster"] = """
+                    @viewModel object
+                    @masterPage master2.dotmaster
+                    @custom_resource_import test-resource2
+
+                    <dot:Content ContentPlaceHolderID="head">
+                        <dot:RequiredResource Name=test-resource4 />
+                    </dot:Content>
+                    <dot:Content ContentPlaceHolderID="body">
+                        <div class="master1">
+                            <dot:ContentPlaceHolder ID="nested-body" />
+                        </div>
+                    </dot:Content>
+                """,
+                ["master2.dotmaster"] = """
+                    @custom_resource_import test-resource3
+                    @viewModel object
+
+                    <head>
+                        <dot:ContentPlaceHolder ID="head" />
+                    </head>
+                    <body>
+                        <dot:ContentPlaceHolder ID="body" />
+                    </body>
+                """
+            }, renderResources: true);
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]

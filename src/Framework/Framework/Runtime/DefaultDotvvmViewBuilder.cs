@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
@@ -107,7 +108,7 @@ namespace DotVVM.Framework.Runtime
             var placeHolders = GetMasterPageContentPlaceHolders(masterPage);
 
             // find contents
-            var contents = GetChildPageContents(childPage, placeHolders);
+            var (contents, auxControls) = GetChildPageContents(childPage, placeHolders);
 
             // perform the composition
             foreach (var content in contents)
@@ -133,7 +134,10 @@ namespace DotVVM.Framework.Runtime
                 content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
                 content.SetValue(Internal.ReferencedViewModuleInfoProperty, childPage.GetValue(Internal.ReferencedViewModuleInfoProperty));
             }
-            
+
+            foreach (var control in auxControls)
+                masterPage.Children.Add(control);
+
             // copy the directives from content page to the master page (except the @masterpage)
             masterPage.ViewModelType = childPage.ViewModelType;
         }
@@ -160,11 +164,30 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Checks that the content page does not contain invalid content.
         /// </summary>
-        private List<Content> GetChildPageContents(DotvvmView childPage, List<ContentPlaceHolder> parentPlaceHolders)
+        private (List<Content> contents, List<DotvvmControl> auxiliaryControls) GetChildPageContents(DotvvmView childPage, List<ContentPlaceHolder> parentPlaceHolders)
         {
-            // make sure that the body contains only whitespace and Content controls
-            var nonContentElements =
-                childPage.Children.Where(c => !((c is RawLiteral && ((RawLiteral)c).IsWhitespace) || (c is Content)));
+            // make sure that the body contains only Content controls (and whitespace and auxiliary controls)
+            var nonContentElements = new List<DotvvmControl>();
+            // controls which don't render anything and may be placed anywhere (RequireResource)
+            var auxiliaryControls = new List<DotvvmControl>();
+            foreach (var child in childPage.Children)
+            {
+                if (child is RawLiteral { IsWhitespace: true })
+                {
+                    // ignored
+                }
+                else if (child is RequiredResource)
+                {
+                    child.Parent = null; // childPage view is discarded
+                    auxiliaryControls.Add(child);
+                }
+                else if (child is Content)
+                {
+                    // handled bellow
+                }
+                else
+                    nonContentElements.Add(child);
+            }
             if (nonContentElements.Any())
             {
                 // show all error lines
@@ -182,10 +205,10 @@ namespace DotVVM.Framework.Runtime
                 .ToList();
             if (contents.FirstOrDefault(c => c.Parent != childPage) is {} invalidContent)
             {
-                throw new DotvvmControlException(invalidContent, "The control <dot:Content /> cannot be placed inside any control!");
+                throw new DotvvmControlException(invalidContent, $"The control <dot:Content ContentPlaceHolderID='{invalidContent.ContentPlaceHolderID ?? "<null>"}' /> cannot be placed inside any control!");
             }
 
-            return contents;
+            return (contents, auxiliaryControls);
         }
     }
 }
