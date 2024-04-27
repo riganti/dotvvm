@@ -24,10 +24,10 @@
             <dot:Button Text="Load more" Click="{staticCommand: _dataPager.Load()}" />
         </LoadTemplate>
         <LoadingTemplate>
-            Your data are on the way...
+            <span class="loading">Your data are on the way...</span>
         </LoadingTemplate>
         <EndTemplate>
-            You reached to the end of the Earth. Now you shall see the 🐢🐢🐢🐢 and 🐘.
+            <span class="loaded">You reached to the end of the Earth. Now you shall see the 🐢🐢🐢🐢 and 🐘.</span>
         </EndTemplate>
     </dot:AppendableDataPager>
 

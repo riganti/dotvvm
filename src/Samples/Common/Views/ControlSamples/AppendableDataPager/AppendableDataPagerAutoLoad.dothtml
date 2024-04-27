@@ -10,7 +10,7 @@
 <body>
 
     <dot:Repeater DataSource="{value: Customers}">
-        <div>
+        <div class="customer">
             <h1>Customer {{value: CustomerId}}</h1>
             <p>Name: <strong>{{value: Name}}</strong></p>
             <p>Birth date: <strong>{{value: BirthDate.ToString("d")}}</strong></p>
@@ -35,10 +35,10 @@
     <dot:AppendableDataPager DataSet="{value: Customers}"
                              LoadData="{staticCommand: RootViewModel.LoadNextPage}">
         <LoadingTemplate>
-            Your data are on the way...
+            <span class="loading">Your data are on the way...</span>
         </LoadingTemplate>
         <EndTemplate>
-            You reached to the end of the Earth. Now you shall see the 🐢🐢🐢🐢 and 🐘.
+            <span class="loaded">You reached to the end of the Earth. Now you shall see the 🐢🐢🐢🐢 and 🐘.</span>
         </EndTemplate>
     </dot:AppendableDataPager>
 
