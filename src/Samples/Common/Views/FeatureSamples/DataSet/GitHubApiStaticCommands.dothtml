@@ -15,8 +15,9 @@
         <div>
             <h2>NextToken</h2>
             <dot:DataPager DataSet="{value: Issues}"
-                           LoadData="{staticCommand: RootViewModel.LoadIssues}" />
-            <dot:GridView DataSource="{value: Issues}">
+                           LoadData="{staticCommand: RootViewModel.LoadIssues}"
+                           data-ui="next-pager"/>
+            <dot:GridView DataSource="{value: Issues}" data-ui="next-grid">
                 <dot:GridViewTextColumn ValueBinding="{value: Id}" HeaderText="Id" />
                 <dot:GridViewTextColumn ValueBinding="{value: Number}" HeaderText="Number" />
                 <dot:GridViewTextColumn ValueBinding="{value: Title}" HeaderText="Title" />
@@ -27,8 +28,9 @@
         <div>
             <h2>NextTokenHistory</h2>
             <dot:DataPager DataSet="{value: Issues2}"
-                           LoadData="{staticCommand: RootViewModel.LoadIssues2}" />
-            <dot:GridView DataSource="{value: Issues2}">
+                           LoadData="{staticCommand: RootViewModel.LoadIssues2}"
+                           data-ui="next-history-pager"/>
+            <dot:GridView DataSource="{value: Issues2}" data-ui="next-history-grid">
                 <dot:GridViewTextColumn ValueBinding="{value: Id}" HeaderText="Id" />
                 <dot:GridViewTextColumn ValueBinding="{value: Number}" HeaderText="Number" />
                 <dot:GridViewTextColumn ValueBinding="{value: Title}" HeaderText="Title" />
