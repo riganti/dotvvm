@@ -125,12 +125,16 @@ namespace DotVVM.Framework.Controls
             };
         }
 
+        /// <summary> Sets new items + filtering, sorting, paging options. </summary>
         public void ApplyResult(GridViewDataSetResult<T, TFilteringOptions, TSortingOptions, TPagingOptions> result)
         {
             Items = result.Items.ToList();
-            FilteringOptions = result.FilteringOptions;
-            SortingOptions = result.SortingOptions;
-            PagingOptions = result.PagingOptions;
+            if (result.FilteringOptions is {})
+                FilteringOptions = result.FilteringOptions;
+            if (result.SortingOptions is {})
+                SortingOptions = result.SortingOptions;
+            if (result.PagingOptions is {})
+                PagingOptions = result.PagingOptions;
         }
     }
 }

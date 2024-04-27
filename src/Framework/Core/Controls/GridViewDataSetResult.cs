@@ -25,10 +25,10 @@ namespace DotVVM.Framework.Controls
 
         public IReadOnlyList<TItem> Items { get; }
 
-        public TFilteringOptions FilteringOptions { get; }
+        public TFilteringOptions? FilteringOptions { get; }
 
-        public TSortingOptions SortingOptions { get; }
+        public TSortingOptions? SortingOptions { get; }
 
-        public TPagingOptions PagingOptions { get; }
+        public TPagingOptions? PagingOptions { get; }
     }
 }

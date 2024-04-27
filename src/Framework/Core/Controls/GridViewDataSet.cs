@@ -17,5 +17,15 @@ namespace DotVVM.Framework.Controls
             : base(new NoFilteringOptions(), new SortingOptions(), new PagingOptions(), new NoRowInsertOptions(), new RowEditOptions())
         {
         }
+
+        // return specialized dataset options
+        public new GridViewDataSetOptions GetOptions()
+        {
+            return new GridViewDataSetOptions {
+                FilteringOptions = FilteringOptions,
+                SortingOptions = SortingOptions,
+                PagingOptions = PagingOptions
+            };
+        }
     }
 }
