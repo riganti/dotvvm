@@ -1,6 +1,8 @@
 ﻿using System.Linq;
+using System.Text.RegularExpressions;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.DotVVM;
@@ -72,22 +74,225 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_GridView_GridViewStaticCommand()
+        public void Control_GridView_GridViewStaticCommand_Standard()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewStaticCommand);
 
-                //check rows
-                browser.FindElements("table tbody tr").ThrowIfDifferentCountThan(5);
-                //check first row Id
-                AssertUI.InnerTextEquals(browser.First("table tbody tr td span"), "1");
-                //cal static command for delete row
-                browser.First("table tbody tr input[type=button]").Click();
-                browser.WaitForPostback();
-                //check rows again
-                browser.FindElements("table tbody tr").ThrowIfDifferentCountThan(4);
-                //check first row Id
-                AssertUI.InnerTextEquals(browser.First("table tbody tr td span"), "2");
+                // Standard
+                var grid = browser.Single("standard-grid", SelectByDataUi);
+                var pager = browser.Single("standard-pager", SelectByDataUi);
+
+                // verify initial data
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(10);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "1");
+
+                // sort by name
+                grid.ElementAt("thead th", 1).Single("a").Click();
+                AssertUI.TextEquals(grid.First("tbody tr td"), "9");
+
+                // sort by birth date
+                grid.ElementAt("thead th", 2).Single("a").Click();
+                AssertUI.TextEquals(grid.First("tbody tr td"), "4");
+
+                // click on page 2
+                pager.ElementAt("li", 3).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(2);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "11");
+
+                // click on page 1
+                pager.ElementAt("li", 2).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(10);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "4");
+
+                // click on next button
+                pager.ElementAt("li", 4).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(2);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "11");
+
+                // click on previous page
+                pager.ElementAt("li", 1).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(10);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "4");
+
+                // click on last button
+                pager.ElementAt("li", 5).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(2);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "11");
+
+                // click on first page
+                pager.ElementAt("li", 0).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(10);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "4");
+            });
+        }
+
+        [Fact]
+        public void Control_GridView_GridViewStaticCommand_Next()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewStaticCommand);
+
+                // NextToken
+                var grid = browser.Single("next-grid", SelectByDataUi);
+                var pager = browser.Single("next-pager", SelectByDataUi);
+
+                // verify initial data
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "1");
+                AssertUI.HasAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+
+                // click on next button
+                pager.ElementAt("li", 1).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "4");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+
+                // click on first page
+                pager.ElementAt("li", 0).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "1");
+                AssertUI.HasAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+
+                // click on next button
+                pager.ElementAt("li", 1).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "4");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 0), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 1), "disabled");
+
+                // click on next button
+                pager.ElementAt("li", 1).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "7");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+
+                // click on next button
+                pager.ElementAt("li", 1).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "10");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+            });
+        }
+
+        [Fact]
+        public void Control_GridView_GridViewStaticCommand_NextHistory()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewStaticCommand);
+
+                // NextTokenHistory
+                var grid = browser.Single("next-history-grid", SelectByDataUi);
+                var pager = browser.Single("next-history-pager", SelectByDataUi);
+
+                // verify initial data
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                pager.FindElements("li").ThrowIfDifferentCountThan(5);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "1");
+                AssertUI.HasAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 4).Single("a"), "disabled");
+
+                // click on next button
+                pager.ElementAt("li", 4).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                pager.FindElements("li").ThrowIfDifferentCountThan(6);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "4");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 5).Single("a"), "disabled");
+
+                // click on first page
+                pager.ElementAt("li", 0).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                pager.FindElements("li").ThrowIfDifferentCountThan(6);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "1");
+                AssertUI.HasAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 5).Single("a"), "disabled");
+
+                // click on page 2
+                pager.ElementAt("li", 3).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                pager.FindElements("li").ThrowIfDifferentCountThan(6);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "4");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 5).Single("a"), "disabled");
+
+                // click on page 3
+                pager.ElementAt("li", 4).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                pager.FindElements("li").ThrowIfDifferentCountThan(7);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "7");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 6).Single("a"), "disabled");
+
+                // click on previous button
+                pager.ElementAt("li", 1).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                pager.FindElements("li").ThrowIfDifferentCountThan(7);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "4");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 6).Single("a"), "disabled");
+
+                // click on page 4
+                pager.ElementAt("li", 5).Single("a").Click();
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                pager.FindElements("li").ThrowIfDifferentCountThan(7);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "10");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 0).Single("a"), "disabled");
+                AssertUI.HasNotAttribute(pager.ElementAt("li", 1).Single("a"), "disabled");
+                AssertUI.HasAttribute(pager.ElementAt("li", 6).Single("a"), "disabled");
+            });
+        }
+
+        [Fact]
+        public void Control_GridView_GridViewStaticCommand_MultiSort()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewStaticCommand);
+
+                // MultiSort
+                var grid = browser.Single("multi-sort-grid", SelectByDataUi);
+                var criteria = browser.Single("multi-sort-criteria", SelectByDataUi);
+
+                // verify initial data
+                grid.FindElements("tbody tr").ThrowIfDifferentCountThan(12);
+                AssertUI.TextEquals(grid.First("tbody tr td"), "1");
+                AssertUI.TextEquals(criteria, "");
+
+                // sort by name
+                grid.ElementAt("thead th", 1).Single("a").Click();
+                AssertUI.TextEquals(grid.First("tbody tr td"), "9");
+                AssertUI.TextEquals(criteria, "Name ASC");
+
+                // add sort by message received
+                grid.ElementAt("thead th", 3).Single("a").Click();
+                AssertUI.TextEquals(grid.First("tbody tr td"), "6");
+                AssertUI.Text(criteria, t => Regex.Replace(t, "\\s+", " ") == "MessageReceived ASC Name ASC");
+
+                // reverse sort by message received
+                grid.ElementAt("thead th", 3).Single("a").Click();
+                AssertUI.TextEquals(grid.First("tbody tr td"), "9");
+                AssertUI.Text(criteria, t => Regex.Replace(t, "\\s+", " ") == "MessageReceived DESC Name ASC");
+
+                // add sort by birth date
+                grid.ElementAt("thead th", 2).Single("a").Click();
+                AssertUI.TextEquals(grid.First("tbody tr td"), "4");
+                AssertUI.Text(criteria, t => Regex.Replace(t, "\\s+", " ") == "BirthDate ASC MessageReceived DESC Name ASC");
+
+                // add sort by customer id
+                grid.ElementAt("thead th", 0).Single("a").Click();
+                AssertUI.TextEquals(grid.First("tbody tr td"), "1");
+                AssertUI.Text(criteria, t => Regex.Replace(t, "\\s+", " ") == "CustomerId ASC BirthDate ASC MessageReceived DESC");
             });
         }
 

@@ -17,7 +17,8 @@
     <div class="container">
         <h1>Standard data set</h1>
         <dot:GridView DataSource="{value: StandardDataSet}"
-                      LoadData="{staticCommand: RootViewModel.LoadStandard}">
+                      LoadData="{staticCommand: RootViewModel.LoadStandard}"
+                      data-ui="standard-grid">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
@@ -25,11 +26,13 @@
                 <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" AllowSorting="True" />
             </Columns>
         </dot:GridView>
-        <dot:DataPager DataSet="{value: StandardDataSet}" LoadData="{staticCommand: RootViewModel.LoadStandard}" />
+        <dot:DataPager DataSet="{value: StandardDataSet}" LoadData="{staticCommand: RootViewModel.LoadStandard}"
+                       data-ui="standard-pager"/>
         
         <h1>NextToken paging options</h1>
         <dot:GridView DataSource="{value: NextTokenDataSet}"
-                      LoadData="{staticCommand: RootViewModel.LoadToken}">
+                      LoadData="{staticCommand: RootViewModel.LoadToken}"
+                      data-ui="next-grid">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
@@ -37,11 +40,13 @@
                 <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" />
             </Columns>
         </dot:GridView>
-        <dot:DataPager DataSet="{value: NextTokenDataSet}" LoadData="{staticCommand: RootViewModel.LoadToken}" />
+        <dot:DataPager DataSet="{value: NextTokenDataSet}" LoadData="{staticCommand: RootViewModel.LoadToken}"
+                      data-ui="next-pager" />
 
         <h1>NextTokenHistory data set</h1>
         <dot:GridView DataSource="{value: NextTokenHistoryDataSet}"
-                      LoadData="{staticCommand: RootViewModel.LoadTokenHistory}">
+                      LoadData="{staticCommand: RootViewModel.LoadTokenHistory}"
+                      data-ui="next-history-grid">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
@@ -49,11 +54,13 @@
                 <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" />
             </Columns>
         </dot:GridView>
-        <dot:DataPager DataSet="{value: NextTokenHistoryDataSet}" LoadData="{staticCommand: RootViewModel.LoadTokenHistory}" />
+        <dot:DataPager DataSet="{value: NextTokenHistoryDataSet}" LoadData="{staticCommand: RootViewModel.LoadTokenHistory}" 
+                      data-ui="next-history-pager"/>
 
         <h1>MultiSort data set</h1>
         <dot:GridView DataSource="{value: MultiSortDataSet}"
-                      LoadData="{staticCommand: RootViewModel.LoadMultiSort}">
+                      LoadData="{staticCommand: RootViewModel.LoadMultiSort}"
+                      data-ui="multi-sort-grid">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
@@ -61,8 +68,10 @@
                 <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" AllowSorting="True" />
             </Columns>
         </dot:GridView>
-        <dot:DataPager DataSet="{value: MultiSortDataSet}" LoadData="{staticCommand: RootViewModel.LoadMultiSort}" />
-        <dot:Repeater DataSource="{value: MultiSortDataSet.SortingOptions.Criteria}" WrapperTagName="ul">
+        <dot:DataPager DataSet="{value: MultiSortDataSet}" LoadData="{staticCommand: RootViewModel.LoadMultiSort}"
+                      data-ui="multi-sort-pager"/>
+        <dot:Repeater DataSource="{value: MultiSortDataSet.SortingOptions.Criteria}" WrapperTagName="ul"
+                      data-ui="multi-sort-criteria">
             <li>{{value: SortExpression}} {{value: SortDescending ? "DESC" : "ASC"}}</li>
         </dot:Repeater>
     </div>
