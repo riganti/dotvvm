@@ -111,8 +111,7 @@ namespace DotVVM.Framework.Tests.Runtime
         'stylesheets': {{ 'newResource': {{ 'url': 'test' }} }}
     }}
 }}", ResourceConstants.GlobalizeResourceName);
-            var configuration = DotvvmTestHelper.CreateConfiguration();
-            SystemTextJsonHacks.Populate(configuration, json.Replace("'", "\""), DefaultSerializerSettingsProvider.Instance.Settings);
+            var configuration = JsonSerializer.Deserialize<DotvvmConfiguration>(json.Replace("'", "\""), DefaultSerializerSettingsProvider.Instance.Settings);
 
             Assert.IsTrue(configuration.Resources.FindResource(ResourceConstants.GlobalizeResourceName) is ScriptResource);
             Assert.IsTrue(configuration.Resources.FindResource("newResource") is StylesheetResource);

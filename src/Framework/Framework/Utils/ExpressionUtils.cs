@@ -22,45 +22,6 @@ namespace DotVVM.Framework.Utils
                 Expression.IfThenElse(condition, body, Expression.Goto(brkLabel)), brkLabel);
         }
 
-        public static Expression Foreach(Expression collection, ParameterExpression item, Expression body)
-        {
-            var genericType = collection.Type.IsGenericType ? collection.Type.GetGenericArguments()[0] : typeof(object);
-            if (collection.Type.IsArray || collection.Type == typeof(string) || genericType == typeof(Span<>) || genericType == typeof(ReadOnlySpan<>))
-                return ForeachIndexer(collection, item, body);
-
-            throw new NotImplementedException();
-        }
-
-        static Expression ForeachIndexer(Expression collection, ParameterExpression item, Expression body)
-        {
-            var block = new List<Expression>();
-            var vars = new List<ParameterExpression>();
-            ParameterExpression collectionP;
-            if (collection is ParameterExpression)
-                collectionP = (ParameterExpression)collection;
-            else
-            {
-                collectionP = Expression.Parameter(collection.Type);
-                block.Add(Expression.Assign(collectionP, collection));
-                vars.Add(collectionP);
-            }
-            var indexP = Expression.Parameter(typeof(int));
-            vars.Add(indexP);
-            block.Add(Expression.Assign(indexP, Expression.Constant(0)));
-
-            var loop = While(
-                Expression.LessThan(indexP, Expression.Property(collectionP, "Length")),
-                Expression.Block(
-                    new[] { item },
-                    Expression.Assign(item, Index(collectionP, indexP)),
-                    body,
-                    Expression.PostIncrementAssign(indexP)
-                )
-            );
-            block.Add(loop);
-            return Expression.Block(vars, block);
-        }
-
         static Expression Index(Expression list, Expression index)
         {
             if (list.Type.IsArray)

@@ -219,21 +219,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return buffer;
         }
 
-        static ReadOnlySpan<byte> TrimJsonObject(ReadOnlySpan<byte> json)
-        {
-            if (json[0] == '[' && json[json.Length - 1] == ']')
-            {
-                json = json.Slice(1, json.Length - 2);
-                json = TrimStart(TrimEnd(json));
-            }
-            // Trim { and }
-            if (json.Length < 2 || json[0] != '{' || json[json.Length - 1] != '}')
-                throw new InvalidOperationException("Internal bug.");
-            json = json.Slice(1, json.Length - 2);
-            // trim (ASCII) whitespace from end
-            return TrimEnd(json);
-        }
-
         static ReadOnlySpan<byte> TrimStart(ReadOnlySpan<byte> json)
         {
             while (json.Length > 0 && char.IsWhiteSpace((char)json[0]))
@@ -407,7 +392,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 }
 
                 viewModelElement = root.GetProperty("viewModelDiff"u8);
-                cachedViewModel = viewModelServerCache.TryRestoreViewModel(context, viewModelCacheId, root.GetProperty("viewModelDiff"u8));
+                cachedViewModel = viewModelServerCache.TryRestoreViewModel(context, viewModelCacheId, viewModelElement);
             }
             else
             {
@@ -463,9 +448,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 var converter = jsonOptions.GetRootViewModelConverter(context.ViewModel.GetType());
                 var newVM = converter.PopulateUntyped(ref reader, context.ViewModel.GetType(), context.ViewModel, jsonOptions.ViewModelJsonOptions, state);
-                // var helperObject = new DeserializationHelper() { ViewModel = context.ViewModel };
-                // var newHelper = converter.Populate(ref reader, JsonOptions, helperObject, state);
-                // Debug.Assert(newHelper == (object)helperObject);
 
                 if (newVM != context.ViewModel)
                 {
@@ -541,11 +523,5 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 writer.WriteEndObject();
             }
         }
-
-        // class DeserializationHelper
-        // {
-        //     [Bind(Name = "viewModel", AllowDynamicDispatch = true)]
-        //     public object? ViewModel { get; set; } = null;
-        // }
     }
 }

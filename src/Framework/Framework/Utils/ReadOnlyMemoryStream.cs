@@ -1,6 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-// stolen from https://github.com/dotnet/runtime/blob/main/src/libraries/Common/src/System/IO/ReadOnlyMemoryStream.cs
+// From https://github.com/dotnet/runtime/blob/main/src/libraries/Common/src/System/IO/ReadOnlyMemoryStream.cs
  
 using System.Threading;
 using System.Threading.Tasks;
