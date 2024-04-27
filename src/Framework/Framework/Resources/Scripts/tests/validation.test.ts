@@ -3,6 +3,12 @@ import { globalValidationObject as validation, ValidationErrorDescriptor } from 
 import { createComplexObservableSubViewmodel, createComplexObservableViewmodel, ObservableHierarchy, ObservableSubHierarchy } from "./observableHierarchies"
 import { getErrors } from "../validation/error"
 import { setLogger } from "../utils/logging";
+import { runClientSideValidation } from '../validation/validation'
+import dotvvm from '../dotvvm-root'
+import { getStateManager } from "../dotvvm-base";
+import { StateManager } from "../state-manager";
+
+require("./stateManagement.data")
 
 
 describe("DotVVM.Validation - public API", () => {
@@ -318,6 +324,21 @@ describe("DotVVM.Validation - public API", () => {
         expect(onErrorsCallback).toHaveBeenCalledTimes(2);
     })
 });
+
+
+describe("DotVVM.Validation - view model validation", () => {
+    const s = getStateManager() as StateManager<any>
+    test("Validated object in dynamic", () => {
+        dotvvm.updateState(x => ({...x, Dynamic: { something: "abc", validatedObj: { $type: "tValidated", RegexValidated: "abcd" } } }))
+        s.doUpdateNow()
+        runClientSideValidation(s.stateObservable, {} as any)
+        expect(dotvvm.validation.errors).toHaveLength(0)
+        s.patchState({ Dynamic: { validatedObj: { RegexValidated: "abcde" }}})
+        s.doUpdateNow()
+        runClientSideValidation(s.stateObservable, {} as any)
+        expect(dotvvm.validation.errors).toHaveLength(1)
+    })
+})
 
 function SetupComplexObservableViewmodelWithErrorsOnProp1AndProp21() {
     validation.removeErrors("/");
