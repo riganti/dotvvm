@@ -258,7 +258,7 @@ namespace DotVVM.Framework.Controls
                 SetCellAttributes(column, cell, true);
                 var decoratedCell = Decorator.ApplyDecorators(cell, column.HeaderCellDecorators);
                 headerRow.Children.Add(decoratedCell);
-                
+
                 column.CreateHeaderControls(context, this, gridViewCommands, sortCommandBindingOverride, cell, gridViewDataSet);
                 if (FilterPlacement == GridViewFilterPlacement.HeaderRow)
                 {

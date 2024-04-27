@@ -24,6 +24,9 @@ public class MultiCriteriaSortingOptions : ISortingOptions, ISortingStateCapabil
 
     public virtual void SetSortExpression(string? sortExpression)
     {
+        if (sortExpression is {} && !IsSortingAllowed(sortExpression))
+            throw new ArgumentException($"Sorting by column '{sortExpression}' is not allowed.");
+
         if (sortExpression == null)
         {
             Criteria.Clear();

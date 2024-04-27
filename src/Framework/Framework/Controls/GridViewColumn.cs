@@ -207,6 +207,12 @@ namespace DotVVM.Framework.Controls
 
                 var sortExpression = GetSortExpression();
 
+                if (string.IsNullOrEmpty(sortExpression))
+                    throw new DotvvmControlException(this, "The SortExpression property must be set when AllowSorting is true!");
+
+                if ((gridViewDataSet?.SortingOptions as ISortingSetSortExpressionCapability)?.IsSortingAllowed(sortExpression) == false)
+                    throw new DotvvmControlException(this, $"The sort expression '{sortExpression}' is not allowed in the sorting options!");
+
                 var linkButton = new LinkButton();
                 linkButton.SetValue(ButtonBase.TextProperty, GetValueRaw(HeaderTextProperty));
                 linkButton.ClickArguments = new object?[] { sortExpression };
@@ -236,10 +242,9 @@ namespace DotVVM.Framework.Controls
 
         private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? gridViewDataSet, GridViewCommands gridViewCommands)
         {
-            if (gridViewDataSet is ISortableGridViewDataSet<ISortingStateCapability> sortableGridViewDataSet)
+            if (gridViewDataSet is ISortableGridViewDataSet<ISortingStateCapability> sortableGridViewDataSet &&
+                GetSortExpression() is {} sortExpression)
             {
-                var sortExpression = GetSortExpression();
-
                 var cellAttributes = cell.Attributes;
                 if (!RenderOnServer)
                 {
