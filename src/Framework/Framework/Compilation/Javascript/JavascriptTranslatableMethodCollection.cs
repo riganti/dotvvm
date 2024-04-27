@@ -848,6 +848,15 @@ namespace DotVVM.Framework.Compilation.Javascript
             // _dataPager.Load()
             DataPagerApi.DataPagerExtensionParameter.Register(this);
             
+            // GridViewDataSet
+            var getOptions = new GenericMethodCompiler((JsExpression[] args, MethodInfo m) =>
+                new JsIdentifierExpression("dotvvm").Member("dataSet").Member("getOptions")
+                    .Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                    .WithAnnotation(new ViewModelInfoAnnotation(m.ReturnType, containsObservables: false))
+            );
+            AddMethodTranslator(typeof(GenericGridViewDataSet<,,,,,>).GetMethod("GetOptions"), getOptions);
+            AddMethodTranslator(() => default(GridViewDataSet<Generic.T>)!.GetOptions(), getOptions);
+
             // PagingOptions
             AddMethodTranslator(() => default(PagingOptions)!.GoToFirstPage(),new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("PagingOptions").Member("goToFirstPage")

@@ -1,4 +1,6 @@
-﻿type PagingOptions = {
+﻿import { getOptions } from "./loader";
+
+type PagingOptions = {
     PageIndex: number,
     PagesCount: number
 };
@@ -29,6 +31,7 @@ type SortCriterion = {
 };
 
 export const translations = {
+    getOptions,
     PagingOptions: {
         goToFirstPage(options: PagingOptions) {
             options.PageIndex = 0;
@@ -100,10 +103,10 @@ export const translations = {
             }
         },
         isColumnSortedAscending(options: SortingOptions, sortExpression: string) {
-            return options.SortExpression === sortExpression && !options.SortDescending;
+            return options && options.SortExpression === sortExpression && !options.SortDescending;
         },
         isColumnSortedDescending(options: SortingOptions, sortExpression: string) {
-            return options.SortExpression === sortExpression && options.SortDescending;
+            return options && options.SortExpression === sortExpression && options.SortDescending;
         }
     },
     MultiCriteriaSortingOptions: {
@@ -125,16 +128,13 @@ export const translations = {
                 options.Criteria.unshift({ SortExpression: sortExpression, SortDescending: false });
             }
 
-            if (options.Criteria.length > options.MaxSortCriteriaCount)
-            {
-                options.Criteria.splice(options.MaxSortCriteriaCount, options.Criteria.length - options.MaxSortCriteriaCount);
-            }
+            options.Criteria.splice(options.MaxSortCriteriaCount);
         },
         isColumnSortedAscending(options: MultiCriteriaSortingOptions, sortExpression: string) {
-            return options.Criteria.some(c => c.SortExpression === sortExpression && !c.SortDescending);
+            return options?.Criteria?.some(c => c.SortExpression === sortExpression && !c.SortDescending);
         },
         isColumnSortedDescending(options: MultiCriteriaSortingOptions, sortExpression: string) {
-            return options.Criteria.some(c => c.SortExpression === sortExpression && c.SortDescending);
+            return options?.Criteria?.some(c => c.SortExpression === sortExpression && c.SortDescending);
         }
     }
 };

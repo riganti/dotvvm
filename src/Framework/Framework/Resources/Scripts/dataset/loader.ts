@@ -1,23 +1,32 @@
 ﻿import { StateManager } from "../state-manager";
 
 type GridViewDataSet = {
-    PagingOptions: DotvvmObservable<any>,
-    SortingOptions: DotvvmObservable<any>,
-    FilteringOptions: DotvvmObservable<any>,
-    Items: DotvvmObservable<any[]>,
-    IsRefreshRequired?: DotvvmObservable<boolean>
+    PagingOptions: object,
+    SortingOptions: object,
+    FilteringOptions: object,
+    Items: any[],
+    IsRefreshRequired?: boolean
 };
 type GridViewDataSetOptions = {
-    PagingOptions: any,
-    SortingOptions: any,
-    FilteringOptions: any
+    PagingOptions: object,
+    SortingOptions: object,
+    FilteringOptions: object
 };
 type GridViewDataSetResult = {
     Items: any[],
-    PagingOptions: any,
-    SortingOptions: any,
-    FilteringOptions: any
+    PagingOptions: object,
+    SortingOptions: object,
+    FilteringOptions: object
 };
+
+export function getOptions(dataSetObservable: DotvvmObservable<GridViewDataSet>): GridViewDataSetOptions {
+    const dataSet = dataSetObservable.state
+    return structuredClone({
+        FilteringOptions: dataSet.FilteringOptions,
+        SortingOptions: dataSet.SortingOptions,
+        PagingOptions: dataSet.PagingOptions
+    })
+}
 
 export async function loadDataSet(
     dataSetObservable: DotvvmObservable<GridViewDataSet>,
@@ -25,13 +34,7 @@ export async function loadDataSet(
     loadData: (options: GridViewDataSetOptions) => Promise<DotvvmAfterPostBackEventArgs>,
     postProcessor: (dataSet: DotvvmObservable<GridViewDataSet>, result: GridViewDataSetResult) => void = postProcessors.replace
 ) {
-    const dataSet = dataSetObservable.state;
-
-    const options: GridViewDataSetOptions = {
-        FilteringOptions: structuredClone(dataSet.FilteringOptions),
-        SortingOptions: structuredClone(dataSet.SortingOptions),
-        PagingOptions: structuredClone(dataSet.PagingOptions)
-    };
+    const options = getOptions(dataSetObservable);
     transformOptions(options);
         
     const result = await loadData(options);
@@ -43,17 +46,15 @@ export async function loadDataSet(
 export const postProcessors = {
 
     replace(dataSet: DotvvmObservable<GridViewDataSet>, result: GridViewDataSetResult) {
-        dataSet.patchState(result);
+        dataSet.updateState(ds => ({...ds, ...result}));
     },
 
     append(dataSet: DotvvmObservable<GridViewDataSet>, result: GridViewDataSetResult) {
-        const currentItems = (dataSet.state as any).Items as any[];
-        dataSet.patchState({
-            FilteringOptions: result.FilteringOptions,
-            SortingOptions: result.SortingOptions,
-            PagingOptions: result.PagingOptions,
-            Items: [...currentItems, ...result.Items]
-        });
+        dataSet.updateState(ds => ({
+            ...ds,
+            ...result,
+            Items: [...ds.Items, ...result.Items]
+        }));
     }
 
 };
