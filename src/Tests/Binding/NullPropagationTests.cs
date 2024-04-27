@@ -9,11 +9,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Compilation.Binding;
 using System.Diagnostics;
-using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Testing;
 using FastExpressionCompiler;
+using System.Text.Json;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -191,7 +191,7 @@ namespace DotVVM.Framework.Tests.Binding
                 Assert.Fail($"Exception {e.Message} while executing null-checked {expr.ToCSharpString()}");
                 return;
             }
-            Assert.AreEqual(JsonConvert.SerializeObject(withNullChecks(args), settings), JsonConvert.SerializeObject(withoutNullChecks(args), settings));
+            Assert.AreEqual(JsonSerializer.Serialize(withNullChecks(args), settings), JsonSerializer.Serialize(withoutNullChecks(args), settings));
 
             foreach (var i in Enumerable.Range(0, args.Length).Shuffle(rnd))
             {

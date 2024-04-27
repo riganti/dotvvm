@@ -23,15 +23,14 @@ namespace DotVVM.Framework.Diagnostics
             return html;
         }
 
-        public override Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view)
+        public override Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view, string viewModel)
         {
             if (context.Configuration.Debug && context.Services.GetService<DiagnosticsRequestTracer>() is DiagnosticsRequestTracer tracer)
             {
-                var viewModelJson = context.GetSerializedViewModel();
-                var vmBytes = Encoding.UTF8.GetBytes(viewModelJson);
+                var vmBytes = Encoding.UTF8.GetBytes(viewModel);
                 tracer.LogResponseSize(GetCompressedSize(vmBytes), vmBytes.LongLength);
             }
-            return base.WriteViewModelResponse(context, view);
+            return base.WriteViewModelResponse(context, view, viewModel);
         }
 
         private long GetCompressedSize(byte[] bytes)

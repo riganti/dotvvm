@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
     public class DotvvmControlConfiguration
     {
 
-        [JsonProperty("tagPrefix", Required = Required.Always)]
+        [JsonPropertyName("tagPrefix")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public string? TagPrefix
         {
             get => _tagPrefix;
@@ -17,7 +18,7 @@ namespace DotVVM.Framework.Configuration
         }
         private string? _tagPrefix;
 
-        [JsonProperty("tagName", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("tagName")]
         public string? TagName
         {
             get => _tagName;
@@ -25,7 +26,7 @@ namespace DotVVM.Framework.Configuration
         }
         private string? _tagName;
 
-        [JsonProperty("namespace", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("namespace")]
         public string? Namespace
         {
             get => _namespace;
@@ -33,7 +34,7 @@ namespace DotVVM.Framework.Configuration
         }
         private string? _namespace;
 
-        [JsonProperty("assembly", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("assembly")]
         public string? Assembly
         {
             get => _assembly;
@@ -41,7 +42,7 @@ namespace DotVVM.Framework.Configuration
         }
         private string? _assembly;
 
-        [JsonProperty("src", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("src")]
         public string? Src
         {
             get => _src;

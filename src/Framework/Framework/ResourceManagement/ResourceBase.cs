@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using DotVVM.Framework.Compilation.Parser;
-using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 

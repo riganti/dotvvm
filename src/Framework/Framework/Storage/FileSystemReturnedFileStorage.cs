@@ -5,13 +5,13 @@ using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Core.Storage;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Storage
 {
@@ -88,13 +88,11 @@ namespace DotVVM.Framework.Storage
         private async Task StoreMetadata(Guid id, ReturnedFileMetadata metadata)
         {
             var metadataFilePath = GetMetadataFilePath(id);
-            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-#if DotNetCore 
-            await File.WriteAllTextAsync(
-#else
-            File.WriteAllText(
-#endif
-                metadataFilePath, JsonConvert.SerializeObject(metadata, settings), Encoding.UTF8);
+            var settings = DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe;
+            using (var file = File.Create(metadataFilePath))
+            {
+                await JsonSerializer.SerializeAsync(file, metadata, settings);
+            }
         }
 
         private string GetDataFilePath(Guid id)
@@ -109,9 +107,12 @@ namespace DotVVM.Framework.Storage
 
         public Task<ReturnedFile> GetFileAsync(Guid id)
         {
-            var metadataJson = File.ReadAllText(GetMetadataFilePath(id), Encoding.UTF8);
-            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-            var metadata = JsonConvert.DeserializeObject<ReturnedFileMetadata>(metadataJson, settings).NotNull();
+            var settings = DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe;
+            ReturnedFileMetadata metadata;
+            using (var metadataFile = File.OpenRead(GetMetadataFilePath(id)))
+            {
+                metadata = JsonSerializer.Deserialize<ReturnedFileMetadata>(metadataFile, settings).NotNull();
+            }
 
             var stream = new FileStream(GetDataFilePath(id), FileMode.Open, FileAccess.Read);
 

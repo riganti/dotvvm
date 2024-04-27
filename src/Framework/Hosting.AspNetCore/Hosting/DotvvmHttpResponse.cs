@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using DotVVM.Framework.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 
@@ -40,28 +42,33 @@ namespace DotVVM.Framework.Hosting
 
         public void Write(string text)
         {
-            var writer = new StreamWriter(OriginalResponse.Body) { AutoFlush = true};
-            writer.Write(text);
+            // ASP.NET Core does not support synchronous writes, so we use GetResult()
+            OriginalResponse.WriteAsync(text).GetAwaiter().GetResult();
         }
-
-        public void Write(byte[] data)
+        public void Write(ReadOnlyMemory<char> text)
         {
-            OriginalResponse.Body.Write(data, 0, data.Length);
+            this.WriteAsync(text).GetAwaiter().GetResult();
         }
 
-        public void Write(byte[] data, int offset, int count)
+        public void Write(ReadOnlyMemory<byte> data)
         {
-            OriginalResponse.Body.Write(data, offset, count);
+            OriginalResponse.Body.WriteAsync(data).GetAwaiter().GetResult();
         }
 
-        public Task WriteAsync(string text)
-        {
-            return OriginalResponse.WriteAsync(text);
-        }
-
-        public Task WriteAsync(string text, CancellationToken token)
+        public Task WriteAsync(string text, CancellationToken token = default)
         {
             return OriginalResponse.WriteAsync(text, token);
+        }
+        public Task WriteAsync(ReadOnlyMemory<char> text, CancellationToken token = default)
+        {
+            var writer = new StreamWriter(OriginalResponse.Body, StringUtils.Utf8) { AutoFlush = true };
+            return writer.WriteAsync(text, token);
+        }
+
+        public Task WriteAsync(ReadOnlyMemory<byte> data, CancellationToken token = default)
+        {
+            var task = OriginalResponse.Body.WriteAsync(data, token);
+            return task.IsCompletedSuccessfully ? Task.CompletedTask : task.AsTask();
         }
     }
 }

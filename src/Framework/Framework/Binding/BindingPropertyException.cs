@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Runtime;
 using FastExpressionCompiler;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding
 {

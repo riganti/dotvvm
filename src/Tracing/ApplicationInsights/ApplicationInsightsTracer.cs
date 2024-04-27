@@ -5,6 +5,7 @@ using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Utils;
 using Microsoft.ApplicationInsights;
 using System.Diagnostics;
+using System.IO;
 
 namespace DotVVM.Tracing.ApplicationInsights
 {
@@ -37,6 +38,10 @@ namespace DotVVM.Tracing.ApplicationInsights
             telemetryClient.TrackException(exception);
 
             return TaskUtils.GetCompletedTask();
+        }
+
+        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Func<Stream> viewModelBuffer)
+        {
         }
     }
 }

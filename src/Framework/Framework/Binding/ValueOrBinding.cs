@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding
 {
@@ -111,14 +111,14 @@ namespace DotVVM.Framework.Binding
         /// <summary> Returns a Javascript (knockout) expression representing this value or this binding. </summary>
         public ParametrizedCode GetParametrizedJsExpression(DotvvmBindableObject control, bool unwrapped = false) =>
             ProcessValueBinding(control,
-                value => new ParametrizedCode(JsonConvert.SerializeObject(value, DefaultSerializerSettingsProvider.Instance.Settings), OperatorPrecedence.Max),
+                value => new ParametrizedCode(JsonSerializer.Serialize(value, DefaultSerializerSettingsProvider.Instance.Settings), OperatorPrecedence.Max),
                 binding => binding.GetParametrizedKnockoutExpression(control, unwrapped)
             );
 
         /// <summary> Returns a Javascript (knockout) expression representing this value or this binding. The parameters are set to defaults, so knockout context is $context, view model is $data and both are available as global. </summary>
         public string GetJsExpression(DotvvmBindableObject control, bool unwrapped = false) =>
             ProcessValueBinding(control,
-                value => JsonConvert.SerializeObject(value, DefaultSerializerSettingsProvider.Instance.Settings),
+                value => JsonSerializer.Serialize(value, DefaultSerializerSettingsProvider.Instance.Settings),
                 binding => binding.GetKnockoutBindingExpression(control, unwrapped)
             );
 

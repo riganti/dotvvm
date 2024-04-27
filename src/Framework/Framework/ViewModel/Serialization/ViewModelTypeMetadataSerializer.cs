@@ -3,14 +3,15 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
 using FastExpressionCompiler;
-using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -21,7 +22,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly bool debug;
         private readonly bool serializeValidationRules;
         private readonly ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies> cachedObjectMetadata = new ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies>();
-        private readonly ConcurrentDictionary<Type, JObject> cachedEnumMetadata = new ConcurrentDictionary<Type, JObject>();
+        private readonly ConcurrentDictionary<Type, byte[]> cachedEnumMetadata = new();
 
         public ViewModelTypeMetadataSerializer(IViewModelSerializationMapper viewModelSerializationMapper, DotvvmConfiguration? config = null)
         {
@@ -32,39 +33,42 @@ namespace DotVVM.Framework.ViewModel.Serialization
             HotReloadMetadataUpdateHandler.TypeMetadataSerializer.Add(new(this));
         }
 
-        public JObject SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, ISet<string>? ignoredTypes = null)
+        public void SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, Utf8JsonWriter json, ReadOnlySpan<byte> propertyName, ISet<string>? ignoredTypes = null)
         {
             var dependentEnumTypes = new HashSet<Type>();
-            var resultJson = new JObject();
 
             // serialize object types
             var queue = new Queue<ViewModelSerializationMap>();
             var visitedTypes = new HashSet<Type>();
             foreach (var map in usedSerializationMaps)
             {
-                queue.Enqueue(map);
                 visitedTypes.Add(map.Type);
+                if (ignoredTypes?.Contains(map.ClientTypeId) != true)
+                    queue.Enqueue(map);
             }
+            if (queue.Count == 0)
+                return;
+
+            json.WriteStartObject(propertyName);
 
             while (queue.Count > 0)
             {
                 var map = queue.Dequeue();
-                var typeId = GetComplexTypeName(map.Type);
+                var typeId = map.ClientTypeId;
 
-                if (ignoredTypes?.Contains(typeId) != true)
+                json.WritePropertyName(typeId);
+                var metadata = GetObjectTypeMetadataCached(map);
+                json.WriteRawValue(metadata.MetadataJson, skipInputValidation: true);
+
+                dependentEnumTypes.UnionWith(metadata.DependentEnumTypes);
+
+                foreach (var dependentType in metadata.DependentObjectTypes)
                 {
-                    var metadata = GetObjectTypeMetadataCopy(map);
-                    resultJson[typeId] = metadata.Metadata;
-
-                    dependentEnumTypes.UnionWith(metadata.DependentEnumTypes);
-
-                    foreach (var dependentType in metadata.DependentObjectTypes)
+                    if (!visitedTypes.Contains(dependentType))
                     {
-                        if (!visitedTypes.Contains(dependentType))
-                        {
-                            visitedTypes.Add(dependentType);
+                        visitedTypes.Add(dependentType);
+                        if (ignoredTypes?.Contains(map.ClientTypeId) != true)
                             queue.Enqueue(viewModelSerializationMapper.GetMap(dependentType));
-                        }
                     }
                 }
             }
@@ -75,24 +79,22 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var typeId = GetEnumTypeName(type);
                 if (ignoredTypes?.Contains(typeId) != true)
                 {
-                    resultJson[typeId] = GetEnumTypeMetadataCopy(type);
+                    json.WritePropertyName(typeId);
+                    json.WriteRawValue(GetEnumTypeMetadataCached(type), skipInputValidation: true);
                 }
             }
-
-            return resultJson;
+            json.WriteEndObject();
         }
 
-        private JObject GetEnumTypeMetadataCopy(Type type)
+        private byte[] GetEnumTypeMetadataCached(Type type)
         {
-            var metadata = cachedEnumMetadata.GetOrAdd(type, BuildEnumTypeMetadata);
-            return (JObject)metadata.DeepClone();
+            return cachedEnumMetadata.GetOrAdd(type, BuildEnumTypeMetadata);
         }
 
-        private ObjectMetadataWithDependencies GetObjectTypeMetadataCopy(ViewModelSerializationMap map)
+        private ObjectMetadataWithDependencies GetObjectTypeMetadataCached(ViewModelSerializationMap map)
         {
             var key = new ViewModelSerializationMapWithCulture(map, CultureInfo.CurrentUICulture.Name);
-            var obj = cachedObjectMetadata.GetOrAdd(key, _ => BuildObjectTypeMetadata(map));
-            return new ObjectMetadataWithDependencies((JObject)obj.Metadata.DeepClone(), obj.DependentObjectTypes, obj.DependentEnumTypes);
+            return cachedObjectMetadata.GetOrAdd(key, _ => BuildObjectTypeMetadata(map));
         }
 
         private ObjectMetadataWithDependencies BuildObjectTypeMetadata(ViewModelSerializationMap map)
@@ -100,133 +102,154 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var dependentEnumTypes = new HashSet<Type>();
             var dependentObjectTypes = new HashSet<Type>();
 
-            var type = new JObject();
-            type["type"] = "object";
+            var buffer = new MemoryStream();
+            var json = new Utf8JsonWriter(buffer, new JsonWriterOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+            json.WriteStartObject();
+            json.WriteString("type"u8, "object"u8);
             if (debug)
             {
-                type["debugName"] = map.Type.ToCode(stripNamespace: true);
+                json.WriteString("debugName"u8, map.Type.ToCode(stripNamespace: true));
             }
 
-            var properties = new JObject();
+            json.WriteStartObject("properties"u8);
             foreach (var property in map.Properties.Where(p => p.IsAvailableOnClient()))
             {
-                var prop = new JObject();
+                json.WriteStartObject(property.Name);
 
-                prop["type"] = GetTypeIdentifier(property.Type, dependentObjectTypes, dependentEnumTypes);
+                json.WritePropertyName("type"u8);
+                WriteTypeIdentifier(json, property.Type, dependentObjectTypes, dependentEnumTypes);
 
                 if (debug && property.Name != property.PropertyInfo.Name)
                 {
-                    prop["debugName"] = property.PropertyInfo.Name;
+                    json.WriteString("debugName"u8, property.PropertyInfo.Name);
                 }
 
                 if (property.TransferToServerOnlyInPath)
                 {
-                    prop["post"] = "pathOnly";
+                    json.WriteString("post"u8, "pathOnly"u8);
                 }
-                if (!property.TransferToServer)
+                else if (!property.TransferToServer)
                 {
-                    prop["post"] = "no";
+                    json.WriteString("post"u8, "no"u8);
                 }
 
                 if (!property.TransferAfterPostback)
                 {
-                    prop["update"] = "no";
+                    json.WriteString("update"u8, "no"u8);
                 }
 
                 if (serializeValidationRules && property.ValidationRules.Any() && property.ClientValidationRules.Any())
                 {
-                    prop["validationRules"] = JToken.FromObject(property.ClientValidationRules);
+                    json.WritePropertyName("validationRules"u8);
+                    JsonSerializer.Serialize(json, property.ClientValidationRules, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
                 }
 
                 if (property.ClientExtenders.Any())
                 {
-                    prop["clientExtenders"] = JToken.FromObject(property.ClientExtenders);
+                    json.WritePropertyName("clientExtenders"u8);
+                    JsonSerializer.Serialize(json, property.ClientExtenders, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
                 }
 
-                properties[property.Name] = prop;
+                json.WriteEndObject();
             }
 
-            type["properties"] = properties;
+            json.WriteEndObject();
+            json.WriteEndObject();
+            json.Dispose();
 
-            return new ObjectMetadataWithDependencies(type, dependentObjectTypes, dependentEnumTypes);
+            return new ObjectMetadataWithDependencies(buffer.ToArray(), dependentObjectTypes, dependentEnumTypes);
         }
 
-        internal JToken GetTypeIdentifier(Type type, HashSet<Type> dependentObjectTypes, HashSet<Type> dependentEnumTypes)
+        internal void WriteTypeIdentifier(Utf8JsonWriter json, Type type, HashSet<Type> dependentObjectTypes, HashSet<Type> dependentEnumTypes)
         {
             if (type.IsEnum)
             {
                 dependentEnumTypes.Add(type);
-                return GetEnumTypeName(type);
+                json.WriteStringValue(GetEnumTypeName(type));
             }
             else if (ReflectionUtils.IsNullable(type))
             {
-                return GetNullableTypeIdentifier(type, dependentObjectTypes, dependentEnumTypes);
+                json.WriteStartObject();
+                json.WriteString("type"u8, "nullable"u8);
+                json.WritePropertyName("inner");
+                WriteTypeIdentifier(json, ReflectionUtils.UnwrapNullableType(type), dependentObjectTypes, dependentEnumTypes);
+
+                json.WriteEndObject();
             }
             else if (ReflectionUtils.IsPrimitiveType(type))        // we intentionally detect this after handling enums and nullable types
             {
                 if (ReflectionUtils.TryGetCustomPrimitiveTypeRegistration(type) is {})
-                {
-                    return GetPrimitiveTypeName(typeof(string));
-                }
-                return GetPrimitiveTypeName(type);
+                    json.WriteStringValue(GetPrimitiveTypeName(typeof(string)));
+                else
+                    json.WriteStringValue(GetPrimitiveTypeName(type));
             }
-            else if (type == typeof(object))
+            else if (type == typeof(object) || ReflectionUtils.IsJsonDom(type))
             {
-                return new JObject(new JProperty("type", "dynamic"));
+                json.WriteStartObject();
+                json.WriteString("type"u8, "dynamic"u8);
+                json.WriteEndObject();
             }
             else if (type.IsGenericType && ReflectionUtils.ImplementsGenericDefinition(type, typeof(IDictionary<,>)))
             {
+                json.WriteStartArray();
                 var attrs = type.GetGenericArguments();
                 var keyValuePair = typeof(KeyValuePair<,>).MakeGenericType(attrs);
-                return new JArray(GetTypeIdentifier(keyValuePair, dependentObjectTypes, dependentEnumTypes));
+                WriteTypeIdentifier(json, keyValuePair, dependentObjectTypes, dependentEnumTypes);
+                json.WriteEndArray();
             }
             else if (ReflectionUtils.IsCollection(type))
             {
-                return new JArray(GetTypeIdentifier(ReflectionUtils.GetEnumerableType(type)!, dependentObjectTypes, dependentEnumTypes));
+                json.WriteStartArray();
+                WriteTypeIdentifier(json, ReflectionUtils.GetEnumerableType(type)!, dependentObjectTypes, dependentEnumTypes);
+                json.WriteEndArray();
             }
             else
             {
                 dependentObjectTypes.Add(type);
-                return GetComplexTypeName(type);
+                json.WriteStringValue(GetComplexTypeName(type));
             }
         }
 
-        private JToken GetNullableTypeIdentifier(Type type, HashSet<Type> dependentObjectTypes, HashSet<Type> dependentEnumTypes)
+        private byte[] BuildEnumTypeMetadata(Type type)
         {
-            var n = new JObject();
-            n["type"] = "nullable";
-            n["inner"] = GetTypeIdentifier(ReflectionUtils.UnwrapNullableType(type), dependentObjectTypes, dependentEnumTypes);
-            return n;
-        }
-
-        private JObject BuildEnumTypeMetadata(Type type)
-        {
-            var e = new JObject();
-            e["type"] = "enum";
-            e["isFlags"] = ReflectionUtils.GetCustomAttribute<FlagsAttribute>(type) != null;
+            var buffer = new MemoryStream();
+            var json = new Utf8JsonWriter(buffer, new JsonWriterOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+            json.WriteStartObject();
+            json.WriteString("type"u8, "enum"u8);
+            if (type.IsDefined(typeof(FlagsAttribute)))
+            {
+                json.WriteBoolean("isFlags"u8, true);
+            }
 
             if (debug)
             {
-                e["debugName"] = type.ToCode(stripNamespace: true);
+                json.WriteString("debugName"u8, type.ToCode(stripNamespace: true));
             }
 
             // order of enum values is important on the client (for Flags enum coercion)
+            // Enum.GetNames and Enum.GetValues return the enums in ascending order (in unsigned value)
             var underlyingType = Enum.GetUnderlyingType(type);
             var enumValues = Enum.GetNames(type)
-                .Select(name => new {
+                .Zip(
+                    Enum.GetValues(type).Cast<object>().Select(c => Convert.ChangeType(c, underlyingType)),
+                    (name, value) => new {
                     Name = name,
-                    Value = ReflectionUtils.ConvertValue(Enum.Parse(type, name), underlyingType)
-                })
-                .OrderBy(v => v.Value);
+                    Value = unchecked((long)(dynamic)value)
+                });
 
-            var values = new JObject();
+            json.WriteStartObject("values"u8);
             foreach (var v in enumValues)
             {
-                values.Add(ReflectionUtils.ToEnumString(type, v.Name), v.Value is null ? JValue.CreateNull() : JToken.FromObject(v.Value));
+                json.WriteNumber(
+                    ReflectionUtils.ToEnumString(type, v.Name),
+                    v.Value
+                );
             }
-            e["values"] = values;
+            json.WriteEndObject();
+            json.WriteEndObject();
+            json.Dispose();
 
-            return e;
+            return buffer.ToArray();
         }
 
         private string GetComplexTypeName(Type type) => type.GetTypeHash();
@@ -238,15 +261,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         readonly struct ObjectMetadataWithDependencies
         {
-            public JObject Metadata { get; }
+            public byte[] MetadataJson { get; }
 
             public HashSet<Type> DependentObjectTypes { get; }
 
             public HashSet<Type> DependentEnumTypes { get; }
 
-            public ObjectMetadataWithDependencies(JObject metadata, HashSet<Type> dependentObjectTypes, HashSet<Type> dependentEnumTypes)
+            public ObjectMetadataWithDependencies(byte[] metadataJson, HashSet<Type> dependentObjectTypes, HashSet<Type> dependentEnumTypes)
             {
-                Metadata = metadata;
+                MetadataJson = metadataJson;
                 DependentObjectTypes = dependentObjectTypes;
                 DependentEnumTypes = dependentEnumTypes;
             }

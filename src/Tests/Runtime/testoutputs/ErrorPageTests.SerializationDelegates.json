@@ -1,0 +1,5 @@
+{
+	"func": "[delegate System.Func<int>]",
+	"funcObj": "[delegate System.Func<int>]",
+	"dynamicMethod": "[delegate System.Func<int>]"
+}

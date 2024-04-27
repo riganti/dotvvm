@@ -184,14 +184,14 @@ namespace DotVVM.Framework.Controls
             {
                 var itemTemplateId = context.ResourceManager.AddTemplateResource(context, clientSideTemplate!);
 
-                value.AddValue("name", itemTemplateId);
+                value.Add("name", KnockoutHelper.MakeStringLiteral(itemTemplateId, htmlSafe: false));
             }
 
             if (clientSeparator != null)
             {
                 // separator has to be always rendered as a named template
                 var separatorTemplateId = context.ResourceManager.AddTemplateResource(context, clientSeparator);
-                value.AddValue("separatorTemplate", separatorTemplateId);
+                value.Add("separatorTemplate", KnockoutHelper.MakeStringLiteral(separatorTemplateId, htmlSafe: false));
             }
 
             return (
