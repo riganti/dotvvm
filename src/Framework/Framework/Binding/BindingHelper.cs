@@ -20,6 +20,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Runtime;
 using FastExpressionCompiler;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace DotVVM.Framework.Binding
 {
@@ -242,6 +243,8 @@ namespace DotVVM.Framework.Binding
             if (action is Func<Task> command2) return command2();
 
             var parameters = action.GetType().GetMethod("Invoke")!.GetParameters();
+            if (parameters.Length != args.Length)
+                throw new TargetParameterCountException($"Parameter count mismatch: received {args.Length}, but expected {parameters.Length} ({parameters.Select(p => p.ParameterType.ToCode()).StringJoin(", ")})");
             var evaluatedArgs = args.Zip(parameters, (a, p) => a(p.ParameterType)).ToArray();
             return action.DynamicInvoke(evaluatedArgs);
         }

@@ -4,7 +4,7 @@
     /// Represents settings for row (item) insert feature.
     /// </summary>
     /// <typeparam name="T">The type of inserted row.</typeparam>
-    public class RowInsertOptions<T> : IRowInsertOptions
+    public class RowInsertOptions<T> : IRowInsertOptions, ISingleRowInsertOptions<T>
         where T : class, new()
     {
         /// <summary>

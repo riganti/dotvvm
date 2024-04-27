@@ -6,4 +6,14 @@
     public interface IRowInsertOptions
     {
     }
+
+
+    /// <summary>
+    /// <see cref="IRowInsertOptions" /> which may contain one inserted row.
+    /// </summary>
+    public interface ISingleRowInsertOptions<out T>: IRowInsertOptions
+        where T: class
+    {
+        T? InsertedRow { get; }
+    }
 }
