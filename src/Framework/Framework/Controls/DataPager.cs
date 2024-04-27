@@ -176,6 +176,7 @@ namespace DotVVM.Framework.Controls
                 var disabled = new ValueOrBinding<bool>(pagerBindings.IsFirstPage.NotNull());
                 GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, globalEnabled.And(disabled.Negate()), pagerBindings.GoToFirstPage!, context);
                 GoToFirstPageButton.CssClasses.Add(DisabledItemCssClass, disabled);
+                AddItemCssClass(GoToFirstPageButton, context);
                 ContentWrapper.Children.Add(GoToFirstPageButton);
             }
 
@@ -184,6 +185,7 @@ namespace DotVVM.Framework.Controls
                 var disabled = new ValueOrBinding<bool>(pagerBindings.IsFirstPage.NotNull());
                 GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate, globalEnabled.And(disabled.Negate()), pagerBindings.GoToPreviousPage!, context);
                 GoToPreviousPageButton.CssClasses.Add(DisabledItemCssClass, disabled);
+                AddItemCssClass(GoToPreviousPageButton, context);
                 ContentWrapper.Children.Add(GoToPreviousPageButton);
             }
 
@@ -205,6 +207,7 @@ namespace DotVVM.Framework.Controls
                     link.SetBinding(DotvvmControl.IncludeInPageProperty, pagerBindings.IsActivePage.Negate());
                     liTemplate.Children.Add(notLink);
                 }
+                AddItemCssClass(liTemplate, context);
                 NumberButtonsRepeater = new Repeater() {
                     DataSource = pagerBindings.PageNumbers,
                     RenderWrapperTag = false,
@@ -219,6 +222,7 @@ namespace DotVVM.Framework.Controls
                 var disabled = new ValueOrBinding<bool>(pagerBindings.IsLastPage.NotNull());
                 GoToNextPageButton = CreateNavigationButton("»", NextPageTemplate, globalEnabled.And(disabled.Negate()), pagerBindings.GoToNextPage!, context);
                 GoToNextPageButton.CssClasses.Add(DisabledItemCssClass, disabled);
+                AddItemCssClass(GoToNextPageButton, context);
                 ContentWrapper.Children.Add(GoToNextPageButton);
             }
 
@@ -227,6 +231,7 @@ namespace DotVVM.Framework.Controls
                 var disabled = new ValueOrBinding<bool>(pagerBindings.IsLastPage.NotNull());
                 GoToLastPageButton = CreateNavigationButton("»»", LastPageTemplate, globalEnabled.And(disabled.Negate()), pagerBindings.GoToLastPage!, context);
                 GoToLastPageButton.CssClasses.Add(DisabledItemCssClass, disabled);
+                AddItemCssClass(GoToLastPageButton, context);
                 ContentWrapper.Children.Add(GoToLastPageButton);
             }
         }
@@ -268,6 +273,10 @@ namespace DotVVM.Framework.Controls
             {
                 button.Text = text;
             }
+        }
+
+        protected virtual void AddItemCssClass(HtmlGenericControl item, IDotvvmRequestContext context)
+        {
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
