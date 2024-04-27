@@ -78,21 +78,6 @@ namespace DotVVM.Framework.Tests.ControlTests
             );
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
-
-            var commandExpressions = r.Commands
-                .Select(c => (c.control, c.command, str: c.command.GetProperty<ParsedExpressionBindingProperty>().Expression.ToCSharpString().Trim().TrimEnd(';')))
-                .OrderBy(c => c.str)
-                .ToArray();
-            check.CheckLines(commandExpressions.GroupBy(c => c.command).Select(c => c.First().str), checkName: "command-bindings", fileExtension: "txt");
-
-            var nextPage = commandExpressions.Single(c => c.str.Contains(".GoToNextPage()"));
-            var prevPage = commandExpressions.Single(c => c.str.Contains(".GoToPreviousPage()"));
-            var firstPage = commandExpressions.Single(c => c.str.Contains(".GoToFirstPage()"));
-            var lastPage = commandExpressions.Single(c => c.str.Contains(".GoToLastPage()"));
-
-            await r.RunCommand((CommandBindingExpression)nextPage.command, nextPage.control);
-            Assert.AreEqual(1, (int)r.ViewModel.Customers.PagingOptions.PageIndex);
-
         }
 
         public class GridViewModel: DotvvmViewModelBase

@@ -378,6 +378,19 @@
         "required": true,
         "onlyBindings": true
       },
+      "LoadingTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute, DotVVM.Framework",
+            "Name": "_dataPager",
+            "NestDataContext": false,
+            "TypeId": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "mappingMode": "InnerElement",
+        "onlyHardcoded": true
+      },
       "LoadTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "dataContextChange": [

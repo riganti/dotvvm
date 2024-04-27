@@ -1,25 +1,25 @@
 <html>
 	<head></head>
 	<body>
-		<div data-bind="dotvvm-gridviewdataset: {
+		<div data-bind="dotvvm-appendable-data-pager: {
 dataSet: Customers(),
 loadNextPage: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => {
 	let cx = $context;
 	return await dotvvm.dataSet.loadDataSet(options.viewModel.Customers, (options) => dotvvm.dataSet.translations.PagingOptions.goToNextPage(ko.unwrap(options).PagingOptions), ((...args)=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkNvbnRyb2xUZXN0cy5EYXRhUGFnZXJUZXN0cytHcmlkVmlld01vZGVsLCBEb3RWVk0uRnJhbWV3b3JrLlRlc3RzIiwiTG9hZEN1c3RvbWVycyIsW10sMSxudWxsLCJBQT09Il0=&quot;, [args[0]], options),$element,[],args,$context))), dotvvm.dataSet.postProcessors.append);
 },$element,[],args,$context)),
-postProcessor: dotvvm.dataSet.postProcessors.append
+autoLoadWhenInViewport: false
 }">
-			
+			<!-- ko if: $appendableDataPager.canLoadNextPage -->         
 			<!-- ko with: 1 -->
 			<div>
 				<input onclick="dotvvm.applyPostbackHandlers(async (options) => {
-	await options.knockoutContext.$parentContext.$gridViewDataSetHelper.loadNextPage();
+	await options.knockoutContext.$parentContext.$appendableDataPager.loadNextPage();
 },this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Load more">
 			</div>
+			<!-- /ko -->     
 			<!-- /ko -->
-			<div data-bind="visible: Customers()?.PagingOptions()?.IsLastPage" style="display:none">
-				end
-			</div>
+			<!-- ko if: Customers()?.PagingOptions()?.IsLastPage --> end 
+			<!-- /ko -->
 		</div>
 	</body>
 </html>
