@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 
@@ -13,13 +14,27 @@ namespace DotVVM.Framework.Binding.HelperNamespace
     {
         public void Load() => throw new NotSupportedException("The _dataPager.Load method is not supported on the server, please use a staticCommand to invoke it.");
 
+        public bool IsLoading => false;
 
+        public bool CanLoadNextPage => true;
 
 
         public class DataPagerExtensionParameter : BindingExtensionParameter
         {
             public DataPagerExtensionParameter(string identifier, bool inherit = true) : base(identifier, ResolvedTypeDescriptor.Create(typeof(DataPagerApi)), inherit)
             {
+            }
+
+            internal static void Register(JavascriptTranslatableMethodCollection collection)
+            {
+                collection.AddMethodTranslator(() => default(DataPagerApi)!.Load(), new GenericMethodCompiler(args =>
+                    args[0].Member("$appendableDataPager").Member("loadNextPage").Invoke().WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
+
+                collection.AddPropertyGetterTranslator(typeof(DataPagerApi), nameof(IsLoading), new GenericMethodCompiler(args =>
+                    args[0].Member("$appendableDataPager").Member("isLoading").WithAnnotation(ResultIsObservableAnnotation.Instance)));
+
+                collection.AddPropertyGetterTranslator(typeof(DataPagerApi), nameof(CanLoadNextPage), new GenericMethodCompiler(args =>
+                    args[0].Member("$appendableDataPager").Member("canLoadNextPage").WithAnnotation(ResultIsObservableAnnotation.Instance)));
             }
 
             public override JsExpression GetJsTranslation(JsExpression dataContext) =>

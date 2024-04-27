@@ -846,9 +846,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                 ).WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
 
             // _dataPager.Load()
-            AddMethodTranslator(() => default(DataPagerApi)!.Load(), new GenericMethodCompiler(args =>
-                args[0].Member("$gridViewDataSetHelper").Member("loadNextPage").Invoke().WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
-
+            DataPagerApi.DataPagerExtensionParameter.Register(this);
+            
             // PagingOptions
             AddMethodTranslator(() => default(PagingOptions)!.GoToFirstPage(),new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("dataSet").Member("translations").Member("PagingOptions").Member("goToFirstPage")

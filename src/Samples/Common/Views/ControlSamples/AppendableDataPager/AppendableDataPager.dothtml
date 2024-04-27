@@ -23,6 +23,9 @@
         <LoadTemplate>
             <dot:Button Text="Load more" Click="{staticCommand: _dataPager.Load()}" />
         </LoadTemplate>
+        <LoadingTemplate>
+            Your data are on the way...
+        </LoadingTemplate>
         <EndTemplate>
             You reached to the end of the Earth. Now you shall see the 🐢🐢🐢🐢 and 🐘.
         </EndTemplate>

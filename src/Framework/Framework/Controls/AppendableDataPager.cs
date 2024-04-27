@@ -17,6 +17,7 @@ namespace DotVVM.Framework.Controls
     public class AppendableDataPager : HtmlGenericControl 
     {
         private readonly GridViewDataSetBindingProvider gridViewDataSetBindingProvider;
+        private readonly BindingCompilationService bindingService;
 
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [DataPagerApi.AddParameterDataContextChange("_dataPager")]
@@ -27,6 +28,16 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty LoadTemplateProperty
             = DotvvmProperty.Register<ITemplate, AppendableDataPager>(c => c.LoadTemplate, null);
+
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        [DataPagerApi.AddParameterDataContextChange("_dataPager")]
+        public ITemplate? LoadingTemplate
+        {
+            get { return (ITemplate?)GetValue(LoadingTemplateProperty); }
+            set { SetValue(LoadingTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty LoadingTemplateProperty
+            = DotvvmProperty.Register<ITemplate?, AppendableDataPager>(c => c.LoadingTemplate, null);
 
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate? EndTemplate
@@ -59,9 +70,10 @@ namespace DotVVM.Framework.Controls
         private DataPagerBindings? dataPagerCommands = null;
 
 
-        public AppendableDataPager(GridViewDataSetBindingProvider gridViewDataSetBindingProvider) : base("div")
+        public AppendableDataPager(GridViewDataSetBindingProvider gridViewDataSetBindingProvider, BindingCompilationService bindingService) : base("div")
         {
             this.gridViewDataSetBindingProvider = gridViewDataSetBindingProvider;
+            this.bindingService = bindingService;
         }
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
@@ -72,16 +84,30 @@ namespace DotVVM.Framework.Controls
 
             if (LoadTemplate != null)
             {
-                var container = new PlaceHolder();
-                container.SetDataContextType(LoadTemplateProperty.GetDataContextType(this));
-                LoadTemplate.BuildContent(context, container);
+                var templateDataContext = LoadTemplateProperty.GetDataContextType(this)!;
+                var container = new PlaceHolder()
+                    .SetProperty(p => p.IncludeInPage, bindingService.Cache.CreateValueBinding("_dataPager.CanLoadNextPage", templateDataContext));
+                container.SetDataContextType(templateDataContext);
                 Children.Add(container);
+
+                LoadTemplate.BuildContent(context, container);
+            }
+
+            if (LoadingTemplate != null)
+            {
+                var templateDataContext = LoadingTemplateProperty.GetDataContextType(this)!;
+                var container = new PlaceHolder()
+                    .SetProperty(p => p.IncludeInPage, bindingService.Cache.CreateValueBinding("_dataPager.IsLoading", templateDataContext));
+                container.SetDataContextType(templateDataContext);
+                Children.Add(container);
+
+                LoadingTemplate.BuildContent(context, container);
             }
 
             if (EndTemplate != null)
             {
-                var container = new HtmlGenericControl("div")
-                    .SetProperty(p => p.Visible, dataPagerCommands.IsLastPage);
+                var container = new PlaceHolder()
+                    .SetProperty(p => p.IncludeInPage, dataPagerCommands.IsLastPage);
                 Children.Add(container);
 
                 EndTemplate.BuildContent(context, container);
@@ -101,24 +127,12 @@ namespace DotVVM.Framework.Controls
                     default
             });
             
-            if (LoadTemplate is null)
-            {
-                var binding = new KnockoutBindingGroup();
-                binding.Add("dataSet", dataSetBinding);
-                binding.Add("loadNextPage", loadNextPage);
-                binding.Add("autoLoadWhenInViewport", "true");
-                writer.AddKnockoutDataBind("dotvvm-appendable-data-pager", binding);
-            }
-            else
-            {
-                var helperBinding = new KnockoutBindingGroup();
-                helperBinding.Add("dataSet", dataSetBinding);
-                // helperBinding.Add("loadDataSet", KnockoutHelper.GenerateClientPostbackLambda("LoadDataCore", loadData, this, PostbackScriptOptions.KnockoutBinding);
-                helperBinding.Add("loadNextPage", loadNextPage);
-                helperBinding.Add("postProcessor", "dotvvm.dataSet.postProcessors.append");
-                writer.AddKnockoutDataBind("dotvvm-gridviewdataset", helperBinding.ToString());
-            }
-
+            var binding = new KnockoutBindingGroup();
+            binding.Add("dataSet", dataSetBinding);
+            binding.Add("loadNextPage", loadNextPage);
+            binding.Add("autoLoadWhenInViewport", LoadTemplate is null ? "true" : "false");
+            writer.AddKnockoutDataBind("dotvvm-appendable-data-pager", binding);
+            
             base.AddAttributesToRender(writer, context);
         }
 

@@ -8,39 +8,58 @@ type AppendableDataPagerBinding = {
 
 export default {
     'dotvvm-appendable-data-pager': {
-        init: (element: HTMLInputElement, valueAccessor: () => AppendableDataPagerBinding, allBindingsAccessor: KnockoutAllBindingsAccessor) => {
+        init: (element: HTMLInputElement, valueAccessor: () => AppendableDataPagerBinding, allBindings?: any, viewModel?: any, bindingContext?: KnockoutBindingContext) => {
             const binding = valueAccessor();
+
+            const isLoading = ko.observable(false);
+            const canLoadNextPage = ko.computed(() => !isLoading() && valueAccessor().dataSet?.PagingOptions()?.IsLastPage() === false);
+
+            // prepare the context with $appendableDataPager object
+            const state = {
+                loadNextPage: async () => {
+                    try {
+                        isLoading(true);
+
+                        await binding.loadNextPage();
+                    }
+                    finally {
+                        isLoading(false);
+                    }
+                },
+                canLoadNextPage,
+                isLoading: ko.computed(() => isLoading())
+            };
+
+            // set up intersection observer
             if (binding.autoLoadWhenInViewport) {
-                let isLoading = false;
 
                 // track the scroll position and load the next page when the element is in the viewport
                 const observer = new IntersectionObserver(async (entries) => {
-                    if (isLoading) return;
-
                     let entry = entries[0];
-                    while (entry?.isIntersecting) {
-                        const dataSet = valueAccessor().dataSet;
-                        if (dataSet.PagingOptions().IsLastPage()) {
-                            return;
-                        }
+                    if (entry?.isIntersecting) {
+                        if (!canLoadNextPage()) return;
 
-                        isLoading = true;
-                        try {
-                            await binding.loadNextPage();
+                        // load the next page
+                        await state.loadNextPage();
 
-                            // getStateManager().doUpdateNow();
-
-                            // when the loading was finished, check whether we need to load another page
-                            entry = observer.takeRecords()[0];
-                        }
-                        finally {
-                            isLoading = false;
-                        }
+                        // when the loading was finished, check whether we need to load another page
+                        await new Promise(r => window.setTimeout(r, 500));
+                        observer.unobserve(element);
+                        observer.observe(element);
                     }
+                }, {
+                    rootMargin: "20px"
                 });
                 observer.observe(element);
                 ko.utils.domNodeDisposal.addDisposeCallback(element, () => observer.disconnect());
             }
+
+            // extend the context
+            const innerBindingContext = bindingContext!.extend({
+                $appendableDataPager: state
+            });
+            ko.applyBindingsToDescendants(innerBindingContext, element);
+            return { controlsDescendantBindings: true }; // do not apply binding again
         }
     }
 }

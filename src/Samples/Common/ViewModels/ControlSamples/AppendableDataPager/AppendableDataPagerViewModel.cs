@@ -48,6 +48,7 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.AppendableDataPager
         [AllowStaticCommand]
         public static async Task<GridViewDataSet<CustomerData>> LoadNextPage(GridViewDataSetOptions options)
         {
+            await Task.Delay(2000);
             var dataSet = new GridViewDataSet<CustomerData>();
             dataSet.ApplyOptions(options);
             dataSet.LoadFromQueryable(GetData());
