@@ -6,7 +6,7 @@ using DotVVM.Framework.ViewModel;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Represents settings for paging.
+    /// Represents settings for offset-based paging using <see cref="PageIndex" /> and <see cref="PageSize" />.
     /// </summary>
     public class PagingOptions : IPagingOptions, IPagingFirstPageCapability, IPagingLastPageCapability, IPagingPreviousPageCapability, IPagingNextPageCapability, IPagingPageIndexCapability, IPagingPageSizeCapability, IPagingTotalItemsCountCapability, IApplyToQueryable, IPagingOptionsLoadingPostProcessor
     {
@@ -57,10 +57,13 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public int TotalItemsCount { get; set; }
 
+        /// <summary> Sets PageIndex to zero. </summary>
         public void GoToFirstPage() => PageIndex = 0;
 
+        /// <summary> Sets PageIndex to the last page (PagesCount - 1). </summary>
         public void GoToLastPage() => PageIndex = PagesCount - 1;
 
+        /// <summary> Increments the page counter, if the next page exists. </summary>
         public void GoToNextPage()
         {
             if (PageIndex < PagesCount - 1)
@@ -68,6 +71,7 @@ namespace DotVVM.Framework.Controls
                 PageIndex++;
             }
         }
+        /// <summary> Decrements the page counter, unless PageIndex is already zero. </summary>
         public void GoToPreviousPage()
         {
             if (PageIndex > 0)
@@ -75,7 +79,7 @@ namespace DotVVM.Framework.Controls
                 PageIndex--;
             }
         }
-
+        /// <summary> Sets page index to the <paramref name="pageIndex"/>. If the index overflows, PageIndex is set to the first/last page. </summary>
         public void GoToPage(int pageIndex)
         {
             if (PageIndex >= 0 && PageIndex < PagesCount)

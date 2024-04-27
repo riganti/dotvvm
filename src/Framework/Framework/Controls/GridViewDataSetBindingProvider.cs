@@ -17,6 +17,7 @@ using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Controls;
 
+/// <summary> Creates data bindings for GridView, DataPager and related components. </summary>
 public class GridViewDataSetBindingProvider
 {
     private readonly BindingCompilationService service;

@@ -3,6 +3,9 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Represents a marker interface for sorting options.
     /// </summary>
+    /// <seealso cref="SortingOptions" />
+    /// <seealso cref="MultiCriteriaSortingOptions" />
+    /// <seealso cref="NoSortingOptions" />
     public interface ISortingOptions
     {
     }
@@ -37,7 +40,6 @@ namespace DotVVM.Framework.Controls
         /// Determines whether the column with specified sort expression is sorted in descending order.
         /// </summary>
         bool IsColumnSortedDescending(string? sortExpression);
-
     }
 
     /// <summary>

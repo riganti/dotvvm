@@ -5,10 +5,17 @@ using DotVVM.Framework.Controls.Options;
 
 namespace DotVVM.Framework.Controls;
 
+/// <summary>
+/// Sorting options which supports sorting by multiple columns.
+/// In the default implementation, the sorting is applied in the reverse order of clicks on the columns - i.e. the last clicked column is the primary sort criterion, the previous one is the secondary criterion, etc.
+/// It behaves similarly to the standard <see cref="SortingOptions"/>, except that sorting is "stable".
+/// Maximum number of sort criteria can be set by <see cref="MaxSortCriteriaCount"/>, and is 3 by default.
+/// </summary>
 public class MultiCriteriaSortingOptions : ISortingOptions, ISortingStateCapability, ISortingSetSortExpressionCapability, IApplyToQueryable
 {
     public IList<SortCriterion> Criteria { get; set; } = new List<SortCriterion>();
 
+    /// <summary> Maximum length of the <see cref="Criteria" /> list. When exceeded, the overhanging tail is discarded. </summary>
     public int MaxSortCriteriaCount { get; set; } = 3;
 
     public virtual IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
@@ -20,6 +27,7 @@ public class MultiCriteriaSortingOptions : ISortingOptions, ISortingStateCapabil
         return queryable;
     }
 
+    /// <summary> When overridden in derived class, it can disallow sorting by certain columns. </summary>
     public virtual bool IsSortingAllowed(string sortExpression) => true;
 
     public virtual void SetSortExpression(string? sortExpression)
@@ -57,7 +65,9 @@ public class MultiCriteriaSortingOptions : ISortingOptions, ISortingStateCapabil
         }
     }
 
+    /// <summary> Returns if the specified column is sorted in ascending order in any of the <see cref="Criteria"/> </summary>
     public bool IsColumnSortedAscending(string? sortExpression) => Criteria.Any(c => c.SortExpression == sortExpression && !c.SortDescending);
 
+    /// <summary> Returns if the specified column is sorted in descending order in any of the <see cref="Criteria"/> </summary>
     public bool IsColumnSortedDescending(string? sortExpression) => Criteria.Any(c => c.SortExpression == sortExpression && c.SortDescending);
 }

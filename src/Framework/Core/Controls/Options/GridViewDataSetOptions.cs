@@ -1,5 +1,6 @@
 namespace DotVVM.Framework.Controls
 {
+    /// <summary> Contains filtering, sorting, and paging options of a <see cref="GridViewDataSet{T}" />. </summary>
     public class GridViewDataSetOptions<TFilteringOptions, TSortingOptions, TPagingOptions>
         where TFilteringOptions : IFilteringOptions
         where TSortingOptions : ISortingOptions
@@ -12,6 +13,7 @@ namespace DotVVM.Framework.Controls
         public TPagingOptions PagingOptions { get; set; } = default!;
     }
 
+    /// <summary> Contains filtering, sorting, and paging options of a <see cref="GridViewDataSet{T}" /> </summary>
     public class GridViewDataSetOptions : GridViewDataSetOptions<NoFilteringOptions, SortingOptions, PagingOptions>
     {
     }

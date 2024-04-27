@@ -5,6 +5,9 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Represents a marker interface for GridViewDataSet paging options.
     /// </summary>
+    /// <seealso cref="PagingOptions"/>
+    /// <seealso cref="NextTokenHistoryPagingOptions"/>
+    /// <seealso cref="NextTokenPagingOptions"/>
     public interface IPagingOptions
     {
     }
