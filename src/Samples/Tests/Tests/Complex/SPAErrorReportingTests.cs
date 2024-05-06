@@ -32,7 +32,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                 void SetOfflineMode(bool offline)
                 {
-                    ((ChromeDriver)browser.Driver).NetworkConditions = new ChromiumNetworkConditions() {
+                    ((ChromiumDriver)browser.Driver).NetworkConditions = new ChromiumNetworkConditions() {
                         IsOffline = offline,
                         Latency = TimeSpan.FromMilliseconds(5),
                         DownloadThroughput = 500 * 1024,
