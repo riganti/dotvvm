@@ -449,10 +449,30 @@ test("boolean - valid, converted from number", () => {
     expect(result.value).toEqual(true);
 })
 
-test("boolean - valid, converted from string", () => {
+test("boolean - valid, true converted from string", () => {
     const result = tryCoerce("true", "Boolean");
     expect(result.wasCoerced).toBeTruthy();
     expect(result.value).toEqual(true);
+})
+
+test("boolean - valid, false converted from string", () => {
+    const result = tryCoerce("false", "Boolean");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual(false);
+})
+test("boolean - valid, False converted from string", () => {
+    const result = tryCoerce("False", "Boolean");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual(false);
+})
+
+test("boolean - invalid, invalid string", () => {
+    const result = tryCoerce("", "Boolean");
+    expect(result.isError).toBeTruthy();
+})
+test("boolean - invalid, invalid string", () => {
+    const result = tryCoerce("bazmek", "Boolean");
+    expect(result.isError).toBeTruthy();
 })
 
 test("boolean - invalid, null", () => {

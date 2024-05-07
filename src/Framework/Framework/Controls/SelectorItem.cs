@@ -51,7 +51,16 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddAttribute("value", Value + "");
+            var value = this.GetValueOrBinding<object>(ValueProperty).EvaluateResourceBinding(this);
+            if (value.ValueOrDefault is string s)
+            {
+                writer.AddAttribute("value", s);
+            }
+            else
+            {
+                // anything else than string is better to pass as knockout value binding to avoid issues with `false != 'false'`, ...
+                writer.AddKnockoutDataBind("value", value.GetJsExpression(this));
+            }
             base.AddAttributesToRender(writer, context);
         }
 

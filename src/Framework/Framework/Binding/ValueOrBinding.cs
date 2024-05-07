@@ -160,6 +160,15 @@ namespace DotVVM.Framework.Binding
                 return processValue(this.Evaluate(control)!);
         }
 
+        /// <summary> If this contains a `resource` binding, it is evaluated and its value placed in <see cref="Value" /> property. `value`, and all other bindings are untouched and remain in the <see cref="Binding"/> property. </summary>
+        public ValueOrBinding<T?> EvaluateResourceBinding(DotvvmBindableObject control)
+        {
+            if (binding is null or IValueBinding or not IStaticValueBinding) return this;
+
+            var value = this.Evaluate(control);
+            return new ValueOrBinding<T?>(value);
+        }
+
         public static explicit operator ValueOrBinding<T>(T val) => new ValueOrBinding<T>(val);
 
         public const string EqualsDisabledReason = "Equals is disabled on ValueOrBinding<T> as it may lead to unexpected behavior. Please use object.ReferenceEquals for reference comparison or evaluate the ValueOrBinding<T> and compare the value. Or use IsNull/NotNull for nullchecks on bindings.";
