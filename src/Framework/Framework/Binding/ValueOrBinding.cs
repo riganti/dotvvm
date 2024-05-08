@@ -160,7 +160,7 @@ namespace DotVVM.Framework.Binding
                 return processValue(this.Evaluate(control)!);
         }
 
-        /// <summary> If this contains a `resource` binding, it is evaluated and its value placed in <see cref="Value" /> property. `value`, and all other bindings are untouched and remain in the <see cref="Binding"/> property. </summary>
+        /// <summary> If this contains a `resource` binding, it is evaluated and its value placed in <see cref="ValueOrDefault" /> property. `value`, and all other bindings are untouched and remain in the <see cref="BindingOrDefault"/> property. </summary>
         public ValueOrBinding<T?> EvaluateResourceBinding(DotvvmBindableObject control)
         {
             if (binding is null or IValueBinding or not IStaticValueBinding) return this;
