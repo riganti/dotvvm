@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Routing
                 });
         }
 
-        private string GetRelativePathBetween(string from, string to)
+        internal static string GetRelativePathBetween(string from, string to)
         {
             var fromPath = from.Replace('\\', '/');
             var toPath = to.Replace('\\', '/');

@@ -4,12 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Routing;
 
 namespace DotVVM.Framework.Configuration
 {
 	public class DefaultControlRegistrationStrategy : IControlRegistrationStrategy
 	{
-		private DotvvmConfiguration configuration;
+		readonly DotvvmConfiguration configuration;
 		readonly string controlPrefix;
 		readonly string controlsDirectory;
 		readonly string filesFilter;
@@ -31,6 +32,10 @@ namespace DotVVM.Framework.Configuration
 
 		public IEnumerable<DotvvmControlConfiguration> GetControls()
 			=> ListFiles()
-			.Select(f => new DotvvmControlConfiguration { Src = f, TagPrefix = GetControlPrefix(f), TagName = GetControlName(f) });
+			.Select(f => new DotvvmControlConfiguration {
+				Src = DefaultRouteStrategy.GetRelativePathBetween(configuration.ApplicationPhysicalPath, f),
+				TagPrefix = GetControlPrefix(f),
+				TagName = GetControlName(f)
+			});
 	}
 }
