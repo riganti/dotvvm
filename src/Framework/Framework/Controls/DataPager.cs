@@ -192,22 +192,9 @@ namespace DotVVM.Framework.Controls
             if (pagerBindings.PageNumbers is {})
             {
                 // number fields
-                var liTemplate = new HtmlGenericControl("li");
-                liTemplate.CssClasses.Add(ActiveItemCssClass, new ValueOrBinding<bool>(pagerBindings.IsActivePage.NotNull()));
-                var link = new LinkButton();
-                link.SetBinding(ButtonBase.ClickProperty, pagerBindings.GoToPage.NotNull());
-                link.SetBinding(ButtonBase.TextProperty, pagerBindings.PageNumberText.NotNull());
-                if (!true.Equals(globalEnabled)) link.SetValue(LinkButton.EnabledProperty, globalEnabled);
-                liTemplate.Children.Add(link);
-                if (!this.RenderLinkForCurrentPage)
-                {
-                    var notLink = new Literal(pagerBindings.PageNumberText);
-                    notLink.RenderSpanElement = true;
-                    notLink.SetBinding(DotvvmControl.IncludeInPageProperty, pagerBindings.IsActivePage);
-                    link.SetBinding(DotvvmControl.IncludeInPageProperty, pagerBindings.IsActivePage.Negate());
-                    liTemplate.Children.Add(notLink);
-                }
+                var liTemplate = CreatePageNumberButton(globalEnabled, pagerBindings, context);
                 AddItemCssClass(liTemplate, context);
+
                 NumberButtonsRepeater = new Repeater() {
                     DataSource = pagerBindings.PageNumbers,
                     RenderWrapperTag = false,
@@ -251,19 +238,40 @@ namespace DotVVM.Framework.Controls
             return list;
         }
 
+        protected virtual HtmlGenericControl CreatePageNumberButton(ValueOrBinding<bool> globalEnabled, DataPagerBindings pagerBindings, IDotvvmRequestContext context)
+        {
+            var liTemplate = new HtmlGenericControl("li");
+            liTemplate.CssClasses.Add(ActiveItemCssClass, new ValueOrBinding<bool>(pagerBindings.NotNull().IsActivePage.NotNull()));
+            var link = new LinkButton();
+            link.SetBinding(ButtonBase.ClickProperty, pagerBindings.NotNull().GoToPage.NotNull());
+            SetPageNumberButtonContent(link, pagerBindings, context);
+            if (!RenderLinkForCurrentPage) link.SetBinding(IncludeInPageProperty, pagerBindings.IsActivePage.NotNull().Negate());
+            if (!true.Equals(globalEnabled)) link.SetValue(ButtonBase.EnabledProperty, globalEnabled);
+            liTemplate.Children.Add(link);
+
+            if (!RenderLinkForCurrentPage)
+            {
+                var notLink = new Literal();
+                SetPageNumberSpanContent(notLink, pagerBindings, context);
+                notLink.RenderSpanElement = true;
+                notLink.SetBinding(IncludeInPageProperty, pagerBindings.IsActivePage);
+                liTemplate.Children.Add(notLink);
+            }
+            return liTemplate;
+        }
+
         protected virtual HtmlGenericControl CreateNavigationButton(string defaultText, ITemplate? userDefinedContentTemplate, object enabledValue, ICommandBinding clickCommandBindingExpression,IDotvvmRequestContext context)
         {
             var li = new HtmlGenericControl("li");
             var link = new LinkButton();
-            SetButtonContent(context, link, defaultText, userDefinedContentTemplate);
+            SetNavigationButtonContent(context, link, defaultText, userDefinedContentTemplate);
             link.SetBinding(ButtonBase.ClickProperty, clickCommandBindingExpression);
-            if (!true.Equals(enabledValue))
-                link.SetValue(LinkButton.EnabledProperty, enabledValue);
+            if (!true.Equals(enabledValue)) link.SetValue(ButtonBase.EnabledProperty, enabledValue);
             li.Children.Add(link);
             return li;
         }
 
-        protected virtual void SetButtonContent(Hosting.IDotvvmRequestContext context, LinkButton button, string text, ITemplate? contentTemplate)
+        protected virtual void SetNavigationButtonContent(IDotvvmRequestContext context, LinkButton button, string text, ITemplate? contentTemplate)
         {
             if (contentTemplate != null)
             {
@@ -273,6 +281,16 @@ namespace DotVVM.Framework.Controls
             {
                 button.Text = text;
             }
+        }
+
+        protected virtual void SetPageNumberSpanContent(Literal notLink, DataPagerBindings pagerBindings, IDotvvmRequestContext context)
+        {
+            notLink.SetBinding(Literal.TextProperty, pagerBindings.PageNumberText.NotNull());
+        }
+
+        protected virtual void SetPageNumberButtonContent(LinkButton link, DataPagerBindings pagerBindings, IDotvvmRequestContext context)
+        {
+            link.SetBinding(ButtonBase.TextProperty, pagerBindings.PageNumberText.NotNull());
         }
 
         protected virtual void AddItemCssClass(HtmlGenericControl item, IDotvvmRequestContext context)
