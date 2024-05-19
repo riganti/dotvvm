@@ -20,7 +20,7 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.ContainsElement(gridView, "thead");
                 AssertUI.ContainsElement(gridView, "tbody");
             }, browser => {
-                Assert.Equal(0, browser.FindElements("gridView", this.SelectByDataUi).Count);
+                Assert.Empty(browser.FindElements("gridView", this.SelectByDataUi));
             });
         }
 
@@ -37,8 +37,8 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.IsDisplayed(message);
                 AssertUI.TextEquals(message, "There are no Customers to display");
             }, browser => {
-                Assert.Equal(0, browser.FindElements(gridViewDataUi).Count);
-                Assert.Equal(0, browser.FindElements(messageDataUi).Count);
+                Assert.Empty(browser.FindElements(gridViewDataUi));
+                Assert.Empty(browser.FindElements(messageDataUi));
             });
         }
 
@@ -51,7 +51,7 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.IsDisplayed(literal);
                 AssertUI.TextEquals(literal, "Test 1");
             }, browser => {
-                Assert.Equal(0, browser.FindElements("literal", this.SelectByDataUi).Count);
+                Assert.Empty(browser.FindElements("literal", this.SelectByDataUi));
             });
         }
 
@@ -67,7 +67,7 @@ namespace DotVVM.Samples.Tests.Control
                     AssertUI.IsDisplayed(literal);
                 }
             }, browser => {
-                Assert.Equal(0, browser.FindElements("literal-repeater", this.SelectByDataUi).Count);
+                Assert.Empty(browser.FindElements("literal-repeater", this.SelectByDataUi));
             });
         }
 
