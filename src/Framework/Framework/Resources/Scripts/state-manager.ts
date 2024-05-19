@@ -49,7 +49,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         public stateUpdateEvent: DotvvmEvent<DeepReadonly<TViewModel>>
     ) {
         this._state = coerce(initialState, initialState.$type || { type: "dynamic" })
-        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], u => this.update(u as any))
+        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], () => this._state, u => this.update(u as any))
         this.dispatchUpdate()
     }
 
@@ -135,7 +135,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
             return Object.freeze({ ...vm, [propName]: newValue }) as any
         })
     }
-    constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | DynamicTypeMetadata | undefined, additionalProperties: string[]) {
+    constructor(initialValue: T, getter: () => DeepReadonly<T> | undefined, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | DynamicTypeMetadata | undefined, additionalProperties: string[]) {
         this[currentStateSymbol] = initialValue
         this[updateSymbol] = updater
         this[errorsSymbol] = []
@@ -154,10 +154,11 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                     const newObs = createWrappedObservable(
                         currentState[p],
                         props[p]?.type,
+                        () => (getter() as any)?.[p],
                         u => this[updatePropertySymbol](p, u)
                     )
 
-                    const isDynamic = typeId === undefined || typeId.hasOwnProperty("type") && (typeId as any)["type"] === "dynamic";
+                    const isDynamic = typeId === undefined || (typeId as any)?.type === "dynamic";
                     if (typeInfo && p in props) {
                         const clientExtenders = props[p].clientExtenders;
                         if (clientExtenders) {
@@ -224,7 +225,7 @@ export function unmapKnockoutObservables(viewModel: any, allowStateUnwrap: boole
     return result ?? value
 }
 
-function createObservableObject<T extends object>(initialObject: T, typeHint: TypeDefinition | undefined, update: ((updater: StateUpdate<any>) => void)) {
+function createObservableObject<T extends object>(initialObject: T, typeHint: TypeDefinition | undefined, getter: () => DeepReadonly<T> | undefined, update: ((updater: StateUpdate<any>) => void)) {
     const typeId = (initialObject as any)["$type"] || typeHint
     let typeInfo;
     if (typeId && !(typeId.hasOwnProperty("type") && typeId["type"] === "dynamic")) {
@@ -234,7 +235,7 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
     const pSet = new Set(keys((typeInfo?.type === "object") ? typeInfo.properties : {}));
     const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
-    return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutObservableObject<T>
+    return new FakeObservableObject(initialObject, getter, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutObservableObject<T>
 }
 
 /** Informs that we cloned an ko.observable, so updating it won't work */
@@ -266,7 +267,7 @@ function logObservableCloneWarning(value: any) {
     }
 }
 
-function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutObservable<T> {
+function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: TypeDefinition | undefined, getter: () => DeepReadonly<T> | undefined, updater: UpdateDispatcher<T>): DeepKnockoutObservable<T> {
 
     let isUpdating = false
 
@@ -316,7 +317,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         obs[currentStateSymbol] = newVal
 
         const result = notifyCore(newVal, currentValue, observableWasSetFromOutside);
-        if (result && "newContents" in result) {
+        if (result) {
             try {
                 isUpdating = true
                 obs(result.newContents)
@@ -327,7 +328,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         }
     }
 
-    function notifyCore(newVal: any, currentValue: any, observableWasSetFromOutside: boolean) {
+    function notifyCore(newVal: any, currentValue: any, observableWasSetFromOutside: boolean): { newContents: any } | undefined {
         let newContents
         const oldContents = obs.peek()
         if (isPrimitive(newVal) || newVal instanceof Date) {
@@ -348,20 +349,24 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                 newContents = oldContents instanceof Array ? oldContents.slice(0, newVal.length) : []
                 // then append (potential) new values into the array
                 for (let index = 0; index < newVal.length; index++) {
-                    if (newContents[index] && newContents[index][notifySymbol as any]) {
+                    if (newContents[index]?.[notifySymbol as any]) {
                         continue
                     }
-                    const indexForClosure = index
-                    newContents[index] = createWrappedObservable(newVal[index], Array.isArray(typeHint) ? typeHint[0] : void 0, update => updater((viewModelArray: any) => {
-                        if (viewModelArray == null || viewModelArray.length <= indexForClosure) {
+                    const itemUpdater = (update: any) => updater((viewModelArray: any) => {
+                        if (viewModelArray == null || viewModelArray.length <= index) {
                             // the item or the array does not exist anymore
                             return viewModelArray
                         }
-                        const newElement = update(viewModelArray[indexForClosure])
-                        const newArray = createArray(viewModelArray)
-                        newArray[indexForClosure] = newElement
+                        const newArray = [...viewModelArray]
+                        newArray[index] = update(viewModelArray[index])
                         return Object.freeze(newArray) as any
-                    }))
+                    })
+                    newContents[index] = createWrappedObservable(
+                        newVal[index],
+                        Array.isArray(typeHint) ? typeHint[0] : void 0,
+                        () => (getter() as any[])?.[index],
+                        itemUpdater
+                    )
                 }
             }
             else {
@@ -386,7 +391,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         }
         else {
             // create new object and replace
-            newContents = createObservableObject(newVal, typeHint, updater)
+            newContents = createObservableObject(newVal, typeHint, getter, updater)
         }
 
         // return a result indicating that the observable needs to be set
@@ -397,14 +402,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
     notify(initialValue)
 
     Object.defineProperty(obs, "state", {
-        get: () => {
-            let resultState
-            updater(state => {
-                resultState = state
-                return state
-            })
-            return resultState
-        }
+        get: getter
     });
     defineConstantProperty(obs, "patchState", (patch: any) => {
             updater(state => patchViewModel(state, patch))
