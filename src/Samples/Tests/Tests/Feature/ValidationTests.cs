@@ -699,18 +699,18 @@ namespace DotVVM.Samples.Tests.Feature
                 var textbox = browser.First("[data-ui=name-textbox]");
 
                 submitButton.Click();
-                Assert.Equal(0, validationSummary.Children.Count);
+                Assert.Empty(validationSummary.Children);
                 AssertUI.HasNotClass(textbox, "has-error");
 
                 textbox.SendKeys("123");
                 submitButton.Click();
                 AssertUI.HasClass(textbox, "has-error");
-                Assert.Equal(1, validationSummary.Children.Count);
+                Assert.Single(validationSummary.Children);
 
                 textbox.Clear();
                 textbox.SendKeys("Ted");
                 submitButton.Click();
-                Assert.Equal(0, validationSummary.Children.Count);
+                Assert.Empty(validationSummary.Children);
                 AssertUI.HasNotClass(textbox, "has-error");
 
                 textbox.SendKeys("123");
@@ -718,7 +718,7 @@ namespace DotVVM.Samples.Tests.Feature
                 submitButton.Click();
 
                 AssertUI.HasClass(textbox, "has-error");
-                Assert.Equal(1, validationSummary.Children.Count);
+                Assert.Single(validationSummary.Children);
             });
         }
 
@@ -731,7 +731,7 @@ namespace DotVVM.Samples.Tests.Feature
                 var validateButton = browser.First("[data-ui=validation-button]");
                 var validationSummary = browser.First("[data-ui=validation-summary]");
 
-                Assert.Equal(0, validationSummary.Children.Count);
+                Assert.Empty(validationSummary.Children);
 
                 validateButton.Click();
                 Assert.Equal(2, validationSummary.Children.Count);

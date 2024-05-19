@@ -25,8 +25,8 @@ namespace DotVVM.Samples.Tests.Control
                 var clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
                 var serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
 
-                Assert.Equal(0, clientRepeater.Children.Count);
-                Assert.Equal(0, serverRepeater.Children.Count);
+                Assert.Empty(clientRepeater.Children);
+                Assert.Empty(serverRepeater.Children);
 
                 var button = browser.Single("set-collection-button", this.SelectByDataUi);
                 button.Click();
@@ -260,8 +260,8 @@ namespace DotVVM.Samples.Tests.Control
                 var clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
                 var serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
 
-                Assert.Equal(0, clientRepeater.Children.Count);
-                Assert.Equal(0, serverRepeater.Children.Count);
+                Assert.Empty(clientRepeater.Children);
+                Assert.Empty(serverRepeater.Children);
             });
         }
 

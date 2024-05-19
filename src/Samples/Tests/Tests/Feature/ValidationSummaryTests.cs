@@ -39,7 +39,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(url);
 
                 var summary = browser.First("[data-ui=validationSummary]");
-                browser.WaitFor(() => Assert.Equal(0, summary.Children.Count), 1000);
+                browser.WaitFor(() => Assert.Empty(summary.Children), 1000);
 
                 var loginButton = browser.First("[data-ui=login-button]");
                 loginButton.Click();
@@ -47,15 +47,15 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.First("[data-ui=nick-textbox]").SendKeys("Mike");
                 loginButton.Click();
-                browser.WaitFor(() => Assert.Equal(1, summary.Children.Count), 1000);
+                browser.WaitFor(() => Assert.Single(summary.Children), 1000);
 
                 browser.First("[data-ui=password-textbox]").SendKeys("123");
                 loginButton.Click();
-                browser.WaitFor(() => Assert.Equal(1, summary.Children.Count), 1000);
+                browser.WaitFor(() => Assert.Single(summary.Children), 1000);
 
                 browser.First("[data-ui=password-textbox]").SendKeys("4");
                 loginButton.Click();
-                browser.WaitFor(() => Assert.Equal(0, summary.Children.Count), 1000);
+                browser.WaitFor(() => Assert.Empty(summary.Children), 1000);
             });
         }
     }
