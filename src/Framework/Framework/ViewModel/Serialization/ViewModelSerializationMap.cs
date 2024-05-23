@@ -843,7 +843,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
 
             return (TValue?)JsonSerializer.Deserialize(ref reader, type!, options);
-        null!}
+        }
 
         public static readonly MethodInfo DeserializeViewModelDynamicMethod = typeof(JsonSerializationCodegenFragments).GetMethod(nameof(DeserializeViewModelDynamic), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
         private static TVM? DeserializeViewModelDynamic<TVM>(ref Utf8JsonReader reader, JsonSerializerOptions options, TVM? existingValue, bool populate, ViewModelJsonConverter factory, IDotvvmJsonConverter<TVM> defaultConverter, DotvvmSerializationState state)
