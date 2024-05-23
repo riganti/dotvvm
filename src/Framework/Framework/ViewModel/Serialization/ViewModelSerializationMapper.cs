@@ -51,7 +51,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         protected virtual ViewModelSerializationMap CreateMap(Type type) =>
             (ViewModelSerializationMap)CreateMapGenericMethod.MakeGenericMethod(type).Invoke(this, Array.Empty<object>())!;
         static MethodInfo CreateMapGenericMethod =
-            // typeof(ViewModelSerializationMapper).GetMethod(nameof(CreateMap), 1, BindingFlags.NonPublic | BindingFlags.Instance, null, [], [])!;
             (MethodInfo)MethodFindingHelper.GetMethodFromExpression(() => default(ViewModelSerializationMapper)!.CreateMap<MethodFindingHelper.Generic.T>());
         protected virtual ViewModelSerializationMap<T> CreateMap<T>()
         {

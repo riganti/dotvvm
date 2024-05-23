@@ -16,6 +16,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using System.Text.Json.Nodes;
 using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -165,9 +166,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Expression jitException(string message) =>
                 throwImmediately
                     ? throw new Exception(message)
-                    : Expression.Throw(Expression.New(
+                    : Throw(New(
                         typeof(Exception).GetConstructor(new [] { typeof(string) })!,
-                        Expression.Constant(message)
+                        Constant(message)
                     ), this.Type);
         }
 
@@ -177,21 +178,21 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public ReaderDelegate<T> CreateReaderFactory()
         {
             var block = new List<Expression>();
-            var reader = Expression.Parameter(typeof(Utf8JsonReader).MakeByRefType(), "reader");
-            var jsonOptions = Expression.Parameter(typeof(JsonSerializerOptions), "jsonOptions");
-            var value = Expression.Parameter(typeof(T), "value");
-            var allowPopulate = Expression.Parameter(typeof(bool), "allowPopulate");
-            var encryptedValuesReader = Expression.Parameter(typeof(EncryptedValuesReader), "encryptedValuesReader");
-            var state = Expression.Parameter(typeof(DotvvmSerializationState), "state");
-            var currentProperty = Expression.Variable(typeof(string), "currentProperty");
-            var readerTmp = Expression.Variable(typeof(Utf8JsonReader), "readerTmp");
+            var reader = Parameter(typeof(Utf8JsonReader).MakeByRefType(), "reader");
+            var jsonOptions = Parameter(typeof(JsonSerializerOptions), "jsonOptions");
+            var value = Parameter(typeof(T), "value");
+            var allowPopulate = Parameter(typeof(bool), "allowPopulate");
+            var encryptedValuesReader = Parameter(typeof(EncryptedValuesReader), "encryptedValuesReader");
+            var state = Parameter(typeof(DotvvmSerializationState), "state");
+            var currentProperty = Variable(typeof(string), "currentProperty");
+            var readerTmp = Variable(typeof(Utf8JsonReader), "readerTmp");
 
             // we first read all values into local variables and only then we either call the constructor or set the properties on the object
             var propertyVars = Properties
                 .Where(p => p.TransferToServer)
                 .ToDictionary(
                     p => p,
-                    p => Expression.Variable(p.Type, "prop_" + p.Name)
+                    p => Variable(p.Type, "prop_" + p.Name)
                 );
 
             // If we have constructor property or if we have { get; init; } property, we always create new instance
@@ -230,13 +231,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     Block(
                         propertyVars
                             .Where(p => p.Key.PropertyInfo is not PropertyInfo { GetMethod: null })
-                            .Select(p => Expression.Assign(p.Value, MemberAccess(value, p.Key)))
+                            .Select(p => Assign(p.Value, MemberAccess(value, p.Key)))
                     )
                 ));
             }
 
             // add current object to encrypted values, this is needed because one property can potentially contain more objects (is a collection)
-            block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
+            block.Add(Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
 
             var propertiesSwitch = new List<(string fieldName, Expression readExpression)>();
 
@@ -257,7 +258,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     Constant(null, typeof(object));
 
                 // when suppressed, we read from the standard properties, because the object is nested in the
-                var isEVSuppressed = Expression.Property(encryptedValuesReader, "Suppressed");
+                var isEVSuppressed = Property(encryptedValuesReader, "Suppressed");
 
                 var readEncrypted =
                     property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData;
@@ -267,21 +268,21 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     // encryptedValuesReader.Suppress()
                     // value.{property} = ({property.Type})Deserialize(serializer, encryptedValuesReader.ReadValue({propertyIndex}), {property}, (object)value.{PropertyInfo});
                     // encryptedValuesReader.EndSuppress()
-                    Expression readEncryptedValue = Expression.Block(
-                        Expression.Assign(
+                    Expression readEncryptedValue = Block(
+                        Assign(
                             readerTmp,
-                            Call(JsonSerializationCodegenFragments.ReadEncryptedValueMethod, Call(encryptedValuesReader, "ReadValue", Type.EmptyTypes, Expression.Constant(propertyIndex)))
+                            Call(JsonSerializationCodegenFragments.ReadEncryptedValueMethod, Call(encryptedValuesReader, "ReadValue", Type.EmptyTypes, Constant(propertyIndex)))
                         ),
-                        Expression.Call(encryptedValuesReader, "Suppress", Type.EmptyTypes),
+                        Call(encryptedValuesReader, "Suppress", Type.EmptyTypes),
                         
-                        Expression.Assign(
+                        Assign(
                             propertyVar,
                             DeserializePropertyValue(property, readerTmp, propertyVar, jsonOptions, state))
                     );
 
-                    readEncryptedValue = Expression.TryFinally(
+                    readEncryptedValue = TryFinally(
                         readEncryptedValue,
-                        Expression.Call(encryptedValuesReader, "EndSuppress", Type.EmptyTypes)
+                        Call(encryptedValuesReader, "EndSuppress", Type.EmptyTypes)
                     );
 
                     // if (!encryptedValuesReader.Suppressed)
@@ -321,7 +322,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     body = IfThenElse(
                         isEVSuppressed,
                         body,
-                        Expression.Call(JsonSerializationCodegenFragments.IgnoreValueMethod, reader)
+                        Call(JsonSerializationCodegenFragments.IgnoreValueMethod, reader)
                     );
                 }
 
@@ -380,8 +381,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var ex = Lambda<ReaderDelegate<T>>(
                 Block(typeof(T), [ currentProperty, readerTmp, ..propertyVars.Values ], block).OptimizeConstants(),
                 reader, jsonOptions, value, allowPopulate, encryptedValuesReader, state);
-            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression | CompilerFlags.EnableDelegateDebugInfo);
-            // return ex.Compile();
+            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
         Expression MemberAccess(Expression obj, ViewModelPropertyMap property)
@@ -419,7 +419,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             for (int propertyIndex = 0; propertyIndex < Properties.Length; propertyIndex++)
             {
                 var property = Properties[propertyIndex];
-                var endPropertyLabel = Expression.Label("end_property_" + property.Name);
+                var endPropertyLabel = Label("end_property_" + property.Name);
                 
                 if (property.TransferToClient && property.PropertyInfo is not PropertyInfo { GetMethod: null })
                 {
@@ -433,10 +433,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         Expression condition = isPostback;
                         if (property.TransferAfterPostback)
                         {
-                            condition = Expression.Not(condition);
+                            condition = Not(condition);
                         }
 
-                        block.Add(Expression.IfThen(condition, Expression.Goto(endPropertyLabel)));
+                        block.Add(IfThen(condition, Goto(endPropertyLabel)));
                     }
 
                     // (object)value.{property.PropertyInfo.Name}
@@ -449,7 +449,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     {
                         // encryptedValuesWriter.WriteValue({propertyIndex}, (object)value.{property.PropertyInfo.Name});
                         block.Add(
-                            Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes, Expression.Constant(propertyIndex), Expression.Convert(prop, typeof(object))));
+                            Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes, Constant(propertyIndex), Convert(prop, typeof(object))));
                     }
 
 
@@ -463,61 +463,60 @@ namespace DotVVM.Framework.ViewModel.Serialization
                             if (writeEV)
                             {
                                 // encryptedValuesWriter.Suppress();
-                                propertyBlock.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Suppress), Type.EmptyTypes));
+                                propertyBlock.Add(Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Suppress), Type.EmptyTypes));
                             }
                             else
                             {
                                 // encryptedValuesWriter.Nest({propertyIndex});
-                                propertyBlock.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Nest), Type.EmptyTypes, Expression.Constant(propertyIndex)));
+                                propertyBlock.Add(Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Nest), Type.EmptyTypes, Constant(propertyIndex)));
                             }
                         }
 
                         // writer.WritePropertyName({property.Name});
-                        propertyBlock.Add(Expression.Call(writer, nameof(Utf8JsonWriter.WritePropertyName), Type.EmptyTypes,
-                            Expression.Constant(property.Name)));
+                        propertyBlock.Add(Call(writer, nameof(Utf8JsonWriter.WritePropertyName), Type.EmptyTypes,
+                            Constant(property.Name)));
 
                         // serializer.Serialize(serializer, writer, {property}, (object)value.{property.PropertyInfo.Name});
                         propertyBlock.Add(GetSerializeExpression(property, writer, prop, jsonOptions, dotvvmState));
 
-                        Expression propertyFinally = Expression.Default(typeof(void));
+                        Expression propertyFinally = Default(typeof(void));
                         if (checkEV)
                         {
                             if (writeEV)
                             {
                                 // encryptedValuesWriter.EndSuppress();
-                                propertyFinally = Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.EndSuppress), Type.EmptyTypes);
+                                propertyFinally = Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.EndSuppress), Type.EmptyTypes);
                             }
                             // encryption is worthless if the property is not being transferred both ways
                             // therefore ClearEmptyNest throws exception if the property contains encrypted values
                             else if (!property.IsFullyTransferred())
                             {
                                 // encryptedValuesWriter.ClearEmptyNest();
-                                propertyFinally = Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.ClearEmptyNest), Type.EmptyTypes);
+                                propertyFinally = Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.ClearEmptyNest), Type.EmptyTypes);
                             }
                             else
                             {
                                 // encryptedValuesWriter.End();
-                                propertyFinally = Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes);
+                                propertyFinally = Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes);
                             }
                         }
 
                         block.Add(
-                            Expression.TryFinally(
-                                Expression.Block(propertyBlock),
+                            TryFinally(
+                                Block(propertyBlock),
                                 propertyFinally
                             )
                         );
                     }
                 }
 
-                block.Add(Expression.Label(endPropertyLabel));
+                block.Add(Label(endPropertyLabel));
             }
 
             // compile the expression
             var ex = Lambda<WriterDelegate<T>>(
                 Block(new[] { value }, block).OptimizeConstants(), writer, value, jsonOptions, requireTypeField, encryptedValuesWriter, dotvvmState);
-            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression | CompilerFlags.EnableDelegateDebugInfo);
-            // return ex.Compile();
+            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
         /// <summary>
@@ -592,17 +591,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private Expression? TryDeserializePrimitive(Expression reader, Type type)
         {
             // Utf8JsonReader readerTest = default;
-            // readerTest.CopyString(
             if (type == typeof(bool))
                 return Call(reader, "GetBoolean", Type.EmptyTypes);
             if (type == typeof(byte))
                 return Call(reader, "GetByte", Type.EmptyTypes);
-            // if (type == typeof(byte[]))
-            //     return Call(reader, "GetBytesFromBase64", Type.EmptyTypes);
-            // if (type == typeof(DateTime))
-            //     return Call(reader, "GetDateTime", Type.EmptyTypes);
-            // if (type == typeof(DateTimeOffset))
-            //     return Call(reader, "GetDateTimeOffset", Type.EmptyTypes);
             if (type == typeof(decimal))
                 return Call(reader, "GetDecimal", Type.EmptyTypes);
             if (type == typeof(double))
@@ -729,26 +721,38 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 return CallPropertyConverterWrite(converter, writer, value, jsonOptions, dotvvmState);
             }
-            if (TrySerializePrimitive(writer, value) is {} primite)
+            if (TrySerializePrimitive(writer, value) is {} primitive)
             {
-                return primite;
+                return primitive;
             }
             if (this.viewModelJsonConverter.CanConvert(value.Type))
             {
                 if (property.AllowDynamicDispatch && !value.Type.IsSealed)
                 {
-                    // TODO: ??
-                    // return Call(
-                    //     JsonSerializationCodegenFragments.DeserializeViewModelDynamicMethod.MakeGenericMethod(value.Type),
-                    //     reader, jsonOptions, existingValue, Constant(property.Populate), // ref Utf8JsonReader reader, JsonSerializerOptions options, TVM? existingValue, bool populate
-                    //     Constant(this.viewModelJsonConverter), // ViewModelJsonConverter factory
-                    //     Constant(defaultConverter), // ViewModelJsonConverter.VMConverter<TVM>? defaultConverter
-                    //     dotvvmState); // DotvvmSerializationState state
+                    if (value.Type.IsAbstract)
+                    {
+                        // Always doing dynamic dispatch to an unknown type
+                        return Call(
+                            (MethodInfo)MethodFindingHelper.GetMethodFromExpression(() =>
+                                JsonSerializer.Serialize<object?>(default(Utf8JsonWriter)!, null, default(JsonSerializerOptions)!)),
+                            writer,
+                            Convert(value, typeof(object)),
+                            jsonOptions
+                        );
+                    }
+                    else
+                    {
+                        // We use cached converter for T, if value.GetType() == T
+                        var defaultConverter = this.viewModelJsonConverter.GetConverter(value.Type);
+                        return Call(
+                            JsonSerializationCodegenFragments.SerializeViewModelDynamicMethod.MakeGenericMethod(value.Type),
+                            writer, jsonOptions, value, Constant(defaultConverter), dotvvmState);
+                    }
                 }
                 else
                 {
-                    var defaultConverter = this.viewModelJsonConverter.GetConverter(value.Type);
-                    return CallPropertyConverterWrite(defaultConverter, writer, value, jsonOptions, dotvvmState);
+                    var viewModelConverter = this.viewModelJsonConverter.GetConverter(value.Type);
+                    return CallPropertyConverterWrite(viewModelConverter, writer, value, jsonOptions, dotvvmState);
                 }
             }
 
@@ -791,6 +795,28 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
+        public static readonly MethodInfo SerializeViewModelDynamicMethod = typeof(JsonSerializationCodegenFragments).GetMethod(nameof(SerializeViewModelDynamic), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
+        private static void SerializeViewModelDynamic<TVM>(Utf8JsonWriter writer, JsonSerializerOptions options, TVM? value, IDotvvmJsonConverter<TVM> defaultConverter, DotvvmSerializationState state)
+            where TVM: class
+        {
+            if (value is null)
+            {
+                writer.WriteNullValue();
+                return;
+            }
+
+            var type = value.GetType();
+            if (defaultConverter is {} && type == typeof(TVM))
+            {
+                defaultConverter.Write(writer, value, options, state);
+                return;
+            }
+            else
+            {
+                JsonSerializer.Serialize(writer, value, type, options);
+            }
+        }
+
         public static readonly MethodInfo DeserializeValueStaticMethod = typeof(JsonSerializationCodegenFragments).GetMethod(nameof(DeserializeValueStatic), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
         private static TValue? DeserializeValueStatic<TValue>(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
@@ -817,7 +843,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
 
             return (TValue?)JsonSerializer.Deserialize(ref reader, type!, options);
-        }
+        null!}
 
         public static readonly MethodInfo DeserializeViewModelDynamicMethod = typeof(JsonSerializationCodegenFragments).GetMethod(nameof(DeserializeViewModelDynamic), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
         private static TVM? DeserializeViewModelDynamic<TVM>(ref Utf8JsonReader reader, JsonSerializerOptions options, TVM? existingValue, bool populate, ViewModelJsonConverter factory, IDotvvmJsonConverter<TVM> defaultConverter, DotvvmSerializationState state)
@@ -869,20 +895,5 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             reader.Read();
         }
-
-        // private static TValue? DeserializeViewModel<TValue>(ref Utf8JsonReader reader, ViewModelJsonConverter.VMConverter<TValue> converter, JsonSerializerOptions options, DotvvmSerializationState state, TValue existingValue, bool allowPopulate)
-        // {
-        //     if (reader.TokenType == JsonTokenType.Null)
-        //         return default;
-
-        //     if (allowPopulate)
-        //     {
-        //         return converter.Populate(ref reader, options, existingValue, state);
-        //     }
-        //     else
-        //     {
-        //         return converter.Read(ref reader, typeof(TValue), options, state);
-        //     }
-        // }
     }
 }

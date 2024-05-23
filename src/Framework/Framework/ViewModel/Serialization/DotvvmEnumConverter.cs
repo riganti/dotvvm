@@ -23,9 +23,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         static MethodInfo CreateConverterGenericMethod = (MethodInfo)MethodFindingHelper.GetMethodFromExpression(() => default(DotvvmEnumConverter)!.CreateConverter<MethodFindingHelper.Generic.Enum>());
         public JsonConverter<TEnum> CreateConverter<TEnum>() where TEnum : unmanaged, Enum
         {
-            // if (!ReflectionUtils.EnumInfo<TEnum>.HasEnumMemberField)
-            //     return (JsonConverter<TEnum>)new JsonStringEnumConverter<TEnum>().CreateConverter(typeof(TEnum), options)!;
-
             var underlyingType = Enum.GetUnderlyingType(typeof(TEnum));
             var isFlags = typeof(TEnum).IsDefined(typeof(FlagsAttribute), false);
             var isSigned = underlyingType == typeof(sbyte) || underlyingType == typeof(short) || underlyingType == typeof(int) || underlyingType == typeof(long);
@@ -59,10 +56,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             var maxNameLen = fieldList.Max(x => x.Name.Length);
             var nameToEnum = new (TEnum Value, byte[] Name)[maxNameLen + 1][];
-            foreach (var field in fieldList.GroupBy(x => x.Name.Length)) // TODO: do we want to allow the client to send the duplicate names?
+            // index enum names by length, then sort them by name
+            // the names in enumToName are already deduplicated, each value is represented by the shortest name
+            foreach (var field in enumToName.GroupBy(x => x.Value.Length))
             {
-                var array = field.ToArray();
-                Array.Sort(array, (a, b) => a.Name.AsSpan().SequenceCompareTo(b.Name.AsSpan()));
+                var array = field.Select(f => (f.Key, f.Value)).ToArray();
+                Array.Sort(array, (a, b) => a.Value.AsSpan().SequenceCompareTo(b.Value.AsSpan()));
                 nameToEnum[field.Key] = array;
             }
 
