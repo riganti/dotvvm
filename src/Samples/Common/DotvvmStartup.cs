@@ -279,6 +279,8 @@ namespace DotVVM.Samples.BasicSamples
 
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
 
+            if (config.Markup.Controls.FirstOrDefault(c => c.Src is not null && Path.IsPathRooted(c.Src)) is {} invalidControl)
+                throw new Exception($"Some controls have absolute paths! ({invalidControl.TagPrefix}:{invalidControl.TagName} - {invalidControl.Src})");
         }
 
     }
