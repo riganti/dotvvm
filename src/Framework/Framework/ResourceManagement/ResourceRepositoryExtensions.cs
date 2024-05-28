@@ -53,7 +53,9 @@ namespace DotVVM.Framework.ResourceManagement
             string[]? dependencies = null,
             string? integrityHash = null)
         {
-            LinkResourceBase r = module ? new ScriptModuleResource(location, defer) : new ScriptResource(location, defer);
+            if (!defer && module)   
+                throw new ArgumentException("<script type='module'> always deferred, please do not specify defer: false", nameof(defer));
+            LinkResourceBase r = module ? new ScriptModuleResource(location) : new ScriptResource(location, defer);
             r.Dependencies = dependencies ?? Array.Empty<string>();
             r.IntegrityHash = integrityHash;
             repo.Register(name, r);
@@ -75,13 +77,25 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary> Registers a <see cref="ScriptModuleResource" /> from the specified file.
         /// The file can be anywhere in the filesystem, it does not have to be in the wwwroot folder.
         /// DotVVM will handle its serving, caching, ... automatically </summary>
+        [Obsolete("<script type='module'> is always deferred, the attribute does nothing")]
         public static LinkResourceBase RegisterScriptModuleFile(
             this DotvvmResourceRepository repo,
             string name,
             string filePath,
-            bool defer = true,
             string[]? dependencies = null) =>
-            repo.RegisterScript(name, new FileResourceLocation(filePath), defer, module: true, dependencies);
+            repo.RegisterScript(name, new FileResourceLocation(filePath), defer: true, module: true, dependencies);
+
+        /// <summary> Registers a <see cref="ScriptModuleResource" /> from the specified file.
+        /// The file can be anywhere in the filesystem, it does not have to be in the wwwroot folder.
+        /// DotVVM will handle its serving, caching, ... automatically </summary>
+        [Obsolete("<script type='module'> is always deferred, the attribute does nothing")]
+        public static LinkResourceBase RegisterScriptModuleFile(
+            this DotvvmResourceRepository repo,
+            string name,
+            string filePath,
+            bool defer,
+            string[]? dependencies = null) =>
+            repo.RegisterScript(name, new FileResourceLocation(filePath), defer: true, module: true, dependencies);
 
         /// <summary> Registers a <see cref="ScriptResource" /> with the specified URL.
         /// If the URL is local, consider using the <see cref="RegisterScriptFile(DotvvmResourceRepository, string, string, bool, bool, string[])" /> method. </summary>
