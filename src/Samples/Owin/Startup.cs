@@ -4,7 +4,6 @@ using System.Web.Hosting;
 using DotVVM.Framework.Hosting;
 using DotVVM.Samples.BasicSamples;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
@@ -17,6 +16,9 @@ using System;
 using System.Configuration;
 using DotVVM.Framework.Utils;
 using System.Linq;
+using System.Threading;
+using System.Globalization;
+using System.Runtime.Remoting.Contexts;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -26,6 +28,21 @@ namespace DotVVM.Samples.BasicSamples
     {
         public void Configuration(IAppBuilder app)
         {
+            app.Use((context, next) => {
+                if (context.Request.Path.StartsWithSegments(new PathString("/cs")))
+                {
+                    CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("cs-CZ");
+                    context.Set(HostingConstants.OwinDoNotSetRequestCulture, true);
+                }
+                else if (context.Request.Path.StartsWithSegments(new PathString("/de")))
+                {
+                    CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("de");
+                    context.Set(HostingConstants.OwinDoNotSetRequestCulture, true);
+                }
+
+                return next();
+            });
+
             app.Use<SwitchMiddleware>(
                 new List<SwitchMiddlewareCase> {
                     new SwitchMiddlewareCase(

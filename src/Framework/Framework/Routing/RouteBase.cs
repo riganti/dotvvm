@@ -157,7 +157,7 @@ namespace DotVVM.Framework.Routing
         /// Builds the URL core from the parameters.
         /// </summary>
         /// <remarks>The default values are already included in the <paramref name="values"/> collection.</remarks>
-        protected abstract string BuildUrlCore(Dictionary<string, object?> values);
+        protected internal abstract string BuildUrlCore(Dictionary<string, object?> values);
 
         /// <summary>
         /// Adds or updates the parameter collection with the specified values from the anonymous object.

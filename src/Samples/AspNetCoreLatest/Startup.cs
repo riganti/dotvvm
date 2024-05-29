@@ -59,7 +59,7 @@ namespace DotVVM.Samples.BasicSamples
                 .AddCookie("Scheme3");
 
             services.AddHealthChecks();
-
+            
             services.AddLocalization(o => o.ResourcesPath = "Resources");
 
             services.AddDotVVM<DotvvmServiceConfigurator>();
@@ -71,10 +71,22 @@ namespace DotVVM.Samples.BasicSamples
             services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
 
             services.AddScoped<ViewModelScopedDependency>();
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[] { "en-US", "cs-CZ", "de" };
+                options
+                    .SetDefaultCulture(supportedCultures[0])
+                    .AddSupportedCultures(supportedCultures)
+                    .AddSupportedUICultures(supportedCultures)
+                    .AddInitialRequestCultureProvider(new PrefixRequestCultureProvider());
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseRequestLocalization();
+
             app.UseRouting();
             app.UseAuthentication();
 

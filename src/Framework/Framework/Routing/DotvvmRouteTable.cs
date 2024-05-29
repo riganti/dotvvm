@@ -109,10 +109,21 @@ namespace DotVVM.Framework.Routing
         /// <param name="virtualPath">The virtual path of the Dothtml file.</param>
         /// <param name="defaultValues">The default values.</param>
         /// <param name="presenterFactory">Delegate creating the presenter handling this route</param>
-        public void Add(string routeName, string? url, string virtualPath, object? defaultValues = null, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null)
+        public void Add(string routeName, string? url, string virtualPath, object? defaultValues = null, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null, LocalizedRouteUrl[]? localizedUrls = null)
         {
             ThrowIfFrozen();
-            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(CombinePath(group?.UrlPrefix, url), CombinePath(group?.VirtualPathPrefix, virtualPath), defaultValues, presenterFactory ?? GetDefaultPresenter, configuration));
+
+            url = CombinePath(group?.UrlPrefix, url);
+            virtualPath = CombinePath(group?.VirtualPathPrefix, virtualPath);
+            presenterFactory ??= GetDefaultPresenter;
+            routeName = group?.RouteNamePrefix + routeName;
+
+            RouteBase route = localizedUrls == null
+                ? new DotvvmRoute(url, virtualPath, defaultValues, presenterFactory, configuration)
+                : new LocalizedDotvvmRoute(url,
+                    localizedUrls.Select(l => new LocalizedRouteUrl(l.CultureIdentifier, CombinePath(group?.UrlPrefix, l.RouteUrl))).ToArray(),
+                    virtualPath, defaultValues, presenterFactory, configuration);
+            Add(routeName, route);
         }
 
         /// <summary>
@@ -122,10 +133,21 @@ namespace DotVVM.Framework.Routing
         /// <param name="url">The URL.</param>
         /// <param name="defaultValues">The default values.</param>
         /// <param name="presenterFactory">The presenter factory.</param>
-        public void Add(string routeName, string? url, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null, object? defaultValues = null)
+        public void Add(string routeName, string? url, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null, object? defaultValues = null, LocalizedRouteUrl[]? localizedUrls = null)
         {
             ThrowIfFrozen();
-            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(CombinePath(group?.UrlPrefix, url), group?.VirtualPathPrefix ?? "", defaultValues, presenterFactory ?? GetDefaultPresenter, configuration));
+
+            url = CombinePath(group?.UrlPrefix, url);
+            presenterFactory ??= GetDefaultPresenter;
+            routeName = group?.RouteNamePrefix + routeName;
+            var virtualPath = group?.VirtualPathPrefix ?? "";
+
+            RouteBase route = localizedUrls == null
+                ? new DotvvmRoute(url, virtualPath, defaultValues, presenterFactory, configuration)
+                : new LocalizedDotvvmRoute(url,
+                    localizedUrls.Select(l => new LocalizedRouteUrl(l.CultureIdentifier, CombinePath(group?.UrlPrefix, l.RouteUrl))).ToArray(),
+                    virtualPath, defaultValues, presenterFactory, configuration);
+            Add(routeName, route);
         }
 
         /// <summary>
@@ -203,7 +225,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="url">The URL.</param>
         /// <param name="presenterType">The presenter factory.</param>
         /// <param name="defaultValues">The default values.</param>
-        public void Add(string routeName, string? url, Type presenterType, object? defaultValues = null)
+        public void Add(string routeName, string? url, Type presenterType, object? defaultValues = null, LocalizedRouteUrl[] localizedUrls = null)
         {
             ThrowIfFrozen();
             if (!typeof(IDotvvmPresenter).IsAssignableFrom(presenterType))
@@ -211,7 +233,7 @@ namespace DotVVM.Framework.Routing
                 throw new ArgumentException($@"{nameof(presenterType)} has to inherit from DotVVM.Framework.Hosting.IDotvvmPresenter.", nameof(presenterType));
             }
             Func<IServiceProvider, IDotvvmPresenter> presenterFactory = provider => (IDotvvmPresenter)provider.GetRequiredService(presenterType);
-            Add(routeName, url, presenterFactory, defaultValues);
+            Add(routeName, url, presenterFactory, defaultValues, localizedUrls);
         }
 
         /// <summary>
@@ -237,6 +259,11 @@ namespace DotVVM.Framework.Routing
         public bool Contains(string routeName)
         {
             return dictionary.ContainsKey(routeName);
+        }
+
+        public bool TryGetValue(string routeName, out RouteBase? route)
+        {
+            return dictionary.TryGetValue(routeName, out route);
         }
 
         public RouteBase this[string routeName]

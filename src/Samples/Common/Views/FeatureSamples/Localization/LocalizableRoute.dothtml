@@ -1,0 +1,33 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Localization.LocalizableRouteViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Localizable route test</h1>
+
+    <p>Current culture: <span data-ui="culture">{{resource: System.Globalization.CultureInfo.CurrentUICulture.Name}}</span></p>
+
+    <dot:RouteLink RouteName="FeatureSamples_Localization_LocalizableRoute"
+                   Culture="cs-CZ"
+                   Text="cs-CZ" />
+
+    <dot:RouteLink RouteName="FeatureSamples_Localization_LocalizableRoute"
+                   Culture="de"
+                   Text="de" />
+
+    <dot:RouteLink RouteName="FeatureSamples_Localization_LocalizableRoute"
+                   Culture="en-US"
+                   Text="en-US" />
+
+    <dot:RouteLink RouteName="FeatureSamples_Localization_LocalizableRoute"
+                   Text="current language" />
+</body>
+</html>
+
+
