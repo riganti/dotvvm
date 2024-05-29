@@ -8,6 +8,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
 
@@ -63,6 +64,18 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<string, RouteLink>(c => c.Text, "");
+
+        /// <summary>
+        /// Gets or sets the required culture of the page. This property is supported only when using localizable routes.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string Culture
+        {
+            get { return (string)GetValue(CultureProperty); }
+            set { SetValue(CultureProperty, value); }
+        }
+        public static readonly DotvvmProperty CultureProperty
+            = DotvvmProperty.Register<string, RouteLink>(c => c.Culture, null);
 
         /// <summary>
         /// Gets or sets a collection of parameters to be substituted in the route URL. If the current route contains a parameter with the same name, its value will be reused unless another value is specified here.
@@ -185,7 +198,7 @@ namespace DotVVM.Framework.Controls
             if (routeNameProperty is not ResolvedPropertyValue { Value: string routeName })
                 yield break;
 
-            if (!configuration.RouteTable.Contains(routeName))
+            if (!configuration.RouteTable.TryGetValue(routeName, out var route))
             {
                 yield return new ControlUsageError(
                     $"RouteName \"{routeName}\" does not exist.",
@@ -193,7 +206,20 @@ namespace DotVVM.Framework.Controls
                 yield break;
             }
 
-            var parameterDefinitions = configuration.RouteTable[routeName].ParameterNames;
+            if (control.GetValue(CultureProperty) is ResolvedPropertyValue { Value: string culture }
+                && !string.IsNullOrEmpty(culture))
+            {
+                if (route is not LocalizedDotvvmRoute localizedRoute)
+                {
+                    yield return new ControlUsageError($"The route {routeName} must be localizable if the {nameof(Culture)} property is set!");
+                }
+                else
+                {
+                    route = localizedRoute.GetRouteForCulture(culture);
+                }
+            }
+
+            var parameterDefinitions = route.ParameterNames;
             var parameterReferences = control.Properties.Where(i => i.Key is GroupedDotvvmProperty p && p.PropertyGroup == ParamsGroupDescriptor);
 
             var undefinedReferences =

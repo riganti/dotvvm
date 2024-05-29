@@ -235,6 +235,12 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("FeatureSamples_Localization_Globalize", "FeatureSamples/Localization/Globalize", "Views/FeatureSamples/Localization/Globalize.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
             config.RouteTable.Add("FeatureSamples_CustomPrimitiveTypes_Basic", "FeatureSamples/CustomPrimitiveTypes/Basic/{Id?}", "Views/FeatureSamples/CustomPrimitiveTypes/Basic.dothtml");
 
+            config.RouteTable.Add("FeatureSamples_Localization_LocalizableRoute", "FeatureSamples/Localization/LocalizableRoute/{lang?}", "Views/FeatureSamples/Localization/LocalizableRoute.dothtml",
+                localizedUrls: new LocalizedRouteUrl[] {
+                        new("cs-CZ", "cs/FeatureSamples/Localization/lokalizovana-routa"),
+                        new("de", "de/FeatureSamples/Localization/lokalisierte-route"),
+                });
+
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
 
             config.RouteTable.Add("ControlSamples_Repeater_RouteLinkQuery-PageDetail", "ControlSamples/Repeater/RouteLinkQuery/{Id}", "Views/ControlSamples/Repeater/RouteLinkQuery.dothtml", new { Id = 0 });
