@@ -12,7 +12,6 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Configuration;
 using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
 
 namespace DotVVM.Framework.Controls
 {
