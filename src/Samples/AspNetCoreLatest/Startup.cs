@@ -59,7 +59,7 @@ namespace DotVVM.Samples.BasicSamples
                 .AddCookie("Scheme3");
 
             services.AddHealthChecks();
-            
+
             services.AddLocalization(o => o.ResourcesPath = "Resources");
 
             services.AddDotVVM<DotvvmServiceConfigurator>();

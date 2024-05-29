@@ -4,6 +4,7 @@ using System.Web.Hosting;
 using DotVVM.Framework.Hosting;
 using DotVVM.Samples.BasicSamples;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
@@ -16,9 +17,7 @@ using System;
 using System.Configuration;
 using DotVVM.Framework.Utils;
 using System.Linq;
-using System.Threading;
 using System.Globalization;
-using System.Runtime.Remoting.Contexts;
 
 [assembly: OwinStartup(typeof(Startup))]
 

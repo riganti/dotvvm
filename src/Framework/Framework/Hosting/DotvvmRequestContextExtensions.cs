@@ -52,22 +52,13 @@ public static class DotvvmRequestContextExtensions
     [Obsolete("This method only assigns CultureInfo.CurrentCulture, which is not preserved in async methods. You should assign it manually, or use RequestLocalization middleware or LocalizablePresenter.")]
     public static void ChangeCurrentCulture(this IDotvvmRequestContext context, string cultureName, string uiCultureName)
     {
-        if (!string.IsNullOrEmpty(cultureName))
-        {
 #if DotNetCore
-            CultureInfo.CurrentCulture = new CultureInfo(cultureName);
+        CultureInfo.CurrentCulture = new CultureInfo(cultureName);
+        CultureInfo.CurrentUICulture = new CultureInfo(uiCultureName);
 #else
-            Thread.CurrentThread.CurrentCulture = new CultureInfo(cultureName);
+        Thread.CurrentThread.CurrentCulture = new CultureInfo(cultureName);
+        Thread.CurrentThread.CurrentUICulture = new CultureInfo(uiCultureName);
 #endif
-        }
-        if (!string.IsNullOrEmpty(uiCultureName))
-        {
-#if DotNetCore
-            CultureInfo.CurrentUICulture = new CultureInfo(uiCultureName);
-#else
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo(uiCultureName);
-#endif
-        }
     }
 
     /// <summary>
