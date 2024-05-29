@@ -28,5 +28,7 @@ namespace DotVVM.Framework.Hosting
         public const string DotvvmFileUploadAsyncHeaderName = "X-DotVVM-AsyncUpload";
 
         public const string HostAppModeKey = "host.AppMode";
+
+        public const string OwinDoNotSetRequestCulture = "OwinDoNotSetRequestCulture";
     }
 }

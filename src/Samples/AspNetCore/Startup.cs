@@ -68,10 +68,21 @@ namespace DotVVM.Samples.BasicSamples
 
             services.AddScoped<ViewModelScopedDependency>();
             services.AddTransient<ChildViewModel>();
+
+            services.Configure<RequestLocalizationOptions>(options => {
+                var supportedCultures = new[] { "en-US", "cs-CZ", "de" };
+                options
+                    .SetDefaultCulture(supportedCultures[0])
+                    .AddSupportedCultures(supportedCultures)
+                    .AddSupportedUICultures(supportedCultures)
+                    .AddInitialRequestCultureProvider(new PrefixRequestCultureProvider());
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseRequestLocalization();
+
             app.UseRouting();
             app.UseAuthentication();
 
