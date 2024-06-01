@@ -79,6 +79,17 @@ namespace DotVVM.Framework.Controls
         {
         }
 
+        /// <summary> Creates the contents of `onclick` attribute. </summary>
+        protected virtual string? CreateClickScript()
+        {
+            var clickBinding = GetCommandBinding(ClickProperty);
+            if (clickBinding is null)
+                return null;
+
+            return KnockoutHelper.GenerateClientPostBackScript(
+                    nameof(Click), clickBinding, this,
+                    new PostbackScriptOptions(commandArgs: BindingHelper.GetParametrizedCommandArgs(this, ClickArguments)));
+        }
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
@@ -107,5 +118,6 @@ namespace DotVVM.Framework.Controls
             }
             return false;
         }
+
     }
 }
