@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Threading.Tasks;
 using DotVVM.Analyzers.Serializability;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 
 using VerifyCS = DotVVM.Analyzers.Tests.CSharpAnalyzerVerifier<
@@ -14,7 +10,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     public class ViewModelSerializabilityTest
     {
         [Fact]
-        public async void Test_NotSerializableProperty_RegularClass()
+        public async Task Test_NotSerializableProperty_RegularClass()
         {
             var test = @"
     using System;
@@ -33,7 +29,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_NotSerializableProperty_ViewModel()
+        public async Task Test_NotSerializableProperty_ViewModel()
         {
             await VerifyCS.VerifyAnalyzerAsync(@"
     using DotVVM.Framework.ViewModel;
@@ -54,7 +50,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_SerializableRecordProperty_ViewModel()
+        public async Task Test_SerializableRecordProperty_ViewModel()
         {
             var test = @"
     using DotVVM.Framework.ViewModel;
@@ -81,7 +77,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_NotSerializableList_ViewModel()
+        public async Task Test_NotSerializableList_ViewModel()
         {
             await VerifyCS.VerifyAnalyzerAsync(@"
     using DotVVM.Framework.ViewModel;
@@ -103,7 +99,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_WarnAboutInterface_ViewModel()
+        public async Task Test_WarnAboutInterface_ViewModel()
         {
             await VerifyCS.VerifyAnalyzerAsync(@"
     using DotVVM.Framework.ViewModel;
@@ -124,7 +120,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_Primitives_AreSerializableAndSupported_ViewModel()
+        public async Task Test_Primitives_AreSerializableAndSupported_ViewModel()
         {
             var test = @"
     using DotVVM.Framework.ViewModel;
@@ -155,7 +151,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_Enums_AreSerializableAndSupported_ViewModel()
+        public async Task Test_Enums_AreSerializableAndSupported_ViewModel()
         {
             var test = @"
     using DotVVM.Framework.ViewModel;
@@ -180,7 +176,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_DotVVMFriendlyObjects_AreSerializableAndSupported_ViewModel()
+        public async Task Test_DotVVMFriendlyObjects_AreSerializableAndSupported_ViewModel()
         {
             var test = @"
     using DotVVM.Framework.ViewModel;
@@ -205,7 +201,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_NullablePrimitives_AreSerializableAndSupported_ViewModel()
+        public async Task Test_NullablePrimitives_AreSerializableAndSupported_ViewModel()
         {
             var test = @"
     using DotVVM.Framework.ViewModel;
@@ -236,7 +232,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_NullableStructs_AreSerializableAndSupported_ViewModel()
+        public async Task Test_NullableStructs_AreSerializableAndSupported_ViewModel()
         {
             var test = @"
     using DotVVM.Framework.ViewModel;
@@ -258,7 +254,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_NullableReferenceTypes_AreSerializableAndSupported_ViewModel()
+        public async Task Test_NullableReferenceTypes_AreSerializableAndSupported_ViewModel()
         {
             var test = @"
     #nullable enable
@@ -285,7 +281,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_CommonTypesAreSerializableAndSupported_ViewModel()
+        public async Task Test_CommonTypesAreSerializableAndSupported_ViewModel()
         {
             var test = @"
     using DotVVM.Framework.ViewModel;
@@ -309,7 +305,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_CollectionAreSerializableAndSupported_ViewModel()
+        public async Task Test_CollectionAreSerializableAndSupported_ViewModel()
         {
             var test = @"
     using DotVVM.Framework.ViewModel;
@@ -330,7 +326,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_NoWarningsForEnumerables_ViewModel()
+        public async Task Test_NoWarningsForEnumerables_ViewModel()
         {
             var test = @"
     using DotVVM.Framework.ViewModel;
@@ -352,7 +348,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_UserTypesAreSerializableAndSupported_ViewModel()
+        public async Task Test_UserTypesAreSerializableAndSupported_ViewModel()
         {
             var test = @"
     using DotVVM.Framework.ViewModel;
@@ -381,7 +377,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_NotSupportedProperty_ViewModel()
+        public async Task Test_NotSupportedProperty_ViewModel()
         {
             await VerifyCS.VerifyAnalyzerAsync(@"
     using DotVVM.Framework.ViewModel;
@@ -402,7 +398,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_PublicFieldsInViewModel()
+        public async Task Test_PublicFieldsInViewModel()
         {
             await VerifyCS.VerifyAnalyzerAsync(@"
     using DotVVM.Framework.ViewModel;
@@ -421,7 +417,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.DoNotUseFieldsRule).WithLocation(0));
         }
         [Fact]
-        public async void Test_ConstFieldsInViewModel()
+        public async Task Test_ConstFieldsInViewModel()
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
@@ -441,7 +437,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
 
 
         [Fact]
-        public async void Test_StaticPropertiesInViewModel()
+        public async Task Test_StaticPropertiesInViewModel()
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
@@ -463,7 +459,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_StaticFieldsInViewModel()
+        public async Task Test_StaticFieldsInViewModel()
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
@@ -485,7 +481,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_NonPublicFieldsInViewModel()
+        public async Task Test_NonPublicFieldsInViewModel()
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
@@ -505,7 +501,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_NonPublicPropertiesInViewModel()
+        public async Task Test_NonPublicPropertiesInViewModel()
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
@@ -525,7 +521,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_IgnoreNonSerializedMembers_BindDirectionNone_ViewModel()
+        public async Task Test_IgnoreNonSerializedMembers_BindDirectionNone_ViewModel()
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
@@ -552,7 +548,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_SelfReferencingTypes_GenericArgs_ViewModel()
+        public async Task Test_SelfReferencingTypes_GenericArgs_ViewModel()
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
@@ -571,7 +567,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_SelfReferencingTypes_Properties_ViewModel()
+        public async Task Test_SelfReferencingTypes_Properties_ViewModel()
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
@@ -591,7 +587,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
 
 
         [Fact]
-        public async void Test_WhiteListedDotvvmTypes_Properties_ViewModel()
+        public async Task Test_WhiteListedDotvvmTypes_Properties_ViewModel()
         {
             var text = @"
     using DotVVM.Framework.Controls;
@@ -612,7 +608,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_OverridenSerialization_OnProperty_ViewModel()
+        public async Task Test_OverridenSerialization_OnProperty_ViewModel()
         {
             var text = @"
     using DotVVM.Framework.Controls;
@@ -640,7 +636,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_OverridenSerialization_OnTypeDeclaration_ViewModel()
+        public async Task Test_OverridenSerialization_OnTypeDeclaration_ViewModel()
         {
             var text = @"
     using DotVVM.Framework.Controls;
@@ -668,7 +664,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_InnerTypesWithNonSerializableProperties_RegularClass()
+        public async Task Test_InnerTypesWithNonSerializableProperties_RegularClass()
         {
             await VerifyCS.VerifyAnalyzerAsync(@"
     using DotVVM.Framework.Controls;
@@ -695,7 +691,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_GenericReferenceType_Properties_ViewModel()
+        public async Task Test_GenericReferenceType_Properties_ViewModel()
         {
             await VerifyCS.VerifyAnalyzerAsync(@"
     using DotVVM.Framework.Controls;
@@ -724,7 +720,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_GenericViewModelType_Properties_ViewModel()
+        public async Task Test_GenericViewModelType_Properties_ViewModel()
         {
             var text = @"
     using DotVVM.Framework.Controls;

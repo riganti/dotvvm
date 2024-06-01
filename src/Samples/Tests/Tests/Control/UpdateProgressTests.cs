@@ -232,7 +232,7 @@ namespace DotVVM.Samples.Tests.Control
                     Thread.Sleep(50);
                 }
 
-                Assert.True(false, "SPA 2 page did not load in time");
+                Assert.Fail("SPA 2 page did not load in time");
             });
         }
         [Fact]

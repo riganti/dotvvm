@@ -51,7 +51,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ListBox_ListBox);
 
                 var initialSelectedElements = browser.FindElements("li");
-                Assert.Equal(0, initialSelectedElements.Count);
+                Assert.Empty(initialSelectedElements);
 
                 AssertUI.HasAttribute(browser.Single("select[data-ui=multiple]"), "multiple");
 

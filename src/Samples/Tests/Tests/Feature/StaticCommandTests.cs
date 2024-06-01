@@ -607,19 +607,19 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_LambdaExpressions_StaticCommands);
 
                 var rows = GetSortedRow(browser, "First customer");
-                browser.WaitFor(() => Assert.Equal(1, rows.Count), 500);
+                browser.WaitFor(() => Assert.Single(rows), 500);
                 Assert.Equal(rowWithId1.ToList(), RowContent(rows, 0, new List<int> { 0, 1, 2, 3, 4, 5 }).ToList());
 
                 rows = GetSortedRow(browser, "Last customer");
-                browser.WaitFor(() => Assert.Equal(1, rows.Count), 500);
+                browser.WaitFor(() => Assert.Single(rows), 500);
                 Assert.Equal(rowWithId10.ToList(), RowContent(rows, 0, new List<int> { 0, 1, 2, 3, 4, 5 }).ToList());
 
                 rows = GetSortedRow(browser, "First blue customer");
-                browser.WaitFor(() => Assert.Equal(1, rows.Count), 500);
+                browser.WaitFor(() => Assert.Single(rows), 500);
                 Assert.Equal(rowWithId3.ToList(), RowContent(rows, 0, new List<int> { 0, 1, 2, 3, 4, 5 }).ToList());
 
                 rows = GetSortedRow(browser, "Last red customer");
-                browser.WaitFor(() => Assert.Equal(1, rows.Count), 500);
+                browser.WaitFor(() => Assert.Single(rows), 500);
                 Assert.Equal(rowWithId8.ToList(), RowContent(rows, 0, new List<int> { 0, 1, 2, 3, 4, 5 }).ToList());
             });
         }

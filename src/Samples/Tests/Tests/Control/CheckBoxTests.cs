@@ -149,7 +149,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.WaitUntilDotvvmInited();
 
                 var checkBoxes = browser.FindElements("checkbox", SelectByDataUi);
-                Assert.Equal(0, checkBoxes.Count);
+                Assert.Empty(checkBoxes);
                 void UpdateData() => browser.WaitFor(() => {
                     var button = browser.First("btn-update", SelectByDataUi).Click();
                     var repeater = browser.Single("repeater", SelectByDataUi);
