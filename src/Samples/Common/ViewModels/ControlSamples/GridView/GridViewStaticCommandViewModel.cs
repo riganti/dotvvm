@@ -90,12 +90,9 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
             return dataSet;
         }
 
-        public class NextTokenGridViewDataSet : GenericGridViewDataSet<CustomerData, NoFilteringOptions, SortingOptions, CustomerDataNextTokenPagingOptions, RowInsertOptions<CustomerData>, RowEditOptions>
-        {
-            public NextTokenGridViewDataSet() : base(new NoFilteringOptions(), new SortingOptions(), new CustomerDataNextTokenPagingOptions(), new RowInsertOptions<CustomerData>(), new RowEditOptions())
-            {
-            }
-        }
+        public class NextTokenGridViewDataSet() : GenericGridViewDataSet<CustomerData, NoFilteringOptions, SortingOptions, CustomerDataNextTokenPagingOptions, RowInsertOptions<CustomerData>, RowEditOptions>(
+            new(), new(), new(), new(), new()
+        );
 
         public class CustomerDataNextTokenPagingOptions : NextTokenPagingOptions, IApplyToQueryable, IPagingOptionsLoadingPostProcessor
         {
@@ -128,12 +125,9 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
             }
         }
 
-        public class NextTokenHistoryGridViewDataSet : GenericGridViewDataSet<CustomerData, NoFilteringOptions, SortingOptions, CustomerDataNextTokenHistoryPagingOptions, RowInsertOptions<CustomerData>, RowEditOptions>
-        {
-            public NextTokenHistoryGridViewDataSet() : base(new NoFilteringOptions(), new SortingOptions(), new CustomerDataNextTokenHistoryPagingOptions(), new RowInsertOptions<CustomerData>(), new RowEditOptions())
-            {
-            }
-        }
+        public class NextTokenHistoryGridViewDataSet() : GenericGridViewDataSet<CustomerData, NoFilteringOptions, SortingOptions, CustomerDataNextTokenHistoryPagingOptions, RowInsertOptions<CustomerData>, RowEditOptions>(
+            new(), new(), new(), new(), new()
+        );
 
         public class CustomerDataNextTokenHistoryPagingOptions : NextTokenHistoryPagingOptions, IApplyToQueryable, IPagingOptionsLoadingPostProcessor
         {
@@ -173,11 +167,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
             }
         }
 
-        public class MultiSortGridViewDataSet : GenericGridViewDataSet<CustomerData, NoFilteringOptions, MultiCriteriaSortingOptions, PagingOptions, RowInsertOptions<CustomerData>, RowEditOptions>
-        {
-            public MultiSortGridViewDataSet() : base(new NoFilteringOptions(), new MultiCriteriaSortingOptions(), new PagingOptions(), new RowInsertOptions<CustomerData>(), new RowEditOptions())
-            {
-            }
-        }
+        public class MultiSortGridViewDataSet() : GenericGridViewDataSet<CustomerData, NoFilteringOptions, MultiCriteriaSortingOptions, PagingOptions, RowInsertOptions<CustomerData>, RowEditOptions>(
+            new(), new(), new(), new(), new()
+        );
     }
 }

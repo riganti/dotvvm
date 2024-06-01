@@ -10,14 +10,9 @@ namespace DotVVM.Framework.Controls
     /// Represents a collection of items with paging, sorting and row edit capabilities.
     /// </summary>
     /// <typeparam name="T">The type of the elements in the collection.</typeparam>
-    public class GridViewDataSet<T>
-        : GenericGridViewDataSet<T, NoFilteringOptions, SortingOptions, PagingOptions, NoRowInsertOptions, RowEditOptions>
+    public class GridViewDataSet<T>()
+        : GenericGridViewDataSet<T, NoFilteringOptions, SortingOptions, PagingOptions, NoRowInsertOptions, RowEditOptions>(new(), new(), new(), new(), new())
     {
-        public GridViewDataSet()
-            : base(new NoFilteringOptions(), new SortingOptions(), new PagingOptions(), new NoRowInsertOptions(), new RowEditOptions())
-        {
-        }
-
         // return specialized dataset options
         public new GridViewDataSetOptions GetOptions()
         {
