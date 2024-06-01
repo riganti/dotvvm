@@ -230,13 +230,21 @@ namespace DotVVM.Framework.Controls
             // If Visible property was set to something, it would be overwritten by this
             if (HideWhenOnlyOnePage && pagerBindings?.HasMoreThanOnePage is {} hasMoreThanOnePage)
             {
-                if (IsPropertySet(VisibleProperty))
-                    throw new Exception("Visible can't be set on a DataPager when HideWhenOnlyOnePage is true. You can wrap it in an element that hide that or set HideWhenOnlyOnePage to false");
-                list.SetProperty(HtmlGenericControl.VisibleProperty, hasMoreThanOnePage);
+                list.SetProperty(
+                    HtmlGenericControl.VisibleProperty,
+                    new ValueOrBinding<bool>(hasMoreThanOnePage).And(GetValueOrBinding<bool>(VisibleProperty))
+                );
             }
+            else
+            {
+                list.SetProperty(HtmlGenericControl.VisibleProperty, GetValueOrBinding<bool>(VisibleProperty));
+            }
+
 
             return list;
         }
+
+        protected override void AddVisibleAttributeOrBinding(in RenderState r, IHtmlWriter writer) { } // handled by the wrapper list
 
         protected virtual HtmlGenericControl CreatePageNumberButton(ValueOrBinding<bool> globalEnabled, DataPagerBindings pagerBindings, IDotvvmRequestContext context)
         {

@@ -80,6 +80,17 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task HideableDataPager()
+        {
+            var r = await cth.RunPage(typeof(GridViewModel), """
+                <dot:DataPager DataSet={value: Customers} RenderSettings.Mode=Client HideWhenOnlyOnePage Visible={value: BooleanProperty} />
+                """
+            );
+            
+            XAssert.Equal("visible: Customers()?.PagingOptions()?.PagesCount() > 1 && BooleanProperty", r.Html.QuerySelector("ul").GetAttribute("data-bind"));
+        }
+
         public class GridViewModel: DotvvmViewModelBase
         {
             public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>()
@@ -89,6 +100,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                     PageSize = 5
                 },
             };
+
+            public bool BooleanProperty { get; set; } = true;
 
             public override async Task PreRender()
             {
