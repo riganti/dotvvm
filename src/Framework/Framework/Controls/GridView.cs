@@ -296,6 +296,11 @@ namespace DotVVM.Framework.Controls
 
         protected virtual ICommandBinding BuildDefaultSortCommandBinding()
         {
+            if (GetValueRaw(SortChangedProperty) is IStaticCommandBinding staticCommandBinding)
+            {
+                return staticCommandBinding;
+            }
+
             var dataContextStack = this.GetDataContextType()!;
             return new CommandBindingExpression(bindingCompilationService.WithoutInitialization(),
                 new object[] {

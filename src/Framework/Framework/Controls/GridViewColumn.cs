@@ -199,7 +199,7 @@ namespace DotVVM.Framework.Controls
 
             if (AllowSorting)
             {
-                var sortCommandBinding = gridViewCommands.SetSortExpression ?? sortCommandBindingOverride;
+                var sortCommandBinding = sortCommandBindingOverride ?? gridViewCommands.SetSortExpression;
                 if (sortCommandBinding == null)
                 {
                     throw new DotvvmControlException(this, "Cannot use column sorting where no sort command is specified. Either put IGridViewDataSet in the DataSource property of the GridView, or set the SortChanged command on the GridView to implement custom sorting logic!");
