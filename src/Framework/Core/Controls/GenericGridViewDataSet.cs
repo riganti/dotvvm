@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace DotVVM.Framework.Controls
@@ -62,7 +63,7 @@ namespace DotVVM.Framework.Controls
         public TRowEditOptions RowEditOptions { get; set; }
 
 
-        IList IBaseGridViewDataSet.Items => Items is List<T> list ? list : Items.ToList();
+        IList IBaseGridViewDataSet.Items => Items is IList list ? list : new ReadOnlyCollection<T>(Items);
 
         IFilteringOptions IFilterableGridViewDataSet.FilteringOptions => this.FilteringOptions;
 
