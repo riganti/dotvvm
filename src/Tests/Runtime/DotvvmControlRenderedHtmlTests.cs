@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
+using CheckTestOutput;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -18,6 +20,8 @@ namespace DotVVM.Framework.Tests.Runtime
     [TestClass]
     public class DotvvmControlRenderedHtmlTests : DotvvmControlTestBase
     {
+        static readonly BindingTestHelper bindingHelper = new BindingTestHelper();
+        readonly OutputChecker outputChecker = new OutputChecker("testoutputs");
         [TestMethod]
         public void GridViewTextColumn_RenderedHtmlTest_ServerRendering()
         {
@@ -209,6 +213,22 @@ namespace DotVVM.Framework.Tests.Runtime
 
                 Assert.AreEqual(@"<span>2021-01-02 03:04:05</span><span>2021-01-02 03:04:05</span>", html);
             });
+        }
+
+        [TestMethod]
+        public void Button_ClickArgumentsCommand()
+        {
+            var vm = new LiteralDateTimeViewModel();
+            var command = bindingHelper.Command("null", [ typeof(LiteralDateTimeViewModel) ], typeof(Func<DateTime, int, Task>));
+            var button = new Button("text", command) {
+                ClickArguments = new object[] {
+                    bindingHelper.ValueBinding<DateTime>("DateTime", [ typeof(LiteralDateTimeViewModel) ]),
+                    1
+                }
+            };
+
+            var html = InvokeLifecycleAndRender(button, CreateContext(vm));
+            outputChecker.CheckString(html, "Button_ClickArgumentsCommand", fileExtension: "html");
         }
 
 
