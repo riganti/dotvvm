@@ -69,13 +69,13 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the required culture of the page. This property is supported only when using localizable routes.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string Culture
+        public string? Culture
         {
-            get { return (string)GetValue(CultureProperty); }
+            get { return (string?)GetValue(CultureProperty); }
             set { SetValue(CultureProperty, value); }
         }
         public static readonly DotvvmProperty CultureProperty
-            = DotvvmProperty.Register<string, RouteLink>(c => c.Culture, null);
+            = DotvvmProperty.Register<string?, RouteLink>(c => c.Culture, null);
 
         /// <summary>
         /// Gets or sets a collection of parameters to be substituted in the route URL. If the current route contains a parameter with the same name, its value will be reused unless another value is specified here.
@@ -219,7 +219,7 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
-            var parameterDefinitions = route.ParameterNames;
+            var parameterDefinitions = route!.ParameterNames;
             var parameterReferences = control.Properties.Where(i => i.Key is GroupedDotvvmProperty p && p.PropertyGroup == ParamsGroupDescriptor);
 
             var undefinedReferences =
