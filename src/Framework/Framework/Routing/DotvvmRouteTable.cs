@@ -225,7 +225,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="url">The URL.</param>
         /// <param name="presenterType">The presenter factory.</param>
         /// <param name="defaultValues">The default values.</param>
-        public void Add(string routeName, string? url, Type presenterType, object? defaultValues = null, LocalizedRouteUrl[] localizedUrls = null)
+        public void Add(string routeName, string? url, Type presenterType, object? defaultValues = null, LocalizedRouteUrl[]? localizedUrls = null)
         {
             ThrowIfFrozen();
             if (!typeof(IDotvvmPresenter).IsAssignableFrom(presenterType))
