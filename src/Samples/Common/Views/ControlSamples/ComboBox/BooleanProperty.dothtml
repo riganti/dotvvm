@@ -1,0 +1,60 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ComboBox.ComboBoxBooleanViewModel
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <p>
+        Demonstrates ComboBox working when bound to <code>bool</code> or <code>bool?</code>. Each table column should display the same value.
+    </p>
+    <table>
+        <tr>
+            <th></th>
+            <th>Nullable boolean</th>
+            <th>Non-nullable boolean</th>
+        </tr>
+        <tr>
+            <th>Current values</th>
+            <td data-ui='value-n'>
+                {{value: NullableSelectedValue == null ? "null" : NullableSelectedValue}}
+            </td>
+            <td data-ui='value-nn'>
+                {{value: NonNullableSelectedValue.ToString()}}
+            </td>
+        </tr>
+        <tr>
+            <th>DataSource</th>
+            <td>
+                <dot:ComboBox DataSource="{value: NullableItems}" SelectedValue="{value: NullableSelectedValue}" data-ui="cb1-n" />
+            </td>
+            <td>
+                <dot:ComboBox DataSource="{value: Items}" SelectedValue="{value: NonNullableSelectedValue}" data-ui="cb1-nn" />
+            </td>
+        </tr>
+        <tr>
+            <th>Hardcoded items</th>
+            <td>
+                <dot:ComboBox SelectedValue="{value: NullableSelectedValue}" data-ui="cb2-n">
+                    <dot:SelectorItem Text="TRUE" Value={value: true} />
+                    <dot:SelectorItem Text="FALSE" Value={value: false} />
+                    <dot:SelectorItem Text="NULL" Value={value: null} />
+                </dot:ComboBox>
+            </td>
+            <td>
+                <dot:ComboBox SelectedValue="{value: NonNullableSelectedValue}" data-ui="cb2-nn">
+                    <dot:SelectorItem Text="TRUE" Value={value: true} />
+                    <dot:SelectorItem Text="FALSE" Value={value: false} />
+                </dot:ComboBox>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

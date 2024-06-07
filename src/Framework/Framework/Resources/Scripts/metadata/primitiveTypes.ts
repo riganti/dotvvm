@@ -26,7 +26,7 @@ export const primitiveTypes: PrimitiveTypes = {
             } else if (value === "true" || value === "True") {
                 return { value: true, wasCoerced: true };
             } else if (value === "false" || value === "False") {
-                return { value: true, wasCoerced: true };
+                return { value: false, wasCoerced: true };
             } else if (typeof value === "number") {
                 return { value: !!value, wasCoerced: true };
             }

@@ -32,10 +32,11 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
                         LocalizableString.CreateNullable(displayAttribute?.Name, displayAttribute?.ResourceType) ??
                         LocalizableString.Constant(name.Humanize());
                     var title = LocalizableString.CreateNullable(displayAttribute?.Description, displayAttribute?.ResourceType);
-                    return (name, displayName, title);
-                })
-                .Select(e => new SelectorItem(e.displayName.ToBinding(context.BindingService), new(Enum.Parse(enumType, e.name)))
-                                .AddAttribute("title", e.title?.ToBinding(context.BindingService)));
+                    var enumJsString = ReflectionUtils.ToEnumString(enumType, name);
+
+                    return new SelectorItem(displayName.ToBinding(context.BindingService), new(enumJsString))
+                                .AddAttribute("title", title?.ToBinding(context.BindingService));
+                });
 
             var control = new ComboBox()
                 .SetCapability(props.Html)
