@@ -218,6 +218,22 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual("The control <bp:Button> could not be resolved! Did you mean dot:Button, or other DotVVM control? Otherwise, make sure that the tagPrefix 'bp' is registered in DotvvmConfiguration.Markup.Controls collection!", XAssert.Single(node.NodeErrors));
         }
 
+
+        [TestMethod]
+        public void ResolvedTree_SimilarToMarkupControl()
+        {
+            var root = ParseSource(@"@viewModel string
+<cmc:ControlWithPropertyDirectives />
+<cmc:ControlWithGazeType />
+");
+
+            var controls = root.Content.Where(c => !c.IsOnlyWhitespace()).ToArray();
+            var node = (controls[0].DothtmlNode as DothtmlElementNode).TagNameNode;
+            Assert.AreEqual("The control <cmc:ControlWithPropertyDirectives> could not be resolved! Did you mean cmc:ControlWithPropertyDirective, or other DotVVM control?", XAssert.Single(node.NodeErrors));
+            node = (controls[1].DothtmlNode as DothtmlElementNode).TagNameNode;
+            Assert.AreEqual("The control <cmc:ControlWithGazeType> could not be resolved! Did you mean cmc:ControlWithBaseType, or other DotVVM control?", XAssert.Single(node.NodeErrors));
+        }
+
         [TestMethod]
         public void ResolvedTree_ElementProperty()
         {

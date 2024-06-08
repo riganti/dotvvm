@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         /// <summary> Returns a list of possible DotVVM controls. </summary>
         /// <remark>Used only for smart error handling, the list isn't necessarily complete, but doesn't contain false positives.</remark>
-        IEnumerable<(string tagPrefix, IControlType type)> EnumerateControlTypes();
+        IEnumerable<(string tagPrefix, string? tagName, IControlType type)> EnumerateControlTypes();
 
         /// <summary>
         /// Resolves the binding type.

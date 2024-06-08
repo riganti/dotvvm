@@ -265,7 +265,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 var similarNameHelp = similarControls.Any() ? $" Did you mean {string.Join(", ", similarControls.Select(c => c.tagPrefix + ":" + c.name))}, or other DotVVM control?" : "";
                 var tagPrefixHelp = configuration.Markup.Controls.Any(c => string.Equals(c.TagPrefix, element.TagPrefix, StringComparison.OrdinalIgnoreCase))
                                         ? ""
-                                        : $" {(similarNameHelp is null ? "Make" : "Otherwise, make")} sure that the tagPrefix '{element.TagPrefix}' is registered in DotvvmConfiguration.Markup.Controls collection!";
+                                        : $" {(similarNameHelp is "" ? "Make" : "Otherwise, make")} sure that the tagPrefix '{element.TagPrefix}' is registered in DotvvmConfiguration.Markup.Controls collection!";
                 element.TagNameNode.AddError($"The control <{element.FullTagName}> could not be resolved!{similarNameHelp}{tagPrefixHelp}");
             }
             if (controlMetadata.VirtualPath is {} && controlMetadata.Type.IsAssignableTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))))
@@ -512,10 +512,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 where controlBaseType is null || c.type.Type.IsAssignableTo(controlBaseType)
                 let prefixScore = tagPrefix is null ? 0 : StringSimilarity.DamerauLevenshteinDistance(c.tagPrefix, tagPrefix)
                 where prefixScore <= threshold
-                from controlName in Enumerable.Concat([ c.type.Type.Name ], c.type.AlternativeNames)
+                from controlName in Enumerable.Concat([ c.tagName ?? c.type.PrimaryName ], c.type.AlternativeNames)
                 let nameScore = StringSimilarity.DamerauLevenshteinDistance(elementName.ToLowerInvariant(), controlName.ToLowerInvariant())
                 where prefixScore + nameScore <= threshold
-                orderby prefixScore + nameScore descending
+                orderby (prefixScore + nameScore, controlName, c.tagPrefix) descending
                 select (c.tagPrefix, controlName, c.type)
             ).Take(limit).ToArray();
         }

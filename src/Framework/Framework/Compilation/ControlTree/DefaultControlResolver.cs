@@ -300,7 +300,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new ControlResolverMetadata((ControlType)type);
         }
 
-        public override IEnumerable<(string tagPrefix, IControlType type)> EnumerateControlTypes()
+        public override IEnumerable<(string tagPrefix, string? tagName, IControlType type)> EnumerateControlTypes()
         {
             var markupControls = new HashSet<(string, string)>(); // don't report MarkupControl with @baseType twice
 
@@ -308,8 +308,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 if (!string.IsNullOrEmpty(control.Src))
                 {
-                    var markupControl = FindMarkupControl(control.Src);
                     markupControls.Add((control.TagPrefix!, control.TagName!));
+                    IControlType? markupControl = null;
+                    try
+                    {
+                        markupControl = FindMarkupControl(control.Src);
+                    }
+                    catch { } // ignore the error, we should not crash here
+                    if (markupControl != null)
+                        yield return (control.TagPrefix!, control.TagName, markupControl);
                 }
             }
 
@@ -327,7 +334,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         typeof(DotvvmBindableObject).IsAssignableFrom(type) &&
                         namespaces.TryGetValue(type.Namespace ?? "", out var controlConfig))
                     {
-                        yield return (controlConfig.TagPrefix!, new ControlType(type));
+                        if (!markupControls.Contains((controlConfig.TagPrefix!, type.Name)))
+                            yield return (controlConfig.TagPrefix!, null, new ControlType(type));
                     }
                 }
             }
