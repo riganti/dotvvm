@@ -1,7 +1,9 @@
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -16,6 +18,10 @@ namespace DotVVM.Framework.Compilation
         ITypeDescriptor IControlType.Type => new ResolvedTypeDescriptor(Type);
 
         ITypeDescriptor? IControlType.DataContextRequirement => ResolvedTypeDescriptor.Create(DataContextRequirement);
+
+        public string PrimaryName => GetControlNames(Type).primary;
+
+        public string[] AlternativeNames => GetControlNames(Type).alternative;
 
         static void ValidateControlClass(Type control)
         {
@@ -33,6 +39,19 @@ namespace DotVVM.Framework.Compilation
             VirtualPath = virtualPath;
             if (dataContextRequirement != typeof(Binding.UnknownTypeSentinel))
                 DataContextRequirement = dataContextRequirement;
+        }
+
+        public static (string primary, string[] alternative) GetControlNames(Type controlType)
+        {
+            var attr = controlType.GetCustomAttribute<ControlMarkupOptionsAttribute>();
+            if (attr is null)
+            {
+                return (controlType.Name, Array.Empty<string>());
+            }
+            else
+            {
+                return (attr.PrimaryName ?? controlType.Name, attr.AlternativeNames ?? Array.Empty<string>());
+            }
         }
 
 

@@ -39,5 +39,8 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         {
             return base.EnumerateNodes().Concat(EnumerateChildNodes().SelectMany(node => node.EnumerateNodes()));
         }
+
+        public override string ToString() =>
+            IsServerSide ? $"<%-- {Value} --%>" : $"<!-- {Value} -->";
     }
 }

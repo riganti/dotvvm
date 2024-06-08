@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         
         public static bool IsOnlyWhitespace(this IAbstractControl control) =>
-            control.Metadata.Type.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(RawLiteral))) && control.DothtmlNode?.IsNotEmpty() == false;
+            control.Metadata.Type.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(RawLiteral))) && control.DothtmlNode?.IsEmpty() == true;
 
         public static bool HasOnlyWhiteSpaceContent(this IAbstractContentNode control) =>
             control.Content.All(IsOnlyWhitespace);

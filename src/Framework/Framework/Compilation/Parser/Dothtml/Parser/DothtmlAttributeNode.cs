@@ -5,14 +5,14 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
-    [DebuggerDisplay("{debuggerDisplay,nq}{ValueNode}")]
     public sealed class DothtmlAttributeNode : DothtmlNode
     {
-        #region debugger display
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string debuggerDisplay =>
-            AttributeFullName + (ValueNode == null ? "" : "=");
-        #endregion
+        public override string ToString() =>
+            AttributeFullName + ValueNode switch {
+                null => "",
+                DothtmlValueBindingNode => $"={ValueNode}",
+                _ => $"=\"{ValueNode}\""
+            };
         public string? AttributePrefix => AttributePrefixNode?.Text;
 
         public string AttributeName => AttributeNameNode.Text;

@@ -5,11 +5,13 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
     public static class DothtmlNodeHelper
     {
-        public static bool IsNotEmpty([NotNullWhen(true)] this DothtmlNode? node)
+        public static bool IsNotEmpty([NotNullWhen(true)] this DothtmlNode? node) =>
+            !IsEmpty(node);
+
+        public static bool IsEmpty([NotNullWhen(false)] this DothtmlNode? node)
         {
-            return node is object &&
-                   !(node is DotHtmlCommentNode) &&
-                   !(node is DothtmlLiteralNode literalNode && string.IsNullOrWhiteSpace(literalNode.Value));
+            return node is null or DotHtmlCommentNode ||
+                   (node is DothtmlLiteralNode literalNode && string.IsNullOrWhiteSpace(literalNode.Value));
         }
 
         public static int GetContentStartPosition(this DothtmlElementNode node)

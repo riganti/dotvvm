@@ -5,21 +5,12 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
-    [DebuggerDisplay("{debuggerDisplay,nq}")]
     public class DothtmlBindingNode : DothtmlNode
     {
-
-        #region debugger display
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string debuggerDisplay
+        public override string ToString()
         {
-            get
-            {
-                return "{" + Name + ": " + Value + "}";
-            }
+            return "{" + Name + ": " + Value + "}";
         }
-        #endregion
-
 
         public DothtmlBindingNode(DothtmlToken startToken, DothtmlToken endToken, DothtmlToken separatorToken, DothtmlNameNode nameNode, DothtmlValueTextNode valueNode)
         {

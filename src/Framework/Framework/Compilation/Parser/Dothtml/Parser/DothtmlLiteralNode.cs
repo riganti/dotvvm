@@ -5,7 +5,6 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
-    [DebuggerDisplay("{Value}")]
     public sealed class DothtmlLiteralNode : DothtmlNode
     {
         public DothtmlToken? MainValueToken { get; set; }
@@ -20,5 +19,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         {
             visitor.Visit(this);
         }
+
+        public override string ToString() => Value;
     }
 }
