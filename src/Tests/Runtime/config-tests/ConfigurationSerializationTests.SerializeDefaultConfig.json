@@ -43,7 +43,6 @@
       },
       "DotVVM.Framework.ResourceManagement.ScriptModuleResource": {
         "dotvvm.internal": {
-          "Defer": true,
           "Location": {
             "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
             "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
@@ -57,7 +56,6 @@
           "RenderPosition": "Anywhere"
         },
         "dotvvm.internal-spa": {
-          "Defer": true,
           "Location": {
             "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
             "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
