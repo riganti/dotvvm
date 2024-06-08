@@ -20,7 +20,14 @@ namespace DotVVM.Framework.ResourceManagement
         }
 
         [JsonConstructor]
-        public InlineScriptResource(string code, ResourceRenderPosition renderPosition = ResourceRenderPosition.Body, bool defer = false) : base(renderPosition)
+        public InlineScriptResource(string code, ResourceRenderPosition renderPosition = ResourceRenderPosition.Body, bool defer = false, bool module = false) : base(renderPosition)
+        {
+            this.Code = code;
+            this.Module = module;
+            this.Defer = defer || module;
+        }
+
+        public InlineScriptResource(string code, ResourceRenderPosition renderPosition, bool defer) : base(renderPosition)
         {
             this.Code = code;
             this.Defer = defer;
@@ -50,6 +57,8 @@ namespace DotVVM.Framework.ResourceManagement
 
         /// <summary> If the script should be executed after the page loads (using the `defer` attribute). </summary>
         public bool Defer { get; }
+        /// <summary> If the script should be rendered as type='module'. Module=true implies Defer=true </summary>
+        public bool Module { get; }
         public bool ShouldSerializeCode() => code?.IsValueCreated == true;
 
         static bool InlineScriptContentGuard(string? code)
@@ -65,20 +74,26 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public override void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            RenderScript(writer, Code, Defer);
+            RenderScript(writer, Code, Defer, Module);
         }
 
         /// <summary> Renders a &lt;script&gt; element with the <paramref name="code"/> content. </summary>
-        public static void RenderScript(IHtmlWriter writer, string code, bool defer)
+        public static void RenderScript(IHtmlWriter writer, string code, bool defer) =>
+            RenderScript(writer, code, defer, module: false);
+        /// <summary> Renders a &lt;script&gt; element with the <paramref name="code"/> content. </summary>
+        public static void RenderScript(IHtmlWriter writer, string code, bool defer, bool module)
         {
             if (string.IsNullOrWhiteSpace(code)) return;
 
             var needBase64Hack =
-                defer || // browsers don't support `defer` attribute on inline script. We can overcome this limitation by using base64 data URI
+                (defer && !module) || // browsers don't support `defer` attribute on inline script. We can overcome this limitation by using base64 data URI
                 InlineScriptContentGuard(code); // or, when the script is XSS-unsafe, we can do the same
 
-            if (defer)
+            if (defer && !module)
                 writer.AddAttribute("defer", null);
+
+            if (module)
+                writer.AddAttribute("type", "module");
 
             if (needBase64Hack)
                 RenderDataUriString(writer, code);

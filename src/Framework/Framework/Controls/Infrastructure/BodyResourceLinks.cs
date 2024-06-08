@@ -42,8 +42,7 @@ namespace DotVVM.Framework.Controls
             {
                 initCode = $"ko.options.deferUpdates = true;\n{initCode}";
             }
-            new InlineScriptResource(initCode, defer: true)
-                .Render(writer, context, "dotvvm-init-script");
+            InlineScriptResource.RenderScript(writer, initCode, defer: true, module: true);
 
             var warnings = RenderWarnings(context);
             if (warnings.Length > 0)
