@@ -37,6 +37,32 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual("BoolProp", warnings[0].tokens.Trim());
         }
 
+        [TestMethod]
+        public void CompilationWarning_JsComponentNoModules()
+        {
+            var warnings = GetWarnings($$"""
+                @viewModel {{typeof(TestViewModel)}}
+                <js:Test />
+            """);
+            Assert.AreEqual(1, warnings.Length);
+            StringAssert.Contains(warnings[0].warning, "This view does not have any view modules registered");
+            Assert.AreEqual("Test", warnings[0].tokens.Trim());
+        }
+
+        [TestMethod]
+        public void CompilationWarning_JsComponentFine()
+        {
+            XAssert.Empty(GetWarnings($$"""
+                @viewModel {{typeof(TestViewModel)}}
+                @js dotvvm.internal
+                <js:Test />
+            """));
+            XAssert.Empty(GetWarnings($$"""
+                @viewModel {{typeof(TestViewModel)}}
+                <js:Test Global />
+            """));
+        }
+
         [DataTestMethod]
         [DataRow("TestViewModel2")]
         [DataRow("VMArray")]
@@ -51,7 +77,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
-        public void DefaultViewCompiler_NonExistenPropertyWarning()
+        public void DefaultViewCompiler_NonExistentPropertyWarning()
         {
            var markup = $@"
 @viewModel System.Boolean
@@ -72,7 +98,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
-        public void DefaultViewCompiler_NonExistenPropertyWarning_PrefixedGroup()
+        public void DefaultViewCompiler_NonExistentPropertyWarning_PrefixedGroup()
         {
            var markup = $@"
 @viewModel System.Boolean

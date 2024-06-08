@@ -18,6 +18,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         IEnumerable<IPropertyDescriptor> IAbstractControl.PropertyNames => Properties.Keys;
 
+        IEnumerable<KeyValuePair<IPropertyDescriptor, IAbstractPropertySetter>> IAbstractControl.Properties =>
+            Properties.Select(p => new KeyValuePair<IPropertyDescriptor, IAbstractPropertySetter>(p.Key, p.Value));
+
+
         public ResolvedControl(ControlResolverMetadata metadata, DothtmlNode? node, DataContextStack dataContext)
             : base(metadata, node, dataContext) { }
 
