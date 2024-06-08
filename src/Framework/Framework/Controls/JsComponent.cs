@@ -16,6 +16,11 @@ using DotVVM.Framework.Utils;
 namespace DotVVM.Framework.Controls
 {
     /// <summary> Control which initializes a client-side component. </summary>
+    /// <remark>
+    /// The client-side component is either exported from a view module referenced in the page's @js directive, or registered using the dotvvm.registerGlobalComponent method.
+    /// The module should export a $controls field with any number of named components, (TypeScript signature is <c>$controls?: { [name:string]: DotvvmJsComponentFactory }</c>)
+    /// </remark>
+    /// <seealso href="https://www.dotvvm.com/docs/latest/pages/concepts/client-side-development/integrate-third-party-controls/react" />
     public class JsComponent : DotvvmControl
     {
         /// <summary> If set to true, view modules are ignored and JsComponents registered using <c>dotvvm.registerGlobalComponent</c> will be considered for client-side rendering. </summary>
