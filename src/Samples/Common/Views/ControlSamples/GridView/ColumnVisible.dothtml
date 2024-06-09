@@ -18,8 +18,9 @@
         <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" IsEditable="false" />
-                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" Visible="true" />
                 <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" Visible="{value: IsBirthDateVisible}" />
+                <dot:GridViewTextColumn HeaderText="Always hidden" ValueBinding="{value: Name}" Visible={resource: false} /> 
             </Columns>
         </dot:GridView>
 

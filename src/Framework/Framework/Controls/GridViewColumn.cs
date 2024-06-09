@@ -123,7 +123,7 @@ namespace DotVVM.Framework.Controls
             = DotvvmProperty.Register<string?, GridViewColumn>(c => c.Width, null);
 
         [PopDataContextManipulation]
-        [MarkupOptions(AllowHardCodedValue = false)]
+        [MarkupOptions]
         public bool Visible
         {
             get { return (bool)GetValue(VisibleProperty)!; }
