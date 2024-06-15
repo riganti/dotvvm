@@ -279,6 +279,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_LambdaExpressions_StaticCommands = "FeatureSamples/LambdaExpressions/StaticCommands";
         public const string FeatureSamples_LiteralBinding_LiteralBinding_Zero = "FeatureSamples/LiteralBinding/LiteralBinding_Zero";
         public const string FeatureSamples_Localization_Globalize = "FeatureSamples/Localization/Globalize";
+        public const string FeatureSamples_Localization_LocalizableRoute = "FeatureSamples/Localization/LocalizableRoute";
         public const string FeatureSamples_Localization_Localization = "FeatureSamples/Localization/Localization";
         public const string FeatureSamples_Localization_Localization_Control_Page = "FeatureSamples/Localization/Localization_Control_Page";
         public const string FeatureSamples_Localization_Localization_FormatString = "FeatureSamples/Localization/Localization_FormatString";

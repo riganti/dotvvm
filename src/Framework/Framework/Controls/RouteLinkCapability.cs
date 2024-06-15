@@ -19,5 +19,7 @@ namespace DotVVM.Framework.Controls
 
         [DefaultValue(null)]
         public ValueOrBinding<string>? UrlSuffix { get; init; }
+
+        public string? Culture { get; init; }
     }
 }

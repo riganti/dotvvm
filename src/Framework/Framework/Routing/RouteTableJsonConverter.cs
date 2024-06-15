@@ -75,7 +75,8 @@ namespace DotVVM.Framework.Routing
 
             public override bool IsMatch(string url, [MaybeNullWhen(false)] out IDictionary<string, object?> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
 
-            protected override string BuildUrlCore(Dictionary<string, object?> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
+            protected internal override string BuildUrlCore(Dictionary<string, object?> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
+
             protected override void Freeze2()
             {
                 // no mutable properties in this class

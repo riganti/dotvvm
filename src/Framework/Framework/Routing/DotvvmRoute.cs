@@ -123,7 +123,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Builds the URL core from the parameters.
         /// </summary>
-        protected override string BuildUrlCore(Dictionary<string, object?> values)
+        protected internal override string BuildUrlCore(Dictionary<string, object?> values)
         {
             var convertedValues =
                 values.ToDictionary(
