@@ -4,11 +4,11 @@ using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
-    /// <summary> Contains pre-created data bindings for the <see cref="GridView" /> components. Instance can obtained from <see cref="GridViewDataSetBindingProvider" /> </summary>
-    public class GridViewCommands
+    /// <summary> Contains pre-created command and value bindings for the <see cref="GridView" /> components. An instance can be obtained from <see cref="GridViewDataSetBindingProvider" /> </summary>
+    public class GridViewBindings
     {
-        private readonly ConcurrentDictionary<string, IValueBinding<bool>> isSortColumnAscending = new();
-        private readonly ConcurrentDictionary<string, IValueBinding<bool>> isSortColumnDescending = new();
+        private readonly ConcurrentDictionary<string, IValueBinding<bool>> isSortColumnAscending = new(concurrencyLevel: 1, capacity: 16);
+        private readonly ConcurrentDictionary<string, IValueBinding<bool>> isSortColumnDescending = new(concurrencyLevel: 1, capacity: 16);
 
         public ICommandBinding? SetSortExpression { get; init; }
 

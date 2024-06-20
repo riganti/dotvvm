@@ -4,6 +4,7 @@ using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary> Contains pre-created command and value bindings for the <see cref="DataPager" /> components. An instance can be obtained from <see cref="GridViewDataSetBindingProvider" /> </summary>
     public class DataPagerBindings
     {
         public ICommandBinding? GoToFirstPage { get; init; }

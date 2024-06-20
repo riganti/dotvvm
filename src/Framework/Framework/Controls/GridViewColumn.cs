@@ -189,7 +189,7 @@ namespace DotVVM.Framework.Controls
             EditTemplate.BuildContent(context, container);
         }
 
-        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, GridViewCommands gridViewCommands, ICommandBinding? sortCommandBindingOverride, HtmlGenericControl cell, IGridViewDataSet? gridViewDataSet)
+        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, GridViewBindings gridViewCommands, ICommandBinding? sortCommandBindingOverride, HtmlGenericControl cell, IGridViewDataSet? gridViewDataSet)
         {
             if (HeaderTemplate != null)
             {
@@ -240,7 +240,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? gridViewDataSet, GridViewCommands gridViewCommands)
+        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? gridViewDataSet, GridViewBindings gridViewCommands)
         {
             if (gridViewDataSet is ISortableGridViewDataSet<ISortingStateCapability> sortableGridViewDataSet &&
                 GetSortExpression() is {} sortExpression)

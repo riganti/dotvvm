@@ -126,6 +126,10 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, DataPager>(nameof(Enabled), FormControls.EnabledProperty);
 
+        /// <summary>
+        /// Gets or sets the (static) command that will be triggered when the DataPager needs to load data (when navigating to different page).
+        /// The command accepts one argument of type <see cref="GridViewDataSetOptions{TFilteringOptions, TSortingOptions, TPagingOptions}" /> and should return a new <see cref="GridViewDataSet{T}" /> or <see cref="GridViewDataSetResult{TItem, TFilteringOptions, TSortingOptions, TPagingOptions}" />.
+        /// </summary>
         public ICommandBinding? LoadData
         {
             get => (ICommandBinding?)GetValue(LoadDataProperty);
@@ -164,7 +168,7 @@ namespace DotVVM.Framework.Controls
 
             var commandType = LoadData is {} ? GridViewDataSetCommandType.LoadDataDelegate : GridViewDataSetCommandType.Default;
 
-            pagerBindings = gridViewDataSetBindingProvider.GetDataPagerCommands(this.GetDataContextType().NotNull(), dataSetBinding, commandType);
+            pagerBindings = gridViewDataSetBindingProvider.GetDataPagerBindings(this.GetDataContextType().NotNull(), dataSetBinding, commandType);
 
             var globalEnabled = GetValueOrBinding<bool>(EnabledProperty)!;
 

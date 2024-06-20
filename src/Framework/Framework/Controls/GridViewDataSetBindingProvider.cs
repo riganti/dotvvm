@@ -23,21 +23,23 @@ public class GridViewDataSetBindingProvider
     private readonly BindingCompilationService service;
 
     private readonly ConcurrentDictionary<(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType), DataPagerBindings> dataPagerCommands = new();
-    private readonly ConcurrentDictionary<(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType), GridViewCommands> gridViewCommands = new();
+    private readonly ConcurrentDictionary<(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType), GridViewBindings> gridViewCommands = new();
 
     public GridViewDataSetBindingProvider(BindingCompilationService service)
     {
         this.service = service;
     }
 
-    public DataPagerBindings GetDataPagerCommands(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
+    /// <summary> Returns pre-created DataPager bindings for a given data context and data source (result is cached). </summary>
+    public DataPagerBindings GetDataPagerBindings(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
     {
         return dataPagerCommands.GetOrAdd((dataContextStack, dataSetBinding, commandType), x => GetDataPagerCommandsCore(x.dataContextStack, x.dataSetBinding, x.commandType));
     }
 
-    public GridViewCommands GetGridViewCommands(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
+    /// <summary> Returns pre-created GridView bindings for a given data context and data source (result is cached). </summary>
+    public GridViewBindings GetGridViewBindings(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
     {
-        return gridViewCommands.GetOrAdd((dataContextStack, dataSetBinding, commandType), x => GetGridViewCommandsCore(x.dataContextStack, x.dataSetBinding, x.commandType));
+        return gridViewCommands.GetOrAdd((dataContextStack, dataSetBinding, commandType), x => GetGridViewBindingsCore(x.dataContextStack, x.dataSetBinding, x.commandType));
     }
 
     private DataPagerBindings GetDataPagerCommandsCore(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
@@ -130,7 +132,7 @@ public class GridViewDataSetBindingProvider
         };
     }
 
-    private GridViewCommands GetGridViewCommandsCore(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
+    private GridViewBindings GetGridViewBindingsCore(DataContextStack dataContextStack, IValueBinding dataSetBinding, GridViewDataSetCommandType commandType)
     {
         var dataSetExpr = dataSetBinding.GetProperty<ParsedExpressionBindingProperty>().Expression;
         ICommandBinding? GetCommandOrNull<T>(DataContextStack dataContextStack, string methodName, Expression[] arguments, Func<Expression, Expression>? transformExpression)
@@ -147,7 +149,7 @@ public class GridViewDataSetBindingProvider
         }
 
         var setSortExpressionParam = Expression.Parameter(typeof(string), "_sortExpression");
-        return new GridViewCommands()
+        return new GridViewBindings()
         {
             SetSortExpression = GetCommandOrNull<ISortableGridViewDataSet<ISortingSetSortExpressionCapability>>(
                 dataContextStack,

@@ -12,7 +12,7 @@
         bool IsRefreshRequired { get; set; }
 
         /// <summary>
-        /// Requests to reload data into the <see cref="IRefreshableGridViewDataSet" />.
+        /// Sets the <see cref="IsRefreshRequired" /> flag to true.
         /// </summary>
         void RequestRefresh();
     }

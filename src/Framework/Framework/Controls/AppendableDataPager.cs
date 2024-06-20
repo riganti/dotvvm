@@ -14,11 +14,16 @@ namespace DotVVM.Framework.Controls
     /// Renders a pager for <see cref="GridViewDataSet{T}"/> that allows the user to append more items to the end of the list.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(LoadTemplate))]
-    public class AppendableDataPager : HtmlGenericControl 
+    public class AppendableDataPager : HtmlGenericControl
     {
         private readonly GridViewDataSetBindingProvider gridViewDataSetBindingProvider;
         private readonly BindingCompilationService bindingService;
 
+        /// <summary>
+        /// Template displayed when more pages exist (not <see cref="IPagingLastPageCapability.IsLastPage" />)
+        /// The template should contain a button triggering the loading of more data, it may use the <c>{staticCommand: _dataPager.Load()}</c> binding to invoke the <see cref="LoadData" /> function.
+        /// When this template isn't set, the pager will automatically load the next page when it becomes visible on screen.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [DataPagerApi.AddParameterDataContextChange("_dataPager")]
         public ITemplate? LoadTemplate
@@ -29,6 +34,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty LoadTemplateProperty
             = DotvvmProperty.Register<ITemplate, AppendableDataPager>(c => c.LoadTemplate, null);
 
+        /// <summary> Template displayed when the next page is being loaded </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [DataPagerApi.AddParameterDataContextChange("_dataPager")]
         public ITemplate? LoadingTemplate
@@ -39,6 +45,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty LoadingTemplateProperty
             = DotvvmProperty.Register<ITemplate?, AppendableDataPager>(c => c.LoadingTemplate, null);
 
+        /// <summary> Template displayed when we are at the last page. </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate? EndTemplate
         {
@@ -48,6 +55,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EndTemplateProperty
             = DotvvmProperty.Register<ITemplate, AppendableDataPager>(c => c.EndTemplate, null);
 
+        /// <summary> The data source GridViewDataSet (AppendableDataPager does not support plain collections) </summary>
         [MarkupOptions(Required = true, AllowHardCodedValue = false)]
         public IPageableGridViewDataSet DataSet
         {
@@ -57,6 +65,11 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty DataSetProperty
             = DotvvmProperty.Register<IPageableGridViewDataSet, AppendableDataPager>(c => c.DataSet, null);
 
+        /// <summary>
+        /// Gets or sets the (static) command that will be used to load the next page.
+        /// It is recommended to use a staticCommand in AppendableDataPager.
+        /// The command accepts one argument of type <see cref="GridViewDataSetOptions{TFilteringOptions, TSortingOptions, TPagingOptions}" /> and should return a new <see cref="GridViewDataSet{T}" /> or <see cref="GridViewDataSetResult{TItem, TFilteringOptions, TSortingOptions, TPagingOptions}" />.
+        /// </summary>
         [MarkupOptions(Required = true)]
         public ICommandBinding? LoadData
         {
@@ -66,9 +79,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty LoadDataProperty =
             DotvvmProperty.Register<ICommandBinding?, AppendableDataPager>(nameof(LoadData));
 
-
         private DataPagerBindings? dataPagerCommands = null;
-
 
         public AppendableDataPager(GridViewDataSetBindingProvider gridViewDataSetBindingProvider, BindingCompilationService bindingService) : base("div")
         {
@@ -80,7 +91,7 @@ namespace DotVVM.Framework.Controls
         {
             var dataSetBinding = GetValueBinding(DataSetProperty)!;
             var commandType = LoadData is { } ? GridViewDataSetCommandType.LoadDataDelegate : GridViewDataSetCommandType.Default;
-            dataPagerCommands = gridViewDataSetBindingProvider.GetDataPagerCommands(this.GetDataContextType()!, dataSetBinding, commandType);
+            dataPagerCommands = gridViewDataSetBindingProvider.GetDataPagerBindings(this.GetDataContextType()!, dataSetBinding, commandType);
 
             if (LoadTemplate != null)
             {
@@ -126,17 +137,17 @@ namespace DotVVM.Framework.Controls
                     p == GridViewDataSetBindingProvider.PostProcessorDelegate ? new CodeParameterAssignment("dotvvm.dataSet.postProcessors.append", OperatorPrecedence.Max) :
                     default
             });
-            
+
             var binding = new KnockoutBindingGroup();
             binding.Add("dataSet", dataSetBinding);
             binding.Add("loadNextPage", loadNextPage);
             binding.Add("autoLoadWhenInViewport", LoadTemplate is null ? "true" : "false");
             writer.AddKnockoutDataBind("dotvvm-appendable-data-pager", binding);
-            
+
             base.AddAttributesToRender(writer, context);
         }
 
         private IValueBinding GetDataSetBinding()
-            => GetValueBinding(DataSetProperty) ?? throw new DotvvmControlException(this, "The DataSet property of the dot:DataPager control must be set!");
+            => GetValueBinding(DataSetProperty) ?? throw new DotvvmControlException(this, "The DataSet property of the dot:AppendableDataPager control must be set!");
     }
 }

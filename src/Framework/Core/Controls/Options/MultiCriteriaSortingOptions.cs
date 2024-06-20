@@ -71,3 +71,19 @@ public class MultiCriteriaSortingOptions : ISortingOptions, ISortingStateCapabil
     /// <summary> Returns if the specified column is sorted in descending order in any of the <see cref="Criteria"/> </summary>
     public bool IsColumnSortedDescending(string? sortExpression) => Criteria.Any(c => c.SortExpression == sortExpression && c.SortDescending);
 }
+
+/// <summary>
+/// Represents a sort criterion.
+/// </summary>
+public sealed record SortCriterion
+{
+    /// <summary>
+    /// Gets or sets whether the sort order should be descending.
+    /// </summary>
+    public bool SortDescending { get; set; }
+
+    /// <summary>
+    /// Gets or sets the name of the property that is used for sorting. Null means the grid should not be sorted. May contain chained properties separated by dots.
+    /// </summary>
+    public string? SortExpression { get; set; }
+}
