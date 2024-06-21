@@ -895,8 +895,7 @@
           "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
           "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
         },
-        "defaultValue": true,
-        "onlyBindings": true
+        "defaultValue": true
       },
       "Width": {
         "type": "System.String",
@@ -1527,7 +1526,6 @@
       "ColumnVisible": {
         "type": "System.Boolean",
         "defaultValue": true,
-        "onlyBindings": true,
         "isActive": true
       }
     },

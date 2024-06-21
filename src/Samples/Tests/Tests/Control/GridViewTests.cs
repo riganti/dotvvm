@@ -517,6 +517,12 @@ namespace DotVVM.Samples.Tests.Control
                     AssertUI.IsDisplayed(browser.ElementAt("table", 1).ElementAt("tr", i).ElementAt("td,th", 1));
                 }
 
+                // column 3 is always hidden
+                for (int i = 0; i < 6; i++)
+                {
+                    AssertUI.IsNotDisplayed(browser.ElementAt("table", 0).ElementAt("tr", i).ElementAt("td,th", 3));
+                }
+
                 // check that columns are hidden
                 browser.First("input[type=checkbox]").Click();
                 for (int i = 0; i < 6; i++)
@@ -526,6 +532,11 @@ namespace DotVVM.Samples.Tests.Control
                 for (int i = 0; i < 2; i++)
                 {
                     AssertUI.IsNotDisplayed(browser.ElementAt("table", 1).ElementAt("tr", i).ElementAt("td,th", 1));
+                }
+                // column 3 is always hidden
+                for (int i = 0; i < 6; i++)
+                {
+                    AssertUI.IsNotDisplayed(browser.ElementAt("table", 0).ElementAt("tr", i).ElementAt("td,th", 3));
                 }
 
                 // check that columns are visible again
