@@ -1,5 +1,6 @@
-import { tryCoerce } from "../metadata/coercer"
+import { coerce, tryCoerce } from "../metadata/coercer"
 import { formatTypeName } from "../metadata/typeMap";
+import { CoerceError } from "../shared-classes";
 import { initDotvvm } from "./helper";
 
 initDotvvm({
@@ -618,4 +619,20 @@ test("formatTypeName", () => {
     expect(formatTypeName({ type: "nullable", inner: "t1" })).toBe("MyType1? (t1?)");
     expect(formatTypeName({ type: "nullable", inner: "t2" })).toBe("t2?");
     expect(formatTypeName([ { type:"nullable", inner: [ [ "t1" ] ] }])).toBe("MyType1[][]?[] (t1[][]?[])");
+})
+
+
+test("Exception - inherits Error", () => {
+    let hasError = false;
+    try {
+        coerce("something", "Int32")
+    } catch (e: any) {
+        hasError = true;
+        expect(e instanceof Error).toBeTruthy();
+        expect(e instanceof CoerceError).toBeTruthy();
+        expect(e.message).toBe("Cannot coerce 'something' to type 'Int32'.");
+        expect(e.name).toBe("CoerceError");
+        expect("" + e).toBe("CoerceError: Cannot coerce 'something' to type 'Int32'.");
+    }
+    expect(hasError).toBeTruthy();
 })
