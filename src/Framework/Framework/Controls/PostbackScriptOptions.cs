@@ -1,25 +1,29 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
 using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Controls
 {
     /// <summary> Options for the <see cref="KnockoutHelper.GenerateClientPostBackExpression(string, Binding.Expressions.ICommandBinding, DotvvmBindableObject, PostbackScriptOptions)" /> method. </summary>
-    public class PostbackScriptOptions
+    public sealed record PostbackScriptOptions
     {
         /// <summary>If true, the command invocation will be wrapped in window.setTimeout with timeout 0. This is necessary for some event handlers, when the handler is invoked before the change is actually applied.</summary>
-        public bool UseWindowSetTimeout { get; set; }
+        public bool UseWindowSetTimeout { get; init; }
         /// <summary>Return value of the event handler. If set to false, the script will also include event.stopPropagation()</summary>
-        public bool? ReturnValue { get; set; }
-        public bool IsOnChange { get; set; }
+        public bool? ReturnValue { get; init; }
+        public bool IsOnChange { get; init; }
         /// <summary>Javascript variable where the sender element can be found. Set to $element when in knockout binding.</summary>
-        public CodeParameterAssignment ElementAccessor { get; set; }
+        public CodeParameterAssignment ElementAccessor { get; init; }
         /// <summary>Javascript variable current knockout binding context can be found. By default, `ko.contextFor({elementAccessor})` is used</summary>
-        public CodeParameterAssignment? KoContext { get; set; }
+        public CodeParameterAssignment? KoContext { get; init; }
         /// <summary>Javascript expression returning an array of command arguments.</summary>
-        public CodeParameterAssignment? CommandArgs { get; set; }
+        public CodeParameterAssignment? CommandArgs { get; init; }
         /// <summary>When set to false, postback handlers will not be invoked for this command.</summary>
-        public bool AllowPostbackHandlers { get; }
+        public bool AllowPostbackHandlers { get; init; }
         /// <summary>Javascript expression returning <see href="https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal">AbortSignal</see> which can be used to cancel the postback (it's a JS variant of CancellationToken). </summary>
-        public CodeParameterAssignment? AbortSignal { get; }
+        public CodeParameterAssignment? AbortSignal { get; init; }
+        public Func<CodeSymbolicParameter, CodeParameterAssignment>? ParameterAssignment { get; init; }
 
         /// <param name="useWindowSetTimeout">If true, the command invocation will be wrapped in window.setTimeout with timeout 0. This is necessary for some event handlers, when the handler is invoked before the change is actually applied.</param>
         /// <param name="returnValue">Return value of the event handler. If set to false, the script will also include event.stopPropagation()</param>
@@ -36,7 +40,8 @@ namespace DotVVM.Framework.Controls
             CodeParameterAssignment? koContext = null,
             CodeParameterAssignment? commandArgs = null,
             bool allowPostbackHandlers = true,
-            CodeParameterAssignment? abortSignal = null)
+            CodeParameterAssignment? abortSignal = null,
+            Func<CodeSymbolicParameter, CodeParameterAssignment>? parameterAssignment = null)
         {
             this.UseWindowSetTimeout = useWindowSetTimeout;
             this.ReturnValue = returnValue;
@@ -45,7 +50,27 @@ namespace DotVVM.Framework.Controls
             this.KoContext = koContext;
             this.CommandArgs = commandArgs;
             this.AllowPostbackHandlers = allowPostbackHandlers;
-            AbortSignal = abortSignal;
+            this.AbortSignal = abortSignal;
+            this.ParameterAssignment = parameterAssignment;
+        }
+
+        /// <summary> Default postback options, optimal for placing the script into a `onxxx` event attribute. </summary>
+        public static readonly PostbackScriptOptions JsEvent = new PostbackScriptOptions();
+        public static readonly PostbackScriptOptions KnockoutBinding = new PostbackScriptOptions(elementAccessor: "$element", koContext: new CodeParameterAssignment("$context", OperatorPrecedence.Max, isGlobalContext: true));
+
+        public override string ToString()
+        {
+            var fields = new List<string>();
+            if (UseWindowSetTimeout) fields.Add("useWindowSetTimeout: true");
+            if (ReturnValue != false) fields.Add($"returnValue: {(ReturnValue == true ? "true" : "null")}");
+            if (IsOnChange) fields.Add("isOnChange: true");
+            if (ElementAccessor.ToString() != "this") fields.Add($"elementAccessor: \"{ElementAccessor}\"");
+            if (KoContext != null) fields.Add($"koContext: \"{KoContext}\"");
+            if (CommandArgs != null) fields.Add($"commandArgs: \"{CommandArgs}\"");
+            if (!AllowPostbackHandlers) fields.Add("allowPostbackHandlers: false");
+            if (AbortSignal != null) fields.Add($"abortSignal: \"{AbortSignal}\"");
+            if (ParameterAssignment != null) fields.Add($"parameterAssignment: \"{ParameterAssignment}\"");
+            return new StringBuilder("new PostbackScriptOptions(").Append(string.Join(", ", fields.ToArray())).Append(")").ToString();
         }
     }
 }

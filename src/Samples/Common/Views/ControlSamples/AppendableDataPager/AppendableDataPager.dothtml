@@ -1,0 +1,37 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.AppendableDataPager.AppendableDataPagerViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <dot:GridView DataSource="{value: Customers}">
+        <Columns>
+            <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+            <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+            <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+            <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" AllowSorting="True" />
+        </Columns>
+    </dot:GridView>
+
+    <dot:AppendableDataPager DataSet="{value: Customers}"
+                             LoadData="{staticCommand: RootViewModel.LoadNextPage}">
+        <LoadTemplate>
+            <dot:Button Text="Load more" Click="{staticCommand: _dataPager.Load()}" />
+        </LoadTemplate>
+        <LoadingTemplate>
+            <span class="loading">Your data are on the way...</span>
+        </LoadingTemplate>
+        <EndTemplate>
+            <span class="loaded">You reached to the end of the Earth. Now you shall see the 🐢🐢🐢🐢 and 🐘.</span>
+        </EndTemplate>
+    </dot:AppendableDataPager>
+
+</body>
+</html>
+
+

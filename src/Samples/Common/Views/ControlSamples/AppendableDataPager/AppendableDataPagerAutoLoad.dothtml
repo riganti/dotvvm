@@ -1,0 +1,46 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.AppendableDataPager.AppendableDataPagerViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <dot:Repeater DataSource="{value: Customers}">
+        <div class="customer">
+            <h1>Customer {{value: CustomerId}}</h1>
+            <p>Name: <strong>{{value: Name}}</strong></p>
+            <p>Birth date: <strong>{{value: BirthDate.ToString("d")}}</strong></p>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et enim tristique, facilisis risus ut, mattis arcu. Pellentesque vitae egestas est, vitae placerat arcu. Aenean quis ipsum lacinia, sollicitudin ex nec, maximus mauris. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Nulla imperdiet semper risus, at varius sem tristique vel. Vivamus fringilla euismod nulla. Aliquam feugiat accumsan aliquam. Vivamus et dolor ac augue congue vestibulum. Pellentesque gravida dignissim nibh, at rhoncus leo euismod sit amet. Donec consectetur, turpis sed mattis luctus, nisi diam laoreet libero, eu tincidunt dolor justo quis sem. Nunc pulvinar eget sem ac tincidunt. Sed mattis enim non euismod feugiat. Nullam sed ipsum faucibus, finibus elit ac, eleifend nibh.
+            </p>
+            <p>
+                Phasellus vel tortor ac diam volutpat lacinia. Nulla maximus, mauris non hendrerit pulvinar, ante ex suscipit orci, et aliquam lorem ipsum at tortor. Nulla tempus ante accumsan libero consequat, ac pellentesque massa malesuada. In convallis tortor ac purus tristique luctus. Maecenas id purus eget magna consequat porta a id sapien. Proin rhoncus eros efficitur consectetur feugiat. Praesent bibendum lorem et eros tempus, elementum sagittis tortor commodo. Proin elementum mi leo, sed mollis mauris luctus a. Etiam a arcu sit amet sem dignissim bibendum vel et velit. Cras pulvinar bibendum venenatis. Vivamus quis urna lacus. Proin scelerisque tempus erat quis dictum. Integer posuere facilisis sem id condimentum. Aliquam tortor lorem, finibus rhoncus consectetur porttitor, molestie a odio. Quisque aliquam commodo neque, ut aliquet quam vestibulum nec.
+            </p>
+            <p>
+                Nullam vel neque nisi. Ut mattis arcu interdum sodales commodo. Curabitur convallis, lectus nec vehicula placerat, ipsum tellus interdum lectus, ut pellentesque orci lorem sed elit. Praesent mi enim, dictum sit amet eros quis, aliquam sodales lorem. Integer sagittis orci eget mollis sodales. Nunc vel euismod libero. Aenean consectetur vel lorem in dapibus. Nam volutpat aliquet urna et pretium.
+            </p>
+            <p>
+                Aliquam dolor dui, tincidunt at sem eget, placerat scelerisque neque. Phasellus eros risus, luctus a libero nec, blandit iaculis magna. Aenean turpis justo, venenatis vel tortor vel, placerat cursus massa. Sed malesuada metus sit amet ante aliquet rhoncus. Nullam ut sodales velit. Donec accumsan tempor magna, eu mattis lectus suscipit vel. Nam est nunc, porta ac egestas et, commodo a dolor. Quisque vel ante non tellus pellentesque laoreet et non massa. Pellentesque tincidunt facilisis neque eu porttitor. Aliquam interdum maximus orci. Vivamus faucibus tincidunt mi ac vehicula. In nec dolor magna. Nam nec ligula enim. Morbi aliquam accumsan lacus a ornare.
+            </p>
+            <p>
+                Sed at gravida purus. Morbi quis porttitor diam. Donec imperdiet mi et dolor faucibus, nec placerat tellus placerat. Donec mollis magna a tortor elementum, vitae ultrices mauris pellentesque. Maecenas consequat interdum risus in pulvinar. Cras metus ligula, pharetra eget tincidunt sed, commodo eu mi. Morbi mattis odio molestie, faucibus arcu eget, faucibus ante. Nullam maximus ultrices lorem nec fermentum. Suspendisse laoreet venenatis velit a consectetur. In consectetur ligula leo, at suscipit turpis posuere tristique. Integer vel porta odio. Phasellus efficitur sed felis ut molestie. Vivamus finibus nisl at turpis iaculis, nec molestie nisi vestibulum. Sed vel turpis eleifend, egestas eros varius, congue enim.
+            </p>
+        </div>
+    </dot:Repeater>
+
+    <dot:AppendableDataPager DataSet="{value: Customers}"
+                             LoadData="{staticCommand: RootViewModel.LoadNextPage}">
+        <LoadingTemplate>
+            <span class="loading">Your data are on the way...</span>
+        </LoadingTemplate>
+        <EndTemplate>
+            <span class="loaded">You reached to the end of the Earth. Now you shall see the 🐢🐢🐢🐢 and 🐘.</span>
+        </EndTemplate>
+    </dot:AppendableDataPager>
+
+</body>
+</html>

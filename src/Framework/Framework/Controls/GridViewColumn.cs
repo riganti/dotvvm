@@ -189,7 +189,7 @@ namespace DotVVM.Framework.Controls
             EditTemplate.BuildContent(context, container);
         }
 
-        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string?>? sortCommand, HtmlGenericControl cell, IGridViewDataSet? gridViewDataSet)
+        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, GridViewBindings gridViewCommands, ICommandBinding? sortCommandBindingOverride, HtmlGenericControl cell, IGridViewDataSet? gridViewDataSet)
         {
             if (HeaderTemplate != null)
             {
@@ -199,22 +199,28 @@ namespace DotVVM.Framework.Controls
 
             if (AllowSorting)
             {
-                if (sortCommand == null)
+                var sortCommandBinding = sortCommandBindingOverride ?? gridViewCommands.SetSortExpression;
+                if (sortCommandBinding == null)
                 {
                     throw new DotvvmControlException(this, "Cannot use column sorting where no sort command is specified. Either put IGridViewDataSet in the DataSource property of the GridView, or set the SortChanged command on the GridView to implement custom sorting logic!");
                 }
 
                 var sortExpression = GetSortExpression();
 
+                if (string.IsNullOrEmpty(sortExpression))
+                    throw new DotvvmControlException(this, "The SortExpression property must be set when AllowSorting is true!");
+
+                if ((gridViewDataSet?.SortingOptions as ISortingSetSortExpressionCapability)?.IsSortingAllowed(sortExpression) == false)
+                    throw new DotvvmControlException(this, $"The sort expression '{sortExpression}' is not allowed in the sorting options!");
+
                 var linkButton = new LinkButton();
-                linkButton.SetValue(LinkButton.TextProperty, GetValueRaw(HeaderTextProperty));
+                linkButton.SetValue(ButtonBase.TextProperty, GetValueRaw(HeaderTextProperty));
+                linkButton.ClickArguments = new object?[] { sortExpression };
                 cell.Children.Add(linkButton);
 
-                var bindingId = linkButton.GetDotvvmUniqueId().GetValue() + "_sortBinding";
-                var binding = new CommandBindingExpression(context.Services.GetRequiredService<BindingCompilationService>().WithoutInitialization(), h => sortCommand(sortExpression), bindingId);
-                linkButton.SetBinding(ButtonBase.ClickProperty, binding);
+                linkButton.SetBinding(ButtonBase.ClickProperty, sortCommandBinding);
 
-                SetSortedCssClass(cell, gridViewDataSet, gridView.GetValueBinding(GridView.DataSourceProperty)!);
+                SetSortedCssClass(cell, gridViewDataSet, gridViewCommands);
             }
             else
             {
@@ -234,25 +240,32 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? sortableGridViewDataSet, IValueBinding dataSourceBinding)
+        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? gridViewDataSet, GridViewBindings gridViewCommands)
         {
-            if (sortableGridViewDataSet != null)
+            if (gridViewDataSet is ISortableGridViewDataSet<ISortingStateCapability> sortableGridViewDataSet &&
+                GetSortExpression() is {} sortExpression)
             {
                 var cellAttributes = cell.Attributes;
                 if (!RenderOnServer)
                 {
-                    var gridViewDataSetExpr = dataSourceBinding.GetKnockoutBindingExpression(cell, unwrapped: true);
-                    cellAttributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ({gridViewDataSetExpr}).SortingOptions().SortExpression() == '{GetSortExpression()}' && ({gridViewDataSetExpr}).SortingOptions().SortDescending(), '{SortAscendingHeaderCssClass}': ({gridViewDataSetExpr}).SortingOptions().SortExpression() == '{GetSortExpression()}' && !({gridViewDataSetExpr}).SortingOptions().SortDescending()}}";
-                }
-                else if (sortableGridViewDataSet.SortingOptions.SortExpression == GetSortExpression())
-                {
-                    if (sortableGridViewDataSet.SortingOptions.SortDescending)
+                    if (!string.IsNullOrWhiteSpace(SortAscendingHeaderCssClass))
                     {
-                        cellAttributes["class"] = SortDescendingHeaderCssClass;
+                        cell.AddCssClass(SortAscendingHeaderCssClass, gridViewCommands.GetIsColumnSortedAscendingBinding(sortExpression));
                     }
-                    else
+                    if (!string.IsNullOrWhiteSpace(SortDescendingHeaderCssClass))
+                    {
+                        cell.AddCssClass(SortDescendingHeaderCssClass, gridViewCommands.GetIsColumnSortedDescendingBinding(sortExpression));
+                    }
+                }
+                else
+                {
+                    if (sortableGridViewDataSet.SortingOptions.IsColumnSortedAscending(sortExpression))
                     {
                         cellAttributes["class"] = SortAscendingHeaderCssClass;
+                    }
+                    else if (sortableGridViewDataSet.SortingOptions.IsColumnSortedDescending(sortExpression))
+                    {
+                        cellAttributes["class"] = SortDescendingHeaderCssClass;
                     }
                 }
             }

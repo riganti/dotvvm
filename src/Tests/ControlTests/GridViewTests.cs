@@ -154,6 +154,21 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+
+        [TestMethod]
+        public async Task SortedChangedStaticCommand()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <dot:GridView DataSource={value: EmptyCustomers} SortChanged={staticCommand: (string dir) => _js.Invoke("resort", dir)}>
+                    <Columns>
+                        <dot:GridViewTextColumn HeaderText=Name ValueBinding={value: Name} AllowSorting />
+                    </Columns>
+                </dot:GridView>
+                """, directives: "@js dotvvm.internal");
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]

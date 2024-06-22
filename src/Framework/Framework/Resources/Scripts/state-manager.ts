@@ -46,7 +46,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
 
     constructor(
         initialState: DeepReadonly<TViewModel>,
-        public stateUpdateEvent: DotvvmEvent<DeepReadonly<TViewModel>>
+        public stateUpdateEvent?: DotvvmEvent<DeepReadonly<TViewModel>>
     ) {
         this._state = coerce(initialState, initialState.$type || { type: "dynamic" })
         this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], () => this._state, u => this.update(u as any))
@@ -73,7 +73,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
             isViewModelUpdating = true
             ko.delaySync.pause()
 
-            this.stateUpdateEvent.trigger(this._state);
+            this.stateUpdateEvent?.trigger(this._state);
 
             (this.stateObservable as any)[notifySymbol as any](this._state)
         } finally {

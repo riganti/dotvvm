@@ -152,6 +152,25 @@ namespace DotVVM.Framework.Testing
             });
         }
 
+        /// <summary> Creates a <c>command</c> binding by parsing the specified expression. </summary>
+        /// <param name="contexts"> Hierarchy of data contexts. First element is <c>_root</c>, last element is <c>_this</c>. </param>
+        /// <param name="expectedType"> If specified, an implicit conversion into this type will be applied in the expression. </param>
+        public CommandBindingExpression Command(string expression, Type[] contexts, Type? expectedType = null) =>
+            Command(expression, CreateDataContext(contexts), expectedType);
+
+        /// <summary> Creates a <c>command</c> binding by parsing the specified expression. </summary>
+        /// <param name="expectedType"> If specified, an implicit conversion into this type will be applied in the expression. </param>
+        public CommandBindingExpression Command(string expression, DataContextStack context, Type? expectedType = null)
+        {
+            expectedType ??= typeof(Command);
+            return new CommandBindingExpression(BindingService, new object[] {
+                context,
+                new OriginalStringBindingProperty(expression),
+                BindingParserOptions.Value.AddImports(context.NamespaceImports).AddImports(Configuration.Markup.ImportedNamespaces),
+                new ExpectedTypeBindingProperty(expectedType)
+            });
+        }
+
         /// <summary> Creates a value binding by parsing the specified expression. The expression will be implicitly converted to <typeparamref name="T"/> </summary>
         /// <param name="contexts"> Hierarchy of data contexts. First element is <c>_root</c>, last element is <c>_this</c>. </param>
         /// <param name="expectedType"> Convert the result to this type instead of converting it to <typeparamref name="T"/>. The type must be assignable to T. </param>

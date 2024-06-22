@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using FastExpressionCompiler;
@@ -171,6 +172,24 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             var dcs = new DataContextStack(type, parent, imports, extensionParameters, bindingPropertyResolvers);
             return dcs;// internCache.GetValue(dcs, _ => dcs);
+        }
+
+
+        /// <summary> Creates a new data context level with _index and _collection extension parameters. </summary>
+        public static DataContextStack CreateCollectionElement(Type elementType,
+            DataContextStack? parent = null,
+            IReadOnlyList<NamespaceImport>? imports = null,
+            IReadOnlyList<BindingExtensionParameter>? extensionParameters = null,
+            IReadOnlyList<Delegate>? bindingPropertyResolvers = null)
+        {
+            var indexParameters = new CollectionElementDataContextChangeAttribute(0).GetExtensionParameters(new ResolvedTypeDescriptor(elementType.MakeArrayType()));
+            extensionParameters = extensionParameters is null ? indexParameters.ToArray() : extensionParameters.Concat(indexParameters).ToArray();
+            return DataContextStack.Create(
+                elementType, parent,
+                imports: imports,
+                extensionParameters: extensionParameters,
+                bindingPropertyResolvers: bindingPropertyResolvers
+            );
         }
     }
 }
