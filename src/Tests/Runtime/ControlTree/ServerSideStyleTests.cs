@@ -18,7 +18,6 @@ using DotVVM.Framework.Testing;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {

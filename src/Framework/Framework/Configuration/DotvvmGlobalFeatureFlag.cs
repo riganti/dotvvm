@@ -1,10 +1,10 @@
 ﻿using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Configuration
 {
     /// <summary> Enables or disables certain DotVVM feature for the entire application. </summary>
-    public class DotvvmGlobalFeatureFlag
+    public sealed class DotvvmGlobalFeatureFlag: IEquatable<DotvvmGlobalFeatureFlag>
     {
         [JsonIgnore]
         public string FlagName { get; }
@@ -18,7 +18,8 @@ namespace DotVVM.Framework.Configuration
         public DotvvmGlobalFeatureFlag(): this("Unknown") { }
 
         /// <summary> Gets or sets whether the feature is enabled or disabled. </summary>
-        [JsonProperty("enabled")]
+        [JsonPropertyName("enabled")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public bool Enabled
         {
             get => _enabled;
@@ -56,5 +57,10 @@ namespace DotVVM.Framework.Configuration
         }
 
         public override string ToString() => $"Feature flag {FlagName}: {(Enabled ? "Enabled" : "Disabled")}";
+
+        public bool Equals(DotvvmGlobalFeatureFlag? other) =>
+            other is not null && this.Enabled == other.Enabled;
+        public override bool Equals(object? obj) => obj is DotvvmGlobalFeatureFlag other && this.Equals(other);
+        public override int GetHashCode() => throw new NotSupportedException("Use ReferenceEqualityComparer");
     }
 }

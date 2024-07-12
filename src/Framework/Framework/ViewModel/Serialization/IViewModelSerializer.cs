@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Filters;
@@ -7,19 +9,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public interface IViewModelSerializer
     {
-        void BuildViewModel(IDotvvmRequestContext context, object? commandResult);
+        ReadOnlyMemory<byte> BuildStaticCommandResponse(IDotvvmRequestContext context, object? commandResult, string[]? knownTypeMetadata = null);
 
-        string BuildStaticCommandResponse(IDotvvmRequestContext context, object? commandResult, string[]? knownTypeMetadata = null);
+        string SerializeViewModel(IDotvvmRequestContext context, object? commandResult = null, IEnumerable<(string name, string html)>? postbackUpdatedControls = null, bool serializeNewResources = false);
 
-        string SerializeViewModel(IDotvvmRequestContext context);
+        byte[] SerializeModelState(IDotvvmRequestContext context);
 
-        string SerializeModelState(IDotvvmRequestContext context);
+        void PopulateViewModel(IDotvvmRequestContext context, ReadOnlyMemory<byte> serializedPostData);
 
-        void PopulateViewModel(IDotvvmRequestContext context, string serializedPostData);
-
-        ActionInfo? ResolveCommand(IDotvvmRequestContext context, DotvvmView view);
-
-        void AddPostBackUpdatedControls(IDotvvmRequestContext context, IEnumerable<(string name, string html)> postbackUpdatedControls);
-        void AddNewResources(IDotvvmRequestContext context);
+        ActionInfo ResolveCommand(IDotvvmRequestContext context, DotvvmView view);
     }
 }

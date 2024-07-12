@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
@@ -68,7 +69,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             var map = viewModelSerializationMapper.GetMap(viewModel.GetType());
             foreach (var property in map.Properties.Where(p => p.TransferToServer))
             {
-                var value = property.PropertyInfo.GetValue(viewModel);
+                var value = property.GetValue(viewModel);
 
                 // validate the property
                 if (property.ValidationRules.Any())

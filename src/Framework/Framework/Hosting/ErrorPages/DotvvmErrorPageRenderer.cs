@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             try
             {
-                context.Response.ContentType = "text/plain";
+                context.Response.ContentType = "text/plain; charset=utf-8";
                 using (var writer = new StreamWriter(context.Response.Body))
                 {
                     await writer.WriteLineAsync("Error in DotVVM Application:");

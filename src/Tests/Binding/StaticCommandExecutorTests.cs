@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.Javascript;
@@ -13,7 +14,6 @@ using DotVVM.Framework.Testing;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 using static DotVVM.Framework.Testing.DotvvmTestHelper;
 
 namespace DotVVM.Framework.Tests.Binding
@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Tests.Binding
         async Task<object> Invoke(StaticCommandInvocationPlan plan, params (object value, string path)[] arguments)
         {
             var context = DotvvmTestHelper.CreateContext(config, requestType: DotvvmRequestType.StaticCommand);
-            var a = arguments.Select(t => JToken.FromObject(t.value, DefaultSerializerSettingsProvider.CreateJsonSerializer()));
+            var a = JsonSerializer.SerializeToElement(arguments.Select(t => t.value).ToArray(), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
             var p = arguments.Select(t => t.path);
             return await executor.Execute(plan, a, p, context);
         }

@@ -115,27 +115,27 @@ namespace DotVVM.Framework.Tests.ControlTests
                 }
             );
 
-            Assert.AreEqual(10000000, (int)r.ViewModel.@int);
+            Assert.AreEqual(10000000, (int)r.ViewModelJson["int"]);
             await r.RunCommand("_control.IncrementProperty()", vm => vm is BasicTestViewModel);
-            Assert.AreEqual(10000001, (int)r.ViewModel.@int);
+            Assert.AreEqual(10000001, (int)r.ViewModelJson["int"]);
             await r.RunCommand("P = P - 10", vm => vm is BasicTestViewModel);
-            Assert.AreEqual(10000000 - 9, (int)r.ViewModel.@int);
+            Assert.AreEqual(10000000 - 9, (int)r.ViewModelJson["int"]);
 
-            Assert.AreEqual(15, (int)r.ViewModel.IntArray[0]);
+            Assert.AreEqual(15, (int)r.ViewModelJson["IntArray"][0]);
             await r.RunCommand("_control.IncrementProperty()", 15.Equals);
-            Assert.AreEqual(16, (int)r.ViewModel.IntArray[0]);
+            Assert.AreEqual(16, (int)r.ViewModelJson["IntArray"][0]);
             await r.RunCommand("P = P - 10", 15.Equals);
-            Assert.AreEqual(6, (int)r.ViewModel.IntArray[0]);
+            Assert.AreEqual(6, (int)r.ViewModelJson["IntArray"][0]);
 
-            Assert.AreEqual(10, (int)r.ViewModel.Collection[0]);
+            Assert.AreEqual(10, (int)r.ViewModelJson["Collection"][0]);
             await r.RunCommand("_control.IncrementProperty()", 10.Equals);
-            Assert.AreEqual(11, (int)r.ViewModel.Collection[0]);
+            Assert.AreEqual(11, (int)r.ViewModelJson["Collection"][0]);
             await r.RunCommand("P = P - 10", 10.Equals);
-            Assert.AreEqual(1, (int)r.ViewModel.Collection[0]);
+            Assert.AreEqual(1, (int)r.ViewModelJson["Collection"][0]);
 
-            Assert.AreEqual(-20, (int)r.ViewModel.Collection[1]);
+            Assert.AreEqual(-20, (int)r.ViewModelJson["Collection"][1]);
             await r.RunCommand("_control.IncrementProperty()", (-20).Equals);
-            Assert.AreEqual(-19, (int)r.ViewModel.Collection[1]);
+            Assert.AreEqual(-19, (int)r.ViewModelJson["Collection"][1]);
 
             // check only the generated static command expressions
             check.CheckString(r.Html.QuerySelector(".static-command-button").ToHtml(), fileExtension: "html");

@@ -16,6 +16,8 @@ namespace DotVVM.Samples.Common
         private readonly string logFilePath;
         private readonly object locker = new object();
 
+        public DiagnosticsInformationSenderState State => DiagnosticsInformationSenderState.TimingOnly;
+
         public TextFileDiagnosticsInformationSender(DotvvmConfiguration config)
         {
             this.config = config;

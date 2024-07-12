@@ -1,54 +1,70 @@
 using System;
+using System.Diagnostics;
 using System.Globalization;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
-    public class DotvvmDateTimeConverter : JsonConverter
+    public class DotvvmDateTimeConverter : JsonConverter<DateTime>
     {
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, DateTime date, JsonSerializerOptions options)
         {
-            if (value == null)
-            {
-                writer.WriteNull();
-            }
-            else
-            {
-                var date = (DateTime) value;
-                var dateWithoutTimezone = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second);
-                writer.WriteValue(dateWithoutTimezone.ToString("O", CultureInfo.InvariantCulture));
-            }
+            writer.WriteStringValue(new DateTime(date.Ticks, DateTimeKind.Unspecified)); // remove timezone information
         }
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonToken.Null)
+            if (reader.TokenType == JsonTokenType.String)
             {
-                if (objectType == typeof(DateTime))
-                {
-                    return DateTime.MinValue;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else if (reader.TokenType == JsonToken.Date)
-            {
-                return (DateTime) reader.Value!;
-            }
-            else if (reader.TokenType == JsonToken.String
-                     && DateTime.TryParseExact((string)reader.Value!, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
-            { 
-                return date;
+                var date = reader.GetDateTime();
+                return new DateTime(date.Ticks, DateTimeKind.Unspecified);
             }
 
-            throw new JsonSerializationException("The value specified in the JSON could not be converted to DateTime!");
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof (DateTime) || objectType == typeof (DateTime?);
+            throw new JsonException("The value specified in the JSON could not be converted to DateTime!");
         }
     }
+#if !DotNetCore
+// for some reason, STJ does not serialize these type automatically on .NET Framework
+    public class DotvvmDateOnlyJsonConverter: JsonConverter<DateOnly>
+    {
+        public override void Write(Utf8JsonWriter writer, DateOnly date, JsonSerializerOptions options)
+        {
+            var dateWithoutTimezone = new DateOnly(date.Year, date.Month, date.Day);
+            writer.WriteStringValue(dateWithoutTimezone.ToString("O", CultureInfo.InvariantCulture));
+        }
+
+        public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.String &&
+                DateOnly.TryParseExact(reader.GetString(), "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            {
+                return date;
+            }
+            throw new JsonException("The value speci!fied in the JSON could not be converted to DateTime!");
+        }
+    }
+    public class DotvvmTimeOnlyJsonConverter : JsonConverter<TimeOnly>
+    {
+        public override void Write(Utf8JsonWriter writer, TimeOnly time, JsonSerializerOptions serializer)
+        {
+            Span<byte> output = stackalloc byte[32];
+ 
+            bool result = System.Buffers.Text.Utf8Formatter.TryFormat(time.ToTimeSpan(), output, out int bytesWritten, 'c');
+            Debug.Assert(result);
+ 
+            writer.WriteStringValue(output.Slice(0, bytesWritten));
+        }
+
+        public override TimeOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.String &&
+                TimeSpan.TryParseExact(reader.GetString(), "c", CultureInfo.InvariantCulture, out var time))
+            {
+                return new TimeOnly(time.Ticks);
+            }
+            throw new JsonException("The value specified in the JSON could not be converted to TimeOnly!");
+        }
+    }
+#endif
 }

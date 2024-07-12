@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using DotVVM.Framework.Binding;
 using FastExpressionCompiler;
 
@@ -8,6 +9,41 @@ namespace DotVVM.Framework.Utils
 {
     public static class StringUtils
     {
+        public static readonly UTF8Encoding Utf8 = new UTF8Encoding(false, throwOnInvalidBytes: true);
+
+        public static string Utf8Decode(byte[] bytes) =>
+            Utf8.GetString(bytes);
+        public static string Utf8Decode(ReadOnlySpan<byte> bytes)
+        {
+#if DotNetCore
+            return Utf8.GetString(bytes);
+#else
+            unsafe
+            {
+                fixed (byte* pBytes = bytes)
+                {
+                    return Utf8.GetString(pBytes, bytes.Length);
+                }
+            }
+#endif
+        }
+        public static int Utf8Encode(ReadOnlySpan<char> str, Span<byte> bytes)
+        {
+#if DotNetCore
+            return Utf8.GetBytes(str, bytes);
+#else
+            unsafe
+            {
+                fixed (byte* pBytes = bytes)
+                {
+                    fixed (char* pStr = str)
+                    {
+                        return Utf8.GetBytes(pStr, str.Length, pBytes, bytes.Length);
+                    }
+                }
+            }
+#endif
+        }
         public static string LimitLength(this string source, int length, string ending = "...")
         {
             if (length < source.Length)

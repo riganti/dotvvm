@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Runtime.Filters;
 
 namespace DotVVM.Framework.Configuration
@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Configuration
         /// When enabled, dothtml files are reloaded and recompiled after a change. Note that resources (CSS, JS) are not controlled by this option.
         /// By default, reloading is only enabled in debug mode.
         /// </summary>
-        [JsonProperty("reloadMarkupFiles")]
+        [JsonPropertyName("reloadMarkupFiles")]
         public DotvvmGlobal3StateFeatureFlag ReloadMarkupFiles { get; } = new("Dotvvm3StateFeatureFlag.ReloadMarkupFiles");
 
         /// <summary>
@@ -27,11 +27,11 @@ namespace DotVVM.Framework.Configuration
         /// It is enabled by default in Production mode.
         /// See <see cref="MaxPostbackSizeBytes" /> to limit the impact of potential decompression bomb. Although compression may be enabled only for specific routes, DotVVM does not check authentication before decompressing the request.
         /// </summary>
-        [JsonProperty("compressPostbacks")]
+        [JsonPropertyName("compressPostbacks")]
         public Dotvvm3StateFeatureFlag CompressPostbacks { get; } = new("DotvvmFeatureFlag.CompressPostbacks");
         
         /// <summary> Maximum size of command/staticCommand request body after decompression (does not affect file upload). Default = 128MB, lower limit is a basic protection against decompression bomb attack. Set to -1 to disable the limit. </summary>
-        [JsonProperty("maxPostbackSizeBytes")]
+        [JsonPropertyName("maxPostbackSizeBytes")]
         public long MaxPostbackSizeBytes { get; set; } = 1024 * 1024 * 128; // 128 MB
 
         /// <summary>

@@ -9,7 +9,6 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Utils;
 using System.Text;
 using System.Linq;
@@ -21,9 +20,13 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.ViewCompiler;
-using Newtonsoft.Json;
 using DotVVM.Framework.ResourceManagement;
 using System.Security.Claims;
+using DotVVM.Framework.ViewModel.Serialization;
+using System.Runtime.InteropServices;
+using System.Text.Json.Nodes;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Testing
 {
@@ -49,7 +52,7 @@ namespace DotVVM.Framework.Testing
             presenter = (DotvvmPresenter)this.Configuration.ServiceProvider.GetRequiredService<IDotvvmPresenter>();
         }
 
-        public T GetService<T>() => Configuration.ServiceProvider.GetRequiredService<T>();
+        public T GetService<T>() where T: notnull => Configuration.ServiceProvider.GetRequiredService<T>();
 
         public (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) CompilePage(
             string markup,
@@ -95,9 +98,7 @@ namespace DotVVM.Framework.Testing
                 httpContext.Request.Method = "POST";
                 httpContext.Request.Headers["X-DotVVM-PostBack"] = new[] { "true" };
                 httpContext.Request.Body = new MemoryStream(
-                    new UTF8Encoding(false).GetBytes(
-                        JsonConvert.SerializeObject(postback)
-                    )
+                    JsonSerializer.SerializeToUtf8Bytes(postback, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe)
                 );
             }
 
@@ -201,10 +202,12 @@ namespace DotVVM.Framework.Testing
                 foreach (var attr in attrs) el.RemoveAttribute(attr.NamespaceUri!, attr.LocalName);
                 foreach (var attr in attrs) el.SetAttribute(attr.NamespaceUri!, attr.LocalName, attr.Value);
             }
+            var viewModel = context.Services.GetRequiredService<IViewModelSerializer>().SerializeViewModel(context);
+            Console.WriteLine(viewModel);
             return new PageRunResult(
                 this,
                 context.Route.VirtualPath,
-                context.ViewModelJson,
+                JsonNode.Parse(viewModel)!.AsObject(),
                 htmlOutput,
                 headResources,
                 bodyResources,
@@ -218,28 +221,26 @@ namespace DotVVM.Framework.Testing
 
     public class CommandRunResult
     {
-        public CommandRunResult(IDotvvmRequestContext context)
+        public CommandRunResult(TestDotvvmRequestContext context)
         {
-            this.ResultJson = context.ViewModelJson;
-
             context.HttpContext.Response.Body.Position = 0;
             using var sr = new StreamReader(context.HttpContext.Response.Body);
             this.ResultText = sr.ReadToEnd();
-            if (context.ViewModelJson == null && context.HttpContext.Response.ContentType == "application/json")
+            if (context.HttpContext.Response.ContentType?.StartsWith("application/json") == true)
             {
-                this.ResultJson = JObject.Parse(ResultText);
+                this.ResultJson = JsonNode.Parse(ResultText)!.AsObject();
             }
         }
 
         public string ResultText { get; }
-        public JObject? ResultJson { get; }
-        public JObject? ViewModelJson => ResultJson?["viewModel"] as JObject ?? ResultJson?["viewModelDiff"] as JObject;
+        public JsonObject? ResultJson { get; }
+        public JsonObject? ViewModelJson => ResultJson?["viewModel"] as JsonObject ?? ResultJson?["viewModelDiff"] as JsonObject;
     }
 
     public class PostbackRequestModel
     {
         public PostbackRequestModel(
-            JObject viewModel,
+            JsonObject viewModel,
             string[] currentPath,
             string command,
             string? controlUniqueId,
@@ -255,17 +256,17 @@ namespace DotVVM.Framework.Testing
             ValidationTargetPath = validationTargetPath;
         }
 
-        [JsonProperty("viewModel")]
-        public JObject ViewModel { get; }
-        [JsonProperty("currentPath")]
+        [JsonPropertyName("viewModel")]
+        public JsonObject ViewModel { get; }
+        [JsonPropertyName("currentPath")]
         public string[] CurrentPath { get; }
-        [JsonProperty("command")]
+        [JsonPropertyName("command")]
         public string Command { get; }
-        [JsonProperty("controlUniqueId")]
+        [JsonPropertyName("controlUniqueId")]
         public string? ControlUniqueId { get; }
-        [JsonProperty("commandArgs")]
+        [JsonPropertyName("commandArgs")]
         public object[] CommandArgs { get; }
-        [JsonProperty("validationTargetPath")]
+        [JsonPropertyName("validationTargetPath")]
         public string? ValidationTargetPath { get; }
     }
 
@@ -274,7 +275,7 @@ namespace DotVVM.Framework.Testing
         public PageRunResult(
             ControlTestHelper testHelper,
             string filePath,
-            JObject resultJson,
+            JsonObject resultJson,
             string outputString,
             string? headResources,
             string? bodyResources,
@@ -298,9 +299,8 @@ namespace DotVVM.Framework.Testing
 
         public ControlTestHelper TestHelper { get; }
         public string FilePath { get; }
-        public JObject ResultJson { get; }
-        public JObject ViewModelJson => (JObject)ResultJson["viewModel"].NotNull();
-        public dynamic ViewModel => ViewModelJson;
+        public JsonObject ResultJson { get; }
+        public JsonObject ViewModelJson => (JsonObject)ResultJson["viewModel"].NotNull();
         public string OutputString { get; }
         public string? HeadResources { get; }
         public string? BodyResources { get; }
@@ -359,7 +359,7 @@ namespace DotVVM.Framework.Testing
                 if (applyChanges)
                 {
                     JsonUtils.Patch(
-                        (JObject)this.ResultJson["viewModel"]!,
+                        this.ResultJson["viewModel"]!.AsObject(),
                         r.ViewModelJson!
                     );
                 }

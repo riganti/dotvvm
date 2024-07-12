@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
-using Newtonsoft.Json;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 {
@@ -20,7 +20,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
     public class ShoppingCartItem
     {
-        [JsonProperty("CoolItem")]
+        [JsonPropertyName("CoolItem")]
         public string Item { get; set; }
         public int Quantity { get; set; }
     }

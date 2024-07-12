@@ -22,6 +22,14 @@ namespace DotVVM.Framework.Utils
                 Expression.IfThenElse(condition, body, Expression.Goto(brkLabel)), brkLabel);
         }
 
+        static Expression Index(Expression list, Expression index)
+        {
+            if (list.Type.IsArray)
+                return Expression.ArrayIndex(list, index);
+            else
+                return Expression.Property(list, list.Type == typeof(string) ? "Chars" : "Item", index);
+        }
+
         public static Expression ConvertToObject(this Expression expr)
         {
             if (expr.Type == typeof(object)) return expr;

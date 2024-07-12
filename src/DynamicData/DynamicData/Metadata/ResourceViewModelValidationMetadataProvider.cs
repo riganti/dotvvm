@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Resources;
 using System.Threading;
@@ -40,8 +41,12 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         /// <summary>
         /// Gets validation attributes for the specified property.
         /// </summary>
-        public IEnumerable<ValidationAttribute> GetAttributesForProperty(PropertyInfo property)
+        public IEnumerable<ValidationAttribute> GetAttributesForProperty(MemberInfo member)
         {
+            if (member is not PropertyInfo property)
+            {
+                return [];
+            }
             return cache.GetOrAdd(new PropertyInfoCulturePair(CultureInfo.CurrentUICulture, property), GetAttributesForPropertyCore);
         }
 

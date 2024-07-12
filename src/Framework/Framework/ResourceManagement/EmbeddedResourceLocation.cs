@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using DotVVM.Framework.Hosting;
 using System.Reflection;
-using Newtonsoft.Json;
 using System;
 using DotVVM.Framework.Utils;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.ResourceManagement
 {

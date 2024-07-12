@@ -1,86 +1,94 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Utils;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
     /// <summary>
     /// This converter serializes Dictionary&lt;&gt; as List&lt;KeyValuePair&lt;,&gt;&gt; in order to make dictionaries work with knockout. 
     /// </summary>
-    public class DotvvmDictionaryConverter : JsonConverter
+    public class DotvvmDictionaryConverter : JsonConverterFactory
     {
-        private static Type keyValuePairGenericType = typeof(KeyValuePair<,>);
-        private static Type listGenericType = typeof(List<>);
-        private static Type dictionaryEntryType = typeof(DictionaryEntry);
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override bool CanConvert(Type typeToConvert) =>
+            typeToConvert.Implements(typeof(IReadOnlyDictionary<,>));
+        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
-            if (value is not IDictionary dict)
+            if (typeToConvert.Implements(typeof(IReadOnlyDictionary<,>), out var dictionaryType))
             {
-                writer.WriteNull();
-            }
-            else
-            {
-                var attrs = value.GetType().GetGenericArguments();
-                var keyValuePair = keyValuePairGenericType.MakeGenericType(attrs);
-                var listType = listGenericType.MakeGenericType(keyValuePair);
-
-                var itemEnumerator = dict.GetEnumerator();
-
-                var keyProp = dictionaryEntryType.GetProperty(nameof(DictionaryEntry.Key))!;
-                var valueProp = dictionaryEntryType.GetProperty(nameof(DictionaryEntry.Value))!;
-
-                var list = Activator.CreateInstance(listType);
-                var invokeMethod = listType.GetMethod(nameof(List<object>.Add))!;
-                while (itemEnumerator.MoveNext())
-                {
-                    var item = Activator.CreateInstance(keyValuePair, keyProp.GetValue(itemEnumerator.Current), valueProp.GetValue(itemEnumerator.Current));
-                    invokeMethod.Invoke(list, new[] { item });
-                }   
-
-                serializer.Serialize(writer, list);
-            }
-        }
-
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-            {
-                return null;
-            }
-            else if (reader.TokenType == JsonToken.StartArray)
-            {
-
-                var attrs = objectType.GetGenericArguments();
-                var keyValuePair = keyValuePairGenericType.MakeGenericType(attrs);
-                var listType = listGenericType.MakeGenericType(keyValuePair);
-
-                var dict = existingValue as IDictionary;
-                dict ??= (IDictionary)Activator.CreateInstance(objectType)!;
-
-                var keyProp = keyValuePair.GetProperty(nameof(KeyValuePair<object, object>.Key))!;
-                var valueProp = keyValuePair.GetProperty(nameof(KeyValuePair<object, object>.Value))!;
-
-                var value = serializer.Deserialize(reader, listType) as IEnumerable;
-                if (value is null) throw new Exception($"Could not deserialize object with path '{reader.Path}' as IEnumerable.");
-                foreach (var item in value)
-                {
-                    dict[keyProp.GetValue(item)!] = valueProp.GetValue(item);
-                }
-                return dict;
+                return (JsonConverter?)Activator.CreateInstance(typeof(Converter<,,>).MakeGenericType(dictionaryType.GetGenericArguments().Append(typeToConvert).ToArray()));
             }
             return null;
         }
 
-        public override bool CanConvert(Type objectType)
+        class Converter<K, V, TDictionary> : JsonConverter<TDictionary>
+            where TDictionary : IReadOnlyDictionary<K, V>
+            where K: notnull
         {
-            return typeof(IDictionary).IsAssignableFrom(objectType)
-                && ReflectionUtils.ImplementsGenericDefinition(objectType, typeof(IDictionary<,>));
+            public override void Write(Utf8JsonWriter json, TDictionary value, JsonSerializerOptions options)
+            {
+                json.WriteStartArray();
+                foreach (var item in value)
+                {
+                    json.WriteStartObject();
+                    json.WritePropertyName("Key"u8);
+                    JsonSerializer.Serialize(json, item.Key, options);
+                    json.WritePropertyName("Value"u8);
+                    JsonSerializer.Serialize(json, item.Value, options);
+                    json.WriteEndObject();
+                }
+                json.WriteEndArray();
+            }
+            public override TDictionary? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                reader.AssertRead(JsonTokenType.StartArray);
+                var dict = new Dictionary<K, V>();
+                while (reader.TokenType != JsonTokenType.EndArray)
+                {
+                    reader.AssertRead(JsonTokenType.StartObject);
+                    (K key, V value) item = default;
+                    bool hasKey = false, hasValue = false;
+                    while (reader.TokenType != JsonTokenType.EndObject)
+                    {
+                        reader.AssertToken(JsonTokenType.PropertyName);
+                        
+                        if (reader.ValueTextEquals("Key"u8))
+                        {
+                            reader.AssertRead();
+                            item.key = SystemTextJsonUtils.Deserialize<K>(ref reader, options)!;
+                            hasKey = true;
+                        }
+                        else if (reader.ValueTextEquals("Value"u8))
+                        {
+                            reader.AssertRead();
+                            item.value = SystemTextJsonUtils.Deserialize<V>(ref reader, options)!;
+                            hasValue = true;
+                        }
+                        else
+                        {
+                            reader.AssertRead();
+                            reader.Skip();
+                        }
+                        reader.AssertRead();
+                    }
+                    if (!hasKey || !hasValue) throw new JsonException("Missing Key or Value property in dictionary item.");
+                    dict.Add(item.key!, item.value);
+                    reader.AssertRead(JsonTokenType.EndObject);
+                }
 
+                if (dict is TDictionary result)
+                    return result;
+                if (ImmutableDictionary<K, V>.Empty is TDictionary)
+                    return (TDictionary)(object)dict.ToImmutableDictionary();
+                throw new NotSupportedException($"Cannot create instance of {typeToConvert}.");
+            }
         }
+
     }
 
 }

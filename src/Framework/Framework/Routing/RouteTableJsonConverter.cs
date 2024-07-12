@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,50 +7,56 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Utils;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace DotVVM.Framework.Routing
 {
-    public class RouteTableJsonConverter : JsonConverter
+    public class RouteTableJsonConverter : JsonConverter<DotvvmRouteTable>
     {
-        public override bool CanConvert(Type objectType) => objectType == typeof(DotvvmRouteTable);
-
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override DotvvmRouteTable Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var rt = existingValue as DotvvmRouteTable;
-            if (rt == null) return null;
-            foreach (var prop in (JObject)JObject.ReadFrom(reader))
-            {
-                var route = (JObject)prop.Value.NotNull();
-                try
-                {
-                    rt.Add(prop.Key, route["url"].NotNull("route.url is required").Value<string>(), (route["virtualPath"]?.Value<string>()).NotNull("route.virtualPath is required"), route["defaultValues"]?.ToObject<IDictionary<string, object>>());
-                }
-                catch (Exception error)
-                {
-                    rt.Add(prop.Key, new ErrorRoute(route["url"]?.Value<string>(), route["virtualPath"]?.Value<string>(), prop.Key, route["defaultValues"]?.ToObject<IDictionary<string, object?>>(), error));
-                }
-            }
-            return rt;
+            throw new NotImplementedException();
+            // var rt = new DotvvmRouteTable();
+            // if (reader.TokenType != JsonTokenType.StartObject) throw new JsonException("Expected StartObject");
+            // reader.Read();
+
+            // while (reader.TokenType == JsonTokenType.PropertyName)
+            // {
+            //     var routeName = reader.GetString();
+            //     reader.Read();
+            //     var route = (JObject)prop.Value.NotNull();
+            //     try
+            //     {
+            //         rt.Add(prop.Key, route["url"].NotNull("route.url is required").Value<string>(), (route["virtualPath"]?.Value<string>()).NotNull("route.virtualPath is required"), route["defaultValues"]?.ToObject<IDictionary<string, object>>());
+            //     }
+            //     catch (Exception error)
+            //     {
+            //         rt.Add(prop.Key, new ErrorRoute(route["url"]?.Value<string>(), route["virtualPath"]?.Value<string>(), prop.Key, route["defaultValues"]?.ToObject<IDictionary<string, object?>>(), error));
+            //     }
+            // }
+            // return rt;
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) => WriteJson(writer, (DotvvmRouteTable?)value, serializer);
-
-        public void WriteJson(JsonWriter writer, DotvvmRouteTable? value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, DotvvmRouteTable value, JsonSerializerOptions options)
         {
-            if (value == null)
-            {
-                writer.WriteNull();
-                return;
-            }
             writer.WriteStartObject();
             foreach (var route in value)
             {
-                writer.WritePropertyName(route.RouteName);
-                new JObject() {
-                    ["url"] = route.Url,
-                    ["virtualPath"] = route.VirtualPath,
-                    ["defaultValues"] = JObject.FromObject(route.DefaultValues)
-                }.WriteTo(writer);
+                writer.WriteStartObject(route.RouteName);
+                writer.WriteString("url", route.Url);
+                writer.WriteString("virtualPath", route.VirtualPath);
+                if (route.DefaultValues is not null)
+                {
+                    writer.WriteStartObject("defaultValues");
+                    foreach (var (paramName, defaultValue) in route.DefaultValues)
+                    {
+                        writer.WritePropertyName(paramName);
+                        JsonSerializer.Serialize(writer, defaultValue, options);
+                    }
+                    writer.WriteEndObject();
+                }
+                writer.WriteEndObject();
             }
             writer.WriteEndObject();
         }
