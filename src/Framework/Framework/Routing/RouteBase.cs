@@ -90,6 +90,11 @@ namespace DotVVM.Framework.Routing
         public abstract IEnumerable<string> ParameterNames { get; }
 
         /// <summary>
+        /// Gets the metadata of the route parameters.
+        /// </summary>
+        public abstract IEnumerable<KeyValuePair<string, DotvvmRouteParameterMetadata>> ParameterMetadata { get; }
+
+        /// <summary>
         /// Determines whether the route matches to the specified URL and extracts the parameter values.
         /// </summary>
         public abstract bool IsMatch(string url, [MaybeNullWhen(false)] out IDictionary<string, object?> values);

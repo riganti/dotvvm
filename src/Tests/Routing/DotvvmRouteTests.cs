@@ -325,6 +325,21 @@ namespace DotVVM.Framework.Tests.Routing
             });
         }
 
+        [DataTestMethod]
+        [DataRow("product/{id?}/{name:maxLength(5)}", "en/products/{id?}/{name:maxLength(10)}")]
+        [DataRow("product/{id?}/{name:maxLength(5)}", "en/products/{id?}/{name}")]
+        [DataRow("product/{id?}/{name:maxLength(5)}", "en/products/{Id:int?}/{name}")]
+        [DataRow("product/{id?}/{name:maxLength(5)}", "en/products/{abc}")]
+        [DataRow("product/{id?}/{name:maxLength(5)}", "en/products/{Id?}/{name:maxLength(5)}")]
+        public void LocalizedDotvvmRoute_RouteConstraintChecks(string defaultRoute, string localizedRoute)
+        {
+            Assert.ThrowsException<ArgumentException>(() => {
+                var route = new LocalizedDotvvmRoute(defaultRoute, new[] {
+                    new LocalizedRouteUrl("en", localizedRoute)
+                }, "", null, _ => null, configuration);
+            });
+        }
+
         [TestMethod]
         public void DotvvmRoute_BuildUrl_UrlTwoParameters()
         {

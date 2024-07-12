@@ -34,6 +34,8 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public override IEnumerable<string> ParameterNames => GetRouteForCulture(CultureInfo.CurrentUICulture).ParameterNames;
 
+        public override IEnumerable<KeyValuePair<string, DotvvmRouteParameterMetadata>> ParameterMetadata => GetRouteForCulture(CultureInfo.CurrentUICulture).ParameterMetadata;
+
         public override string RouteName
         {
             get
@@ -61,13 +63,24 @@ namespace DotVVM.Framework.Routing
                 throw new ArgumentException("There must be at least one localized route URL!", nameof(localizedUrls));
             }
 
+            var defaultRoute = new DotvvmRoute(defaultLanguageUrl, virtualPath, defaultValues, presenterFactory, configuration);
+
+            var sortedParameters = defaultRoute.ParameterMetadata
+                .OrderBy(n => n.Key)
+                .ToArray();
+
             foreach (var localizedUrl in localizedUrls)
             {
                 var localizedRoute = new DotvvmRoute(localizedUrl.RouteUrl, virtualPath, defaultValues, presenterFactory, configuration);
+                if (!localizedRoute.ParameterMetadata.OrderBy(n => n.Key)
+                        .SequenceEqual(sortedParameters))
+                {
+                    throw new ArgumentException($"Localized route URL '{localizedUrl.RouteUrl}' must contain the same parameters with equal constraints as the default route URL!", nameof(localizedUrls));
+                }
+
                 localizedRoutes.Add(localizedUrl.CultureIdentifier, localizedRoute);
             }
 
-            var defaultRoute = new DotvvmRoute(defaultLanguageUrl, virtualPath, defaultValues, presenterFactory, configuration);
             localizedRoutes.Add("", defaultRoute);
         }
 

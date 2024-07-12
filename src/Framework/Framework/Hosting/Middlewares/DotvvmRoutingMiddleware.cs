@@ -38,10 +38,9 @@ namespace DotVVM.Framework.Hosting.Middlewares
             return false;
         }
 
-        public static RouteBase? FindMatchingRoute(IEnumerable<RouteBase> routes, IDotvvmRequestContext context, out IDictionary<string, object?>? parameters, out bool isPartialMatch)
+        public static string GetRouteMatchUrl(IDotvvmRequestContext context)
         {
-            string? url;
-            if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.Url.Query, out url))
+            if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.Url.Query, out var url))
             {
                 url = context.HttpContext.Request.Path.Value;
             }
@@ -52,40 +51,46 @@ namespace DotVVM.Framework.Hosting.Middlewares
             {
                 url = url.Substring(HostingConstants.SpaUrlIdentifier.Length).Trim('/');
             }
+            return url;
+        }
 
-            // find the route
-            RouteBase? partialMatch = null;
-            IDictionary<string, object?>? partialMatchParameters = null;
-
+        internal static RouteBase? FindExactMatchRoute(IEnumerable<RouteBase> routes, string matchUrl, out IDictionary<string, object?>? parameters)
+        {
             foreach (var r in routes)
             {
-                if (r.IsMatch(url, out parameters))
+                if (r.IsMatch(matchUrl, out parameters))
                 {
-                    isPartialMatch = false;
                     return r;
                 }
+            }
+            parameters = null;
+            return null;
+        }
 
-                if (partialMatch == null
-                    && r is IPartialMatchRoute partialMatchRoute
-                    && partialMatchRoute.IsPartialMatch(url, out var partialMatchResult, out var partialMatchParametersResult))
-                {
-                    partialMatch = partialMatchResult;
-                    partialMatchParameters = partialMatchParametersResult;
-                }
+        public static RouteBase? FindMatchingRoute(DotvvmRouteTable routes, IDotvvmRequestContext context, out IDictionary<string, object?>? parameters, out bool isPartialMatch)
+        {
+            var url = GetRouteMatchUrl(context);
+
+            var route = FindExactMatchRoute(routes, url, out parameters);
+            if (route is { })
+            {
+                isPartialMatch = false;
+                return route;
             }
 
-            if (partialMatch != null)
+            foreach (var r in routes.PartialMatchRoutes)
             {
-                isPartialMatch = true;
-                parameters = partialMatchParameters;
-                return partialMatch;
+                if (r.IsPartialMatch(url, out var matchedRoute, out parameters))
+                {
+                    isPartialMatch = true;
+                    return matchedRoute;
+                }
             }
 
             isPartialMatch = false;
             parameters = null;
             return null;
         }
-
 
         public async Task<bool> Handle(IDotvvmRequestContext context)
         {
