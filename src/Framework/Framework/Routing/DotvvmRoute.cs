@@ -20,11 +20,14 @@ namespace DotVVM.Framework.Routing
         private List<Func<Dictionary<string, string?>, string>> urlBuilders;
         private List<KeyValuePair<string, Func<string, ParameterParseResult>?>> parameters;
         private string urlWithoutTypes;
+        private List<KeyValuePair<string, DotvvmRouteParameterMetadata>> parameterMetadata;
 
         /// <summary>
         /// Gets the names of the route parameters in the order in which they appear in the URL.
         /// </summary>
         public override IEnumerable<string> ParameterNames => parameters.Select(p => p.Key);
+
+        public override IEnumerable<KeyValuePair<string, DotvvmRouteParameterMetadata>> ParameterMetadata => parameterMetadata;
 
         public override string UrlWithoutTypes => urlWithoutTypes;
 
@@ -77,6 +80,7 @@ namespace DotVVM.Framework.Routing
             routeRegex = result.RouteRegex;
             urlBuilders = result.UrlBuilders;
             parameters = result.Parameters;
+            parameterMetadata = result.ParameterMetadata;
             urlWithoutTypes = result.UrlWithoutTypes;
         }
 

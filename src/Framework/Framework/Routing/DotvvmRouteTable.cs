@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -14,18 +15,21 @@ namespace DotVVM.Framework.Routing
     public sealed class DotvvmRouteTable : IEnumerable<RouteBase>
     {
         private readonly DotvvmConfiguration configuration;
-        private readonly List<KeyValuePair<string, RouteBase>> list
-            = new List<KeyValuePair<string, RouteBase>>();
-        private List<IPartialMatchRouteHandler> partialMatchHandlers = new List<IPartialMatchRouteHandler>();
+        private readonly List<KeyValuePair<string, RouteBase>> list = new();
+        private readonly List<IPartialMatchRouteHandler> partialMatchHandlers = new();
+        private readonly List<IPartialMatchRoute> partialMatchRoutes = new();
 
         private readonly Dictionary<string, RouteBase> dictionary
             = new Dictionary<string, RouteBase>(StringComparer.OrdinalIgnoreCase);
+
         private readonly Dictionary<string, DotvvmRouteTable> routeTableGroups
             = new Dictionary<string, DotvvmRouteTable>();
+
         private RouteTableGroup? group = null;
 
-
         public IReadOnlyList<IPartialMatchRouteHandler> PartialMatchHandlers => partialMatchHandlers;
+
+        internal IEnumerable<IPartialMatchRoute> PartialMatchRoutes => partialMatchRoutes;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRouteTable"/> class.
@@ -254,6 +258,11 @@ namespace DotVVM.Framework.Routing
             // The list is used for finding the routes because it keeps the ordering, the dictionary is for checking duplicates
             list.Add(new KeyValuePair<string, RouteBase>(routeName, route));
             dictionary.Add(routeName, route);
+
+            if (route is IPartialMatchRoute partialMatchRoute)
+            {
+                partialMatchRoutes.Add(partialMatchRoute);
+            }
         }
 
         public void AddPartialMatchHandler(IPartialMatchRouteHandler handler)
@@ -267,7 +276,7 @@ namespace DotVVM.Framework.Routing
             return dictionary.ContainsKey(routeName);
         }
 
-        public bool TryGetValue(string routeName, out RouteBase? route)
+        public bool TryGetValue(string routeName, [MaybeNullWhen(false)] out RouteBase route)
         {
             return dictionary.TryGetValue(routeName, out route);
         }
