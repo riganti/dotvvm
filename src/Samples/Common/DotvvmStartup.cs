@@ -239,6 +239,7 @@ namespace DotVVM.Samples.BasicSamples
                         new("cs-CZ", "cs/FeatureSamples/Localization/lokalizovana-routa"),
                         new("de", "de/FeatureSamples/Localization/lokalisierte-route"),
                 });
+            config.RouteTable.AddPartialMatchHandler(new CanonicalRedirectPartialMatchRouteHandler());
 
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
 

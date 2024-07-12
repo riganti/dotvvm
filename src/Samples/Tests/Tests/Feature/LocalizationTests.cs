@@ -176,6 +176,19 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Localization_LocalizableRoute_PartialMatchHandlers()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl("/cs/FeatureSamples/Localization/lokalizovana-routa?lang=de");
+
+                var culture = browser.Single("span[data-ui=culture]");
+                AssertUI.TextEquals(culture, "de");
+
+                AssertUI.Url(browser, p => p.EndsWith("/de/FeatureSamples/Localization/lokalisierte-route"));
+            });
+        }
+
         public LocalizationTests(ITestOutputHelper output) : base(output)
         {
         }

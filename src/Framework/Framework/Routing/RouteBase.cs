@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Gets key of route.
         /// </summary>
-        public string RouteName { get; internal set; }
+        public virtual string RouteName { get; internal set; }
 
         /// <summary>
         /// Gets the default values of the optional parameters.

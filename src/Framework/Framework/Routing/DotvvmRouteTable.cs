@@ -16,12 +16,16 @@ namespace DotVVM.Framework.Routing
         private readonly DotvvmConfiguration configuration;
         private readonly List<KeyValuePair<string, RouteBase>> list
             = new List<KeyValuePair<string, RouteBase>>();
+        private List<IPartialMatchRouteHandler> partialMatchHandlers = new List<IPartialMatchRouteHandler>();
 
         private readonly Dictionary<string, RouteBase> dictionary
             = new Dictionary<string, RouteBase>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, DotvvmRouteTable> routeTableGroups
             = new Dictionary<string, DotvvmRouteTable>();
         private RouteTableGroup? group = null;
+
+
+        public IReadOnlyList<IPartialMatchRouteHandler> PartialMatchHandlers => partialMatchHandlers;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRouteTable"/> class.
@@ -113,17 +117,8 @@ namespace DotVVM.Framework.Routing
         {
             ThrowIfFrozen();
 
-            url = CombinePath(group?.UrlPrefix, url);
             virtualPath = CombinePath(group?.VirtualPathPrefix, virtualPath);
-            presenterFactory ??= GetDefaultPresenter;
-            routeName = group?.RouteNamePrefix + routeName;
-
-            RouteBase route = localizedUrls == null
-                ? new DotvvmRoute(url, virtualPath, defaultValues, presenterFactory, configuration)
-                : new LocalizedDotvvmRoute(url,
-                    localizedUrls.Select(l => new LocalizedRouteUrl(l.CultureIdentifier, CombinePath(group?.UrlPrefix, l.RouteUrl))).ToArray(),
-                    virtualPath, defaultValues, presenterFactory, configuration);
-            Add(routeName, route);
+            AddCore(routeName, url, virtualPath, defaultValues, presenterFactory, localizedUrls);
         }
 
         /// <summary>
@@ -137,10 +132,15 @@ namespace DotVVM.Framework.Routing
         {
             ThrowIfFrozen();
 
+            var virtualPath = group?.VirtualPathPrefix ?? "";
+            AddCore(routeName, url, virtualPath, defaultValues, presenterFactory, localizedUrls);
+        }
+
+        private void AddCore(string routeName, string? url, string virtualPath, object? defaultValues, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory, LocalizedRouteUrl[]? localizedUrls)
+        {
             url = CombinePath(group?.UrlPrefix, url);
             presenterFactory ??= GetDefaultPresenter;
             routeName = group?.RouteNamePrefix + routeName;
-            var virtualPath = group?.VirtualPathPrefix ?? "";
 
             RouteBase route = localizedUrls == null
                 ? new DotvvmRoute(url, virtualPath, defaultValues, presenterFactory, configuration)
@@ -254,6 +254,12 @@ namespace DotVVM.Framework.Routing
             // The list is used for finding the routes because it keeps the ordering, the dictionary is for checking duplicates
             list.Add(new KeyValuePair<string, RouteBase>(routeName, route));
             dictionary.Add(routeName, route);
+        }
+
+        public void AddPartialMatchHandler(IPartialMatchRouteHandler handler)
+        {
+            ThrowIfFrozen();
+            partialMatchHandlers.Add(handler);
         }
 
         public bool Contains(string routeName)

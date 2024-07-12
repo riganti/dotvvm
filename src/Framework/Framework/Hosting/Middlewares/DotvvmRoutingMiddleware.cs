@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             return false;
         }
 
-        public static RouteBase? FindMatchingRoute(IEnumerable<RouteBase> routes, IDotvvmRequestContext context, out IDictionary<string, object?>? parameters)
+        public static RouteBase? FindMatchingRoute(IEnumerable<RouteBase> routes, IDotvvmRequestContext context, out IDictionary<string, object?>? parameters, out bool isPartialMatch)
         {
             string? url;
             if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.Url.Query, out url))
@@ -53,12 +53,35 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 url = url.Substring(HostingConstants.SpaUrlIdentifier.Length).Trim('/');
             }
 
-
             // find the route
+            RouteBase? partialMatch = null;
+            IDictionary<string, object?>? partialMatchParameters = null;
+
             foreach (var r in routes)
             {
-                if (r.IsMatch(url, out parameters)) return r;
+                if (r.IsMatch(url, out parameters))
+                {
+                    isPartialMatch = false;
+                    return r;
+                }
+
+                if (partialMatch == null
+                    && r is IPartialMatchRoute partialMatchRoute
+                    && partialMatchRoute.IsPartialMatch(url, out var partialMatchResult, out var partialMatchParametersResult))
+                {
+                    partialMatch = partialMatchResult;
+                    partialMatchParameters = partialMatchParametersResult;
+                }
             }
+
+            if (partialMatch != null)
+            {
+                isPartialMatch = true;
+                parameters = partialMatchParameters;
+                return partialMatch;
+            }
+
+            isPartialMatch = false;
             parameters = null;
             return null;
         }
@@ -70,11 +93,11 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
             await requestTracer.TraceEvent(RequestTracingConstants.BeginRequest, context);
 
-            var route = FindMatchingRoute(context.Configuration.RouteTable, context, out var parameters);
+            var route = FindMatchingRoute(context.Configuration.RouteTable, context, out var parameters, out var isPartialMatch);
 
             //check if route exists
             if (route == null) return false;
-
+            
             var timer = ValueStopwatch.StartNew();
 
             context.Route = route;
@@ -83,12 +106,25 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
             WriteSecurityHeaders(context);
 
+            
             var filters =
                 ActionFilterHelper.GetActionFilters<IPresenterActionFilter>(presenter.GetType().GetTypeInfo())
                 .Concat(context.Configuration.Runtime.GlobalFilters.OfType<IPresenterActionFilter>());
             try
             {
                 foreach (var f in filters) await f.OnPresenterExecutingAsync(context);
+
+                if (isPartialMatch)
+                {
+                    foreach (var handler in context.Configuration.RouteTable.PartialMatchHandlers)
+                    {
+                        if (await handler.TryHandlePartialMatch(context))
+                        {
+                            break;
+                        }
+                    }
+                }
+
                 await presenter.ProcessRequest(context);
                 foreach (var f in filters) await f.OnPresenterExecutedAsync(context);
             }
