@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 
@@ -44,7 +45,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public class SampleDto
         {
-            [JsonProperty("id", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+            [JsonPropertyName("id")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
             public string Id { get; set; }
 
             public string Name { get; set; }

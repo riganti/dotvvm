@@ -37,7 +37,11 @@ namespace DotVVM.Framework.Configuration
                     new DotvvmEnumConverter(),
                     new DotvvmDictionaryConverter(),
                     new DotvvmByteArrayConverter(),
-                    new DotvvmCustomPrimitiveTypeConverter()
+                    new DotvvmCustomPrimitiveTypeConverter(),
+#if !DotNetCore
+                    new DotvvmTimeOnlyJsonConverter(),
+                    new DotvvmDateTimeConverter(),
+#endif
                 },
                 NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
                 Encoder = HtmlSafeLessParanoidEncoder,
