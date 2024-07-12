@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Routing
     /// Please note that the extraction of the culture from the URL and setting the culture must be done at the beginning of the request pipeline.
     /// Therefore, the route only matches the URL for the current culture.
     /// </summary>
-    public sealed class LocalizedDotvvmRoute : RouteBase
+    public sealed class LocalizedDotvvmRoute : RouteBase, IPartialMatchRoute
     {
         private static readonly HashSet<string> AvailableCultureNames = CultureInfo.GetCultures(CultureTypes.AllCultures)
             .Where(c => c != CultureInfo.InvariantCulture)
@@ -33,6 +33,22 @@ namespace DotVVM.Framework.Routing
         /// Gets the names of the route parameters in the order in which they appear in the URL.
         /// </summary>
         public override IEnumerable<string> ParameterNames => GetRouteForCulture(CultureInfo.CurrentUICulture).ParameterNames;
+
+        public override string RouteName
+        {
+            get
+            {
+                return base.RouteName;
+            }
+            internal set
+            {
+                base.RouteName = value;
+                foreach (var route in localizedRoutes)
+                {
+                    route.Value.RouteName = value;
+                }
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
@@ -86,6 +102,46 @@ namespace DotVVM.Framework.Routing
         /// Determines whether the route matches to the specified URL and extracts the parameter values.
         /// </summary>
         public override bool IsMatch(string url, [MaybeNullWhen(false)] out IDictionary<string, object?> values) => GetRouteForCulture(CultureInfo.CurrentCulture).IsMatch(url, out values);
+
+        public bool IsPartialMatch(string url, [MaybeNullWhen(false)] out RouteBase matchedRoute, [MaybeNullWhen(false)] out IDictionary<string, object?> values)
+        {
+            RouteBase? twoLetterCultureMatch = null;
+            IDictionary<string, object?> twoLetterCultureMatchValues = null;
+
+            foreach (var route in localizedRoutes)
+            {
+                if (route.Value.IsMatch(url, out values))
+                {
+                    if (route.Key.Length > 2)
+                    {
+                        // exact culture match - return immediately
+                        matchedRoute = route.Value;
+                        return true;
+                    }
+                    else if (route.Key.Length > 0 && twoLetterCultureMatch == null)
+                    {
+                        // match for two-letter culture - continue searching if there is a better match
+                        twoLetterCultureMatch = route.Value;
+                        twoLetterCultureMatchValues = values;
+                    }
+                    else
+                    {
+                        // ignore exact match - this was done using classic IsMatch
+                    }
+                }
+            }
+
+            if (twoLetterCultureMatch != null)
+            {
+                matchedRoute = twoLetterCultureMatch;
+                values = twoLetterCultureMatchValues!;
+                return true;
+            }
+
+            matchedRoute = null;
+            values = null;
+            return false;
+        }
 
         protected internal override string BuildUrlCore(Dictionary<string, object?> values) => GetRouteForCulture(CultureInfo.CurrentCulture).BuildUrlCore(values);
 

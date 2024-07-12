@@ -79,7 +79,8 @@ namespace DotVVM.Samples.BasicSamples
                     .SetDefaultCulture(supportedCultures[0])
                     .AddSupportedCultures(supportedCultures)
                     .AddSupportedUICultures(supportedCultures)
-                    .AddInitialRequestCultureProvider(new PrefixRequestCultureProvider());
+                    .AddInitialRequestCultureProvider(new PrefixRequestCultureProvider())
+                    .AddInitialRequestCultureProvider(new QueryStringRequestCultureProvider() { UIQueryStringKey = "lang", QueryStringKey = "lang" });
             });
         }
 

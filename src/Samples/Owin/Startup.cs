@@ -28,7 +28,17 @@ namespace DotVVM.Samples.BasicSamples
         public void Configuration(IAppBuilder app)
         {
             app.Use((context, next) => {
-                if (context.Request.Path.StartsWithSegments(new PathString("/cs")))
+                if (context.Request.Query["lang"] == "cs")
+                {
+                    CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("cs-CZ");
+                    context.Set(HostingConstants.OwinDoNotSetRequestCulture, true);
+                }
+                else if (context.Request.Query["lang"] == "de")
+                {
+                    CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("de");
+                    context.Set(HostingConstants.OwinDoNotSetRequestCulture, true);
+                }
+                else if (context.Request.Path.StartsWithSegments(new PathString("/cs")))
                 {
                     CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("cs-CZ");
                     context.Set(HostingConstants.OwinDoNotSetRequestCulture, true);
