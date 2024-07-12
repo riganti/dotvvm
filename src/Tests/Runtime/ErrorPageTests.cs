@@ -100,6 +100,7 @@ namespace DotVVM.Framework.Tests.Runtime
             check.CheckJsonObject(ErrorPageTemplate.SerializeObjectForBrowser(obj));
         }
 
+#if NETCOREAPP1_0_OR_GREATER
         [TestMethod]
         public void SerializationReflectionAssembly()
         {
@@ -110,6 +111,7 @@ namespace DotVVM.Framework.Tests.Runtime
             };
             check.CheckJsonObject(ErrorPageTemplate.SerializeObjectForBrowser(obj));
         }
+#endif
 
         [TestMethod]
         public void SerializationDelegates()

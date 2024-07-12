@@ -537,7 +537,15 @@ namespace DotVVM.Framework.Utils
             return cache_GetTypeHash.GetOrAdd(type, t => {
                 using (var sha1 = SHA1.Create())
                 {
-                    var typeName = t.ToCode() + ", " + t.Assembly.GetName().Name;
+                    var assemblyName = t.Assembly.GetName().Name;
+#if !DotNetCore
+                    if (assemblyName == "mscorlib")
+                    {
+                        // try to keep the same hashes of basic types on .NET core and .NET Framework
+                        assemblyName = "System.Private.CoreLib";
+                    }
+#endif
+                    var typeName = t.ToCode() + ", " + assemblyName;
                     var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(typeName));
 
                     return Convert.ToBase64String(hashBytes, 0, 12);
