@@ -1,5 +1,6 @@
-import { tryCoerce } from "../metadata/coercer"
+import { coerce, tryCoerce } from "../metadata/coercer"
 import { formatTypeName } from "../metadata/typeMap";
+import { CoerceError } from "../shared-classes";
 import { initDotvvm } from "./helper";
 
 initDotvvm({
@@ -449,10 +450,30 @@ test("boolean - valid, converted from number", () => {
     expect(result.value).toEqual(true);
 })
 
-test("boolean - valid, converted from string", () => {
+test("boolean - valid, true converted from string", () => {
     const result = tryCoerce("true", "Boolean");
     expect(result.wasCoerced).toBeTruthy();
     expect(result.value).toEqual(true);
+})
+
+test("boolean - valid, false converted from string", () => {
+    const result = tryCoerce("false", "Boolean");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual(false);
+})
+test("boolean - valid, False converted from string", () => {
+    const result = tryCoerce("False", "Boolean");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual(false);
+})
+
+test("boolean - invalid, invalid string", () => {
+    const result = tryCoerce("", "Boolean");
+    expect(result.isError).toBeTruthy();
+})
+test("boolean - invalid, invalid string", () => {
+    const result = tryCoerce("bazmek", "Boolean");
+    expect(result.isError).toBeTruthy();
 })
 
 test("boolean - invalid, null", () => {
@@ -618,4 +639,20 @@ test("formatTypeName", () => {
     expect(formatTypeName({ type: "nullable", inner: "t1" })).toBe("MyType1? (t1?)");
     expect(formatTypeName({ type: "nullable", inner: "t2" })).toBe("t2?");
     expect(formatTypeName([ { type:"nullable", inner: [ [ "t1" ] ] }])).toBe("MyType1[][]?[] (t1[][]?[])");
+})
+
+
+test("Exception - inherits Error", () => {
+    let hasError = false;
+    try {
+        coerce("something", "Int32")
+    } catch (e: any) {
+        hasError = true;
+        expect(e instanceof Error).toBeTruthy();
+        expect(e instanceof CoerceError).toBeTruthy();
+        expect(e.message).toBe("Cannot coerce 'something' to type 'Int32'.");
+        expect(e.name).toBe("CoerceError");
+        expect("" + e).toBe("CoerceError: Cannot coerce 'something' to type 'Int32'.");
+    }
+    expect(hasError).toBeTruthy();
 })

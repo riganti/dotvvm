@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Tests.Runtime
             service.BuildView(route, out _);
             Assert.AreEqual(CompilationState.CompilationFailed, route.Status);
             Assert.IsNotNull(route.Exception);
-            Assert.AreEqual("The control <test:ThisControlDoesNotExist> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!", route.Exception);
+            Assert.AreEqual("The control <test:ThisControlDoesNotExist> could not be resolved!", route.Exception);
         }
 
         [TestMethod]

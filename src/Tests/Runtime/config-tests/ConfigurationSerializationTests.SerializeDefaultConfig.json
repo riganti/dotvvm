@@ -25,6 +25,7 @@
         "dotvvm": {
           "Code": "",
           "Defer": true,
+          "Module": false,
           "Dependencies": [
             "dotvvm.internal"
           ],
@@ -33,7 +34,7 @@
       },
       "DotVVM.Framework.ResourceManagement.ScriptModuleResource": {
         "dotvvm.internal": {
-          "Defer": true,
+          "Defer": false,
           "Location": {
             "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Name": "DotVVM.Framework.obj.javascript.root_only.dotvvm-root.js",
@@ -48,7 +49,7 @@
           "RenderPosition": "Anywhere"
         },
         "dotvvm.internal-spa": {
-          "Defer": true,
+          "Defer": false,
           "Location": {
             "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Name": "DotVVM.Framework.obj.javascript.root_spa.dotvvm-root.js",
@@ -860,8 +861,7 @@
         "dataContextManipulation": {
           "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
         },
-        "defaultValue": true,
-        "onlyBindings": true
+        "defaultValue": true
       },
       "Width": {
         "type": "System.String",
@@ -1090,7 +1090,8 @@
     "DotVVM.Framework.Controls.JsComponent": {
       "Global": {
         "type": "System.Boolean",
-        "defaultValue": false
+        "defaultValue": false,
+        "onlyHardcoded": true
       },
       "Html:ID": {
         "type": "System.String",
@@ -1103,11 +1104,13 @@
       },
       "Name": {
         "type": "System.String",
-        "required": true
+        "required": true,
+        "onlyHardcoded": true
       },
       "WrapperTagName": {
         "type": "System.String",
-        "defaultValue": "div"
+        "defaultValue": "div",
+        "onlyHardcoded": true
       }
     },
     "DotVVM.Framework.Controls.Label": {
@@ -1491,7 +1494,6 @@
       "ColumnVisible": {
         "type": "System.Boolean",
         "defaultValue": true,
-        "onlyBindings": true,
         "isActive": true
       }
     },

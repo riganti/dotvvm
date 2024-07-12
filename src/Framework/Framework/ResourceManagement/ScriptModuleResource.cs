@@ -14,10 +14,19 @@ namespace DotVVM.Framework.ResourceManagement
     {
         [Obsolete("We don't support IE anymore", error: true)]
         public IResourceLocation? NomoduleLocation { get; }
-        /// <summary> If `defer` attribute should be used. </summary>
-        public bool Defer { get; }
 
-        public ScriptModuleResource(IResourceLocation location, bool defer = true)
+
+        [Obsolete("<script type='module'> is always deferred, the attribute does nothing")]
+        public bool Defer { get; }
+        bool IDeferrableResource.Defer => true;
+
+        public ScriptModuleResource(IResourceLocation location)
+            : base(ResourceRenderPosition.Anywhere, "text/javascript", location)
+        {
+        }
+
+        [Obsolete("<script type='module'> is always deferred, the attribute does nothing")]
+        public ScriptModuleResource(IResourceLocation location, bool defer)
             : base(defer ? ResourceRenderPosition.Anywhere : ResourceRenderPosition.Body, "text/javascript", location)
         {
             this.Defer = defer;
@@ -27,8 +36,6 @@ namespace DotVVM.Framework.ResourceManagement
         {
             AddSrcAndIntegrity(writer, context, location.GetUrl(context, resourceName), "src");
             writer.AddAttribute("type", "module");
-            if (Defer)
-                writer.AddAttribute("defer", null);
             writer.RenderBeginTag("script");
             writer.RenderEndTag();
         }

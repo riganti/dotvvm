@@ -30,6 +30,7 @@ namespace DotVVM.Framework.Configuration
             services.AddDotvvmApplicationInsights();
 
             services.Services.AddApplicationInsightsTelemetryProcessor<RequestTelemetryFilter>();
+            services.Services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
 
             services.Services.TryAddSingleton<JavaScriptSnippet>();
             services.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();

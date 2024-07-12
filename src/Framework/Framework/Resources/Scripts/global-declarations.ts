@@ -316,15 +316,26 @@ type DotvvmFileSize = {
 }
 
 type DotvvmJsComponent = {
-    updateProps(p: { [key: string]: any }): void
-    dispose(): void
+    /** Called after each update of dotvvm.state which changes any of the bound properties. Only the changed properties are listed in the `updatedProps` argument. */
+    updateProps(updatedProps: { [key: string]: any }): void
+    /** Called after the HTMLElement is removed from DOM.
+     * The component does not need to remove any child elements, but should clean any external data, such as subscription to dotvvm events */
+    dispose?(): void
 }
 type DotvvmJsComponentFactory = {
+    /** Initializes the component on the specified HTMLElement.
+     * @param element The root HTMLElement of this component
+     * @param props An object listing all constants and `value` bindings from the `dot:JsComponent` instance
+     * @param commands An object listing all `command` and `staticCommand` bindings from the `dot:JsComponent` instance
+     * @param templates An object listing all content properties of the `dot:JsComponent`. The template is identified using its HTML id attribute, it can be rendered using ko.renderTemplate, KnockoutTemplateReactComponent or KnockoutTemplateSvelteComponent
+     * @param setProps A function which will attempt to write a value back into the bound property. Only certain `value` bindings can be updated, an exception is thown if it isn't possible
+     * @returns An object which will be notified about subsequent changes to the bound properties and when the component
+     */
     create(
         element: HTMLElement,
         props: { [key: string]: any },
         commands: { [key: string]: (args: any[]) => Promise<any> },
-        templates: { [key: string]: string }, // TODO
+        templates: { [key: string]: string },
         setProps: (p: { [key: string]: any }) => void
     ): DotvvmJsComponent
 }

@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
@@ -603,19 +607,19 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_LambdaExpressions_StaticCommands);
 
                 var rows = GetSortedRow(browser, "First customer");
-                browser.WaitFor(() => Assert.Equal(1, rows.Count), 500);
+                browser.WaitFor(() => Assert.Single(rows), 500);
                 Assert.Equal(rowWithId1.ToList(), RowContent(rows, 0, new List<int> { 0, 1, 2, 3, 4, 5 }).ToList());
 
                 rows = GetSortedRow(browser, "Last customer");
-                browser.WaitFor(() => Assert.Equal(1, rows.Count), 500);
+                browser.WaitFor(() => Assert.Single(rows), 500);
                 Assert.Equal(rowWithId10.ToList(), RowContent(rows, 0, new List<int> { 0, 1, 2, 3, 4, 5 }).ToList());
 
                 rows = GetSortedRow(browser, "First blue customer");
-                browser.WaitFor(() => Assert.Equal(1, rows.Count), 500);
+                browser.WaitFor(() => Assert.Single(rows), 500);
                 Assert.Equal(rowWithId3.ToList(), RowContent(rows, 0, new List<int> { 0, 1, 2, 3, 4, 5 }).ToList());
 
                 rows = GetSortedRow(browser, "Last red customer");
-                browser.WaitFor(() => Assert.Equal(1, rows.Count), 500);
+                browser.WaitFor(() => Assert.Single(rows), 500);
                 Assert.Equal(rowWithId8.ToList(), RowContent(rows, 0, new List<int> { 0, 1, 2, 3, 4, 5 }).ToList());
             });
         }
@@ -814,7 +818,7 @@ namespace DotVVM.Samples.Tests.Feature
                 Assert.Equal(new List<string> { "1", "2", "8", "9", "10" }, column);
             });
         }
-
+        
         [Fact]
         public void Feature_List_Translation_Remove_Reverse()
         {
@@ -826,6 +830,27 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitFor(() => Assert.Equal(10, column.Count), 500);
                 Assert.Equal(new List<string> { "10", "9", "8", "7", "6", "5", "4", "3", "2", "1" }, column);
             });
+        }
+
+        [Fact]
+        public async Task Feature_ExtensionMethodsNotResolvedOnStartup()
+        {
+            var client = new HttpClient();
+
+            // try to visit the page
+            var pageResponse = await client.GetAsync(TestSuiteRunner.Configuration.BaseUrls[0].TrimEnd('/') + "/" + SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+            TestOutput.WriteLine($"Page response: {(int)pageResponse.StatusCode}");
+            var wasError = pageResponse.StatusCode != HttpStatusCode.OK;
+
+            // dump extension methods on the output
+            var json = await client.GetStringAsync(TestSuiteRunner.Configuration.BaseUrls[0].TrimEnd('/') + "/dump-extension-methods");
+            TestOutput.WriteLine(json);
+            
+            if (wasError)
+            {
+                // fail the test on error
+                throw new Exception("Extension methods were not resolved on application startup.");
+            }
         }
 
         protected IElementWrapperCollection<IElementWrapper, IBrowserWrapper> GetSortedRow(IBrowserWrapper browser, string btn)

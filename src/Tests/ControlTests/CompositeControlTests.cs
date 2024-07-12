@@ -282,7 +282,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                     <cc:ControlWithCollectionProperty> <Repeaters> <bazmek /> </Repeaters> </cc:ControlWithCollectionProperty>
                 "));
 
-            Assert.AreEqual("Control type DotVVM.Framework.Controls.HtmlGenericControl can't be used in collection of type DotVVM.Framework.Controls.Repeater.", e.Message);
+            Assert.AreEqual("Control type DotVVM.Framework.Controls.HtmlGenericControl can't be used in a property of type DotVVM.Framework.Controls.Repeater.", e.Message);
         }
 
         [TestMethod]

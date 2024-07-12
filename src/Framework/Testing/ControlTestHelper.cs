@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Testing
             ClaimsPrincipal? user = null,
             CultureInfo? culture = null)
         {
-            if (!markup.Contains("<body"))
+            if (!markup.Contains("<body") && !markup.Contains("<dot:Content"))
             {
                 markup = $"<body Validation.Enabled=false >\n{markup}\n{(renderResources ? "" : "<tc:FakeBodyResourceLink />")}\n</body>";
             }
@@ -143,7 +143,7 @@ namespace DotVVM.Framework.Testing
             {
                 markup = "<tc:FakeBodyResourceLink />" + markup;
             }
-            if (!markup.Contains("<head"))
+            if (!markup.Contains("<head") && !markup.Contains("<dot:Content"))
             {
                 markup = $"<head></head>\n{markup}";
             }

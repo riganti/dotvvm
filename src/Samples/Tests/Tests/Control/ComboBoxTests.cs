@@ -1,9 +1,11 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium.Support.UI;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -295,6 +297,31 @@ namespace DotVVM.Samples.Tests.Control
                 }
             });
         }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Control_ComboBox_BooleanProperty(bool nullable)
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_BooleanProperty);
+                var suffix = nullable ? "-n" : "-nn";
+                var values = nullable ? new bool?[] {true, false, null, false, true} : new bool?[] { true, false, false, true };
+
+                foreach (var selectedBox in new [] { "cb1", "cb2" })
+                {
+                    foreach (var v in values)
+                    {
+                        var index = v switch { true => 0, false => 1, null => 2 };
+                        browser.Single(selectedBox + suffix, SelectByDataUi).Select(index);
+                        AssertUI.InnerTextEquals(browser.Single("value" + suffix, SelectByDataUi), v?.ToString() ?? "null");
+                        Assert.Equal(new SelectElement(browser.Single("cb1" + suffix, SelectByDataUi).WebElement).SelectedOption.Text, v?.ToString().ToLowerInvariant() ?? "");
+                        Assert.Equal(new SelectElement(browser.Single("cb2" + suffix, SelectByDataUi).WebElement).SelectedOption.Text, v?.ToString().ToUpperInvariant() ?? "NULL");
+                    }
+                }
+            });
+        }
+
 
     }
 }

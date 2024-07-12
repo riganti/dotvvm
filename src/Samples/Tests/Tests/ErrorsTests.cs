@@ -57,7 +57,7 @@ namespace DotVVM.Samples.Tests
                             s.Contains("could not be resolved")
                             );
                 AssertUI.InnerTextEquals(browser.First("[class='errorUnderline']")
-                    , "<dot:NonExistingControl />", false);
+                    , "NonExistingControl", false);
             });
         }
 

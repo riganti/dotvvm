@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
@@ -7,7 +8,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     public static class ControlTreeHelper
     {
         public static bool HasEmptyContent(this IAbstractControl control)
-            => control.Content.All(c => !DothtmlNodeHelper.IsNotEmpty(c.DothtmlNode)); // allow only whitespace literals
+            => control.Content.All(c => DothtmlNodeHelper.IsEmpty(c.DothtmlNode)); // allow only whitespace literals
 
         public static bool HasProperty(this IAbstractControl control, IPropertyDescriptor property)
         {
@@ -25,6 +26,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             control.TryGetProperty(control.Metadata.GetPropertyGroupMember(prefix, memberName), out var value);
             return value;
+        }
+
+        public static Dictionary<string, IAbstractPropertySetter> GetPropertyGroup(this IAbstractControl control, IPropertyGroupDescriptor group)
+        {
+            var result = new Dictionary<string, IAbstractPropertySetter>();
+            foreach (var prop in control.Properties)
+            {
+                if (prop.Key is IGroupedPropertyDescriptor member && member.PropertyGroup == group)
+                {
+                    result.Add(member.GroupMemberName, prop.Value);
+                }
+            }
+            return result;
         }
 
         public static IPropertyDescriptor GetHtmlAttributeDescriptor(this IControlResolverMetadata metadata, string name)

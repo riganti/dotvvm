@@ -66,7 +66,7 @@ const createValidationHandler = (pathFunction: (context: KnockoutBindingContext)
     }
 })
 
-const runClientSideValidation = (validationTarget: any, options: PostbackOptions) => {
+export const runClientSideValidation = (validationTarget: any, options: PostbackOptions) => {
 
     watchAndTriggerValidationErrorChanged(options,
         () => {
@@ -171,6 +171,9 @@ function validateViewModel(viewModel: any, path: string): void {
 }
 
 function validateRecursive(observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition, propertyPath: string) {
+    if (compileConstants.debug && !ko.isObservable(observable)) {
+        throw Error(`Property ${propertyPath} isn't a knockout observable and cannot be validated.`)
+    }
     const lastSetError: CoerceResult = (observable as any)[lastSetErrorSymbol];
     if (lastSetError && lastSetError.isError) {
         ValidationError.attach(lastSetError.message, propertyPath, observable);
@@ -203,7 +206,7 @@ function validateRecursive(observable: KnockoutObservable<any>, propertyValue: a
                     validateViewModel(propertyValue, propertyPath);
                 } else {
                     for (const k of keys(propertyValue)) {
-                        validateRecursive(ko.unwrap(propertyValue[k]), propertyValue[k], { type: "dynamic" }, propertyPath + "/" + k);
+                        validateRecursive(propertyValue[k], ko.unwrap(propertyValue[k]), { type: "dynamic" }, propertyPath + "/" + k);
                     }
                 }
             }

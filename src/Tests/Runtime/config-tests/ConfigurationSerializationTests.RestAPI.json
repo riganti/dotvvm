@@ -17,6 +17,7 @@
         "apiInit_testApi": {
           "Code": "dotvvm.api._testApi=new DotVVM.Framework.Tests.Binding.TestApiClient(\"http://server/api\");",
           "Defer": true,
+          "Module": true,
           "Dependencies": [
             "dotvvm",
             "apiClient_testApi"

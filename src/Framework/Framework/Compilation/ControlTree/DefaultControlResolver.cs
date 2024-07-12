@@ -300,6 +300,47 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new ControlResolverMetadata((ControlType)type);
         }
 
+        public override IEnumerable<(string tagPrefix, string? tagName, IControlType type)> EnumerateControlTypes()
+        {
+            var markupControls = new HashSet<(string, string)>(); // don't report MarkupControl with @baseType twice
+
+            foreach (var control in configuration.Markup.Controls)
+            {
+                if (!string.IsNullOrEmpty(control.Src))
+                {
+                    markupControls.Add((control.TagPrefix!, control.TagName!));
+                    IControlType? markupControl = null;
+                    try
+                    {
+                        markupControl = FindMarkupControl(control.Src);
+                    }
+                    catch { } // ignore the error, we should not crash here
+                    if (markupControl != null)
+                        yield return (control.TagPrefix!, control.TagName, markupControl);
+                }
+            }
+
+            foreach (var assemblyGroup in configuration.Markup.Controls.Where(c => !string.IsNullOrEmpty(c.Assembly) && string.IsNullOrEmpty(c.Src)).GroupBy(c => c.Assembly!))
+            {
+                var assembly = compiledAssemblyCache.GetAssembly(assemblyGroup.Key);
+                if (assembly is null)
+                    continue;
+
+                var namespaces = assemblyGroup.GroupBy(c => c.Namespace ?? "").ToDictionary(g => g.Key, g => g.First());
+                foreach (var type in assembly.GetLoadableTypes())
+                {
+                    if (type.IsPublic && !type.IsAbstract &&
+                        type.DeclaringType is null &&
+                        typeof(DotvvmBindableObject).IsAssignableFrom(type) &&
+                        namespaces.TryGetValue(type.Namespace ?? "", out var controlConfig))
+                    {
+                        if (!markupControls.Contains((controlConfig.TagPrefix!, type.Name)))
+                            yield return (controlConfig.TagPrefix!, null, new ControlType(type));
+                    }
+                }
+            }
+        }
+
         protected override IPropertyDescriptor? FindGlobalPropertyOrGroup(string name, MappingMode requiredMode)
         {
             // try to find property

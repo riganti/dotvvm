@@ -31,6 +31,7 @@ using DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.Views.ControlSamples.TemplateHost;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Samples.Common.Presenters;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes;
 
 namespace DotVVM.Samples.BasicSamples
@@ -251,6 +252,8 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("FeatureSamples_PostBack_PostBackHandlers_Localized", "FeatureSamples/PostBack/PostBackHandlers_Localized", "Views/FeatureSamples/PostBack/ConfirmPostBackHandler.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
 
             config.RouteTable.Add("Errors_UndefinedRouteLinkParameters-PageDetail", "Erros/UndefinedRouteLinkParameters/{Id}", "Views/Errors/UndefinedRouteLinkParameters.dothtml", new { Id = 0 });
+
+            config.RouteTable.Add("DumpExtensionsMethods", "dump-extension-methods", _ => new DumpExtensionMethodsPresenter());
         }
 
         private static void AddControls(DotvvmConfiguration config)
@@ -276,6 +279,8 @@ namespace DotVVM.Samples.BasicSamples
 
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
 
+            if (config.Markup.Controls.FirstOrDefault(c => c.Src is not null && Path.IsPathRooted(c.Src)) is {} invalidControl)
+                throw new Exception($"Some controls have absolute paths! ({invalidControl.TagPrefix}:{invalidControl.TagName} - {invalidControl.Src})");
         }
 
     }

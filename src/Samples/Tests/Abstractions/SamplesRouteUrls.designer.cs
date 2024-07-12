@@ -56,6 +56,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_CheckBox_InRepeater = "ControlSamples/CheckBox/InRepeater";
         public const string ControlSamples_ClaimView_ClaimViewTest = "ControlSamples/ClaimView/ClaimViewTest";
         public const string ControlSamples_ComboBox_BindingCTValidation_StringToEnum = "ControlSamples/ComboBox/BindingCTValidation_StringToEnum";
+        public const string ControlSamples_ComboBox_BooleanProperty = "ControlSamples/ComboBox/BooleanProperty";
         public const string ControlSamples_ComboBox_Default = "ControlSamples/ComboBox/Default";
         public const string ControlSamples_ComboBox_DelaySync = "ControlSamples/ComboBox/DelaySync";
         public const string ControlSamples_ComboBox_DelaySync2 = "ControlSamples/ComboBox/DelaySync2";

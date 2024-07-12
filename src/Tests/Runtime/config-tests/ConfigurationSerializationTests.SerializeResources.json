@@ -9,10 +9,12 @@
         "r6": {
           "Code": "alert(1)",
           "Defer": false,
+          "Module": false,
           "RenderPosition": "Body"
         },
         "r7": {
           "Defer": false,
+          "Module": false,
           "RenderPosition": "Body"
         }
       },

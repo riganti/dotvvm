@@ -5,19 +5,12 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
-    [DebuggerDisplay("{debuggerDisplay,nq}")]
     public sealed class DothtmlElementNode : DothtmlNodeWithContent
     {
-        #region debugger display
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string debuggerDisplay
+        public override string ToString()
         {
-            get
-            {
-                return "<" + (IsClosingTag ? "/" : "") + FullTagName + (Attributes.Any() ? " ..." : "") + (IsSelfClosingTag ? " /" : "") + ">";
-            }
+            return "<" + (IsClosingTag ? "/" : "") + FullTagName + (Attributes.Any() ? " ..." : "") + (IsSelfClosingTag ? " /" : "") + ">";
         }
-        #endregion
 
         public string TagName => TagNameNode.Text;
         public string? TagPrefix => TagPrefixNode?.Text;

@@ -18,6 +18,7 @@ namespace DotVVM.Framework.Configuration
         public static IDotvvmServiceCollection AddApplicationInsightsTracing(this IDotvvmServiceCollection services)
         {
             TelemetryConfiguration.Active.TelemetryProcessorChainBuilder.Use(next => new RequestTelemetryFilter(next)).Build();
+            TelemetryConfiguration.Active.TelemetryInitializers.Add(new OperationNameTelemetryInitializer());
 
             services.Services.TryAddSingleton<TelemetryClient>();
             services.AddDotvvmApplicationInsights();

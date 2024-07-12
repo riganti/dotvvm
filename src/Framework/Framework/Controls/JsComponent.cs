@@ -1,9 +1,14 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Utils;
@@ -11,9 +16,15 @@ using DotVVM.Framework.Utils;
 namespace DotVVM.Framework.Controls
 {
     /// <summary> Control which initializes a client-side component. </summary>
+    /// <remark>
+    /// The client-side component is either exported from a view module referenced in the page's @js directive, or registered using the dotvvm.registerGlobalComponent method.
+    /// The module should export a $controls field with any number of named components, (TypeScript signature is <c>$controls?: { [name:string]: DotvvmJsComponentFactory }</c>)
+    /// </remark>
+    /// <seealso href="https://www.dotvvm.com/docs/latest/pages/concepts/client-side-development/integrate-third-party-controls/react" />
     public class JsComponent : DotvvmControl
     {
-        /// <summary> If set to true, only globally registered JsComponents will be considered for rendering client-side. </summary>
+        /// <summary> If set to true, view modules are ignored and JsComponents registered using <c>dotvvm.registerGlobalComponent</c> will be considered for client-side rendering. </summary>
+        [MarkupOptions(AllowBinding = false)]
         public bool Global
         {
             get { return (bool)GetValue(GlobalProperty)!; }
@@ -23,7 +34,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<bool, JsComponent>(nameof(Global));
 
         /// <summary> Name by which the client-side component was registered. The name is case sensitive. </summary>
-        [MarkupOptions(Required = true)]
+        [MarkupOptions(Required = true, AllowBinding = false)]
         public string Name
         {
             get { return (string)GetValue(NameProperty)!; }
@@ -33,6 +44,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, JsComponent>(nameof(Name));
 
         /// <summary> The JsComponent must have a wrapper HTML tag, this property configures which tag is used. By default, `div` is used. </summary>
+        [MarkupOptions(AllowBinding = false)]
         public string WrapperTagName
         {
             get { return (string)GetValue(WrapperTagNameProperty)!; }
@@ -132,7 +144,8 @@ namespace DotVVM.Framework.Controls
                 { "props", props },
                 { "templates", templates },
             };
-            if (GetValue(Internal.ReferencedViewModuleInfoProperty) is ViewModuleReferenceInfo viewModule)
+            if (GetValue(Internal.ReferencedViewModuleInfoProperty) is ViewModuleReferenceInfo viewModule &&
+                GetValue(GlobalProperty) is not true)
                 binding.Add("view", ViewModuleHelpers.GetViewIdJsExpression(viewModule, this));
 
             writer.AddKnockoutDataBind("dotvvm-js-component", binding);
@@ -154,5 +167,34 @@ namespace DotVVM.Framework.Controls
                 control.ConstructorParameters = null;
             }
         }
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            if (!control.TreeRoot.HasProperty(Internal.ReferencedViewModuleInfoProperty) &&
+                control.GetProperty(GlobalProperty) is null or ResolvedPropertyValue { Value: false })
+            {
+                yield return new ControlUsageError(
+                    $"This view does not have any view modules registered, only global JsComponent will work. Add the `Global` property to this component, to make the intent clear.",
+                    DiagnosticSeverity.Warning,
+                    (control.DothtmlNode as DothtmlElementNode)?.TagNameNode
+                );
+            }
+
+            var props = control.GetPropertyGroup(PropsGroupDescriptor);
+            var templates = control.GetPropertyGroup(TemplatesGroupDescriptor);
+
+            foreach (var name in props.Keys.Intersect(templates.Keys))
+            {
+                var templateElement = templates[name].DothtmlNode;
+                yield return new ControlUsageError(
+                    $"JsComponent property and template must not share the same name ('{name}').",
+                    DiagnosticSeverity.Error,
+                    props[name].DothtmlNode,
+                    (templateElement as DothtmlElementNode)?.TagNameNode ?? templateElement
+                );
+            }
+        }
+
     }
 }
