@@ -3,8 +3,8 @@
     "DotVVM.Samples.BasicSamples.Owin": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:5407",
-      "applicationUrl": "http://localhost:5407",
+      "launchUrl": "http://localhost:65481/",
+      "applicationUrl": "http://localhost:65481/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
