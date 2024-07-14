@@ -31,11 +31,17 @@ namespace DotVVM.Samples.Tests.Feature
                 var issueId = grid.ElementAt("tbody tr td", 0).GetInnerText();
 
                 // go next
-                pager.ElementAt("li", 1).Single("a").Click().Wait(500);
+                pager.ElementAt("li", 1).Single("a").Click().Wait(1000);
+
+                grid = browser.Single("next-grid", SelectByDataUi);
+                pager = browser.Single("next-pager", SelectByDataUi);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId);
 
                 // go to first page
-                pager.ElementAt("li", 0).Single("a").Click().Wait(500);
+                pager.ElementAt("li", 0).Single("a").Click().Wait(1000);
+
+                grid = browser.Single("next-grid", SelectByDataUi);
+                pager = browser.Single("next-pager", SelectByDataUi);
                 AssertUI.TextEquals(grid.ElementAt("tbody tr td", 0), issueId);
             });
         }
@@ -57,27 +63,42 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // go to page 2
                 pager.ElementAt("li", 3).Single("a").Click().Wait(500);
+
+                grid = browser.Single("next-grid", SelectByDataUi);
+                pager = browser.Single("next-pager", SelectByDataUi);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId1);
                 var issueId2 = grid.ElementAt("tbody tr td", 0).GetInnerText();
 
                 // go to next page
                 pager.ElementAt("li", 5).Single("a").Click().Wait(500);
+
+                grid = browser.Single("next-grid", SelectByDataUi);
+                pager = browser.Single("next-pager", SelectByDataUi);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId1);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId2);
                 var issueId3 = grid.ElementAt("tbody tr td", 0).GetInnerText();
 
                 // go to first page
                 pager.ElementAt("li", 0).Single("a").Click().Wait(500);
+
+                grid = browser.Single("next-grid", SelectByDataUi);
+                pager = browser.Single("next-pager", SelectByDataUi);
                 AssertUI.TextEquals(grid.ElementAt("tbody tr td", 0), issueId1);
 
                 // go to page 4
                 pager.ElementAt("li", 5).Single("a").Click().Wait(500);
+
+                grid = browser.Single("next-grid", SelectByDataUi);
+                pager = browser.Single("next-pager", SelectByDataUi);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId1);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId2);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId3);
 
                 // go to previous page
                 pager.ElementAt("li", 1).Single("a").Click().Wait(500);
+
+                grid = browser.Single("next-grid", SelectByDataUi);
+                pager = browser.Single("next-pager", SelectByDataUi);
                 AssertUI.TextEquals(grid.ElementAt("tbody tr td", 0), issueId3);
             });
         }
