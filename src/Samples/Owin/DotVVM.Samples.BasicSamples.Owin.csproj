@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Properties\PublishProfiles\CI.pubxml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="Scripts\testResource.js" />
     <Content Include="test.zip" />
   </ItemGroup>
