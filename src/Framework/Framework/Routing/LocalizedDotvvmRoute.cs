@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Routing
         public bool IsPartialMatch(string url, [MaybeNullWhen(false)] out RouteBase matchedRoute, [MaybeNullWhen(false)] out IDictionary<string, object?> values)
         {
             RouteBase? twoLetterCultureMatch = null;
-            IDictionary<string, object?> twoLetterCultureMatchValues = null;
+            IDictionary<string, object?>? twoLetterCultureMatchValues = null;
 
             foreach (var route in localizedRoutes)
             {
