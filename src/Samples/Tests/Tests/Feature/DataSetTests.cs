@@ -64,16 +64,16 @@ namespace DotVVM.Samples.Tests.Feature
                 // go to page 2
                 pager.ElementAt("li", 3).Single("a").Click().Wait(500);
 
-                grid = browser.Single("next-grid", SelectByDataUi);
-                pager = browser.Single("next-pager", SelectByDataUi);
+                grid = browser.Single("next-history-grid", SelectByDataUi);
+                pager = browser.Single("next-history-pager", SelectByDataUi);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId1);
                 var issueId2 = grid.ElementAt("tbody tr td", 0).GetInnerText();
 
                 // go to next page
                 pager.ElementAt("li", 5).Single("a").Click().Wait(500);
 
-                grid = browser.Single("next-grid", SelectByDataUi);
-                pager = browser.Single("next-pager", SelectByDataUi);
+                grid = browser.Single("next-history-grid", SelectByDataUi);
+                pager = browser.Single("next-history-pager", SelectByDataUi);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId1);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId2);
                 var issueId3 = grid.ElementAt("tbody tr td", 0).GetInnerText();
@@ -81,15 +81,15 @@ namespace DotVVM.Samples.Tests.Feature
                 // go to first page
                 pager.ElementAt("li", 0).Single("a").Click().Wait(500);
 
-                grid = browser.Single("next-grid", SelectByDataUi);
-                pager = browser.Single("next-pager", SelectByDataUi);
+                grid = browser.Single("next-history-grid", SelectByDataUi);
+                pager = browser.Single("next-history-pager", SelectByDataUi);
                 AssertUI.TextEquals(grid.ElementAt("tbody tr td", 0), issueId1);
 
                 // go to page 4
                 pager.ElementAt("li", 5).Single("a").Click().Wait(500);
 
-                grid = browser.Single("next-grid", SelectByDataUi);
-                pager = browser.Single("next-pager", SelectByDataUi);
+                grid = browser.Single("next-history-grid", SelectByDataUi);
+                pager = browser.Single("next-history-pager", SelectByDataUi);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId1);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId2);
                 AssertUI.TextNotEquals(grid.ElementAt("tbody tr td", 0), issueId3);
@@ -97,8 +97,8 @@ namespace DotVVM.Samples.Tests.Feature
                 // go to previous page
                 pager.ElementAt("li", 1).Single("a").Click().Wait(500);
 
-                grid = browser.Single("next-grid", SelectByDataUi);
-                pager = browser.Single("next-pager", SelectByDataUi);
+                grid = browser.Single("next-history-grid", SelectByDataUi);
+                pager = browser.Single("next-history-pager", SelectByDataUi);
                 AssertUI.TextEquals(grid.ElementAt("tbody tr td", 0), issueId3);
             });
         }
