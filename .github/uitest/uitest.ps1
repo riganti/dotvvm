@@ -171,13 +171,17 @@ function Test-Sample {
 			write-host $log
 			get-content $log | write-host
 		}
-		foreach ($log in dir c:\inetpub\logs\logfiles\*\*.log) {
-			write-host $log
-			get-content $log | write-host
+		if (test-path c:\inetpub\logs\logfiles) {
+			foreach ($log in dir c:\inetpub\logs\logfiles\*\*.log) {
+				write-host $log
+				get-content $log | write-host
+			}
 		}
-		foreach ($log in dir $root\artifacts\**\*.log) {
-			write-host $log
-			get-content $log | write-host
+		if (test-path $root\artifacts) {
+			foreach ($log in dir $root\artifacts\**\*.log) {
+				write-host $log
+				get-content $log | write-host
+			}
 		}
         throw "The sample '${sampleName}' failed to start."
     }
