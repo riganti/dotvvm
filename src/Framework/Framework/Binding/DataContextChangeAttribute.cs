@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using System.ComponentModel;
 
 namespace DotVVM.Framework.Binding
 {
@@ -25,6 +26,10 @@ namespace DotVVM.Framework.Binding
         /// Returns a the data context type that should be inside of the annotated control/property.
         /// Returning null means that the data context should not be changed. This overload is used at runtime, by `DotvvmProperty.GetDataContextType(DotvvmBindableObject)` helper method.
         public abstract Type? GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty? property = null);
+
+        /// Whether new layer of DataContext should be created, or the current one should be adjusted (extension parameters will be added).
+        [DefaultValue(true)]
+        public virtual bool NestDataContext => true;
 
         /// Gets the extension parameters that should be made available to the bindings inside.
         public virtual IEnumerable<BindingExtensionParameter> GetExtensionParameters(ITypeDescriptor dataContext) => Enumerable.Empty<BindingExtensionParameter>();

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
@@ -134,20 +135,35 @@ namespace DotVVM.Framework.Compilation.Styles
         }
 
         private static Type[] ImmutableContainers = new[] {
-            typeof(ImmutableArray<>), typeof(ImmutableList<>), typeof(ImmutableDictionary<,>), typeof(ImmutableHashSet<>), typeof(ImmutableQueue<>), typeof(ImmutableSortedDictionary<,>), typeof(ImmutableSortedSet<>), typeof(ImmutableStack<>)
+            typeof(ImmutableArray<>), typeof(ImmutableList<>), typeof(ImmutableHashSet<>), typeof(ImmutableQueue<>), typeof(ImmutableSortedSet<>), typeof(ImmutableStack<>)
         };
-        internal static bool IsImmutableObject(Type type) =>
-            typeof(IBinding).IsAssignableFrom(type ?? throw new ArgumentNullException(nameof(type)))
-              || type.GetCustomAttribute<HandleAsImmutableObjectInDotvvmPropertyAttribute>() is object
-              || type.IsGenericType && ImmutableContainers.Contains(type.GetGenericTypeDefinition()) && type.GenericTypeArguments.All(IsImmutableObject);
+        
+        public static bool IsAllowedPropertyValue([NotNullWhen(false)] object? value)
+        {
+            if (value is ValueOrBinding vob && IsAllowedPropertyValue(vob.UnwrapToObject()) ||
+                value is HtmlGenericControl.AttributeList ||
+                value is IBinding ||
+                value is null)
+            {
+                return true;
+            }
 
-        public static bool IsAllowedPropertyValue([NotNullWhen(false)] object? value) =>
-            value is ValueOrBinding vob && IsAllowedPropertyValue(vob.UnwrapToObject()) ||
-            value is null ||
-            ReflectionUtils.IsPrimitiveType(value.GetType()) ||
-            value is HtmlGenericControl.AttributeList ||
-            IsImmutableObject(value.GetType()) ||
-            value is Array && ReflectionUtils.IsPrimitiveType(value.GetType().GetElementType()!);
+            var type = value.GetType();
+            if (ReflectionUtils.IsPrimitiveType(type) ||
+                type.GetCustomAttribute<HandleAsImmutableObjectInDotvvmPropertyAttribute>() is not null)
+            {
+                return true;
+            }
+
+            // technically we should not allow Array as it can be modified, but we use it already on many places
+            if (value is Array ||
+                (type.IsGenericType && ImmutableContainers.Contains(type.GetGenericTypeDefinition())))
+            {
+                return ((IEnumerable)value).OfType<object>().All(IsAllowedPropertyValue);
+            }
+
+            return false;
+        }
 
         public static ResolvedPropertySetter TranslateProperty(DotvvmProperty property, object? value, DataContextStack dataContext, DotvvmConfiguration? config)
         {

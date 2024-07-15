@@ -1,4 +1,4 @@
-﻿
+
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Samples.Tests.Base;
@@ -53,21 +53,23 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
 
-                // the first li should be visible because it contains text, the second with the link should be hidden
                 var pageIndex1 = browser.First("#pager1").ElementAt("li", 2);
                 AssertUI.NotContainsElement(pageIndex1, "a");
                 AssertUI.HasClass(pageIndex1, "active");
                 AssertUI.IsDisplayed(pageIndex1);
+                AssertUI.TextEquals(pageIndex1, "1");
 
                 var pageIndex2 = browser.First("#pager1").ElementAt("li", 3);
                 AssertUI.ContainsElement(pageIndex2, "a");
-                AssertUI.IsNotDisplayed(pageIndex2);
+                AssertUI.HasNotClass(pageIndex2, "active");
+                AssertUI.TextEquals(pageIndex2, "»");
 
                 // the first li should note be there because only hyperlinks are rendered
                 var pageIndex3 = browser.First("#pager3").ElementAt("li", 2);
                 AssertUI.ContainsElement(pageIndex3, "a");
                 AssertUI.HasClass(pageIndex3, "active");
                 AssertUI.IsDisplayed(pageIndex3);
+                AssertUI.TextEquals(pageIndex3, "1");
             });
         }
 
@@ -78,14 +80,20 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
 
+                browser.Single("populate-button", this.SelectByDataUi).Click();
+
                 // the first ul should not be disabled
-                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 0), "disabled");
-                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 1), "disabled");
-                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 2), "disabled");
-                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 3), "disabled");
-                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 4), "disabled");
+                AssertUI.HasNotClass(browser.Single("#pager1"), "disabled");
+                AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 0), "disabled"); // first
+                AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 1), "disabled"); // prev
+                AssertUI.NotContainsElement(browser.Single("#pager1").ElementAt("li", 2), "a"); // 1 (current)
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 2), "disabled"); // 2
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 3), "disabled"); // 3
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 4), "disabled"); // 4
+                AssertUI.HasNotAttribute(browser.Single("#pager1").Last("li a"), "disabled"); // last page
 
                 // the forth ul should be disabled
+                AssertUI.HasClass(browser.Single("#pager4"), "disabled");
                 AssertUI.HasAttribute(browser.Single("#pager4").ElementAt("li a", 0), "disabled");
                 AssertUI.HasAttribute(browser.Single("#pager4").ElementAt("li a", 1), "disabled");
                 AssertUI.HasAttribute(browser.Single("#pager4").ElementAt("li a", 2), "disabled");
@@ -94,6 +102,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 // verify element is disabled after click
                 browser.Single("#enableCheckbox input[type=checkbox]").Click();
+                AssertUI.HasClass(browser.Single("#pager1"), "disabled");
                 AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 0), "disabled");
                 AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 1), "disabled");
                 AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 2), "disabled");
@@ -102,11 +111,20 @@ namespace DotVVM.Samples.Tests.Control
 
                 // verify element is not disabled after another click
                 browser.Single("#enableCheckbox input[type=checkbox]").Click();
-                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 0), "disabled");
-                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 1), "disabled");
+                AssertUI.HasNotClass(browser.Single("#pager1"), "disabled");
+                AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 0), "disabled");
+                AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 1), "disabled");
                 AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 2), "disabled");
                 AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 3), "disabled");
                 AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 4), "disabled");
+
+                // go to page 2
+                browser.Single("#pager1").ElementAt("li a", 2).Click();
+                AssertUI.TextEquals(browser.Single("#pager1").Single("li.active"), "2");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 0), "disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 1), "disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 2), "disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").Last("li a"), "disabled");
             });
         }
 

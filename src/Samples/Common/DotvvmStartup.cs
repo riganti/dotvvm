@@ -77,7 +77,6 @@ namespace DotVVM.Samples.BasicSamples
                     map.Property(nameof(SerializationViewModel.Value2)).Bind(Direction.ClientToServer);
                     map.Property(nameof(SerializationViewModel.IgnoredProperty)).Ignore();
                 });
-            // new GithubApiClient.GithubApiClient().Repos.GetIssues()
 
             config.RegisterApiGroup(typeof(Common.Api.Owin.TestWebApiClientOwin), "http://localhost:61453/", "Scripts/TestWebApiClientOwin.js", "_apiOwin");
             config.RegisterApiClient(typeof(Common.Api.AspNetCore.TestWebApiClientAspNetCore), "http://localhost:50001/", "Scripts/TestWebApiClientAspNetCore.js", "_apiCore");

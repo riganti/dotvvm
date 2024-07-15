@@ -37,6 +37,7 @@ runs:
     shell: bash
     env:
       DOTVVM_SAMPLES_CONFIG_PROFILE: ${{ inputs.samples-config }}
+      GITHUB_TOKEN: ${{ inputs.github-token }}
 
   - if: ${{ runner.os == 'Windows' }}
     run: choco install dotnet-aspnetcoremodule-v2 -y
@@ -53,6 +54,7 @@ runs:
     shell: pwsh
     env:
       DOTVVM_SAMPLES_CONFIG_PROFILE: ${{ inputs.samples-config }}
+      GITHUB_TOKEN: ${{ inputs.github-token }}
 
   # publish the result to github
   - uses: ./.github/test-report

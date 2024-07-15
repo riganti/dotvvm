@@ -1,0 +1,10 @@
+((PagingOptions)_this.Customers.PagingOptions).GoToFirstPage();
+((IRefreshableGridViewDataSet)_this.Customers).RequestRefresh()
+((PagingOptions)_this.Customers.PagingOptions).GoToLastPage();
+((IRefreshableGridViewDataSet)_this.Customers).RequestRefresh()
+((PagingOptions)_this.Customers.PagingOptions).GoToNextPage();
+((IRefreshableGridViewDataSet)_this.Customers).RequestRefresh()
+((PagingOptions)_this.Customers.PagingOptions).GoToPage(_thisIndex);
+((IRefreshableGridViewDataSet)_this.Customers).RequestRefresh()
+((PagingOptions)_this.Customers.PagingOptions).GoToPreviousPage();
+((IRefreshableGridViewDataSet)_this.Customers).RequestRefresh()

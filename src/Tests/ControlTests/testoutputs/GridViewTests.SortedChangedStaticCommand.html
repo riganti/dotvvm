@@ -1,0 +1,27 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- ko if: EmptyCustomers()?.Items()?.length -->
+		<table data-bind="dotvvm-gridviewdataset: { dataSet: EmptyCustomers(), mapping: {} }">
+			<thead>
+				<tr>
+					<th data-bind="css: { &quot;sort-asc&quot;: ((_sortExpression) => dotvvm.dataSet.translations.SortingOptions.isColumnSortedAscending(ko.toJS(EmptyCustomers()?.SortingOptions), ko.unwrap(_sortExpression)))(&quot;Name&quot;), &quot;sort-desc&quot;: ((_sortExpression) => dotvvm.dataSet.translations.SortingOptions.isColumnSortedDescending(ko.toJS(EmptyCustomers()?.SortingOptions), ko.unwrap(_sortExpression)))(&quot;Name&quot;) }">
+						<a href="javascript:;" onclick="dotvvm.applyPostbackHandlers((options) => {
+	dotvvm.viewModules.call(&quot;p0&quot;, &quot;resort&quot;, [[&quot;Name&quot;][0]], false);
+	return null;
+},this,[],[&quot;Name&quot;]).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">Name</a>
+					</th>
+				</tr>
+			</thead>
+			<tbody data-bind="foreach: EmptyCustomers()?.Items">
+				<tr>
+					<td>
+						<span data-bind="text: Name"></span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- /ko -->
+	</body>
+</html>

@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the items for the current page.
         /// </summary>
-        new IList<T> Items { get; }
+        new IList<T> Items { get; set; }
     }
 
     /// <summary>
