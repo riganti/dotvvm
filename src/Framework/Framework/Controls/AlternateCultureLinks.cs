@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Controls
                     if (alternateCultureRoute.Value == currentCultureRoute) continue;
 
                     var languageCode = alternateCultureRoute.Key == "" ? "x-default" : alternateCultureRoute.Key.ToLowerInvariant();
-                    var alternateUrl = context.TranslateVirtualPath(alternateCultureRoute.Value.BuildUrl(context.Parameters));
+                    var alternateUrl = context.TranslateVirtualPath(alternateCultureRoute.Value.BuildUrl(context.Parameters!));
                     var absoluteAlternateUrl = BuildAbsoluteAlternateUrl(alternateUrl);
 
                     yield return new HtmlGenericControl("link")
