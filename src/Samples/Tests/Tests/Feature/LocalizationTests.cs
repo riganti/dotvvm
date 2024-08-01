@@ -133,6 +133,62 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Localization_LocalizableRoute()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_LocalizableRoute);
+
+                var culture = browser.Single("span[data-ui=culture]");
+                var links = browser.FindElements("a");
+                AssertUI.TextEquals(culture, "en-US");
+                AssertUI.Attribute(links[0], "href", v => v.EndsWith("/cs/FeatureSamples/Localization/lokalizovana-routa"));
+                AssertUI.Attribute(links[1], "href", v => v.EndsWith("/de/FeatureSamples/Localization/lokalisierte-route"));
+                AssertUI.Attribute(links[2], "href", v => v.EndsWith("/FeatureSamples/Localization/LocalizableRoute"));
+                AssertUI.Attribute(links[3], "href", links[2].GetAttribute("href"));
+
+                links[0].Click().Wait(500);
+                culture = browser.Single("span[data-ui=culture]");
+                links = browser.FindElements("a");
+                AssertUI.TextEquals(culture, "cs-CZ");
+                AssertUI.Attribute(links[0], "href", v => v.EndsWith("/cs/FeatureSamples/Localization/lokalizovana-routa"));
+                AssertUI.Attribute(links[1], "href", v => v.EndsWith("/de/FeatureSamples/Localization/lokalisierte-route"));
+                AssertUI.Attribute(links[2], "href", v => v.EndsWith("/FeatureSamples/Localization/LocalizableRoute"));
+                AssertUI.Attribute(links[3], "href", links[0].GetAttribute("href"));
+
+                links[1].Click().Wait(500);
+                culture = browser.Single("span[data-ui=culture]");
+                links = browser.FindElements("a");
+                AssertUI.TextEquals(culture, "de");
+                AssertUI.Attribute(links[0], "href", v => v.EndsWith("/cs/FeatureSamples/Localization/lokalizovana-routa"));
+                AssertUI.Attribute(links[1], "href", v => v.EndsWith("/de/FeatureSamples/Localization/lokalisierte-route"));
+                AssertUI.Attribute(links[2], "href", v => v.EndsWith("/FeatureSamples/Localization/LocalizableRoute"));
+                AssertUI.Attribute(links[3], "href", links[1].GetAttribute("href"));
+
+                links[2].Click().Wait(500);
+                culture = browser.Single("span[data-ui=culture]");
+                links = browser.FindElements("a");
+                AssertUI.TextEquals(culture, "en-US");
+                AssertUI.Attribute(links[0], "href", v => v.EndsWith("/cs/FeatureSamples/Localization/lokalizovana-routa"));
+                AssertUI.Attribute(links[1], "href", v => v.EndsWith("/de/FeatureSamples/Localization/lokalisierte-route"));
+                AssertUI.Attribute(links[2], "href", v => v.EndsWith("/FeatureSamples/Localization/LocalizableRoute"));
+                AssertUI.Attribute(links[3], "href", links[2].GetAttribute("href"));
+            });
+        }
+
+        [Fact]
+        public void Feature_Localization_LocalizableRoute_PartialMatchHandlers()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl("/cs/FeatureSamples/Localization/lokalizovana-routa?lang=de");
+
+                var culture = browser.Single("span[data-ui=culture]");
+                AssertUI.TextEquals(culture, "de");
+
+                AssertUI.Url(browser, p => p.EndsWith("/de/FeatureSamples/Localization/lokalisierte-route"));
+            });
+        }
+
         public LocalizationTests(ITestOutputHelper output) : base(output)
         {
         }

@@ -1410,6 +1410,10 @@
       }
     },
     "DotVVM.Framework.Controls.RouteLink": {
+      "Culture": {
+        "type": "System.String",
+        "onlyHardcoded": true
+      },
       "Enabled": {
         "type": "System.Boolean",
         "defaultValue": true

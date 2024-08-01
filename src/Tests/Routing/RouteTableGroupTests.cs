@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Tests.Routing
         {
             var table = new DotvvmRouteTable(configuration);
             table.AddGroup("Group", "UrlPrefix/{Id}", null, opt => {
-                opt.Add("Default", "", null, null, null);
+                opt.Add("Default", "", null, null, null, null);
             });
 
             var group = table.GetGroup("Group");
@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Tests.Routing
         {
             var table = new DotvvmRouteTable(configuration);
             table.AddGroup("Group", "UrlPrefix/{Id}", null, opt => {
-                opt.Add("Route", "Article/{Title}", null, new { Title = "test" }, null);
+                opt.Add("Route", "Article/{Title}", null, new { Title = "test" }, null, null);
             });
 
             var group = table.GetGroup("Group");
@@ -74,8 +74,8 @@ namespace DotVVM.Framework.Tests.Routing
         {
             var table = new DotvvmRouteTable(configuration);
             table.AddGroup("Group", "UrlPrefix/{Id}", null, opt => {
-                opt.Add("Route0", "Article0/{Title}", null, null, null);
-                opt.Add("Route1", "Article1/{Title}", null, null, null);
+                opt.Add("Route0", "Article0/{Title}", null, null, null, null);
+                opt.Add("Route1", "Article1/{Title}", null, null, null, null);
             });
 
             var group = table.GetGroup("Group");
@@ -90,8 +90,8 @@ namespace DotVVM.Framework.Tests.Routing
         {
             var table = new DotvvmRouteTable(configuration);
             table.AddGroup("Group", "UrlPrefix/{Id}", null, opt => {
-                opt.Add("Route0", "Article0/{Title}", null, null, null);
-                opt.Add("Route1", "Article1/{Title}", null, null, null);
+                opt.Add("Route0", "Article0/{Title}", null, null, null, null);
+                opt.Add("Route1", "Article1/{Title}", null, null, null, null);
             });
 
             var group = table.GetGroup("Group");
@@ -110,11 +110,11 @@ namespace DotVVM.Framework.Tests.Routing
             table.AddGroup("Group1", "UrlPrefix1", null, opt1 => {
                 opt1.AddGroup("Group2", "UrlPrefix2", null, opt2 => {
                     opt2.AddGroup("Group3", "UrlPrefix3", null, opt3 => {
-                        opt3.Add("Route3", "Article3", null, null, null);
+                        opt3.Add("Route3", "Article3", null, null, null, null);
                     });
-                    opt2.Add("Route2", "Article2", null, null, null);
+                    opt2.Add("Route2", "Article2", null, null, null, null);
                 });
-                opt1.Add("Route1", "Article1", null, null, null);
+                opt1.Add("Route1", "Article1", null, null, null, null);
             });
 
             var group = table.GetGroup("Group1");
