@@ -60,6 +60,28 @@ namespace DotVVM.Framework.Binding
                 }));
         }
 
+        /// <summary> Compiles a new `{command: ...code...}` binding which can be evaluated server-side and also client-side. The result is cached. </summary>
+        public CommandBindingExpression CreateCommand(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+        {
+            return CreateCachedBinding($"Command:{code}", new object?[] { dataContext, parserOptions }, () =>
+                new CommandBindingExpression(compilationService, new object?[] {
+                    dataContext,
+                    new OriginalStringBindingProperty(code),
+                    parserOptions
+                }));
+        }
+
+        /// <summary> Compiles a new `{command: ...code...}` binding which can be evaluated server-side and also client-side. The result is implicitly converted to <typeparamref name="TResult" />. The result is cached. </summary>
+        public CommandBindingExpression<TResult> CreateCommand<TResult>(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+        {
+            return CreateCachedBinding($"Command<{typeof(TResult).ToCode()}>:{code}", new object?[] { dataContext, parserOptions }, () =>
+                new CommandBindingExpression<TResult>(compilationService, new object?[] {
+                    dataContext,
+                    new OriginalStringBindingProperty(code),
+                    parserOptions
+                }));
+        }
+
         /// <summary> Compiles a new `{staticCommand: ...code...}` binding which can be evaluated server-side and also client-side. The result is cached. </summary>
         public StaticCommandBindingExpression CreateStaticCommand(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
         {
