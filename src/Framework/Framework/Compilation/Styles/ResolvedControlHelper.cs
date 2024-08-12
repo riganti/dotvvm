@@ -19,6 +19,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Runtime;
 using FastExpressionCompiler;
+using System.Threading;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -417,6 +418,7 @@ namespace DotVVM.Framework.Compilation.Styles
                     var services = context?.Services ?? this.services;
 
                     Children.Add((DotvvmControl)ResolvedControl.ToRuntimeControl(services));
+                    Thread.MemoryBarrier(); // make sure write to Children is done before we let other threads read without lock
                     initialized = true;
                 }
             }
