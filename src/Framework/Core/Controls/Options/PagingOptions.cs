@@ -107,8 +107,10 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual IList<int> GetDefaultNearPageIndexes(int distance)
         {
-            var firstIndex = Math.Max(PageIndex - distance, 0);
-            var lastIndex = Math.Min(PageIndex + distance + 1, PagesCount);
+            var count = this.PagesCount;
+            var index = Math.Max(0, Math.Min(count - 1, PageIndex)); // clamp index to be a valid page
+            var firstIndex = Math.Max(index - distance, 0);
+            var lastIndex = Math.Min(index + distance + 1, count);
             return Enumerable
                 .Range(firstIndex, lastIndex - firstIndex)
                 .ToList();
