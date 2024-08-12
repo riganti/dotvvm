@@ -20,9 +20,9 @@ namespace DotVVM.Framework.Runtime.Caching
     {
         // concurrencyLevel: 1, we don't write in parallel anyway
         // new generation
-        private ConcurrentDictionary<TKey, TValue> hot = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel: 1, capacity: 1);
+        private volatile ConcurrentDictionary<TKey, TValue> hot = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel: 1, capacity: 1);
         // old generation
-        private ConcurrentDictionary<TKey, TValue> cold = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel: 1, capacity: 1);
+        private volatile ConcurrentDictionary<TKey, TValue> cold = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel: 1, capacity: 1);
         // free to take for GC. however, if the GC does not want to collect, we can still use it
         private readonly ConcurrentDictionary<TKey, WeakReference<TValue>> dead = new ConcurrentDictionary<TKey, WeakReference<TValue>>(concurrencyLevel: 1, capacity: 1);
         private TimeSpan lastCleanupTime = TimeSpan.MinValue;
@@ -146,6 +146,12 @@ namespace DotVVM.Framework.Runtime.Caching
                 if (dead.TryRemove(key, out var deadValueWR) && deadValueWR.TryGetTarget(out var deadValue))
                 {
                     oldValue = deadValue;
+                    r = true;
+                }
+                if (hot.TryRemove(key, out hotValue))
+                {
+                    // hot again, it could have been added back in the meantime
+                    oldValue = hotValue;
                     r = true;
                 }
                 return r;
