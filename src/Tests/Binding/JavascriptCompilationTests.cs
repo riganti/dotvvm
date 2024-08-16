@@ -1113,6 +1113,17 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("DateTime.Now", "dotvvm.serialization.serializeDate(new Date(),false)")]
+        [DataRow("DateTime.UtcNow", "dotvvm.serialization.serializeDate(new Date(),true)")]
+        [DataRow("DateTime.Today", "dotvvm.serialization.serializeDate(new Date(),false).substring(0,10)+\"T00:00:00.000\"")]
+        public void JsTranslator_DateTime_Now(string binding, string expected)
+        {
+            var result = CompileBinding(binding);
+            Assert.AreEqual(expected, result);
+        }
+
+
+        [TestMethod]
         [DataRow("DateOnly.ToString()", "")]
         [DataRow("DateOnly.ToString('D')", "\"D\"")]
         public void JsTranslator_DateOnly_ToString(string binding, string args)
@@ -1127,6 +1138,16 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual($"dotvvm.globalize.bindingDateOnlyToString(NullableDateOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
+        }
+
+        [DataTestMethod]
+        [DataRow("DateOnly.Year", "getFullYear()")]
+        [DataRow("DateOnly.Month", "getMonth()+1")]
+        [DataRow("DateOnly.Day", "getDate()")]
+        public void JsTranslator_DateOnly_Property_Getters(string binding, string jsFunction)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.serialization.parseDateOnly(DateOnly()).{jsFunction}", result);
         }
 
         [TestMethod]
@@ -1144,6 +1165,17 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual($"dotvvm.globalize.bindingTimeOnlyToString(NullableTimeOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
+        }
+
+        [DataTestMethod]
+        [DataRow("TimeOnly.Hour", "getHours()")]
+        [DataRow("TimeOnly.Minute", "getMinutes()")]
+        [DataRow("TimeOnly.Second", "getSeconds()")]
+        [DataRow("TimeOnly.Millisecond", "getMilliseconds()")]
+        public void JsTranslator_TimeOnly_Property_Getters(string binding, string jsFunction)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.serialization.parseTimeOnly(TimeOnly()).{jsFunction}", result);
         }
 
         [TestMethod]
