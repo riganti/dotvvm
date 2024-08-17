@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Controls
             Files = new List<UploadedFile>();
         }
 
-        /// <summary> if <see cref="IsBusy"/> is true, this property contains the upload progress in percents (0-100). </summary>
+        /// <summary> If <see cref="IsBusy"/> is true, this property contains the upload progress in percents (0-100). </summary>
         public int Progress { get; set; }
 
         /// <summary> Indicates whether something is being uploaded at the moment. </summary>
@@ -23,6 +23,7 @@ namespace DotVVM.Framework.Controls
         /// <summary> Contains an error message indicating if there was a problem during the upload. </summary>
         public string? Error { get; set; }
 
+        /// <summary> Resets the viewmodel to the default state (no files, no error). </summary>
         public void Clear()
         {
             Progress = 0;

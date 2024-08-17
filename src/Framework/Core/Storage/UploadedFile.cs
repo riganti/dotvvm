@@ -4,12 +4,13 @@ namespace DotVVM.Core.Storage
 {
     public class UploadedFile
     {
-        /// <summary> A unique, randomly generate ID of the uploaded file. Use this ID to get the file from <see cref="IUploadedFileStorage.GetFileAsync(Guid)" /> </summary>
+        /// <summary> A unique, randomly generated ID of the uploaded file. Use this ID to get the file from <see cref="IUploadedFileStorage.GetFileAsync(Guid)" /> </summary>
         public Guid FileId { get; set; }
 
-        /// <summary> A user-specified name of the file. Use with caution, the user may specify this to be any string (for example <c>../../Web.config</c>) </summary>
+        /// <summary> A user-specified name of the file. Use with caution, the user may specify this to be any string (for example <c>../../Web.config</c>). </summary>
         public string? FileName { get; set; }
 
+        /// <summary> Length of the file in bytes. Use with caution, the user may manipulate with this property and it might not correspond to the file returned from <see cref="IUploadedFileStorage" />. </summary>
         public FileSize FileSize { get; set; } = new FileSize();
 
         /// <summary> If the file type matched one of type MIME types or extensions in <c>FileUpload.AllowedFileTypes</c>. Use with caution, the user may manipulate with this property. </summary>
