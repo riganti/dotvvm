@@ -25,6 +25,7 @@ namespace DotVVM.Framework.Routing
 
             var regex = new StringBuilder("^");
             var parameters = new List<KeyValuePair<string, Func<string, ParameterParseResult>?>>();
+            var parameterMetadata = new List<KeyValuePair<string, DotvvmRouteParameterMetadata>>();
             var urlBuilders = new List<Func<Dictionary<string, string?>, string>>();
             urlBuilders.Add(_ => "~");
 
@@ -32,6 +33,7 @@ namespace DotVVM.Framework.Routing
             {
                 regex.Append(result.ParameterRegexPart);
                 parameters.Add(result.Parameter);
+                parameterMetadata.Add(new KeyValuePair<string, DotvvmRouteParameterMetadata>(result.Parameter.Key, result.Metadata));
                 urlBuilders.Add(result.UrlBuilder);
             }
 
@@ -78,6 +80,7 @@ namespace DotVVM.Framework.Routing
                 RouteRegex = new Regex(regex.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant),
                 UrlBuilders = urlBuilders,
                 Parameters = parameters,
+                ParameterMetadata = parameterMetadata,
                 UrlWithoutTypes = string.Concat(urlBuilders.Skip(1).Select(b => b(fakeParameters))).TrimStart('/')
             };
         }
@@ -109,6 +112,7 @@ namespace DotVVM.Framework.Routing
             // determine route parameter constraint
             IRouteParameterConstraint? type = null;
             string? parameter = null;
+            string? typeName = null;
             if (url[index] == ':')
             {
                 startIndex = index + 1;
@@ -118,7 +122,7 @@ namespace DotVVM.Framework.Routing
                     throw new ArgumentException($"The route URL '{url}' is not valid! It contains an unclosed parameter.");
                 }
 
-                var typeName = url.Substring(startIndex, index - startIndex);
+                typeName = url.Substring(startIndex, index - startIndex);
                 if (!routeConstraints.ContainsKey(typeName))
                 {
                     throw new ArgumentException($"The route parameter constraint '{typeName}' is not valid!");
@@ -181,7 +185,8 @@ namespace DotVVM.Framework.Routing
             {
                 ParameterRegexPart = result,
                 UrlBuilder = urlBuilder,
-                Parameter = parameterParser
+                Parameter = parameterParser,
+                Metadata = new DotvvmRouteParameterMetadata(isOptional, parameter != null ? $"{typeName}({parameter})" : typeName)
             };
         }
 
@@ -190,8 +195,11 @@ namespace DotVVM.Framework.Routing
             public string ParameterRegexPart { get; set; }
             public Func<Dictionary<string, string?>, string> UrlBuilder { get; set; }
             public KeyValuePair<string, Func<string, ParameterParseResult>?> Parameter { get; set; }
+            public DotvvmRouteParameterMetadata Metadata { get; set; }
         }
     }
+
+    public record DotvvmRouteParameterMetadata(bool IsOptional, string? ConstraintName);
 
     public struct UrlParserResult
     {
@@ -199,5 +207,6 @@ namespace DotVVM.Framework.Routing
         public List<Func<Dictionary<string, string?>, string>> UrlBuilders { get; set; }
         public List<KeyValuePair<string, Func<string, ParameterParseResult>?>> Parameters { get; set; }
         public string UrlWithoutTypes { get; set; }
+        public List<KeyValuePair<string, DotvvmRouteParameterMetadata>> ParameterMetadata { get; set; }
     }
 }

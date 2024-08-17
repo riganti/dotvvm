@@ -67,7 +67,9 @@ namespace DotVVM.Framework.Routing
                 this.error = error;
             }
 
-            public override IEnumerable<string> ParameterNames => new string[0];
+            public override IEnumerable<string> ParameterNames { get; } = new string[0];
+
+            public override IEnumerable<KeyValuePair<string, DotvvmRouteParameterMetadata>> ParameterMetadata { get; } = new KeyValuePair<string, DotvvmRouteParameterMetadata>[0];
 
             public override string UrlWithoutTypes => base.Url;
 
@@ -75,7 +77,8 @@ namespace DotVVM.Framework.Routing
 
             public override bool IsMatch(string url, [MaybeNullWhen(false)] out IDictionary<string, object?> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
 
-            protected override string BuildUrlCore(Dictionary<string, object?> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
+            protected internal override string BuildUrlCore(Dictionary<string, object?> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
+
             protected override void Freeze2()
             {
                 // no mutable properties in this class

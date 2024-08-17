@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Globalization;
+using System.Threading;
 using DotVVM.Framework.Tests.Binding;
 
 namespace DotVVM.Framework.Tests.Routing
@@ -260,6 +261,83 @@ namespace DotVVM.Framework.Tests.Routing
 
             Assert.IsTrue(result);
             Assert.AreEqual(1, parameters.Count);
+        }
+
+        [TestMethod]
+        public void LocalizedDotvvmRoute_IsMatch_ExactCultureMatch()
+        {
+            CultureUtils.RunWithCulture("cs-CZ", () =>
+            {
+                var route = new LocalizedDotvvmRoute("cs-CZ", new [] {
+                    new LocalizedRouteUrl("cs", "cs"),
+                    new LocalizedRouteUrl("cs-CZ", "cs-CZ"),
+                    new LocalizedRouteUrl("en", "en")
+                }, "", null, _ => null, configuration);
+
+                var result = route.IsMatch("cs-CZ", out var parameters);
+                Assert.IsTrue(result);
+            });
+        }
+
+        [TestMethod]
+        public void LocalizedDotvvmRoute_IsMatch_TwoLetterCultureMatch()
+        {
+            CultureUtils.RunWithCulture("en-US", () => {
+                var route = new LocalizedDotvvmRoute("en", new[] {
+                    new LocalizedRouteUrl("cs", "cs"),
+                    new LocalizedRouteUrl("cs-CZ", "cs-CZ"),
+                    new LocalizedRouteUrl("en", "en")
+                }, "", null, _ => null, configuration);
+
+                var result = route.IsMatch("en", out var parameters);
+                Assert.IsTrue(result);
+            });
+        }
+
+        [TestMethod]
+        public void LocalizedDotvvmRoute_IsMatch_InvalidCultureMatch()
+        {
+            CultureUtils.RunWithCulture("en-US", () => {
+                var route = new LocalizedDotvvmRoute("", new[] {
+                    new LocalizedRouteUrl("cs", "cs"),
+                    new LocalizedRouteUrl("cs-CZ", "cs-CZ"),
+                    new LocalizedRouteUrl("en", "en")
+                }, "", null, _ => null, configuration);
+
+                var result = route.IsMatch("cs", out var parameters);
+                Assert.IsFalse(result);
+            });
+        }
+
+        [TestMethod]
+        public void LocalizedDotvvmRoute_IsPartialMatch()
+        {
+            CultureUtils.RunWithCulture("en-US", () => {
+                var route = new LocalizedDotvvmRoute("", new[] {
+                    new LocalizedRouteUrl("cs", "cs"),
+                    new LocalizedRouteUrl("cs-CZ", "cs-CZ"),
+                    new LocalizedRouteUrl("en", "en")
+                }, "", null, _ => null, configuration);
+
+                var result = route.IsPartialMatch("cs", out var matchedRoute, out var parameters);
+                Assert.IsTrue(result);
+                Assert.AreEqual("cs", matchedRoute.Url);
+            });
+        }
+
+        [DataTestMethod]
+        [DataRow("product/{id?}/{name:maxLength(5)}", "en/products/{id?}/{name:maxLength(10)}")]
+        [DataRow("product/{id?}/{name:maxLength(5)}", "en/products/{id?}/{name}")]
+        [DataRow("product/{id?}/{name:maxLength(5)}", "en/products/{Id:int?}/{name}")]
+        [DataRow("product/{id?}/{name:maxLength(5)}", "en/products/{abc}")]
+        [DataRow("product/{id?}/{name:maxLength(5)}", "en/products/{Id?}/{name:maxLength(5)}")]
+        public void LocalizedDotvvmRoute_RouteConstraintChecks(string defaultRoute, string localizedRoute)
+        {
+            Assert.ThrowsException<ArgumentException>(() => {
+                var route = new LocalizedDotvvmRoute(defaultRoute, new[] {
+                    new LocalizedRouteUrl("en", localizedRoute)
+                }, "", null, _ => null, configuration);
+            });
         }
 
         [TestMethod]
