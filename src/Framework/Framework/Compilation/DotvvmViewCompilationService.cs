@@ -138,7 +138,7 @@ namespace DotVVM.Framework.Compilation
                     await ExecuteCompileTasks(compileTasks, maxParallelism);
                 }
 
-                log.LogInformation("Compiled {0} DotHTML files on {1} threads in {2} s", totalCompiledFiles, maxParallelism, sw.ElapsedSeconds);
+                log?.LogInformation("Compiled {0} DotHTML files on {1} threads in {2} s", totalCompiledFiles, maxParallelism, sw.ElapsedSeconds);
             }
             finally
             {
