@@ -51,6 +51,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ValueBindingProperty =
             DotvvmProperty.Register<IValueBinding?, GridViewTextColumn>(c => c.ValueBinding);
 
+        /// <summary> Whether to automatically attach Validator.Value onto the TextBox or add a standalone Validator component. </summary>
         [MarkupOptions(AllowBinding = false)]
         public ValidatorPlacement ValidatorPlacement
         {
