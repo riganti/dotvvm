@@ -38,7 +38,6 @@ namespace DotVVM.Framework.Compilation
             // it's most likely the same namespaces, so it won't help at all - only run into lock contention in System.Reflection
             lock (methodsCache)
             {
-                results = namespaces.Select(x => methodsCache.GetValueOrDefault(x)).ToArray();
                 var missingNamespaces = namespaces.Where(x => !methodsCache.ContainsKey(x)).ToArray();
 
                 var createdNamespaces = CreateExtensionsForNamespaces(missingNamespaces);

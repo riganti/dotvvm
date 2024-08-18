@@ -9,6 +9,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using System.Runtime.CompilerServices;
 using System.Collections.Immutable;
+using System.Threading;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -81,8 +82,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (p is object)
                 lock(this)
                 {
-                    if (!UsedInCapabilities.Contains(p))
-                        UsedInCapabilities = UsedInCapabilities.Add(p);
+                    if (UsedInCapabilities.Contains(p)) return;
+
+                    var newArray = UsedInCapabilities.Add(p);
+                    Thread.MemoryBarrier();
+                    UsedInCapabilities = newArray;
                 }
         }
 
