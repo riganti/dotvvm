@@ -1,0 +1,35 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.DateTimeTranslationsViewModel, DotVVM.Samples.Common
+@import System
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        *[data-ui] {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>TimeOnly testing</h1>
+    <dot:TextBox data-ui="textbox" Text="{value: NullableDateTimeProp}" />
+    <dot:Button Text="now" Click="{staticCommand: NullableDateTimeProp = DateTime.Now}" />
+
+    <p>
+        <span>TimeOnly.ToString: </span>
+        <span data-ui="timeOnlyToString" InnerText="{value: TimeOnly.FromDateTime(NullableDateTimeProp)}" />
+    </p>
+    <p>
+        <span>TimeOnly properties: </span>
+        <span data-ui="timeOnlyProperties">
+            {{value: TimeOnly.FromDateTime(NullableDateTimeProp).Hour}} hours {{value: TimeOnly.FromDateTime(NullableDateTimeProp).Minute}} minues {{value: TimeOnly.FromDateTime(NullableDateTimeProp).Second}} seconds and {{value: TimeOnly.FromDateTime(NullableDateTimeProp).Millisecond}} milliseconds
+        </span>
+
+</body>
+</html>
+
+

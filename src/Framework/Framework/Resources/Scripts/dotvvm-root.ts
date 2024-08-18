@@ -4,7 +4,7 @@ import * as spa from "./spa/spa"
 import * as validation from './validation/validation'
 import { postBack } from './postback/postback'
 import { serialize } from './serialization/serialize'
-import { serializeDate, parseDate } from './serialization/date'
+import { serializeDate, parseDate, parseDateOnly, parseTimeOnly } from './serialization/date'
 import { deserialize } from './serialization/deserialize'
 import registerBindingHandlers from './binding-handlers/register'
 import * as evaluator from './utils/evaluator'
@@ -97,6 +97,8 @@ const dotvvmExports = {
         serialize,
         serializeDate,
         parseDate,
+        parseDateOnly,
+        parseTimeOnly,
         deserialize
     },
     metadata: {
