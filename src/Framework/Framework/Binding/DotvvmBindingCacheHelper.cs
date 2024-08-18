@@ -60,6 +60,50 @@ namespace DotVVM.Framework.Binding
                 }));
         }
 
+        /// <summary> Compiles a new `{resource: ...code...}` binding which can be evaluated server-side. The result is cached. <see cref="ResourceBindingExpression.ResourceBindingExpression(BindingCompilationService, IEnumerable{object})" /> </summary>
+        public ResourceBindingExpression CreateResourceBinding(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+        {
+            return CreateCachedBinding("ResourceBinding:" + code, new object?[] { dataContext, parserOptions }, () =>
+                new ResourceBindingExpression(compilationService, new object?[] {
+                    dataContext,
+                    new OriginalStringBindingProperty(code),
+                    parserOptions
+                }));
+        }
+
+        /// <summary> Compiles a new `{resource: ...code...}` binding which can be evaluated server-side. The result is implicitly converted to <typeparamref name="TResult" />. The result is cached. </summary>
+        public ResourceBindingExpression<TResult> CreateResourceBinding<TResult>(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+        {
+            return CreateCachedBinding($"ResourceBinding<{typeof(TResult).ToCode()}>:{code}", new object?[] { dataContext, parserOptions }, () =>
+                new ResourceBindingExpression<TResult>(compilationService, new object?[] {
+                    dataContext,
+                    new OriginalStringBindingProperty(code),
+                    parserOptions
+                }));
+        }
+
+        /// <summary> Compiles a new `{command: ...code...}` binding which can be evaluated server-side and also client-side. The result is cached. Note that command bindings might be easier to create using the <see cref="CommandBindingExpression.CommandBindingExpression(BindingCompilationService, Func{object[], System.Threading.Tasks.Task}, string)" /> constructor. </summary>
+        public CommandBindingExpression CreateCommand(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+        {
+            return CreateCachedBinding($"Command:{code}", new object?[] { dataContext, parserOptions }, () =>
+                new CommandBindingExpression(compilationService, new object?[] {
+                    dataContext,
+                    new OriginalStringBindingProperty(code),
+                    parserOptions
+                }));
+        }
+
+        /// <summary> Compiles a new `{command: ...code...}` binding which can be evaluated server-side and also client-side. The result is implicitly converted to <typeparamref name="TResult" />. The result is cached. Note that command bindings might be easier to create using the <see cref="CommandBindingExpression.CommandBindingExpression(BindingCompilationService, Func{object[], System.Threading.Tasks.Task}, string)" /> constructor. </summary>
+        public CommandBindingExpression<TResult> CreateCommand<TResult>(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+        {
+            return CreateCachedBinding($"Command<{typeof(TResult).ToCode()}>:{code}", new object?[] { dataContext, parserOptions }, () =>
+                new CommandBindingExpression<TResult>(compilationService, new object?[] {
+                    dataContext,
+                    new OriginalStringBindingProperty(code),
+                    parserOptions
+                }));
+        }
+
         /// <summary> Compiles a new `{staticCommand: ...code...}` binding which can be evaluated server-side and also client-side. The result is cached. </summary>
         public StaticCommandBindingExpression CreateStaticCommand(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
         {
