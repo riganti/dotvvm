@@ -240,7 +240,8 @@ Globalize.cultures[ "default" ] = {
 				g: "M/d/yyyy h:mm tt",
 			    // G is a combination of the short date ("d") and short time ("T") patterns, separated by a space
 				G: "M/d/yyyy h:mm:ss tt"
-			}
+			},
+			additionalDefaultPatterns: ["H:mm", "H:mm:ss"]
 			// optional fields for each calendar:
 			/*
 			monthsGenitive:
@@ -1536,7 +1537,7 @@ Globalize.localize = function( key, cultureSelector ) {
 Globalize.parseDate = function (value, formats, culture, previousValue) {
 	culture = this.findClosestCulture( culture );
 
-	var date, prop, patterns;
+	var date, prop, patterns, pattern;
 	if ( formats ) {
 		if ( typeof formats === "string" ) {
 			formats = [ formats ];
@@ -1558,6 +1559,14 @@ Globalize.parseDate = function (value, formats, culture, previousValue) {
 		    date = parseExact(value, patterns[prop], culture, previousValue);
 			if ( date ) {
 				break;
+			}
+		}
+		if (!date) {
+			for ( pattern of culture.calendar.additionalDefaultPatterns) {
+				date = parseExact(value, pattern, culture, previousValue);
+				if ( date ) {
+					break;
+				}
 			}
 		}
 	}
