@@ -480,60 +480,6 @@ namespace DotVVM.Framework.Controls
             [62 - 34] = "&gt;", // >
             [38 - 34] = "&amp;" // &
         }.ToArray();
-
-
-        // private static int IndexOfHtmlEncodingChars(string input, int startIndex, bool escapeQuotes, bool escapeApos)
-        // {
-        //     for (int i = startIndex; i < input.Length; i++)
-        //     {
-        //         char ch = input[i];
-        //         if (ch <= '>')
-        //         {
-        //             switch (ch)
-        //             {
-        //                 case '<':
-        //                 case '>':
-        //                     return i;
-        //                 case '"':
-        //                     if (escapeQuotes)
-        //                         return i;
-        //                     break;
-        //                 case '\'':
-        //                     if (escapeApos)
-        //                         return i;
-        //                     break;
-        //                 case '&':
-        //                     // HTML spec permits ampersands, if they are not ambiguous:
-
-        //                     // An ambiguous ampersand is a U+0026 AMPERSAND character (&) that is followed by one or more ASCII alphanumerics, followed by a U+003B SEMICOLON character (;), where these characters do not match any of the names given in the named character references section.
-
-        //                     // so if the next character is not alphanumeric, we can leave it there
-        //                     if (i == input.Length)
-        //                         return i;
-        //                     var nextChar = input[i + 1];
-        //                     if (IsInRange(nextChar, 'a', 'z') ||
-        //                         IsInRange(nextChar, 'A', 'Z') ||
-        //                         IsInRange(nextChar, '0', '9') ||
-        //                         nextChar == '#')
-        //                         return i;
-        //                     break;
-        //             }
-        //         }
-        //         else if (char.IsSurrogate(ch))
-        //         {
-        //             // surrogates are fine, but they must not code for ASCII characters
-
-        //             var value = Char.ConvertToUtf32(ch, input[i + 1]);
-        //             if (value < 256)
-        //                 throw new InvalidOperationException("Encountered UTF16 surrogate coding for ASCII char, this is not allowed.");
-
-        //             i++;
-        //         }
-        //     }
- 
-        //     return -1;
-        // }
-
         private static char[] MinimalEscapeChars = new char[] { '<', '>', '&' };
         private static char[] DoubleQEscapeChars = new char[] { '<', '>', '&', '"' };
         private static char[] SingleQEscapeChars = new char[] { '<', '>', '&', '\'' };
@@ -557,39 +503,11 @@ namespace DotVVM.Framework.Controls
             {
                 breakChars = MinimalEscapeChars;
             }
-            // Span<char> breakChars = stackalloc char[5];
-            // breakChars[0] = '<';
-            // breakChars[1] = '>';
-            // breakChars[2] = '&';
-            // if (escapeQuotes && escapeApos)
-            // {
-            //     breakChars[3] = '"';
-            //     breakChars[4] = '\'';
-            // }
-            // else if (escapeQuotes)
-            // {
-            //     breakChars[3] = '"';
-            // }
-            // else if (escapeApos)
-            // {
-            //     breakChars[3] = '\'';
-            // }
-            // breakChars = breakChars.Slice(0, 3 + (escapeQuotes ? 1 : 0) + (escapeApos ? 1 : 0));
 
             int i = startIndex;
             while (true)
             {
                 var foundIndex = MemoryExtensions.IndexOfAny(input.AsSpan(start: i), breakChars);
-                // var stopIndex = foundIndex < 0 ? input.Length : foundIndex + i + 1;
-                // check for surrogates
-                // for (int j = i; j < stopIndex; j++)
-                // {
-                //     if (char.IsSurrogate(input[j]))
-                //     {
-                //         CheckSurrogate(input, j);
-                //         j++;
-                //     }
-                // }
                 if (foundIndex < 0)
                     return -1;
 
@@ -617,15 +535,6 @@ namespace DotVVM.Framework.Controls
                 }
 
                 i++;
-            }
-
-            [MethodImpl(MethodImplOptions.NoInlining)] // this case is rare, it's better to be separate from the hot path
-            static void CheckSurrogate(string input, int j)
-            {
-                // surrogates are fine, but they must not code for ASCII characters
-                var value = Char.ConvertToUtf32(input[j], input[j + 1]);
-                if (value < 256)
-                    throw new InvalidOperationException("Encountered UTF16 surrogate coding for ASCII char, this is not allowed.");
             }
         }
 

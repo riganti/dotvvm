@@ -7,7 +7,7 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ResourceManagement
 {
-    public sealed class TemplateResource : IResource
+    public class TemplateResource : IResource
     {
         public ResourceRenderPosition RenderPosition => ResourceRenderPosition.Body;
         public string[] Dependencies { get; } = new string[0];
