@@ -77,18 +77,18 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var needsParens = code.parameter.Code!.OperatorPrecedence.NeedsParens(parameters![i].OperatorPrecedence);
 
                 if (isGlobalContext)
-                    sb.Append(stringParts[++i], 1, stringParts[i].Length - 1); // skip `.`
+                    sb.Append(stringParts[++i], startIndex: 1, count: stringParts[i].Length - 1); // skip `.`
                 else
                 {
                     if (needsParens)
-                        sb.Append("(");
+                        sb.Append('(');
                     else if (JsFormattingVisitor.NeedSpaceBetween(sb, code.code))
-                        sb.Append(" ");
+                        sb.Append(' ');
                     sb.Append(code.code);
                     i++;
-                    if (needsParens) sb.Append(")");
+                    if (needsParens) sb.Append(')');
                     else if (JsFormattingVisitor.NeedSpaceBetween(sb, stringParts[i]))
-                        sb.Append(" ");
+                        sb.Append(' ');
                     sb.Append(stringParts[i]);
                 }
             }
