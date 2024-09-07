@@ -370,22 +370,43 @@ namespace DotVVM.Framework.Controls
 
         static string? GenerateConcurrencyModeHandler(string propertyName, DotvvmBindableObject obj)
         {
-            var mode = (obj.GetValue(PostBack.ConcurrencyProperty) as PostbackConcurrencyMode?) ?? PostbackConcurrencyMode.Default;
+            if (obj.GetValue(PostBack.ConcurrencyProperty) is not PostbackConcurrencyMode mode)
+                mode = PostbackConcurrencyMode.Default;
 
             // determine concurrency queue
             string? queueName = null;
-            var queueSettings = PostBack.ConcurrencyQueueSettingsProperty.GetValue(obj, inherit: false);
+            var queueSettings = obj.GetValueRaw(PostBack.ConcurrencyQueueSettingsProperty);
             if (queueSettings != null)
             {
-                queueName = ((ConcurrencyQueueSettingsCollection)queueSettings).FirstOrDefault(q => string.Equals(q.EventName, propertyName, StringComparison.OrdinalIgnoreCase))?.ConcurrencyQueue;
+                foreach (var q in (ConcurrencyQueueSettingsCollection)queueSettings)
+                {
+                    if (string.Equals(q.EventName, propertyName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        queueName = q.ConcurrencyQueue;
+                        break;
+                    }
+                }
             }
-            if (queueName == null)
+            bool queueDefault;
+            if (queueName is null)
             {
-                queueName = obj.GetValue(PostBack.ConcurrencyQueueProperty) as string ?? "default";
+                if (obj.GetValue(PostBack.ConcurrencyQueueProperty) is string queueValue)
+                {
+                    queueName = queueValue;
+                    queueDefault = "default".Equals(queueName, StringComparison.Ordinal);
+                }
+                else
+                {
+                    queueDefault = true;
+                }
+            }
+            else
+            {
+                queueDefault = "default".Equals(queueName, StringComparison.Ordinal);
             }
 
             // return the handler script
-            if (mode == PostbackConcurrencyMode.Default && "default".Equals(queueName, StringComparison.Ordinal))
+            if (mode == PostbackConcurrencyMode.Default && queueDefault)
             {
                 return null;
             }
@@ -395,7 +416,7 @@ namespace DotVVM.Framework.Controls
                 PostbackConcurrencyMode.Queue => "\"concurrency-queue\"",
                 _ => throw new NotSupportedException()
             };
-            if ("default".Equals(queueName, StringComparison.Ordinal))
+            if (queueDefault)
             {
                 return handlerNameJson;
             }
