@@ -62,5 +62,46 @@ namespace DotVVM.Samples.Tests.Complex
                     "Last task is not marked as completed.");
             });
         }
+
+        [Fact]
+        public void Complex_TaskList_TaskListAsyncCommands_ViewModelRestore()
+        {
+            // view model should be restored after back/forward navigation, but not on refresh
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl("/");
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_TaskList_TaskListAsyncCommands);
+
+                browser.SendKeys("input[type=text]", "test1");
+                browser.Click("input[type=button]");
+
+                browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
+
+                browser.NavigateBack();
+                browser.WaitUntilDotvvmInited();
+                browser.NavigateForward();
+
+                browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
+
+                browser.Refresh();
+
+                browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
+
+                browser.SendKeys("input[type=text]", "test2");
+                browser.Click("input[type=button]");
+                browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
+
+                browser.NavigateToUrl("/");
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_TaskList_TaskListAsyncCommands);
+
+                browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
+
+                browser.NavigateBack();
+                browser.WaitUntilDotvvmInited();
+                browser.NavigateBack();
+
+                browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
+            });
+        }
     }
 }
