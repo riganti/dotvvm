@@ -1,0 +1,33 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect.RedirectPostbackConcurrencyViewModel, DotVVM.Samples.Common
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div IncludeInPage={resource: IsEmptyPage}>
+        <dot:RouteLink RouteName={resource: Context.Route.RouteName}  Query-empty=false>Back</dot:RouteLink>
+    </div>
+    <div class="container" IncludeInPage={resource: !IsEmptyPage}>
+        <h1>Redirect and postback concurrency test</h1>
+        <p>
+            Testing Concurrency=Deny / Concurrency=Queue with redirect and file returns.
+        </p>
+        <p>First, we have a set of buttons incrementing a static variable, each takes about 2sec and redirects to a blank page afterwards</p>
+        <p>GlobalCounter = <span data-ui="counter" InnerText={value: Counter} /></p>
+        <p>MiniCounter(Concurrency=Deny) = <dot:Button data-ui=minicounter Text={value: MiniCounter} PostBack.Concurrency=Deny Click={staticCommand: MiniCounter = MiniCounter + 1} /></p>
+
+        <p>
+            <dot:Button data-ui="inc-default" Click={command: DelayIncrement()} PostBack.Concurrency=Default>Increment (Concurrency=Default)</dot:Button>
+            <dot:Button data-ui="inc-deny" Click={command: DelayIncrement()} PostBack.Concurrency=Deny>Increment (Concurrency=Deny)</dot:Button>
+            <dot:Button data-ui="inc-queue" Click={command: DelayIncrement()} PostBack.Concurrency=Queue>Increment (Concurrency=Queue)</dot:Button>
+        </p>
+
+        <p>We also test that returning files does not block the page forever, </p>
+
+        <p>
+            <dot:Button data-ui="file-std" Click={command: GetFileStandard()}>Standard return file</dot:Button>
+            <dot:Button data-ui="file-custom" Click={command: GetFileCustom()}>Custom return file (will have delay before page works)</dot:Button>
+        </p>
+    </div>
+</body>
+</html>

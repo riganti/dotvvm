@@ -174,7 +174,8 @@ const fetchDefinitions = {
     postbackRedirect: async <T>(url: string, init: RequestInit) => {
         return {
             action: "redirect",
-            url: "/newUrl"
+            url: "/newUrl",
+            download: "some-file" // say it's a file, so that DotVVM does not block postback queue after the test
         } as any;
     },
 
@@ -213,7 +214,8 @@ const fetchDefinitions = {
         return {
             action: "redirect",
             url: "/newUrl",
-            allowSpa: true
+            allowSpa: true,
+            download: "some-file"
         } as any;
     },
     spaNavigateError: async <T>(url: string, init: RequestInit) => {

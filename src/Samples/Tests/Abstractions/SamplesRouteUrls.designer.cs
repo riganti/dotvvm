@@ -327,6 +327,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Redirect_RedirectionHelpers_PageC = "FeatureSamples/Redirect/RedirectionHelpers_PageC";
         public const string FeatureSamples_Redirect_RedirectionHelpers_PageD = "FeatureSamples/Redirect/RedirectionHelpers_PageD";
         public const string FeatureSamples_Redirect_RedirectionHelpers_PageE = "FeatureSamples/Redirect/RedirectionHelpers_PageE";
+        public const string FeatureSamples_Redirect_RedirectPostbackConcurrency = "FeatureSamples/Redirect/RedirectPostbackConcurrency";
         public const string FeatureSamples_Redirect_Redirect_StaticCommand = "FeatureSamples/Redirect/Redirect_StaticCommand";
         public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
         public const string FeatureSamples_RenderSettingsModeServer_RepeaterCollectionExchange = "FeatureSamples/RenderSettingsModeServer/RepeaterCollectionExchange";
