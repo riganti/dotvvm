@@ -370,33 +370,59 @@ namespace DotVVM.Framework.Controls
 
         static string? GenerateConcurrencyModeHandler(string propertyName, DotvvmBindableObject obj)
         {
-            var mode = (obj.GetValue(PostBack.ConcurrencyProperty) as PostbackConcurrencyMode?) ?? PostbackConcurrencyMode.Default;
+            if (obj.GetValue(PostBack.ConcurrencyProperty) is not PostbackConcurrencyMode mode)
+                mode = PostbackConcurrencyMode.Default;
 
             // determine concurrency queue
             string? queueName = null;
-            var queueSettings = obj.GetValueRaw(PostBack.ConcurrencyQueueSettingsProperty) as ConcurrencyQueueSettingsCollection;
+            var queueSettings = obj.GetValueRaw(PostBack.ConcurrencyQueueSettingsProperty);
             if (queueSettings != null)
             {
-                queueName = queueSettings.FirstOrDefault(q => string.Equals(q.EventName, propertyName, StringComparison.OrdinalIgnoreCase))?.ConcurrencyQueue;
+                foreach (var q in (ConcurrencyQueueSettingsCollection)queueSettings)
+                {
+                    if (string.Equals(q.EventName, propertyName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        queueName = q.ConcurrencyQueue;
+                        break;
+                    }
+                }
             }
-            if (queueName == null)
+            bool queueDefault;
+            if (queueName is null)
             {
-                queueName = obj.GetValue(PostBack.ConcurrencyQueueProperty) as string ?? "default";
-            }
-
-            // return the handler script
-            if (mode == PostbackConcurrencyMode.Default && "default".Equals(queueName))
-            {
-                return null;
-            }
-            var handlerName = $"concurrency-{mode.ToString().ToLowerInvariant()}";
-            if ("default".Equals(queueName))
-            {
-                return JsonConvert.ToString(handlerName);
+                if (obj.GetValue(PostBack.ConcurrencyQueueProperty) is string queueValue)
+                {
+                    queueName = queueValue;
+                    queueDefault = "default".Equals(queueName, StringComparison.Ordinal);
+                }
+                else
+                {
+                    queueDefault = true;
+                }
             }
             else
             {
-                return $"[{JsonConvert.ToString(handlerName)},{GenerateHandlerOptions(obj, new Dictionary<string, object?> { ["q"] = queueName })}]";
+                queueDefault = "default".Equals(queueName, StringComparison.Ordinal);
+            }
+
+            // return the handler script
+            if (mode == PostbackConcurrencyMode.Default && queueDefault)
+            {
+                return null;
+            }
+            var handlerNameJson = mode switch {
+                PostbackConcurrencyMode.Default => "\"concurrency-default\"",
+                PostbackConcurrencyMode.Deny => "\"concurrency-deny\"",
+                PostbackConcurrencyMode.Queue => "\"concurrency-queue\"",
+                _ => throw new NotSupportedException()
+            };
+            if (queueDefault)
+            {
+                return handlerNameJson;
+            }
+            else
+            {
+                return $"[{handlerNameJson},{{q:{JsonConvert.ToString(queueName)}}}]";
             }
         }
         

@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Controls
         private readonly bool debug;
         private readonly bool enableWarnings;
 
-        private List<(string name, string? val, string? separator, bool allowAppending)> attributes = new List<(string, string?, string? separator, bool allowAppending)>();
+        private readonly List<(string name, string? val, string? separator, bool allowAppending)> attributes = new List<(string, string?, string? separator, bool allowAppending)>();
         private DotvvmBindableObject? errorContext;
         private OrderedDictionary dataBindAttributes = new OrderedDictionary();
         private Stack<string> openTags = new Stack<string>();
@@ -435,7 +435,6 @@ namespace DotVVM.Framework.Controls
             return result;
         }
 
-
         private void WriteEncodedText(string input, bool escapeQuotes, bool escapeApos)
         {
             int index = 0;
@@ -449,7 +448,6 @@ namespace DotVVM.Framework.Controls
                         writer.Write(input);
                         return;
                     }
-                    
 #if NoSpan
                     writer.Write(input.Substring(startIndex));
 #else
@@ -464,81 +462,80 @@ namespace DotVVM.Framework.Controls
 #else
                     writer.Write(input.AsSpan().Slice(startIndex, index - startIndex));
 #endif
-                    switch (input[index])
-                    {
-                        case '<':
-                            writer.Write("&lt;");
-                            break;
-                        case '>':
-                            writer.Write("&gt;");
-                            break;
-                        case '"':
-                            writer.Write("&quot;");
-                            break;
-                        case '\'':
-                            writer.Write("&#39;");
-                            break;
-                        case '&':
-                            writer.Write("&amp;");
-                            break;
-                        default:
-                            throw new Exception("Should not happen.");
-                    }
+                    var encoding = EncodingTable[input[index] - 34];
+                    Debug.Assert(encoding != null);
+                    writer.Write(encoding);
+
                     index++;
+                    if (index == input.Length)
+                        return;
                 }
             }
         }
 
+        static string?[] EncodingTable = new List<string?>(Enumerable.Repeat((string?)null, 63 - 34)) {
+            [34 - 34] = "&quot;", // "
+            [39 - 34] = "&#39;", // '
+            [60 - 34] = "&lt;", // <
+            [62 - 34] = "&gt;", // >
+            [38 - 34] = "&amp;" // &
+        }.ToArray();
+        private static char[] MinimalEscapeChars = new char[] { '<', '>', '&' };
+        private static char[] DoubleQEscapeChars = new char[] { '<', '>', '&', '"' };
+        private static char[] SingleQEscapeChars = new char[] { '<', '>', '&', '\'' };
+        private static char[] BothQEscapeChars = new char[] { '<', '>', '&', '"', '\'' };
+
         private static int IndexOfHtmlEncodingChars(string input, int startIndex, bool escapeQuotes, bool escapeApos)
         {
-            for (int i = startIndex; i < input.Length; i++)
+            char[] breakChars;
+            if (escapeQuotes)
             {
-                char ch = input[i];
-                if (ch <= '>')
-                {
-                    switch (ch)
-                    {
-                        case '<':
-                        case '>':
-                            return i;
-                        case '"':
-                            if (escapeQuotes)
-                                return i;
-                            break;
-                        case '\'':
-                            if (escapeApos)
-                                return i;
-                            break;
-                        case '&':
-                            // HTML spec permits ampersands, if they are not ambiguous:
-
-                            // An ambiguous ampersand is a U+0026 AMPERSAND character (&) that is followed by one or more ASCII alphanumerics, followed by a U+003B SEMICOLON character (;), where these characters do not match any of the names given in the named character references section.
-
-                            // so if the next character is not alphanumeric, we can leave it there
-                            if (i + 1 == input.Length)
-                                return i;
-                            var nextChar = input[i + 1];
-                            if (IsInRange(nextChar, 'a', 'z') ||
-                                IsInRange(nextChar, 'A', 'Z') ||
-                                IsInRange(nextChar, '0', '9') ||
-                                nextChar == '#')
-                                return i;
-                            break;
-                    }
-                }
-                else if (char.IsSurrogate(ch))
-                {
-                    // surrogates are fine, but they must not code for ASCII characters
-
-                    var value = Char.ConvertToUtf32(ch, input[i + 1]);
-                    if (value < 256)
-                        throw new InvalidOperationException("Encountered UTF16 surrogate coding for ASCII char, this is not allowed.");
-
-                    i++;
-                }
+                if (escapeApos)
+                    breakChars = BothQEscapeChars;
+                else
+                    breakChars = DoubleQEscapeChars;
             }
- 
-            return -1;
+            else if (escapeApos)
+            {
+                breakChars = SingleQEscapeChars;
+            }
+            else
+            {
+                breakChars = MinimalEscapeChars;
+            }
+
+            int i = startIndex;
+            while (true)
+            {
+                var foundIndex = MemoryExtensions.IndexOfAny(input.AsSpan(start: i), breakChars);
+                if (foundIndex < 0)
+                    return -1;
+
+                i += foundIndex;
+
+                if (input[i] == '&' && i + 1 < input.Length)
+                {
+                    // HTML spec permits ampersands, if they are not ambiguous:
+                    // (and unnecessarily quoting them makes JS less readable)
+
+                    // An ambiguous ampersand is a U+0026 AMPERSAND character (&) that is followed by one or more ASCII alphanumerics, followed by a U+003B SEMICOLON character (;), where these characters do not match any of the names given in the named character references section.
+
+                    // so if the next character is not alphanumeric, we can leave it there
+                    var nextChar = input[i + 1];
+                    if (IsInRange(nextChar, 'a', 'z') |
+                        IsInRange(nextChar, 'A', 'Z') |
+                        IsInRange(nextChar, '0', '9') |
+                        nextChar == '#')
+                        return i;
+                }
+                else
+                {
+                    // all other characters are escaped unconditionaly
+                    return i;
+                }
+
+                i++;
+            }
         }
 
         private void ThrowIfAttributesArePresent([CallerMemberName] string operation = "Write")

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -146,12 +146,15 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static ParametrizedCode AdjustKnockoutScriptContext(ParametrizedCode expression, int dataContextLevel)
         {
             if (dataContextLevel == 0) return expression;
-            return expression.AssignParameters(o =>
-                o is ViewModelSymbolicParameter vm ? GetKnockoutViewModelParameter(vm.ParentIndex + dataContextLevel).ToParametrizedCode() :
-                o is ContextSymbolicParameter context ? GetKnockoutContextParameter(context.ParentIndex + dataContextLevel).ToParametrizedCode() :
-                o == CommandBindingExpression.OptionalKnockoutContextParameter ? GetKnockoutContextParameter(dataContextLevel).ToParametrizedCode() :
-                default
-            );
+
+            // separate method to avoid closure allocation if dataContextLevel == 0
+            return shift(expression, dataContextLevel);
+            static ParametrizedCode shift(ParametrizedCode expression, int dataContextLevel) =>
+                expression.AssignParameters(o =>
+                                                                                                                        o is ViewModelSymbolicParameter vm ? GetKnockoutViewModelParameter(vm.ParentIndex + dataContextLevel, vm.ReturnObservable).ToParametrizedCode() :
+                                                                                                                        o is ContextSymbolicParameter context ? GetKnockoutContextParameter(context.ParentIndex + dataContextLevel).ToParametrizedCode() :
+                                                                                                                        o == CommandBindingExpression.OptionalKnockoutContextParameter ? GetKnockoutContextParameter(dataContextLevel).ToParametrizedCode() :
+                                                                                                                        default);
         }
 
         /// <summary>
@@ -164,14 +167,42 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// </summary>
         public static string FormatKnockoutScript(ParametrizedCode expression, bool allowDataGlobal = true, int dataContextLevel = 0)
         {
-            // TODO(exyi): more symbolic parameters
-            var adjusted = AdjustKnockoutScriptContext(expression, dataContextLevel);
-            if (allowDataGlobal)
-                return adjusted.ToDefaultString();
-            else
-                return adjusted.ToString(o =>
-                               o == KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$data") :
-                               default);
+            if (dataContextLevel == 0)
+            {
+                if (allowDataGlobal)
+                    return expression.ToDefaultString();
+                else
+                    return expression.ToString(static o =>
+                                o == KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$data") :
+                                default);
+
+            }
+
+            // separate method to avoid closure allocation if dataContextLevel == 0
+            return shiftToString(expression, dataContextLevel);
+
+            static string shiftToString(ParametrizedCode expression, int dataContextLevel) =>
+                expression.ToString(o => {
+                    if (o is ViewModelSymbolicParameter vm)
+                    {
+                        var p = GetKnockoutViewModelParameter(vm.ParentIndex + dataContextLevel, vm.ReturnObservable).DefaultAssignment;
+                        return new(p.Code!.ToDefaultString(), p.Code.OperatorPrecedence);
+                    }
+                    else if (o is ContextSymbolicParameter context)
+                    {
+                        var p = GetKnockoutContextParameter(context.ParentIndex + dataContextLevel).DefaultAssignment;
+                        return new(p.Code!.ToDefaultString(), p.Code.OperatorPrecedence);
+                    }
+                    else if (o == CommandBindingExpression.OptionalKnockoutContextParameter)
+                    {
+                        var p = GetKnockoutContextParameter(dataContextLevel).DefaultAssignment;
+                        return new(p.Code!.ToDefaultString(), p.Code.OperatorPrecedence);
+                    }
+                    else
+                    {
+                        return default;
+                    }
+                });
         }
 
         /// <summary>
