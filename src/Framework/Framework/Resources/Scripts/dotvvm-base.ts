@@ -79,7 +79,9 @@ export function initCore(culture: string): void {
     }
 
     // load the viewmodel
-    const thisViewModel = initialViewModelWrapper = JSON.parse(getViewModelStorageElement().value);
+    const thisViewModel = initialViewModelWrapper =
+        (isBackForwardNavigation() ? history.state?.viewModel : null) ??
+        JSON.parse(getViewModelStorageElement().value);
 
     resourceLoader.registerResources(thisViewModel.renderedResources)
 
