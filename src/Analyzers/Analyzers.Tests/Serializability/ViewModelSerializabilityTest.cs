@@ -548,6 +548,36 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
+        public async Task Test_IgnoreNonSerializedMembers_BindDirectionNoneInherited_ViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.ViewModel;
+    using Newtonsoft.Json;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class BaseVM : DotvvmViewModelBase
+        {
+            [Bind(Direction.None)]
+            public virtual Stream Property1 { get; }
+
+            [JsonIgnore]
+            public virtual Stream Property2 { get; }
+        }
+
+        public class DefaultViewModel : BaseVM
+        {
+            public override Stream Property1 { get; }
+            public override Stream Property2 { get; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text, expected: []);
+        }
+
+        [Fact]
         public async Task Test_SelfReferencingTypes_GenericArgs_ViewModel()
         {
             var text = @"
