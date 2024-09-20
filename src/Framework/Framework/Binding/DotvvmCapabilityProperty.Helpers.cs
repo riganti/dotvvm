@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Binding
             public static void SetValueOrBindingSlow<T>(DotvvmBindableObject c, DotvvmProperty p, ValueOrBinding<T> val)
             {
                 var boxedVal = val.UnwrapToObject();
-                if (Object.Equals(boxedVal, p.DefaultValue) && c.IsPropertySet(p))
+                if (Object.Equals(boxedVal, p.DefaultValue) && !c.IsPropertySet(p))
                 {
                     // setting to default value and the property is not set -> do nothing
                 }
