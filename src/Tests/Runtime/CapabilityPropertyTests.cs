@@ -214,6 +214,28 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(32, controlF2.GetValue<int>("Nullable"));
         }
 
+        [TestMethod]
+        public void BitMoreComplexCapability_InheritedProperties()
+        {
+            var control1 = new TestControlInheritedProps();
+            var control2 = new TestControlInheritedProps();
+            control1.Children.Add(control2);
+
+            control1.NotNullable = 1;
+            control1.Nullable = 2;
+
+            Assert.AreEqual(1, control2.NotNullable);
+            Assert.AreEqual(2, control2.Nullable);
+
+            Assert.AreEqual(1, control1.GetCapability<BitMoreComplexCapability>().NotNullable);
+            Assert.AreEqual(2, control1.GetCapability<BitMoreComplexCapability>().Nullable);
+            Assert.AreEqual(1, control2.GetCapability<BitMoreComplexCapability>().NotNullable);
+            Assert.AreEqual(2, control2.GetCapability<BitMoreComplexCapability>().Nullable);
+
+            control2.SetCapability(new BitMoreComplexCapability { NotNullable = 3, Nullable = null });
+            Assert.AreEqual(3, control2.NotNullable);
+            Assert.AreEqual(null, control2.Nullable);
+        }
 
         public class TestControl1:
             HtmlGenericControl,
@@ -301,12 +323,37 @@ namespace DotVVM.Framework.Tests.Runtime
             }
             public static readonly DotvvmProperty ValueOrBindingNullable2Property =
                 DotvvmProperty.Register<int, TestControlFallbackProps>(nameof(ValueOrBindingNullable2), defaultValue: 10);
+
             [PropertyAlias("ValueOrBindingNullable2")]
             public static readonly DotvvmProperty ValueOrBindingNullableProperty =
                 DotvvmPropertyAlias.RegisterAlias<TestControlFallbackProps>("ValueOrBindingNullable");
 
             public static readonly DotvvmCapabilityProperty BitMoreComplexCapabilityProperty =
                 DotvvmCapabilityProperty.RegisterCapability<BitMoreComplexCapability, TestControlFallbackProps>();
+        }
+
+        public class TestControlInheritedProps:
+            HtmlGenericControl,
+            IObjectWithCapability<BitMoreComplexCapability>
+        {
+            public int NotNullable
+            {
+                get { return (int)GetValue(NotNullableProperty); }
+                set { SetValue(NotNullableProperty, value); }
+            }
+            public static readonly DotvvmProperty NotNullableProperty =
+                DotvvmProperty.Register<int, TestControlInheritedProps>(nameof(NotNullable), isValueInherited: true);
+
+            public int? Nullable
+            {
+                get { return (int?)GetValue(NullableProperty); }
+                set { SetValue(NullableProperty, value); }
+            }
+            public static readonly DotvvmProperty NullableProperty =
+                DotvvmProperty.Register<int?, TestControlInheritedProps>(nameof(Nullable), isValueInherited: true);
+
+            public static readonly DotvvmCapabilityProperty BitMoreComplexCapabilityProperty =
+                DotvvmCapabilityProperty.RegisterCapability<BitMoreComplexCapability, TestControlInheritedProps>();
         }
 
         [DotvvmControlCapability]
