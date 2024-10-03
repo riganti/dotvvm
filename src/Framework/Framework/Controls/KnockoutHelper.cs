@@ -116,20 +116,20 @@ namespace DotVVM.Framework.Controls
         /// <summary> Generates a function expression that invokes the command with specified commandArguments. Creates code like `(...commandArguments) => dotvvm.postBack(...)` </summary>
         public static string GenerateClientPostbackLambda(string propertyName, ICommandBinding command, DotvvmBindableObject control, PostbackScriptOptions? options = null)
         {
-            options ??= new PostbackScriptOptions(
-                elementAccessor: "$element",
-                koContext: CodeParameterAssignment.FromIdentifier("$context", true)
-            );
+            options ??= PostbackScriptOptions.KnockoutBinding;
 
-            var hasArguments = command is IStaticCommandBinding || command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter);
-            options.CommandArgs = hasArguments ? new CodeParameterAssignment(new ParametrizedCode("args", OperatorPrecedence.Max)) : default;
+            var addArguments = options.CommandArgs is null && (command is IStaticCommandBinding || command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter));
+            if (addArguments)
+            {
+                options = options with { CommandArgs = new CodeParameterAssignment(new ParametrizedCode("args", OperatorPrecedence.Max)) };
+            }
             // just few commands have arguments so it's worth checking if we need to clutter the output with argument propagation
             var call = KnockoutHelper.GenerateClientPostBackExpression(
                 propertyName,
                 command,
                 control,
                 options);
-            return hasArguments ? $"(...args)=>({call})" : $"()=>({call})";
+            return addArguments ? $"(...args)=>({call})" : $"()=>({call})";
         }
 
         /// <summary> Generates Javascript code which executes the specified command binding <paramref name="expression" />. </summary>
@@ -207,6 +207,10 @@ namespace DotVVM.Framework.Controls
             var adjustedExpression =
                 JavascriptTranslator.AdjustKnockoutScriptContext(jsExpression,
                     dataContextLevel: expression.FindDataContextTarget(control).stepsUp);
+            if (options.ParameterAssignment is {})
+            {
+                adjustedExpression = adjustedExpression.AssignParameters(options.ParameterAssignment);
+            }
             // when the expression changes the dataContext, we need to override the default knockout context fo the command binding.
             CodeParameterAssignment knockoutContext;
             CodeParameterAssignment viewModel = default;

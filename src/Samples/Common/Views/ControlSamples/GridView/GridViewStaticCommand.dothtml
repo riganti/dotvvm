@@ -5,26 +5,75 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
+    <style>
+        .disabled a { color: gray; text-decoration: none; }
+        .sort-asc:after { content: "▲"; color: blue }
+        .sort-desc:after { content: "▼"; color: blue }
+        ul { display: flex; gap: 2em; }
+        li { list-style-type: none; }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>GridView with IGridViewDataSet</h1>
-        <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered">
+        <h1>Standard data set</h1>
+        <dot:GridView DataSource="{value: StandardDataSet}"
+                      LoadData="{staticCommand: RootViewModel.LoadStandard}"
+                      data-ui="standard-grid">
             <Columns>
-                <!-- comment inside columns collection -->
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
-                <dot:GridViewTemplateColumn HeaderText="Action">
-                    <ContentTemplate>
-                        <dot:Button Click="{command: _root.DeleteCustomerData(CustomerId)}" Text="Static command delete" />
-                    </ContentTemplate>
-                </dot:GridViewTemplateColumn>
+                <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" AllowSorting="True" />
             </Columns>
-
-            <!-- comment inside control -->
         </dot:GridView>
-        <dot:DataPager DataSet="{value: CustomersDataSet}" class="pagination" />
+        <dot:DataPager DataSet="{value: StandardDataSet}" LoadData="{staticCommand: RootViewModel.LoadStandard}"
+                       data-ui="standard-pager"/>
+        
+        <h1>NextToken paging options</h1>
+        <dot:GridView DataSource="{value: NextTokenDataSet}"
+                      LoadData="{staticCommand: RootViewModel.LoadToken}"
+                      data-ui="next-grid">
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" />
+                <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" />
+            </Columns>
+        </dot:GridView>
+        <dot:DataPager DataSet="{value: NextTokenDataSet}" LoadData="{staticCommand: RootViewModel.LoadToken}"
+                      data-ui="next-pager" />
+
+        <h1>NextTokenHistory data set</h1>
+        <dot:GridView DataSource="{value: NextTokenHistoryDataSet}"
+                      LoadData="{staticCommand: RootViewModel.LoadTokenHistory}"
+                      data-ui="next-history-grid">
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" />
+                <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" />
+            </Columns>
+        </dot:GridView>
+        <dot:DataPager DataSet="{value: NextTokenHistoryDataSet}" LoadData="{staticCommand: RootViewModel.LoadTokenHistory}" 
+                      data-ui="next-history-pager"/>
+
+        <h1>MultiSort data set</h1>
+        <dot:GridView DataSource="{value: MultiSortDataSet}"
+                      LoadData="{staticCommand: RootViewModel.LoadMultiSort}"
+                      data-ui="multi-sort-grid">
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Message Received" ValueBinding="{value: MessageReceived}" AllowSorting="True" />
+            </Columns>
+        </dot:GridView>
+        <dot:DataPager DataSet="{value: MultiSortDataSet}" LoadData="{staticCommand: RootViewModel.LoadMultiSort}"
+                      data-ui="multi-sort-pager"/>
+        <dot:Repeater DataSource="{value: MultiSortDataSet.SortingOptions.Criteria}" WrapperTagName="ul"
+                      data-ui="multi-sort-criteria">
+            <li>{{value: SortExpression}} {{value: SortDescending ? "DESC" : "ASC"}}</li>
+        </dot:Repeater>
     </div>
 </body>
 </html>

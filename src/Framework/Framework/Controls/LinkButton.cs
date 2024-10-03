@@ -33,10 +33,9 @@ namespace DotVVM.Framework.Controls
             
             base.AddAttributesToRender(writer, context);
 
-            var clickBinding = GetCommandBinding(ClickProperty);
-            if (clickBinding != null)
+            if (CreateClickScript() is {} clickScript)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, this), true, ";");
+                writer.AddAttribute("onclick", clickScript, append: true, appendSeparator: ";");
             }
         }
 

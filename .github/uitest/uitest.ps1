@@ -110,6 +110,8 @@ function Start-Sample {
         [int][parameter(Position = 2)]$port
     )
     Invoke-RequiredCmds "Start sample '$sampleName'" {
+		Reset-IISServerManager -Confirm:$false
+		
         Remove-IISSite -Confirm:$false -Name $sampleName -ErrorAction SilentlyContinue
 
         icacls "$root\artifacts\" /grant "IIS_IUSRS:(OI)(CI)F"
@@ -117,7 +119,7 @@ function Start-Sample {
         New-IISSite -Name "$sampleName" `
             -PhysicalPath "$path" `
             -BindingInformation "*:${port}:"
-
+		
         # ensure IIS created the site
         while ($true) {
             $state = (Get-IISSite -Name $sampleName).State
@@ -131,6 +133,15 @@ function Start-Sample {
                 throw "Site '${sampleName}' could not be started. State: '${state}'."
             }
         }
+		
+		# add or update environment variable to the application pool
+		$existingEnvVar = c:\windows\system32\inetsrv\appcmd.exe list config -section:system.applicationHost/applicationPools `
+		     | out-string `
+			 | select-xml -XPath "//add[@name='DefaultAppPool']/environmentVariables/add[@name='GITHUB_TOKEN']"
+		if ($existingEnvVar -ne $null) {
+		    c:\windows\system32\inetsrv\appcmd.exe set config -section:system.applicationHost/applicationPools /-"[name='DefaultAppPool'].environmentVariables.[name='GITHUB_TOKEN']" /commit:apphost
+		}
+		c:\windows\system32\inetsrv\appcmd.exe set config -section:system.applicationHost/applicationPools /+"[name='DefaultAppPool'].environmentVariables.[name='GITHUB_TOKEN',value='$env:GITHUB_TOKEN']" /commit:apphost
     }
 }
 
@@ -171,13 +182,17 @@ function Test-Sample {
 			write-host $log
 			get-content $log | write-host
 		}
-		foreach ($log in dir c:\inetpub\logs\logfiles\*\*.log) {
-			write-host $log
-			get-content $log | write-host
+		if (test-path c:\inetpub\logs\logfiles) {
+			foreach ($log in dir c:\inetpub\logs\logfiles\*\*.log) {
+				write-host $log
+				get-content $log | write-host
+			}
 		}
-		foreach ($log in dir $root\artifacts\**\*.log) {
-			write-host $log
-			get-content $log | write-host
+		if (test-path $root\artifacts) {
+			foreach ($log in dir $root\artifacts\**\*.log) {
+				write-host $log
+				get-content $log | write-host
+			}
 		}
         throw "The sample '${sampleName}' failed to start."
     }

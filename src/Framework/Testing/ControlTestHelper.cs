@@ -335,11 +335,8 @@ namespace DotVVM.Framework.Testing
             return filtered.Single();
         }
 
-        public async Task<CommandRunResult> RunCommand(string text, Func<object?, bool>? viewModel = null, bool applyChanges = true, object[]? args = null, CultureInfo? culture = null)
+        public async Task<CommandRunResult> RunCommand(CommandBindingExpression command, DotvvmBindableObject control, bool applyChanges = true, object[]? args = null, CultureInfo? culture = null)
         {
-            var (control, property, binding) = FindCommand(text, viewModel);
-            if (binding is CommandBindingExpression command)
-            {
                 var path = control
                     .GetAllAncestors(true)
                     .Select(a => a.GetDataContextPathFragment())
@@ -364,6 +361,13 @@ namespace DotVVM.Framework.Testing
                     );
                 }
                 return r;
+            }
+        public async Task<CommandRunResult> RunCommand(string text, Func<object?, bool>? viewModel = null, bool applyChanges = true, object[]? args = null, CultureInfo? culture = null)
+        {
+            var (control, property, binding) = FindCommand(text, viewModel);
+            if (binding is CommandBindingExpression command)
+            {
+                return await RunCommand(command, control, applyChanges, args, culture);
             }
             else
             {

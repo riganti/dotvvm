@@ -427,10 +427,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public CollectionElementDataContextBindingProperty GetCollectionElementDataContext(DataContextStack dataContext, ResultTypeBindingProperty resultType)
         {
-            return new CollectionElementDataContextBindingProperty(DataContextStack.Create(
+            return new CollectionElementDataContextBindingProperty(DataContextStack.CreateCollectionElement(
                 ReflectionUtils.GetEnumerableType(resultType.Type).NotNull(),
-                parent: dataContext,
-                extensionParameters: new CollectionElementDataContextChangeAttribute(0).GetExtensionParameters(new ResolvedTypeDescriptor(dataContext.DataContextType)).ToArray()
+                dataContext
             ));
         }
 

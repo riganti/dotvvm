@@ -46,6 +46,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static JsBlockStatement AsBlock(this IEnumerable<JsStatement> statements) =>
             new JsBlockStatement(statements);
 
+        public static JsExpression AsSequenceOperators(this IEnumerable<JsExpression?> expressions) =>
+            expressions.OfType<JsExpression>().Aggregate((a, b) => new JsBinaryExpression(a, BinaryOperatorType.Sequence, b));
+        public static JsExpression AsSequenceOperators(params JsExpression?[] expressions) =>
+            expressions.AsSequenceOperators();
+
         public static JsArrayExpression ArrayExpression(this IEnumerable<JsExpression> items) =>
             new JsArrayExpression(items);
 

@@ -65,7 +65,9 @@ namespace DotVVM.Framework.ResourceManagement
         public ILocalResourceLocation? FindResource(string url, IDotvvmRequestContext context, out string? mimeType)
         {
             mimeType = null;
-            if (DotvvmRoutingMiddleware.FindMatchingRoute(new[] { resourceRoute }, context, out var parameters) == null)
+
+            var routeMatchUrl = DotvvmRoutingMiddleware.GetRouteMatchUrl(context);
+            if (DotvvmRoutingMiddleware.FindExactMatchRoute(new[] { resourceRoute }, routeMatchUrl, out var parameters) == null)
             {
                 return null;
             }

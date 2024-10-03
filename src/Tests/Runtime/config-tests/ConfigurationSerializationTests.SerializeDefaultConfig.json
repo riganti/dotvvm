@@ -333,6 +333,51 @@
         "mappingMode": "InnerElement"
       }
     },
+    "DotVVM.Framework.Controls.AppendableDataPager": {
+      "DataSet": {
+        "type": "DotVVM.Framework.Controls.IPageableGridViewDataSet, DotVVM.Core",
+        "required": true,
+        "onlyBindings": true
+      },
+      "EndTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement",
+        "onlyHardcoded": true
+      },
+      "LoadData": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
+        "required": true,
+        "onlyBindings": true
+      },
+      "LoadingTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute",
+            "Name": "_dataPager",
+            "Order": 0,
+            "NestDataContext": false,
+            "PropertyDependsOn": []
+          }
+        ],
+        "mappingMode": "InnerElement",
+        "onlyHardcoded": true
+      },
+      "LoadTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute",
+            "Name": "_dataPager",
+            "Order": 0,
+            "NestDataContext": false,
+            "PropertyDependsOn": []
+          }
+        ],
+        "mappingMode": "InnerElement",
+        "onlyHardcoded": true
+      }
+    },
     "DotVVM.Framework.Controls.AuthenticatedView": {
       "AuthenticatedTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
@@ -359,6 +404,10 @@
       "Click": {
         "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework",
         "isCommand": true
+      },
+      "ClickArguments": {
+        "type": "System.Object[]",
+        "mappingMode": "Exclude"
       },
       "Enabled": {
         "type": "System.Boolean",
@@ -395,7 +444,8 @@
             "AllowMissingProperty": false,
             "PropertyDependsOn": [
               "CheckedValue"
-            ]
+            ],
+            "NestDataContext": true
           }
         ],
         "onlyBindings": true
@@ -489,7 +539,8 @@
     },
     "DotVVM.Framework.Controls.DataPager": {
       "DataSet": {
-        "type": "DotVVM.Framework.Controls.IPageableGridViewDataSet, DotVVM.Core",
+        "type": "DotVVM.Framework.Controls.IPageableGridViewDataSet`1[[DotVVM.Framework.Controls.IPagingOptions, DotVVM.Core, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]], DotVVM.Core",
+        "required": true,
         "onlyBindings": true
       },
       "Enabled": {
@@ -510,6 +561,10 @@
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "mappingMode": "InnerElement",
         "onlyHardcoded": true
+      },
+      "LoadData": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
+        "onlyBindings": true
       },
       "NextPageTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
@@ -664,11 +719,13 @@
             "AllowMissingProperty": false,
             "PropertyDependsOn": [
               "DataSource"
-            ]
+            ],
+            "NestDataContext": true
           },
           {
             "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
             "Order": 1,
+            "NestDataContext": true,
             "PropertyDependsOn": []
           }
         ],
@@ -685,11 +742,13 @@
             "AllowMissingProperty": false,
             "PropertyDependsOn": [
               "DataSource"
-            ]
+            ],
+            "NestDataContext": true
           },
           {
             "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
             "Order": 1,
+            "NestDataContext": true,
             "PropertyDependsOn": []
           }
         ],
@@ -714,6 +773,10 @@
         "defaultValue": false,
         "onlyHardcoded": true
       },
+      "LoadData": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
+        "onlyBindings": true
+      },
       "RowDecorators": {
         "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
         "dataContextChange": [
@@ -724,11 +787,13 @@
             "AllowMissingProperty": false,
             "PropertyDependsOn": [
               "DataSource"
-            ]
+            ],
+            "NestDataContext": true
           },
           {
             "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
             "Order": 1,
+            "NestDataContext": true,
             "PropertyDependsOn": []
           }
         ],
@@ -911,6 +976,7 @@
           {
             "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
             "Order": 1,
+            "NestDataContext": true,
             "PropertyDependsOn": []
           },
           {
@@ -920,7 +986,8 @@
             "AllowMissingProperty": false,
             "PropertyDependsOn": [
               "DataSource"
-            ]
+            ],
+            "NestDataContext": true
           }
         ],
         "required": true,
@@ -936,6 +1003,7 @@
           {
             "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
             "Order": 1,
+            "NestDataContext": true,
             "PropertyDependsOn": []
           },
           {
@@ -945,7 +1013,8 @@
             "AllowMissingProperty": false,
             "PropertyDependsOn": [
               "DataSource"
-            ]
+            ],
+            "NestDataContext": true
           }
         ],
         "mappingMode": "InnerElement",
@@ -1256,11 +1325,13 @@
             "AllowMissingProperty": false,
             "PropertyDependsOn": [
               "DataSource"
-            ]
+            ],
+            "NestDataContext": true
           },
           {
             "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
             "Order": 1,
+            "NestDataContext": true,
             "PropertyDependsOn": []
           }
         ],
@@ -1319,6 +1390,10 @@
       }
     },
     "DotVVM.Framework.Controls.RouteLink": {
+      "Culture": {
+        "type": "System.String",
+        "onlyHardcoded": true
+      },
       "Enabled": {
         "type": "System.Boolean",
         "defaultValue": true
@@ -1358,11 +1433,13 @@
             "AllowMissingProperty": false,
             "PropertyDependsOn": [
               "DataSource"
-            ]
+            ],
+            "NestDataContext": true
           },
           {
             "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
             "Order": 1,
+            "NestDataContext": true,
             "PropertyDependsOn": []
           }
         ],
@@ -1378,11 +1455,13 @@
             "AllowMissingProperty": false,
             "PropertyDependsOn": [
               "DataSource"
-            ]
+            ],
+            "NestDataContext": true
           },
           {
             "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
             "Order": 1,
+            "NestDataContext": true,
             "PropertyDependsOn": []
           }
         ],
@@ -1398,11 +1477,13 @@
             "AllowMissingProperty": false,
             "PropertyDependsOn": [
               "DataSource"
-            ]
+            ],
+            "NestDataContext": true
           },
           {
             "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
             "Order": 1,
+            "NestDataContext": true,
             "PropertyDependsOn": []
           }
         ],
@@ -1965,6 +2046,11 @@
     },
     "DotVVM.Framework.Controls.AddTemplateDecorator": {
       "baseType": "DotVVM.Framework.Controls.Decorator, DotVVM.Framework",
+      "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.AppendableDataPager": {
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "defaultContentProperty": "LoadTemplate",
       "withoutContent": true
     },
     "DotVVM.Framework.Controls.AuthenticatedView": {

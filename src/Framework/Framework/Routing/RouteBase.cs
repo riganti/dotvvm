@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Gets key of route.
         /// </summary>
-        public string RouteName { get; internal set; }
+        public virtual string RouteName { get; internal set; }
 
         /// <summary>
         /// Gets the default values of the optional parameters.
@@ -88,6 +88,11 @@ namespace DotVVM.Framework.Routing
         /// Gets the names of the route parameters in the order in which they appear in the URL.
         /// </summary>
         public abstract IEnumerable<string> ParameterNames { get; }
+
+        /// <summary>
+        /// Gets the metadata of the route parameters.
+        /// </summary>
+        public abstract IEnumerable<KeyValuePair<string, DotvvmRouteParameterMetadata>> ParameterMetadata { get; }
 
         /// <summary>
         /// Determines whether the route matches to the specified URL and extracts the parameter values.
@@ -157,7 +162,7 @@ namespace DotVVM.Framework.Routing
         /// Builds the URL core from the parameters.
         /// </summary>
         /// <remarks>The default values are already included in the <paramref name="values"/> collection.</remarks>
-        protected abstract string BuildUrlCore(Dictionary<string, object?> values);
+        protected internal abstract string BuildUrlCore(Dictionary<string, object?> values);
 
         /// <summary>
         /// Adds or updates the parameter collection with the specified values from the anonymous object.

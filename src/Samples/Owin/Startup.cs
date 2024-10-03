@@ -17,6 +17,7 @@ using System;
 using System.Configuration;
 using DotVVM.Framework.Utils;
 using System.Linq;
+using System.Globalization;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -26,6 +27,31 @@ namespace DotVVM.Samples.BasicSamples
     {
         public void Configuration(IAppBuilder app)
         {
+            app.Use((context, next) => {
+                if (context.Request.Query["lang"] == "cs")
+                {
+                    CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("cs-CZ");
+                    context.Set(HostingConstants.OwinDoNotSetRequestCulture, true);
+                }
+                else if (context.Request.Query["lang"] == "de")
+                {
+                    CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("de");
+                    context.Set(HostingConstants.OwinDoNotSetRequestCulture, true);
+                }
+                else if (context.Request.Path.StartsWithSegments(new PathString("/cs")))
+                {
+                    CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("cs-CZ");
+                    context.Set(HostingConstants.OwinDoNotSetRequestCulture, true);
+                }
+                else if (context.Request.Path.StartsWithSegments(new PathString("/de")))
+                {
+                    CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("de");
+                    context.Set(HostingConstants.OwinDoNotSetRequestCulture, true);
+                }
+
+                return next();
+            });
+
             app.Use<SwitchMiddleware>(
                 new List<SwitchMiddlewareCase> {
                     new SwitchMiddlewareCase(

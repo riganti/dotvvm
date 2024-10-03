@@ -3,9 +3,11 @@
 	<body>
 		
 		<!-- ko with: int -->
-		<div data-bind="dotvvm-with-control-properties: { Click: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => {
+		<div data-bind="dotvvm-with-control-properties: {
+Click: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => {
 	await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwxLG51bGwsIkFRQT0iLG51bGwsbnVsbF0=&quot;, [$context.$parent.int.state], options);
-},$element,[],args,$context)) }">
+},$element,[],args,$context))
+}">
 			<input onclick="dotvvm.applyPostbackHandlers(async (options) => {
 	let a;
 	return await((a = options.knockoutContext.$control.Click.state) &amp;&amp; a());
@@ -13,9 +15,11 @@
 		</div>
 		<!-- /ko -->
 		<div data-bind="foreach: { data: Collection }">
-			<div data-bind="dotvvm-with-control-properties: { Click: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => {
+			<div data-bind="dotvvm-with-control-properties: {
+Click: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => {
 	await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwxLG51bGwsIkFRQT0iLG51bGwsbnVsbF0=&quot;, [$context.$rawData.state], options);
-},$element,[],args,$context)) }">
+},$element,[],args,$context))
+}">
 				<input onclick="dotvvm.applyPostbackHandlers(async (options) => {
 	let a;
 	return await((a = options.knockoutContext.$control.Click.state) &amp;&amp; a());

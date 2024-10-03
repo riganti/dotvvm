@@ -77,7 +77,6 @@ namespace DotVVM.Samples.BasicSamples
                     map.Property(nameof(SerializationViewModel.Value2)).Bind(Direction.ClientToServer);
                     map.Property(nameof(SerializationViewModel.IgnoredProperty)).Ignore();
                 });
-            // new GithubApiClient.GithubApiClient().Repos.GetIssues()
 
             config.RegisterApiGroup(typeof(Common.Api.Owin.TestWebApiClientOwin), "http://localhost:61453/", "Scripts/TestWebApiClientOwin.js", "_apiOwin");
             config.RegisterApiClient(typeof(Common.Api.AspNetCore.TestWebApiClientAspNetCore), "http://localhost:50001/", "Scripts/TestWebApiClientAspNetCore.js", "_apiCore");
@@ -234,6 +233,13 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("FeatureSamples_Validation_Localization", "FeatureSamples/Validation/Localization", "Views/FeatureSamples/Validation/Localization.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
             config.RouteTable.Add("FeatureSamples_Localization_Globalize", "FeatureSamples/Localization/Globalize", "Views/FeatureSamples/Localization/Globalize.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
             config.RouteTable.Add("FeatureSamples_CustomPrimitiveTypes_Basic", "FeatureSamples/CustomPrimitiveTypes/Basic/{Id?}", "Views/FeatureSamples/CustomPrimitiveTypes/Basic.dothtml");
+
+            config.RouteTable.Add("FeatureSamples_Localization_LocalizableRoute", "FeatureSamples/Localization/LocalizableRoute", "Views/FeatureSamples/Localization/LocalizableRoute.dothtml",
+                localizedUrls: new LocalizedRouteUrl[] {
+                        new("cs-CZ", "cs/FeatureSamples/Localization/lokalizovana-routa"),
+                        new("de", "de/FeatureSamples/Localization/lokalisierte-route"),
+                });
+            config.RouteTable.AddPartialMatchHandler(new CanonicalRedirectPartialMatchRouteHandler());
 
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
 

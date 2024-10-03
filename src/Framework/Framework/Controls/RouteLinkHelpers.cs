@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Controls
 
         private static string GenerateRouteUrlCore(string routeName, RouteLink control, IDotvvmRequestContext context)
         {
-            var route = GetRoute(context, routeName);
+            var route = GetRoute(context, routeName, control.Culture);
             var parameters = ComposeNewRouteParameters(control, context, route);
 
             // evaluate bindings on server
@@ -114,9 +114,18 @@ namespace DotVVM.Framework.Controls
             return UrlHelper.BuildUrlSuffix(urlSuffix, queryParams);
         }
 
-        private static RouteBase GetRoute(IDotvvmRequestContext context, string routeName)
+        private static RouteBase GetRoute(IDotvvmRequestContext context, string routeName, string? cultureIdentifier)
         {
-            return context.Configuration.RouteTable[routeName];
+            var route = context.Configuration.RouteTable[routeName];
+            if (!string.IsNullOrEmpty(cultureIdentifier))
+            {
+                if (route is not LocalizedDotvvmRoute localizedRoute)
+                {
+                    throw new DotvvmControlException($"The route {routeName} is not localizable, the Culture property cannot be used!");
+                }
+                route = localizedRoute.GetRouteForCulture(cultureIdentifier!);
+            }
+            return route;
         }
 
         public static string GenerateKnockoutHrefExpression(string routeName, RouteLink control, IDotvvmRequestContext context)
@@ -146,7 +155,7 @@ namespace DotVVM.Framework.Controls
 
         private static string GenerateRouteLinkCore(string routeName, RouteLink control, IDotvvmRequestContext context)
         {
-            var route = GetRoute(context, routeName);
+            var route = GetRoute(context, routeName, control.Culture);
             var parameters = ComposeNewRouteParameters(control, context, route);
 
             var parametersExpression = parameters.Select(p => TranslateRouteParameter(control, p)).StringJoin(",");

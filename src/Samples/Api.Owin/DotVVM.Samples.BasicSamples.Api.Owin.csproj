@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Properties\PublishProfiles\CI.pubxml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Framework\Core\DotVVM.Core.csproj" />
     <ProjectReference Include="..\..\Api\Swashbuckle.Owin\DotVVM.Framework.Api.Swashbuckle.Owin.csproj" />
     <ProjectReference Include="..\..\Framework\Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj" />
