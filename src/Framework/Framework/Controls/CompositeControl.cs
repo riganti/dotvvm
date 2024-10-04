@@ -126,7 +126,8 @@ namespace DotVVM.Framework.Controls
         }
 
         static internal ControlInfo GetControlInfo(Type controlType) =>
-            controlInfoCache[controlType];
+            controlInfoCache.TryGetValue(controlType, out var result) ? result :
+                throw new Exception($"CompositeControl {controlType.FullName} wasn't initialized and GetContents cannot be executed. This is probably caused by a failure during property registration.");
 
         internal IEnumerable<DotvvmControl> ExecuteGetContents(IDotvvmRequestContext context)
         {
