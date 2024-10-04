@@ -192,19 +192,17 @@ namespace DotVVM.Framework.Binding
                     if (canUseDirectAccess && unwrappedType.IsValueType)
                     {
                         getValue = Call(typeof(Helpers), nameof(Helpers.GetStructValueDirect), new Type[] { unwrappedType }, currentControlParameter, Constant(property));
-                        if (type.IsNullable())
+                        if (!type.IsNullable())
                             getValue = Expression.Property(getValue, "Value");
                     }
                     else
                     {
                         getValue = Call(currentControlParameter, getValueMethod, Constant(property), Constant(property.IsValueInherited));
+                        getValue = Convert(getValue, type);
                     }
                     return (
                         Expression.Lambda(
-                            Expression.Convert(
-                                Expression.Call(currentControlParameter, getValueMethod, Expression.Constant(property), Expression.Constant(false)),
-                                type
-                            ),
+                            getValue,
                             currentControlParameter
                         ),
                         Expression.Lambda(

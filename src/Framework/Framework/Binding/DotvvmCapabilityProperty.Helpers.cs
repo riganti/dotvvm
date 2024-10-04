@@ -101,6 +101,8 @@ namespace DotVVM.Framework.Binding
             public static T? GetStructValueDirect<T>(DotvvmBindableObject c, DotvvmProperty p)
                 where T: struct
             {
+                // T being a struct allows us to invert the rather expensive `is IBinding` typecheck in EvalPropertyValue
+                // to a simpler is T check, as T is a single type checkable with a simple comparison
                 if (c.properties.TryGet(p, out var x))
                 {
                     if (x is null)

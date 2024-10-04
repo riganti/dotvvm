@@ -214,6 +214,28 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(32, controlF2.GetValue<int>("Nullable"));
         }
 
+        [TestMethod]
+        public void BitMoreComplexCapability_InheritedProperties()
+        {
+            var control1 = new TestControlInheritedProps();
+            var control2 = new TestControlInheritedProps();
+            control1.Children.Add(control2);
+
+            control1.NotNullable = 1;
+            control1.Nullable = 2;
+
+            Assert.AreEqual(1, control2.NotNullable);
+            Assert.AreEqual(2, control2.Nullable);
+
+            Assert.AreEqual(1, control1.GetCapability<BitMoreComplexCapability>().NotNullable);
+            Assert.AreEqual(2, control1.GetCapability<BitMoreComplexCapability>().Nullable);
+            Assert.AreEqual(1, control2.GetCapability<BitMoreComplexCapability>().NotNullable);
+            Assert.AreEqual(2, control2.GetCapability<BitMoreComplexCapability>().Nullable);
+
+            control2.SetCapability(new BitMoreComplexCapability { NotNullable = 3, Nullable = null });
+            Assert.AreEqual(3, control2.NotNullable);
+            Assert.AreEqual(null, control2.Nullable);
+        }
 
         [DataTestMethod]
         [DataRow(typeof(TestControl6))]
