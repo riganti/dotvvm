@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-
+﻿
 namespace DotVVM.Samples.BasicSamples.Api.Common.Model
 {
     public class OrderItem

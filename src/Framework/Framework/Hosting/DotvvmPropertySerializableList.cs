@@ -177,14 +177,14 @@ namespace DotVVM.Framework.Hosting
         public record DotvvmControlInfo(
             string? assembly,
             Type? baseType,
-            Type[]? interfaces,
-            bool isAbstract,
-            string? defaultContentProperty,
-            bool withoutContent,
-            string? markupPrimaryName,
-            string[]? markupAlternativeNames,
-            bool isComposite,
-            ControlPrecompilationMode? precompilationMode
+            Type[]? interfaces = null,
+            bool isAbstract = false,
+            string? defaultContentProperty = null,
+            bool withoutContent = false,
+            string? markupPrimaryName = null,
+            string[]? markupAlternativeNames = null,
+            bool isComposite = false,
+            ControlPrecompilationMode? precompilationMode = null
         ) { }
 
 

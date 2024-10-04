@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Configuration;
-using Newtonsoft.Json;
 using RecordExceptions;
 
 // Tree architecture is inspired by NRefactory, large pieces of code are copy-pasted, see https://github.com/icsharpcode/NRefactory for source

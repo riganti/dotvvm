@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -51,14 +51,12 @@ namespace DotVVM.Framework.Controls
             if (viewModule is object && !isInHead)
             {
                 hasViewModule = true;
-                var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
-                settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
 
                 if (viewModule.ViewId == null)
                     throw new ArgumentException($"ViewModule's property {nameof(viewModule.ViewId)} has not been set.");
 
                 writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
-                    $"{{ viewId: {KnockoutHelper.MakeStringLiteral(viewModule.ViewId)}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
+                    $"{{ viewId: {KnockoutHelper.MakeStringLiteral(viewModule.ViewId)}, modules: {JsonSerializer.Serialize(viewModule.ReferencedModules, DefaultSerializerSettingsProvider.Instance.Settings)} }}"
                 );
             }
         }

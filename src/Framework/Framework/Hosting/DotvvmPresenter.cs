@@ -21,12 +21,11 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Runtime.Tracing;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Security;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using DotVVM.Framework.ViewModel.Validation;
+using System.Text.Json;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -92,8 +91,8 @@ namespace DotVVM.Framework.Hosting
                 // TODO this should be done by IOutputRender or something like that. IOutputRenderer does not support that, so should we make another IJsonErrorOutputWriter?
                 context.HttpContext.Response.StatusCode = 400;
                 context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
-                var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-                await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(new { action = "invalidCsrfToken", message = ex.Message }, settings));
+                var settings = DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe;
+                await context.HttpContext.Response.WriteAsync(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new { action = "invalidCsrfToken", message = ex.Message }, settings));
             }
             catch (DotvvmExceptionBase ex)
             {
@@ -199,10 +198,10 @@ namespace DotVVM.Framework.Hosting
                 else
                 {
                     // perform the postback
-                    string postData;
-                    using (var sr = new StreamReader(ReadRequestBody(context.HttpContext.Request, context.Route?.RouteName)))
+                    ReadOnlyMemory<byte> postData;
+                    using (var stream = ReadRequestBody(context.HttpContext.Request, context.Route?.RouteName))
                     {
-                        postData = await sr.ReadToEndAsync();
+                        postData = await stream.ReadToMemoryAsync();
                     }
                     ViewModelSerializer.PopulateViewModel(context, postData);
 
@@ -233,7 +232,7 @@ namespace DotVVM.Framework.Hosting
                     await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
 
                     // invoke the postback command
-                    var actionInfo = ViewModelSerializer.ResolveCommand(context, page).NotNull("Command not found?");
+                    var actionInfo = ViewModelSerializer.ResolveCommand(context, page);
 
                     // get filters
                     var methodFilters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
@@ -283,8 +282,6 @@ namespace DotVVM.Framework.Hosting
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.ViewModelSerialized, context);
 
-                ViewModelSerializer.BuildViewModel(context, commandResult);
-
                 if (context.RequestType == DotvvmRequestType.Navigate)
                 {
                     await OutputRenderer.WriteHtmlResponse(context, page);
@@ -294,12 +291,10 @@ namespace DotVVM.Framework.Hosting
                     Debug.Assert(context.RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaNavigate);
                     // postback or SPA content
                     var postBackUpdates = OutputRenderer.RenderPostbackUpdatedControls(context, page);
-                    ViewModelSerializer.AddPostBackUpdatedControls(context, postBackUpdates);
 
-                    // resources must be added after the HTML is rendered - some controls may request resources in the render phase
-                    ViewModelSerializer.AddNewResources(context);
+                    var vmString = ViewModelSerializer.SerializeViewModel(context, commandResult, postBackUpdates, serializeNewResources: true);
 
-                    await OutputRenderer.WriteViewModelResponse(context, page);
+                    await OutputRenderer.WriteViewModelResponse(context, page, vmString);
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.OutputRendered, context);
 
@@ -341,22 +336,23 @@ namespace DotVVM.Framework.Hosting
 
         public async Task ProcessStaticCommandRequest(IDotvvmRequestContext context)
         {
+            JsonDocument? postData = null;
             try
             {
-                JObject postData;
-                using (var jsonReader = new JsonTextReader(new StreamReader(ReadRequestBody(context.HttpContext.Request, routeName: null))))
+                using (var requestBody = ReadRequestBody(context.HttpContext.Request, routeName: null))
                 {
-                    postData = await JObject.LoadAsync(jsonReader);
+                    postData = await JsonDocument.ParseAsync(requestBody);
                 }
+                context.ReceivedViewModelJson = postData;
 
                 // validate csrf token
-                context.CsrfToken = (postData["$csrfToken"]?.Value<string>()).NotNull("$csrfToken is required");
+                context.CsrfToken = postData.RootElement.GetProperty("$csrfToken"u8).GetString().NotNull("$csrfToken is required");
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
 
-                var knownTypes = postData["knownTypeMetadata"]?.Values<string>().WhereNotNull().ToArray() ?? Array.Empty<string>();
-                var argumentPaths = postData["argumentPaths"]?.Values<string?>().ToArray();
-                var command = (postData["command"]?.Value<string>()).NotNull("command is required");
-                var arguments = (postData["args"] as JArray).NotNull("args is required");
+                var knownTypes = postData.RootElement.GetPropertyOrNull("knownTypeMetadata"u8)?.EnumerateStringArray().WhereNotNull().ToArray() ?? [];
+                var argumentPaths = postData.RootElement.GetPropertyOrNull("argumentPaths"u8)?.EnumerateStringArray().ToArray();
+                var command = postData.RootElement.GetProperty("command"u8).GetBytesFromBase64();
+                var arguments = postData.RootElement.GetProperty("args"u8);
                 var executionPlan = StaticCommandExecutor.DecryptPlan(command);
 
                 var actionInfo = new ActionInfo(
@@ -392,6 +388,7 @@ namespace DotVVM.Framework.Hosting
             }
             finally
             {
+                postData?.Dispose(); // returns pooled byte buffers
                 StaticCommandExecutor.DisposeServices(context);
             }
         }
@@ -463,14 +460,12 @@ namespace DotVVM.Framework.Hosting
                 context.RequestTypeLabel()
             );
 
-            var jObject = new JObject
-            {
-                [ "modelState" ] = JArray.FromObject(staticCommandModelState.Errors),
-                [ "action" ] = "validationErrors"
-            };
-            var result = jObject.ToString();
+            var result = JsonSerializer.SerializeToUtf8Bytes(new {
+                action = "validationErrors",
+                modelState = staticCommandModelState.Errors
+            });
 
-            context.HttpContext.Response.ContentType = "application/json";
+            context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
             await context.HttpContext.Response.WriteAsync(result);
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ArgumentsValidationFailed, "Argument contain validation errors!");
         }

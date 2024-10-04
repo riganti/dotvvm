@@ -11,8 +11,9 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// <summary>
         /// Gets the validation rules.
         /// </summary>
-        public virtual IEnumerable<ViewModelPropertyValidationRule> TranslateValidationRules(PropertyInfo property, IEnumerable<ValidationAttribute> validationAttributes)
+        public virtual IEnumerable<ViewModelPropertyValidationRule> TranslateValidationRules(MemberInfo property, IEnumerable<ValidationAttribute> validationAttributes)
         {
+            var propertyType = property.GetResultType();
             var addEnforceClientFormat = true;
             foreach (var attribute in validationAttributes)
             {
@@ -58,7 +59,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                 yield return validationRule;
             }
             // enforce client format by default
-            if (addEnforceClientFormat && (property.PropertyType.IsNullable() && property.PropertyType.UnwrapNullableType().IsNumericType() || property.PropertyType.UnwrapNullableType().IsDateOrTimeType()))
+            if (addEnforceClientFormat && (propertyType.IsNullable() && propertyType.UnwrapNullableType().IsNumericType() || propertyType.UnwrapNullableType().IsDateOrTimeType()))
             {
                 var enforceClientFormatAttr = new DotvvmClientFormatAttribute();
 

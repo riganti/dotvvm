@@ -1,0 +1,10 @@
+{
+	"plainType": "string",
+	"plainTypeObj": "string",
+	"plainTypeInterface": "System.String",
+	"nullableType": "int?",
+	"genericType": "System.Collections.Generic.List<string>",
+	"typeDescriptor": "System.String",
+	"typeDescriptorInterface": "System.String",
+	"typeDescriptorObj": "System.String"
+}

@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             var lastPage = commandExpressions.Single(c => c.str.Contains(".GoToLastPage()"));
 
             await r.RunCommand((CommandBindingExpression)nextPage.command, nextPage.control);
-            Assert.AreEqual(1, (int)r.ViewModel.Customers.PagingOptions.PageIndex);
+            Assert.AreEqual(1, (int)r.ViewModelJson["Customers"]["PagingOptions"]["PageIndex"]);
         }
 
         [TestMethod]

@@ -12,7 +12,6 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNet.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {

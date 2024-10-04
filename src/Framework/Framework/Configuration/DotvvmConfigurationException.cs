@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.Json;
 using DotVVM.Framework.Routing;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -68,14 +68,14 @@ namespace DotVVM.Framework.Configuration
         {
             if (controls != null && controls.Any())
             {
-                var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+                var settings = DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe;
                 sb.AppendLine("Invalid control registrations: ");
                 foreach (var control in controls)
                 {
                     if (control.Reason == DotvvmConfigurationAssertReason.InvalidCombination)
                     {
                         sb.Append("Control '");
-                        sb.Append(JsonConvert.SerializeObject(control.Value, settings));
+                        sb.Append(JsonSerializer.Serialize(control.Value, settings));
                         sb.Append("' has set invalid combination of properties.");
                     }
 

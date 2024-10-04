@@ -3,29 +3,35 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class EncryptedValuesReader
     {
-        Stack<(int prop, JObject? obj)> stack = new();
+        Stack<(int prop, JsonObject? obj)> stack = new();
         int virtualNests = 0;
         int lastPropertyIndex = -1;
         public bool Suppressed { get; private set; } = false;
 
-        public EncryptedValuesReader(JObject json)
+        public EncryptedValuesReader(JsonObject json)
         {
             stack.Push((0, json));
         }
 
-        private JObject? json => stack.Peek().obj;
+        private JsonObject? json => stack.Peek().obj;
 
-        private JProperty? Property(int index)
+        private bool Property(int index, out JsonNode? node)
         {
             var name = index.ToString();
-            return virtualNests == 0 ? json?.Property(name) : null;
+            if (virtualNests > 0 || json is null)
+            {
+                node = null;
+                return false;
+            }
+
+            return json.TryGetPropertyValue(name, out node);
         }
 
         public void Nest() => Nest(lastPropertyIndex + 1);
@@ -35,18 +41,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (Suppressed)
                 return;
 
-            var prop = Property(property);
-            if (prop != null)
+            if (Property(property, out var prop))
             {
-                Debug.Assert(prop.Value.Type == JTokenType.Object);
+                Debug.Assert(prop is JsonObject, $"Unexpected prop {property}: {prop}");
+                json?.Remove(property.ToString());
             }
             else
             {
                 virtualNests++;
             }
-            stack.Push((property, (JObject?)prop?.Value));
             // remove read nodes and then make sure that JObject is empty
-            prop?.Remove();
+            stack.Push((property, (JsonObject?)prop));
             lastPropertyIndex = -1;
         }
 
@@ -61,7 +66,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else
             {
-                if (json!.Properties().Count() > 0)
+                if (json?.Count > 0)
                     throw SecurityError();
             }
             lastPropertyIndex = stack.Pop().prop;
@@ -79,14 +84,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Suppressed = false;
         }
 
-        public JToken ReadValue(int property)
+        public JsonNode? ReadValue(int property)
         {
             if (Suppressed) throw SecurityError();
 
-            var prop = Property(property);
-            if (prop == null) throw SecurityError();
-            prop.Remove();
-            return prop.Value;
+            if (!Property(property, out var prop)) throw SecurityError();
+            json!.Remove(property.ToString());
+            return prop;
         }
 
         Exception SecurityError() => new SecurityException("Failed to deserialize viewModel encrypted values");

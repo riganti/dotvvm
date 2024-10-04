@@ -17,11 +17,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.1.0" />
-    <PackageReference Include="NSwag.AspNetCore" Version="13.13.2" />
-    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.13.2" />
-    <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="13.13.2" />
-    <PackageReference Include="NSwag.Generation.WebApi" Version="13.13.2" />
-    <PackageReference Include="NJsonSchema.CodeGeneration" Version="10.5.2" />
+    <PackageReference Include="NSwag.AspNetCore" Version="14.0.0" />
+    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="14.0.0" />
+    <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="14.0.0" />
+    <PackageReference Include="NSwag.Generation.WebApi" Version="14.0.0" />
+    <PackageReference Include="NJsonSchema.CodeGeneration" Version="11.0.0" />
     <PackageReference Include="Faker.NETCore" Version="1.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.5" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.1.5" />

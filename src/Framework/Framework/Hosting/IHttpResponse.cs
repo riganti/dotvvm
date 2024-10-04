@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,9 +14,10 @@ namespace DotVVM.Framework.Hosting
         string? ContentType { get; set; }
         Stream Body { get; set; }
         void Write(string text);
-        void Write(byte[] data);
-        void Write(byte[] data, int offset, int count);
-        Task WriteAsync(string text);
-        Task WriteAsync(string text, CancellationToken token);
+        void Write(ReadOnlyMemory<char> text);
+        void Write(ReadOnlyMemory<byte> data);
+        Task WriteAsync(string text, CancellationToken token = default);
+        Task WriteAsync(ReadOnlyMemory<char> text, CancellationToken token = default);
+        Task WriteAsync(ReadOnlyMemory<byte> data, CancellationToken token = default);
     }
 }

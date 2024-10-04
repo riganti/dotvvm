@@ -1,27 +1,30 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
     public static class StaticCommandExecutionPlanSerializer
     {
-        public static JToken SerializePlan(StaticCommandInvocationPlan plan)
+        public static JsonNode SerializePlan(StaticCommandInvocationPlan plan)
         {
             var hasOverloads = HasOverloads(plan.Method);
-            var array = new JArray(
-                new JValue(GetTypeFullName(plan.Method.DeclaringType!)),
-                new JValue(plan.Method.Name),
-                new JArray(plan.Method.GetGenericArguments().Select(GetTypeFullName)),
-                new JValue(plan.Method.GetParameters().Length),
-                hasOverloads ? new JArray(plan.Method.GetParameters().Select(p => GetTypeFullName(p.ParameterType))) : JValue.CreateNull(),
-                JToken.FromObject(plan.Arguments.Select(a => (byte)a.Type).ToArray())
+            var array = new JsonArray(
+                JsonValue.Create(GetTypeFullName(plan.Method.DeclaringType!)),
+                JsonValue.Create(plan.Method.Name),
+                new JsonArray(plan.Method.GetGenericArguments().Select(t => JsonValue.Create(GetTypeFullName(t))).ToArray()),
+                JsonValue.Create(plan.Method.GetParameters().Length),
+                hasOverloads
+                    ? new JsonArray(plan.Method.GetParameters().Select(p => JsonValue.Create(GetTypeFullName(p.ParameterType))).ToArray())
+                    : null,
+                JsonValue.Create(Convert.ToBase64String(plan.Arguments.Select(a => (byte)a.Type).ToArray()))
             );
             var parameters = (new ParameterInfo[plan.Method.IsStatic ? 0 : 1]).Concat(plan.Method.GetParameters()).ToArray();
             foreach (var (arg, parameter) in plan.Arguments.Zip(parameters, (a, b) => (a, b)))
@@ -29,24 +32,24 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (arg.Type == StaticCommandParameterType.Argument)
                 {
                     if ((parameter?.ParameterType ?? plan.Method.DeclaringType!).Equals(arg.Arg))
-                        array.Add(JValue.CreateNull());
+                        array.Add(null);
                     else
-                        array.Add(new JValue(arg.Arg!.CastTo<Type>().Apply(GetTypeFullName)));
+                        array.Add(JsonValue.Create(GetTypeFullName((Type)arg.Arg!)));
                 }
                 else if (arg.Type == StaticCommandParameterType.Constant)
                 {
-                    array.Add(arg.Arg is null ? JValue.CreateNull() : JToken.FromObject(arg.Arg));
+                    array.Add(arg.Arg is null ? null : JsonSerializer.SerializeToNode(arg.Arg, parameter.ParameterType));
                 }
                 else if (arg.Type == StaticCommandParameterType.DefaultValue)
                 {
-                    array.Add(JValue.CreateNull());
+                    array.Add(null);
                 }
                 else if (arg.Type == StaticCommandParameterType.Inject)
                 {
                     if ((parameter?.ParameterType ?? plan.Method.DeclaringType!).Equals(arg.Arg))
-                        array.Add(JValue.CreateNull());
+                        array.Add(null);
                     else
-                        array.Add(new JValue(arg.Arg!.CastTo<Type>().Apply(GetTypeFullName)));
+                        array.Add(JsonValue.Create(GetTypeFullName((Type)arg.Arg!)));
                 }
                 else if (arg.Type == StaticCommandParameterType.Invocation)
                 {
@@ -54,8 +57,6 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else throw new NotSupportedException(arg.Type.ToString());
             }
-            while (array.Last!.Type == JTokenType.Null)
-                array.Last.Remove();
             return array;
         }
 
@@ -66,10 +67,10 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private static string GetTypeFullName(Type type) => $"{type.FullName}, {type.Assembly.GetName().Name}";
 
-        public static byte[] EncryptJson(JToken json, IViewModelProtector protector)
+        public static byte[] EncryptJson(JsonNode json, IViewModelProtector protector)
         {
             var stream = new MemoryStream();
-            using (var writer = new JsonTextWriter(new StreamWriter(stream)))
+            using (var writer = new Utf8JsonWriter(stream))
             {
                 json.WriteTo(writer);
             }
@@ -77,34 +78,57 @@ namespace DotVVM.Framework.Compilation.Binding
         }
         public static string[] GetEncryptionPurposes()
         {
-            return new[] {
-                "StaticCommand",
-            };
+            return [ "StaticCommand" ];
         }
-        public static StaticCommandInvocationPlan DeserializePlan(JToken planInJson)
+
+        static string?[]? ReadStringArray(ref Utf8JsonReader json)
         {
-            var jarray = (JArray)planInJson;
-            if (jarray.Count < 6)
-                throw new NotSupportedException("Invalid static command plan.");
-            var typeName = jarray[0]!.Value<string>()!;
-            var methodName = jarray[1]!.Value<string>()!;
-            var genericTypeNames = jarray[2]!.Value<JArray>();
-            var parametersCount = jarray[3]!.Value<int>();
-            var parameterTypeNames = jarray[4]!.Value<JArray>();
+            if (json.TokenType == JsonTokenType.Null)
+            {
+                json.AssertRead();
+                return null;
+            }
+
+            json.AssertRead(JsonTokenType.StartArray);
+            var result = new List<string?>();
+            while (true)
+            {
+                if (json.TokenType == JsonTokenType.EndArray)
+                {
+                    json.AssertRead();
+                    return result.ToArray();
+                }
+                result.Add(json.ReadString());
+            }
+        }
+        public static StaticCommandInvocationPlan DeserializePlan(ref Utf8JsonReader json)
+        {
+            if (json.TokenType == JsonTokenType.None)
+            {
+                json.AssertRead();
+            }
+            json.AssertRead(JsonTokenType.StartArray);
+            var declaringType = Type.GetType(json.ReadString().NotNull());
+            var methodName = json.ReadString().NotNull();
+            var genericTypeNames = ReadStringArray(ref json);
+            var parametersCount = json.GetInt32();
+            json.AssertRead();
+            var parameterTypeNames = ReadStringArray(ref json);
             var hasOtherOverloads = parameterTypeNames != null;
-            var argTypes = jarray[5]!.ToObject<byte[]>()!.Select(a => (StaticCommandParameterType)a).ToArray();
+            var argTypes = json.GetBytesFromBase64();
+            json.AssertRead();
 
             MethodInfo? method;
             if (hasOtherOverloads)
             {
                 // There are multiple overloads available, therefore exact parameters need to be resolved first
-                var parameters = parameterTypeNames!.Select(n => Type.GetType(n.Value<string>()!).NotNull()).ToArray();
-                method = Type.GetType(typeName)?.GetMethod(methodName, parameters);
+                var parameters = parameterTypeNames!.Select(n => Type.GetType(n.NotNull()).NotNull()).ToArray();
+                method = declaringType?.GetMethod(methodName, parameters);
             }
             else
             {
                 // There are no overloads
-                method = Type.GetType(typeName)?.GetMethods().SingleOrDefault(m => m.Name == methodName && m.GetParameters().Length == parametersCount);
+                method = declaringType?.GetMethods().SingleOrDefault(m => m.Name == methodName && m.GetParameters().Length == parametersCount);
             }
             
             if (method == null || !method.IsDefined(typeof(AllowStaticCommandAttribute)))
@@ -112,42 +136,41 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (method.IsGenericMethod)
             {
-                var generics = genericTypeNames.NotNull().Select(n => Type.GetType(n.Value<string>()!).NotNull()).ToArray();
+                var generics = genericTypeNames.NotNull().Select(n => Type.GetType(n.NotNull()).NotNull()).ToArray();
                 method = method.MakeGenericMethod(generics);
             }
 
-            var methodParameters = method.GetParameters();
-            var args = argTypes
-                .Select((a, i) => (type: a, arg: jarray.Count <= i + 6 ? JValue.CreateNull() : jarray[i + 6], parameter: (method.IsStatic ? methodParameters[i] : (i == 0 ? null : methodParameters[i - 1]))))
-                .Select((a) => {
-                    switch (a.type)
-                    {
-                        case StaticCommandParameterType.Argument:
-                        case StaticCommandParameterType.Inject:
-                            if (a.arg.Type == JTokenType.Null)
-                                return new StaticCommandParameterPlan(a.type, a.parameter?.ParameterType ?? method.DeclaringType.NotNull());
-                            else
-                                return new StaticCommandParameterPlan(a.type, a.arg.Value<string>()!.Apply(Type.GetType));
-                        case StaticCommandParameterType.Constant:
-                            return new StaticCommandParameterPlan(a.type, a.arg.ToObject(a.parameter?.ParameterType ?? method.DeclaringType.NotNull()));
-                        case StaticCommandParameterType.DefaultValue:
-                            return new StaticCommandParameterPlan(a.type, a.parameter?.DefaultValue);
-                        case StaticCommandParameterType.Invocation:
-                            return new StaticCommandParameterPlan(a.type, DeserializePlan(a.arg));
-                        default:
-                            throw new NotSupportedException($"{a.type}");
-                    }
-                }).ToArray();
+            ParameterInfo?[] methodParameters = method.GetParameters();
+            if (!method.IsStatic)
+            {
+                methodParameters = [ null, ..methodParameters ];
+            }
+            var args = new StaticCommandParameterPlan[methodParameters.Length];
+            for (var i = 0; i < args.Length; i++)
+            {
+                var type = (StaticCommandParameterType)argTypes[i];
+                var paramType = methodParameters[i]?.ParameterType ?? method.DeclaringType.NotNull();
+                args[i] = type switch
+                {
+                    StaticCommandParameterType.Argument or StaticCommandParameterType.Inject =>
+                        new StaticCommandParameterPlan(type, json.TokenType == JsonTokenType.Null ? paramType : Type.GetType(json.GetString()!)),
+                    StaticCommandParameterType.Constant =>
+                        new StaticCommandParameterPlan(type, JsonSerializer.Deserialize(ref json, paramType)),
+                    StaticCommandParameterType.DefaultValue =>
+                        new StaticCommandParameterPlan(type, methodParameters[i]!.DefaultValue),
+                    StaticCommandParameterType.Invocation =>
+                        new StaticCommandParameterPlan(type, DeserializePlan(ref json)),
+                    _ => throw new NotSupportedException(type.ToString())
+                };
+                json.AssertRead();
+            }
             return new StaticCommandInvocationPlan(method, args);
         }
 
 
-        public static JToken DecryptJson(byte[] data, IViewModelProtector protector)
+        public static byte[] DecryptJson(byte[] data, IViewModelProtector protector)
         {
-            using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(protector.Unprotect(data, GetEncryptionPurposes())))))
-            {
-                return JToken.ReadFrom(reader);
-            }
+            return protector.Unprotect(data, GetEncryptionPurposes());
         }
     }
 }
