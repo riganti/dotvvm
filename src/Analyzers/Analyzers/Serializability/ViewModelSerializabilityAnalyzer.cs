@@ -317,9 +317,11 @@ namespace DotVVM.Analyzers.Serializability
             return false;
         }
 
+        /// <summary> Returns true if the property has a Bind(Direction.None) or JsonIgnore attribute </summary>
         private static bool IsSerializationIgnored(IPropertySymbol property, SerializabilityAnalysisContext context)
         {
-            return IsSerializationIgnoredUsingBindAttribute(property, context) || IsSerializationIgnoredUsingJsonIgnoreAttribute(property, context);
+            return IsSerializationIgnoredUsingBindAttribute(property, context) || IsSerializationIgnoredUsingJsonIgnoreAttribute(property, context) ||
+                property.OverriddenProperty is {} overriddenProperty && IsSerializationIgnored(overriddenProperty, context);
         }
 
         private static bool IsSerializationIgnoredUsingBindAttribute(ISymbol propertyOrFieldSymbol, SerializabilityAnalysisContext context)
