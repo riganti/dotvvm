@@ -66,6 +66,8 @@ namespace DotVVM.Framework.ViewModel.Validation
 
             // validate all properties on the object
             var map = viewModelSerializationMapper.GetMap(viewModel.GetType());
+            var dotvvmConfiguration = (DotvvmConfiguration)validationItems[typeof(DotvvmConfiguration)]!;
+
             foreach (var property in map.Properties.Where(p => p.TransferToServer))
             {
                 var value = property.PropertyInfo.GetValue(viewModel);
@@ -74,6 +76,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                 if (property.ValidationRules.Any())
                 {
                     var context = new ValidationContext(viewModel, validationItems) { MemberName = property.Name };
+                    context.InitializeServiceProvider(dotvvmConfiguration.ServiceProvider.GetService);
 
                     foreach (var rule in property.ValidationRules)
                     {
@@ -103,8 +106,11 @@ namespace DotVVM.Framework.ViewModel.Validation
 
             if (viewModel is IValidatableObject)
             {
-                foreach (var error in ((IValidatableObject)viewModel).Validate(
-                    new ValidationContext(viewModel, validationItems)))
+                var validationContext = new ValidationContext(viewModel, validationItems);
+                validationContext.InitializeServiceProvider(dotvvmConfiguration.ServiceProvider.GetService);
+                var errors = ((IValidatableObject)viewModel).Validate(validationContext);
+
+                foreach (var error in errors)
                 {
                     var paths = new List<string>();
                     if (error.MemberNames != null)
@@ -114,6 +120,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                             paths.Add(memberPath);
                         }
                     }
+
                     if (!paths.Any())
                     {
                         paths.Add(string.Empty);
