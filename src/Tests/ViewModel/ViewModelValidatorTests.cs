@@ -446,6 +446,22 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
 
+        [TestMethod]
+        public void ViewModelValidator_ServiceProvider()
+        {
+            var testViewModel = new TestViewModel8();
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState { ValidationTarget = testViewModel };
+
+            var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(0, results.Count);
+        }
+
         public class TestViewModel : DotvvmViewModelBase
         {
             [Required]
@@ -497,7 +513,7 @@ namespace DotVVM.Framework.Tests.ViewModel
                 var entity = (TestViewModel4Child)validationContext.ObjectInstance;
                 if (entity.IsChecked && string.IsNullOrEmpty(entity.ConditionalRequired))
                 {
-                    return new ValidationResult("Value is required when the field is checked!", new[] { validationContext.MemberName });    
+                    return new ValidationResult("Value is required when the field is checked!", new[] { validationContext.MemberName });
                 }
 
                 return base.IsValid(value, validationContext);
@@ -542,6 +558,25 @@ namespace DotVVM.Framework.Tests.ViewModel
                 }
             }
         }
-    }
 
+
+        public class TestViewModel8
+        {
+            [ServiceProviderTest]
+            public int? Id { get; set; }
+
+            public class ServiceProviderTestAttribute : ValidationAttribute
+            {
+                protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+                {
+                    if (validationContext.GetService<IViewModelValidator>() == null)
+                    {
+                        return new ValidationResult("Service provider is not available");
+                    }
+
+                    return ValidationResult.Success;
+                }
+            }
+        }
+    }
 }
