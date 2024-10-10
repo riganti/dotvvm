@@ -13,6 +13,7 @@ namespace DotVVM.Analyzers.ApiUsage
         private static readonly LocalizableResourceString unsupportedCallSiteMessage = new(nameof(Resources.ApiUsage_UnsupportedCallSite_Message), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString unsupportedCallSiteDescription = new(nameof(Resources.ApiUsage_UnsupportedCallSite_Description), Resources.ResourceManager, typeof(Resources));
         private const string unsupportedCallSiteAttributeMetadataName = "DotVVM.Framework.CodeAnalysis.UnsupportedCallSiteAttribute";
+        private const string linqExpressionsExpression1MetadataName = "System.Linq.Expressions.Expression`1";
         private const int callSiteTypeServerUnderlyingValue = 0;
 
         public static DiagnosticDescriptor DoNotInvokeMethodFromUnsupportedCallSite = new DiagnosticDescriptor(
@@ -46,6 +47,10 @@ namespace DotVVM.Analyzers.ApiUsage
                         return;
 
                     if (attribute.ConstructorArguments.First().Value is not int callSiteType || callSiteTypeServerUnderlyingValue != callSiteType)
+                        return;
+
+                    if (context.Operation.IsWithinExpressionTree(context.Compilation.GetTypeByMetadataName(linqExpressionsExpression1MetadataName)))
+                        // supress in Linq.Expression trees, such as in ValueOrBinding.Select
                         return;
 
                     var reason = (string?)attribute.ConstructorArguments.Skip(1).First().Value;
