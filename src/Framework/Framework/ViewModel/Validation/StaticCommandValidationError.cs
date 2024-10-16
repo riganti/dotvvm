@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Configuration;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
@@ -9,20 +9,20 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// <summary>
         /// Gets or sets the error message.
         /// </summary>
-        [JsonProperty("errorMessage")]
+        [JsonPropertyName("errorMessage")]
         public string ErrorMessage { get; internal set; }
 
         /// <summary>
         /// Gets or sets the argument name
         /// </summary>
-        [JsonProperty("argumentName")]
+        [JsonPropertyName("argumentName")]
         public string? ArgumentName { get; internal set; }
 
         /// <summary>
         /// Contains path that can be evaluated on the client side.
         /// E.g.: /Product/Suppliers/2/Name
         /// </summary>
-        [JsonProperty("propertyPath")]
+        [JsonPropertyName("propertyPath")]
         public string? PropertyPath { get; internal set; }
 
         /// <summary>

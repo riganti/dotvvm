@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using System.Reflection;
-using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.ResourceManagement

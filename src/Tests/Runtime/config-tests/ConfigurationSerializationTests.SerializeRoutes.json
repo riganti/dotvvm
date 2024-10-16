@@ -2,17 +2,7 @@
   "dotvvmVersion": "*.*.*.*",
   "config": {
     "markup": {
-      "importedNamespaces": [
-        {
-          "namespace": "DotVVM.Framework.Binding.HelperNamespace"
-        },
-        {
-          "namespace": "System.Linq"
-        }
-      ],
-      "ViewCompilation": {
-        "compileInParallel": true
-      }
+      "ViewCompilation": {}
     },
     "routes": {
       "route1": {
@@ -46,36 +36,13 @@
       }
     },
     "resources": {},
-    "security": {
-      "xssProtectionHeader": {
-        "enabled": true
-      },
-      "contentTypeOptionsHeader": {
-        "enabled": true
-      },
-      "verifySecFetchForPages": {
-        "enabled": true
-      },
-      "verifySecFetchForCommands": {
-        "enabled": true
-      },
-      "referrerPolicy": {
-        "enabled": true
-      }
-    },
-    "runtime": {
-      "reloadMarkupFiles": {},
-      "compressPostbacks": {},
-      "maxPostbackSizeBytes": 134217728
-    },
+    "security": {},
+    "runtime": {},
     "defaultCulture": "en-US",
     "experimentalFeatures": {},
-    "debug": false,
     "diagnostics": {
       "compilationPage": {},
-      "perfWarnings": {
-        "bigViewModelBytes": 5242880.0
-      }
+      "perfWarnings": {}
     }
   }
 }

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the options of the compilation status page.
         /// </summary>
-        [JsonProperty("compilationPage")]
+        [JsonPropertyName("compilationPage")]
         public DotvvmCompilationPageConfiguration CompilationPage
         {
             get { return _compilationPage; }
@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the options for runtime warning about slow requests, too big viewmodels, ...
         /// </summary>
-        [JsonProperty("perfWarnings")]
+        [JsonPropertyName("perfWarnings")]
         public DotvvmPerfWarningsConfiguration PerfWarnings
         {
             get { return _perfWarnings; }

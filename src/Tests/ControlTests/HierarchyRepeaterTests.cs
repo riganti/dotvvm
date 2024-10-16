@@ -69,9 +69,9 @@ namespace DotVVM.Framework.Tests.ControlTests
             );
 
             await r.RunCommand("_control.Click()", vm => vm is BasicTestViewModel.SaneHierarchicalItem { Label: "A_1_2" });
-            Assert.AreEqual("A_1_2", (string)r.ViewModel.SelectedLabel);
+            Assert.AreEqual("A_1_2", (string)r.ViewModelJson["SelectedLabel"]);
             await r.RunCommand("_control.Click()", vm => vm is BasicTestViewModel.SaneHierarchicalItem { Label: "A_1" });
-            Assert.AreEqual("A_1", (string)r.ViewModel.SelectedLabel);
+            Assert.AreEqual("A_1", (string)r.ViewModelJson["SelectedLabel"]);
             check.CheckString(
                 r.OutputString,
                 checkName: clientRendering ? "client" : "server",

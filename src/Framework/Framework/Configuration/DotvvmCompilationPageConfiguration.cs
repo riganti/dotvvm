@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -22,8 +22,8 @@ namespace DotVVM.Framework.Configuration
         /// When null, the compilation page is automatically enabled if <see cref="DotvvmConfiguration.Debug"/>
         /// is true.
         /// </remarks>
-        [JsonProperty("isEnabled", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        [DefaultValue(null)]
+        [JsonPropertyName("isEnabled")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? IsEnabled
         {
             get { return _isEnabled; }
@@ -40,7 +40,8 @@ namespace DotVVM.Framework.Configuration
         /// if all pages and controls can be compiled successfully, otherwise an HTTP 500 status code
         /// is sent back.
         /// </remarks>
-        [JsonProperty("isApiEnabled", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("isApiEnabled")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [DefaultValue(false)]
         public bool IsApiEnabled
         {
@@ -52,7 +53,8 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the URL where the compilation page will be accessible from.
         /// </summary>
-        [JsonProperty("url", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("url")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [DefaultValue(DefaultUrl)]
         public string Url
         {
@@ -64,7 +66,8 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the name of the route that the compilation page will be registered as.
         /// </summary>
-        [JsonProperty("routeName", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("routeName")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [DefaultValue(DefaultRouteName)]
         public string RouteName
         {
@@ -78,7 +81,8 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets whether the compilation page should attempt to compile all registered
         /// pages and markup controls when it is loaded.
         /// </summary>
-        [JsonProperty("shouldCompileAllOnLoad", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("shouldCompileAllOnLoad")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [DefaultValue(true)]
         public bool ShouldCompileAllOnLoad
         {

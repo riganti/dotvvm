@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Routing;
@@ -12,6 +11,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Configuration;
 using System.Collections.Immutable;
+using System.Text.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -163,8 +163,8 @@ namespace DotVVM.Framework.Controls
 
             return
                 route.ParameterNames.Any()
-                    ? $"dotvvm.buildRouteUrl({JsonConvert.ToString(route.UrlWithoutTypes)}, {{{parametersExpression}}})"
-                    : JsonConvert.ToString(route.Url);
+                    ? $"dotvvm.buildRouteUrl({KnockoutHelper.MakeStringLiteral(route.UrlWithoutTypes)}, {{{parametersExpression}}})"
+                    : KnockoutHelper.MakeStringLiteral(route.Url);
         }
 
         private static string TranslateRouteParameter<T>(DotvvmBindableObject control, KeyValuePair<string, T> param, bool caseSensitive = false)
@@ -175,11 +175,11 @@ namespace DotVVM.Framework.Controls
                 EnsureValidBindingType(binding);
 
                 expression = (param.Value as IValueBinding)?.GetKnockoutBindingExpression(control)
-                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control), DefaultSerializerSettingsProvider.Instance.Settings);
+                    ?? JsonSerializer.Serialize((param.Value as IStaticValueBinding)?.Evaluate(control), DefaultSerializerSettingsProvider.Instance.Settings);
             }
             else
             {
-                expression = JsonConvert.SerializeObject(param.Value, DefaultSerializerSettingsProvider.Instance.Settings);
+                expression = JsonSerializer.Serialize(param.Value, DefaultSerializerSettingsProvider.Instance.Settings);
             }
             return KnockoutHelper.MakeStringLiteral(caseSensitive ? param.Key : param.Key.ToLowerInvariant()) + ": " + expression;
         }

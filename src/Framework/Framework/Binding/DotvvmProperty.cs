@@ -11,11 +11,11 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using Newtonsoft.Json;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Immutable;
 using DotVVM.Framework.Runtime;
 using System.Threading;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Binding
 {

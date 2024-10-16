@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
-using Newtonsoft.Json.Bson;
-using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -20,15 +22,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.viewModelStore = viewModelStore;
         }
 
-        public string StoreViewModel(IDotvvmRequestContext context, JObject viewModelToken)
+        public string StoreViewModel(IDotvvmRequestContext context, Stream data)
         {
-            var cacheData = PackViewModel(viewModelToken);
+            var cacheData = PackViewModel(data);
             var hash = Convert.ToBase64String(SHA256.Create().ComputeHash(cacheData));
             viewModelStore.Store(hash, cacheData);
             return hash;
         }
 
-        public JObject TryRestoreViewModel(IDotvvmRequestContext context, string viewModelCacheId, JObject viewModelDiffToken)
+        public ReadOnlyMemory<byte> TryRestoreViewModel(IDotvvmRequestContext context, string viewModelCacheId, JsonElement viewModelDiffToken)
         {
             var cachedData = viewModelStore.Retrieve(viewModelCacheId);
             var routeLabel = new KeyValuePair<string, object?>("route", context.Route!.RouteName);
@@ -41,30 +43,53 @@ namespace DotVVM.Framework.ViewModel.Serialization
             DotvvmMetrics.ViewModelCacheHit.Add(1, routeLabel);
             DotvvmMetrics.ViewModelCacheBytesLoaded.Add(cachedData.Length, routeLabel);
 
-            var result = UnpackViewModel(cachedData);
-            JsonUtils.Patch(result, viewModelDiffToken);
-            return result;
-        }
-
-        protected virtual byte[] PackViewModel(JObject viewModelToken)
-        {
-            using (var ms = new MemoryStream())
-            using (var bsonWriter = new BsonDataWriter(ms))
+            var unpacked = UnpackViewModel(cachedData);
+            var unpackedBuffer = ArrayPool<byte>.Shared.Rent(unpacked.length + 2);
+            try
             {
-                viewModelToken.WriteTo(bsonWriter);
-                bsonWriter.Flush();
+                var copiedLength = unpacked.data.CopyTo(unpackedBuffer, 1);
+                if (copiedLength != unpacked.length)
+                    throw new Exception($"DefaultViewModelServerCache.PackViewModel returned incorrect length");
+                unpackedBuffer[0] = (byte)'{';
+                unpackedBuffer[unpacked.length + 1] = (byte)'}';
 
-                return ms.ToArray();
+                var resultJson = JsonNode.Parse(unpackedBuffer.AsSpan()[..(unpacked.length + 2)])!.AsObject();
+                // TODO: this is just bad
+                JsonUtils.Patch(resultJson, JsonObject.Create(viewModelDiffToken)!);
+                var jsonData = new MemoryStream();
+                using (var writer = new Utf8JsonWriter(jsonData))
+                {
+                    resultJson.WriteTo(writer);
+                }
+                return jsonData.ToMemory();
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(unpackedBuffer);
             }
         }
 
-        protected virtual JObject UnpackViewModel(byte[] cachedData)
+        protected virtual byte[] PackViewModel(Stream data)
         {
-            using (var ms = new MemoryStream(cachedData))
-            using (var bsonReader = new BsonDataReader(ms))
+            var output = new MemoryStream();
+            using (var compressed = new System.IO.Compression.DeflateStream(output, System.IO.Compression.CompressionLevel.Fastest, leaveOpen: true))
             {
-                return (JObject)JToken.ReadFrom(bsonReader);                
+                data.CopyTo(compressed);
             }
+            output.Write(BitConverter.GetBytes((int)data.Position), 0, 4); // 4 bytes uncompressed length at the end
+
+            return output.ToArray();
+        }
+
+        protected virtual (Stream data, int length) UnpackViewModel(byte[] cachedData)
+        {
+            var inflate = new DeflateStream(new ReadOnlyMemoryStream(cachedData.AsMemory()[..^4]), CompressionMode.Decompress);
+            var length = BitConverter.ToInt32(cachedData.AsSpan()[^4..]
+#if !DotNetCore
+                .ToArray(), 0
+#endif
+            );
+            return (inflate, length);
         }
     }
 }

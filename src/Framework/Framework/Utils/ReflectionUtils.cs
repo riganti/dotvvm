@@ -19,8 +19,6 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using FastExpressionCompiler;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using RecordExceptions;
 using System.ComponentModel;
 using DotVVM.Framework.Compilation;
@@ -28,6 +26,8 @@ using DotVVM.Framework.Routing;
 using DotVVM.Framework.ViewModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace DotVVM.Framework.Utils
 {
@@ -334,6 +334,13 @@ namespace DotVVM.Framework.Utils
             type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
             );
 
+        public static bool IsJsonDom(Type type) =>
+            type == typeof(JsonElement) ||
+            type == typeof(JsonDocument) ||
+            typeof(System.Text.Json.Nodes.JsonNode).IsAssignableFrom(type) ||
+            type.Namespace == "Newtonsoft.Json.Linq";
+
+
         public static bool IsEnumerable(Type type)
         {
             return typeof(IEnumerable).IsAssignableFrom(type);
@@ -530,7 +537,15 @@ namespace DotVVM.Framework.Utils
             return cache_GetTypeHash.GetOrAdd(type, t => {
                 using (var sha1 = SHA1.Create())
                 {
-                    var typeName = t.ToCode() + ", " + t.Assembly.GetName().Name;
+                    var assemblyName = t.Assembly.GetName().Name;
+#if !DotNetCore
+                    if (assemblyName == "mscorlib")
+                    {
+                        // try to keep the same hashes of basic types on .NET core and .NET Framework
+                        assemblyName = "System.Private.CoreLib";
+                    }
+#endif
+                    var typeName = t.ToCode() + ", " + assemblyName;
                     var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(typeName));
 
                     return Convert.ToBase64String(hashBytes, 0, 12);
@@ -569,7 +584,7 @@ namespace DotVVM.Framework.Utils
             }
             else if (EnumInfo<T>.IsFlags)
             {
-                return JsonConvert.DeserializeObject<string>(JsonConvert.ToString(instance.Value))!;
+                return JsonSerializer.Deserialize<string>(JsonSerializer.Serialize(instance.Value, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe))!;
             }
             else
             {

@@ -6,7 +6,6 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
