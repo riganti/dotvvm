@@ -84,7 +84,7 @@ namespace DotVVM.Samples.Tests.Feature
 
         private void TestLinkButton(IBrowserWrapper browser, string id, bool shouldBeEnabled, ref int currentPresses)
         {
-            browser.First($"#{id}").Click();
+            browser.First($"#{id}").ScrollTo().Wait(500).Click();
             if (shouldBeEnabled)
             {
                 currentPresses++;

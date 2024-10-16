@@ -69,13 +69,19 @@ export function getStateManager(): StateManager<RootViewModel> { return getCoreS
 
 let initialViewModelWrapper: any;
 
+function isBackForwardNavigation() {
+    return (performance.getEntriesByType?.("navigation").at(-1) as PerformanceNavigationTiming)?.type == "back_forward";
+}
+
 export function initCore(culture: string): void {
     if (currentCoreState) {
         throw new Error("DotVVM is already loaded");
     }
 
     // load the viewmodel
-    const thisViewModel = initialViewModelWrapper = JSON.parse(getViewModelStorageElement().value);
+    const thisViewModel = initialViewModelWrapper =
+        (isBackForwardNavigation() ? history.state?.viewModel : null) ??
+        JSON.parse(getViewModelStorageElement().value);
 
     resourceLoader.registerResources(thisViewModel.renderedResources)
 
@@ -124,8 +130,10 @@ const getViewModelStorageElement = () =>
     <HTMLInputElement>document.getElementById("__dot_viewmodel_root")
 
 function persistViewModel() {
-    const viewModel = getState()
-    const persistedViewModel = { ...initialViewModelWrapper, viewModel };
-
-    getViewModelStorageElement().value = JSON.stringify(persistedViewModel);
+    history.replaceState({
+        ...history.state,
+        viewModel: { ...initialViewModelWrapper, viewModel: getState() }
+    }, "")
+    // avoid storing the viewmodel hidden field, as Firefox would also reuse it on page reloads
+    getViewModelStorageElement()?.remove()
 }

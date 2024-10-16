@@ -98,6 +98,8 @@ namespace DotVVM.Framework.Routing
                 : throw new NotSupportedException("Invalid localized route - no default route found!");
         }
 
+        public IReadOnlyDictionary<string, DotvvmRoute> GetAllCultureRoutes() => localizedRoutes;
+
         public static void ValidateCultureName(string cultureIdentifier)
         {
             if (!AvailableCultureNames.Contains(cultureIdentifier))

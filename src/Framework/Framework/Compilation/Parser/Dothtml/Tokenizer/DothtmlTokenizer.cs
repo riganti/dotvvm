@@ -227,7 +227,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
 
             if (!char.IsLetterOrDigit(firstChar) & firstChar != '/' & firstChar != ':')
             {
-                CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, "'<' char is not allowed in normal text"));
+                if (char.IsWhiteSpace(firstChar))
+                {
+                    CreateToken(DothtmlTokenType.Text);
+                }
+                else
+                {
+                    CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, "'<' char is not allowed in normal text"));
+                }
                 return ReadElementType.Error;
             }
 

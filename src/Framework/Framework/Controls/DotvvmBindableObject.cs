@@ -274,14 +274,27 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the closest control binding target. Returns null if the control is not found.
         /// </summary>
-        public DotvvmBindableObject? GetClosestControlBindingTarget() =>
-            GetClosestControlBindingTarget(out int numberOfDataContextChanges);
+        public DotvvmBindableObject? GetClosestControlBindingTarget()
+        {
+            var c = this;
+            while (c != null)
+            {
+                if (c.properties.TryGet(Internal.IsControlBindingTargetProperty, out var x) && (bool)x!)
+                {
+                    return c;
+                }
+                c = c.Parent;
+            }
+            return null;
+        }
 
         /// <summary>
         /// Gets the closest control binding target and returns number of DataContext changes since the target. Returns null if the control is not found.
         /// </summary>
         public DotvvmBindableObject? GetClosestControlBindingTarget(out int numberOfDataContextChanges) =>
-            (Parent ?? this).GetClosestWithPropertyValue(out numberOfDataContextChanges, (control, _) => (bool)control.GetValue(Internal.IsControlBindingTargetProperty)!);
+            (Parent ?? this).GetClosestWithPropertyValue(
+                out numberOfDataContextChanges,
+                (control, _) => control.properties.TryGet(Internal.IsControlBindingTargetProperty, out var x) && (bool)x!);
 
         /// <summary>
         /// Gets the closest control binding target and returns number of DataContext changes since the target. Returns null if the control is not found.
@@ -403,24 +416,35 @@ namespace DotVVM.Framework.Controls
         /// <param name="target">The <see cref="DotvvmBindableObject"/> that holds the value of the <paramref name="targetProperty"/></param>
         /// <param name="targetProperty">The <see cref="DotvvmProperty"/> to which <paramref name="sourceProperty"/> will be copied</param>
         /// <param name="throwOnFailure">Determines whether to throw an exception if copying fails</param>
-        protected void CopyProperty(DotvvmProperty sourceProperty, DotvvmBindableObject target, DotvvmProperty targetProperty, bool throwOnFailure = false)
+        protected internal void CopyProperty(DotvvmProperty sourceProperty, DotvvmBindableObject target, DotvvmProperty targetProperty, bool throwOnFailure = false)
         {
-            if (throwOnFailure && !targetProperty.MarkupOptions.AllowBinding && !targetProperty.MarkupOptions.AllowHardCodedValue)
+            var targetOptions = targetProperty.MarkupOptions;
+            if (throwOnFailure && !targetOptions.AllowBinding && !targetOptions.AllowHardCodedValue)
             {
                 throw new DotvvmControlException(this, $"TargetProperty: {targetProperty.FullName} doesn't allow bindings nor hard coded values");
             }
 
-            if (targetProperty.MarkupOptions.AllowBinding && HasBinding(sourceProperty))
+            if (IsPropertySet(sourceProperty))
             {
-                target.SetBinding(targetProperty, GetBinding(sourceProperty));
+                var sourceValue = GetValueRaw(sourceProperty);
+                if ((targetOptions.AllowBinding || sourceValue is not IBinding) &&
+                    (targetOptions.AllowHardCodedValue || sourceValue is IBinding))
+                {
+                    target.SetValueRaw(targetProperty, sourceValue);
+                }
+                else if (targetOptions.AllowHardCodedValue)
+                {
+                    target.SetValue(targetProperty, EvalPropertyValue(sourceProperty, sourceValue));
+                }
+                else if (throwOnFailure)
+                {
+                    throw new DotvvmControlException(this, $"Value of {sourceProperty.FullName} couldn't be copied to targetProperty: {targetProperty.FullName}, because {targetProperty.FullName} does not support hard coded values.");
+                }
             }
-            else if (targetProperty.MarkupOptions.AllowHardCodedValue && IsPropertySet(sourceProperty))
-            {
-                target.SetValue(targetProperty, GetValue(sourceProperty));
-            }
+
             else if (throwOnFailure)
             {
-                throw new DotvvmControlException(this, $"Value of {sourceProperty.FullName} couldn't be copied to targetProperty: {targetProperty.FullName}, because {targetProperty.FullName} is not set.");
+                throw new DotvvmControlException(this, $"Value of {sourceProperty.FullName} couldn't be copied to targetProperty: {targetProperty.FullName}, because {sourceProperty.FullName} is not set.");
             }
         }
     }

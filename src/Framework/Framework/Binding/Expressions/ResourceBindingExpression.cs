@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Binding.Expressions
     [Options]
     public class ResourceBindingExpression : BindingExpression, IStaticValueBinding
     {
-        public ResourceBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+        public ResourceBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) : base(service, properties) { }
 
         public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
 
@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
     public class ResourceBindingExpression<T> : ResourceBindingExpression, IStaticValueBinding<T>
     {
-        public ResourceBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+        public ResourceBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) : base(service, properties) { }
 
         public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
     }

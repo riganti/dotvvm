@@ -115,7 +115,11 @@ namespace DotVVM.Framework.Binding
             if (p is object)
                 lock(this)
                 {
-                    UsedInCapabilities = UsedInCapabilities.Add(p);
+                    if (UsedInCapabilities.Contains(p)) return;
+
+                    var newArray = UsedInCapabilities.Add(p);
+                    Thread.MemoryBarrier(); // make sure the array is complete before we let other threads use it lock-free
+                    UsedInCapabilities = newArray;
                 }
         }
 

@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
@@ -69,6 +73,94 @@ namespace DotVVM.Samples.Tests.Feature
                 Assert.Matches($"{SamplesRouteUrls.FeatureSamples_Redirect_RedirectionHelpers_PageE}/1221\\?x=a", currentUrl.LocalPath + currentUrl.Query);
             });
         }
-        
+
+        bool TryClick(IElementWrapper element)
+        {
+            if (element is null) return false;
+            try
+            {
+                element.Click();
+                return true;
+            }
+            catch (StaleElementReferenceException)
+            {
+                return false;
+            }
+        }
+
+        [Fact]
+        public void Feature_Redirect_RedirectPostbackConcurrency()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Redirect_RedirectPostbackConcurrency);
+
+                int globalCounter() => int.Parse(browser.First("counter", SelectByDataUi).GetText());
+
+                var initialCounter = globalCounter();
+                for (int i = 0; i < 20; i++)
+                {
+                    TryClick(browser.FirstOrDefault("inc-default", SelectByDataUi));
+                    Thread.Sleep(1);
+                }
+                browser.WaitFor(() => Assert.Contains("empty=true", browser.CurrentUrl, StringComparison.OrdinalIgnoreCase), 7000, "Redirect did not happen");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Redirect_RedirectPostbackConcurrency);
+
+                // must increment at least 20 times, otherwise delays are too short
+                Assert.Equal(globalCounter(), initialCounter + 20);
+
+                initialCounter = globalCounter();
+                var clickCount = 0;
+                while (TryClick(browser.FirstOrDefault("inc-deny", SelectByDataUi)))
+                {
+                    clickCount++;
+                    Thread.Sleep(1);
+                }
+                Assert.InRange(clickCount, 3, int.MaxValue);
+                browser.WaitFor(() => Assert.Contains("empty=true", browser.CurrentUrl, StringComparison.OrdinalIgnoreCase), timeout: 500, "Redirect did not happen");
+
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Redirect_RedirectPostbackConcurrency);
+                Assert.Equal(globalCounter(), initialCounter + 1); // only one click was allowed
+
+                initialCounter = globalCounter();
+                clickCount = 0;
+                while (TryClick(browser.FirstOrDefault("inc-queue", SelectByDataUi)))
+                {
+                    clickCount++;
+                    Thread.Sleep(1);
+                }
+
+                Assert.InRange(clickCount, 3, int.MaxValue);
+                browser.WaitFor(() => Assert.Contains("empty=true", browser.CurrentUrl, StringComparison.OrdinalIgnoreCase), timeout: 500, "Redirect did not happen");
+
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Redirect_RedirectPostbackConcurrency);
+                Assert.Equal(globalCounter(), initialCounter + 1); // only one click was allowed
+            });
+        }
+
+        [Fact]
+        public void Feature_Redirect_RedirectPostbackConcurrencyFileReturn()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Redirect_RedirectPostbackConcurrency);
+
+                void increment(int timeout)
+                {
+                    browser.WaitFor(() => {
+                        var original = int.Parse(browser.First("minicounter", SelectByDataUi).GetText());
+                        browser.First("minicounter", SelectByDataUi).Click();
+                        AssertUI.TextEquals(browser.First("minicounter", SelectByDataUi), (original + 1).ToString());
+                    }, timeout, "Could not increment minicounter in given timeout (postback queue is blocked)");
+                }
+
+                increment(3000);
+
+                browser.First("file-std", SelectByDataUi).Click();
+                increment(3000);
+
+                browser.First("file-custom", SelectByDataUi).Click();
+                // longer timeout, because DotVVM blocks postback queue for 5s after redirects to debounce any further requests
+                increment(15000);
+            });
+        }
     }
 }

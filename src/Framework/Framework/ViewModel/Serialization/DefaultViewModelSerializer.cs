@@ -258,7 +258,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Serializes the redirect action.
         /// </summary>
-        public static string GenerateRedirectActionResponse(string url, bool replace, bool allowSpa)
+        public static string GenerateRedirectActionResponse(string url, bool replace, bool allowSpa, string? downloadName)
         {
             // create result object
             var result = new JObject();
@@ -266,6 +266,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             result["action"] = "redirect";
             if (replace) result["replace"] = true;
             if (allowSpa) result["allowSpa"] = true;
+            if (downloadName is object) result["download"] = downloadName;
             return result.ToString(Formatting.None);
         }
 

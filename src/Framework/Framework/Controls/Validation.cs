@@ -14,10 +14,15 @@ namespace DotVVM.Framework.Controls
     [ContainsDotvvmProperties]
     public class Validation
     {
+        /// <summary> Controls whether automatic validation is enabled for command bindings on the control and its subtree. </summary>
         [AttachedProperty(typeof(bool))]
         [MarkupOptions(AllowBinding = false)]
         public static DotvvmProperty EnabledProperty = DotvvmProperty.Register<bool, Validation>(() => EnabledProperty, true, true);
 
+        /// <summary>
+        /// The object which is the primary target for the automatic validation based on data annotation attributes.
+        /// Note that data annotations of the property used in the target binding are not validated, only the rules inside its value.
+        /// </summary>
         [AttachedProperty(typeof(object))]
         [MarkupOptions(AllowHardCodedValue = false)]
         public static DotvvmProperty TargetProperty = DotvvmProperty.Register<object?, Validation>(() => TargetProperty, null, true);

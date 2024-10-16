@@ -360,6 +360,12 @@
         "mappingMode": "InnerElement"
       }
     },
+    "DotVVM.Framework.Controls.AlternateCultureLinks": {
+      "RouteName": {
+        "type": "System.String",
+        "onlyHardcoded": true
+      }
+    },
     "DotVVM.Framework.Controls.AppendableDataPager": {
       "DataSet": {
         "type": "DotVVM.Framework.Controls.IPageableGridViewDataSet, DotVVM.Core",
@@ -2060,6 +2066,12 @@
       "assembly": "DotVVM.Framework",
       "baseType": "DotVVM.Framework.Controls.Decorator, DotVVM.Framework",
       "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.AlternateCultureLinks": {
+      "assembly": "DotVVM.Framework",
+      "baseType": "DotVVM.Framework.Controls.CompositeControl, DotVVM.Framework",
+      "withoutContent": true,
+      "isComposite": true
     },
     "DotVVM.Framework.Controls.AppendableDataPager": {
       "assembly": "DotVVM.Framework",
