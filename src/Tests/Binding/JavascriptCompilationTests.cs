@@ -774,6 +774,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_EnumerableLastOrDefaultObservable()
+        {
+            var result = CompileBinding("LongArray.LastOrDefault()==1", new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("ko.unwrap(LongArray().at(-1))==1", result);
+        }
+
+        [TestMethod]
         [DataRow("Enumerable.Distinct(VmArray)", DisplayName = "Regular call of Enumerable.Distinct")]
         [DataRow("VmArray.Distinct()", DisplayName = "Syntax sugar - extension method")]
         [ExpectedException(typeof(DotvvmCompilationException))]
