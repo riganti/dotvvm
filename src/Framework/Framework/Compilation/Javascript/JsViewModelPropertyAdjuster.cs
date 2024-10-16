@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -56,22 +56,25 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             if (node.Annotation<VMPropertyInfoAnnotation>() is { MemberInfo: var member } propAnnotation)
             {
-                var target = node.GetChildByRole(JsTreeRoles.TargetExpression)!;
-                if (target.HasAnnotation(ObservableUnwrapInvocationAnnotation.Instance))
+                var target = propAnnotation.EvaluateTargetPath(node);
+
+                if (target is {} && target.HasAnnotation(ObservableUnwrapInvocationAnnotation.Instance))
                     target = target.GetChildByRole(JsTreeRoles.TargetExpression);
-                else if (target.HasAnnotation(ObservableSetterInvocationAnnotation.Instance))
+                else if (target is {} && target.HasAnnotation(ObservableSetterInvocationAnnotation.Instance))
                     throw new NotImplementedException();
 
                 var propertyType = propAnnotation.ResultType;
                 var annotation = node.Annotation<ViewModelInfoAnnotation>() ?? new ViewModelInfoAnnotation(propertyType);
 
                 var targetAnnotation = target?.Annotation<ViewModelInfoAnnotation>();
+                var propertyIsObservable = propAnnotation.IsObservable;
                 if (targetAnnotation is {})
                 {
                     propAnnotation.SerializationMap ??=
                         targetAnnotation.SerializationMap?.Properties
                         .FirstOrDefault(p => p.PropertyInfo == member);
-                    annotation.ContainsObservables ??= targetAnnotation.ContainsObservables;
+                    annotation.ObservableMap = targetAnnotation.ObservableMap.GetChildObject(propAnnotation.ObjectPath.AsSpan()).OverrideWith(annotation.ObservableMap);
+                    propertyIsObservable ??= targetAnnotation.ObservableMap.IsPropertyObservable(propAnnotation.ObjectPath.AsSpan());
                 }
                 if (propAnnotation.SerializationMap is ViewModelPropertyMap propertyMap)
                 {
@@ -99,9 +102,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     throw new NotSupportedException($"Cannot translate property {member.Name} on custom primitive type {member.DeclaringType.ToCode()} to Javascript. Use the ToString() method to get the underlying value.");
                 }
 
-                annotation.ContainsObservables ??= !this.preferUsingState; // we don't know -> guess what is the current preference
-
-                if (annotation.ContainsObservables == true)
+                if (propertyIsObservable ?? !preferUsingState) // if we don't know -> assume what is the current preference
                 {
                     node.AddAnnotation(ResultIsObservableAnnotation.Instance);
 
