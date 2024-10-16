@@ -369,7 +369,7 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var expectedResult = @"{
  	let vm = options.viewModel;
- 	vm.StringProp(vm.VmArray.state.filter((x) => ko.unwrap(x).ChildObject.SomeString == ""x"")[0].SomeString);
+ 	vm.StringProp(ko.unwrap(vm.VmArray.state.filter((x) => ko.unwrap(x).ChildObject.SomeString == ""x"")[0]).SomeString);
  }";
 
             AreEqual(expectedResult, result);
