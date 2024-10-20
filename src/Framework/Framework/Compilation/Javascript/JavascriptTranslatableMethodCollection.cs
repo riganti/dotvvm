@@ -558,32 +558,32 @@ namespace DotVVM.Framework.Compilation.Javascript
                 check: (method, target, arguments) => EnsureIsComparableInJavascript(method, ReflectionUtils.GetEnumerableType(arguments.First().Type).NotNull())));
 
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ElementAt(0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ElementAtOrDefault(0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
             AddMethodTranslator(() => ImmutableArrayExtensions.ElementAt(default(ImmutableArray<Generic.T>), 0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
             AddMethodTranslator(() => ImmutableArrayExtensions.ElementAtOrDefault(default(ImmutableArray<Generic.T>), 0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
 
-            var firstOrDefault = new GenericMethodCompiler((args, m) => BuildIndexer(args[1], new JsLiteral(0), m).WithAnnotation(MayBeNullAnnotation.Instance));
+            var firstOrDefault = new GenericMethodCompiler((args, m) => BuildIndexer(args[1], new JsLiteral(0), m).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(), firstOrDefault);
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().First(), firstOrDefault);
             AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>)), firstOrDefault);
             AddMethodTranslator(() => ImmutableArrayExtensions.First(default(ImmutableArray<Generic.T>)), firstOrDefault);
 
             var firstOrDefaultPred = new GenericMethodCompiler(args =>
-                args[1].Member("find").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance));
+                args[1].Member("find").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(_ => true), firstOrDefaultPred);
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().First(_ => true), firstOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>), _ => true), firstOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.First(default(ImmutableArray<Generic.T>), _ => true), firstOrDefaultPred);
 
-            var lastOrDefault = new GenericMethodCompiler(args => args[1].Member("at").Invoke(new JsLiteral(-1)).WithAnnotation(MayBeNullAnnotation.Instance));
+            var lastOrDefault = new GenericMethodCompiler(args => args[1].Member("at").Invoke(new JsLiteral(-1)).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(), lastOrDefault);
             AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>)), lastOrDefault);
             var lastOrDefaultPred = new GenericMethodCompiler(args =>
-                args[1].Member("findLast").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance));
+                args[1].Member("findLast").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(_ => false), lastOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>), _ => false), lastOrDefaultPred);
 
