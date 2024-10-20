@@ -167,7 +167,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public static JsExpression BuildIndexer(JsExpression target, JsExpression index, [AllowNull] MemberInfo member) =>
-            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation(member.NotNull()));
+            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation(member.NotNull(), objectPath: ImmutableArray.Create("Item")!));
 
         public void AddDefaultMethodTranslators()
         {
@@ -192,7 +192,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             JsExpression arrayElementSetter(JsExpression[] args, MethodInfo method) =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("setItem").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[2], args[1]);
             JsExpression dictionaryGetIndexer(JsExpression[] args, MethodInfo method) =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("getItem").Invoke(args[0], args[1]);
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("getItem").Invoke(args[0], args[1]).WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.FirstArgumentMethodTargetPath, isObservable: false));
             JsExpression dictionarySetIndexer(JsExpression[] args, MethodInfo method) =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("setItem").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2]);
 
@@ -552,57 +552,77 @@ namespace DotVVM.Framework.Compilation.Javascript
             var anyPred = new GenericMethodCompiler(args => args[1].Member("some").Invoke(args[2]));
             AddMethodTranslator(() => Enumerable.Any(Enumerable.Empty<Generic.T>(), _ => false), anyPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.Any(default(ImmutableArray<Generic.T>), _ => false), anyPred);
-            AddMethodTranslator(() => Enumerable.Concat(Enumerable.Empty<Generic.T>(), Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1].Member("concat").Invoke(args[2])));
+            AddMethodTranslator(() => Enumerable.Concat(Enumerable.Empty<Generic.T>(), Enumerable.Empty<Generic.T>()), new GenericMethodCompiler((args, method) =>
+                args[1].Member("concat").Invoke(args[2])
+                .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, isObservable: false, objectPath: ImmutableArray<string?>.Empty))));
             AddMethodTranslator(() => Enumerable.Count(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1].Member("length")));
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Distinct(), new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("distinct").Invoke(args[1]),
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Distinct(), new GenericMethodCompiler((args, method) =>
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("distinct").Invoke(args[1])
+                .WithAnnotation(new ViewModelInfoAnnotation(method.ReturnType, containsObservables: false)), // distinct unwraps all observables, and only supports primitives anyway
                 check: (method, target, arguments) => EnsureIsComparableInJavascript(method, ReflectionUtils.GetEnumerableType(arguments.First().Type).NotNull())));
 
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ElementAt(0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ElementAtOrDefault(0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
             AddMethodTranslator(() => ImmutableArrayExtensions.ElementAt(default(ImmutableArray<Generic.T>), 0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
             AddMethodTranslator(() => ImmutableArrayExtensions.ElementAtOrDefault(default(ImmutableArray<Generic.T>), 0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
 
-            var firstOrDefault = new GenericMethodCompiler((args, m) => BuildIndexer(args[1], new JsLiteral(0), m).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
+            var firstOrDefault = new GenericMethodCompiler((args, m) => BuildIndexer(args[1], new JsLiteral(0), m));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(), firstOrDefault);
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().First(), firstOrDefault);
             AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>)), firstOrDefault);
             AddMethodTranslator(() => ImmutableArrayExtensions.First(default(ImmutableArray<Generic.T>)), firstOrDefault);
 
-            var firstOrDefaultPred = new GenericMethodCompiler(args =>
-                args[1].Member("find").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
+            var firstOrDefaultPred = new GenericMethodCompiler((args, method) =>
+                args[1].Member("find").Invoke(args[2])
+                    .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, objectPath: ImmutableArray.Create("Item")!)));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(_ => true), firstOrDefaultPred);
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().First(_ => true), firstOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>), _ => true), firstOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.First(default(ImmutableArray<Generic.T>), _ => true), firstOrDefaultPred);
 
-            var lastOrDefault = new GenericMethodCompiler(args => args[1].Member("at").Invoke(new JsLiteral(-1)).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
+            var lastOrDefault = new GenericMethodCompiler((args, method) =>
+                args[1].Member("at").Invoke(new JsLiteral(-1))
+                .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, objectPath: ImmutableArray.Create("Item")!)));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(), lastOrDefault);
             AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>)), lastOrDefault);
-            var lastOrDefaultPred = new GenericMethodCompiler(args =>
-                args[1].Member("findLast").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
+            var lastOrDefaultPred = new GenericMethodCompiler((args, method) =>
+                args[1].Member("findLast").Invoke(args[2])
+                    .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, objectPath: ImmutableArray.Create("Item")!)));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(_ => false), lastOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>), _ => false), lastOrDefaultPred);
 
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().OrderBy(_ => Generic.Enum.Something), new GenericMethodCompiler((jArgs, dArgs) => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("orderBy")
-                    .Invoke(jArgs[1], jArgs[2], new JsLiteral((IsDelegateReturnTypeEnum(dArgs.Last().Type)) ? GetDelegateReturnTypeHash(dArgs.Last().Type) : null)),
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().OrderBy(_ => Generic.Enum.Something), new GenericMethodCompiler((jArgs, dArgs, method) => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("orderBy")
+                    .Invoke(jArgs[1], jArgs[2], new JsLiteral((IsDelegateReturnTypeEnum(dArgs.Last().Type)) ? GetDelegateReturnTypeHash(dArgs.Last().Type) : null))
+                    .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.FirstArgumentMethodTargetPath, isObservable: false, objectPath: ImmutableArray<string?>.Empty)),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().OrderByDescending(_ => Generic.Enum.Something), new GenericMethodCompiler((jArgs, dArgs) => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("orderByDesc")
-                    .Invoke(jArgs[1], jArgs[2], new JsLiteral((IsDelegateReturnTypeEnum(dArgs.Last().Type)) ? GetDelegateReturnTypeHash(dArgs.Last().Type) : null)),
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().OrderByDescending(_ => Generic.Enum.Something), new GenericMethodCompiler((jArgs, dArgs, method) => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("orderByDesc")
+                    .Invoke(jArgs[1], jArgs[2], new JsLiteral((IsDelegateReturnTypeEnum(dArgs.Last().Type)) ? GetDelegateReturnTypeHash(dArgs.Last().Type) : null))
+                    .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.FirstArgumentMethodTargetPath, isObservable: false, objectPath: ImmutableArray<string?>.Empty)),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
 
-            var select = new GenericMethodCompiler(args => args[1].Member("map").Invoke(args[2]));
+            // the lambda function will not return observable, but nested properties will again be observable
+            var select = new GenericMethodCompiler((args, method) => 
+                args[1].Member("map").Invoke(args[2])
+                .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, isObservable: false))
+                .WithAnnotation(new ViewModelInfoAnnotation(method.ReturnType, false, null, new JsObjectObservableMap { ContainsObservables = false, DefaultChild = JsObjectObservableMap.Default }))
+            );
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Select(_ => Generic.Enum.Something), select);
             AddMethodTranslator(() => ImmutableArrayExtensions.Select(default(ImmutableArray<Generic.T>), _ => Generic.Enum.Something), select);
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Skip(0), new GenericMethodCompiler(args => args[1].Member("slice").Invoke(args[2])));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Skip(0), new GenericMethodCompiler((args, method) =>
+                args[1].Member("slice").Invoke(args[2])
+                .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, isObservable: false, objectPath: ImmutableArray<string?>.Empty))));
 
-            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Take(0), new GenericMethodCompiler(args =>
-                args[1].Member("slice").Invoke(new JsLiteral(0), args[2])));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Take(0), new GenericMethodCompiler((args, method) =>
+                args[1].Member("slice").Invoke(new JsLiteral(0), args[2])
+                .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, isObservable: false, objectPath: ImmutableArray<string?>.Empty))));
             
-            var where = new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2]));
+            var where = new GenericMethodCompiler((args, method) =>
+                args[1].Member("filter").Invoke(args[2])
+                .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, isObservable: false, objectPath: ImmutableArray<string?>.Empty)));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Where(_ => true), where);
             AddMethodTranslator(() => ImmutableArrayExtensions.Where(default(ImmutableArray<Generic.T>), _ => true), where);
 
@@ -700,7 +720,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var defaultValue =
                     args.Length > 3 ? args[3] :
                     new JsLiteral(ReflectionUtils.GetDefaultValue(method.GetGenericArguments().Last()));
-                return new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("getItem").Invoke(args[1], args[2], defaultValue);
+                return new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("getItem").Invoke(args[1], args[2], defaultValue)
+                    .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.FirstArgumentMethodTargetPath, isObservable: false));
             });
 #if DotNetCore
             AddMethodTranslator(() => default(IReadOnlyDictionary<Generic.T, Generic.T>)!.GetValueOrDefault(null!), getValueOrDefault);
