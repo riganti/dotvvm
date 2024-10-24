@@ -537,8 +537,11 @@ namespace DotVVM.Framework.Hosting
                     if (context.RequestType is not DotvvmRequestType.SpaNavigate)
                         await context.RejectRequest($"""
                             Pages can not be loaded using Javascript for security reasons.
+
                             Try refreshing the page to get rid of the error.
-                            If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.ExcludeRoute("{route}"). [dest: {dest}, site: {site}]
+
+                            If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.ExcludeRoute("{route}").
+                            Note that this security check is not compatible with page preloading, such as TurboLinks, Cloudflare Speed Brain, or similar. You'll need to disable one of these. The check is "only" a deference-in-depth measure against XSS and disabling it is perfectly safe in the absence of other vulnerabilities.
                             """);
                     if (site != "same-origin")
                         await context.RejectRequest($"Cross site SPA requests are disabled.");
