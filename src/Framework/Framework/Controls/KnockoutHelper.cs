@@ -351,8 +351,8 @@ namespace DotVVM.Framework.Controls
             {
                 case IValueBinding binding: {
                     var adjustedCode = binding.GetParametrizedKnockoutExpression(handler, unwrapped: true).AssignParameters(o =>
-                        o == JavascriptTranslator.KnockoutContextParameter ? new ParametrizedCode("c") :
-                        o == JavascriptTranslator.KnockoutViewModelParameter ? new ParametrizedCode("d") :
+                        o == JavascriptTranslator.KnockoutContextParameter ? CodeParameterAssignment.FromIdentifier("c") :
+                        o == JavascriptTranslator.KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("d") :
                         default(CodeParameterAssignment)
                     );
                     return new JsSymbolicParameter(new CodeSymbolicParameter("tmp symbol", defaultAssignment: adjustedCode));

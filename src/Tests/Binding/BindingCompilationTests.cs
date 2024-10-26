@@ -1493,7 +1493,7 @@ namespace DotVVM.Framework.Tests.Binding
             return SomeString + ": " + MyProperty;
         }
     }
-    class TestViewModel3 : DotvvmViewModelBase
+    public class TestViewModel3 : DotvvmViewModelBase
     {
         public string SomeString { get; set; }
     }

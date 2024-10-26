@@ -1434,6 +1434,40 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("VehicleNumber()==\"123\"", result);
         }
 
+        [TestMethod]
+        public void JavascriptCompilation_ParametrizedCode_ParentContexts()
+        {
+            // root: TestViewModel
+            // parent: TestViewModel2 + _index + _collection
+            // this: TestViewModel3 + _index
+            var context0 = DataContextStack.Create(typeof(TestViewModel));
+            var context1 = DataContextStack.Create(typeof(TestViewModel2), parent: context0, extensionParameters: [ new CurrentCollectionIndexExtensionParameter(), new BindingCollectionInfoExtensionParameter("_collection") ]);
+            var context2 = DataContextStack.Create(typeof(TestViewModel3), parent: context1, extensionParameters: [ new CurrentCollectionIndexExtensionParameter() ]);
+
+            var result = bindingHelper.ValueBindingToParametrizedCode("_root.IntProp + _parent._index + _parent._collection.Index + _parent.MyProperty + _index + SomeString.Length", context2);
+
+            Assert.AreEqual("$parents[1].IntProp() + $parentContext.$index() + $parentContext.$index() + $parent.MyProperty() + $index() + SomeString().length", result.ToDefaultString());
+
+            // assign `context` and `vm` variables
+            var formatted2 = result.ToString(o =>
+                o == JavascriptTranslator.KnockoutContextParameter ? new ParametrizedCode("context", OperatorPrecedence.Max) :
+                o == JavascriptTranslator.KnockoutViewModelParameter ? new ParametrizedCode("vm", OperatorPrecedence.Max) :
+                default(CodeParameterAssignment)
+            );
+            Console.WriteLine(formatted2);
+
+            var symbolicParameters = result.Parameters.ToArray();
+            Assert.AreEqual(6, symbolicParameters.Length);
+            Assert.AreEqual(2, XAssert.IsAssignableFrom<JavascriptTranslator.ViewModelSymbolicParameter>(symbolicParameters[0].Parameter).ParentIndex);
+            Assert.AreEqual(JavascriptTranslator.KnockoutContextParameter, symbolicParameters[1].Parameter); // JavascriptTranslator.ParentKnockoutContextParameter would also work
+            Assert.AreEqual(JavascriptTranslator.KnockoutContextParameter, symbolicParameters[2].Parameter); // JavascriptTranslator.ParentKnockoutContextParameter would also work
+            Assert.AreEqual(JavascriptTranslator.ParentKnockoutViewModelParameter, symbolicParameters[3].Parameter);
+            Assert.AreEqual(JavascriptTranslator.KnockoutContextParameter, symbolicParameters[4].Parameter);
+            Assert.AreEqual(JavascriptTranslator.KnockoutViewModelParameter, symbolicParameters[5].Parameter);
+
+            Assert.AreEqual("context.$parents[1].IntProp() + context.$parentContext.$index() + context.$parentContext.$index() + context.$parent.MyProperty() + context.$index() + vm.SomeString().length", formatted2);
+        }
+
         public class TestMarkupControl: DotvvmMarkupControl
         {
             public string SomeProperty
