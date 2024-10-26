@@ -141,20 +141,33 @@ namespace DotVVM.Framework.Compilation.Javascript
             for (int i = 0; i < assignment.Length; i++)
             {
                 var a = assignment[i];
-                if (a.Code == null)
+                var param = parameters![i];
+                if (a.Code == null) // not assigned by `parameterAssignment`
                 {
-                    builder.Add(parameters![i]);
+                    // assign recursively in the default assignment
+                    if (param.DefaultAssignment.Code is {})
+                    {
+                        var newDefault = param.DefaultAssignment.Code.AssignParameters(parameterAssignment);
+                        if (newDefault != param.DefaultAssignment.Code)
+                            builder.Add(new CodeParameterInfo(param.Parameter, param.OperatorPrecedence, param.IsSafeMemberAccess, newDefault));
+                        else
+                            builder.Add(param);
+                    }
+                    else
+                    {
+                        builder.Add(param);
+                    }
                     builder.Add(stringParts[1 + i]);
                 }
                 else
                 {
-                    var isGlobalContext = a.IsGlobalContext && parameters![i].IsSafeMemberAccess;
+                    var isGlobalContext = a.IsGlobalContext && param.IsSafeMemberAccess;
 
                     if (isGlobalContext)
                         builder.Add(stringParts[1 + i].AsSpan(1, stringParts[i].Length - 1).DotvvmInternString()); // skip `.`
                     else
                     {
-                        builder.Add(a.Code, parameters![i].OperatorPrecedence);
+                        builder.Add(a.Code, param.OperatorPrecedence);
                         builder.Add(stringParts[1 + i]);
                     }
                 }
