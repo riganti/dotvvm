@@ -447,5 +447,14 @@ namespace DotVVM.Framework.Controls
                 throw new DotvvmControlException(this, $"Value of {sourceProperty.FullName} couldn't be copied to targetProperty: {targetProperty.FullName}, because {sourceProperty.FullName} is not set.");
             }
         }
+
+        // TODO: make public in next major version
+        internal void CopyPropertyRaw(DotvvmProperty sourceProperty, DotvvmBindableObject target, DotvvmProperty targetProperty)
+        {
+            if (IsPropertySet(sourceProperty))
+            {
+                target.SetValueRaw(targetProperty, GetValueRaw(sourceProperty));
+            }
+        }
     }
 }
