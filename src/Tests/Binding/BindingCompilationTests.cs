@@ -1208,6 +1208,28 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void Error_MissingDataContext_ExtensionParameter()
+        {
+            var type = DataContextStack.Create(typeof(string), parent: DataContextStack.Create(typeof(TestViewModel), extensionParameters: [ new InjectedServiceExtensionParameter("config", ResolvedTypeDescriptor.Create(typeof(DotvvmConfiguration)))]));
+            var control = new PlaceHolder();
+            var context = DotvvmTestHelper.CreateContext();
+            control.SetDataContextType(type.Parent);
+            control.DataContext = new TestViewModel();
+            control.SetValue(Internal.RequestContextProperty, context);
+
+            var nested = new PlaceHolder();
+            control.Children.Add(nested);
+
+            var exception = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("config.ApplicationPhysicalPath", type, nested));
+            XAssert.Contains("data context", exception.Message);
+
+            // check that the error goes away when the data context is set properly
+            nested.SetDataContextType(type);
+            nested.DataContext = "test";
+            Assert.AreEqual(".", ExecuteBinding("config.ApplicationPhysicalPath", type, nested));
+        }
+
+        [TestMethod]
         public void NullableIntAssignment()
         {
             var vm = new TestViewModel() { NullableIntProp = 11 };
