@@ -154,10 +154,39 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+
+        [TestMethod]
+        public async Task SortedChangedStaticCommand()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <dot:GridView DataSource={value: EmptyCustomers} SortChanged={staticCommand: (string dir) => _js.Invoke("resort", dir)}>
+                    <Columns>
+                        <dot:GridViewTextColumn HeaderText=Name ValueBinding={value: Name} AllowSorting />
+                    </Columns>
+                </dot:GridView>
+                """, directives: "@js dotvvm.internal");
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task GridViewColumn_FormatString_ResourceBinding()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <dot:GridView DataSource={value: Customers} RenderSettings.Mode=Server InlineEditing=true>
+                    <dot:GridViewTextColumn HeaderText="global format" ValueBinding={value: Id} FormatString={resource: _root.FormatString} />
+                    <dot:GridViewTextColumn HeaderText="local format" ValueBinding={value: Id} FormatString={resource: Enabled ? "0" : "000000"} />
+                </dot:GridView>
+                """);
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
             public int Integer { get; set; } = 10000000;
+
+            public string FormatString { get; set; } = "00.00";
 
             public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>() {
                 RowEditOptions = {

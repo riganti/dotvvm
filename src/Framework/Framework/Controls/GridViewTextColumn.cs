@@ -77,9 +77,9 @@ namespace DotVVM.Framework.Controls
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {
             var literal = new Literal();
-            literal.FormatString = FormatString;
 
-            CopyProperty(UITests.NameProperty, literal, UITests.NameProperty);
+            CopyPropertyRaw(FormatStringProperty, literal, Literal.FormatStringProperty);
+            CopyPropertyRaw(UITests.NameProperty, literal, UITests.NameProperty);
 
             literal.SetBinding(Literal.TextProperty, ValueBinding);
             Validator.Place(literal, container.Children, ValueBinding, ValidatorPlacement);
@@ -95,10 +95,10 @@ namespace DotVVM.Framework.Controls
             }
 
             var textBox = new TextBox();
-            textBox.FormatString = FormatString;
 
+            CopyPropertyRaw(FormatStringProperty, textBox, TextBox.FormatStringProperty);
             textBox.SetBinding(TextBox.TextProperty, ValueBinding);
-            textBox.SetBinding(TextBox.ChangedProperty, ChangedBinding);
+            CopyPropertyRaw(ChangedBindingProperty, textBox, TextBox.ChangedProperty);
             Validator.Place(textBox, container.Children, ValueBinding, ValidatorPlacement);
             container.Children.Add(textBox);
         }

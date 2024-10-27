@@ -1,0 +1,42 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- ko if: Customers()?.Items()?.length -->
+		<table data-bind="dotvvm-gridviewdataset: { dataSet: Customers(), mapping: {} }">
+			<thead>
+				<tr>
+					<th>
+						<span>global format</span>
+					</th>
+					<th>
+						<span>local format</span>
+					</th>
+				</tr>
+			</thead>
+			<tbody data-bind="dotvvm-SSR-foreach: {data:Customers()?.Items}">
+				<!-- ko dotvvm-SSR-item: 0 -->
+				<tr>
+					<td>
+						<input data-bind="dotvvm-textbox-text: Id" data-dotvvm-format="00.00" data-dotvvm-value-type="number" type="text">
+					</td>
+					<td>
+						<input data-bind="dotvvm-textbox-text: Id" data-dotvvm-format="000000" data-dotvvm-value-type="number" type="text">
+					</td>
+				</tr>
+				<!-- /ko -->
+				<!-- ko dotvvm-SSR-item: 1 -->
+				<tr>
+					<td>
+						<span data-bind="text: dotvvm.globalize.formatString(&quot;00.00&quot;, Id, &quot;int32&quot;)">02.00</span>
+					</td>
+					<td>
+						<span data-bind="text: dotvvm.globalize.formatString(&quot;000000&quot;, Id, &quot;int32&quot;)">000002</span>
+					</td>
+				</tr>
+				<!-- /ko -->
+			</tbody>
+		</table>
+		<!-- /ko -->
+	</body>
+</html>
