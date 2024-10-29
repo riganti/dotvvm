@@ -12,7 +12,7 @@
     <p>
         <dot:CheckBox Text="Suppress postbacks" Checked="{value: Enabled}" />
     </p>
-    <p>Counter: {{value: Counter}}</p>
+    <p>Counter: <span class="result">{{value: Counter}}</span></p>
 
     <p>Click on grid rows to increment the counter.</p>
 
