@@ -87,6 +87,24 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_PostBack_PostBackHandlerBinding()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostBackHandlerBinding);
+
+                var counter = browser.Single(".result");
+                AssertUI.TextEquals(counter, "0");
+
+                browser.ElementAt("td", 0).Click();
+                AssertUI.TextEquals(counter, "1");
+
+                browser.Single("input[type=checkbox]").Click();
+                browser.ElementAt("td", 0).Click();
+                AssertUI.TextEquals(counter, "1");
+            });
+        }
+
         private void ValidatePostbackHandlersComplexSection(string sectionSelector, IBrowserWrapper browser)
         {
             IElementWrapper section = null;
