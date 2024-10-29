@@ -33,7 +33,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <!-- suppress postback -->
                 <dot:Button DataContext={value: Nested} Click={staticCommand: 0} Text="Test supress">
                     <Postback.Handlers>
-                        <dot:SuppressPostBackHandler Suppress={value: _parent.Integer > 100 || SomeString.Length < 5} />
+                        <dot:SuppressPostBackHandler Suppress={value: _parent.Integer > 100} />
+                        <dot:SuppressPostBackHandler Suppress={value: SomeString.Length < 5} />
                     </Postback.Handlers>
                 </dot:Button>
 

@@ -130,9 +130,25 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (stringParts == null) return this;
             Debug.Assert(parameters is object);
 
-            var assignment = FindAssignment(parameterAssignment, optional: true, allIsDefault: out bool allIsDefault);
+            var (assignment, newDefaults) = FindAssignment(parameterAssignment);
 
-            if (allIsDefault) return this;
+            if (assignment is null)
+            {
+                if (newDefaults is null)
+                    return this;
+                else
+                {
+                    // just change the content of parameters, no need to rebuild strings
+                    var newParams = parameters.AsSpan().ToArray();
+                    for (int i = 0; i < newParams.Length; i++)
+                    {
+                        ref var p = ref newParams[i];
+                        if (newDefaults[i] is { } newDefault)
+                            p = new CodeParameterInfo(p.Parameter, p.OperatorPrecedence, p.IsSafeMemberAccess, newDefault);
+                    }
+                    return new ParametrizedCode(stringParts, newParams, OperatorPrecedence);
+                }
+            }
 
             // PERF: reduce allocations here, used at runtime
             var builder = new Builder();
@@ -145,18 +161,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                 if (a.Code == null) // not assigned by `parameterAssignment`
                 {
                     // assign recursively in the default assignment
-                    if (param.DefaultAssignment.Code is {})
-                    {
-                        var newDefault = param.DefaultAssignment.Code.AssignParameters(parameterAssignment);
-                        if (newDefault != param.DefaultAssignment.Code)
-                            builder.Add(new CodeParameterInfo(param.Parameter, param.OperatorPrecedence, param.IsSafeMemberAccess, newDefault));
-                        else
-                            builder.Add(param);
-                    }
+                    if (newDefaults is {} && newDefaults[i] is { } newDefault)
+                        builder.Add(new CodeParameterInfo(param.Parameter, param.OperatorPrecedence, param.IsSafeMemberAccess, newDefault));
                     else
-                    {
                         builder.Add(param);
-                    }
+
                     builder.Add(stringParts[1 + i]);
                 }
                 else
@@ -196,35 +205,57 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         private (CodeParameterAssignment parameter, string code)[] FindStringAssignment(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssigner, out bool allIsDefault)
         {
-            var pp = FindAssignment(parameterAssigner, optional: false, allIsDefault: out allIsDefault);
+            allIsDefault = true;
             var codes = new(CodeParameterAssignment parameter, string code)[parameters!.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
-                codes[i] = (pp[i], pp[i].Code!.ToString(parameterAssigner, out bool allIsDefault_local));
+                var assignment = parameterAssigner(parameters[i].Parameter);
+                if (assignment.Code == null)
+                {
+                    assignment = parameters[i].DefaultAssignment;
+                    if (assignment.Code == null)
+                        throw new InvalidOperationException($"Assignment of parameter '{parameters[i].Parameter}' was not found.");
+                }
+                else
+                    allIsDefault = false;
+
+                codes[i] = (assignment, assignment.Code!.ToString(parameterAssigner, out bool allIsDefault_local));
                 allIsDefault &= allIsDefault_local;
             }
             return codes;
         }
 
-        private CodeParameterAssignment[] FindAssignment(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssigner, bool optional, out bool allIsDefault)
+        private (CodeParameterAssignment[]? assigned, ParametrizedCode?[]? newDefaults) FindAssignment(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssigner)
         {
-            allIsDefault = true;
-            var pp = new CodeParameterAssignment[parameters!.Length];
+            if (parameters is null)
+                return (null, null);
+
+            // these are different variables, as we have to preserve the tree-like structure of the ParametrizedCodes,
+            // when we assign parameters in the default values.
+            // newDefaults -> we will change the code in the parameters[i].DefaultAssignment
+            // assigned -> this parameter will be removed and its assignment inlined into stringParts[i] and parameters[i]
+            CodeParameterAssignment[]? assigned = null; // when null, all are default
+            ParametrizedCode[]? newDefaults = null; // when null, no defaults were changed
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((pp[i] = parameterAssigner(parameters[i].Parameter)).Code == null)
+                var p = parameterAssigner(parameters[i].Parameter);
+                if (p.Code is not null)
                 {
-                    if (!optional)
+                    assigned ??= new CodeParameterAssignment[parameters.Length];
+                    assigned[i] = p;
+                }
+                else if (parameters[i].DefaultAssignment is { Code: { HasParameters: true } } defaultAssignment)
+                {
+                    // check if the default assignment contains any of the assigned parameters, and adjust the default if necessary
+                    var newDefault = defaultAssignment.Code.AssignParameters(parameterAssigner);
+                    if (newDefault != defaultAssignment.Code)
                     {
-                        pp[i] = parameters[i].DefaultAssignment;
-                        if (pp[i].Code == null)
-                            throw new InvalidOperationException($"Assignment of parameter '{parameters[i].Parameter}' was not found.");
+                        newDefaults ??= new ParametrizedCode[parameters.Length];
+                        newDefaults[i] = newDefault;
                     }
                 }
-                else
-                    allIsDefault = false;
             }
-            return pp;
+            return (assigned, newDefaults);
         }
 
         public IEnumerable<CodeSymbolicParameter> EnumerateAllParameters()
