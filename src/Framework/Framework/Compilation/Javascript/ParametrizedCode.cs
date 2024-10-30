@@ -178,7 +178,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     var isGlobalContext = a.IsGlobalContext && param.IsSafeMemberAccess;
 
                     if (isGlobalContext)
-                        builder.Add(stringParts[1 + i].AsSpan(1, stringParts[i].Length - 1).DotvvmInternString()); // skip `.`
+                        builder.Add(stringParts[1 + i].AsSpan(1, stringParts[1 + i].Length - 1).DotvvmInternString()); // skip `.`
                     else
                     {
                         builder.Add(a.Code, param.OperatorPrecedence);
