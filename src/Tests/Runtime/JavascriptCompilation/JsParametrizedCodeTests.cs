@@ -110,6 +110,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
             Assert.AreEqual("a+x", assigned.ToString(o => o == symbolE ? CodeParameterAssignment.FromIdentifier("x") : default));
         }
 
+#if DotNetCore
         [TestMethod]
         public void SymbolicParameters_NoAssignmentNoAllocation()
         {
@@ -121,5 +122,6 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
             pcode.AssignParameters(noAssignment);
             Assert.AreEqual(0, GC.GetAllocatedBytesForCurrentThread() - b);
         }
+#endif
     }
 }
