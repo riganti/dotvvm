@@ -1,0 +1,35 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBack.PostBackHandlerBindingViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <p>
+        <dot:CheckBox Text="Suppress postbacks" Checked="{value: Enabled}" />
+    </p>
+    <p>Counter: <span class="result">{{value: Counter}}</span></p>
+
+    <p>Click on grid rows to increment the counter.</p>
+
+    <dot:GridView DataSource="{value: Items}">
+        <Columns>
+            <dot:GridViewTextColumn HeaderText="Column 1" ValueBinding="{value: _this}" />
+        </Columns>
+        <RowDecorators>
+            <dot:Decorator Events.Click="{command: _parent.Counter = _parent.Counter + 1}" style="cursor: pointer">
+                <PostBack.Handlers>
+                    <dot:SuppressPostBackHandler Suppress="{value: _parent.Enabled}" />
+                </PostBack.Handlers>
+            </dot:Decorator>
+        </RowDecorators>
+    </dot:GridView>
+
+</body>
+</html>
+
+
