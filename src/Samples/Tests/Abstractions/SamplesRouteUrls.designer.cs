@@ -268,12 +268,14 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
         public const string FeatureSamples_JavascriptTranslation_ArrayTranslation = "FeatureSamples/JavascriptTranslation/ArrayTranslation";
+        public const string FeatureSamples_JavascriptTranslation_DateOnlyTranslations = "FeatureSamples/JavascriptTranslation/DateOnlyTranslations";
         public const string FeatureSamples_JavascriptTranslation_DateTimeTranslations = "FeatureSamples/JavascriptTranslation/DateTimeTranslations";
         public const string FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation = "FeatureSamples/JavascriptTranslation/DictionaryIndexerTranslation";
         public const string FeatureSamples_JavascriptTranslation_GenericMethodTranslation = "FeatureSamples/JavascriptTranslation/GenericMethodTranslation";
         public const string FeatureSamples_JavascriptTranslation_ListIndexerTranslation = "FeatureSamples/JavascriptTranslation/ListIndexerTranslation";
         public const string FeatureSamples_JavascriptTranslation_ListMethodTranslations = "FeatureSamples/JavascriptTranslation/ListMethodTranslations";
         public const string FeatureSamples_JavascriptTranslation_MathMethodTranslation = "FeatureSamples/JavascriptTranslation/MathMethodTranslation";
+        public const string FeatureSamples_JavascriptTranslation_TimeOnlyTranslations = "FeatureSamples/JavascriptTranslation/TimeOnlyTranslations";
         public const string FeatureSamples_JavascriptTranslation_StringMethodTranslations = "FeatureSamples/JavascriptTranslation/StringMethodTranslations";
         public const string FeatureSamples_JavascriptTranslation_WebUtilityTranslations = "FeatureSamples/JavascriptTranslation/WebUtilityTranslations";
         public const string FeatureSamples_JsComponentIntegration_ReactComponentIntegration = "FeatureSamples/JsComponentIntegration/ReactComponentIntegration";
@@ -309,6 +311,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ParameterBinding_OptionalParameterBinding = "FeatureSamples/ParameterBinding/OptionalParameterBinding";
         public const string FeatureSamples_ParameterBinding_ParameterBinding = "FeatureSamples/ParameterBinding/ParameterBinding";
         public const string FeatureSamples_PostBack_ConfirmPostBackHandler = "FeatureSamples/PostBack/ConfirmPostBackHandler";
+        public const string FeatureSamples_PostBack_PostBackHandlerBinding = "FeatureSamples/PostBack/PostBackHandlerBinding";
         public const string FeatureSamples_PostBack_PostBackHandlerCommandTypes = "FeatureSamples/PostBack/PostBackHandlerCommandTypes";
         public const string FeatureSamples_PostBack_PostbackUpdate = "FeatureSamples/PostBack/PostbackUpdate";
         public const string FeatureSamples_PostBack_PostbackUpdateRepeater = "FeatureSamples/PostBack/PostbackUpdateRepeater";
@@ -329,6 +332,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Redirect_RedirectionHelpers_PageC = "FeatureSamples/Redirect/RedirectionHelpers_PageC";
         public const string FeatureSamples_Redirect_RedirectionHelpers_PageD = "FeatureSamples/Redirect/RedirectionHelpers_PageD";
         public const string FeatureSamples_Redirect_RedirectionHelpers_PageE = "FeatureSamples/Redirect/RedirectionHelpers_PageE";
+        public const string FeatureSamples_Redirect_RedirectPostbackConcurrency = "FeatureSamples/Redirect/RedirectPostbackConcurrency";
         public const string FeatureSamples_Redirect_Redirect_StaticCommand = "FeatureSamples/Redirect/Redirect_StaticCommand";
         public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
         public const string FeatureSamples_RenderSettingsModeServer_RepeaterCollectionExchange = "FeatureSamples/RenderSettingsModeServer/RepeaterCollectionExchange";

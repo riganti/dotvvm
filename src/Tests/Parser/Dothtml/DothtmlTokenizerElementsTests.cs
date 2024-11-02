@@ -239,6 +239,18 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             tokenizer.Tokenize(input);
 
             Assert.IsTrue(tokenizer.Tokens.All(t => t.Type == DothtmlTokenType.Text));
+            Assert.IsTrue(tokenizer.Tokens.All(t => !t.HasError));
+            Assert.AreEqual(string.Concat(tokenizer.Tokens.Select(t => t.Text)), input);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_Invalid_OpenBraceInTextWithoutSpace()
+        {
+            var input = "inline <script";
+            var tokenizer = new DothtmlTokenizer();
+            tokenizer.Tokenize(input);
+
+            Assert.IsTrue(tokenizer.Tokens.Any(t => t.HasError));
             Assert.AreEqual(string.Concat(tokenizer.Tokens.Select(t => t.Text)), input);
         }
 

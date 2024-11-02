@@ -24,11 +24,19 @@
             TimeShift.setTimezoneOffset(-120);
         }())
     </script>
+    <style>
+        *[data-ui] {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
     <h1>DateTime testing</h1>
     <dot:TextBox data-ui="textbox" Text="{value: DateTimeProp}" />
+    <dot:Button Text="now" Click="{staticCommand: DateTimeProp = DateTime.Now}" />
+    <dot:Button Text="UTC now" Click="{staticCommand: DateTimeProp = DateTime.UtcNow}" />
+    <dot:Button Text="today" Click="{staticCommand: DateTimeProp = DateTime.Today}" />
 
     <p>
         <span>Year: </span>

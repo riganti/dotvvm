@@ -775,6 +775,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_EnumerableLastOrDefaultObservable()
+        {
+            var result = CompileBinding("LongArray.LastOrDefault()==1", new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("ko.unwrap(LongArray().at(-1))==1", result);
+        }
+
+        [TestMethod]
         [DataRow("Enumerable.Distinct(VmArray)", DisplayName = "Regular call of Enumerable.Distinct")]
         [DataRow("VmArray.Distinct()", DisplayName = "Syntax sugar - extension method")]
         [ExpectedException(typeof(DotvvmCompilationException))]
@@ -1114,6 +1121,17 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("DateTime.Now", "dotvvm.serialization.serializeDate(new Date(),false)")]
+        [DataRow("DateTime.UtcNow", "dotvvm.serialization.serializeDate(new Date(),true)")]
+        [DataRow("DateTime.Today", "dotvvm.serialization.serializeDate(new Date(),false).substring(0,10)+\"T00:00:00.000\"")]
+        public void JsTranslator_DateTime_Now(string binding, string expected)
+        {
+            var result = CompileBinding(binding);
+            Assert.AreEqual(expected, result);
+        }
+
+
+        [TestMethod]
         [DataRow("DateOnly.ToString()", "")]
         [DataRow("DateOnly.ToString('D')", "\"D\"")]
         public void JsTranslator_DateOnly_ToString(string binding, string args)
@@ -1128,6 +1146,16 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual($"dotvvm.globalize.bindingDateOnlyToString(NullableDateOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
+        }
+
+        [DataTestMethod]
+        [DataRow("DateOnly.Year", "getFullYear()")]
+        [DataRow("DateOnly.Month", "getMonth()+1")]
+        [DataRow("DateOnly.Day", "getDate()")]
+        public void JsTranslator_DateOnly_Property_Getters(string binding, string jsFunction)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.serialization.parseDateOnly(DateOnly()).{jsFunction}", result);
         }
 
         [TestMethod]
@@ -1145,6 +1173,17 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual($"dotvvm.globalize.bindingTimeOnlyToString(NullableTimeOnly{((args.Length > 0) ? $",{args}" : string.Empty)})", result);
+        }
+
+        [DataTestMethod]
+        [DataRow("TimeOnly.Hour", "getHours()")]
+        [DataRow("TimeOnly.Minute", "getMinutes()")]
+        [DataRow("TimeOnly.Second", "getSeconds()")]
+        [DataRow("TimeOnly.Millisecond", "getMilliseconds()")]
+        public void JsTranslator_TimeOnly_Property_Getters(string binding, string jsFunction)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"dotvvm.serialization.parseTimeOnly(TimeOnly()).{jsFunction}", result);
         }
 
         [TestMethod]
@@ -1397,13 +1436,47 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [DataTestMethod]
-        // [DataRow("BindAttribute", "bind_attribute")]
-        // [DataRow("SystemTextJson", "system_text_json")]
+        [DataRow("BindAttribute", "bind_attribute")]
+        [DataRow("SystemTextJson", "system_text_json")]
         [DataRow("NewtonsoftJson", "newtonsoft_json")]
         public void JavascriptCompilation_PropertyRenaming(string csharpName, string jsName)
         {
             var result = CompileBinding($"{csharpName} == 0", typeof(TestPropertyRenamingViewModel));
             Assert.AreEqual($"{jsName}()==0", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_ParametrizedCode_ParentContexts()
+        {
+            // root: TestViewModel
+            // parent: TestViewModel2 + _index + _collection
+            // this: TestViewModel3 + _index
+            var context0 = DataContextStack.Create(typeof(TestViewModel));
+            var context1 = DataContextStack.Create(typeof(TestViewModel2), parent: context0, extensionParameters: [ new CurrentCollectionIndexExtensionParameter(), new BindingCollectionInfoExtensionParameter("_collection") ]);
+            var context2 = DataContextStack.Create(typeof(TestViewModel3), parent: context1, extensionParameters: [ new CurrentCollectionIndexExtensionParameter() ]);
+
+            var result = bindingHelper.ValueBindingToParametrizedCode("_root.IntProp + _parent._index + _parent._collection.Index + _parent.MyProperty + _index + SomeString.Length", context2);
+
+            Assert.AreEqual("$parents[1].IntProp() + $parentContext.$index() + $parentContext.$index() + $parent.MyProperty() + $index() + SomeString().length", result.ToDefaultString());
+
+            // assign `context` and `vm` variables
+            var formatted2 = result.ToString(o =>
+                o == JavascriptTranslator.KnockoutContextParameter ? new ParametrizedCode("context", OperatorPrecedence.Max) :
+                o == JavascriptTranslator.KnockoutViewModelParameter ? new ParametrizedCode("vm", OperatorPrecedence.Max) :
+                default(CodeParameterAssignment)
+            );
+            Console.WriteLine(formatted2);
+
+            var symbolicParameters = result.Parameters.ToArray();
+            Assert.AreEqual(6, symbolicParameters.Length);
+            Assert.AreEqual(2, XAssert.IsAssignableFrom<JavascriptTranslator.ViewModelSymbolicParameter>(symbolicParameters[0].Parameter).ParentIndex);
+            Assert.AreEqual(JavascriptTranslator.KnockoutContextParameter, symbolicParameters[1].Parameter); // JavascriptTranslator.ParentKnockoutContextParameter would also work
+            Assert.AreEqual(JavascriptTranslator.KnockoutContextParameter, symbolicParameters[2].Parameter); // JavascriptTranslator.ParentKnockoutContextParameter would also work
+            Assert.AreEqual(JavascriptTranslator.ParentKnockoutViewModelParameter, symbolicParameters[3].Parameter);
+            Assert.AreEqual(JavascriptTranslator.KnockoutContextParameter, symbolicParameters[4].Parameter);
+            Assert.AreEqual(JavascriptTranslator.KnockoutViewModelParameter, symbolicParameters[5].Parameter);
+
+            Assert.AreEqual("context.$parents[1].IntProp() + context.$parentContext.$index() + context.$parentContext.$index() + context.$parent.MyProperty() + context.$index() + vm.SomeString().length", formatted2);
         }
 
         public class TestMarkupControl: DotvvmMarkupControl

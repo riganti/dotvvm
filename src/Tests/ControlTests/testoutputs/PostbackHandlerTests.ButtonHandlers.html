@@ -1,0 +1,21 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- suppress postback --> 
+		<!-- ko with: Nested -->
+		<input onclick="dotvvm.applyPostbackHandlers((options) => {
+	0;
+},this,[[&quot;suppress&quot;,(c,d)=>({suppress:c.$parent.Integer() > 100})],[&quot;suppress&quot;,(c,d)=>({suppress:d.SomeString()?.length < 5})]]).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Test supress">
+		<!-- /ko -->  
+		<!-- confirm --> 
+		<!-- ko with: Nested -->
+		<input onclick="dotvvm.applyPostbackHandlers((options) => {
+	0;
+},this,[[&quot;confirm&quot;,(c,d)=>({message:dotvvm.translations.string.format(&quot;String={0} SomeString={1}&quot;, [
+	c.$parent.String()
+	, d.SomeString()
+])})]]).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Test confirm">
+		<!-- /ko -->
+	</body>
+</html>

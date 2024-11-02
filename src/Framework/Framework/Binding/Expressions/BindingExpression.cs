@@ -260,7 +260,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
 
 
-        string? toStringValue;
+        volatile string? toStringValue;
         public override string ToString()
         {
             if (toStringValue is null)

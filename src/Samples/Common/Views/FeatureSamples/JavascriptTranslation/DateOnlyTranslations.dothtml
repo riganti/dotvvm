@@ -1,0 +1,36 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.DateTimeTranslationsViewModel, DotVVM.Samples.Common
+@import System
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        *[data-ui] {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>DateOnly testing</h1>
+
+    <dot:TextBox data-ui="textbox" Text="{value: NullableDateTimeProp}" />
+    <dot:Button Text="now" Click="{staticCommand: NullableDateTimeProp = DateTime.Now}" />
+
+    <p>
+        <span>DateOnly.ToString: </span>
+        <span data-ui="dateOnlyToString" InnerText="{value: DateOnly.FromDateTime(NullableDateTimeProp)}" />
+    </p>
+    <p>
+        <span>DateOnly properties: </span>
+        <span data-ui="dateOnlyProperties">
+            {{value: DateOnly.FromDateTime(NullableDateTimeProp).Day}}. {{value: DateOnly.FromDateTime(NullableDateTimeProp).Month}}. {{value: DateOnly.FromDateTime(NullableDateTimeProp).Year}}
+        </span>
+    </p>
+</body>
+</html>
+
+

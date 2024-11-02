@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Binding.Expressions
     [Options]
     public class CommandBindingExpression : BindingExpression, ICommandBinding
     {
-        public CommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties)
+        public CommandBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) : base(service, properties)
         {
             AddNullResolvers();
         }
@@ -167,6 +167,6 @@ namespace DotVVM.Framework.Binding.Expressions
     public class CommandBindingExpression<T> : CommandBindingExpression, ICommandBinding<T>
     {
         public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
-        public CommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+        public CommandBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) : base(service, properties) { }
     }
 }

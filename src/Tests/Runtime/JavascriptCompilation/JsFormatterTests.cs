@@ -1,9 +1,7 @@
 ﻿using DotVVM.Framework.Compilation.Javascript.Ast;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.Text;
-using DotVVM.Framework.Compilation.Javascript;
 using static DotVVM.Framework.Tests.Runtime.JavascriptCompilation.JsParensInsertionTests;
 
 namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
@@ -45,17 +43,6 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         public void JsFormatter_Indexer()
         {
             AssertFormatting("a[b]", new JsIdentifierExpression("a").Indexer(new JsIdentifierExpression("b")));
-        }
-
-        [TestMethod]
-        public void JsFormatter_SymbolicParameter_Global()
-        {
-            var symbol = new CodeSymbolicParameter();
-            Assert.AreEqual("a+global",
-                new JsBinaryExpression(new JsMemberAccessExpression(new JsSymbolicParameter(symbol), "a"), BinaryOperatorType.Plus,
-                    new JsSymbolicParameter(symbol))
-                .FormatParametrizedScript().ToString(o => o == symbol ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("global"), isGlobalContext: true) :
-                                                          throw new Exception()));
         }
 
         [TestMethod]

@@ -15,7 +15,14 @@ namespace DotVVM.Framework.Binding
             public static ValueOrBinding<T>? GetOptionalValueOrBinding<T>(DotvvmBindableObject c, DotvvmProperty p)
             {
                 if (c.properties.TryGet(p, out var x))
-                    return ValueOrBinding<T>.FromBoxedValue(x);
+                {
+                    // we want to return ValueOrBinding(null) -- "property set to null"
+                    // but if that isn't possible, it's better to return null ("property missing") than crash
+                    if (x is null && default(T) != null)
+                        return null;
+                    else
+                        return ValueOrBinding<T>.FromBoxedValue(x);
+                }
                 else return null;
             }
             public static ValueOrBinding<T> GetValueOrBinding<T>(DotvvmBindableObject c, DotvvmProperty p)
@@ -27,7 +34,15 @@ namespace DotVVM.Framework.Binding
             public static ValueOrBinding<T>? GetOptionalValueOrBindingSlow<T>(DotvvmBindableObject c, DotvvmProperty p)
             {
                 if (c.IsPropertySet(p))
-                    return ValueOrBinding<T>.FromBoxedValue(c.GetValue(p));
+                {
+                    var x = c.GetValue(p);
+                    // we want to return ValueOrBinding(null) -- "property set to null"
+                    // but if that isn't possible, it's better to return null ("property missing") than crash
+                    if (x is null && default(T) != null)
+                        return null;
+                    else
+                        return ValueOrBinding<T>.FromBoxedValue(x);
+                }
                 else return null;
             }
             public static ValueOrBinding<T> GetValueOrBindingSlow<T>(DotvvmBindableObject c, DotvvmProperty p)
@@ -65,7 +80,7 @@ namespace DotVVM.Framework.Binding
             public static void SetValueOrBindingSlow<T>(DotvvmBindableObject c, DotvvmProperty p, ValueOrBinding<T> val)
             {
                 var boxedVal = val.UnwrapToObject();
-                if (Object.Equals(boxedVal, p.DefaultValue) && c.IsPropertySet(p))
+                if (Object.Equals(boxedVal, p.DefaultValue) && !c.IsPropertySet(p))
                 {
                     // setting to default value and the property is not set -> do nothing
                 }
@@ -86,6 +101,8 @@ namespace DotVVM.Framework.Binding
             public static T? GetStructValueDirect<T>(DotvvmBindableObject c, DotvvmProperty p)
                 where T: struct
             {
+                // T being a struct allows us to invert the rather expensive `is IBinding` typecheck in EvalPropertyValue
+                // to a simpler is T check, as T is a single type checkable with a simple comparison
                 if (c.properties.TryGet(p, out var x))
                 {
                     if (x is null)

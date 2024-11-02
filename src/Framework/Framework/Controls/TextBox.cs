@@ -93,8 +93,9 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<object, TextBox>(t => t.Text, "");
 
         /// <summary>
-        /// Gets or sets the mode of the text field.
+        /// Gets or sets the mode of the text field (input/textarea and its type attribute)
         /// </summary>
+        /// <remarks> To override the type attribute determined based on this property, you can explicitly specify the attribute value using the `html:type=YOUR_VALUE` syntax </remarks>
         [MarkupOptions(AllowBinding = false)]
         public TextBoxType Type
         {

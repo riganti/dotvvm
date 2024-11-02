@@ -146,6 +146,8 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.Attribute(links[1], "href", v => v.EndsWith("/de/FeatureSamples/Localization/lokalisierte-route"));
                 AssertUI.Attribute(links[2], "href", v => v.EndsWith("/FeatureSamples/Localization/LocalizableRoute"));
                 AssertUI.Attribute(links[3], "href", links[2].GetAttribute("href"));
+                AssertAlternateLink("cs-cz", "/cs/FeatureSamples/Localization/lokalizovana-routa");
+                AssertAlternateLink("de", "/de/FeatureSamples/Localization/lokalisierte-route");
 
                 links[0].Click().Wait(500);
                 culture = browser.Single("span[data-ui=culture]");
@@ -155,6 +157,8 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.Attribute(links[1], "href", v => v.EndsWith("/de/FeatureSamples/Localization/lokalisierte-route"));
                 AssertUI.Attribute(links[2], "href", v => v.EndsWith("/FeatureSamples/Localization/LocalizableRoute"));
                 AssertUI.Attribute(links[3], "href", links[0].GetAttribute("href"));
+                AssertAlternateLink("x-default", "/FeatureSamples/Localization/LocalizableRoute");
+                AssertAlternateLink("de", "/de/FeatureSamples/Localization/lokalisierte-route");
 
                 links[1].Click().Wait(500);
                 culture = browser.Single("span[data-ui=culture]");
@@ -164,6 +168,8 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.Attribute(links[1], "href", v => v.EndsWith("/de/FeatureSamples/Localization/lokalisierte-route"));
                 AssertUI.Attribute(links[2], "href", v => v.EndsWith("/FeatureSamples/Localization/LocalizableRoute"));
                 AssertUI.Attribute(links[3], "href", links[1].GetAttribute("href"));
+                AssertAlternateLink("x-default", "/FeatureSamples/Localization/LocalizableRoute");
+                AssertAlternateLink("cs-cz", "/cs/FeatureSamples/Localization/lokalizovana-routa");
 
                 links[2].Click().Wait(500);
                 culture = browser.Single("span[data-ui=culture]");
@@ -173,6 +179,13 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.Attribute(links[1], "href", v => v.EndsWith("/de/FeatureSamples/Localization/lokalisierte-route"));
                 AssertUI.Attribute(links[2], "href", v => v.EndsWith("/FeatureSamples/Localization/LocalizableRoute"));
                 AssertUI.Attribute(links[3], "href", links[2].GetAttribute("href"));
+                AssertAlternateLink("cs-cz", "/cs/FeatureSamples/Localization/lokalizovana-routa");
+                AssertAlternateLink("de", "/de/FeatureSamples/Localization/lokalisierte-route");
+
+                void AssertAlternateLink(string culture, string url)
+                {
+                    AssertUI.Attribute(browser.Single($"link[rel=alternate][hreflang={culture}]"), "href", this.TestSuiteRunner.Configuration.BaseUrls[0].TrimEnd('/') + url);
+                }
             });
         }
 

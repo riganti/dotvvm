@@ -2,7 +2,7 @@
 
 <div class={value: $"compilation-diagnostic compilation-{Severity.ToString().ToLowerInvariant()}"}>
     <div class="source code">
-        <div Class={value: $"source-{Severity.ToString().ToLowerInvariant()}Line"}>
+        <div class={value: $"source-{Severity.ToString().ToLowerInvariant()}Line"}>
             <pre><span class="lineNumber" IncludeInPage={value: LineNumber != null}>{{value: LineNumber}}: </span><span class="codeLine">{{value: SourceLinePrefix}}<span class={value: $"{Severity.ToString().ToLowerInvariant()}Underline"}>{{value: SourceLineHighlight}}</span>{{value: SourceLineSuffix}}</span></pre>
         </div>
     </div>

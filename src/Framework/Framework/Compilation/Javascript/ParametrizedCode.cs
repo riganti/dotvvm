@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
@@ -64,26 +64,31 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (allIsDefault && this.evaluatedDefault != null)
                 return evaluatedDefault;
 
-            var sb = new StringBuilder(codes.Sum((p) => p.code.Length) + stringParts.Sum(p => p.Length));
+            var capacity = 0;
+            foreach (var c in codes) capacity += c.code.Length;
+            foreach (var s in stringParts) capacity += s.Length;
+            var sb = new StringBuilder(capacity);
+
             sb.Append(stringParts[0]);
             for (int i = 0; i < codes.Length;)
             {
-                var isGlobalContext = codes[i].parameter.IsGlobalContext && parameters![i].IsSafeMemberAccess;
-                var needsParens = codes[i].parameter.Code!.OperatorPrecedence.NeedsParens(parameters![i].OperatorPrecedence);
+                var code = codes[i];
+                var isGlobalContext = code.parameter.IsGlobalContext && parameters![i].IsSafeMemberAccess;
+                var needsParens = code.parameter.Code!.OperatorPrecedence.NeedsParens(parameters![i].OperatorPrecedence);
 
                 if (isGlobalContext)
-                    sb.Append(stringParts[++i], 1, stringParts[i].Length - 1); // skip `.`
+                    sb.Append(stringParts[++i], startIndex: 1, count: stringParts[i].Length - 1); // skip `.`
                 else
                 {
                     if (needsParens)
-                        sb.Append("(");
-                    else if (JsFormattingVisitor.NeedSpaceBetween(sb, codes[i].code))
-                        sb.Append(" ");
-                    sb.Append(codes[i].code);
+                        sb.Append('(');
+                    else if (JsFormattingVisitor.NeedSpaceBetween(sb, code.code))
+                        sb.Append(' ');
+                    sb.Append(code.code);
                     i++;
-                    if (needsParens) sb.Append(")");
+                    if (needsParens) sb.Append(')');
                     else if (JsFormattingVisitor.NeedSpaceBetween(sb, stringParts[i]))
-                        sb.Append(" ");
+                        sb.Append(' ');
                     sb.Append(stringParts[i]);
                 }
             }
@@ -130,9 +135,25 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (stringParts == null) return this;
             Debug.Assert(parameters is object);
 
-            var assignment = FindAssignment(parameterAssignment, optional: true, allIsDefault: out bool allIsDefault);
+            var (assignment, newDefaults) = FindAssignment(parameterAssignment);
 
-            if (allIsDefault) return this;
+            if (assignment is null)
+            {
+                if (newDefaults is null)
+                    return this;
+                else
+                {
+                    // just change the content of parameters, no need to rebuild strings
+                    var newParams = parameters.AsSpan().ToArray();
+                    for (int i = 0; i < newParams.Length; i++)
+                    {
+                        ref var p = ref newParams[i];
+                        if (newDefaults[i] is { } newDefault)
+                            p = new CodeParameterInfo(p.Parameter, p.OperatorPrecedence, p.IsSafeMemberAccess, newDefault);
+                    }
+                    return new ParametrizedCode(stringParts, newParams, OperatorPrecedence);
+                }
+            }
 
             // PERF: reduce allocations here, used at runtime
             var builder = new Builder();
@@ -141,20 +162,26 @@ namespace DotVVM.Framework.Compilation.Javascript
             for (int i = 0; i < assignment.Length; i++)
             {
                 var a = assignment[i];
-                if (a.Code == null)
+                var param = parameters![i];
+                if (a.Code == null) // not assigned by `parameterAssignment`
                 {
-                    builder.Add(parameters![i]);
+                    // assign recursively in the default assignment
+                    if (newDefaults is {} && newDefaults[i] is { } newDefault)
+                        builder.Add(new CodeParameterInfo(param.Parameter, param.OperatorPrecedence, param.IsSafeMemberAccess, newDefault));
+                    else
+                        builder.Add(param);
+
                     builder.Add(stringParts[1 + i]);
                 }
                 else
                 {
-                    var isGlobalContext = a.IsGlobalContext && parameters![i].IsSafeMemberAccess;
+                    var isGlobalContext = a.IsGlobalContext && param.IsSafeMemberAccess;
 
                     if (isGlobalContext)
-                        builder.Add(stringParts[1 + i].AsSpan(1, stringParts[i].Length - 1).DotvvmInternString()); // skip `.`
+                        builder.Add(stringParts[1 + i].AsSpan(1, stringParts[1 + i].Length - 1).DotvvmInternString()); // skip `.`
                     else
                     {
-                        builder.Add(a.Code, parameters![i].OperatorPrecedence);
+                        builder.Add(a.Code, param.OperatorPrecedence);
                         builder.Add(stringParts[1 + i]);
                     }
                 }
@@ -177,41 +204,63 @@ namespace DotVVM.Framework.Compilation.Javascript
                     builder.Add(stringParts[i]);
                     builder.Add(parameters[i]);
                 }
-                builder.Add(stringParts.Last());
+                builder.Add(stringParts[stringParts.Length - 1]);
             }
         }
 
         private (CodeParameterAssignment parameter, string code)[] FindStringAssignment(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssigner, out bool allIsDefault)
         {
-            var pp = FindAssignment(parameterAssigner, optional: false, allIsDefault: out allIsDefault);
+            allIsDefault = true;
             var codes = new(CodeParameterAssignment parameter, string code)[parameters!.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
-                codes[i] = (pp[i], pp[i].Code!.ToString(parameterAssigner, out bool allIsDefault_local));
+                var assignment = parameterAssigner(parameters[i].Parameter);
+                if (assignment.Code == null)
+                {
+                    assignment = parameters[i].DefaultAssignment;
+                    if (assignment.Code == null)
+                        throw new InvalidOperationException($"Assignment of parameter '{parameters[i].Parameter}' was not found.");
+                }
+                else
+                    allIsDefault = false;
+
+                codes[i] = (assignment, assignment.Code!.ToString(parameterAssigner, out bool allIsDefault_local));
                 allIsDefault &= allIsDefault_local;
             }
             return codes;
         }
 
-        private CodeParameterAssignment[] FindAssignment(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssigner, bool optional, out bool allIsDefault)
+        private (CodeParameterAssignment[]? assigned, ParametrizedCode?[]? newDefaults) FindAssignment(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssigner)
         {
-            allIsDefault = true;
-            var pp = new CodeParameterAssignment[parameters!.Length];
+            if (parameters is null)
+                return (null, null);
+
+            // these are different variables, as we have to preserve the tree-like structure of the ParametrizedCodes,
+            // when we assign parameters in the default values.
+            // newDefaults -> we will change the code in the parameters[i].DefaultAssignment
+            // assigned -> this parameter will be removed and its assignment inlined into stringParts[i] and parameters[i]
+            CodeParameterAssignment[]? assigned = null; // when null, all are default
+            ParametrizedCode[]? newDefaults = null; // when null, no defaults were changed
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((pp[i] = parameterAssigner(parameters[i].Parameter)).Code == null)
+                var p = parameterAssigner(parameters[i].Parameter);
+                if (p.Code is not null)
                 {
-                    if (!optional)
+                    assigned ??= new CodeParameterAssignment[parameters.Length];
+                    assigned[i] = p;
+                }
+                else if (parameters[i].DefaultAssignment is { Code: { HasParameters: true } } defaultAssignment)
+                {
+                    // check if the default assignment contains any of the assigned parameters, and adjust the default if necessary
+                    var newDefault = defaultAssignment.Code.AssignParameters(parameterAssigner);
+                    if (newDefault != defaultAssignment.Code)
                     {
-                        pp[i] = parameters[i].DefaultAssignment;
-                        if (pp[i].Code == null)
-                            throw new InvalidOperationException($"Assignment of parameter '{parameters[i].Parameter}' was not found.");
+                        newDefaults ??= new ParametrizedCode[parameters.Length];
+                        newDefaults[i] = newDefault;
                     }
                 }
-                else
-                    allIsDefault = false;
             }
-            return pp;
+            return (assigned, newDefaults);
         }
 
         public IEnumerable<CodeSymbolicParameter> EnumerateAllParameters()

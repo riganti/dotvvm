@@ -338,14 +338,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Serializes the redirect action.
         /// </summary>
-        public static string GenerateRedirectActionResponse(string url, bool replace, bool allowSpa)
+        public static string GenerateRedirectActionResponse(string url, bool replace, bool allowSpa, string? downloadName)
         {
             // create result object
             return JsonSerializer.Serialize(new {
                 url,
                 action = "redirect",
                 replace,
-                allowSpa
+                allowSpa,
+                download = downloadName
             }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
         }
 

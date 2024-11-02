@@ -244,6 +244,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultListTranslations();
             AddDefaultMathTranslations();
             AddDefaultDateTimeTranslations();
+            AddDefaultDateOnlyTranslations();
+            AddDefaultTimeOnlyTranslations();
             AddDefaultConvertTranslations();
             AddDataSetOptionsTranslations();
         }
@@ -556,32 +558,32 @@ namespace DotVVM.Framework.Compilation.Javascript
                 check: (method, target, arguments) => EnsureIsComparableInJavascript(method, ReflectionUtils.GetEnumerableType(arguments.First().Type).NotNull())));
 
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ElementAt(0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ElementAtOrDefault(0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
             AddMethodTranslator(() => ImmutableArrayExtensions.ElementAt(default(ImmutableArray<Generic.T>), 0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
             AddMethodTranslator(() => ImmutableArrayExtensions.ElementAtOrDefault(default(ImmutableArray<Generic.T>), 0),
-                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
+                new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method).WithAnnotation(ResultMayBeObservableAnnotation.Instance)));
 
-            var firstOrDefault = new GenericMethodCompiler((args, m) => BuildIndexer(args[1], new JsLiteral(0), m).WithAnnotation(MayBeNullAnnotation.Instance));
+            var firstOrDefault = new GenericMethodCompiler((args, m) => BuildIndexer(args[1], new JsLiteral(0), m).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(), firstOrDefault);
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().First(), firstOrDefault);
             AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>)), firstOrDefault);
             AddMethodTranslator(() => ImmutableArrayExtensions.First(default(ImmutableArray<Generic.T>)), firstOrDefault);
 
             var firstOrDefaultPred = new GenericMethodCompiler(args =>
-                args[1].Member("find").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance));
+                args[1].Member("find").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(_ => true), firstOrDefaultPred);
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().First(_ => true), firstOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>), _ => true), firstOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.First(default(ImmutableArray<Generic.T>), _ => true), firstOrDefaultPred);
 
-            var lastOrDefault = new GenericMethodCompiler(args => args[1].Member("at").Invoke(new JsLiteral(-1)).WithAnnotation(MayBeNullAnnotation.Instance));
+            var lastOrDefault = new GenericMethodCompiler(args => args[1].Member("at").Invoke(new JsLiteral(-1)).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(), lastOrDefault);
             AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>)), lastOrDefault);
             var lastOrDefaultPred = new GenericMethodCompiler(args =>
-                args[1].Member("findLast").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance));
+                args[1].Member("findLast").Invoke(args[2]).WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(_ => false), lastOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>), _ => false), lastOrDefaultPred);
 
@@ -783,10 +785,53 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyTranslator(() => DateTime.Now.Millisecond, new GenericMethodCompiler(args =>
                 new JsInvocationExpression(new JsIdentifierExpression("dotvvm").Member("serialization").Member("parseDate"), args[0]).Member("getMilliseconds").Invoke()));
 
+            AddPropertyTranslator(() => DateTime.Now, new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("serialization").CallMethod("serializeDate", new JsNewExpression("Date"), new JsLiteral(false))));
+            AddPropertyTranslator(() => DateTime.UtcNow, new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("serialization").CallMethod("serializeDate", new JsNewExpression("Date"), new JsLiteral(true))));
+            AddPropertyTranslator(() => DateTime.Today, new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("serialization").CallMethod("serializeDate", new JsNewExpression("Date"), new JsLiteral(false))
+                    .CallMethod("substring", new JsLiteral(0), new JsLiteral("0000-00-00".Length))
+                    .Binary(BinaryOperatorType.Plus, new JsLiteral("T00:00:00.000"))));
+            
+
             AddMethodTranslator(() => DateTime.UtcNow.ToBrowserLocalTime(), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dateTime").Member("toBrowserLocalTime").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance)).WithAnnotation(ResultIsObservableAnnotation.Instance)));
             AddMethodTranslator(() => default(Nullable<DateTime>).ToBrowserLocalTime(), new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dateTime").Member("toBrowserLocalTime").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance)).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+            
+        }
+
+        private void AddDefaultDateOnlyTranslations()
+        {
+            JsExpression parse(JsExpression arg) =>
+                new JsIdentifierExpression("dotvvm").Member("serialization").CallMethod("parseDateOnly", arg);
+            AddPropertyTranslator(() => DateOnly.MinValue.Year, new GenericMethodCompiler(args =>
+                parse(args[0]).CallMethod("getFullYear")));
+            AddPropertyTranslator(() => DateOnly.MinValue.Month, new GenericMethodCompiler(args =>
+                parse(args[0]).CallMethod("getMonth").Binary(BinaryOperatorType.Plus, new JsLiteral(1))));
+            AddPropertyTranslator(() => DateOnly.MinValue.Day, new GenericMethodCompiler(args =>
+                parse(args[0]).CallMethod("getDate")));
+
+            AddMethodTranslator(() => DateOnly.FromDateTime(DateTime.Now), new GenericMethodCompiler(args =>
+                args[1].CallMethod("substring", new JsLiteral(0), new JsLiteral("0000-00-00".Length))));
+        }
+
+        private void AddDefaultTimeOnlyTranslations()
+        {
+            JsExpression parse(JsExpression arg) =>
+                new JsIdentifierExpression("dotvvm").Member("serialization").CallMethod("parseTimeOnly", arg);
+            AddPropertyTranslator(() => TimeOnly.MinValue.Hour, new GenericMethodCompiler(args =>
+                parse(args[0]).CallMethod("getHours")));
+            AddPropertyTranslator(() => TimeOnly.MinValue.Minute, new GenericMethodCompiler(args =>
+                parse(args[0]).CallMethod("getMinutes")));
+            AddPropertyTranslator(() => TimeOnly.MinValue.Second, new GenericMethodCompiler(args =>
+                parse(args[0]).CallMethod("getSeconds")));
+            AddPropertyTranslator(() => TimeOnly.MinValue.Millisecond, new GenericMethodCompiler(args =>
+                parse(args[0]).CallMethod("getMilliseconds")));
+
+            AddMethodTranslator(() => TimeOnly.FromDateTime(DateTime.Now), new GenericMethodCompiler(args =>
+                args[1].CallMethod("substring", new JsLiteral("0000-00-00T".Length))));
         }
 
         private void AddDefaultConvertTranslations()

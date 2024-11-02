@@ -43,8 +43,6 @@ namespace DotVVM.Framework.Tests.Runtime
             serialized = serialized.Replace("System.IServiceProvider, CoreLibrary", "System.IServiceProvider, ComponentLibrary");
             serialized = serialized.Replace("System.IServiceProvider, System.ComponentModel, Version=***, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.IServiceProvider, ComponentLibrary");
 
-            Console.WriteLine(serialized);
-
             var jobject = JsonNode.Parse(serialized).AsObject();
             void removeTestStuff(JsonNode token)
             {

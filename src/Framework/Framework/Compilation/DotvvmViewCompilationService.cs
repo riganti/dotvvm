@@ -11,6 +11,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Testing;
+using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -19,14 +20,16 @@ namespace DotVVM.Framework.Compilation
         private readonly IControlBuilderFactory controlBuilderFactory;
         private readonly CompilationTracer tracer;
         private readonly IMarkupFileLoader markupFileLoader;
+        private readonly ILogger<DotvvmViewCompilationService>? log;
         private readonly DotvvmConfiguration dotvvmConfiguration;
 
-        public DotvvmViewCompilationService(DotvvmConfiguration dotvvmConfiguration, IControlBuilderFactory controlBuilderFactory, CompilationTracer tracer, IMarkupFileLoader markupFileLoader)
+        public DotvvmViewCompilationService(DotvvmConfiguration dotvvmConfiguration, IControlBuilderFactory controlBuilderFactory, CompilationTracer tracer, IMarkupFileLoader markupFileLoader, ILogger<DotvvmViewCompilationService>? log = null)
         {
             this.dotvvmConfiguration = dotvvmConfiguration;
             this.controlBuilderFactory = controlBuilderFactory;
             this.tracer = tracer;
             this.markupFileLoader = markupFileLoader;
+            this.log = log;
             masterPages = new Lazy<ConcurrentDictionary<string, DotHtmlFileInfo>>(InitMasterPagesCollection);
             controls = new Lazy<ImmutableArray<DotHtmlFileInfo>>(InitControls);
             routes = new Lazy<ImmutableArray<DotHtmlFileInfo>>(InitRoutes);
@@ -108,7 +111,13 @@ namespace DotVVM.Framework.Compilation
                     }
                 }
                 var discoveredMasterPages = new ConcurrentDictionary<string, DotHtmlFileInfo>();
-
+                var maxParallelism = buildInParallel ? Environment.ProcessorCount : 1;
+                if (!dotvvmConfiguration.Debug && dotvvmConfiguration.Markup.ViewCompilation.Mode != ViewCompilationMode.DuringApplicationStart)
+                {
+                    // in production when compiling after application start, only use half of the CPUs to leave room for handling requests
+                    maxParallelism = (int)Math.Ceiling(maxParallelism * 0.5);
+                }
+                var sw = ValueStopwatch.StartNew();
 
                 var compilationTaskFactory = (DotHtmlFileInfo t) => () => {
                     BuildView(t, forceRecompile, out var masterPage);
@@ -117,15 +126,19 @@ namespace DotVVM.Framework.Compilation
                 };
 
                 var compileTasks = filesToCompile.Select(compilationTaskFactory).ToArray();
-                await ExecuteCompileTasks(compileTasks, buildInParallel);
+                var totalCompiledFiles = compileTasks.Length;
+                await ExecuteCompileTasks(compileTasks, maxParallelism);
 
                 while (discoveredMasterPages.Any())
                 {
                     compileTasks = discoveredMasterPages.Values.Select(compilationTaskFactory).ToArray();
+                    totalCompiledFiles += compileTasks.Length;
                     discoveredMasterPages = new ConcurrentDictionary<string, DotHtmlFileInfo>();
 
-                    await ExecuteCompileTasks(compileTasks, buildInParallel);
+                    await ExecuteCompileTasks(compileTasks, maxParallelism);
                 }
+
+                log?.LogInformation("Compiled {0} DotHTML files on {1} threads in {2} s", totalCompiledFiles, maxParallelism, sw.ElapsedSeconds);
             }
             finally
             {
@@ -135,11 +148,22 @@ namespace DotVVM.Framework.Compilation
             return !GetFilesWithFailedCompilation().Any();
         }
 
-        private async Task ExecuteCompileTasks(Action[] compileTasks, bool buildInParallel)
+        private static async Task ExecuteCompileTasks(Action[] compileTasks, int maxParallelism)
         {
-            if (buildInParallel)
+            if (maxParallelism > 1)
             {
-                await Task.WhenAll(compileTasks.Select(Task.Run));
+                var semaphore = new SemaphoreSlim(maxParallelism);
+                await Task.WhenAll(compileTasks.Select(async t => {
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        await Task.Run(t);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
             }
             else
             {

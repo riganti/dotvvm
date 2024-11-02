@@ -141,8 +141,8 @@ public static class DotvvmRequestContextExtensions
         context.RedirectToUrlPermanent(url, replaceInHistory, allowSpaRedirect);
     }
 
-    public static void SetRedirectResponse(this IDotvvmRequestContext context, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false) =>
-        context.Configuration.ServiceProvider.GetRequiredService<IHttpRedirectService>().WriteRedirectResponse(context.HttpContext, url, statusCode, replaceInHistory, allowSpaRedirect);
+    public static void SetRedirectResponse(this IDotvvmRequestContext context, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false, string? downloadName = null) =>
+        context.Configuration.ServiceProvider.GetRequiredService<IHttpRedirectService>().WriteRedirectResponse(context.HttpContext, url, statusCode, replaceInHistory, allowSpaRedirect, downloadName);
 
     internal static Task SetCachedViewModelMissingResponse(this IDotvvmRequestContext context)
     {
@@ -259,8 +259,10 @@ public static class DotvvmRequestContextExtensions
             AttachmentDispositionType = attachmentDispositionType ?? "attachment"
         };
 
+        var downloadAttribute = attachmentDispositionType == "inline" ? null : fileName;
+
         var generatedFileId = await returnedFileStorage.StoreFileAsync(stream, metadata).ConfigureAwait(false);
-        context.SetRedirectResponse(context.TranslateVirtualPath("~/dotvvmReturnedFile?id=" + generatedFileId));
+        context.SetRedirectResponse(context.TranslateVirtualPath("~/dotvvmReturnedFile?id=" + generatedFileId), downloadName: downloadAttribute);
         throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
     }
 

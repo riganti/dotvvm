@@ -333,6 +333,12 @@
         "mappingMode": "InnerElement"
       }
     },
+    "DotVVM.Framework.Controls.AlternateCultureLinks": {
+      "RouteName": {
+        "type": "System.String",
+        "onlyHardcoded": true
+      }
+    },
     "DotVVM.Framework.Controls.AppendableDataPager": {
       "DataSet": {
         "type": "DotVVM.Framework.Controls.IPageableGridViewDataSet, DotVVM.Core",
@@ -2047,6 +2053,11 @@
     "DotVVM.Framework.Controls.AddTemplateDecorator": {
       "baseType": "DotVVM.Framework.Controls.Decorator, DotVVM.Framework",
       "withoutContent": true
+    },
+    "DotVVM.Framework.Controls.AlternateCultureLinks": {
+      "baseType": "DotVVM.Framework.Controls.CompositeControl, DotVVM.Framework",
+      "withoutContent": true,
+      "isComposite": true
     },
     "DotVVM.Framework.Controls.AppendableDataPager": {
       "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",

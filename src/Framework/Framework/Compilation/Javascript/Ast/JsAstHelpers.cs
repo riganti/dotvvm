@@ -19,6 +19,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static JsExpression Invoke(this JsExpression target, params JsExpression?[] arguments) =>
             new JsInvocationExpression(target, arguments);
 
+        public static JsExpression CallMethod(this JsExpression target, string methodName, params JsExpression?[] arguments) =>
+            target.Member(methodName).Invoke(arguments);
+
         public static JsExpression Indexer(this JsExpression target, JsExpression argument)
         {
             return new JsIndexerExpression(target, argument);

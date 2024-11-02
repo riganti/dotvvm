@@ -68,6 +68,43 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_DateOnly_PropertyTranslations()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_DateOnlyTranslations);
+
+                var stringDateTime = "6/28/2021 3:28:31 PM";
+
+                var textbox = browser.Single("input[data-ui=textbox]");
+                textbox.Clear().SendKeys(stringDateTime).SendEnterKey();
+
+                var str = browser.Single("span[data-ui=dateOnlyToString]");
+                AssertUI.TextEquals(str, "Monday, June 28, 2021");
+                var props = browser.Single("span[data-ui=dateOnlyProperties]");
+                AssertUI.TextEquals(props, "28. 6. 2021");
+            });
+        }
+
+        [Fact]
+        public void Feature_TimeOnly_PropertyTranslations()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_TimeOnlyTranslations);
+
+                var stringDateTime = "6/28/2021 3:28:31 PM";
+
+                var textbox = browser.Single("input[data-ui=textbox]");
+                textbox.Clear().SendKeys(stringDateTime).SendEnterKey();
+
+                var str = browser.Single("span[data-ui=timeOnlyToString]");
+                AssertUI.TextEquals(str, "3:28:31 PM");
+                var props = browser.Single("span[data-ui=timeOnlyProperties]");
+                AssertUI.TextEquals(props, "15 hours 28 minues 31 seconds and 0 milliseconds");
+            });
+        }
+
+
         public DateTimeTranslationTests(ITestOutputHelper output) : base(output)
         {
         }
