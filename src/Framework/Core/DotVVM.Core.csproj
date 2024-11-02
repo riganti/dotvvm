@@ -16,7 +16,7 @@
     <EmbeddedResource Include="compiler\resources\**\*" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.3.0" />
