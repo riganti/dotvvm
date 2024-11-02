@@ -22,6 +22,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Encodings.Web;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -338,16 +339,26 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Serializes the redirect action.
         /// </summary>
-        public static string GenerateRedirectActionResponse(string url, bool replace, bool allowSpa, string? downloadName)
+        /// <return>UTF-8 encoded JSON response</return>
+        public static byte[] GenerateRedirectActionResponse(string url, bool replace, bool allowSpa, string? downloadName)
         {
+            ThrowHelpers.ArgumentNull(url);
             // create result object
-            return JsonSerializer.Serialize(new {
-                url,
-                action = "redirect",
-                replace,
-                allowSpa,
-                download = downloadName
-            }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+            var result = new MemoryStream();
+            using (var w = new Utf8JsonWriter(result, new JsonWriterOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }))
+            {
+                w.WriteStartObject();
+                w.WriteString("url"u8, url);
+                w.WriteString("action"u8, "redirect"u8);
+                if (replace)
+                    w.WriteBoolean("replace"u8, true);
+                if (allowSpa)
+                    w.WriteBoolean("allowSpa"u8, true);
+                if (downloadName is not null)
+                    w.WriteString("download"u8, downloadName);
+                w.WriteEndObject();
+            }
+            return result.ToArray();
         }
 
         /// <summary>
@@ -355,8 +366,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         internal static string GenerateMissingCachedViewModelResponse()
         {
-            // create result object
-            return JsonSerializer.Serialize(new { action = "viewModelNotCached" }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+            return """{"action":"viewModelNotCached"}""";
         }
 
         /// <summary>

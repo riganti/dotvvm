@@ -428,7 +428,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                return $"[{handlerNameJson},{{q:{MakeStringLiteral(queueName)}}}]";
+                return $"[{handlerNameJson},{{q:{MakeStringLiteral(queueName!)}}}]";
             }
         }
         
