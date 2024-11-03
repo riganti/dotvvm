@@ -77,7 +77,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
         }
 
         internal static int GetIndex(DotvvmBindableObject c) =>
-            (c.GetAllAncestors(true, false)
+            (c.NotNull("control is null, is the binding executed in the right data context?")
+            .GetAllAncestors(true, false)
             .OfType<DataItemContainer>()
             .FirstOrDefault() ?? throw new DotvvmControlException(c, "Could not find ancestor DataItemContainer that stores the current collection index."))
             .DataItemIndex ?? throw new DotvvmControlException(c, "Nearest DataItemContainer does have the collection index specified.");
@@ -141,18 +142,25 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public InjectedServiceExtensionParameter(string identifier, ITypeDescriptor type)
             : base(identifier, type, inherit: true) { }
 
+        private static MethodInfo ResolveStaticCommandServiceMethod = typeof(InjectedServiceExtensionParameter).GetMethod(nameof(ResolveStaticCommandService), BindingFlags.NonPublic | BindingFlags.Static)!;
+
         public override Expression GetServerEquivalent(Expression controlParameter)
         {
             var type = ResolvedTypeDescriptor.ToSystemType(this.ParameterType);
-            var expr = ExpressionUtils.Replace((DotvvmBindableObject c) => ResolveStaticCommandService(c, type), controlParameter);
-            return Expression.Convert(expr, type);
+            return Expression.Call(
+                ResolveStaticCommandServiceMethod.MakeGenericMethod(type),
+                controlParameter
+            );
         }
 
-        private object ResolveStaticCommandService(DotvvmBindableObject c, Type type)
+        private static T ResolveStaticCommandService<T>(DotvvmBindableObject control)
         {
-            var context = (IDotvvmRequestContext)c.GetValue(Internal.RequestContextProperty, true).NotNull();
+            if (control is null)
+                throw new ArgumentNullException(nameof(control), "control is null, is the binding executed in the right data context?");
+            var context = (IDotvvmRequestContext)control.GetValue(Internal.RequestContextProperty, true)
+                .NotNull("Current control does not not have the Internal.RequestContextProperty property");
 #pragma warning disable CS0618
-            return context.Services.GetRequiredService<IStaticCommandServiceLoader>().GetStaticCommandService(type, context);
+            return (T)context.Services.GetRequiredService<IStaticCommandServiceLoader>().GetStaticCommandService(typeof(T), context);
 #pragma warning restore CS0618
         }
 
@@ -229,7 +237,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         internal static ClaimsPrincipal? GetUser(DotvvmBindableObject control)
         {
-            var context = control.GetValue(Internal.RequestContextProperty) as IDotvvmRequestContext;
+            var context = control.NotNull("control is null, is the binding executed in the right data context?").GetValue(Internal.RequestContextProperty) as IDotvvmRequestContext;
             return context?.HttpContext?.User ?? new ClaimsPrincipal();
         }
 

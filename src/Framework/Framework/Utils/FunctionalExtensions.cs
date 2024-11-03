@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -100,9 +101,19 @@ namespace DotVVM.Framework.Utils
             return -1;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T NotNull<T>([NotNull] this T? target, string message = "Unexpected null value.")
-            where T : class =>
-            target ?? throw new Exception(message);
+            where T : class
+        {
+            if (target is null)
+                NotNullThrowHelper(message);
+            return target;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        [DoesNotReturn]
+        private static void NotNullThrowHelper(string message) =>
+            throw new Exception(message);
 
         public static SortedDictionary<K, V> ToSorted<K, V>(this IDictionary<K, V> d, IComparer<K>? c = null)
             where K: notnull =>
