@@ -78,7 +78,7 @@ namespace DotVVM.Adapters.WebForms.Tests
         }
     }
 
-    class ControlTestViewModel
+    public class ControlTestViewModel
     {
         public int Value { get; set; } = 15;
 
@@ -90,7 +90,7 @@ namespace DotVVM.Adapters.WebForms.Tests
         };
     }
 
-    class ControlTestChildViewModel
+    public class ControlTestChildViewModel
     {
         public int Id { get; set; }
         public string Name { get; set; }

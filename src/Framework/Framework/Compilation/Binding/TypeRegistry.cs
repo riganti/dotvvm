@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 return expr;
             }
-            var matchedExpressions = resolvers.Select(r => r(name)).Where(e => e != null).Distinct(ExpressionTypeComparer.Instance).ToList();
+            var matchedExpressions = resolvers.Select(r => r(name)).WhereNotNull().Distinct(ExpressionTypeComparer.Instance).ToList();
             if (matchedExpressions.Count > 1)
             {
                 throw new InvalidOperationException($"The identifier '{name}' is ambiguous between the following types: {string.Join(", ", matchedExpressions.Select(e => e!.Type.ToCode()))}. Please specify the namespace explicitly.");
@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Compilation.Binding
         [return: NotNullIfNotNull("type")]
         public static Expression? CreateStatic(Type? type)
         {
-            return type is { IsPublic: true } or { IsNestedPublic: true } ? new StaticClassIdentifierExpression(type) : null;
+            return type?.IsPublicType() == true ? new StaticClassIdentifierExpression(type) : null;
         }
 
         private static readonly ImmutableDictionary<string, Expression> predefinedTypes =
@@ -129,7 +129,7 @@ namespace DotVVM.Framework.Compilation.Binding
             else return t => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(import.Namespace + "." + t));
         }
 
-        class ExpressionTypeComparer : IEqualityComparer<Expression?>
+        class ExpressionTypeComparer : IEqualityComparer<Expression>
         {
             public static readonly ExpressionTypeComparer Instance = new();
 
@@ -141,7 +141,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 return ReferenceEquals(x.Type, y.Type);
             }
 
-            public int GetHashCode(Expression? obj) => obj?.Type.GetHashCode() ?? 0;
+            public int GetHashCode(Expression obj) => obj.Type.GetHashCode();
         }
     }
 }
