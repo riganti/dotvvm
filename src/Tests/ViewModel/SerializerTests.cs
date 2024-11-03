@@ -488,8 +488,13 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual(obj.TimeOnly, obj2.TimeOnly);
             Assert.AreEqual(obj.TimeOnly.Ticks, obj2.TimeOnly.Ticks);
 
+#if DotNetCore
             Assert.AreEqual("2000-01-02T15:16:17.123456", json["DateTime1"].GetValue<string>());
             Assert.AreEqual("15:16:17.1234560", json["TimeOnly"].GetValue<string>());
+#else
+            Assert.AreEqual("2000-01-02T15:16:17.123", json["DateTime1"].GetValue<string>());
+            Assert.AreEqual("15:16:17.1230000", json["TimeOnly"].GetValue<string>());
+#endif
         }
 
         [TestMethod]

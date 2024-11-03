@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Configuration
                     new DotvvmCustomPrimitiveTypeConverter(),
 #if !DotNetCore
                     new DotvvmTimeOnlyJsonConverter(),
-                    new DotvvmDateTimeConverter(),
+                    new DotvvmDateOnlyJsonConverter(),
 #endif
                 },
                 NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
