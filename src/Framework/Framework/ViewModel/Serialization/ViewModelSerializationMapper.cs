@@ -162,7 +162,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         protected virtual IEnumerable<ViewModelPropertyMap> GetProperties(Type type, MethodBase? constructor)
         {
             var ctorParams = constructor?.GetParameters().ToDictionary(p => p.Name.NotNull(), StringComparer.OrdinalIgnoreCase);
-            
+
             var properties = type.GetAllMembers(BindingFlags.Public | BindingFlags.Instance)
                                  .Where(m => m is PropertyInfo or FieldInfo)
                                  .ToArray();
@@ -175,10 +175,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (property is FieldInfo)
                 {
                     // fields are ignored by default, unless marked with [Bind(not None)], [JsonInclude] or defined in ValueTuple<...>
-                    include = include ||
+                    include = include && (
                         !(bindAttribute is null or { Direction: Direction.None }) ||
                         property.IsDefined(typeof(JsonIncludeAttribute)) ||
-                        (type.IsGenericType && type.FullName!.StartsWith("System.ValueTuple`"));
+                        (type.IsGenericType && type.FullName!.StartsWith("System.ValueTuple`"))
+                    );
                 }
                 if (!include) continue;
 
