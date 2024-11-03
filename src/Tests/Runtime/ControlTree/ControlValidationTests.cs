@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
 
-    internal class TestViewModel : Tests.Binding.TestViewModel
+    public class TestViewModel : Tests.Binding.TestViewModel
     {
         public StructList<DateTime?>? NullableDateList { get; }
         public StructList<DateTime>? DateList { get; }

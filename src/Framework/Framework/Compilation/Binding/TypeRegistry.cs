@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -34,8 +35,13 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 return expr;
             }
-            expr = resolvers.Select(r => r(name)).FirstOrDefault(e => e != null);
-            if (expr != null) return expr;
+            var matchedExpressions = resolvers.Select(r => r(name)).WhereNotNull().Distinct(ExpressionTypeComparer.Instance).ToList();
+            if (matchedExpressions.Count > 1)
+            {
+                throw new InvalidOperationException($"The identifier '{name}' is ambiguous between the following types: {string.Join(", ", matchedExpressions.Select(e => e!.Type.ToCode()))}. Please specify the namespace explicitly.");
+            }
+
+            if (matchedExpressions.Count == 1) return matchedExpressions[0];
             if (throwOnNotFound) throw new InvalidOperationException($"The identifier '{ name }' could not be resolved!");
             return null;
         }
@@ -56,7 +62,7 @@ namespace DotVVM.Framework.Compilation.Binding
         [return: NotNullIfNotNull("type")]
         public static Expression? CreateStatic(Type? type)
         {
-            return type == null ? null : new StaticClassIdentifierExpression(type);
+            return type?.IsPublicType() == true ? new StaticClassIdentifierExpression(type) : null;
         }
 
         private static readonly ImmutableDictionary<string, Expression> predefinedTypes =
@@ -121,6 +127,21 @@ namespace DotVVM.Framework.Compilation.Binding
                     else return null;
                 };
             else return t => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(import.Namespace + "." + t));
+        }
+
+        class ExpressionTypeComparer : IEqualityComparer<Expression>
+        {
+            public static readonly ExpressionTypeComparer Instance = new();
+
+            public bool Equals(Expression? x, Expression? y)
+            {
+                if (ReferenceEquals(x, y)) return true;
+                if (x is null) return false;
+                if (y is null) return false;
+                return ReferenceEquals(x.Type, y.Type);
+            }
+
+            public int GetHashCode(Expression obj) => obj.Type.GetHashCode();
         }
     }
 }

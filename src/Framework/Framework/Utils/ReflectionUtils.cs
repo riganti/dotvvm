@@ -778,5 +778,18 @@ namespace DotVVM.Framework.Utils
                 return t;
             }
         }
+
+        /// <summary>
+        /// Determines whether the type is public and has the entire chain of nested parents public.
+        /// </summary>
+        public static bool IsPublicType(this Type type)
+        {
+            if (type.IsPublic) return true;
+            if (type.IsNested)
+            {
+                return type.IsNestedPublic && IsPublicType(type.DeclaringType!);
+            }
+            return false;
+        }
     }
 }

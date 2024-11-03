@@ -7,7 +7,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect
 {
-    class RedirectPostbackConcurrencyViewModel : DotvvmViewModelBase
+    public class RedirectPostbackConcurrencyViewModel : DotvvmViewModelBase
     {
         public static int GlobalCounter = 0;
         private readonly IReturnedFileStorage returnedFileStorage;

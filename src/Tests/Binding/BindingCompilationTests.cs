@@ -1339,8 +1339,23 @@ namespace DotVVM.Framework.Tests.Binding
         [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply And operator to types TestEnum and Boolean")]
         public void BindingCompiler_InvalidBitAndComparison() =>
             ExecuteBinding("EnumProperty & 2 == 0", new TestViewModel());
+
+        [TestMethod]
+        public void BindingCompiler_DoNotMatchInternalClasses()
+        {
+            var result = ExecuteBinding("Strings.SomeResource", new[] { new NamespaceImport("System.Linq"), new NamespaceImport("DotVVM.Framework.Tests") }, new TestViewModel());
+            Assert.AreEqual("hello", result);
+        }
+
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "ambiguous")]
+        public void BindingCompiler_AmbiguousMatches()
+        {
+            var result = ExecuteBinding("Strings.SomeResource", new[] { new NamespaceImport("DotVVM.Framework.Tests.Ambiguous"), new NamespaceImport("DotVVM.Framework.Tests") }, new TestViewModel());
+            Assert.AreEqual("hello", result);
+        }
     }
-    class TestViewModel
+    public class TestViewModel
     {
         public bool BoolProp { get; set; }
         public string StringProp { get; set; }
@@ -1452,7 +1467,7 @@ namespace DotVVM.Framework.Tests.Binding
     }
 
 
-    record struct VehicleNumber(
+    public record struct VehicleNumber(
         [property: Range(100, 999)]
         int Value
     ): IDotvvmPrimitiveType
@@ -1499,7 +1514,7 @@ namespace DotVVM.Framework.Tests.Binding
             string.Join(",", func(new List<T>() { item, item }));
     }
 
-    class TestViewModel2
+    public class TestViewModel2
     {
         public int MyProperty { get; set; }
         public string SomeString { get; set; }
@@ -1520,7 +1535,7 @@ namespace DotVVM.Framework.Tests.Binding
         public string SomeString { get; set; }
     }
 
-    class TestViewModel4
+    public class TestViewModel4
     {
         public int Number { get; set; }
 
@@ -1537,7 +1552,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
     }
 
-    class TestViewModel5
+    public class TestViewModel5
     {
         public Dictionary<int, int> Dictionary { get; set; } = new Dictionary<int, int>()
         {
@@ -1559,16 +1574,16 @@ namespace DotVVM.Framework.Tests.Binding
         public int[] Array { get; set; } = new int[] { 1, 2, 3 };
     }
 
-    struct TestStruct
+    public struct TestStruct
     {
         public int Int { get; set; }
     }
-    class Something
+    public class Something
     {
         public bool Value { get; set; }
         public string StringValue { get; set; }
     }
-    enum TestEnum
+    public enum TestEnum
     {
         A,
         B,
@@ -1583,5 +1598,18 @@ namespace DotVVM.Framework.Tests.Binding
     public static class TestStaticClass
     {
         public static string GetSomeString() => "string 123";
+    }
+
+    public class Strings
+    {
+        public static string SomeResource = "hello";
+    }
+}
+
+namespace DotVVM.Framework.Tests.Ambiguous
+{
+    public class Strings
+    {
+        public static string SomeResource = "hello2";
     }
 }
