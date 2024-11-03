@@ -4,6 +4,8 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <OverwriteAppConfigWithBindingRedirects>true</OverwriteAppConfigWithBindingRedirects>
     <LangVersion>latest</LangVersion>
+    <RunCommand>$(MSBuildExtensionsPath64)\..\IIS Express\iisexpress</RunCommand>
+    <RunArguments>/path:"$(MSBuildProjectDirectory)" /port:63000</RunArguments>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,6 +43,7 @@
     <PackageReference Include="Microsoft.Owin.StaticFiles" Version="4.2.2" />
     <PackageReference Include="MiniProfiler" Version="4.2.22" />
     <PackageReference Include="MiniProfiler.Shared" Version="4.2.22" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Owin" version="1.0" />
   </ItemGroup>
 </Project>
