@@ -49,7 +49,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
         /// </summary>
-        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper, IViewModelServerCache viewModelServerCache, IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer, IDotvvmJsonOptionsProvider jsonOptions, ILogger<DefaultViewModelSerializer>? logger)
+        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper, IViewModelServerCache viewModelServerCache, IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer, IDotvvmJsonOptionsProvider jsonOptions, ILogger<DefaultViewModelSerializer>? logger = null)
         {
             this.viewModelProtector = protector;
             this.viewModelMapper = serializationMapper;

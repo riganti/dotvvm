@@ -28,7 +28,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly ILogger<ViewModelSerializationMapper>? logger;
 
         public ViewModelSerializationMapper(IValidationRuleTranslator validationRuleTranslator, IViewModelValidationMetadataProvider validationMetadataProvider,
-            IPropertySerialization propertySerialization, DotvvmConfiguration configuration, IDotvvmJsonOptionsProvider jsonOptions, ILogger<ViewModelSerializationMapper>? logger)
+            IPropertySerialization propertySerialization, DotvvmConfiguration configuration, IDotvvmJsonOptionsProvider jsonOptions, ILogger<ViewModelSerializationMapper>? logger = null)
         {
             this.validationRuleTranslator = validationRuleTranslator;
             this.validationMetadataProvider = validationMetadataProvider;
