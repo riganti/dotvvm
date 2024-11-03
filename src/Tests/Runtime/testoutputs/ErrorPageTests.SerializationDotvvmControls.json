@@ -1,0 +1,55 @@
+{
+	"control": {
+		"Control": "HtmlGenericControl",
+		"Properties": {
+			"Attributes:data-test": "value",
+			"CssClasses:my-class": "{value: 1 + 1 == 2}"
+		},
+		"LifecycleRequirements": "None"
+	},
+	"controlBase": {
+		"Control": "HtmlGenericControl",
+		"Properties": {
+			"Attributes:data-test": "value",
+			"CssClasses:my-class": "{value: 1 + 1 == 2}"
+		},
+		"LifecycleRequirements": "None"
+	},
+	"controlBase2": {
+		"Control": "HtmlGenericControl",
+		"Properties": {
+			"Attributes:data-test": "value",
+			"CssClasses:my-class": "{value: 1 + 1 == 2}"
+		},
+		"LifecycleRequirements": "None"
+	},
+	"controlObj": {
+		"Control": "HtmlGenericControl",
+		"Properties": {
+			"Attributes:data-test": "value",
+			"CssClasses:my-class": "{value: 1 + 1 == 2}"
+		},
+		"LifecycleRequirements": "None"
+	},
+	"controlInterface": {
+		"Control": "HtmlGenericControl",
+		"Properties": {
+			"Attributes:data-test": "value",
+			"CssClasses:my-class": "{value: 1 + 1 == 2}"
+		},
+		"LifecycleRequirements": "None"
+	},
+	"controlInterface2": {
+		"Attributes": {
+			"data-test": "value"
+		}
+	},
+	"controlInterface3": {
+		"Control": "HtmlGenericControl",
+		"Properties": {
+			"Attributes:data-test": "value",
+			"CssClasses:my-class": "{value: 1 + 1 == 2}"
+		},
+		"LifecycleRequirements": "None"
+	}
+}

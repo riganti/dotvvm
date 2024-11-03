@@ -2,33 +2,30 @@
   "dotvvmVersion": "*.*.*.*",
   "config": {
     "markup": {
-      "importedNamespaces": [
-        {
-          "namespace": "DotVVM.Framework.Binding.HelperNamespace"
-        },
-        {
-          "namespace": "System.Linq"
-        }
-      ],
-      "ViewCompilation": {
-        "compileInParallel": true
-      }
+      "ViewCompilation": {}
     },
     "resources": {
       "DotVVM.Framework.ResourceManagement.InlineScriptResource": {
         "r6": {
           "Code": "alert(1)",
+          "Defer": false,
+          "Module": false,
           "RenderPosition": "Body"
         },
         "r7": {
+          "Defer": false,
+          "Module": false,
           "RenderPosition": "Body"
         }
       },
       "DotVVM.Framework.ResourceManagement.InlineStylesheetResource": {
         "r4": {
-          "Code": "body { display: none }"
+          "Code": "body { display: none }",
+          "RenderPosition": "Head"
         },
-        "r5": {}
+        "r5": {
+          "RenderPosition": "Head"
+        }
       },
       "DotVVM.Framework.ResourceManagement.TemplateResource": {
         "r9": {
@@ -45,41 +42,27 @@
         "r1": {
           "Defer": true,
           "Location": {
-            "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
             "Url": "x",
             "DebugUrl": "x"
           },
+          "LocationType": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
           "MimeType": "text/javascript",
-          "IntegrityHash": "hash, maybe"
+          "VerifyResourceIntegrity": true,
+          "IntegrityHash": "hash, maybe",
+          "RenderPosition": "Head"
         },
         "r2": {
           "Defer": true,
           "Location": {
-            "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
             "Url": "x",
             "DebugUrl": "x"
           },
+          "LocationType": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
           "LocationFallback": {
-            "JavascriptCondition": "window.x",
-            "AlternativeLocations": [
-              {
-                "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-                "Url": "y",
-                "DebugUrl": "y"
-              },
-              {
-                "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-                "Url": "z",
-                "DebugUrl": "z"
-              },
-              {
-                "$type": "DotVVM.Framework.ResourceManagement.FileResourceLocation, DotVVM.Framework",
-                "FilePath": "some-script.js",
-                "DebugFilePath": "some-script.js"
-              }
-            ]
+            "JavascriptCondition": "window.x"
           },
           "MimeType": "text/javascript",
+          "VerifyResourceIntegrity": true,
           "Dependencies": [
             "r1"
           ],
@@ -89,45 +72,24 @@
       "stylesheets": {
         "r3": {
           "Location": {
-            "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
             "Url": "s",
             "DebugUrl": "s"
           },
+          "LocationType": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
           "MimeType": "text/css",
-          "IntegrityHash": "hash, maybe"
+          "VerifyResourceIntegrity": true,
+          "IntegrityHash": "hash, maybe",
+          "RenderPosition": "Head"
         }
       }
     },
-    "security": {
-      "xssProtectionHeader": {
-        "enabled": true
-      },
-      "contentTypeOptionsHeader": {
-        "enabled": true
-      },
-      "verifySecFetchForPages": {
-        "enabled": true
-      },
-      "verifySecFetchForCommands": {
-        "enabled": true
-      },
-      "referrerPolicy": {
-        "enabled": true
-      }
-    },
-    "runtime": {
-      "reloadMarkupFiles": {},
-      "compressPostbacks": {},
-      "maxPostbackSizeBytes": 134217728
-    },
+    "security": {},
+    "runtime": {},
     "defaultCulture": "en-US",
     "experimentalFeatures": {},
-    "debug": false,
     "diagnostics": {
       "compilationPage": {},
-      "perfWarnings": {
-        "bigViewModelBytes": 5242880.0
-      }
+      "perfWarnings": {}
     }
   }
 }

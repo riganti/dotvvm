@@ -17,7 +17,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding.Properties;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Configuration
 {

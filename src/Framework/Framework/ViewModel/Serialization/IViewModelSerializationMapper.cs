@@ -9,6 +9,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     public interface IViewModelSerializationMapper
     {
         ViewModelSerializationMap GetMap(Type type);
+        ViewModelSerializationMap<T> GetMap<T>();
 
         ViewModelSerializationMap GetMapByTypeId(string typeId);
     }

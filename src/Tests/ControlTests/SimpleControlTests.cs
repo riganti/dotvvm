@@ -257,11 +257,11 @@ namespace DotVVM.Framework.Tests.ControlTests
             <dot:Button Click={command: Integer = Integer - 1} Enabled={value: Integer > 10000000} />
             ");
 
-            Assert.AreEqual(10000000, (int)r.ViewModel.@int);
+            Assert.AreEqual(10000000, (int)r.ViewModelJson["int"]);
             await r.RunCommand("Integer = Integer + 1");
-            Assert.AreEqual(10000001, (int)r.ViewModel.@int);
+            Assert.AreEqual(10000001, (int)r.ViewModelJson["int"]);
             await r.RunCommand("Integer = Integer - 1");
-            Assert.AreEqual(10000000, (int)r.ViewModel.@int);
+            Assert.AreEqual(10000000, (int)r.ViewModelJson["int"]);
             // invoking command on disabled button should fail
             var exception = await Assert.ThrowsExceptionAsync<Framework.Runtime.Commands.InvalidCommandInvocationException>(() =>
                 r.RunCommand("Integer = Integer - 1")

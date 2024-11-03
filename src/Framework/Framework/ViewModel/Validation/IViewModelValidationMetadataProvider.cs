@@ -7,7 +7,7 @@ namespace DotVVM.Framework.ViewModel.Validation
     public interface IViewModelValidationMetadataProvider
     {
 
-        IEnumerable<ValidationAttribute> GetAttributesForProperty(PropertyInfo property);
+        IEnumerable<ValidationAttribute> GetAttributesForProperty(MemberInfo property);
 
     }
 }

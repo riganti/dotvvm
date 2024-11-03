@@ -1,18 +1,18 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
     public class ViewModelPropertyValidationRule
     {
-        [JsonProperty("ruleName")]
+        [JsonPropertyName("ruleName")]
         public string? ClientRuleName { get; set; }
 
-        [JsonProperty("errorMessage")]
+        [JsonPropertyName("errorMessage")]
         public string ErrorMessage => SourceValidationAttribute.FormatErrorMessage(PropertyName);
 
-        [JsonProperty("parameters")]
+        [JsonPropertyName("parameters")]
         public object?[] Parameters { get; set; }
 
         [JsonIgnore]

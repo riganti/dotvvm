@@ -5,7 +5,6 @@ using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
-using Newtonsoft.Json;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Runtime;
 
@@ -32,7 +31,7 @@ namespace DotVVM.Framework.Controls
             writer.RenderSelfClosingTag("input");
 
             // init on load
-            var initCode = $"window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});";
+            var initCode = $"window.dotvvm.init({KnockoutHelper.MakeStringLiteral(CultureInfo.CurrentCulture.Name)});";
             var config = context.Configuration;
             if (!config.Runtime.CompressPostbacks.IsEnabledForRoute(context.Route?.RouteName, defaultValue: !config.Debug))
             {
@@ -58,11 +57,11 @@ namespace DotVVM.Framework.Controls
             var result = "";
             // propagate warnings to JS console
             var collector = context.Services.GetService<RuntimeWarningCollector>();
-            if (!collector.Enabled) return result;
+            if (collector is null || !collector.Enabled) return result;
 
             foreach (var w in collector.GetWarnings())
             {
-                var msg = JsonConvert.ToString(w.ToString(), '"', StringEscapeHandling.EscapeHtml);
+                var msg = KnockoutHelper.MakeStringLiteral(w.ToString());
                 result += $"console.warn({msg});\n";
             }
             return result;

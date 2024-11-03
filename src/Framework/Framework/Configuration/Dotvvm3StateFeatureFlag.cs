@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Configuration
 {
     /// <summary> Overrides an automatically enabled feature by always enabling or disabling it for the entire application or only for certain routes. </summary>
-    public class Dotvvm3StateFeatureFlag: IDotvvmFeatureFlagAdditiveConfiguration
+    public class Dotvvm3StateFeatureFlag: IDotvvmFeatureFlagAdditiveConfiguration, IEquatable<Dotvvm3StateFeatureFlag>
     {
         [JsonIgnore]
         public string FlagName { get; }
@@ -17,7 +17,8 @@ namespace DotVVM.Framework.Configuration
         }
 
         /// <summary> Default state of this feature flag. true = enabled, false = disabled, null = enabled automatically based on other conditions (usually running in Development/Production environment) </summary>
-        [JsonProperty("enabled")]
+        [JsonPropertyName("enabled")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public bool? Enabled
         {
             get => _enabled;
@@ -30,7 +31,7 @@ namespace DotVVM.Framework.Configuration
         private bool? _enabled = null;
 
         /// <summary> List of routes where the feature flag is always enabled. </summary>
-        [JsonProperty("includedRoutes")]
+        [JsonPropertyName("includedRoutes")]
         public ISet<string> IncludedRoutes
         {
             get => _includedRoutes;
@@ -43,7 +44,7 @@ namespace DotVVM.Framework.Configuration
         private ISet<string> _includedRoutes = new FreezableSet<string>(comparer: StringComparer.OrdinalIgnoreCase);
 
         /// <summary> List of routes where the feature flag is always disabled. </summary>
-        [JsonProperty("excludedRoutes")]
+        [JsonPropertyName("excludedRoutes")]
         public ISet<string> ExcludedRoutes
         {
             get => _excludedRoutes;
@@ -202,5 +203,14 @@ namespace DotVVM.Framework.Configuration
             var disabledStr = ExcludedRoutes.Count > 0 ? $", disabled for routes: [{string.Join(", ", ExcludedRoutes)}]" : null;
             return $"Feature flag {this.FlagName}: {defaultStr}{enabledStr}{disabledStr}";
         }
+
+        public bool Equals(Dotvvm3StateFeatureFlag? other) =>
+            other is not null &&
+            this.Enabled == other.Enabled &&
+            this.IncludedRoutes.SetEquals(other.IncludedRoutes) &&
+            this.ExcludedRoutes.SetEquals(other.ExcludedRoutes);
+
+        public override bool Equals(object? obj) => obj is Dotvvm3StateFeatureFlag other && Equals(other);
+        public override int GetHashCode() => throw new NotSupportedException("Use ReferenceEqualityComparer");
     }
 }

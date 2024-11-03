@@ -8,7 +8,6 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -166,7 +165,7 @@ namespace DotVVM.Framework.Controls
                         valueBindingType = valueBindingType.UnwrapNullableType();
 
                     var formattedType = $"\"{valueBindingType?.Name.ToLowerInvariant()}\"";
-                    expression = "dotvvm.globalize.formatString(" + JsonConvert.ToString(FormatString) + ", " + expression + ", " + formattedType + ")";
+                    expression = "dotvvm.globalize.formatString(" + KnockoutHelper.MakeStringLiteral(FormatString ?? "", htmlSafe: !r.RenderSpanElement) + ", " + expression + ", " + formattedType + ")";
                 }
 
                 if (r.RenderSpanElement)

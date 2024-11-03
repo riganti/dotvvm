@@ -57,9 +57,11 @@ namespace DotVVM.Framework.ViewModel.Validation
             CreateValidationResult(vm.Context.Configuration, error, expressions);
 
 
-        private static JavascriptTranslator defaultJavaScriptTranslator = new JavascriptTranslator(
-            new JavascriptTranslatorConfiguration(),
-            new ViewModelSerializationMapper(new ViewModelValidationRuleTranslator(), new AttributeViewModelValidationMetadataProvider(), new DefaultPropertySerialization(), DotvvmConfiguration.CreateDefault()));
+        private static Lazy<JavascriptTranslator> defaultJavaScriptTranslator = new Lazy<JavascriptTranslator>(() => {
+            var config = DotvvmConfiguration.CreateDefault();
+            var mapper = config.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>();
+            return new JavascriptTranslator(new JavascriptTranslatorConfiguration(), mapper);
+        });
 
         public static ValidationResult CreateValidationResult<T>(ValidationContext validationContext, string error, params Expression<Func<T, object>>[] expressions)
         {
@@ -69,7 +71,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             }
 
             // Fallback to default version of JavaScriptTranslator
-            return new ValidationResult ( error, expressions.Select(expr => GetPathFromExpression(defaultJavaScriptTranslator, expr)) );
+            return new ValidationResult ( error, expressions.Select(expr => GetPathFromExpression(defaultJavaScriptTranslator.Value, expr)) );
         }
 
         public static ViewModelValidationError CreateModelError<T, TProp>(DotvvmConfiguration config, object? obj, Expression<Func<T, TProp>> expr, string error) =>

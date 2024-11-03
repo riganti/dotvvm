@@ -46,10 +46,6 @@ namespace DotVVM.Framework.Hosting
             Meter.CreateHistogram<long>("viewmodel_size_bytes", unit: "bytes", description: "Size of the result viewmodel JSON in bytes.");
 
         /// <summary> Labeled by route=RouteName and request_type=Navigate/SpaNavigate/Command/StaticCommand </summary>
-        public static readonly Histogram<double> ViewModelStringificationTime =
-            Meter.CreateHistogram<double>("viewmodel_stringification_seconds", unit: "seconds", description: "Time it took to stringify the resulting JSON view model.");
-
-        /// <summary> Labeled by route=RouteName and request_type=Navigate/SpaNavigate/Command/StaticCommand </summary>
         public static readonly Histogram<double> ViewModelSerializationTime =
             Meter.CreateHistogram<double>("viewmodel_serialization_seconds", unit: "seconds", description: "Time it took to serialize view model to JSON objects.");
 

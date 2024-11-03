@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text.Json;
 using System.Threading;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -12,7 +13,6 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Testing
 {
@@ -20,9 +20,8 @@ namespace DotVVM.Framework.Testing
     {
         public IHttpContext HttpContext { get; set; }
         public string CsrfToken { get; set; }
-        public JObject ReceivedViewModelJson { get; set; }
+        public JsonDocument ReceivedViewModelJson { get; set; }
         public object ViewModel { get; set; }
-        public JObject ViewModelJson { get; set; }
         public DotvvmConfiguration Configuration { get; set; }
         public IDotvvmPresenter Presenter { get; set; }
         public RouteBase Route { get; set; }
@@ -54,7 +53,6 @@ namespace DotVVM.Framework.Testing
         }
 
         public CustomResponsePropertiesManager CustomResponseProperties { get; } = new CustomResponsePropertiesManager();
-
 
         public TestDotvvmRequestContext() { }
         public TestDotvvmRequestContext(IServiceProvider services)

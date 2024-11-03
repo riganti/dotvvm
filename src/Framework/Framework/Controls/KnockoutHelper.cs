@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
@@ -9,7 +12,6 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -171,7 +173,7 @@ namespace DotVVM.Framework.Controls
                     var pathFragment = current.GetDataContextPathFragment();
                     if (pathFragment != null)
                     {
-                        result.Add(JsonConvert.ToString(pathFragment));
+                        result.Add(MakeStringLiteral(pathFragment));
                     }
                     current = current.Parent;
                 }
@@ -307,14 +309,14 @@ namespace DotVVM.Framework.Controls
 
                     if (options.Count == 0)
                     {
-                        sb.Append(JsonConvert.ToString(name));
+                        sb.Append(MakeStringLiteral(name));
                     }
                     else
                     {
                         string script = GenerateHandlerOptions(handler, options);
 
                         sb.Append("[");
-                        sb.Append(JsonConvert.ToString(name));
+                        sb.Append(MakeStringLiteral(name));
                         sb.Append(",");
                         sb.Append(script);
                         sb.Append("]");
@@ -426,7 +428,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                return $"[{handlerNameJson},{{q:{JsonConvert.ToString(queueName)}}}]";
+                return $"[{handlerNameJson},{{q:{MakeStringLiteral(queueName!)}}}]";
             }
         }
         
@@ -505,15 +507,28 @@ namespace DotVVM.Framework.Controls
         {
             var binding = obj.GetValueBinding(property);
             if (binding != null) return binding.GetKnockoutBindingExpression(obj);
-            return JsonConvert.SerializeObject(obj.GetValue(property), DefaultSerializerSettingsProvider.Instance.Settings);
+            return JsonSerializer.Serialize(obj.GetValue(property), DefaultSerializerSettingsProvider.Instance.Settings);
         }
 
         /// <summary>
         /// Encodes the string so it can be used in Javascript code.
         /// </summary>
-        public static string MakeStringLiteral(string value, bool useApos = false)
+        public static string MakeStringLiteral(string value, bool htmlSafe = true)
         {
-            return JsonConvert.ToString(value, useApos ? '\'' : '"', StringEscapeHandling.Default);
+            var encoder = htmlSafe ? DefaultSerializerSettingsProvider.Instance.HtmlSafeLessParanoidEncoder : JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+            if (value.Length < 64)
+            {
+                // try to allocate only the result string if it short enough
+                Span<char> buffer = stackalloc char[128];
+                buffer[0] = '"';
+                encoder.Encode(source: value.AsSpan(), destination: buffer.Slice(1), out var consumed, out var written);
+                if (consumed == value.Length && written + 2 <= buffer.Length)
+                {
+                    buffer[written + 1] = '"';
+                    return buffer.Slice(0, written + 2).ToString();
+                }
+            }
+            return string.Concat("\"", encoder.Encode(value), "\"");
         }
 
         public static string ConvertToCamelCase(string name)

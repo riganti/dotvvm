@@ -5,6 +5,7 @@ using DotVVM.Framework.Utils;
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Profiling;
+using System.IO;
 
 namespace DotVVM.Tracing.MiniProfiler
 {
@@ -76,6 +77,10 @@ namespace DotVVM.Tracing.MiniProfiler
         {
             EnsureProfilerStarted();
             return GetProfilerCurrent().StepIf(name, minDuration, includeChildren);
+        }
+
+        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Func<Stream> viewModelBuffer)
+        {
         }
     }
 }

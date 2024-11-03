@@ -12,11 +12,12 @@ namespace DotVVM.Framework.Runtime
     {
         Task WriteHtmlResponse(IDotvvmRequestContext context, DotvvmView view);
 
-        Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view);
+        Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view, string viewModel);
 
-        Task WriteStaticCommandResponse(IDotvvmRequestContext context, string json);
+        Task WriteStaticCommandResponse(IDotvvmRequestContext context, ReadOnlyMemory<byte> json);
 
         Task RenderPlainJsonResponse(IHttpContext context, string json);
+        Task RenderPlainJsonResponse(IHttpContext context, ReadOnlyMemory<byte> json);
 
         Task RenderHtmlResponse(IHttpContext context, string html);
 

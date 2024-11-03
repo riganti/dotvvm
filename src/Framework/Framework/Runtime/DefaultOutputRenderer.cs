@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
@@ -82,16 +81,15 @@ namespace DotVVM.Framework.Runtime
         }
 
 
-        public virtual async Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view)
+        public virtual async Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view, string serializedViewModel)
         {
             // return the response
             context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
             SetCacheHeaders(context.HttpContext);
-            var serializedViewModel = context.GetSerializedViewModel();
             await context.HttpContext.Response.WriteAsync(serializedViewModel);
         }
 
-        public virtual async Task WriteStaticCommandResponse(IDotvvmRequestContext context, string json)
+        public virtual async Task WriteStaticCommandResponse(IDotvvmRequestContext context, ReadOnlyMemory<byte> json)
         {
             context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
             SetCacheHeaders(context.HttpContext);
@@ -99,6 +97,13 @@ namespace DotVVM.Framework.Runtime
         }
 
         public virtual async Task RenderPlainJsonResponse(IHttpContext context, string json)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            context.Response.ContentType = "application/json; charset=utf-8";
+            SetCacheHeaders(context);
+            await context.Response.WriteAsync(json);
+        }
+        public virtual async Task RenderPlainJsonResponse(IHttpContext context, ReadOnlyMemory<byte> json)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "application/json; charset=utf-8";

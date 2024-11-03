@@ -126,7 +126,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                 var map = viewModelSerializationMapper.GetMap(viewModel.GetType());
                 foreach (var property in map.Properties.Where(p => p.TransferToServer))
                 {
-                    var value = property.PropertyInfo.GetValue(viewModel);
+                    var value = property.GetValue(viewModel);
                     if (value == null)
                         continue;
 

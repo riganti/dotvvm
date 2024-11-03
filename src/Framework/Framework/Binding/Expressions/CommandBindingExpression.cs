@@ -2,19 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Compilation;
-using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Utils;
 using FastExpressionCompiler;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -149,7 +144,7 @@ namespace DotVVM.Framework.Binding.Expressions
              needsCommandArgs == false ? javascriptPostbackInvocation_noCommandArgs :
              javascriptPostbackInvocation)
             .AssignParameters(p =>
-                p == CommandIdParameter ? CodeParameterAssignment.FromLiteral(id) :
+                p == CommandIdParameter ? new(KnockoutHelper.MakeStringLiteral(id, htmlSafe: false), OperatorPrecedence.Max) :
                 default);
 
         public CommandBindingExpression(BindingCompilationService service, Action<object[]> command, string id)

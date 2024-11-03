@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -39,16 +40,16 @@ namespace DotVVM.Framework.Configuration
         }
     }
 
-    public class HtmlTagAttributePairToStringConverter : JsonConverter
+    public class HtmlTagAttributePairToStringConverter : JsonConverter<HtmlTagAttributePair>
     {
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, HtmlTagAttributePair value, JsonSerializerOptions options)
         {
-            writer.WriteValue(value?.ToString());
+            writer.WriteStringValue(value.ToString());
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override HtmlTagAttributePair Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var value = reader.ReadAsString();
+            var value = reader.GetString();
             if (value == null)
             {
                 throw InvalidFormatException();
@@ -59,23 +60,14 @@ namespace DotVVM.Framework.Configuration
             {
                 throw InvalidFormatException();
             }
-
-            if (existingValue == null)
-            {
-                existingValue = new HtmlTagAttributePair();
-            }
-            var pair = (HtmlTagAttributePair) existingValue;
-            pair.TagName = match.Groups[1].Value;
-            pair.AttributeName = match.Groups[2].Value;
-            return pair;
+            return new() {
+                TagName = match.Groups[1].Value,
+                AttributeName = match.Groups[2].Value
+            };
         }
 
         private static Exception InvalidFormatException() =>
-            new JsonSerializationException("HTML attribute definition expected! Correct syntax is 'a[href]': { }");
+            new Exception("HTML attribute definition expected! Correct syntax is 'a[href]': { }");
 
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof (HtmlTagAttributePair);
-        }
     }
 }

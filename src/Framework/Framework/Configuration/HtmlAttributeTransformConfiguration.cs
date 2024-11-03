@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using DotVVM.Framework.Controls;
 using System.Reflection;
 using DotVVM.Framework.Utils;
+using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
+using System.Text.Json;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Configuration
         private Lazy<IHtmlAttributeTransformer> instance;
 
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public Type? Type
         {
             get => _type;
@@ -23,12 +23,12 @@ namespace DotVVM.Framework.Configuration
         private Type? _type;
 
         [JsonExtensionData]
-        public IDictionary<string, JToken>? ExtensionData
+        public IDictionary<string, JsonNode>? ExtensionData
         {
             get => _extensionData;
             set { ThrowIfFrozen(); _extensionData = value; }
         }
-        private IDictionary<string, JToken>? _extensionData;
+        private IDictionary<string, JsonNode>? _extensionData;
 
 
         public HtmlAttributeTransformConfiguration()
@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Configuration
                 foreach (var extension in ExtensionData)
                 {
                     var prop = type.GetProperty(extension.Key) ?? throw new Exception($"Property {extension.Key} from ExtensionData was not found.");
-                    prop.SetValue(transformer, extension.Value.ToObject(prop.PropertyType));
+                    prop.SetValue(transformer, extension.Value.Deserialize(prop.PropertyType));
                 }
             }
 
@@ -75,8 +75,6 @@ namespace DotVVM.Framework.Configuration
         {
             this.isFrozen = true;
             FreezableDictionary.Freeze(ref this._extensionData);
-            // unfortunately, the stored JTokens are still mutable :(
-            // it may get solved at some point, https://github.com/JamesNK/Newtonsoft.Json/issues/468
         }
     }
 }

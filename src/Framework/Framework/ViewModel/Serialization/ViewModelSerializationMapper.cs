@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.ViewModel.Validation;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Runtime;
+using Microsoft.Extensions.Logging;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using DotVVM.Framework.Compilation.Javascript;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -20,31 +24,41 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IViewModelValidationMetadataProvider validationMetadataProvider;
         private readonly IPropertySerialization propertySerialization;
         private readonly DotvvmConfiguration configuration;
+        private readonly IDotvvmJsonOptionsProvider jsonOptions;
+        private readonly ILogger<ViewModelSerializationMapper>? logger;
 
         public ViewModelSerializationMapper(IValidationRuleTranslator validationRuleTranslator, IViewModelValidationMetadataProvider validationMetadataProvider,
-            IPropertySerialization propertySerialization, DotvvmConfiguration configuration)
+            IPropertySerialization propertySerialization, DotvvmConfiguration configuration, IDotvvmJsonOptionsProvider jsonOptions, ILogger<ViewModelSerializationMapper>? logger = null)
         {
             this.validationRuleTranslator = validationRuleTranslator;
             this.validationMetadataProvider = validationMetadataProvider;
             this.propertySerialization = propertySerialization;
             this.configuration = configuration;
+            this.jsonOptions = jsonOptions;
+            this.logger = logger;
 
             HotReloadMetadataUpdateHandler.SerializationMappers.Add(new(this));
         }
 
         private readonly ConcurrentDictionary<string, ViewModelSerializationMap> serializationMapCache = new();
         public ViewModelSerializationMap GetMap(Type type) => serializationMapCache.GetOrAdd(type.GetTypeHash(), t => CreateMap(type));
+        public ViewModelSerializationMap<T> GetMap<T>() => (ViewModelSerializationMap<T>)serializationMapCache.GetOrAdd(typeof(T).GetTypeHash(), _ => CreateMap<T>());
         public ViewModelSerializationMap GetMapByTypeId(string typeId) => serializationMapCache[typeId];
 
         /// <summary>
         /// Creates the serialization map for specified type.
         /// </summary>
-        protected virtual ViewModelSerializationMap CreateMap(Type type)
+        protected virtual ViewModelSerializationMap CreateMap(Type type) =>
+            (ViewModelSerializationMap)CreateMapGenericMethod.MakeGenericMethod(type).Invoke(this, Array.Empty<object>())!;
+        static MethodInfo CreateMapGenericMethod =
+            (MethodInfo)MethodFindingHelper.GetMethodFromExpression(() => default(ViewModelSerializationMapper)!.CreateMap<MethodFindingHelper.Generic.T>());
+        protected virtual ViewModelSerializationMap<T> CreateMap<T>()
         {
+            var type = typeof(T);
             // constructor which takes properties as parameters
             // if it exists, we always need to recreate the viewmodel
             var valueConstructor = GetConstructor(type);
-            return new ViewModelSerializationMap(type, GetProperties(type, valueConstructor), valueConstructor, configuration);
+            return new ViewModelSerializationMap<T>(GetProperties(type, valueConstructor), valueConstructor, jsonOptions.ViewModelJsonOptions, configuration);
         }
 
         protected virtual MethodBase? GetConstructor(Type type)
@@ -52,17 +66,25 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (ReflectionUtils.IsPrimitiveType(type) || ReflectionUtils.IsEnumerable(type))
                 return null;
 
-            if (type.GetMethods(BindingFlags.Static | BindingFlags.Public).FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))) is {} factory)
+            if (type.GetMethods(BindingFlags.Static | BindingFlags.Public).FirstOrDefault(c => SerialiationMapperAttributeHelper.IsJsonConstructor(c)) is {} factory)
                 return factory;
 
             if (type.IsAbstract)
                 return null;
 
-            if (type.GetConstructors().FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))) is {} ctor)
+            if (type.GetConstructors().FirstOrDefault(c => SerialiationMapperAttributeHelper.IsJsonConstructor(c)) is {} ctor)
                 return ctor;
             
             if (type.GetConstructor(Type.EmptyTypes) is {} emptyCtor)
                 return emptyCtor;
+            if (ReflectionUtils.IsTupleLike(type))
+            {
+                var ctors = type.GetConstructors();
+                if (ctors.Length == 1)
+                    return ctors[0];
+                else
+                    throw new NotSupportedException($"Type {type.FullName} is a tuple-like type, but it has {ctors.Length} constructors.");
+            }
             return GetRecordConstructor(type);
         }
 
@@ -97,17 +119,75 @@ namespace DotVVM.Framework.ViewModel.Serialization
             static Type unwrapByRef(Type t) => t.IsByRef ? t.GetElementType()! : t;
         }
 
+        protected virtual MemberInfo[] ResolveShadowing(Type type, MemberInfo[] members)
+        {
+            var shadowed = new Dictionary<string, MemberInfo>();
+            foreach (var member in members)
+            {
+                if (!shadowed.ContainsKey(member.Name))
+                {
+                    shadowed.Add(member.Name, member);
+                    continue;
+                }
+                var previous = shadowed[member.Name];
+                if (member.DeclaringType == previous.DeclaringType)
+                    throw new InvalidOperationException($"Two or more members named '{member.Name}' on type '{member.DeclaringType!.ToCode()}' are not allowed.");
+                var (inherited, replacing) = member.DeclaringType!.IsAssignableFrom(previous.DeclaringType!) ? (member, previous) : (previous, member);
+                var inheritedType = inherited.GetResultType();
+                var replacingType = replacing.GetResultType();
+
+                // collections are special case, since everything is serialized as array, we don't have to care about the actual type, only the element type
+                // this is neccessary for IGridViewDataSet hierarchy to work...
+                while (ReflectionUtils.IsCollection(inheritedType) && ReflectionUtils.IsCollection(replacingType))
+                {
+                    inheritedType = ReflectionUtils.GetEnumerableType(inheritedType) ?? typeof(object);
+                    replacingType = ReflectionUtils.GetEnumerableType(replacingType) ?? typeof(object);
+                }
+
+                if (inheritedType.IsAssignableFrom(replacingType))
+                {
+                    shadowed[member.Name] = replacing;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Detected forbidden member shadowing of '{inherited.DeclaringType.ToCode(stripNamespace: true)}.{inherited.Name}: {inherited.GetResultType().ToCode(stripNamespace: true)}' by '{replacing.DeclaringType.ToCode(stripNamespace: true)}.{replacing.Name}: {replacing.GetResultType().ToCode(stripNamespace: true)}' while building serialization map for '{type.ToCode(stripNamespace: true)}'");
+                }
+            }
+            return shadowed.Values.ToArray();
+        }
+
         /// <summary>
         /// Gets the properties of the specified type.
         /// </summary>
         protected virtual IEnumerable<ViewModelPropertyMap> GetProperties(Type type, MethodBase? constructor)
         {
             var ctorParams = constructor?.GetParameters().ToDictionary(p => p.Name.NotNull(), StringComparer.OrdinalIgnoreCase);
-            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            var properties = type.GetAllMembers(BindingFlags.Public | BindingFlags.Instance)
+                                 .Where(m => m is PropertyInfo or FieldInfo)
+                                 .ToArray();
+            properties = ResolveShadowing(type, properties);
             Array.Sort(properties, (a, b) => StringComparer.Ordinal.Compare(a.Name, b.Name));
-            foreach (var property in properties)
+            foreach (MemberInfo property in properties)
             {
-                if (property.IsDefined(typeof(JsonIgnoreAttribute))) continue;
+                var bindAttribute = property.GetCustomAttribute<BindAttribute>();
+                var include = !SerialiationMapperAttributeHelper.IsJsonIgnore(property) && bindAttribute is not { Direction: Direction.None };
+                if (property is FieldInfo)
+                {
+                    // fields are ignored by default, unless marked with [Bind(not None)], [JsonInclude] or defined in ValueTuple<...>
+                    include = include && (
+                        !(bindAttribute is null or { Direction: Direction.None }) ||
+                        property.IsDefined(typeof(JsonIncludeAttribute)) ||
+                        (type.IsGenericType && type.FullName!.StartsWith("System.ValueTuple`"))
+                    );
+                }
+                if (!include) continue;
+
+                var (propertyType, canGet, canSet) = property switch {
+                    PropertyInfo p => (p.PropertyType, p.GetMethod is { IsPublic: true }, p.SetMethod is { IsPublic: true }),
+                    FieldInfo f => (f.FieldType, true, !f.IsInitOnly && !f.IsLiteral),
+                    _ => throw new NotSupportedException()
+                };
 
                 var ctorParam = ctorParams?.GetValueOrDefault(property.Name);
 
@@ -115,24 +195,28 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     property,
                     propertySerialization.ResolveName(property),
                     ProtectMode.None,
-                    property.PropertyType,
-                    transferToServer: ctorParam is {} || IsSetterSupported(property),
-                    transferAfterPostback: property.GetMethod != null && property.GetMethod.IsPublic,
-                    transferFirstRequest: property.GetMethod != null && property.GetMethod.IsPublic,
-                    populate: ViewModelJsonConverter.CanConvertType(property.PropertyType) && property.GetMethod != null
+                    propertyType,
+                    transferToServer: ctorParam is {} || canSet,
+                    transferAfterPostback: canGet,
+                    transferFirstRequest: canGet,
+                    populate: (ViewModelJsonConverter.CanConvertType(propertyType) || propertyType == typeof(object)) && canGet
                 );
                 propertyMap.ConstructorParameter = ctorParam;
                 propertyMap.JsonConverter = GetJsonConverter(property);
+                propertyMap.AllowDynamicDispatch = propertyMap.JsonConverter is null && (propertyType.IsAbstract || propertyType == typeof(object));
 
                 foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())
                 {
                     attr.SetOptions(propertyMap);
                 }
 
-                var bindAttribute = property.GetCustomAttribute<BindAttribute>();
                 if (bindAttribute != null)
                 {
                     propertyMap.Bind(bindAttribute.Direction);
+                    propertyMap.AllowDynamicDispatch = bindAttribute.AllowsDynamicDispatch(propertyMap.AllowDynamicDispatch);
+
+                    if (propertyMap.AllowDynamicDispatch && propertyMap.JsonConverter is {})
+                        throw new NotSupportedException($"Property '{property.DeclaringType?.ToCode()}.{property.Name}' cannot use dynamic dispatch, because it has an explicit JsonConverter.");
                 }
 
                 var viewModelProtectionAttribute = property.GetCustomAttribute<ProtectAttribute>();
@@ -155,22 +239,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 yield return propertyMap;
             }
         }
-        /// <summary>
-        /// Returns whether DotVVM serialization supports setter of given property. 
-        /// </summary>
-        private static bool IsSetterSupported(PropertyInfo property)
-        {
-            // support all properties of KeyValuePair<,>
-            if (property.DeclaringType!.IsGenericType && property.DeclaringType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)) return true;
 
-            return property.SetMethod != null && property.SetMethod.IsPublic;
-        }
-
-        protected virtual JsonConverter? GetJsonConverter(PropertyInfo property)
+        protected virtual JsonConverter? GetJsonConverter(MemberInfo property)
         {
             var converterType = property.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType;
             if (converterType == null)
             {
+                if (SerialiationMapperAttributeHelper.HasNewtonsoftJsonConvert(property))
+                {
+                    this.logger?.LogWarning($"Property {property.DeclaringType?.FullName}.{property.Name} has Newtonsoft.Json.JsonConverterAttribute, which is not supported by DotVVM anymore. Use System.Text.Json.Serialization.JsonConverterAttribute instead.");
+                }
                 return null;
             }
             try

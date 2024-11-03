@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                         memberAccess.MemberName = propertyMap.Name;
                     }
                 }
-                else if (member is FieldInfo)
+                else if (member is FieldInfo && propAnnotation.SerializationMap?.IsAvailableOnClient() != true)
                     throw new NotSupportedException($"Cannot translate field '{member}' to Javascript");
 
                 if (targetAnnotation is { IsControl: true } &&
@@ -118,7 +118,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             if (node.Annotation<ViewModelInfoAnnotation>() is { Type: {}, SerializationMap: null } vmAnnotation)
             {
-                vmAnnotation.SerializationMap = mapper.GetMap(vmAnnotation.Type);
+                if (!ReflectionUtils.IsPrimitiveType(vmAnnotation.Type) && vmAnnotation.Type != typeof(void) && !ReflectionUtils.IsCollection(vmAnnotation.Type))
+                    vmAnnotation.SerializationMap = mapper.GetMap(vmAnnotation.Type);
             }
         }
 

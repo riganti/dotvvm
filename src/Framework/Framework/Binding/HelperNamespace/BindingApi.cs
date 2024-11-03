@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
-using Newtonsoft.Json;
 using Generic = DotVVM.Framework.Compilation.Javascript.MethodFindingHelper.Generic;
 
 namespace DotVVM.Framework.Binding.HelperNamespace

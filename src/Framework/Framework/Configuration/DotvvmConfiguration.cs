@@ -9,7 +9,6 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
-using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
@@ -30,6 +29,7 @@ using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Compilation.Javascript;
 using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the application physical path.
         /// </summary>
-        [JsonProperty("applicationPhysicalPath")]
+        [JsonPropertyName("applicationPhysicalPath")]
         [DefaultValue(".")]
         public string ApplicationPhysicalPath
         {
@@ -53,39 +53,40 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets the settings of the markup.
         /// </summary>
-        [JsonProperty("markup")]
+        [JsonPropertyName("markup")]
+        [JsonObjectCreationHandling(JsonObjectCreationHandling.Populate)]
         public DotvvmMarkupConfiguration Markup { get; private set; }
 
         /// <summary>
         /// Gets the route table.
         /// </summary>
-        [JsonProperty("routes")]
+        [JsonPropertyName("routes")]
         [JsonConverter(typeof(RouteTableJsonConverter))]
         public DotvvmRouteTable RouteTable { get; private set; }
 
         /// <summary>
         /// Gets the configuration of resources.
         /// </summary>
-        [JsonProperty("resources")]
+        [JsonPropertyName("resources")]
         [JsonConverter(typeof(ResourceRepositoryJsonConverter))]
         public DotvvmResourceRepository Resources { get; private set; } = new DotvvmResourceRepository();
 
         /// <summary>
         /// Gets the security configuration.
         /// </summary>
-        [JsonProperty("security")]
+        [JsonPropertyName("security")]
         public DotvvmSecurityConfiguration Security { get; private set; } = new DotvvmSecurityConfiguration();
 
         /// <summary>
         /// Gets the runtime configuration.
         /// </summary>
-        [JsonProperty("runtime")]
+        [JsonPropertyName("runtime")]
         public DotvvmRuntimeConfiguration Runtime { get; private set; } = new DotvvmRuntimeConfiguration();
 
         /// <summary>
         /// Gets or sets the default culture.
         /// </summary>
-        [JsonProperty("defaultCulture")]
+        [JsonPropertyName("defaultCulture")]
         public string DefaultCulture
         {
             get { return _defaultCulture; }
@@ -96,7 +97,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets whether the client side validation rules should be enabled.
         /// </summary>
-        [JsonProperty("clientSideValidation", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("clientSideValidation")]
         [DefaultValue(true)]
         public bool ClientSideValidation
         {
@@ -115,7 +116,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the configuration for experimental features.
         /// </summary>
-        [JsonProperty("experimentalFeatures")]
+        [JsonPropertyName("experimentalFeatures")]
         public DotvvmExperimentalFeaturesConfiguration ExperimentalFeatures
         {
             get => _experimentalFeatures;
@@ -127,7 +128,8 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets whether the application should run in debug mode.
         /// For ASP.NET Core check out <see href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" />
         /// </summary>
-        [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Include)]
+        [JsonPropertyName("debug")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public bool Debug
         {
             get => _debug;
@@ -138,7 +140,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the configuration for diagnostic features useful during the development of an application.
         /// </summary>
-        [JsonProperty("diagnostics")]
+        [JsonPropertyName("diagnostics")]
         public DotvvmDiagnosticsConfiguration Diagnostics
         {
             get { return _diagnostics; }
@@ -203,7 +205,7 @@ namespace DotVVM.Framework.Configuration
         }
         private StyleRepository _styles;
 
-        [JsonProperty("compiledViewsAssemblies")]
+        [JsonPropertyName("compiledViewsAssemblies")]
         public IList<string> CompiledViewsAssemblies
         {
             get { return _compiledViewsAssemblies; }
@@ -212,6 +214,7 @@ namespace DotVVM.Framework.Configuration
         private IList<string> _compiledViewsAssemblies = new FreezableList<string>() { "CompiledViews.dll" };
 
         /// <summary> must be there for serialization </summary>
+        [JsonConstructor]
         internal DotvvmConfiguration(): this(new ServiceLocator(CreateDefaultServiceCollection().BuildServiceProvider()).GetServiceProvider())
         { }
         /// <summary>
@@ -247,7 +250,7 @@ namespace DotVVM.Framework.Configuration
         {
             var services = CreateDefaultServiceCollection();
             registerServices?.Invoke(services);
-            return new ServiceLocator(services, serviceProviderFactoryMethod).GetService<DotvvmConfiguration>();
+            return new ServiceLocator(services, serviceProviderFactoryMethod).GetService<DotvvmConfiguration>().NotNull();
         }
 
         /// <summary>

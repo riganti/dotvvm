@@ -5,7 +5,7 @@
 dataSet: Customers(),
 loadNextPage: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => {
 	let cx = $context;
-	return await dotvvm.dataSet.loadDataSet(options.viewModel.Customers, (options) => dotvvm.dataSet.translations.PagingOptions.goToNextPage(ko.unwrap(options).PagingOptions), ((...args)=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkNvbnRyb2xUZXN0cy5EYXRhUGFnZXJUZXN0cytHcmlkVmlld01vZGVsLCBEb3RWVk0uRnJhbWV3b3JrLlRlc3RzIiwiTG9hZEN1c3RvbWVycyIsW10sMSxudWxsLCJBQT09Il0=&quot;, [args[0]], options),$element,[],args,$context))), dotvvm.dataSet.postProcessors.append);
+	return await dotvvm.dataSet.loadDataSet(options.viewModel.Customers, (options) => dotvvm.dataSet.translations.PagingOptions.goToNextPage(ko.unwrap(options).PagingOptions), ((...args)=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkNvbnRyb2xUZXN0cy5EYXRhUGFnZXJUZXN0c1x1MDAyQkdyaWRWaWV3TW9kZWwsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkQ3VzdG9tZXJzIixbXSwxLG51bGwsIkFBPT0iLG51bGxd&quot;, [args[0]], options),$element,[],args,$context))), dotvvm.dataSet.postProcessors.append);
 },$element,[],args,$context)),
 autoLoadWhenInViewport: false
 }">

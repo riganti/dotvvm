@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
@@ -9,15 +8,15 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Utils;
+using System.Text.Json;
 
 namespace DotVVM.Framework.Hosting
 {
     public class DotvvmRequestContext : IDotvvmRequestContext
     {
         public string? CsrfToken { get; set; }
-        public JObject? ReceivedViewModelJson { get; set; }
+        public JsonDocument? ReceivedViewModelJson { get; set; }
 
-        public JObject? ViewModelJson { get; set; }
 
         /// <summary>
         /// Gets the route that was used for this request.

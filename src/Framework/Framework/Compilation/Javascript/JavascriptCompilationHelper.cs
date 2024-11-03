@@ -1,24 +1,24 @@
 using System;
+using System.Globalization;
 using System.Linq;
+using System.Text.Json;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
-using DotVVM.Framework.ViewModel.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
     public static class JavascriptCompilationHelper
     {
-        public static string CompileConstant(object? obj) =>
+        public static string CompileConstant(object? obj, bool htmlSafe = true) =>
             obj switch {
                 null => "null",
                 true => "true",
                 false => "false",
-                string s => JsonConvert.ToString(s),
-                int i => JsonConvert.ToString(i),
-                _ => JsonConvert.SerializeObject(obj, DefaultSerializerSettingsProvider.Instance.Settings)
+                int i => i.ToString(CultureInfo.InvariantCulture).DotvvmInternString(trySystemIntern: false),
+                string s => KnockoutHelper.MakeStringLiteral(s, htmlSafe),
+                _ => JsonSerializer.Serialize(obj, htmlSafe ? DefaultSerializerSettingsProvider.Instance.Settings : DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe)
             };
 
         public static ViewModelInfoAnnotation? GetResultType(this JsExpression expr)

@@ -1,12 +1,13 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -30,24 +31,26 @@ namespace DotVVM.Framework.Hosting
                 controls = includeProperties ? DotvvmPropertySerializableList.GetControls(config.ServiceProvider.GetRequiredService<CompiledAssemblyCache>()) : null,
                 assemblies = includeProperties ? AssemblySerializableList.CreateFromCache(config.ServiceProvider.GetRequiredService<CompiledAssemblyCache>()) : null,
             };
-            return JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings {
-                TypeNameHandling = TypeNameHandling.Auto,
-                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
-                NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                // suppress any errors that occur during serialization
-                Error = (sender, args) => {
-                    args.ErrorContext.Handled = true;
-                },
+            return JsonSerializer.Serialize(obj, GetSerializerOptions());
+        }
+
+        public static JsonSerializerOptions GetSerializerOptions()
+        {
+            return new JsonSerializerOptions {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = true,
                 Converters = {
-                    new StringEnumConverter(),
                     new ReflectionTypeJsonConverter(),
-                    new DotvvmTypeDescriptorJsonConverter(),
-                    new ReflectionAssemblyJsonConverter()
+                    new ReflectionAssemblyJsonConverter(),
+                    new DotvvmTypeDescriptorJsonConverter<ITypeDescriptor>(),
+                    new DotvvmPropertyJsonConverter(),
+                    new DotvvmEnumConverter(),
+                    new DataContextChangeAttributeConverter(),
+                    new DataContextManipulationAttributeConverter()
                 },
-                ContractResolver = new DotvvmConfigurationSerializationResolver()
-            });
+                TypeInfoResolver = new DotvvmConfigurationSerializationResolver(),
+                Encoder = DefaultSerializerSettingsProvider.Instance.HtmlSafeLessParanoidEncoder
+            };
         }
 
         public static void DumpConfiguration(DotvvmConfiguration config, string directory)

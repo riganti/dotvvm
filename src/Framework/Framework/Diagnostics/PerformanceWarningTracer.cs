@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Tracing;
+using DotVVM.Framework.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Framework.Diagnostics
@@ -54,14 +56,22 @@ namespace DotVVM.Framework.Diagnostics
                 "We recommend using MiniProfiler when to keep an eye on runtime performance: https://www.dotvvm.com/docs/latest/pages/concepts/diagnostics-and-profiling/miniprofiler"
             ));
         }
-        void WarnLargeViewModel(long viewModelSize, IDotvvmRequestContext context)
-        {
-            if (context.ViewModelJson is null)
-                return;
 
+
+
+        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Func<Stream> viewModelBuffer)
+        {
+            if (viewModelSize >= config.BigViewModelBytes)
+            {
+                WarnLargeViewModel(context, viewModelSize, viewModelBuffer());
+            }
+        }
+
+        void WarnLargeViewModel(IDotvvmRequestContext context, int viewModelSize, Stream viewModelBuffer)
+        {
             try
             {
-                var vmAnalysis = jsonSizeAnalyzer.Analyze(context.ViewModelJson);
+                var vmAnalysis = jsonSizeAnalyzer.Analyze(viewModelBuffer.ReadToMemory().Span, context.ViewModel?.GetType());
 
                 var topClasses =
                     vmAnalysis.Classes
@@ -100,13 +110,6 @@ namespace DotVVM.Framework.Diagnostics
             var elapsed = stopwatch.Elapsed;
             if (elapsed.TotalSeconds > config.SlowRequestSeconds)
                 WarnSlowRequest(elapsed);
-
-
-            var viewModelSize = context.HttpContext.GetItem<int>("dotvvm-viewmodel-size-bytes");
-            if (viewModelSize > config.BigViewModelBytes)
-            {
-                WarnLargeViewModel(viewModelSize, context);
-            }
 
             return Task.CompletedTask;
         }

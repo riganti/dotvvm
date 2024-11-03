@@ -73,7 +73,7 @@ namespace DotVVM.Samples.Tests.Feature
                 var text6 = browser.Single("date-format6", SelectByDataUi);
                 var text7 = browser.Single("date-format7", SelectByDataUi);
 
-                AssertUI.TextEquals(text1, "No format: 2016-07-15T03:15:00.0000000");
+                AssertUI.TextEquals(text1, "No format: 2016-07-15T03:15:00");
                 AssertUI.TextEquals(text2, "D format: Friday, July 15, 2016 |X| d format: 7/15/2016");
                 AssertUI.TextEquals(text3, "F format: Friday, July 15, 2016 3:15:00 AM |X| f format: Friday, July 15, 2016 3:15 AM");
                 AssertUI.TextEquals(text4, "G format: 7/15/2016 3:15:00 AM |X| g format: 7/15/2016 3:15 AM");

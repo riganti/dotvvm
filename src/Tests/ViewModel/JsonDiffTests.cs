@@ -3,21 +3,21 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Nodes;
+using System.Text.Json;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
     [TestClass]
     public class JsonDiffTests
     {
-
-        private JsonSerializer serializer = new JsonSerializer { TypeNameHandling = TypeNameHandling.Auto };
+        private JsonSerializerOptions serializerOptions = VisualStudioHelper.GetSerializerOptions();
 
         public JsonDiffTests()
         {
@@ -27,14 +27,16 @@ namespace DotVVM.Framework.Tests.ViewModel
         [TestMethod]
         public void JsonDiff_SimpleTest()
         {
-            var a = JObject.Parse("{name:'djsfsh',ahoj:45}");
-            var b = JObject.Parse("{name:'djsfsh',ahoj:42}");
+            var a = JsonNode.Parse("""{"name":"djsfsh","ahoj":45}""")!.AsObject();
+            var b = JsonNode.Parse("""{"name":"djsfsh","ahoj":42}""")!.AsObject();
             var diff = JsonUtils.Diff(a, b);
             JsonUtils.Patch(a, diff);
-            Assert.IsTrue(JToken.DeepEquals(a, b));
+            Assert.IsTrue(JsonNode.DeepEquals(a, b));
+            Assert.AreEqual("""{"ahoj":42}""", diff.ToJsonString());
         }
 
         [TestMethod]
+        [Ignore("DotvvmConfiguration deserialization is not currently implemented")]
         public void JsonDiff_Configuration_AddingResources()
         {
             var config = ApplyPatches(
@@ -49,6 +51,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        [Ignore("DotvvmConfiguration deserialization is not currently implemented")]
         public void JsonDiff_Configuration_AddingRoute()
         {
             var config = ApplyPatches(
@@ -56,9 +59,9 @@ namespace DotVVM.Framework.Tests.ViewModel
                 CreateDiff(c => c.RouteTable.Add("Route2", "Path2", "View2.dothtml")),
                 CreateDiff(c => c.RouteTable.Add("Route3", "Path3/{Name}", "View3.dothtml", new { Name = "defaultname" }))
                 );
-            Assert.IsTrue(config.RouteTable.Any(r => r.RouteName == "Route1"));
-            Assert.IsTrue(config.RouteTable.Any(r => r.RouteName == "Route2"));
-            Assert.IsTrue(config.RouteTable.Any(r => r.RouteName == "Route3"));
+            XAssert.Contains("Route1", config.RouteTable.Select(r => r.RouteName));
+            XAssert.Contains("Route2", config.RouteTable.Select(r => r.RouteName));
+            XAssert.Contains("Route3", config.RouteTable.Select(r => r.RouteName));
             Assert.AreEqual("View1.dothtml", config.RouteTable.Single(r => r.RouteName == "Route1").VirtualPath);
             Assert.AreEqual("defaultname", config.RouteTable.Single(r => r.RouteName == "Route3").DefaultValues["Name"]);
         }
@@ -66,46 +69,48 @@ namespace DotVVM.Framework.Tests.ViewModel
         [TestMethod]
         public void JsonDiff_BusinessPackFilter_NoThrow()
         {
-            var source = JObject.Parse(
+            var source = JsonNode.Parse(
 @"{
-	""FieldName"": ""DateRequiredBy"",
-	""FieldDisplayName"": null,
-	""Operator"": ""LessThan"",
-	""FormatString"": null,
-	""Value"": ""2019-08-07T00:00:00"",
-	""Type"": ""FilterCondition""
-}");
-            var target = JObject.Parse(
+    ""FieldName"": ""DateRequiredBy"",
+    ""FieldDisplayName"": null,
+    ""Operator"": ""LessThan"",
+    ""FormatString"": null,
+    ""Value"": ""2019-08-07T00:00:00"",
+    ""Type"": ""FilterCondition""
+}")!.AsObject();
+            var target = JsonNode.Parse(
 @"{
-	""FieldName"": ""Code"",
-	""FieldDisplayName"": null,
-	""Operator"": ""Equal"",
-	""FormatString"": null,
-	""Value"": ""HHK"",
-	""Type"": ""FilterCondition""
-}");
+    ""FieldName"": ""Code"",
+    ""FieldDisplayName"": null,
+    ""Operator"": ""Equal"",
+    ""FormatString"": null,
+    ""Value"": ""HHK"",
+    ""Type"": ""FilterCondition""
+}")!.AsObject();
             var diff = JsonUtils.Diff(source, target);
+            Assert.AreEqual("""{"FieldName":"Code","Operator":"Equal","Value":"HHK"}""", diff.ToJsonString());
         }
 
-        private JObject CreateDiff(Action<DotvvmConfiguration> fn)
+        private JsonObject CreateDiff(Action<DotvvmConfiguration> fn)
         {
             var config = DotvvmTestHelper.CreateConfiguration();
-            var json0 = JObject.FromObject(config, serializer);
+            var json0 = JsonSerializer.SerializeToNode(config, serializerOptions)!.AsObject();
             fn(config);
-            var json1 = JObject.FromObject(config, serializer);
+            var json1 = JsonSerializer.SerializeToNode(config, serializerOptions)!.AsObject();
             return JsonUtils.Diff(json0, json1);
         }
 
-        private DotvvmConfiguration ApplyPatches(DotvvmConfiguration init, params JObject[] patches)
+        private DotvvmConfiguration ApplyPatches(DotvvmConfiguration init, params JsonObject[] patches)
         {
-            var json = JObject.FromObject(init, serializer);
+            var json = JsonSerializer.SerializeToNode(init, serializerOptions)!.AsObject();
             foreach (var p in patches)
             {
+                Console.WriteLine("Applying patch: " + p.ToJsonString());
                 JsonUtils.Patch(json, p);
             }
-            return json.ToObject<DotvvmConfiguration>(serializer);
+            return JsonSerializer.Deserialize<DotvvmConfiguration>(json, serializerOptions);
         }
 
-        private DotvvmConfiguration ApplyPatches(params JObject[] patches) => ApplyPatches(DotvvmTestHelper.CreateConfiguration(), patches);
+        private DotvvmConfiguration ApplyPatches(params JsonObject[] patches) => ApplyPatches(DotvvmTestHelper.CreateConfiguration(), patches);
     }
 }

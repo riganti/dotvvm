@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Configuration
     {
         /// <summary> Gets or sets whether the warnings about potentially bad performance are enabled. By default, it enabled in both Debug and Production environments.
         /// Before turning it off, we suggest tweaking the warning thresholds if you find the default values to be too noisy. </summary>
-        [JsonProperty("isEnabled", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("isEnabled")]
         [DefaultValue(true)]
         public bool IsEnabled
         {
@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Configuration
         private bool _isEnabled = true;
 
         /// <summary> Gets or sets the threshold for the warning about too slow requests. In seconds, by default it's 3 seconds. </summary>
-        [JsonProperty("slowRequestSeconds", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("slowRequestSeconds")]
         [DefaultValue(3.0)]
         public double SlowRequestSeconds
         {
@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Configuration
 
 
         /// <summary> Gets or sets the threshold for the warning about too big viewmodels. In bytes, by default it's 5 megabytes. </summary>
-        [JsonProperty("bigViewModelBytes", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("bigViewModelBytes")]
         [DefaultValue(5 * 1024 * 1024)]
         public double BigViewModelBytes
         {

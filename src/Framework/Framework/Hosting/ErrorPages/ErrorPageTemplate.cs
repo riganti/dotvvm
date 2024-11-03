@@ -7,13 +7,18 @@ using System.Net;
 using System.Reflection;
 using DotVVM.Framework.Hosting.ErrorPages;
 using DotVVM.Framework.ResourceManagement;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Text;
 using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding.Expressions;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using DotVVM.Framework.Compilation.ControlTree;
+using System.Text.Json.Serialization.Metadata;
+using System.Text.Encodings.Web;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -152,6 +157,25 @@ $@"
             return builder.ToString();
         }
 
+        internal static JsonNode SerializeObjectForBrowser(object? obj)
+        {
+            var settings = new JsonSerializerOptions() {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+                Converters = {
+                    new DebugReflectionTypeJsonConverter(),
+                    new ReflectionAssemblyJsonConverter(),
+                    new DotvvmTypeDescriptorJsonConverter<ITypeDescriptor>(),
+                    new Controls.DotvvmControlDebugJsonConverter(),
+                    new BindingDebugJsonConverter(),
+                    new DotvvmPropertyJsonConverter(),
+                    new UnsupportedTypeJsonConverterFactory(),
+                },
+                TypeInfoResolver = new IgnoreUnsupportedResolver(),
+            };
+            return JsonSerializer.SerializeToNode(obj, settings)!;
+        }
+
         public void ObjectBrowser(object? obj)
         {
             if (obj is null)
@@ -160,28 +184,69 @@ $@"
                 return;
             }
 
-            var settings = new JsonSerializerSettings() {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
-                Converters = {
-                    new ReflectionTypeJsonConverter(),
-                    new ReflectionAssemblyJsonConverter(),
-                    new DotvvmTypeDescriptorJsonConverter(),
-                    new Controls.DotvvmControlDebugJsonConverter(),
-                    new IgnoreStuffJsonConverter(),
-                    new BindingDebugJsonConverter(),
-                    new DotvvmPropertyJsonConverter()
-                },
-                // suppress any errors that occur during serialization (getters may throw exception, ...)
-                Error = (sender, args) => {
-                    args.ErrorContext.Handled = true;
+            
+            try
+            {
+                switch (SerializeObjectForBrowser(obj))
+                {
+                    case JsonObject jobject:
+                        ObjectBrowser(jobject);
+                        break;
+                    case JsonArray jarray:
+                        ObjectBrowser(jarray);
+                        break;
+                    case var node:
+                        WriteText(node.ToString());
+                        break;
+                };
+            }
+            catch
+            {
+                try
+                {
+                    WriteText(obj.ToString());
                 }
-            };
-            var jobject = JObject.FromObject(obj, JsonSerializer.Create(settings));
-            ObjectBrowser(jobject);
+                catch
+                {
+                    WriteText("<serialization error>");
+                }
+            }
         }
 
-        public void ObjectBrowser(JArray arr)
+        class IgnoreUnsupportedResolver: DefaultJsonTypeInfoResolver
+        {
+            HashSet<Type> stack = new HashSet<Type>();
+            public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
+            {
+                stack.Add(type);
+                try
+                {
+                    var info = base.GetTypeInfo(type, options);
+                    foreach (var prop in info!.Properties.ToArray())
+                    {
+                        if (stack.Contains(prop.PropertyType))
+                        {
+                            // object currently being resolved -> fine
+                        }
+                        else
+                        {
+                            var converter = prop.CustomConverter ?? options.GetConverter(prop.PropertyType);
+                            if (converter is null)
+                            {
+                                info.Properties.Remove(prop);
+                            }
+                        }
+                    }
+                    return info;
+                }
+                finally
+                {
+                    stack.Remove(type);
+                }
+            }
+        }
+
+        public void ObjectBrowser(JsonArray arr)
         {
             if (arr.Count == 0)
             {
@@ -198,13 +263,17 @@ $@"
             <div class='object-arr'> ");
                 foreach (var p in arr)
                 {
-                    if (p is JObject)
+                    if (p is JsonObject pObj)
                     {
-                        ObjectBrowser((JObject)p);
+                        ObjectBrowser(pObj);
                     }
-                    else if (p is JArray)
+                    else if (p is JsonArray pArr)
                     {
-                        ObjectBrowser((JArray)p);
+                        ObjectBrowser(pArr);
+                    }
+                    else if (p is null)
+                    {
+                        WriteText("null");
                     }
                     else
                     {
@@ -215,7 +284,7 @@ $@"
             }
         }
 
-        public void ObjectBrowser(JObject obj)
+        public void ObjectBrowser(JsonObject obj)
         {
             if (obj.Count == 0)
             {
@@ -238,17 +307,17 @@ $@"
                     {
                         WriteText("null");
                     }
-                    else if (p.Value is JObject)
+                    else if (p.Value is JsonObject pObj)
                     {
-                        ObjectBrowser((JObject)p.Value);
+                        ObjectBrowser(pObj);
                     }
-                    else if (p.Value is JArray)
+                    else if (p.Value is JsonArray pArr)
                     {
-                        ObjectBrowser((JArray)p.Value);
+                        ObjectBrowser(pArr);
                     }
                     else
                     {
-                        WriteText(p.Value.ToString(Formatting.None));
+                        WriteText(p.Value.ToJsonString(new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
                     }
                     Write("</div>");
                 }
@@ -367,15 +436,25 @@ $@"
             builder.AppendLine();
         }
 
-        class IgnoreStuffJsonConverter : JsonConverter
+        class UnsupportedTypeJsonConverterFactory : JsonConverterFactory
         {
-            public override bool CanConvert(Type objectType) =>
-                objectType.IsDelegate();
-            public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) =>
-                throw new NotImplementedException();
-            public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+            public override bool CanConvert(Type typeToConvert) =>
+                typeToConvert.IsDelegate() || typeof(ICustomAttributeProvider).IsAssignableFrom(typeToConvert);
+            public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
+                (JsonConverter?)Activator.CreateInstance(typeof(Inner<>).MakeGenericType([ typeToConvert ]));
+
+            class Inner<T> : JsonConverter<T>
             {
-                writer.WriteValue("<delegate>");
+                public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+                public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+                {
+                    if (value is null)
+                        writer.WriteNullValue();
+                    else if (value is Delegate)
+                        writer.WriteStringValue($"[delegate {value.GetType().ToCode()}]");
+                    else
+                        writer.WriteStringValue(value.ToString());
+                }
             }
         }
     }

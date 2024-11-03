@@ -16,7 +16,7 @@ namespace DotVVM.AutoUI.Metadata
     public class ResourceViewModelValidationMetadataProvider : IViewModelValidationMetadataProvider
     {
         private readonly IViewModelValidationMetadataProvider baseValidationMetadataProvider;
-        private readonly ConcurrentDictionary<PropertyInfo, List<ValidationAttribute>> cache = new();
+        private readonly ConcurrentDictionary<MemberInfo, ValidationAttribute[]> cache = new();
         private readonly ResourceManager errorMessages;
         private static readonly FieldInfo internalErrorMessageField;
 
@@ -43,7 +43,7 @@ namespace DotVVM.AutoUI.Metadata
         /// <summary>
         /// Gets validation attributes for the specified property.
         /// </summary>
-        public IEnumerable<ValidationAttribute> GetAttributesForProperty(PropertyInfo property)
+        public IEnumerable<ValidationAttribute> GetAttributesForProperty(MemberInfo property)
         {
             return cache.GetOrAdd(property, GetAttributesForPropertyCore);
         }
@@ -51,7 +51,7 @@ namespace DotVVM.AutoUI.Metadata
         /// <summary>
         /// Determines validation attributes for the specified property and loads missing error messages from the resource file.
         /// </summary>
-        private List<ValidationAttribute> GetAttributesForPropertyCore(PropertyInfo property)
+        private ValidationAttribute[] GetAttributesForPropertyCore(MemberInfo property)
         {
             // process all validation attributes
             var results = new List<ValidationAttribute>();
@@ -73,7 +73,7 @@ namespace DotVVM.AutoUI.Metadata
                 }
             }
 
-            return results;
+            return results.Count == 0 ? Array.Empty<ValidationAttribute>() : results.ToArray();
         }
 
         private bool HasDefaultErrorMessage(ValidationAttribute attribute)

@@ -1,5 +1,5 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -11,9 +11,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Parameter = parameter;
         }
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
-        [JsonProperty("parameter")]
+        [JsonPropertyName("parameter")]
         public object? Parameter { get; set; }
     }
 }

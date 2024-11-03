@@ -1,19 +1,19 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation
 {
-	public struct NamespaceImport: IEquatable<NamespaceImport>
+	public readonly struct NamespaceImport: IEquatable<NamespaceImport>
 	{
-		[JsonProperty("namespace")]
-		public readonly string Namespace;
-		[JsonProperty("alias")]
-		public readonly string? Alias;
+		[JsonPropertyName("namespace")]
+		public string Namespace { get; }
+		[JsonPropertyName("alias")]
+		public string? Alias { get; }
 
 		[JsonIgnore]
 		public bool HasAlias => Alias is not null;

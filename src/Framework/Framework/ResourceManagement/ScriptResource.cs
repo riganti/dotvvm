@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -59,7 +58,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             if (!string.IsNullOrEmpty(link))
             {
-                var script = JsonConvert.ToString(link, '\'').Replace("<", "\\u003c");
+                var script = KnockoutHelper.MakeStringLiteral(link);
                 var code = GetLoadingScript(javascriptCondition, script);
                 if (Defer)
                 {

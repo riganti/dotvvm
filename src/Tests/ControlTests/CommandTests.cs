@@ -2,7 +2,6 @@ using CheckTestOutput;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
 
@@ -25,14 +24,14 @@ namespace DotVVM.Framework.Tests.ControlTests
         {
             var r = await cth.RunPage(typeof(ViewModel1), " <dot:Button Text=Click Click={command: Text = NestedVM.TestProp + NestedVM2.TestProp + NestedVM3.A} /> ");
 
-            Assert.AreEqual("Text1", (string)r.ViewModel.Text);
-            Assert.AreEqual("Text2", (string)r.ViewModel.NestedVM.TestProp);
-            Assert.AreEqual("Text3", (string)r.ViewModel.NestedVM2.TestProp);
-            Assert.AreEqual(0, (int)r.ViewModel.NestedVM3.A);
+            Assert.AreEqual("Text1", (string)r.ViewModelJson["Text"]);
+            Assert.AreEqual("Text2", (string)r.ViewModelJson["NestedVM"]["TestProp"]);
+            Assert.AreEqual("Text3", (string)r.ViewModelJson["NestedVM2"]["TestProp"]);
+            Assert.AreEqual(0, (int)r.ViewModelJson["NestedVM3"]["A"]);
 
             await r.RunCommand("Text = NestedVM.TestProp + NestedVM2.TestProp + NestedVM3.A");
 
-            Assert.AreEqual("Text2Text30", (string)r.ViewModel.Text);
+            Assert.AreEqual("Text2Text30", (string)r.ViewModelJson["Text"]);
         }
 
         

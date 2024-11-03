@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -43,6 +43,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Gets or sets the javascript code that will be embedded in the page.
         /// </summary>
+        [JsonIgnore]
         public string Code
         {
             get => code?.Value ?? throw new Exception("`ILocalResourceLocation` cannot be read using property `Code`.");
@@ -54,6 +55,12 @@ namespace DotVVM.Framework.ResourceManagement
                 _ = this.code.Value;
             }
         }
+
+        [JsonInclude]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyName(nameof(Code))]
+        internal string? CodeJsonHack => code?.Value; // ignore if code is in location
+
 
         /// <summary> If the script should be executed after the page loads (using the `defer` attribute). </summary>
         public bool Defer { get; }

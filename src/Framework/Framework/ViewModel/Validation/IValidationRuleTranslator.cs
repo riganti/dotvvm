@@ -10,6 +10,6 @@ namespace DotVVM.Framework.ViewModel.Validation
 {
     public interface IValidationRuleTranslator
     {
-        IEnumerable<ViewModelPropertyValidationRule> TranslateValidationRules(PropertyInfo property, IEnumerable<ValidationAttribute> validationAttributes);
+        IEnumerable<ViewModelPropertyValidationRule> TranslateValidationRules(MemberInfo property, IEnumerable<ValidationAttribute> validationAttributes);
     }
 }

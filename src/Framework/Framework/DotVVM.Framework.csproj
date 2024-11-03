@@ -9,6 +9,8 @@
     <PackageId>DotVVM</PackageId>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <Nullable>enable</Nullable>
+    <!-- allo unsafe-->
+    <AllowUnsafeBlocks Condition="'$(TargetFramework)' == 'net472'">true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />
@@ -45,18 +47,16 @@
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="FastExpressionCompiler" Version="3.3.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
     <PackageReference Include="RecordException" Version="0.1.2" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' != 'net472'">
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
     <PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
@@ -70,7 +70,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <PackageReference Include="Portable.System.DateTimeOnly" Version="6.0.2" />
     <Reference Include="Microsoft.CSharp" />
-    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />

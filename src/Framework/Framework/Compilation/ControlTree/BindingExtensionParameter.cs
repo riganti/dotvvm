@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -19,8 +20,23 @@ using Microsoft.Extensions.DependencyInjection;
 namespace DotVVM.Framework.Compilation.ControlTree
 {
     /// Base class for defining an extension parameter.
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "$typeSerialized", UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
+    [JsonDerivedType(typeof(CurrentMarkupControlExtensionParameter))]
+    [JsonDerivedType(typeof(CurrentCollectionIndexExtensionParameter))]
+    [JsonDerivedType(typeof(BindingPageInfoExtensionParameter))]
+    [JsonDerivedType(typeof(BindingCollectionInfoExtensionParameter))]
+    [JsonDerivedType(typeof(InjectedServiceExtensionParameter))]
+    [JsonDerivedType(typeof(BindingApiExtensionParameter))]
+    [JsonDerivedType(typeof(JsExtensionParameter))]
+    [JsonDerivedType(typeof(CurrentUserExtensionParameter))]
+    [JsonDerivedType(typeof(JavascriptTranslationVisitor.FakeExtensionParameter))]
+    [JsonDerivedType(typeof(Configuration.RestApiRegistrationHelpers.ApiExtensionParameter))]
     public abstract class BindingExtensionParameter
     {
+        [JsonInclude]
+        [JsonPropertyName("$type")]
+        internal Type JsonHackThisType => this.GetType();
+
         /// A name that will be used in binding expressions to reference this parameter
         public string Identifier { get; }
         /// Type of the parameter. When used in a binding, the expression will have this type.

@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using DotVVM.Framework.Configuration;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class EncryptedValuesWriter
     {
-        JsonWriter writer;
-        JsonSerializer serializer;
+        Utf8JsonWriter writer;
+        JsonSerializerOptions options;
         Stack<int> propertyIndices = new Stack<int>();
         int virtualNests = 0;
         int lastPropertyIndex = -1;
         int suppress = 0;
         public int SuppressedLevel => suppress;
 
-        public EncryptedValuesWriter(JsonWriter jsonWriter)
+        public EncryptedValuesWriter(Utf8JsonWriter jsonWriter)
         {
             this.writer = jsonWriter;
-            serializer = JsonSerializer.Create(DefaultSerializerSettingsProvider.Instance.Settings);
+            this.options = DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe;
         }
 
         public void Nest() => Nest(lastPropertyIndex + 1);
@@ -87,9 +87,19 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (virtualNests > 0)
             {
+                bool first = true;
                 foreach (var p in propertyIndices.Take(virtualNests).Reverse())
                 {
-                    WritePropertyName(p); // the property was not written, -1 to write it
+                    if (first && virtualNests == propertyIndices.Count)
+                    {
+                        // no wrapper object
+                    }
+                    else
+                    {
+                        WritePropertyName(p); // the property was not written, -1 to write it
+                    }
+                    first = false;
+
                     writer.WriteStartObject();
                 }
                 virtualNests = 0;
@@ -108,7 +118,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             EnsureObjectStarted();
             WritePropertyName(propertyIndex);
             lastPropertyIndex = propertyIndex;
-            serializer.Serialize(writer, value);
+            JsonSerializer.Serialize(writer, value, options);
         }
     }
 }

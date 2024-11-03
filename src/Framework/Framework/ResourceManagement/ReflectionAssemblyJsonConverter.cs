@@ -1,106 +1,132 @@
-﻿using DotVVM.Framework.Compilation.ControlTree;
+﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using Newtonsoft.Json;
+using FastExpressionCompiler;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.ResourceManagement
 {
-    public class ReflectionAssemblyJsonConverter : JsonConverter
+    public class ReflectionAssemblyJsonConverter : JsonConverter<Assembly>
     {
-        public override bool CanConvert(Type objectType) => typeof(Assembly).IsAssignableFrom(objectType);
-
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override Assembly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.Value is string name)
+            if (reader.TokenType == JsonTokenType.String)
             {
-                return Assembly.Load(new AssemblyName(name));
+                return Assembly.Load(new AssemblyName(reader.GetString()!));
             }
             else throw new NotSupportedException();
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, Assembly value, JsonSerializerOptions options)
         {
-            writer.WriteValue(((Assembly?)value)?.GetName().ToString());
+            writer.WriteStringValue(((Assembly?)value)?.GetName().ToString());
         }
     }
 
-    public class ReflectionTypeJsonConverter : JsonConverter
+    public class ReflectionTypeJsonConverter : JsonConverter<Type>
     {
-        public override bool CanConvert(Type objectType) => typeof(Type).IsAssignableFrom(objectType);
-
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override Type Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.Value is string name)
+            if (reader.TokenType == JsonTokenType.String)
             {
+                var name = reader.GetString()!;
                 return Type.GetType(name) ?? throw new Exception($"Cannot find type {name}.");
             }
             else throw new NotSupportedException();
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, Type t, JsonSerializerOptions options)
         {
-            if (value is null)
-            {
-                writer.WriteNull();
-                return;
-            }
-
-            var t = ((Type)value);
             if (t.Assembly == typeof(string).Assembly)
-                writer.WriteValue(t.FullName);
+                writer.WriteStringValue(t.FullName);
             else
-                writer.WriteValue($"{t.FullName}, {t.Assembly.GetName().Name}");
+                writer.WriteStringValue($"{t.FullName}, {t.Assembly.GetName().Name}");
         }
     }
-    public class DotvvmTypeDescriptorJsonConverter : JsonConverter
-    {
-        public override bool CanConvert(Type objectType) => typeof(ITypeDescriptor).IsAssignableFrom(objectType);
 
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+    /// <summary> Formats type as C# type identifier </summary>
+    public class DebugReflectionTypeJsonConverter(): GenericWriterJsonConverter<Type>(
+        (writer, value, options) => {
+            writer.WriteStringValue(value.ToCode());
+        })
+    {
+    }
+
+    public class DotvvmTypeDescriptorJsonConverter<T> : JsonConverter<T>
+        where T: ITypeDescriptor
+    {
+        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.Value is string name)
+            if (reader.TokenType == JsonTokenType.String)
             {
-                return new ResolvedTypeDescriptor(Type.GetType(name) ?? throw new Exception($"Cannot find type {name}."));
+                var name = reader.GetString()!;
+                ITypeDescriptor result = new ResolvedTypeDescriptor(Type.GetType(name) ?? throw new Exception($"Cannot find type {name}."));
+                if (result is T t)
+                    return t;
+                else throw new NotSupportedException($"Cannot deserialize {typeToConvert}");
             }
             else throw new NotSupportedException();
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, T t, JsonSerializerOptions options)
         {
-            if (value is null)
-            {
-                writer.WriteNull();
-                return;
-            }
-            var t = ((ITypeDescriptor)value);
             var coreAssembly = typeof(string).Assembly.GetName().Name;
             var assembly = t.Assembly?.Split(new char[] { ',' }, 2)[0];
             if (assembly is null || assembly == coreAssembly)
-                writer.WriteValue(t.FullName);
+                writer.WriteStringValue(t.FullName);
             else
-                writer.WriteValue($"{t.FullName}, {assembly}");
+                writer.WriteStringValue($"{t.FullName}, {assembly}");
         }
     }
 
-    public class DotvvmPropertyJsonConverter : JsonConverter
+    public class DotvvmPropertyJsonConverter() : GenericWriterJsonConverter<IControlAttributeDescriptor>(
+        (writer, value, options) => {
+            writer.WriteStringValue(value.ToString());
+        })
     {
-        public override bool CanConvert(Type objectType) =>
-            typeof(IPropertyDescriptor).IsAssignableFrom(objectType) || typeof(IPropertyGroupDescriptor).IsAssignableFrom(objectType);
-        public override bool CanRead => false;
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) =>
-            throw new NotImplementedException();
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    }
+
+    public class DataContextChangeAttributeConverter() : GenericWriterJsonConverter<DataContextChangeAttribute>(WriteObjectReflection)
+    {
+        internal static void WriteObjectReflection(Utf8JsonWriter writer, object attribute, JsonSerializerOptions options)
         {
-            if (value is null)
+            writer.WriteStartObject();
+            writer.WriteString("$type", attribute.GetType().ToString());
+            var properties = attribute.GetType().GetProperties();
+            foreach (var prop in properties)
             {
-                writer.WriteNull();
-                return;
+                if (prop.IsDefined(typeof(JsonIgnoreAttribute)) || prop.Name == "TypeId")
+                    continue;
+
+                writer.WritePropertyName(prop.Name);
+
+                JsonSerializer.Serialize(writer, prop.GetValue(attribute), options);
             }
-            writer.WriteValue(value.ToString());
+            writer.WriteEndObject();
+        }
+    }
+
+    public class DataContextManipulationAttributeConverter() : GenericWriterJsonConverter<DataContextStackManipulationAttribute>(DataContextChangeAttributeConverter.WriteObjectReflection)
+    {
+    }
+
+    public class GenericWriterJsonConverter<T>(Action<Utf8JsonWriter, T, JsonSerializerOptions> write) : JsonConverterFactory
+    {
+        public override bool CanConvert(Type typeToConvert) => typeof(T).IsAssignableFrom(typeToConvert);
+        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
+            Activator.CreateInstance(typeof(Inner<>).MakeGenericType(typeof(T), typeToConvert), write) as JsonConverter;
+
+        private class Inner<TActual>(Action<Utf8JsonWriter, T, JsonSerializerOptions> write) : JsonConverter<TActual>
+        {
+            public override TActual Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+                throw new NotImplementedException();
+            public override void Write(Utf8JsonWriter writer, TActual value, JsonSerializerOptions options) =>
+                write(writer, (T)(object)value!, options);
         }
     }
 }

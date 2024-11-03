@@ -147,7 +147,7 @@ public static class DotvvmRequestContextExtensions
     internal static Task SetCachedViewModelMissingResponse(this IDotvvmRequestContext context)
     {
         context.HttpContext.Response.StatusCode = 200;
-        context.HttpContext.Response.ContentType = "application/json";
+        context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
         return context.HttpContext.Response.WriteAsync(DefaultViewModelSerializer.GenerateMissingCachedViewModelResponse());
     }
 
@@ -165,12 +165,9 @@ public static class DotvvmRequestContextExtensions
                 context.RouteLabel(),
                 context.RequestTypeLabel()
             );
-            context.HttpContext.Response.ContentType = "application/json";
+            context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
             context.HttpContext.Response
-                .WriteAsync(context.Services.GetRequiredService<IViewModelSerializer>().SerializeModelState(context))
-                .GetAwaiter().GetResult();
-            //   ^ we just wait for this Task. This API never was async and the response size is small enough that we can't quite safely wait for the result
-            //     .GetAwaiter().GetResult() preserves stack traces across async calls, thus I like it more than .Wait()
+                .Write(context.Services.GetRequiredService<IViewModelSerializer>().SerializeModelState(context));
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ModelValidationFailed, "The ViewModel contains validation errors!");
         }
     }
@@ -281,7 +278,7 @@ public static class DotvvmRequestContextExtensions
             .GetRequiredService<RuntimeWarningCollector>()
             .Warn(new DotvvmRuntimeWarning(msg));
         context.HttpContext.Response.StatusCode = statusCode;
-        context.HttpContext.Response.ContentType = "text/plain";
+        context.HttpContext.Response.ContentType = "text/plain; charset=utf-8";
         await context.HttpContext.Response.WriteAsync(msg);
         throw new DotvvmInterruptRequestExecutionException(InterruptReason.RequestRejected, msg);
     }

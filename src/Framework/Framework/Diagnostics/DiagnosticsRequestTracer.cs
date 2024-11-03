@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Diagnostics.Models;
@@ -34,6 +35,19 @@ namespace DotVVM.Framework.Diagnostics
             }
             events.Add(CreateEventTiming(eventName));
             return TaskUtils.GetCompletedTask();
+        }
+        
+        Memory<byte> ViewModelJson = Array.Empty<byte>();
+
+        public void ViewModelSerialized(IDotvvmRequestContext context, int viewModelSize, Func<Stream> viewModelBuffer)
+        {
+            if (informationSender.State >= DiagnosticsInformationSenderState.Full)
+            {
+                using (var stream = viewModelBuffer())
+                {
+                    ViewModelJson = stream.ReadToMemory();
+                }
+            }
         }
 
         private EventTiming CreateEventTiming(string eventName)
@@ -87,28 +101,12 @@ namespace DotVVM.Framework.Diagnostics
         private RequestDiagnostics BuildRequestDiagnostics(IDotvvmRequestContext request)
         {
             return new RequestDiagnostics(
-                RequestTypeFromContext(request),
+                request.RequestType,
                 request.HttpContext.Request.Method,
                 request.HttpContext.Request.Url.AbsolutePath,
                 request.HttpContext.Request.Headers.Select(HttpHeaderItem.FromKeyValuePair),
-                request.ReceivedViewModelJson?.GetValue("viewModel")?.ToString()
+                request.ReceivedViewModelJson?.RootElement.GetPropertyOrNull("viewModel")?.GetRawText()
             );
-        }
-
-        private RequestType RequestTypeFromContext(IDotvvmRequestContext context)
-        {
-            if (context.ReceivedViewModelJson == null && context.ViewModelJson != null)
-            {
-                return RequestType.Get;
-            }
-            else if (context.ReceivedViewModelJson != null)
-            {
-                return RequestType.Command;
-            }
-            else
-            {
-                return RequestType.StaticCommand;
-            }
         }
 
         private ResponseDiagnostics BuildResponseDiagnostics(IDotvvmRequestContext request)
@@ -118,8 +116,8 @@ namespace DotVVM.Framework.Diagnostics
                 StatusCode = request.HttpContext.Response.StatusCode,
                 Headers = request.HttpContext.Response.Headers.Select(HttpHeaderItem.FromKeyValuePair)
                     .ToList(),
-                ViewModelJson = request.ViewModelJson?.GetValue("viewModel")?.ToString(),
-                ViewModelDiff = request.ViewModelJson?.GetValue("viewModelDiff")?.ToString(),
+                ViewModelJson = StringUtils.Utf8Decode(this.ViewModelJson.Span),
+                // ViewModelDiff = request.ViewModelJson?.GetValue("viewModelDiff")?.ToString(), // TODO: how do we have diffs now?
                 ResponseSize = ResponseSize?.realLength ?? -1,
                 CompressedResponseSize = ResponseSize?.compressedLength ?? -1
             };

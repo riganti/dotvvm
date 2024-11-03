@@ -118,7 +118,7 @@ jobs:
     #     target-framework: net7.0
     - name: Tests (net472)
       uses: ./.github/unittest
-      if: matrix.os == 'windows-2022'
+      if: ${{ (matrix.os == 'windows-2022') && (success() || failure()) }}
       with:
         project: src/Tests
         name: framework-tests
@@ -127,6 +127,7 @@ jobs:
         target-framework: net472
     - name: Analyzers.Tests (net6.0)
       uses: ./.github/unittest
+      if: ${{ success() || failure() }}
       with:
         project: src/Analyzers/Analyzers.Tests
         name: analyzers-tests

@@ -1,8 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.IO;
 using System;
 using System.Collections.Generic;
@@ -13,6 +11,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Testing;
 using System.Text;
 using DotVVM.Framework.Controls;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {

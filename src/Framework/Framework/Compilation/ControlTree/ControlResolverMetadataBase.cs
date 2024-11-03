@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {

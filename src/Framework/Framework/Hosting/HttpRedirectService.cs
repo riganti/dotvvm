@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Routing;
@@ -40,7 +39,7 @@ namespace DotVVM.Framework.Hosting
             else
             {
                 httpContext.Response.StatusCode = 200;
-                httpContext.Response.ContentType = "application/json";
+                httpContext.Response.ContentType = "application/json; charset=utf-8";
                 httpContext.Response
                     .WriteAsync(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, replaceInHistory, allowSpaRedirect, downloadName))
                     .GetAwaiter().GetResult();
