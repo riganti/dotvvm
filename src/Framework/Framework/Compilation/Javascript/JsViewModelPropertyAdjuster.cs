@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -56,22 +56,25 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             if (node.Annotation<VMPropertyInfoAnnotation>() is { MemberInfo: var member } propAnnotation)
             {
-                var target = node.GetChildByRole(JsTreeRoles.TargetExpression)!;
-                if (target.HasAnnotation(ObservableUnwrapInvocationAnnotation.Instance))
+                var target = propAnnotation.EvaluateTargetPath(node);
+
+                if (target is {} && target.HasAnnotation(ObservableUnwrapInvocationAnnotation.Instance))
                     target = target.GetChildByRole(JsTreeRoles.TargetExpression);
-                else if (target.HasAnnotation(ObservableSetterInvocationAnnotation.Instance))
+                else if (target is {} && target.HasAnnotation(ObservableSetterInvocationAnnotation.Instance))
                     throw new NotImplementedException();
 
                 var propertyType = propAnnotation.ResultType;
                 var annotation = node.Annotation<ViewModelInfoAnnotation>() ?? new ViewModelInfoAnnotation(propertyType);
 
                 var targetAnnotation = target?.Annotation<ViewModelInfoAnnotation>();
+                var propertyIsObservable = propAnnotation.IsObservable;
                 if (targetAnnotation is {})
                 {
                     propAnnotation.SerializationMap ??=
                         targetAnnotation.SerializationMap?.Properties
                         .FirstOrDefault(p => p.PropertyInfo == member);
-                    annotation.ContainsObservables ??= targetAnnotation.ContainsObservables;
+                    annotation.ObservableMap = targetAnnotation.ObservableMap.GetChildObject(propAnnotation.ObjectPath.AsSpan()).OverrideWith(annotation.ObservableMap);
+                    propertyIsObservable ??= targetAnnotation.ObservableMap.IsPropertyObservable(propAnnotation.ObjectPath.AsSpan());
                 }
                 if (propAnnotation.SerializationMap is ViewModelPropertyMap propertyMap)
                 {
@@ -99,9 +102,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     throw new NotSupportedException($"Cannot translate property {member.Name} on custom primitive type {member.DeclaringType.ToCode()} to Javascript. Use the ToString() method to get the underlying value.");
                 }
 
-                annotation.ContainsObservables ??= !this.preferUsingState; // we don't know -> guess what is the current preference
-
-                if (annotation.ContainsObservables == true)
+                if (propertyIsObservable ?? !preferUsingState) // if we don't know -> assume what is the current preference
                 {
                     node.AddAnnotation(ResultIsObservableAnnotation.Instance);
 
@@ -177,37 +178,43 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
+    /// <summary> Indicates that this invocation only unwraps a knockout observable and was automatically inserted by <see cref="KnockoutObservableHandlingVisitor" /> </summary>
     public sealed class ObservableUnwrapInvocationAnnotation
     {
         private ObservableUnwrapInvocationAnnotation() { }
         public static ObservableUnwrapInvocationAnnotation Instance = new ObservableUnwrapInvocationAnnotation();
     }
+    /// <summary> Indicates that this invocation is a knockout observable value assignment and was automatically inserted by <see cref="KnockoutObservableHandlingVisitor" /> </summary>
     public sealed class ObservableSetterInvocationAnnotation
     {
         private ObservableSetterInvocationAnnotation() { }
         public static ObservableSetterInvocationAnnotation Instance = new ObservableSetterInvocationAnnotation();
     }
+    /// <summary> Result of the annotated expression is always a knockout observable. DotVVM will automatically unwrap the observable, unless the <see cref="ShouldBeObservableAnnotation" /> is also specified. </summary>
     public sealed class ResultIsObservableAnnotation
     {
         private ResultIsObservableAnnotation() { }
         public static ResultIsObservableAnnotation Instance = new ResultIsObservableAnnotation();
     }
+    /// <summary> Result is a knockout observable array. </summary>
     public sealed class ResultIsObservableArrayAnnotation
     {
         private ResultIsObservableArrayAnnotation() { }
         public static ResultIsObservableArrayAnnotation Instance = new ResultIsObservableArrayAnnotation();
     }
+    /// <summary> Result of the annotated expression may or may not be a knockout observable. DotVVM will automatically unwrap the observable, unless the <see cref="ShouldBeObservableAnnotation" /> is also specified. </summary>
     public sealed class ResultMayBeObservableAnnotation
     {
         private ResultMayBeObservableAnnotation() { }
         public static ResultMayBeObservableAnnotation Instance = new ResultMayBeObservableAnnotation();
     }
+    /// <summary> This node should return observable -  instructs the <see cref="KnockoutObservableHandlingVisitor" /> to not unwrap the node and the <see cref="JsViewModelPropertyAdjuster" /> to not use .state in the subexpression. </summary>
     public sealed class ShouldBeObservableAnnotation
     {
         private ShouldBeObservableAnnotation() { }
         public static ShouldBeObservableAnnotation Instance = new ShouldBeObservableAnnotation();
     }
-    /// Instruct the <see cref="KnockoutObservableHandlingVisitor" /> to process the node after it's children are resolved and before it is handled itself by the rules
+    /// <summary> Instruct the <see cref="KnockoutObservableHandlingVisitor" /> to process the node after it's children are resolved and before it is handled itself by the rules </summary>
     public sealed class ObservableTransformationAnnotation
     {
         public readonly Func<JsExpression, JsExpression> TransformExpression;
@@ -216,7 +223,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             TransformExpression = transformExpression;
         }
 
-        /// Makes sure that the observable is fully wrapped in observable (i.e. wraps the expression in `ko.pureComputed(...)` when needed)
+        /// <summary> Makes sure that the observable is fully wrapped in observable (i.e. wraps the expression in `ko.pureComputed(...)` when needed) </summary>
         public static readonly ObservableTransformationAnnotation EnsureWrapped = new ObservableTransformationAnnotation(JsAstHelpers.EnsureObservableWrapped);
     }
 }

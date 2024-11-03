@@ -30,13 +30,17 @@ namespace DotVVM.Framework.Tests.Binding
         {
             configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.RegisterApiClient(typeof(TestApiClient), "http://server/api", "./apiscript.js", "_testApi");
+            var methods = configuration.Markup.JavascriptTranslator.MethodCollection;
+            methods.AddMethodTranslator(() => TestJsTransations.GetTestPlainObject(), new GenericMethodCompiler(args => new JsIdentifierExpression("testPlainObject").WithAnnotation(new ViewModelInfoAnnotation(typeof(TestArraysViewModel), containsObservables: false))));
+            methods.AddMethodTranslator(() => TestJsTransations.GetTestObjectWithObservables(), new GenericMethodCompiler(args => new JsIdentifierExpression("testPlainObject").WithAnnotation(new ViewModelInfoAnnotation(typeof(TestArraysViewModel), containsObservables: true))));
+            configuration.Freeze();
             bindingHelper = new BindingTestHelper(configuration);
         }
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
         public string CompileBinding(string expression, NamespaceImport[] imports, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object), imports);
-        public string CompileBinding(string expression, Type[] contexts, Type expectedType, NamespaceImport[] imports = null)
+        public string CompileBinding(string expression, Type[] contexts, Type expectedType, NamespaceImport[] imports = null, bool nullChecks = false)
         {
-            return bindingHelper.ValueBindingToJs(expression, contexts, expectedType, imports, niceMode: false);
+            return bindingHelper.ValueBindingToJs(expression, contexts, expectedType, imports, nullChecks, niceMode: false);
         }
 
         public static string FormatKnockoutScript(ParametrizedCode code) => JavascriptTranslator.FormatKnockoutScript(code);
@@ -532,6 +536,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_DictionaryIndexer_GetObject()
+        {
+            var result = CompileBinding("StringVmDictionary['test'].Collection[5].StringValue.Length", [typeof(TestViewModel)], typeof(object), nullChecks: true);
+            Assert.AreEqual("(()=>{let a;return ((a=dotvvm.translations.dictionary.getItem(StringVmDictionary(),\"test\")?.Collection())&&a[5]())?.StringValue()?.length;})()", result);
+        }
+
+        [TestMethod]
         public void JsTranslator_ReadOnlyDictionaryIndexer_Get()
         {
             var result = CompileBinding("ReadOnlyDictionary[1]", typeof(TestViewModel5));
@@ -608,6 +619,62 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_EnumerableSelectObservableHandling1()
+        {
+            var result = CompileBinding("VmArray.Select(item => item.MyProperty).ToArray()[0] == 1", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("VmArray().map((item)=>ko.unwrap(item).MyProperty())[0]==1", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableSelectObservableHandling2()
+        {
+            var result = CompileBinding("VmArray.Select(item => item.MyProperty + 1).ToArray()[0] == 1", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("VmArray().map((item)=>ko.unwrap(item).MyProperty()+1)[0]==1", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableSelectObservableHandling3()
+        {
+            var result = CompileBinding("VmArray.Select(item => item.ChildObject).ToArray()[0].SomeString == 'abc'", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("VmArray().map((item)=>ko.unwrap(item).ChildObject())[0].SomeString()==\"abc\"", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableSelectFirstObservableHandling()
+        {
+            var result = CompileBinding("VmArray.Select(item => item.ChildObject).FirstOrDefault(i => i.SomeString.StartsWith('a')).SomeString == 'abc'", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("VmArray().map((item)=>ko.unwrap(item).ChildObject()).find((i)=>ko.unwrap(i).SomeString().startsWith(\"a\")).SomeString()==\"abc\"", result);
+            //                                                                    ^^^^^        not observable, because .map unwraps it ^^
+            // without the select, we'd need observable unwrap after .find
+            var withoutSelect = CompileBinding("VmArray.FirstOrDefault(i => i.ChildObject.SomeString.StartsWith('a')).ChildObject.SomeString == 'abc'", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("VmArray().find((i)=>ko.unwrap(i).ChildObject().SomeString().startsWith(\"a\"))().ChildObject().SomeString()==\"abc\"", withoutSelect);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableSelectOrderObservableHandling()
+        {
+            var result = CompileBinding("VmArray.Select(item => item.ChildObject).OrderBy(i => i.SomeString).ToArray()[0].SomeString == 'abc'", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("dotvvm.translations.array.orderBy(VmArray().map((item)=>ko.unwrap(item).ChildObject()),(i)=>ko.unwrap(i).SomeString(),null)[0].SomeString()==\"abc\"", result);
+            //                                                                                                  not observable, because .map unwraps it ^^^
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableSelectFilterObservableHandling()
+        {
+            var result = CompileBinding("VmArray.Select(item => item.ChildObject).Where(i => i != null).ElementAt(1).SomeString == 'abc'", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("VmArray().map((item)=>ko.unwrap(item).ChildObject()).filter((i)=>ko.unwrap(i)!=null)[1].SomeString()==\"abc\"", result);
+            //                                                           not observable, because .map unwraps it ^^^
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableSelectSliceObservableHandling()
+        {
+            var result = CompileBinding("VmArray.Select(item => item.ChildObject).Take(4).LastOrDefault().SomeString == 'abc'", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("VmArray().map((item)=>ko.unwrap(item).ChildObject()).slice(0,4).at(-1).SomeString()==\"abc\"", result);
+            //                                       not observable, because .map unwraps it ^^^^^^^
+        }
+
+        [TestMethod]
         [DataRow("Enumerable.Concat(LongArray, LongArray)", DisplayName = "Regular call of Enumerable.Concat")]
         [DataRow("LongArray.Concat(LongArray)", DisplayName = "Syntax sugar - extension method")]
         [DataRow("LongArray.ToImmutableArray().Concat(LongArray.ToImmutableArray())", DisplayName = "Immutable arrays")]
@@ -657,23 +724,23 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("Enumerable.All(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.All")]
-        [DataRow("LongArray.All((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
-        [DataRow("LongArray.ToImmutableArray().All((long item) => item > 0)", DisplayName = "Immutable array - extension method")]
+        [DataRow("!Enumerable.All(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.All")]
+        [DataRow("!LongArray.All((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("!LongArray.ToImmutableArray().All((long item) => item > 0)", DisplayName = "Immutable array - extension method")]
         public void JsTranslator_EnumerableAll(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("LongArray().every((item)=>ko.unwrap(item)>0)", result);
+            Assert.AreEqual("!LongArray().every((item)=>ko.unwrap(item)>0)", result);
         }
 
         [TestMethod]
-        [DataRow("Enumerable.Any(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.Any")]
-        [DataRow("LongArray.Any((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
-        [DataRow("LongArray.ToImmutableArray().Any((long item) => item > 0)", DisplayName = "Immutable array - extension method")]
+        [DataRow("!Enumerable.Any(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.Any")]
+        [DataRow("!LongArray.Any((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("!LongArray.ToImmutableArray().Any((long item) => item > 0)", DisplayName = "Immutable array - extension method")]
         public void JsTranslator_EnumerableAny(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("LongArray().some((item)=>ko.unwrap(item)>0)", result);
+            Assert.AreEqual("!LongArray().some((item)=>ko.unwrap(item)>0)", result);
         }
 
         [TestMethod]
@@ -703,13 +770,13 @@ namespace DotVVM.Framework.Tests.Binding
 
 
         [TestMethod]
-        [DataRow("Enumerable.FirstOrDefault(LongArray)", DisplayName = "Regular call of Enumerable.FirstOrDefault")]
-        [DataRow("LongArray.FirstOrDefault()", DisplayName = "Syntax sugar - extension method")]
-        [DataRow("LongArray.ToImmutableArray().FirstOrDefault()", DisplayName = "Immutable array - extension method")]
+        [DataRow("Enumerable.FirstOrDefault(LongArray) == 1", DisplayName = "Regular call of Enumerable.FirstOrDefault")]
+        [DataRow("LongArray.FirstOrDefault() == 1", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("LongArray.ToImmutableArray().FirstOrDefault() == 1", DisplayName = "Immutable array - extension method")]
         public void JsTranslator_EnumerableFirstOrDefault(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("LongArray()[0]", result);
+            Assert.AreEqual("LongArray()[0]()==1", result);
         }
 
         [TestMethod]
@@ -720,6 +787,22 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().find((item)=>ko.unwrap(item)>0)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableFirstOrDefaultObservableHandling()
+        {
+            var withUnwraps = CompileBinding("TestJsTransations.GetTestObjectWithObservables().ObjectArray.FirstOrDefault(o => o.Enum == 'Value1').Int == 12", new[] { new NamespaceImport("System.Linq"), new NamespaceImport(typeof(TestJsTransations).Namespace) }, new[] { typeof(TestViewModel) });
+
+            Assert.AreEqual("testPlainObject.ObjectArray().find((o)=>ko.unwrap(o).Enum()==\"Value1\")().Int()==12", withUnwraps);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableFirstOrDefaultObservableHandling2()
+        {
+            var withoutUnwraps = CompileBinding("TestJsTransations.GetTestPlainObject().ObjectArray.OrderBy(a => a.Enum).LastOrDefault().Int == 12", new[] { new NamespaceImport("System.Linq"), new NamespaceImport(typeof(TestJsTransations).Namespace) }, new[] { typeof(TestViewModel) });
+
+            Assert.AreEqual("dotvvm.translations.array.orderBy(testPlainObject.ObjectArray,(a)=>ko.unwrap(a).Enum(),\"ObApbFFA2mUjzIJF\").at(-1).Int==12", withoutUnwraps);
         }
 
         [TestMethod]
@@ -777,7 +860,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableLastOrDefaultObservable()
         {
             var result = CompileBinding("LongArray.LastOrDefault()==1", new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("ko.unwrap(LongArray().at(-1))==1", result);
+            Assert.AreEqual("LongArray().at(-1)()==1", result);
         }
 
         [TestMethod]
@@ -1480,6 +1563,14 @@ namespace DotVVM.Framework.Tests.Binding
 
             public string NonUsableProperty { get; set; }
         }
+    }
+
+    public static class TestJsTransations
+    {
+        // returns object which is not wrapped in ko.observables
+        public static TestArraysViewModel GetTestPlainObject() => new TestArraysViewModel();
+        // returns object which is wrapped in ko.observables
+        public static TestArraysViewModel GetTestObjectWithObservables() => new TestArraysViewModel();
     }
 
     public class TestExtensionParameterConflictViewModel
