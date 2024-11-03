@@ -261,19 +261,25 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
+    /// <summary> Specified if properties of the current object are wrapped in knockout observables or not. Observability of the current value is not specified in this annotation, but using <see cref="ResultIsObservableAnnotation" />. </summary>
     public sealed record JsObjectObservableMap: IEquatable<JsObjectObservableMap>
     {
-        /// <summary> The default value for all descendants, unless overriden using the other properties </summary>
+        /// <summary> The default value for all descendants, unless overridden using the other properties. If null, the default nullability for the current expression will be used. </summary>
         public bool? ContainsObservables { get; set; }
 
         /// <summary> Default value for all properties. Null means that `ContainsObservables` is assumed to be the same as the parent's </summary>
         public JsObjectObservableMap? DefaultChild { get; set; }
 
+        /// <summary> Observable mapping for child objects. </summary>
         public Dictionary<string, JsObjectObservableMap>? ChildObjects { get; set; }
 
+        /// <summary> Specifies if the specific property is ko.observable or not. Does not include more nested properties, that is specified in the <see cref="ChildObjects" /> property. </summary>
         public Dictionary<string, bool>? PropertyIsObservable { get; set; }
 
+        /// <summary> If <paramref name="name" /> is null, returns the default property observability. </summary>
         public bool? IsPropertyObservable(string? name) => name is {} && PropertyIsObservable?.TryGetValue(name, out var value) == true ? value : ContainsObservables;
+
+        /// <summary> If <c>objectPath[x]</c> is null, returns the default property observability. </summary>
         public bool? IsPropertyObservable(ReadOnlySpan<string?> objectPath)
         {
             if (objectPath.Length == 0) return null;
@@ -297,6 +303,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return current;
         }
 
+        /// <summary> Replaces properties in this with non-default properties in <paramref name="override"/> </summary>
         public JsObjectObservableMap OverrideWith(JsObjectObservableMap? @override)
         {
             if (@override is null || @override == Default || this == @override || this == Default) return this;
