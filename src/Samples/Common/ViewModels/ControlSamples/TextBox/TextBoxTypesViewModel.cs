@@ -14,6 +14,8 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.TextBox
         public double? NullableNumber { get; set; } = 42.42;
         public int Int { get; set; }
         public int? NullableInt { get; set; }
+        public TimeSpan TimeSpan { get; set; } = new TimeSpan(11, 48, 25);
+        public TimeSpan? NullableTimeSpan { get; } = new TimeSpan(11, 48, 25);
     }
 }
 

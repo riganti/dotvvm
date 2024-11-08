@@ -312,6 +312,24 @@ namespace DotVVM.Framework.Compilation.Javascript
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
+            AddMethodTranslator(() => default(TimeSpan).ToString(), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingTimeOnlyToString")
+                    .WithAnnotation(new GlobalizeResourceBindingProperty())
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                    .WithAnnotation(ResultIsObservableAnnotation.Instance)
+            ));
+            AddMethodTranslator(() => default(Nullable<TimeSpan>).ToString(), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingTimeOnlyToString")
+                    .WithAnnotation(new GlobalizeResourceBindingProperty())
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                    .WithAnnotation(ResultIsObservableAnnotation.Instance)
+            ));
+            AddMethodTranslator(() => default(TimeSpan).ToString("fmt"), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingTimeOnlyToString")
+                    .WithAnnotation(new GlobalizeResourceBindingProperty())
+                    .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                    .WithAnnotation(ResultIsObservableAnnotation.Instance)
+            ));
 
             foreach (var num in ReflectionUtils.GetNumericTypes().Except(new[] { typeof(char) }))
             {
