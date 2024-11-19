@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -139,6 +140,7 @@ namespace DotVVM.Framework.Controls
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             SetChildren(context, renderClientTemplate: !RenderOnServer, memoizeReferences: false);
+            childrenCache.Clear(); // not going to need the unreferenced children anymore
             base.OnPreRender(context);
         }
 
@@ -248,7 +250,7 @@ namespace DotVVM.Framework.Controls
             return emptyDataContainer;
         }
 
-        private ConditionalWeakTable<object, DataItemContainer> childrenCache = new ConditionalWeakTable<object, DataItemContainer>();
+        private readonly Dictionary<object, DataItemContainer> childrenCache = new(ReferenceEqualityComparer<object>.Instance);
         private DotvvmControl AddItem(IList<DotvvmControl> c, IDotvvmRequestContext context, object? item = null, int? index = null, bool allowMemoizationRetrieve = false, bool allowMemoizationStore = false)
         {
             if (allowMemoizationRetrieve && item != null && childrenCache.TryGetValue(item, out var container2) && container2.Parent == null)
@@ -276,8 +278,12 @@ namespace DotVVM.Framework.Controls
             // write it to the cache after the content is build. If it would be before that, exception could be suppressed
             if (allowMemoizationStore && item != null)
             {
-                // this GetValue call adds the value without raising exception when the value is already added...
-                childrenCache.GetValue(item, _ => container);
+#if DotNetCore
+                childrenCache.TryAdd(item, container);
+#else
+                if (!childrenCache.ContainsKey(item))
+                    childrenCache.Add(item, container);
+#endif
             }
 
             return container;
