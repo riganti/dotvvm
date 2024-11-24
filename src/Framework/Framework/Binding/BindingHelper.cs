@@ -88,12 +88,49 @@ namespace DotVVM.Framework.Binding
             if (bindingContext == null || controlContext == null || controlContext.Equals(bindingContext)) return (0, control);
 
             var changes = 0;
+            var lastAncestorContext = controlContext;
             foreach (var a in control.GetAllAncestors(includingThis: true))
             {
-                if (bindingContext.Equals(a.GetDataContextType(inherit: false)))
+                var ancestorContext = a.GetDataContextType(inherit: false);
+
+                if (ancestorContext is null)
+                    continue;
+
+                if (!ancestorContext.ServerSideOnly &&
+                    !ancestorContext.Equals(lastAncestorContext))
+                {
+                    // only count changes which are visible client-side
+                    // server-side context are not present in the client-side stack at all, so we need to skip them here
+
+                    // don't count changes which only extend the data context, but don't nest it
+
+                    var isNesting = ancestorContext.IsAncestorOf(lastAncestorContext);
+                    if (isNesting)
+                    {
+                        changes++;
+                    }
+#if DEBUG
+                    else if (!lastAncestorContext.DataContextType.IsAssignableFrom(ancestorContext.DataContextType))
+                    {
+                        // this should not happen - data context type should not randomly change without nesting.
+                        // we change data context stack when we get into different compilation context - a markup control
+                        // but that will be always the same viewmodel type (or supertype)
+
+                        var previousAncestor = control.GetAllAncestors(includingThis: true).TakeWhile(aa => aa != a).LastOrDefault();
+                        var config = (control.GetValue(Internal.RequestContextProperty) as Hosting.IDotvvmRequestContext)?.Configuration;
+                        throw new DotvvmControlException(
+                            previousAncestor ?? a,
+                            $"DataContext type changed from '{lastAncestorContext.DataContextType.ToCode()}' to '{ancestorContext.DataContextType.ToCode()}' without nesting. " +
+                            $"{previousAncestor?.DebugString(config)} has DataContext: {lastAncestorContext}, " +
+                            $"{a.DebugString(config)} has DataContext: {ancestorContext}");
+                    }
+#endif
+                    lastAncestorContext = ancestorContext;
+                }
+
+                if (bindingContext.Equals(ancestorContext))
                     return (changes, a);
 
-                if (a.properties.Contains(DotvvmBindableObject.DataContextProperty)) changes++;
             }
 
             // try to get the real objects, to see which is wrong
@@ -361,10 +398,12 @@ namespace DotVVM.Framework.Binding
             return f => cache.GetOrAdd(f, func);
         }
 
-        public static IValueBinding GetThisBinding(this DotvvmBindableObject obj)
+        public static IStaticValueBinding GetThisBinding(this DotvvmBindableObject obj)
         {
-            var dataContext = obj.GetValueBinding(DotvvmBindableObject.DataContextProperty);
-            return (IValueBinding)dataContext!.GetProperty<ThisBindingProperty>().binding;
+            var dataContext = (IStaticValueBinding?)obj.GetBinding(DotvvmBindableObject.DataContextProperty);
+            if (dataContext is null)
+                throw new InvalidOperationException("DataContext must be set to a binding to allow creation of a {value: _this} binding");
+            return (IStaticValueBinding)dataContext!.GetProperty<ThisBindingProperty>().binding;
         }
 
         private static readonly ConditionalWeakTable<Expression, BindingParameterAnnotation> _expressionAnnotations =
@@ -403,7 +442,7 @@ namespace DotVVM.Framework.Binding
                 return dataContextType;
             }
 
-            var (childType, extensionParameters, addLayer) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
+            var (childType, extensionParameters, addLayer, serverOnly) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
 
             if (!addLayer)
             {
@@ -412,7 +451,7 @@ namespace DotVVM.Framework.Binding
             }
 
             if (childType is null) return null; // childType is null in case there is some error in processing (e.g. enumerable was expected).
-            else return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
+            else return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray(), serverSideOnly: serverOnly);
         }
 
         /// <summary> Return the expected data context type for this property. Returns null if the type is unknown. </summary>
@@ -432,7 +471,7 @@ namespace DotVVM.Framework.Binding
                 return dataContextType;
             }
 
-            var (childType, extensionParameters, addLayer) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
+            var (childType, extensionParameters, addLayer, serverOnly) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
 
             if (!addLayer)
             {
@@ -443,14 +482,16 @@ namespace DotVVM.Framework.Binding
             if (childType is null)
                 childType = typeof(UnknownTypeSentinel);
 
-            return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
+            return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray(), serverSideOnly: serverOnly);
         }
 
-        public static (Type? type, List<BindingExtensionParameter> extensionParameters, bool addLayer) ApplyDataContextChange(DataContextStack dataContext, DataContextChangeAttribute[] attributes, ResolvedControl control, DotvvmProperty? property)
+        public static (Type? type, List<BindingExtensionParameter> extensionParameters, bool addLayer, bool serverOnly) ApplyDataContextChange(DataContextStack dataContext, DataContextChangeAttribute[] attributes, ResolvedControl control, DotvvmProperty? property)
         {
             var type = ResolvedTypeDescriptor.Create(dataContext.DataContextType);
             var extensionParameters = new List<BindingExtensionParameter>();
             var addLayer = false;
+            var serverOnly = dataContext.ServerSideOnly;
+
             foreach (var attribute in attributes.OrderBy(a => a.Order))
             {
                 if (type == null) break;
@@ -459,17 +500,19 @@ namespace DotVVM.Framework.Binding
                 {
                     addLayer = true;
                     type = attribute.GetChildDataContextType(type, dataContext, control, property);
+                    serverOnly = attribute.IsServerSideOnly(dataContext, control, property) ?? serverOnly;
                 }
             }
-            return (ResolvedTypeDescriptor.ToSystemType(type), extensionParameters, addLayer);
+            return (ResolvedTypeDescriptor.ToSystemType(type), extensionParameters, addLayer, serverOnly);
         }
 
 
-        private static (Type? childType, List<BindingExtensionParameter> extensionParameters, bool addLayer) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)
+        private static (Type? childType, List<BindingExtensionParameter> extensionParameters, bool addLayer, bool serverOnly) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)
         {
             Type? type = dataContextType.DataContextType;
             var extensionParameters = new List<BindingExtensionParameter>();
             var addLayer = false;
+            var serverOnly = dataContextType.ServerSideOnly;
 
             foreach (var attribute in attributes.OrderBy(a => a.Order))
             {
@@ -479,10 +522,11 @@ namespace DotVVM.Framework.Binding
                 {
                     addLayer = true;
                     type = attribute.GetChildDataContextType(type, dataContextType, obj, property);
+                    serverOnly = attribute.IsServerSideOnly(dataContextType, obj, property) ?? serverOnly;
                 }
             }
 
-            return (type, extensionParameters, addLayer);
+            return (type, extensionParameters, addLayer, serverOnly);
         }
 
         /// <summary>
