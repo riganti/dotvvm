@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
@@ -72,6 +73,7 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreSame(builder0.builder, builderUnchanged.builder); // same Lazy instance
 
             File.WriteAllText(file, "@viewModel int\n\n<dot:TextBox Text=Changed />");
+            Thread.Sleep(1000);
 
             var builderChanged = controlBuilder.GetControlBuilder(file);
             var control = builderChanged.builder.Value.BuildControl(config.ServiceProvider.GetRequiredService<IControlBuilderFactory>(), config.ServiceProvider);
