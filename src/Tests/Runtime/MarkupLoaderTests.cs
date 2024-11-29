@@ -61,24 +61,28 @@ namespace DotVVM.Framework.Tests.Runtime
             var directory = MakeTempDir();
             var file = Path.Combine(directory, "test.dotcontrol");
             File.WriteAllText(file, "@viewModel string\n\n<dot:TextBox Text=Initial />");
+            var changedTime1 = File.GetLastWriteTimeUtc(file);
 
             var config = debug ? DotvvmTestHelper.DebugConfig : DotvvmTestHelper.DefaultConfig;
 
             var controlBuilder = config.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
             var builder0 = controlBuilder.GetControlBuilder(file);
             Assert.AreEqual(typeof(string), builder0.descriptor.DataContextType);
-            
+
             var builderUnchanged = controlBuilder.GetControlBuilder(file);
 
             Assert.AreSame(builder0.builder, builderUnchanged.builder); // same Lazy instance
 
             File.WriteAllText(file, "@viewModel int\n\n<dot:TextBox Text=Changed />");
-            Thread.Sleep(1000);
 
             var builderChanged = controlBuilder.GetControlBuilder(file);
             var control = builderChanged.builder.Value.BuildControl(config.ServiceProvider.GetRequiredService<IControlBuilderFactory>(), config.ServiceProvider);
             if (debug)
             {
+                var changedTime2 = File.GetLastWriteTimeUtc(file);
+                if (changedTime1 == changedTime2)
+                    Assert.Fail($"File system resolution is probably too low ({changedTime1:o} == {changedTime2:o}), ignores changes or something.");
+
                 Assert.AreEqual(typeof(int), builderChanged.descriptor.DataContextType);
                 Assert.AreNotSame(builder0.builder, builderChanged.builder); // different Lazy instance
                 XAssert.Equal(["Changed"], control.GetThisAndAllDescendants().OfType<TextBox>().Select(c => c.Text));
