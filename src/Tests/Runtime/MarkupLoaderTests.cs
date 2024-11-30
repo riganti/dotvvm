@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Tests.Runtime
             {
                 var changedTime2 = File.GetLastWriteTimeUtc(file);
                 if (changedTime1 == changedTime2)
-                    Assert.Fail($"File system resolution is probably too low ({changedTime1:o} == {changedTime2:o}), ignores changes or something.");
+                    Assert.Inconclusive($"File system resolution is probably too low ({changedTime1:o} == {changedTime2:o}), ignores changes or something.");
 
                 Assert.AreEqual(typeof(int), builderChanged.descriptor.DataContextType);
                 Assert.AreNotSame(builder0.builder, builderChanged.builder); // different Lazy instance
