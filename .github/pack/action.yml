@@ -1,0 +1,26 @@
+name: setup
+description: Packs a .NET project
+
+inputs:
+  project:
+    description: Path to a .NET project
+    required: true
+
+runs:
+  using: composite
+  steps:
+  - run: dotnet build --nologo -c Release --no-restore --no-incremental "${{ inputs.project }}"
+    shell: pwsh
+    env:
+      DOTVVM_ROOT: ${{ github.workspace }}
+      DOTNET_NOLOGO: "1"
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+
+  - run: dotnet pack -c Release --no-build "${{ inputs.project }}"
+    shell: pwsh
+    env:
+      DOTVVM_ROOT: ${{ github.workspace }}
+      DOTNET_NOLOGO: "1"
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"

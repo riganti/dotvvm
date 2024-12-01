@@ -7,6 +7,12 @@
       "commands": [
         "SignClient"
       ]
+    },
+    "sign": {
+      "version": "0.9.1-beta.23356.1",
+      "commands": [
+        "sign"
+      ]
     }
   }
 }
