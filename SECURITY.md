@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-When it comes to security updates, we always support the current major version together with the latest preview version.
+When it comes to security updates, we always support the current stable version together with the latest preview version.
 Each older stable version will continue to be supported for at least one year after the release of the subsequent stable version.
 Any vulnerabilities that affect unsupported versions will be considered on a case-by-case basis.
 
