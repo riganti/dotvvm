@@ -89,7 +89,8 @@ const dotvvmExports = {
         getStateManager().patchState(a)
     },
     setState(a: any) { getStateManager().setState(a) },
-    updateState(updateFunction: StateUpdate<any>) { getStateManager().update(updateFunction) },
+    updateState(updateFunction: StateUpdate<any>) { getStateManager().updateState(updateFunction) },
+    get rootStateManager() { return getStateManager() },
     viewModelObservables: {
         get root() { return getViewModelObservable(); }
     },
