@@ -108,9 +108,9 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
 }
 
 class FakeObservableObject<T extends object> implements UpdatableObjectExtensions<T> {
-    public [currentStateSymbol]: T
-    public [errorsSymbol]: Array<ValidationError>
-    public [updateSymbol]: UpdateDispatcher<T>
+    public [currentStateSymbol]!: T
+    public [errorsSymbol]!: Array<ValidationError>
+    public [updateSymbol]!: UpdateDispatcher<T>
     public [notifySymbol](newValue: T) {
         console.assert(newValue)
         this[currentStateSymbol] = newValue
@@ -123,7 +123,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
             }
         }
     }
-    public [internalPropCache]: { [name: string]: (KnockoutObservable<any> & UpdatableObjectExtensions<any>) | null } = {}
+    public [internalPropCache]!: { [name: string]: (KnockoutObservable<any> & UpdatableObjectExtensions<any>) | null }
 
     public [updatePropertySymbol](propName: keyof DeepReadonly<T>, valUpdate: StateUpdate<any>) {
         this[updateSymbol](vm => {
@@ -136,9 +136,13 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
         })
     }
     constructor(initialValue: T, getter: () => DeepReadonly<T> | undefined, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | DynamicTypeMetadata | undefined, additionalProperties: string[]) {
-        this[currentStateSymbol] = initialValue
-        this[updateSymbol] = updater
-        this[errorsSymbol] = []
+        Object.defineProperties(this, { // define the internals as non-enumerable
+            [updateSymbol]: { value: updater },
+            [currentStateSymbol]: { value: initialValue, writable: true },
+            [errorsSymbol]: { value: [] },
+            [internalPropCache]: { value: {} }
+        })
+
         const props = (typeInfo?.type == "object") ? typeInfo.properties : {};
 
         for (const p of keys(props).concat(additionalProperties)) {
@@ -177,6 +181,11 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
         }
         Object.seal(this)
     }
+}
+
+
+export function isDotvvmObservable(obj: any): obj is DotvvmObservable<any> {
+    return obj?.[notifySymbol] && ko.isObservable(obj)
 }
 
 /**
@@ -345,11 +354,12 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
             const skipUpdate = !observableWasSetFromOutside && oldContents instanceof Array && oldContents.length == newVal.length
 
             if (!skipUpdate) {
+                const t: KnockoutObservableArray<any> = obs as any
                 // take at most newVal.length from the old value
                 newContents = oldContents instanceof Array ? oldContents.slice(0, newVal.length) : []
                 // then append (potential) new values into the array
                 for (let index = 0; index < newVal.length; index++) {
-                    if (newContents[index]?.[notifySymbol as any]) {
+                    if (isDotvvmObservable(newContents[index])) {
                         continue
                     }
                     const itemUpdater = (update: any) => updater((viewModelArray: any) => {
