@@ -62,7 +62,6 @@ namespace DotVVM.Samples.BasicSamples
             {
                 config.DefaultCulture = "en-US";
             }
-            config.ExperimentalFeatures.UseDotvvmSerializationForStaticCommandArguments.Enable();
 
             AddControls(config);
             AddStyles(config);
