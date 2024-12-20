@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -40,15 +41,16 @@ namespace DotVVM.Framework.Configuration
         [JsonPropertyName("knockoutDeferUpdates")]
         public DotvvmFeatureFlag KnockoutDeferUpdates { get; private set; } = new DotvvmFeatureFlag("KnockoutDeferUpdates");
 
+
         [JsonPropertyName("useDotvvmSerializationForStaticCommandArguments")]
-        public DotvvmGlobalFeatureFlag UseDotvvmSerializationForStaticCommandArguments { get; private set; } = new DotvvmGlobalFeatureFlag("UseDotvvmSerializationForStaticCommandArguments");
+        [Obsolete("This is now enabled by default and can only be disabled by overriding services in IServiceCollection (create StaticCommandExecutor with different jsonOptions argument)", true)]
+        public DotvvmGlobalFeatureFlag? UseDotvvmSerializationForStaticCommandArguments => null;
 
         public void Freeze()
         {
             LazyCsrfToken.Freeze();
             ServerSideViewModelCache.Freeze();
             ExplicitAssemblyLoading.Freeze();
-            UseDotvvmSerializationForStaticCommandArguments.Freeze();
         }
     }
 
