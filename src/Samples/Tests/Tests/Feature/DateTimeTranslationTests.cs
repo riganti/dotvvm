@@ -102,7 +102,7 @@ namespace DotVVM.Samples.Tests.Feature
                 textbox.Clear().SendKeys(stringDateTime).SendEnterKey();
 
                 var str = browser.Single("span[data-ui=timeOnlyToString]");
-                AssertUI.TextEquals(str, "3:28:31 PM");
+                AssertUI.Text(str, t => EqualsIgnoreSpace(t, "3:28:31 PM"));
                 var props = browser.Single("span[data-ui=timeOnlyProperties]");
                 AssertUI.TextEquals(props, "15 hours 28 minues 31 seconds and 0 milliseconds");
             });
