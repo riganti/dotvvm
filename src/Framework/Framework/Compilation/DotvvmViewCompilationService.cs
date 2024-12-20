@@ -184,8 +184,7 @@ namespace DotVVM.Framework.Compilation
                 try
                 {
                     if (forceRecompile)
-                        // TODO: next major version - add method to interface
-                        (controlBuilderFactory as DefaultControlBuilderFactory)?.InvalidateCache(file.VirtualPath);
+                        controlBuilderFactory.InvalidateCache(file.VirtualPath);
 
                     var pageBuilder = controlBuilderFactory.GetControlBuilder(file.VirtualPath);
 
