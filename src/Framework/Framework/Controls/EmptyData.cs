@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Controls
             var dataSourceBinding = GetValueBinding(DataSourceProperty);
             TagName = WrapperTagName;
             // if DataSource is resource binding && DataSource is not empty then don't render anything
-            if (dataSourceBinding is {} || GetIEnumerableFromDataSource()?.GetEnumerator()?.MoveNext() != true)
+            if (dataSourceBinding is {} || IsEmpty(GetIEnumerableFromDataSource()))
             {
                 if (dataSourceBinding is {})
                 {
@@ -67,6 +67,15 @@ namespace DotVVM.Framework.Controls
 
                 base.RenderControl(writer, context);
             }
+        }
+
+        private static bool IsEmpty(System.Collections.IEnumerable? enumerable)
+        {
+            if (enumerable is null)
+                return true;
+            var enumerator = enumerable.GetEnumerator();
+            using (enumerator as IDisposable)
+                return !enumerator.MoveNext();
         }
     }
 }
