@@ -11,6 +11,7 @@ using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Compilation.Styles;
+using DotVVM.AutoUI;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -20,6 +21,8 @@ namespace DotVVM.Framework.Tests.ControlTests
         static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
             _ = Controls.Repeater.RenderAsNamedTemplateProperty;
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
+        }, services: s => {
+            s.AddAutoUI();
         });
         OutputChecker check = new OutputChecker("testoutputs");
 
@@ -177,6 +180,70 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task EmptyData()
+        {
+            var r = await cth.RunPage(typeof(TestViewModel), @"
+                <!-- no header row -->
+                <dot:GridView DataSource={resource: EmptyDataSet} ShowHeaderWhenNoData=false>
+                    <dot:GridViewTextColumn HeaderText=Id ValueBinding={resource: Id} />
+                    <dot:GridViewTemplateColumn HeaderText=Name>
+                        {{resource: Name}}
+                    </dot:GridViewTemplateColumn>
+                </dot:GridView>
+
+                <!-- with empty table -->
+                <dot:GridView DataSource={resource: EmptyDataSet} ShowHeaderWhenNoData=true>
+                    <dot:GridViewTextColumn HeaderText=Id ValueBinding={resource: Id} />
+                    <dot:GridViewTemplateColumn HeaderText=Name>
+                        {{resource: Name}}
+                    </dot:GridViewTemplateColumn>
+                </dot:GridView>
+
+
+                <!-- Repeater without wrapper tag -->
+                <dot:Repeater DataSource={resource: EmptyArray} RenderWrapperTag=false>
+                    <EmptyDataTemplate> empty data template </EmptyDataTemplate>
+
+                    This would be here if any data was present
+                </dot:Repeater>
+
+                <!-- Repeater with wrapper tag -->
+                <dot:Repeater DataSource={resource: EmptyArray} WrapperTagName=div>
+                    <EmptyDataTemplate> empty data template </EmptyDataTemplate>
+
+                    This would be here if any data was present
+                </dot:Repeater>
+
+                <dot:EmptyData DataSource={resource: EmptyArray} RenderWrapperTag=false>
+                    dot:EmptyData
+                </dot:EmptyData>
+
+                <dot:EmptyData DataSource={resource: EmptyDataSet} WrapperTagName=div>
+                    dot:EmptyData
+                </dot:EmptyData>
+
+                <dot:EmptyData DataSource={resource: Customers} WrapperTagName=div>
+                    not shown
+                </dot:EmptyData>
+
+                ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task AutoGrid()
+        {
+            var r = await cth.RunPage(typeof(TestViewModel), @"
+                <!-- no header row -->
+                <dot:GridView DataSource={resource: Customers}>
+                    <auto:GridViewColumns />
+                </dot:GridView>
+
+                ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
 
         public class TestViewModel: DotvvmViewModelBase
         {
@@ -207,11 +274,15 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             public UploadedFilesCollection Files { get; set; } = new UploadedFilesCollection();
 
+            public GridViewDataSet<CustomerData> EmptyDataSet { get; set; } = new();
+            public CustomerData[] EmptyArray { get; set; } = [];
+
             public record CustomerData(
                 int Id,
                 [property: Required]
                 string Name,
                 // software for running MLM 😂
+                [property: Display(AutoGenerateField = false)]
                 List<CustomerData> NextLevelCustomers
             );
 

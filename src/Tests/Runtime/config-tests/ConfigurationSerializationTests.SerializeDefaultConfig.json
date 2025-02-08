@@ -162,7 +162,7 @@
         "fromCapability": "Props"
       },
       "Property": {
-        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
+        "type": "DotVVM.Framework.Binding.Expressions.IStaticValueBinding, DotVVM.Framework",
         "onlyBindings": true,
         "fromCapability": "Props"
       },
@@ -212,7 +212,7 @@
         "fromCapability": "Props"
       },
       "Property": {
-        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
+        "type": "DotVVM.Framework.Binding.Expressions.IStaticValueBinding, DotVVM.Framework",
         "required": true,
         "onlyBindings": true
       }

@@ -7,6 +7,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Binding.Properties;
 using System.Text.Json;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -90,7 +91,7 @@ namespace DotVVM.Framework.Controls
             if (binding is not null)
             {
                 var referencedPropertyExpressions = binding.GetProperty<ReferencedViewModelPropertiesBindingProperty>();
-                var unwrappedPropertyExpression = referencedPropertyExpressions.UnwrappedBindingExpression;
+                var unwrappedPropertyExpression = referencedPropertyExpressions.UnwrappedBindingExpression.NotNull();
 
                 // We were able to unwrap the the provided expression
                 writer.AddKnockoutDataBind(validationDataBindName, control, unwrappedPropertyExpression);
