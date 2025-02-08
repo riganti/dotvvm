@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowHardCodedValue = false, AllowResourceBinding = true)]
         [BindingCompilationRequirements(
             required: new[] { typeof(DataSourceAccessBinding) },
-            optional: new[] { typeof(DataSourceLengthBinding), typeof(CollectionElementDataContextBindingProperty) })]
+            optional: new[] { typeof(DataSourceLengthBinding), typeof(CollectionElementDataContextBindingProperty), typeof(SimplePathExpressionBindingProperty) })]
         public object? DataSource
         {
             get { return GetValue(DataSourceProperty); }
@@ -87,15 +87,7 @@ namespace DotVVM.Framework.Controls
         protected string GetPathFragmentExpression()
         {
             var binding = GetDataSourceBinding();
-            var stringified =
-                binding.GetProperty<OriginalStringBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code.Trim() ??
-                binding.GetProperty<KnockoutExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code.FormatKnockoutScript(this, binding) ??
-                binding.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression.ToCSharpString();
-
-            if (stringified is null)
-                throw new DotvvmControlException(this, $"Can't create path fragment from binding {binding}, it does not have OriginalString, ParsedExpression, nor KnockoutExpression property.");
-        
-            return stringified;
+            return binding.GetProperty<SimplePathExpressionBindingProperty>().Code.FormatKnockoutScript(this, binding);
         }
 
         /// <summary> Returns data context which is expected in the ItemTemplate </summary>

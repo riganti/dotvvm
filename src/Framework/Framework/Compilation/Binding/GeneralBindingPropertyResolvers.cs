@@ -135,12 +135,31 @@ namespace DotVVM.Framework.Compilation.Binding
                    javascriptTranslator.CompileToJavascript(expression.Expression, dataContext).ApplyAction(a => a.Freeze()));
         }
 
-        public SimplePathExpressionBindingProperty FormatSimplePath(KnockoutJsExpressionBindingProperty expression)
+        public SimplePathExpressionBindingProperty FormatSimplePath(IBinding binding)
         {
-            // if contains api parameter, can't use this as a path
-            if (expression.Expression.DescendantNodes().Any(n => n.TryGetAnnotation(out ViewModelInfoAnnotation? vmInfo) && vmInfo.ExtensionParameter is RestApiRegistrationHelpers.ApiExtensionParameter apiParameter))
-                throw new Exception($"Can't get a path expression for command binding from binding that is using rest api.");
-            return new SimplePathExpressionBindingProperty(expression.Expression.FormatParametrizedScript());
+            if (binding.GetProperty<KnockoutJsExpressionBindingProperty>(ErrorHandlingMode.ReturnNull) is { } js)
+            {
+                // if contains api parameter, can't use this as a path
+                if (js.Expression.DescendantNodes().Any(n => n.TryGetAnnotation(out ViewModelInfoAnnotation? vmInfo) && vmInfo.ExtensionParameter is RestApiRegistrationHelpers.ApiExtensionParameter apiParameter))
+                    throw new Exception($"Can't get a path expression for command binding from binding that is using rest api.");
+                return new(js.Expression.FormatParametrizedScript());
+            }
+            else if (binding.GetProperty<KnockoutExpressionBindingProperty>(ErrorHandlingMode.ReturnNull) is { } expr)
+            {
+                return new(expr.UnwrappedCode);
+            }
+            else if (binding.GetProperty<OriginalStringBindingProperty>(ErrorHandlingMode.ReturnNull) is { } originalString)
+            {
+                return new(new ParametrizedCode(originalString.Code));
+            }
+            else if (binding.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull) is { } parsedExpression)
+            {
+                return new(new ParametrizedCode(parsedExpression.Expression.ToCSharpString()));
+            }
+            else
+            {
+                throw new Exception($"Can't create path fragment from binding {binding}, it does not have OriginalString, ParsedExpression, nor KnockoutExpression property.");
+            }
         }
 
         public KnockoutExpressionBindingProperty FormatJavascript(KnockoutJsExpressionBindingProperty expression)

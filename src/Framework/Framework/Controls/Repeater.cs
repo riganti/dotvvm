@@ -252,13 +252,13 @@ namespace DotVVM.Framework.Controls
         }
 
         private readonly Dictionary<object, DataItemContainer> childrenCache = new(ReferenceEqualityComparer<object>.Instance);
-        private DotvvmControl AddItem(IList<DotvvmControl> c, IDotvvmRequestContext context, object? item = null, int? index = null, bool serverOnly = false, bool allowMemoizationRetrieve = false, bool allowMemoizationStore = false)
+        private DotvvmControl AddItem(IList<DotvvmControl> c, IDotvvmRequestContext context, string pathFragment, object? item = null, int? index = null, bool serverOnly = false, bool allowMemoizationRetrieve = false, bool allowMemoizationStore = false)
         {
             if (allowMemoizationRetrieve && item != null && childrenCache.TryGetValue(item, out var container2) && container2.Parent == null)
             {
                 Debug.Assert(item == container2.GetValueRaw(DataContextProperty));
                 c.Add(container2);
-                SetUpServerItem(context, item, (int)index!, serverOnly, container2);
+                SetUpServerItem(context, item, (int)index!, serverOnly, pathFragment, container2);
                 return container2;
             }
 
@@ -268,11 +268,11 @@ namespace DotVVM.Framework.Controls
             if (item == null && index == null)
             {
                 Debug.Assert(!serverOnly);
-                SetUpClientItem(context, container);
+                SetUpClientItem(context, pathFragment, container);
             }
             else
             {
-                SetUpServerItem(context, item!, (int)index!, serverOnly, container);
+                SetUpServerItem(context, item!, (int)index!, serverOnly, pathFragment, container);
             }
 
             ItemTemplate.BuildContent(context, container);
@@ -314,6 +314,7 @@ namespace DotVVM.Framework.Controls
             var dataSource = GetIEnumerableFromDataSource();
             var dataSourceBinding = GetDataSourceBinding();
             var serverOnly = dataSourceBinding is not IValueBinding;
+            var pathFragment = GetPathFragmentExpression();
 
             if (dataSource != null)
             {
@@ -325,7 +326,7 @@ namespace DotVVM.Framework.Controls
                     {
                         AddSeparator(Children, context);
                     }
-                    AddItem(Children, context, item, index, serverOnly,
+                    AddItem(Children, context, pathFragment, item, index, serverOnly,
                         allowMemoizationRetrieve: isCommand && !memoizeReferences,
                         allowMemoizationStore: memoizeReferences
                     );
@@ -340,7 +341,7 @@ namespace DotVVM.Framework.Controls
                     clientSeparator = AddSeparator(Children, context);
                 }
 
-                clientSideTemplate = AddItem(Children, context);
+                clientSideTemplate = AddItem(Children, context, pathFragment);
             }
 
             if (EmptyDataTemplate != null)
@@ -349,20 +350,20 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetUpClientItem(IDotvvmRequestContext context, DataItemContainer container)
+        private void SetUpClientItem(IDotvvmRequestContext context, string pathFragment, DataItemContainer container)
         {
             container.DataContext = null;
-            container.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
+            container.SetValue(Internal.PathFragmentProperty, pathFragment + "/[$index]");
             container.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
         }
 
-        private void SetUpServerItem(IDotvvmRequestContext context, object item, int index, bool serverOnly, DataItemContainer container)
+        private void SetUpServerItem(IDotvvmRequestContext context, object item, int index, bool serverOnly, string pathFragment, DataItemContainer container)
         {
             container.DataItemIndex = index;
             container.DataContext = item;
             container.RenderItemBinding = !serverOnly;
             container.SetValue(Internal.IsServerOnlyDataContextProperty, serverOnly);
-            container.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
+            container.SetValue(Internal.PathFragmentProperty, pathFragment + "/[" + index + "]");
             container.ID = index.ToString();
         }
     }
