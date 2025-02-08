@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets whether the control is checked.
         /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false)]
+        [MarkupOptions(AllowHardCodedValue = false, AllowResourceBinding = true)]
         public bool? Checked
         {
             get { return (bool?)GetValue(CheckedProperty); }

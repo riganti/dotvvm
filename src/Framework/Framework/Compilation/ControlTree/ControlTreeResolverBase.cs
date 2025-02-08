@@ -450,7 +450,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 return;
             }
 
-            if (!property.MarkupOptions.AllowHardCodedValue &&
+            if (!property.MarkupOptions.AllowResourceBinding &&
                 attribute.ValueNode is DothtmlValueBindingNode resourceBinding &&
                 treatBindingAsHardCodedValue.Contains(resourceBinding.BindingNode.Name))
             {

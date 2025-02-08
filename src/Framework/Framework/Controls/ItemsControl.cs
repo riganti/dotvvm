@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the source collection or a GridViewDataSet that contains data in the control.
         /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false)]
+        [MarkupOptions(AllowHardCodedValue = false, AllowResourceBinding = true)]
         [BindingCompilationRequirements(
             required: new[] { typeof(DataSourceAccessBinding) },
             optional: new[] { typeof(DataSourceLengthBinding), typeof(CollectionElementDataContextBindingProperty) })]

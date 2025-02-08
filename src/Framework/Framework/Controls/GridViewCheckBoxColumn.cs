@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets a binding which retrieves the value to display from the current data item.
         /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false, Required = true)]
+        [MarkupOptions(AllowHardCodedValue = false, AllowResourceBinding = true, Required = true)]
         public IStaticValueBinding ValueBinding
         {
             get { return (IStaticValueBinding)GetValueRaw(ValueBindingProperty)!; }
