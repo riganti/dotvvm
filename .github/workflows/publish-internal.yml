@@ -9,12 +9,12 @@ on:
           - InternalPreview
           - PublicPreview
           - Stable
-        default: InternalPreview
+        default: Stable
         description: The type of release (determines version format)
         required: false
       version-core:
         type: string
-        default: "4.2.0"
+        default: "4.3.0"
         description: The core part of the version string
         required: false
       prerelease-version:
@@ -72,7 +72,7 @@ jobs:
 
     - name: Set up
       uses: ./.github/setup
-   
+
     - name: Add internal NuGet feed
       run: ./ci/scripts/Add-InternalNuGetFeed.ps1 `
           -internalFeed "${{ secrets.AZURE_ARTIFACTS_FEED }}" `
