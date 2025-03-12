@@ -300,7 +300,7 @@ export class ModuleContext implements DotvvmModuleContext {
                 throw new Error('command already exists');
         }
 
-        this.namedCommands[name] = (...innerArgs) => mapCommandResult(command.apply(this, innerArgs.map(a => unmapKnockoutObservables(a, true))))
+        this.namedCommands[name] = (...innerArgs) => mapCommandResult(command.apply(this, innerArgs.map(a => unmapKnockoutObservables(a, true, true))))
     }
 
     public unregisterNamedCommand = (name: string) => {

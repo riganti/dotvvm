@@ -79,5 +79,55 @@ test("dotvvm-with-control-properties correctly wraps state", () => {
 
 	dotvvm.patchState({ ComplexObj: { A: 42 } })
 	expect(context.Obj.state).toStrictEqual({...viewModel.ComplexObj, A: 42})
+	dotvvm.rootStateManager.doUpdateNow()
+	expect(context.Obj().A()).toBe(42)
 
+	context.Obj.patchState({ A: 43 })
+	expect(context.Obj.state).toStrictEqual({...viewModel.ComplexObj, A: 43})
+	expect(dotvvm.state.ComplexObj.A).toBe(43)
+})
+
+it.each([
+	[ "{ Something: ComplexObj, Arr: [1, 2] }", false ],
+	[ "ko.observable({ Something: ComplexObj, Arr: [1, 2] })", false ],
+	[ "{ Something: ComplexObj, Arr: [1, ko.observable(2)] }", false ],
+	[ "{ Something: ComplexObj, Arr: ko.observableArray([ko.observable(1), 2]) }", false ],
+	[ "{ Something: ko.observable(ComplexObj()), Arr: ko.observableArray([ko.observable(1), 2]) }", true ],
+	[ "{ Something: ko.pureComputed(() => ComplexObj()), Arr: ko.observableArray([ko.observable(1), 2]) }", true ],
+	[ "{ Something: ComplexObj(), Arr: [1, 2] }", true ],
+])("dotvvm-with-control-properties correctly creates state (%s)", (binding, requiresSync) => {
+	dotvvm.setState(viewModel); dotvvm.rootStateManager.doUpdateNow()
+	const div = document.createElement("div")
+	div.innerHTML = `
+		<div data-bind="dotvvm-with-control-properties: { 
+			Obj1: ${binding}
+		}">
+			<div data-bind="dotvvm-with-control-properties: { Obj: $control.Obj1() }">
+				<span id=x />
+			</div>
+		</div>
+	`
+
+	ko.applyBindings(dotvvm.viewModelObservables.root, div)
+
+	const x = div.querySelector("#x")!
+	const context: any = ko.contextFor(x).$control
+
+	expect(context.Obj).observable()
+	expect(context.Obj().Something).observable()
+	expect(context.Obj().Something().A).observable()
+	expect(context.Obj().Arr).observable()
+	expect(context.Obj().Arr()[0]).observable()
+	expect(context.Obj().Arr()[0]()).toBe(1)
+	expect(context.Obj().Arr()[1]()).toBe(2)
+	expect(context.Obj().Something().A()).toBe(1)
+	expect(context.Obj.state).toStrictEqual({ Something: viewModel.ComplexObj, Arr: [1, 2] })
+
+	dotvvm.patchState({ ComplexObj: { A: 4321 } })
+	if (requiresSync) dotvvm.rootStateManager.doUpdateNow()
+	expect(context.Obj.state.Something).toStrictEqual({...viewModel.ComplexObj, A: 4321})
+
+	context.Obj().Something().A.updateState((a: number) => a * 10)
+	if (requiresSync) dotvvm.rootStateManager.doUpdateNow()
+	expect(context.Obj.state).toStrictEqual({ Something: {...viewModel.ComplexObj, A: 43210}, Arr: [1, 2] })
 })
