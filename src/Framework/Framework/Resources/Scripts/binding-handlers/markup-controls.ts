@@ -26,10 +26,7 @@ function createWrapperComputed<T>(valueAccessor: () => T,
     });
     (computed as any)["wrappedProperty"] = observableAccessor;
     Object.defineProperty(computed, "state", {
-        get: () => {
-            const x = observableAccessor() as any
-            return (x && x.state) ?? unmapKnockoutObservables(x, true)
-        }
+        get: () => unmapKnockoutObservables(observableAccessor(), true, true)
     })
     defineConstantProperty(computed, "setState", (state: any) => {
         const x = observableAccessor() as any
