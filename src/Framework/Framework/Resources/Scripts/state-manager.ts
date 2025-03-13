@@ -214,11 +214,19 @@ export function isDotvvmObservable(obj: any): obj is DotvvmObservable<any> {
     return obj?.[notifySymbol] && ko.isObservable(obj)
 }
 
+export function isFakeObservableObject(obj: any): obj is FakeObservableObject<any> {
+    return obj instanceof FakeObservableObject
+}
+
 /**
  * Recursively unwraps knockout observables from the object / array hierarchy. When nothing needs to be unwrapped, the original object is returned.
  * @param allowStateUnwrap Allows accessing [currentStateSymbol], which makes it faster, but doesn't register in the knockout dependency tracker
+ * @param preferStateAccess Also allows accessing observable.state, which also doesn't register in the knockout dependency tracker, but returns an realtime updated value directly from dotvvm.state
 */
-export function unmapKnockoutObservables(viewModel: any, allowStateUnwrap: boolean = false): any {
+export function unmapKnockoutObservables(viewModel: any, allowStateUnwrap: boolean = false, preferStateAccess: boolean = false): any {
+    if (preferStateAccess && ko.isObservable(viewModel) && "state" in viewModel) {
+        return viewModel.state
+    }
     const value = ko.unwrap(viewModel)
 
     if (isPrimitive(value)) {
@@ -237,7 +245,7 @@ export function unmapKnockoutObservables(viewModel: any, allowStateUnwrap: boole
     if (value instanceof Array) {
         let result: any = null
         for (let i = 0; i < value.length; i++) {
-            const unwrappedItem = unmapKnockoutObservables(ko.unwrap(value[i]), allowStateUnwrap)
+            const unwrappedItem = unmapKnockoutObservables(value[i], allowStateUnwrap, preferStateAccess)
             if (unwrappedItem !== value[i]) {
                 result ??= [...value]
                 result[i] = unwrappedItem
@@ -247,11 +255,10 @@ export function unmapKnockoutObservables(viewModel: any, allowStateUnwrap: boole
     }
 
     let result: any = null;
-    for (const prop of keys(value)) {
-        const v = ko.unwrap(value[prop])
-        if (typeof v != "function") {
-            const unwrappedProp = unmapKnockoutObservables(v, allowStateUnwrap)
-            if (unwrappedProp !== value[prop]) {
+    for (const [prop, v] of Object.entries(value)) {
+        if (typeof v != "function" || ko.isObservable(v)) {
+            const unwrappedProp = unmapKnockoutObservables(v, allowStateUnwrap, preferStateAccess)
+            if (unwrappedProp !== v) {
                 result ??= { ...value }
                 result[prop] = unwrappedProp
             }
