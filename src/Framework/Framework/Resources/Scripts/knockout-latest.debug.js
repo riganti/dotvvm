@@ -5117,7 +5117,7 @@ ko.bindingHandlers['selectedOptions'] = {
                 previousScrollTop = element.scrollTop;
 
             if (newValue && typeof newValue.length == "number") {
-                // touch all array elements
+                // touch all array elements, because the ko.utils.arrayIndexOf bellow unwraps everything with ko.dependencyDetection.ignore
                 ko.utils.arrayForEach(newValue, ko.utils.unwrapObservable);
 
                 ko.utils.arrayForEach(element.getElementsByTagName("option"), function(node) {
