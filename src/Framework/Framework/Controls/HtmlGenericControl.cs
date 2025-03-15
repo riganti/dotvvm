@@ -183,13 +183,13 @@ namespace DotVVM.Framework.Controls
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool TouchProperty(DotvvmPropertyId prop, object? value, ref RenderState r)
         {
-            if (prop == VisibleProperty.Id)
+            if (prop == DotvvmPropertyIdAssignment.PropertyIds.HtmlGenericControl_Visible)
                 r.Visible = value;
-            else if (prop == ClientIDProperty.Id)
+            else if (prop == DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_ClientID)
                 r.ClientId = value;
-            else if (prop == IDProperty.Id && value != null)
+            else if (prop == DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_ID && value != null)
                 r.HasId = true;
-            else if (prop == InnerTextProperty.Id)
+            else if (prop == DotvvmPropertyIdAssignment.PropertyIds.HtmlGenericControl_InnerText)
                 r.InnerText = value;
             else if (prop == PostBack.UpdateProperty.Id)
                 r.HasPostbackUpdate = (bool)this.EvalPropertyValue(prop, value)!;
