@@ -1,133 +1,48 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Controls.Infrastructure;
 using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Binding
 {
-    public readonly struct DotvvmPropertyId: IEquatable<DotvvmPropertyId>, IEquatable<uint>, IComparable<DotvvmPropertyId>
+
+    static partial class DotvvmPropertyIdAssignment
     {
-        public readonly uint Id;
-        public DotvvmPropertyId(uint id)
-        {
-            Id = id;
-        }
-
-        public DotvvmPropertyId(ushort typeOrGroupId, ushort memberId)
-        {
-            Id = ((uint)typeOrGroupId << 16) | memberId;
-        }
-
-        [MemberNotNullWhen(true, nameof(PropertyGroupInstance), nameof(GroupMemberName))]
-        public bool IsPropertyGroup => (int)Id < 0;
-        public ushort TypeId => (ushort)(Id >> 16);
-        public ushort GroupId => (ushort)((Id >> 16) ^ 0x80_00);
-        public ushort MemberId => (ushort)(Id & 0xFFFF);
-
-        /// <summary> Returns true if the property does not have GetValue/SetValue overrides and is not inherited. That means it is sufficient  </summary>
-        public bool CanUseFastAccessors
-        {
-            get
-            {
-                // properties: we encode this information as the LSB bit of the member ID (i.e. odd/even numbers)
-                // property groups: always true, i.e.
-                const uint mask = (1u << 31) | (1u);
-                const uint targetValue = 1u;
-                return (Id & mask) != targetValue;
-            }
-        }
-
-        public bool IsZero => Id == 0;
-
-        public DotvvmProperty PropertyInstance => DotvvmPropertyIdAssignment.GetProperty(Id) ?? throw new Exception($"Property with ID {Id} not registered.");
-        public DotvvmPropertyGroup? PropertyGroupInstance => !IsPropertyGroup ? null : DotvvmPropertyIdAssignment.GetPropertyGroup(GroupId);
-        public string? GroupMemberName => !IsPropertyGroup ? null : DotvvmPropertyIdAssignment.GetGroupMemberName(MemberId);
-
-        public Type PropertyType => IsPropertyGroup ? PropertyGroupInstance.PropertyType : PropertyInstance.PropertyType;
-        public Type DeclaringType => IsPropertyGroup ? PropertyGroupInstance.DeclaringType : DotvvmPropertyIdAssignment.GetControlType(TypeId);
-
-        public bool IsInPropertyGroup(ushort id) => (this.Id >> 16) == ((uint)id | 0x80_00u);
-
-        public static DotvvmPropertyId CreatePropertyGroupId(ushort groupId, ushort memberId) => new DotvvmPropertyId((ushort)(groupId | 0x80_00), memberId);
-
-        public static implicit operator DotvvmPropertyId(uint id) => new DotvvmPropertyId(id);
-
-        public bool Equals(DotvvmPropertyId other) => Id == other.Id;
-        public bool Equals(uint other) => Id == other;
-        public override bool Equals(object? obj) => obj is DotvvmPropertyId id && Equals(id);
-        public override int GetHashCode() => (int)Id;
-
-        public static bool operator ==(DotvvmPropertyId left, DotvvmPropertyId right) => left.Equals(right);
-        public static bool operator !=(DotvvmPropertyId left, DotvvmPropertyId right) => !left.Equals(right);
-
-        public override string ToString()
-        {
-            if (IsPropertyGroup)
-            {
-                var pg = PropertyGroupInstance;
-                return $"[{Id:x8}]{pg.DeclaringType.Name}.{pg.Name}:{GroupMemberName}";
-            }
-            else
-            {
-                return $"[{Id:x8}]{PropertyInstance.FullName}";
-            }
-        }
-        public int CompareTo(DotvvmPropertyId other) => Id.CompareTo(other.Id);
-    }
-
-    static class DotvvmPropertyIdAssignment
-    {
+        /// Type and property group IDs bellow this are reserved for manual ID assignment
+        const int RESERVED_CONTROL_TYPES = 256;
+        /// Properties with ID bellow this are reserved for manual ID assignment (only makes sense for controls with manual type ID)
+        const int RESERVED_PROPERTY_COUNT = 32;
         const int DEFAULT_PROPERTY_COUNT = 16;
-        static readonly ConcurrentDictionary<Type, ushort> typeIds;
+        static readonly ConcurrentDictionary<Type, ushort> typeIds = new(concurrencyLevel: 1, capacity: 256);
         private static readonly object controlTypeRegisterLock = new object();
-        private static int controlCounter = 256; // first 256 types are reserved for DotVVM controls
+        private static int controlCounter = RESERVED_CONTROL_TYPES; // first 256 types are reserved for DotVVM controls
         private static ControlTypeInfo[] controls = new ControlTypeInfo[1024];
         private static readonly object groupRegisterLock = new object();
-        private static int groupCounter = 256; // first 256 types are reserved for DotVVM controls
+        private static int groupCounter = RESERVED_CONTROL_TYPES; // first 256 types are reserved for DotVVM controls
         private static DotvvmPropertyGroup?[] propertyGroups = new DotvvmPropertyGroup[1024];
         private static ulong[] propertyGroupActiveBitmap = new ulong[1024 / 64];
-        static readonly ConcurrentDictionary<string, ushort> propertyGroupMemberIds = new(concurrencyLevel: 1, capacity: 256) {
-            ["id"] = GroupMembers.id,
-            ["class"] = GroupMembers.@class,
-            ["style"] = GroupMembers.style,
-            ["name"] = GroupMembers.name,
-            ["data-bind"] = GroupMembers.databind,
-        };
+        static readonly ConcurrentDictionary<string, ushort> propertyGroupMemberIds = new(concurrencyLevel: 1, capacity: 256);
         private static readonly object groupMemberRegisterLock = new object();
         static string?[] propertyGroupMemberNames = new string[1024];
 
         static DotvvmPropertyIdAssignment()
         {
-            foreach (var n in propertyGroupMemberIds)
+            foreach (var (type, id) in TypeIds.List)
             {
-                propertyGroupMemberNames[n.Value] = n.Key;
+                typeIds[type] = id;
             }
-
-            typeIds = new() {
-                [typeof(DotvvmBindableObject)] = TypeIds.DotvvmBindableObject,
-                [typeof(DotvvmControl)] = TypeIds.DotvvmControl,
-                [typeof(HtmlGenericControl)] = TypeIds.HtmlGenericControl,
-                [typeof(RawLiteral)] = TypeIds.RawLiteral,
-                [typeof(Literal)] = TypeIds.Literal,
-                [typeof(ButtonBase)] = TypeIds.ButtonBase,
-                [typeof(Button)] = TypeIds.Button,
-                [typeof(LinkButton)] = TypeIds.LinkButton,
-                [typeof(TextBox)] = TypeIds.TextBox,
-                [typeof(RouteLink)] = TypeIds.RouteLink,
-                [typeof(CheckableControlBase)] = TypeIds.CheckableControlBase,
-                [typeof(CheckBox)] = TypeIds.CheckBox,
-                [typeof(Validator)] = TypeIds.Validator,
-                [typeof(Validation)] = TypeIds.Validation,
-                [typeof(ValidationSummary)] = TypeIds.ValidationSummary,
-            };
+            foreach (var (name, id) in GroupMembers.List)
+            {
+                propertyGroupMemberIds[name] = id;
+                propertyGroupMemberNames[id] = name;
+            }
         }
 
 #region Optimized metadata accessors
@@ -321,6 +236,11 @@ namespace DotVVM.Framework.Binding
                         controls[id].inheritedBitmap = new ulong[(DEFAULT_PROPERTY_COUNT - 1) / 64 + 1];
                         controls[id].standardBitmap = new ulong[(DEFAULT_PROPERTY_COUNT - 1) / 64 + 1];
                         controls[id].activeBitmap = new ulong[(DEFAULT_PROPERTY_COUNT - 1) / 64 + 1];
+                        if (id < RESERVED_CONTROL_TYPES)
+                        {
+                            controls[id].counterStandard = DEFAULT_PROPERTY_COUNT;
+                            controls[id].counterNonStandard = DEFAULT_PROPERTY_COUNT;
+                        }
                         typeIds[type] = id;
                     }
                     ids[i] = id;
@@ -337,10 +257,24 @@ namespace DotVVM.Framework.Binding
 
             var typeId = RegisterType(property.DeclaringType);
             ref ControlTypeInfo control = ref controls[typeId];
-            lock (control.locker) // single control registrations are sequential anyway
+            lock (control.locker) // single control registrations are sequential anyway (most likely)
             {
                 uint id;
-                if (canUseDirectAccess)
+                if (typeId < RESERVED_CONTROL_TYPES &&
+                    typeof(PropertyIds).GetField(property.DeclaringType.Name + "_" + property.Name, BindingFlags.Static | BindingFlags.Public)?.GetValue(null) is {} predefinedId)
+                {
+                    id = (uint)predefinedId;
+                    if ((id & 0xffff) == 0)
+                        throw new InvalidOperationException($"Predefined property ID of {property} cannot be 0.");
+                    if (id >> 16 != typeId)
+                        throw new InvalidOperationException($"Predefined property ID of {property} does not match the property declaring type ID.");
+                    if ((id & 0xffff) > DEFAULT_PROPERTY_COUNT)
+                        throw new InvalidOperationException($"Predefined property ID of {property} is too high (there is only {RESERVED_PROPERTY_COUNT} reserved slots).");
+                    if (canUseDirectAccess != (id % 2 == 0))
+                        throw new InvalidOperationException($"Predefined property ID of {property} does not match the property canUseDirectAccess={canUseDirectAccess}. The ID must be {(canUseDirectAccess ? "even" : "odd")} number.");
+                    id = id & 0xffff;
+                }
+                else if (canUseDirectAccess)
                 {
                     control.counterStandard += 1;
                     id = control.counterStandard * 2;
@@ -354,11 +288,11 @@ namespace DotVVM.Framework.Binding
                     ThrowTooManyException(property);
 
                 // resize arrays (we hold a write lock, but others may be reading in parallel)
-                if (id >= control.properties.Length)
+                while (id >= control.properties.Length)
                 {
                     VolatileResize(ref control.properties, control.properties.Length * 2);
                 }
-                if (id / 64 >= control.inheritedBitmap.Length)
+                while (id / 64 >= control.inheritedBitmap.Length)
                 {
                     Debug.Assert(control.inheritedBitmap.Length == control.standardBitmap.Length);
                     Debug.Assert(control.inheritedBitmap.Length == control.activeBitmap.Length);
@@ -454,7 +388,7 @@ namespace DotVVM.Framework.Binding
                 case "id": return GroupMembers.id;
                 case "style": return GroupMembers.style;
                 case "name": return GroupMembers.name;
-                case "data-bind": return GroupMembers.databind;
+                case "data-bind": return GroupMembers.data_bind;
                 default: return 0;
             }
         }
@@ -513,44 +447,11 @@ namespace DotVVM.Framework.Binding
             public ulong[] inheritedBitmap;
             public ulong[] standardBitmap;
             public ulong[] activeBitmap;
+            /// TODO split struct to part used during registration and part at runtime for lookups
             public object locker;
             public Type controlType;
             public uint counterStandard;
             public uint counterNonStandard;
-        }
-
-        public static class GroupMembers
-        {
-            public const ushort id = 1;
-            public const ushort @class = 2;
-            public const ushort style = 3;
-            public const ushort name = 4;
-            public const ushort databind = 5;
-        }
-
-        public static class TypeIds
-        {
-            public const ushort DotvvmBindableObject = 1;
-            public const ushort DotvvmControl = 2;
-            public const ushort HtmlGenericControl = 3;
-            public const ushort RawLiteral = 4;
-            public const ushort Literal = 5;
-            public const ushort ButtonBase = 6;
-            public const ushort Button = 7;
-            public const ushort LinkButton = 8;
-            public const ushort TextBox = 9;
-            public const ushort RouteLink = 10;
-            public const ushort CheckableControlBase = 11;
-            public const ushort CheckBox = 12;
-            public const ushort Validator = 13;
-            public const ushort Validation = 14;
-            public const ushort ValidationSummary = 15;
-            // public const short Internal = 4;
-        }
-
-        public static class PropertyIds
-        {
-            public const uint DotvvmBindableObject_DataContext = TypeIds.DotvvmBindableObject << 16 | 1;
         }
     }
 }
