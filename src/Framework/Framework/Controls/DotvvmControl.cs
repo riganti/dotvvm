@@ -233,9 +233,9 @@ namespace DotVVM.Framework.Controls
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static bool TouchProperty(DotvvmPropertyId property, object? val, ref RenderState r)
         {
-            if (property == DotvvmControl.IncludeInPageProperty.Id)
+            if (property == DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_IncludeInPage)
                 r.IncludeInPage = val;
-            else if (property == DotvvmControl.DataContextProperty.Id)
+            else if (property == DotvvmPropertyIdAssignment.PropertyIds.DotvvmBindableObject_DataContext)
                 r.DataContext = val as IValueBinding;
             else if (DotvvmPropertyIdAssignment.IsActive(property))
             {
