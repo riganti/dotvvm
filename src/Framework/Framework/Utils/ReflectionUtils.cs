@@ -478,7 +478,11 @@ namespace DotVVM.Framework.Utils
                 return BoxingUtils.Zero;
             // see https://github.com/dotnet/runtime/issues/90697
             // notably we can't use Activator.CreateInstance, because C# now allows default constructors in structs
+#if DotNetCore
+            return RuntimeHelpers.GetUninitializedObject(type);
+#else
             return FormatterServices.GetUninitializedObject(type);
+#endif
         }
 
         public static Type UnwrapTaskType(this Type type)

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyTitle>DotVVM.HotReload.AspNetCore</AssemblyTitle>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>$(DotnetCoreTargetVersion)</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
