@@ -6,7 +6,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
-    /// <summary> Checks that assigned properties have setters without the <see cref="IsExternalInit" /> attribute.
+    /// <summary> Checks that assigned properties have setters without the [IsExternalInit] attribute.
     ///           <paramref name="staticError"/> specifies if the error should be thrown immediately, or only when actually executed at runtime. </summary>
     public class InitOnlyPropertyCheckingVisitor(bool staticError = true): ExpressionVisitor
     {
@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else
                 {
-                    return Expression.Throw(Expression.New(typeof(Exception).GetConstructor([typeof(string)]), [Expression.Constant(message)]));
+                    return Expression.Throw(Expression.New(typeof(Exception).GetConstructor([typeof(string)])!, [Expression.Constant(message)]));
                 }
             }
 

@@ -1356,9 +1356,9 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void BindingCompiler_InitOnlyPropertyCannotBeAsigned()
+        public void BindingCompiler_InitOnlyPropertyCannotBeAssigned()
         {
-            var vm = new TestViewModelWithInitOnlyProperties() {  MyProperty = 999 };
+            var vm = new TestViewModelWithInitOnlyProperties() { MyProperty = 999 };
 
             var exception = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("_this.MyProperty = 1", vm));
             XAssert.Contains("Property 'TestViewModelWithInitOnlyProperties.MyProperty' is init-only", exception.Message);
