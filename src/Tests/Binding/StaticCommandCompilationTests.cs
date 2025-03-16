@@ -384,6 +384,16 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("Member 'Int32 GetCharCode(Char)' is not static.", result.GetBaseException().Message);
         }
 
+
+        [TestMethod]
+        public void StaticCommandCompilation_InitOnlyPropertyCanBeAssigned()
+        {
+            // on client, we allow this (we don't support with nor calling constructor, so it would be very annoying without this)
+            var result = CompileBinding("_this.MyProperty = 1", niceMode: true, new[] { typeof(TestViewModelWithInitOnlyProperties) }, typeof(Command));
+            Console.WriteLine(result);
+            AreEqual("{options.viewModel.MyProperty(1);}", result);
+        }
+
         public void AreEqual(string expected, string actual)
         => Assert.AreEqual(RemoveWhitespaces(expected), RemoveWhitespaces(actual));
 
