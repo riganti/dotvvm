@@ -812,7 +812,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
                 </body>
                 """;
 
-            var tokens = Tokenize(input);
+            var tokens = Tokenize(input.Replace("\r", ""));
             
             Assert.AreEqual(DothtmlTokenType.OpenTag, tokens[0].Type);
             Assert.AreEqual("<", tokens[0].Text);
@@ -902,7 +902,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
                 </body>
                 """;
 
-            var tokens = Tokenize(input);
+            var tokens = Tokenize(input.Replace("\r", ""));
 
             // Console.WriteLine(CreateTest(tokens));
             Assert.AreEqual(DothtmlTokenType.OpenTag, tokens[0].Type);
