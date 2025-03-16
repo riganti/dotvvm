@@ -5,7 +5,7 @@ import subprocess, requests, os, time, argparse
 parser = argparse.ArgumentParser(description="Repeatedly starts the server and every time checks if some pages are working, use to find startup-time race condition bugs")
 parser.add_argument("--port", type=int, default=16017, help="Port to run the server on")
 parser.add_argument("--working-directory", type=str, default=".", help="Working directory to run the server in")
-parser.add_argument("--server-path", type=str, default="bin/Debug/net8.0/DotVVM.Samples.BasicSamples.AspNetCoreLatest", help="Path to the server executable")
+parser.add_argument("--server-path", type=str, default="bin/Debug/net9.0/DotVVM.Samples.BasicSamples.AspNetCoreLatest", help="Path to the server executable")
 parser.add_argument("--environment", type=str, default="Development", help="Asp.Net Core environment (Development, Production)")
 args = parser.parse_args()
 

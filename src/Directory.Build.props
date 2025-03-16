@@ -25,8 +25,12 @@
     <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
     <Deterministic>true</Deterministic>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <DefaultTargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.1;net6.0;net472</DefaultTargetFrameworks>
-    <DefaultTargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.1;net6.0</DefaultTargetFrameworks>
+    <OldFrameworkTargetVersion>net472</OldFrameworkTargetVersion>
+    <DotnetCoreTargetVersion>net8.0</DotnetCoreTargetVersion>
+    <DotnetCoreLatestTargetVersion>net9.0</DotnetCoreLatestTargetVersion>
+    <!-- we keep netstandard2.1 target, because it quite reliably disallows using new .NET Core APIs which would other only fail on Windows -->
+    <DefaultTargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.1;$(DotnetCoreTargetVersion);$(OldFrameworkTargetVersion)</DefaultTargetFrameworks>
+    <DefaultTargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.1;$(DotnetCoreTargetVersion);</DefaultTargetFrameworks>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
   </PropertyGroup>
