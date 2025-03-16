@@ -91,12 +91,6 @@ namespace DotVVM.Framework.Compilation
         }
 
         public DotvvmCompilationException(string message, IEnumerable<TokenBase>? tokens) : this(message, null, tokens) { }
-        protected DotvvmCompilationException(
-            SerializationInfo info,
-            StreamingContext context) : base(info, context)
-        {
-            CompilationError = new DotvvmCompilationDiagnostic(this.Message, DiagnosticSeverity.Error, null, innerException: this.InnerException);
-        }
 
         /// <summary> Creates a compilation error if the provided list of diagnostics contains an error. </summary>
         public static DotvvmCompilationException? TryCreateFromDiagnostics(IEnumerable<DotvvmCompilationDiagnostic> diagnostics)

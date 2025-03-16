@@ -30,9 +30,5 @@ namespace DotVVM.Framework.Testing
         public TestCookieCollection(int capacity, IEqualityComparer<string> comparer) : base(capacity, comparer)
         {
         }
-
-        protected TestCookieCollection(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
-        {
-        }
     }
 }

@@ -102,9 +102,5 @@ namespace DotVVM.Framework.Configuration
                 }
             }
         }
-
-        protected DotvvmConfigurationException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 }
