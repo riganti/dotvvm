@@ -16,11 +16,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public override Assembly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                return Assembly.Load(new AssemblyName(reader.GetString()!));
-            }
-            else throw new NotSupportedException();
+            throw new NotSupportedException();
         }
 
         public override void Write(Utf8JsonWriter writer, Assembly value, JsonSerializerOptions options)
@@ -33,12 +29,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public override Type Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                var name = reader.GetString()!;
-                return Type.GetType(name) ?? throw new Exception($"Cannot find type {name}.");
-            }
-            else throw new NotSupportedException();
+            throw new NotSupportedException();
         }
 
         public override void Write(Utf8JsonWriter writer, Type t, JsonSerializerOptions options)
@@ -63,15 +54,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                var name = reader.GetString()!;
-                ITypeDescriptor result = new ResolvedTypeDescriptor(Type.GetType(name) ?? throw new Exception($"Cannot find type {name}."));
-                if (result is T t)
-                    return t;
-                else throw new NotSupportedException($"Cannot deserialize {typeToConvert}");
-            }
-            else throw new NotSupportedException();
+            throw new NotSupportedException();
         }
 
         public override void Write(Utf8JsonWriter writer, T t, JsonSerializerOptions options)

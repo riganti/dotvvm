@@ -13,7 +13,6 @@ namespace DotVVM.Framework.Controls
 
     [ContainsDotvvmProperties]
     [ControlMarkupOptions(AllowContent = true)]
-    [System.Text.Json.Serialization.JsonConverter(typeof(DotvvmControlDebugJsonConverter))]
     public abstract class DotvvmBindableObject: IDotvvmObjectLike
     {
 

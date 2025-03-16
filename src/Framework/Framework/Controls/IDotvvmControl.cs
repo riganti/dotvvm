@@ -3,6 +3,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Controls
 {
@@ -10,6 +11,7 @@ namespace DotVVM.Framework.Controls
     public interface IDotvvmObjectLike
     {
         /// <summary> Returns itself. This is a kinda hack which allows interfaces to inherit from almost DotvvmBindableObject </summary>
+        [JsonIgnore]
         DotvvmBindableObject Self { get; }
     }
     /// <summary> Marker interface for DotvvmBindableObject which have the specified capability. If no capability of type TCapability is defined, it will be registered automatically. </summary>
