@@ -22,7 +22,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
-                browser.Driver.Manage().Window.Maximize();
 
                 //Get rows
                 var rows = browser.First("table tbody");
