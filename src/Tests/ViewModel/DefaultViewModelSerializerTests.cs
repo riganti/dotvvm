@@ -21,6 +21,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
 using DotVVM.Framework.Utils;
 using System.Text.Json.Nodes;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -542,7 +543,6 @@ namespace DotVVM.Framework.Tests.Runtime
             [Bind(Direction.Both)]
             public int PropertyPlusOne => Property + 1;
         }
-
 
         /// <summary>
         /// Wraps the serialized view model to an object that comes from the client.

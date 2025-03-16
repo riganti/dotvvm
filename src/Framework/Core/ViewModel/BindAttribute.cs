@@ -21,7 +21,7 @@ namespace DotVVM.Framework.ViewModel
         /// </summary>
         public string? Name { get; set; }
 
-        public bool? _allowDynamicDispatch;
+        private bool? _allowDynamicDispatch;
         /// <summary>
         /// When true, DotVVM serializer will select the JSON converter based on the runtime type, instead of deciding it ahead of time.
         /// This essentially enables serialization of properties defined derived types, but does not enable derive type deserialization, unless an instance of the correct type is prepopulated into the property.
