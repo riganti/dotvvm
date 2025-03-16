@@ -51,5 +51,6 @@ public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
         //register only services that are supported by DotVVM (otherwise, register your services in Startup.cs)
         options.AddDefaultTempStorages("Temp");
+		options.AddHotReload();
     }
 }

@@ -1,24 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore;
+﻿using DotvvmApplication1;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 
-namespace DotvvmApplication1;
-public class Program
+var builder = WebApplication.CreateBuilder();
+
+builder.Services.AddDotVVM<DotvvmStartup>();
+
+var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
 {
-    public static void Main(string[] args)
-    {
-        var host = WebHost.CreateDefaultBuilder(args)
-            .UseIISIntegration()
-            .UseStartup<Startup>()
-#if (IncludeApplicationInsights)
-            .UseApplicationInsights()
-#endif
-            .Build();
-
-        host.Run();
-    }
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+app.UseAuthorization();
+
+app.UseDotVVM<DotvvmStartup>();
+app.MapDotvvmHotReload();
+
+app.Run();
