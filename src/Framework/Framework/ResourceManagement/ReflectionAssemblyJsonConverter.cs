@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -105,7 +106,15 @@ namespace DotVVM.Framework.ResourceManagement
 
                 writer.WritePropertyName(prop.Name);
 
-                JsonSerializer.Serialize(writer, prop.GetValue(attribute), options);
+                var value = prop.GetValue(attribute);
+
+                // NB: RuntimeType is internal, so we need to use first public base type
+                var valueType = value?.GetType() ?? typeof(object);
+                while (!valueType.IsPublicType() || valueType == typeof(TypeInfo))
+                {
+                    valueType = valueType.BaseType!;
+                }
+                JsonSerializer.Serialize(writer, value, valueType, options);
             }
             writer.WriteEndObject();
         }
