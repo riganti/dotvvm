@@ -17,13 +17,20 @@ namespace DotVVM.Framework.Binding
         public override int Order { get; }
         public bool? ServerSideOnly { get; }
 
-        public ConstantDataContextChangeAttribute(Type type, int order = 0, bool? serverSideOnly = null)
+        public ConstantDataContextChangeAttribute(Type type, int order = 0)
+        {
+            Type = type;
+            Order = order;
+            ServerSideOnly = null;
+        }
+
+        public ConstantDataContextChangeAttribute(Type type, int order, bool serverSideOnly)
         {
             Type = type;
             Order = order;
             ServerSideOnly = serverSideOnly;
         }
-        
+
         public override ITypeDescriptor? GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor? property = null)
         {
             return new ResolvedTypeDescriptor(Type);
