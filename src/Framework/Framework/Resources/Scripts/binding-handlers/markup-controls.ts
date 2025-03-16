@@ -1,4 +1,6 @@
 import { isDotvvmObservable, isFakeObservableObject, unmapKnockoutObservables } from '../state-manager';
+import { proxyObservableArrayMethods } from '../utils/evaluator';
+import { isObservableArray } from '../utils/knockout';
 import { logWarning } from '../utils/logging';
 import { defineConstantProperty, isPrimitive, keys } from '../utils/objects';
 import * as manager from '../viewModules/viewModuleManager';
@@ -10,10 +12,16 @@ function isCommand(value: any, prop: string) {
 /** Wraps a function returning observable to make sure we have a single observable which we will not need to replace even if accessor returns a different instance. */
 function createWrapperComputed<T>(valueAccessor: () => T,
                                   observableAccessor: () => KnockoutObservable<T> | T = valueAccessor,
-                                  propertyDebugInfo: string | null = null) {
+                                  propertyDebugInfo: string | undefined = undefined,
+                                  isArray: boolean | undefined = undefined) {
     const computed = ko.pureComputed<T>({
         read() {
-            return valueAccessor();
+            const value = valueAccessor();
+            if (Array.isArray(value) && isArray == null) {
+                isArray = true
+                proxyObservableArrayMethods(computed, observableAccessor)
+            }
+            return value
         },
         write(value: T) {
             const val = observableAccessor();
@@ -25,6 +33,9 @@ function createWrapperComputed<T>(valueAccessor: () => T,
         }
     });
     (computed as any)["wrappedProperty"] = observableAccessor;
+    if (isArray) {
+        proxyObservableArrayMethods(computed, observableAccessor)
+    }
     Object.defineProperty(computed, "state", {
         get: () => unmapKnockoutObservables(observableAccessor(), true, true)
     })
@@ -57,10 +68,11 @@ function createWrapperComputed<T>(valueAccessor: () => T,
  *  The function assumes that the object hierarchy which needs wrapping is relatively small or updates are rare and simply replaces everything
  *  when the accessor value changes. */
 function createWrapperComputedRecursive<T>(accessor: () => KnockoutObservable<T> | T,
-                                           propertyDebugInfo: string | null = null) {
+                                           propertyDebugInfo: string | undefined = undefined,
+                                           isArray: boolean | undefined = undefined) {
     return createWrapperComputed<T>(/*valueAccessor:*/ () => processValue(accessor, accessor()),
                                     /*observableAccessor:*/ accessor,
-                                    propertyDebugInfo)
+                                    propertyDebugInfo, isArray)
 
     function processValue(accessor: () => KnockoutObservable<unknown> | unknown, value: unknown): any {
         const unwrapped = ko.unwrap(value)
@@ -87,7 +99,7 @@ function createWrapperComputedRecursive<T>(accessor: () => KnockoutObservable<T>
         // the value in observable is constant, we'll create new one if accessor returns new value
         // however, this process is asynchronnous, so for writes and `state`, `setState`, ... calls we call it again to be sure
         const processed = processValue(accessor, value)
-        return createWrapperComputed(() => processed, accessor, propertyDebugInfo)
+        return createWrapperComputed(() => processed, accessor, propertyDebugInfo, Array.isArray(processed))
     }
 }
 
@@ -120,7 +132,9 @@ export function wrapControlProperties(valueAccessor: () => any) {
         } else {
             value[prop] = createWrapperComputedRecursive(
                 () => valueAccessor()[prop],
-                compileConstants.debug ? `'${prop}' at '${valueAccessor}'` : prop);
+                compileConstants.debug ? `'${prop}' at '${valueAccessor}'` : prop,
+                /*isArray:*/ Array.isArray(value[prop]) || isObservableArray(value[prop]) ? true : undefined
+            );
         }
     }
     return value
