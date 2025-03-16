@@ -251,7 +251,7 @@ namespace DotVVM.Framework.Controls
             return emptyDataContainer;
         }
 
-        private readonly Dictionary<object, DataItemContainer> childrenCache = new(ReferenceEqualityComparer<object>.Instance);
+        private readonly Dictionary<object, DataItemContainer> childrenCache = new(ReferenceEqualityComparer.Instance);
         private DotvvmControl AddItem(IList<DotvvmControl> c, IDotvvmRequestContext context, string pathFragment, object? item = null, int? index = null, bool serverOnly = false, bool allowMemoizationRetrieve = false, bool allowMemoizationStore = false)
         {
             if (allowMemoizationRetrieve && item != null && childrenCache.TryGetValue(item, out var container2) && container2.Parent == null)
