@@ -16,7 +16,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     public class DotvvmEnumConverter : JsonConverterFactory
     {
         public override bool CanConvert(Type typeToConvert) =>
-            typeToConvert.IsEnum;
+            typeToConvert.IsEnum && !DotvvmSerializationAttribute.IsDotvvmSerializationDisabled(typeToConvert);
         public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
             (JsonConverter?)CreateConverterGenericMethod.MakeGenericMethod(typeToConvert).Invoke(this, []);
 

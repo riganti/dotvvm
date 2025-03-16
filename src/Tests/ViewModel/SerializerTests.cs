@@ -799,6 +799,77 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("A,B", (string)json["Properties"]);
         }
 
+
+
+        [TestMethod]
+        public void Serializer_CanDisableDotvvmSerializer()
+        {
+            var (obj,json) = SerializeAndDeserialize(new TestDefaultSerializationViewModel { ItsSerializedAnyway = true });
+            Assert.AreEqual("""{"ItsSerializedAnyway":true}""", json.ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
+
+            Assert.IsTrue(obj.ItsSerializedAnyway);
+        }
+
+
+        [TestMethod]
+        public void Serializer_CanUseDefaultPolymorphismSupport_1()
+        {
+            var (obj, json) = SerializeAndDeserialize<TestDefaultSerializationViewModel>(new TestDefaultSerializationViewModel.Derived1 { ItsSerializedAnyway = true, Property1 = "abc" });
+            Assert.AreEqual("""{"$t":1,"Property1":"abc","ItsSerializedAnyway":true}""", json.ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
+
+            Assert.IsTrue(obj.ItsSerializedAnyway);
+            Assert.AreEqual("abc", ((TestDefaultSerializationViewModel.Derived1)obj).Property1);
+        }
+
+        [TestMethod]
+        public void Serializer_CanUseDefaultPolymorphismSupport_2()
+        {
+            var (obj, json) = SerializeAndDeserialize<TestDefaultSerializationViewModel>(new TestDefaultSerializationViewModel.Derived2 { ItsSerializedAnyway = true, Property2 = 123 });
+            Assert.AreEqual("""{"$t":2,"Property2":123,"ItsSerializedAnyway":true}""",
+                json.ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
+
+            Assert.IsTrue(obj.ItsSerializedAnyway);
+            Assert.AreEqual(123, ((TestDefaultSerializationViewModel.Derived2)obj).Property2);
+        }
+
+        [TestMethod]
+        public void Serializer_CanUseDefaultPolymorphismSupport_2B()
+        {
+            var (obj, json) = SerializeAndDeserialize<TestDefaultSerializationViewModel>(new TestDefaultSerializationViewModel.Derived2B { ItsSerializedAnyway = true, Property2 = 123, Property2B = -5 });
+
+            Assert.AreEqual("""{"$t":2,"Property2":123,"ItsSerializedAnyway":true}""", json.ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
+
+            Assert.IsTrue(obj.ItsSerializedAnyway);
+            Assert.AreEqual(123, ((TestDefaultSerializationViewModel.Derived2)obj).Property2);
+            Assert.AreEqual(typeof(TestDefaultSerializationViewModel.Derived2), obj.GetType());
+        }
+
+
+        [DotvvmSerialization(DisableDotvvmConverter = true)]
+        [JsonPolymorphic(TypeDiscriminatorPropertyName = "$t", UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
+        [JsonDerivedType(typeof(Derived1), typeDiscriminator: 1)]
+        [JsonDerivedType(typeof(Derived2), typeDiscriminator: 2)]
+        public class TestDefaultSerializationViewModel
+        {
+            [Bind(Direction.None)]
+            public bool ItsSerializedAnyway { get; set; }
+
+            public class Derived1: TestDefaultSerializationViewModel
+            {
+                public string Property1 { get; set; }
+            }
+
+            public class Derived2: TestDefaultSerializationViewModel
+            {
+                public int Property2 { get; set; }
+            }
+
+            public class Derived2B: Derived2
+            {
+                public int Property2B { get; set; }
+            }
+        }
+
     }
 
     public class DataNode
