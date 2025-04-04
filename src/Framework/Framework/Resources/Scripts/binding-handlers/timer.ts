@@ -20,21 +20,27 @@ export default {
             function createOrDestroyTimer(enabled: boolean) {
                 if (enabled) {
                     if (timer) {
-                        window.clearInterval(timer);
+                        window.clearTimeout(timer);
                     }
 
-                    timer = window.setInterval(() => {
-                        prop.command.bind(element)();
-                    }, prop.interval);
+                    const callback = async () => {
+                        try {
+                            await prop.command.bind(element)();
+                        } catch (err) {
+                            dotvvm.log.logError("postback", err);
+                        }
+                        timer = window.setTimeout(callback, prop.interval);
+                    };
+                    timer = window.setTimeout(callback, prop.interval);
 
                 } else if (timer) {
-                    window.clearInterval(timer);
+                    window.clearTimeout(timer);
                 }
             };
 
             ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
                 if (timer) {
-                    window.clearInterval(timer);
+                    window.clearTimeout(timer);
                 }
             });
         }

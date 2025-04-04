@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the interval in milliseconds.
         /// </summary>
-        [MarkupOptions(AllowBinding = false)]
+        [MarkupOptions(AllowBinding = false, Required = true)]
         public int Interval
         {
             get { return (int)GetValue(IntervalProperty)!; }

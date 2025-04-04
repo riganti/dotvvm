@@ -1644,6 +1644,7 @@
       "Interval": {
         "type": "System.Int32",
         "defaultValue": 30000,
+        "required": true,
         "onlyHardcoded": true
       }
     },

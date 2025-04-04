@@ -152,6 +152,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_TextBox_TextBox_FormatDoubleProperty = "ControlSamples/TextBox/TextBox_FormatDoubleProperty";
         public const string ControlSamples_TextBox_TextBox_Format_Binding = "ControlSamples/TextBox/TextBox_Format_Binding";
         public const string ControlSamples_TextBox_TextBox_Types = "ControlSamples/TextBox/TextBox_Types";
+        public const string ControlSamples_Timer_LongCommand = "ControlSamples/Timer/LongCommand";
         public const string ControlSamples_Timer_Timer = "ControlSamples/Timer/Timer";
         public const string ControlSamples_UpdateProgress_UpdateProgress = "ControlSamples/UpdateProgress/UpdateProgress";
         public const string ControlSamples_UpdateProgress_UpdateProgressDelay = "ControlSamples/UpdateProgress/UpdateProgressDelay";
@@ -269,6 +270,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
         public const string FeatureSamples_JavascriptTranslation_ArrayTranslation = "FeatureSamples/JavascriptTranslation/ArrayTranslation";
+        public const string FeatureSamples_JavascriptTranslation_CommandInsideWhere = "FeatureSamples/JavascriptTranslation/CommandInsideWhere";
         public const string FeatureSamples_JavascriptTranslation_DateOnlyTranslations = "FeatureSamples/JavascriptTranslation/DateOnlyTranslations";
         public const string FeatureSamples_JavascriptTranslation_DateTimeTranslations = "FeatureSamples/JavascriptTranslation/DateTimeTranslations";
         public const string FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation = "FeatureSamples/JavascriptTranslation/DictionaryIndexerTranslation";

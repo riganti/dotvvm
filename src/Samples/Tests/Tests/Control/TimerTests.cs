@@ -96,6 +96,29 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [Fact]
+        public void Control_Timer_LongCommand()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Timer_LongCommand);
+
+                var value = browser.Single(".result");
+
+                // ensure the new command does not start before the old finishes
+                Assert.True(EqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1));
+                browser.Wait(4000);
+
+                Assert.True(EqualsWithTolerance(1, int.Parse(value.GetInnerText()), 1));
+                browser.Wait(4000);
+
+                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                browser.Wait(4000);
+
+                Assert.True(EqualsWithTolerance(3, int.Parse(value.GetInnerText()), 1));
+            });
+        }
+
+
         private static bool EqualsWithTolerance(int expected, int actual, int tolerance)
             => Math.Abs(expected - actual) <= tolerance;
     }
