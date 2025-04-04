@@ -22,7 +22,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
-                browser.Driver.Manage().Window.Maximize();
 
                 //Get rows
                 var rows = browser.First("table tbody");
@@ -510,8 +509,10 @@ namespace DotVVM.Samples.Tests.Control
         [Theory]
         [InlineData(SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting)]
         [InlineData(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender)]
+        [InlineData(SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSortingServerSide)]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSortingServerSide))]
         public void Control_GridView_GridViewPagingSortingBase(string path)
         {
             RunInAllBrowsers(browser => {

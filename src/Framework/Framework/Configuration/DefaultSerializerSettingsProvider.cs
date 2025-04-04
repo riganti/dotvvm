@@ -14,8 +14,8 @@ namespace DotVVM.Framework.Configuration
     public sealed class DefaultSerializerSettingsProvider
     {
         private const int defaultMaxSerializationDepth = 64;
-        internal readonly JsonSerializerOptions SettingsHtmlUnsafe;
-        internal readonly JsonSerializerOptions Settings;
+        public readonly JsonSerializerOptions SettingsHtmlUnsafe;
+        public readonly JsonSerializerOptions Settings;
 
         // We need to encode for script tags (i.e. either < or / has to go) and for HTML comments (< and > have to go - https://html.spec.whatwg.org/#comments)
         // The default JavaScriptEncoder is just annoyingly paranoid, I'm not interested in having all non-ASCII characters escaped to unicode codepoints
@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Configuration
         // https://tc39.es/ecma262/multipage/ecmascript-language-lexical-grammar.html#prod-DoubleStringCharacter
         //   - it says « SourceCharacter [=any Unicode code point] but not one of " or \ or LineTerminator »
         // ...which isn't allowed in JSON in any context anyway
-        internal readonly JavaScriptEncoder HtmlSafeLessParanoidEncoder;
+        public readonly JavaScriptEncoder HtmlSafeLessParanoidEncoder;
 
         private JsonSerializerOptions CreateSettings()
         {

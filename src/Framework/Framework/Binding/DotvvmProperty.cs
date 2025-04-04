@@ -496,6 +496,7 @@ namespace DotVVM.Framework.Binding
             if (property.IsBindingProperty)
             {
                 property.MarkupOptions.AllowHardCodedValue = false;
+                property.MarkupOptions.AllowResourceBinding = !typeof(IValueBinding).IsAssignableFrom(property.PropertyType);
             }
 
             property.initialized = true;

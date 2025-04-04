@@ -76,7 +76,9 @@ namespace DotVVM.Framework.Hosting
         public bool IsReadOnly => OriginalHeaders.IsReadOnly;
         public void Add(string key, string[] value)
         {
+#pragma warning disable ASP0019 // Don't use Add to append headers
             OriginalHeaders.Add(key, new StringValues(value));
+#pragma warning restore ASP0019
         }
 
         public bool ContainsKey(string key)

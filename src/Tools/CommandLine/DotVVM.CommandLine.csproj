@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
     <AssemblyName>dotnet-dotvvm</AssemblyName>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>$(DotnetCoreTargetVersion)</TargetFramework>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <OutputType>Exe</OutputType>
@@ -51,14 +51,14 @@
   <ItemGroup>
     <ProjectReference Include="..\Compiler\DotVVM.Compiler.csproj">
         <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-        <SetTargetFramework>TargetFramework=net6.0</SetTargetFramework>
-        <AdditionalProperties>PublishDir=$(OutputPath)tools\net6.0\any</AdditionalProperties>
+        <SetTargetFramework>TargetFramework=$(DotnetCoreTargetVersion)</SetTargetFramework>
+        <AdditionalProperties>PublishDir=$(OutputPath)tools\$(DotnetCoreTargetVersion)\any</AdditionalProperties>
         <Targets>Publish</Targets>
     </ProjectReference>
     <ProjectReference Include="..\Compiler\DotVVM.Compiler.csproj" Condition=" '$(OS)' == 'Windows_NT' ">
         <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-        <SetTargetFramework>TargetFramework=net472</SetTargetFramework>
-        <AdditionalProperties>PublishDir=$(OutputPath)tools\net472\any</AdditionalProperties>
+        <SetTargetFramework>TargetFramework=$(OldFrameworkTargetVersion)</SetTargetFramework>
+        <AdditionalProperties>PublishDir=$(OutputPath)tools\$(OldFrameworkTargetVersion)\any</AdditionalProperties>
         <Targets>Publish</Targets>
     </ProjectReference>
   </ItemGroup>

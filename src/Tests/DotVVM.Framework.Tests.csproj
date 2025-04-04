@@ -13,8 +13,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">net8.0;net472</TargetFrameworks>
-    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">net8.0</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">$(DotnetCoreTargetVersion);$(OldFrameworkTargetVersion)</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">$(DotnetCoreTargetVersion)</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -30,17 +30,17 @@
     <ProjectReference Include="../Framework/Testing/DotVVM.Framework.Testing.csproj" />
     <ProjectReference Include="../AutoUI/Core/DotVVM.AutoUI.csproj" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' != '$(OldFrameworkTargetVersion)'">
     <DefineConstants>$(DefineConstants);DotNetCore</DefineConstants>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+  <ItemGroup Condition="'$(TargetFramework)' == '$(OldFrameworkTargetVersion)'">
     <ProjectReference Include="../Framework/Hosting.Owin/DotVVM.Framework.Hosting.Owin.csproj" />
     <PackageReference Include="CheckTestOutput" Version="0.6.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
     <Compile Remove="AspCore/CachingTests.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+  <ItemGroup Condition="'$(TargetFramework)' != '$(OldFrameworkTargetVersion)'">
     <ProjectReference Include="../Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
     <PackageReference Include="CheckTestOutput" Version="0.6.3" />
   </ItemGroup>

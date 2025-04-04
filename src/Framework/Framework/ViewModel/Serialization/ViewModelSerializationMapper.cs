@@ -205,6 +205,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 propertyMap.JsonConverter = GetJsonConverter(property);
                 propertyMap.AllowDynamicDispatch = propertyMap.JsonConverter is null && (propertyType.IsAbstract || propertyType == typeof(object));
 
+                if (type.IsDefined(typeof(DotvvmSerializationAttribute), true))
+                {
+                    var typeSerializationAttribute = type.GetCustomAttribute<DotvvmSerializationAttribute>()!;
+                    propertyMap.AllowDynamicDispatch = typeSerializationAttribute.AllowsDynamicDispatch(propertyMap.AllowDynamicDispatch);
+                }
+
                 foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())
                 {
                     attr.SetOptions(propertyMap);

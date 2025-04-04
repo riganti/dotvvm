@@ -30,6 +30,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             ReflectionUtils.IsComplexType(type) &&
             !ReflectionUtils.IsJsonDom(type) &&
             !type.IsDefined(typeof(JsonConverterAttribute), true) &&
+            !DotvvmSerializationAttribute.IsDotvvmSerializationDisabled(type) &&
             type != typeof(object);
 
         /// <summary>

@@ -29,16 +29,7 @@ namespace DotVVM.Framework.Hosting
             this.viewModelProtector = viewModelProtector;
             this.validator = validator;
             this.configuration = configuration;
-            if (configuration.ExperimentalFeatures.UseDotvvmSerializationForStaticCommandArguments.Enabled)
-            {
-                this.jsonOptions = jsonOptions.ViewModelJsonOptions;
-            }
-            else
-            {
-                this.jsonOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
-                    WriteIndented = configuration.Debug
-                };
-            }
+            this.jsonOptions = jsonOptions.ViewModelJsonOptions;
         }
 #pragma warning restore CS0618
 

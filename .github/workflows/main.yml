@@ -37,43 +37,43 @@ jobs:
 
     # framework
     - name: Core
-      run: dotnet build src/Framework/Framework --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+      run: dotnet build src/Framework/Framework --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net8.0 /WarnAsError
     - name: Framework
-      run: dotnet build src/Framework/Framework --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+      run: dotnet build src/Framework/Framework --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net8.0 /WarnAsError
     - name: Testing
-      run: dotnet build src/Framework/Testing --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+      run: dotnet build src/Framework/Testing --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net8.0 /WarnAsError
 
     # hosting
     - name: Hosting.AspNetCore
-      run: dotnet build src/Framework/Hosting.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+      run: dotnet build src/Framework/Hosting.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net8.0 /WarnAsError
 
     # command-line
     - name: CommandLine
-      run: dotnet build src/Tools/CommandLine --configuration ${{ matrix.configuration }} --no-restore --framework net6.0 /WarnAsError
+      run: dotnet build src/Tools/CommandLine --configuration ${{ matrix.configuration }} --no-restore --framework net8.0 /WarnAsError
 
     # swashbuckle
     - name: Api.Swashbuckle.AspNetCore
-      run: dotnet build src/Api/Swashbuckle.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+      run: dotnet build src/Api/Swashbuckle.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net8.0 /WarnAsError
 
     # hot reload
     - name: HotReload.Common
-      run: dotnet build src/Tools/HotReload/Common --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+      run: dotnet build src/Tools/HotReload/Common --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net8.0 /WarnAsError
     - name: HotReload.AspNetCore
-      run: dotnet build src/Tools/HotReload/AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+      run: dotnet build src/Tools/HotReload/AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net8.0 /WarnAsError
 
     # application insights
     - name: Tracing.ApplicationInsights
-      run: dotnet build src/Tracing/ApplicationInsights --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+      run: dotnet build src/Tracing/ApplicationInsights --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net8.0 /WarnAsError
     - name: Tracing.ApplicationInsights.AspNetCore
-      run: dotnet build src/Tracing/ApplicationInsights.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+      run: dotnet build src/Tracing/ApplicationInsights.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net8.0 /WarnAsError
 
     # miniprofiler
     - name: Tracing.MiniProfiler.AspNetCore
-      run: dotnet build src/Tracing/MiniProfiler.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+      run: dotnet build src/Tracing/MiniProfiler.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net8.0 /WarnAsError
 
     # dynamic data
     - name: DynamicData
-      run: dotnet build src/DynamicData/DynamicData --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
+      run: dotnet build src/DynamicData/DynamicData --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net8.0 /WarnAsError
 
   build-all:
     name: Build all projects without errors
@@ -125,7 +125,7 @@ jobs:
         title: Framework Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net472
-    - name: Analyzers.Tests (net6.0)
+    - name: Analyzers.Tests (net8.0)
       uses: ./.github/unittest
       if: ${{ success() || failure() }}
       with:
@@ -133,7 +133,7 @@ jobs:
         name: analyzers-tests
         title: Analyzer Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        target-framework: net6.0
+        target-framework: net8.0
     # - name: Analyzers.Tests (net7.0)
     #   uses: ./.github/unittest
     #   with:

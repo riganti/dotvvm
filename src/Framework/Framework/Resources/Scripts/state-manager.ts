@@ -32,13 +32,21 @@ export type UpdatableObjectExtensions<T> = {
     [updateSymbol]?: UpdateDispatcher<T>
 }
 
-export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
+/** Manages the consistency of DotVVM immutable ViewModel state object with the knockout observables.
+ * Knockout observables are by-default updated asynchronously after a state change, but the synchronization can be forced by calling `doUpdateNow`.
+ * The newState event is also called asynchronously right before the knockout observables are updated.
+ * Changes from observables to state are immediate.
+ */
+export class StateManager<TViewModel extends { $type?: TypeDefinition }> implements DotvvmStateContainer<TViewModel> {
+    /** The knockout observable containing the root objects, equivalent to `dotvvm.viewModels.root.viewModel` */
     public readonly stateObservable: DeepKnockoutObservable<TViewModel>;
     private _state: DeepReadonly<TViewModel>
+    /** Returns the current  */
     public get state() {
         return this._state
     }
     private _isDirty: boolean = false;
+    /** Indicates whether there is a pending update of the knockout observables. */
     public get isDirty() {
         return this._isDirty
     }
@@ -49,17 +57,20 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         public stateUpdateEvent?: DotvvmEvent<DeepReadonly<TViewModel>>
     ) {
         this._state = coerce(initialState, initialState.$type || { type: "dynamic" })
-        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], () => this._state, u => this.update(u as any))
+        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], () => this._state, u => this.updateState(u as any))
         this.dispatchUpdate()
     }
 
-    public dispatchUpdate() {
+    private dispatchUpdate() {
         if (!this._isDirty) {
             this._isDirty = true;
             this._currentFrameNumber = window.requestAnimationFrame(this.rerender.bind(this))
         }
     }
 
+    /** Performs a synchronous update of knockout observables with the data currently stored in `state`.
+     *  Consequently, if ko.options.deferUpdates is false (default), the UI will be updated immediately.
+     *  If ko.options.deferUpdates is true, the UI can be manually updated by also calling the `ko.tasks.runEarly()` function. */
     public doUpdateNow() {
         if (this._currentFrameNumber !== null)
             window.cancelAnimationFrame(this._currentFrameNumber);
@@ -86,6 +97,13 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         //logInfoVerbose("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart);
     }
 
+    /** Sets a new view model state, after checking its type compatibility and possibly performing implicit conversions.
+     *  Only the changed objects are re-checked and updated in the knockout observables.
+     *  It is therefore recommended to clone only the changed parts of the view model using the `{... x, ChangedProp: 1 }` syntax.
+     *  In the rarely occuring complex cases where this is difficult, you can use `structuredClone` to obtain a writable clone of some part of the viewmodel.
+     * 
+     *  @throws CoerceError if the new state has incompatible type.
+     *  @returns The type-coerced version of the new state. */
     public setState(newState: DeepReadonly<TViewModel>): DeepReadonly<TViewModel> {
         if (compileConstants.debug && newState == null) throw new Error("State can't be null or undefined.")
         if (newState === this._state) return newState
@@ -98,19 +116,27 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         return this._state = coercionResult
     }
 
-    public patchState(patch: Partial<TViewModel>): DeepReadonly<TViewModel> {
+    /** Applies a patch to the current view model state.
+     *  @throws CoerceError if the new state has incompatible type.
+     *  @returns The type-coerced version of the new state. */
+    public patchState(patch: DeepReadonly<DeepPartial<TViewModel>>): DeepReadonly<TViewModel> {
         return this.setState(patchViewModel(this._state, patch))
     }
 
-    public update(updater: StateUpdate<TViewModel>) {
+    /** Updates the view model state using the provided `State => State` function.
+     *  @throws CoerceError if the new state has incompatible type.
+     *  @returns The type-coerced version of the new state.  */
+    public updateState(updater: StateUpdate<TViewModel>) {
         return this.setState(updater(this._state))
     }
+    /** @deprecated Use updateState method instead */
+    public update: UpdateDispatcher<TViewModel> = this.updateState;
 }
 
 class FakeObservableObject<T extends object> implements UpdatableObjectExtensions<T> {
-    public [currentStateSymbol]: T
-    public [errorsSymbol]: Array<ValidationError>
-    public [updateSymbol]: UpdateDispatcher<T>
+    public [currentStateSymbol]!: T
+    public [errorsSymbol]!: Array<ValidationError>
+    public [updateSymbol]!: UpdateDispatcher<T>
     public [notifySymbol](newValue: T) {
         console.assert(newValue)
         this[currentStateSymbol] = newValue
@@ -123,7 +149,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
             }
         }
     }
-    public [internalPropCache]: { [name: string]: (KnockoutObservable<any> & UpdatableObjectExtensions<any>) | null } = {}
+    public [internalPropCache]!: { [name: string]: (KnockoutObservable<any> & UpdatableObjectExtensions<any>) | null }
 
     public [updatePropertySymbol](propName: keyof DeepReadonly<T>, valUpdate: StateUpdate<any>) {
         this[updateSymbol](vm => {
@@ -136,9 +162,13 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
         })
     }
     constructor(initialValue: T, getter: () => DeepReadonly<T> | undefined, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | DynamicTypeMetadata | undefined, additionalProperties: string[]) {
-        this[currentStateSymbol] = initialValue
-        this[updateSymbol] = updater
-        this[errorsSymbol] = []
+        Object.defineProperties(this, { // define the internals as non-enumerable
+            [updateSymbol]: { value: updater },
+            [currentStateSymbol]: { value: initialValue, writable: true },
+            [errorsSymbol]: { value: [] },
+            [internalPropCache]: { value: {} }
+        })
+
         const props = (typeInfo?.type == "object") ? typeInfo.properties : {};
 
         for (const p of keys(props).concat(additionalProperties)) {
@@ -179,11 +209,24 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
     }
 }
 
+
+export function isDotvvmObservable(obj: any): obj is DotvvmObservable<any> {
+    return obj?.[notifySymbol] && ko.isObservable(obj)
+}
+
+export function isFakeObservableObject(obj: any): obj is FakeObservableObject<any> {
+    return obj instanceof FakeObservableObject
+}
+
 /**
  * Recursively unwraps knockout observables from the object / array hierarchy. When nothing needs to be unwrapped, the original object is returned.
  * @param allowStateUnwrap Allows accessing [currentStateSymbol], which makes it faster, but doesn't register in the knockout dependency tracker
+ * @param preferStateAccess Also allows accessing observable.state, which also doesn't register in the knockout dependency tracker, but returns an realtime updated value directly from dotvvm.state
 */
-export function unmapKnockoutObservables(viewModel: any, allowStateUnwrap: boolean = false): any {
+export function unmapKnockoutObservables(viewModel: any, allowStateUnwrap: boolean = false, preferStateAccess: boolean = false): any {
+    if (preferStateAccess && ko.isObservable(viewModel) && "state" in viewModel) {
+        return viewModel.state
+    }
     const value = ko.unwrap(viewModel)
 
     if (isPrimitive(value)) {
@@ -202,7 +245,7 @@ export function unmapKnockoutObservables(viewModel: any, allowStateUnwrap: boole
     if (value instanceof Array) {
         let result: any = null
         for (let i = 0; i < value.length; i++) {
-            const unwrappedItem = unmapKnockoutObservables(ko.unwrap(value[i]), allowStateUnwrap)
+            const unwrappedItem = unmapKnockoutObservables(value[i], allowStateUnwrap, preferStateAccess)
             if (unwrappedItem !== value[i]) {
                 result ??= [...value]
                 result[i] = unwrappedItem
@@ -212,11 +255,10 @@ export function unmapKnockoutObservables(viewModel: any, allowStateUnwrap: boole
     }
 
     let result: any = null;
-    for (const prop of keys(value)) {
-        const v = ko.unwrap(value[prop])
-        if (typeof v != "function") {
-            const unwrappedProp = unmapKnockoutObservables(v, allowStateUnwrap)
-            if (unwrappedProp !== value[prop]) {
+    for (const [prop, v] of Object.entries(value)) {
+        if (typeof v != "function" || ko.isObservable(v)) {
+            const unwrappedProp = unmapKnockoutObservables(v, allowStateUnwrap, preferStateAccess)
+            if (unwrappedProp !== v) {
                 result ??= { ...value }
                 result[prop] = unwrappedProp
             }
@@ -345,11 +387,12 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
             const skipUpdate = !observableWasSetFromOutside && oldContents instanceof Array && oldContents.length == newVal.length
 
             if (!skipUpdate) {
+                const t: KnockoutObservableArray<any> = obs as any
                 // take at most newVal.length from the old value
                 newContents = oldContents instanceof Array ? oldContents.slice(0, newVal.length) : []
                 // then append (potential) new values into the array
                 for (let index = 0; index < newVal.length; index++) {
-                    if (newContents[index]?.[notifySymbol as any]) {
+                    if (isDotvvmObservable(newContents[index])) {
                         continue
                     }
                     const itemUpdater = (update: any) => updater((viewModelArray: any) => {

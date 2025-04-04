@@ -29,7 +29,15 @@ namespace DotVVM.Framework.Controls
             else
             {
                 w.WritePropertyName(name);
-                JsonSerializer.Serialize(w, rawValue, options);
+                try
+                {
+                    JsonSerializer.Serialize(w, rawValue, options);
+                }
+                catch (Exception ex)
+                {
+                    // don't crash error page when there is some error in serialization
+                    w.WriteStringValue($"Error serializing property {name}: {ex.Message}");
+                }
             }
         }
         w.WriteEndObject();

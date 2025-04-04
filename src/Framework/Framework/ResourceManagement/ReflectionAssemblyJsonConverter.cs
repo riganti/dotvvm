@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -15,11 +16,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public override Assembly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                return Assembly.Load(new AssemblyName(reader.GetString()!));
-            }
-            else throw new NotSupportedException();
+            throw new NotSupportedException();
         }
 
         public override void Write(Utf8JsonWriter writer, Assembly value, JsonSerializerOptions options)
@@ -32,12 +29,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public override Type Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                var name = reader.GetString()!;
-                return Type.GetType(name) ?? throw new Exception($"Cannot find type {name}.");
-            }
-            else throw new NotSupportedException();
+            throw new NotSupportedException();
         }
 
         public override void Write(Utf8JsonWriter writer, Type t, JsonSerializerOptions options)
@@ -62,15 +54,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                var name = reader.GetString()!;
-                ITypeDescriptor result = new ResolvedTypeDescriptor(Type.GetType(name) ?? throw new Exception($"Cannot find type {name}."));
-                if (result is T t)
-                    return t;
-                else throw new NotSupportedException($"Cannot deserialize {typeToConvert}");
-            }
-            else throw new NotSupportedException();
+            throw new NotSupportedException();
         }
 
         public override void Write(Utf8JsonWriter writer, T t, JsonSerializerOptions options)
@@ -105,7 +89,15 @@ namespace DotVVM.Framework.ResourceManagement
 
                 writer.WritePropertyName(prop.Name);
 
-                JsonSerializer.Serialize(writer, prop.GetValue(attribute), options);
+                var value = prop.GetValue(attribute);
+
+                // NB: RuntimeType is internal, so we need to use first public base type
+                var valueType = value?.GetType() ?? typeof(object);
+                while (!valueType.IsPublicType() || valueType == typeof(TypeInfo))
+                {
+                    valueType = valueType.BaseType!;
+                }
+                JsonSerializer.Serialize(writer, value, valueType, options);
             }
             writer.WriteEndObject();
         }

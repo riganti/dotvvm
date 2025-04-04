@@ -1,6 +1,6 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>$(DotnetCoreTargetVersion)</TargetFramework>
     <ApplicationInsightsResourceId>/subscriptions/1f41fa3c-37d6-4b89-b5dc-913463de0d9a/resourcegroups/DotVVMWeb/providers/microsoft.insights/components/DotvvmTrackingPoints</ApplicationInsightsResourceId>
     <ApplicationInsightsAnnotationResourceId>/subscriptions/1f41fa3c-37d6-4b89-b5dc-913463de0d9a/resourcegroups/DotVVMWeb/providers/microsoft.insights/components/DotvvmTrackingPoints</ApplicationInsightsAnnotationResourceId>
   </PropertyGroup>

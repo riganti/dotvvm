@@ -1,5 +1,4 @@
 import { getViewModelObservable } from "../dotvvm-base";
-import { deserialize } from "../serialization/deserialize";
 import { serialize } from "../serialization/serialize";
 import { unmapKnockoutObservables } from "../state-manager";
 import { debugQuoteString } from "../utils/logging";
@@ -301,7 +300,7 @@ export class ModuleContext implements DotvvmModuleContext {
                 throw new Error('command already exists');
         }
 
-        this.namedCommands[name] = (...innerArgs) => mapCommandResult(command.apply(this, innerArgs.map(a => unmapKnockoutObservables(a, true))))
+        this.namedCommands[name] = (...innerArgs) => mapCommandResult(command.apply(this, innerArgs.map(a => unmapKnockoutObservables(a, true, true))))
     }
 
     public unregisterNamedCommand = (name: string) => {

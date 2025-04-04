@@ -21,7 +21,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_HierarchyRepeater_Basic);
-                browser.Driver.Manage().Window.Maximize();
 
                 AssertUI.InnerTextEquals(browser.First("HR-Empty", SelectByDataUi), "");
                 AssertUI.InnerTextEquals(browser.First("HR-EmptyData", SelectByDataUi), "There are no nodes.");
@@ -58,7 +57,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_HierarchyRepeater_WithMarkupControl);
-                browser.Driver.Manage().Window.Maximize();
 
                 IElementWrapper getNode(string hr, params int[] index)
                 {

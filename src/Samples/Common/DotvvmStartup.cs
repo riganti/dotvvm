@@ -62,7 +62,6 @@ namespace DotVVM.Samples.BasicSamples
             {
                 config.DefaultCulture = "en-US";
             }
-            config.ExperimentalFeatures.UseDotvvmSerializationForStaticCommandArguments.Enable();
 
             AddControls(config);
             AddStyles(config);
@@ -282,7 +281,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddCodeControls("cc", typeof(Loader));
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
             config.Markup.AddMarkupControl("cc", "NodeControl", "Views/ControlSamples/HierarchyRepeater/NodeControl.dotcontrol");
-
+            config.Markup.AddMarkupControl("cc", "CommandInsideWhereControl", "Views/FeatureSamples/JavascriptTranslation/CommandInsideWhereControl.dotcontrol");
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
 
             if (config.Markup.Controls.FirstOrDefault(c => c.Src is not null && Path.IsPathRooted(c.Src)) is {} invalidControl)

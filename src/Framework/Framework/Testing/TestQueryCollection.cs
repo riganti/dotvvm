@@ -31,10 +31,6 @@ namespace DotVVM.Framework.Testing
         {
         }
 
-        protected TestQueryCollection(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
-        {
-        }
-
         public bool Equals(TestQueryCollection? other) =>
             Object.ReferenceEquals(this, other) ||
             other != null && other.OrderBy(k => k.Key).SequenceEqual(this.OrderBy(k => k.Key));

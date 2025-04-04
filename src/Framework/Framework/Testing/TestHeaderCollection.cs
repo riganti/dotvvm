@@ -31,10 +31,6 @@ namespace DotVVM.Framework.Testing
         {
         }
 
-        protected TestHeaderCollection(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context)
-        {
-        }
-
         string? IHeaderCollection.this[string key]
         {
             get => this.TryGetValue(key, out var headers) ? string.Join("; ", headers) : null;

@@ -14,7 +14,6 @@ namespace DotVVM.Framework.Controls
 
     [ContainsDotvvmProperties]
     [ControlMarkupOptions(AllowContent = true)]
-    [System.Text.Json.Serialization.JsonConverter(typeof(DotvvmControlDebugJsonConverter))]
     public abstract class DotvvmBindableObject: IDotvvmObjectLike
     {
 
@@ -70,7 +69,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         [BindingCompilationRequirements(
                 optional: new[] { typeof(Binding.Properties.SimplePathExpressionBindingProperty) })]
-        [MarkupOptions(AllowHardCodedValue = false)]
+        [MarkupOptions(AllowHardCodedValue = false, AllowResourceBinding = true)]
         public object? DataContext
         {
             get {
@@ -271,6 +270,22 @@ namespace DotVVM.Framework.Controls
                 throw new BindingHelper.BindingNotSupportedException(binding) { RelatedControl = this };
             }
             return binding as IValueBinding;
+        }
+
+        /// <summary>
+        /// Gets the value binding set to a specified property. Returns null if the property is not a binding, throws if the binding some kind of command.
+        /// </summary>
+        public IStaticValueBinding? GetValueOrResourceBinding(DotvvmProperty property, bool inherit = true)
+        {
+            var binding = GetBinding(property, inherit);
+            if (binding is null)
+                return null;
+            if (binding is not IStaticValueBinding valueBinding)
+            {
+                // throw exception on incompatible binding types
+                throw new BindingHelper.BindingNotSupportedException(binding) { RelatedControl = this };
+            }
+            return valueBinding;
         }
 
         /// <summary> Returns a Javascript (knockout) expression representing value or binding of this property. </summary>
