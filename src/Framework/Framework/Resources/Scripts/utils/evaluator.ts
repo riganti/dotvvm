@@ -116,9 +116,9 @@ export function proxyObservableArrayMethods(wrapper: KnockoutObservable<any>, ge
             const result = getExpressionResult(getObservableArray)
         
             if (!isObservableArray(result)) {
-                logError("validation", `Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.`)
+                return logError("validation", compileConstants.debug ? `Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.` : 'Target is not observableArray')
             } else {
-                result[fnName].apply(result, args)
+                return result[fnName](...args)
             }
         }
     }

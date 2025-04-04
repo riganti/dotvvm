@@ -1,3 +1,4 @@
+import { isObservableArray } from '../utils/knockout'
 import { initDotvvm } from './helper'
 
 const viewModel = {
@@ -6,7 +7,8 @@ const viewModel = {
 	ComplexObj: {
 		A: 1,
 		B: [ 1, 2, 3 ]
-	}
+	},
+	NullField: null
 }
 initDotvvm({viewModel})
 
@@ -130,4 +132,88 @@ it.each([
 	context.Obj().Something().A.updateState((a: number) => a * 10)
 	if (requiresSync) dotvvm.rootStateManager.doUpdateNow()
 	expect(context.Obj.state).toStrictEqual({ Something: {...viewModel.ComplexObj, A: 43210}, Arr: [1, 2] })
+})
+
+it.each([
+	[ "[1,2]", true, false ],
+	[ "ko.observableArray([1, 2])", true, true ],
+	[ "ComplexObj().B", true, true ],
+	[ "ComplexObj().B()", true, false ],
+	[ "ComplexObj().B().map(_ => 1)", true, false ],
+	[ "ComplexObj().B().length", false, false ],
+	[ "ComplexObj", false, false ],
+	[ "ComplexObj()", false, false ],
+	[ "null", false, false ],
+	[ "NullField", false, false ],
+])("dotvvm-with-control-properties makes observable array before its touched (%s)", (binding, isArray, tryObservableArray) => {
+	dotvvm.setState(viewModel); dotvvm.rootStateManager.doUpdateNow()
+
+	const div = document.createElement("div")
+	div.innerHTML = `
+		<div data-bind="dotvvm-with-control-properties: { 
+			Arr: ${binding}
+		}">
+			<span id=x />
+			<div data-bind="dotvvm-with-control-properties: { Arr: $control.Arr }">
+				<span id=y />
+			</div>
+		</div>
+	`
+
+	ko.applyBindings(dotvvm.viewModelObservables.root, div)
+
+	const x = div.querySelector("#x")!
+	const y = div.querySelector("#y")!
+	const contextX: any = ko.contextFor(x).$control
+	const contextY: any = ko.contextFor(y).$control
+
+	expect(contextX.Arr).observable()
+	expect(contextY.Arr).observable()
+
+	expect(isObservableArray(contextX.Arr)).toBe(isArray)
+	expect(isObservableArray(contextY.Arr)).toBe(isArray)
+
+	if (tryObservableArray) {
+		contextX.Arr.unshift(99)
+		const ix = contextX.Arr.indexOf(contextX.Arr()[0])
+		const ix2 = contextY.Arr.indexOf(contextX.Arr()[0])
+		expect(ix2).toEqual(ix)
+	}
+})
+
+test("dotvvm-with-control-properties correctly wraps null changed to array", () => {
+	dotvvm.setState(viewModel)
+
+	dotvvm.patchState({ ComplexObj: null })
+	dotvvm.rootStateManager.doUpdateNow()
+
+	const div = document.createElement("div")
+	div.innerHTML = `
+		<div data-bind="dotvvm-with-control-properties: { 
+			Arr: ComplexObj()?.B
+		}"> <span id=x /> </div>
+	`
+	ko.applyBindings(dotvvm.viewModelObservables.root, div)
+	const x = div.querySelector("#x")!
+	const context: any = ko.contextFor(x).$control
+	expect(context.Arr).observable()
+	expect(context.Arr.state).toEqual(undefined)
+	expect(context.Arr()).toEqual(undefined)
+	expect("push" in context.Arr).toBe(false)
+
+	dotvvm.patchState({ ComplexObj: { B: [1, 2] } })
+	dotvvm.rootStateManager.doUpdateNow()
+
+	expect(context.Arr()?.map((x: any) => x())).toStrictEqual([1, 2])
+	expect(context.Arr.state).toStrictEqual([1, 2])
+	expect("push" in context.Arr).toBe(true)
+
+	context.Arr.push(3)
+	expect(context.Arr()?.map((x:any) => x())).toStrictEqual([1, 2, 3])
+	expect(dotvvm.state.ComplexObj.B).toStrictEqual([1, 2, 3])
+
+	context.Arr.unshift(0)
+	context.Arr.splice(1, 1)
+
+	expect(dotvvm.state.ComplexObj.B).toStrictEqual([0, 2, 3])
 })
