@@ -119,6 +119,43 @@ namespace DotVVM.Samples.Tests.Control
         }
 
 
+        [Fact]
+        public void Control_Timer_Removal()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Timer_Removal);
+
+                var value = browser.Single(".result");
+
+                // ensure the timer works
+                Assert.True(EqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1));
+                browser.Wait(1000);
+
+                Assert.True(EqualsWithTolerance(1, int.Parse(value.GetInnerText()), 1));
+                browser.Wait(1000);
+
+                // disable the timer
+                browser.Single("disabled", SelectByDataUi).Click();
+                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                browser.Wait(2000);
+                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+
+                // remove the timer from DOM
+                browser.Single("remove", SelectByDataUi).Click();
+                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                browser.Wait(2000);
+                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+
+                // reenable the timer
+                browser.Single("disabled", SelectByDataUi).Click();
+
+                // make sure it hasn't started
+                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                browser.Wait(2000);
+                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+            });
+        }
+
         private static bool EqualsWithTolerance(int expected, int actual, int tolerance)
             => Math.Abs(expected - actual) <= tolerance;
     }

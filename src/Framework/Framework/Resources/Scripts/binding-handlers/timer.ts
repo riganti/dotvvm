@@ -12,9 +12,8 @@ export default {
             const prop = valueAccessor();
             let timer: number | null = null;
 
-            if (ko.isObservable(prop.enabled)) {
-                prop.enabled.subscribe(newValue => createOrDestroyTimer(newValue));
-            }
+            const observable = ko.isObservable(prop.enabled) ? prop.enabled : ko.pureComputed(() => ko.unwrap(valueAccessor().enabled));
+            const subscription = observable.subscribe(newValue => createOrDestroyTimer(newValue));
             createOrDestroyTimer(ko.unwrap(prop.enabled));
 
             function createOrDestroyTimer(enabled: boolean) {
@@ -39,9 +38,8 @@ export default {
             };
 
             ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
-                if (timer) {
-                    window.clearTimeout(timer);
-                }
+                subscription.dispose();
+                createOrDestroyTimer(false);
             });
         }
     }

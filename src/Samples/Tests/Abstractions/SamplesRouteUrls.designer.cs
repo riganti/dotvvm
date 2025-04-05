@@ -153,6 +153,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_TextBox_TextBox_Format_Binding = "ControlSamples/TextBox/TextBox_Format_Binding";
         public const string ControlSamples_TextBox_TextBox_Types = "ControlSamples/TextBox/TextBox_Types";
         public const string ControlSamples_Timer_LongCommand = "ControlSamples/Timer/LongCommand";
+        public const string ControlSamples_Timer_Removal = "ControlSamples/Timer/Removal";
         public const string ControlSamples_Timer_Timer = "ControlSamples/Timer/Timer";
         public const string ControlSamples_UpdateProgress_UpdateProgress = "ControlSamples/UpdateProgress/UpdateProgress";
         public const string ControlSamples_UpdateProgress_UpdateProgressDelay = "ControlSamples/UpdateProgress/UpdateProgressDelay";
