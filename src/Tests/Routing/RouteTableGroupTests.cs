@@ -187,6 +187,62 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+        public void RouteTableGroup_LocalizedUrls_RouteOnly()
+        {
+            var table = new DotvvmRouteTable(configuration);
+            table.AddGroup("Group", "group", "", opt => {
+                opt.Add("Route", "route", "route.dothtml", null, null, [
+                    new LocalizedRouteUrl("cs-CZ", "cesta")
+                ]);
+            });
+
+            var route = table["Group_Route"];
+            Assert.IsInstanceOfType(route, typeof(LocalizedDotvvmRoute));
+            var csCzRoute = ((LocalizedDotvvmRoute)route).GetRouteForCulture("cs-CZ");
+
+            Assert.AreEqual("group/route", route.Url);
+            Assert.AreEqual("group/cesta", csCzRoute.Url);
+        }
+
+        [TestMethod]
+        public void RouteTableGroup_LocalizedUrls_GroupOnly()
+        {
+            var table = new DotvvmRouteTable(configuration);
+            table.AddGroup("Group", "group", "", opt => {
+                opt.Add("Route", "route", "route.dothtml", null, null, null);
+            }, localizedUrls: [
+                new LocalizedRouteUrl("cs-CZ", "skupina")
+            ]);
+
+            var route = table["Group_Route"];
+            Assert.IsInstanceOfType(route, typeof(LocalizedDotvvmRoute));
+            var csCzRoute = ((LocalizedDotvvmRoute)route).GetRouteForCulture("cs-CZ");
+
+            Assert.AreEqual("group/route", route.Url);
+            Assert.AreEqual("skupina/route", csCzRoute.Url);
+        }
+
+        [TestMethod]
+        public void RouteTableGroup_LocalizedUrls()
+        {
+            var table = new DotvvmRouteTable(configuration);
+            table.AddGroup("Group", "group", "", opt => {
+                opt.Add("Route", "route", "route.dothtml", null, null, [
+                    new LocalizedRouteUrl("cs-CZ", "cesta")
+                ]);
+            }, localizedUrls: [
+                new LocalizedRouteUrl("cs-CZ", "skupina")
+            ]);
+
+            var route = table["Group_Route"];
+            Assert.IsInstanceOfType(route, typeof(LocalizedDotvvmRoute));
+            var csCzRoute = ((LocalizedDotvvmRoute)route).GetRouteForCulture("cs-CZ");
+
+            Assert.AreEqual("group/route", route.Url);
+            Assert.AreEqual("skupina/cesta", csCzRoute.Url);
+        }
+
+        [TestMethod]
         public void RouteTableGroup_Redirections()
         {
             var table = new DotvvmRouteTable(configuration);

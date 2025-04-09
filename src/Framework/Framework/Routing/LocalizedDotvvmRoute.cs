@@ -99,8 +99,14 @@ namespace DotVVM.Framework.Routing
 
         public bool IsPartialMatch(string url, [MaybeNullWhen(false)] out RouteBase matchedRoute, [MaybeNullWhen(false)] out IDictionary<string, object?> values)
         {
+            return IsPartialMatch(url, out matchedRoute, out values, out _);
+        }
+
+        public bool IsPartialMatch(string url, [MaybeNullWhen(false)] out RouteBase matchedRoute, [MaybeNullWhen(false)] out IDictionary<string, object?> values, [MaybeNullWhen(false)] out string? matchedCulture)
+        {
             RouteBase? twoLetterCultureMatch = null;
             IDictionary<string, object?>? twoLetterCultureMatchValues = null;
+            matchedCulture = null;
 
             foreach (var route in localizedRoutes)
             {
@@ -110,6 +116,7 @@ namespace DotVVM.Framework.Routing
                     {
                         // exact culture match - return immediately
                         matchedRoute = route.Value;
+                        matchedCulture = route.Key;
                         return true;
                     }
                     else if (route.Key.Length > 0 && twoLetterCultureMatch == null)
@@ -117,6 +124,7 @@ namespace DotVVM.Framework.Routing
                         // match for two-letter culture - continue searching if there is a better match
                         twoLetterCultureMatch = route.Value;
                         twoLetterCultureMatchValues = values;
+                        matchedCulture = route.Key;
                     }
                     else
                     {

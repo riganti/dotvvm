@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 using DotVVM.Framework.Hosting;
 
@@ -15,8 +16,9 @@ namespace DotVVM.Framework.Routing
         public string RouteNamePrefix { get; private set; }
         public string UrlPrefix { get; private set; }
         public string VirtualPathPrefix { get; private set; }
+        public ImmutableArray<LocalizedRouteUrl>? LocalizedUrls { get; private set; }
 
-        public RouteTableGroup(string groupName, string routeNamePrefix, string urlPrefix, string virtualPathPrefix, Action<RouteBase> addToParentRouteTable, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory)
+        public RouteTableGroup(string groupName, string routeNamePrefix, string urlPrefix, string virtualPathPrefix, Action<RouteBase> addToParentRouteTable, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory, LocalizedRouteUrl[]? localizedUrls = null)
         {
             GroupName = groupName;
             RouteNamePrefix = routeNamePrefix;
@@ -24,6 +26,7 @@ namespace DotVVM.Framework.Routing
             VirtualPathPrefix = virtualPathPrefix;
             AddToParentRouteTable = addToParentRouteTable;
             PresenterFactory = presenterFactory;
+            LocalizedUrls = localizedUrls?.ToImmutableArray();
         }
     }
 }
