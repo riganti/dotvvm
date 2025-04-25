@@ -233,7 +233,7 @@ namespace DotVVM.Framework.Binding
             return DefaultValue;
         }
 
-        private bool IsSetInHierarchy(DotvvmBindableObject control)
+        private bool IsSetInherited(DotvvmBindableObject control)
         {
             for (var p = control.Parent; p is not null; p = p.Parent)
             {
@@ -255,7 +255,7 @@ namespace DotVVM.Framework.Binding
 
             if (IsValueInherited && inherit)
             {
-                return IsSetInHierarchy(control);
+                return IsSetInherited(control);
             }
 
             return false;

@@ -13,7 +13,7 @@ using FastExpressionCompiler;
 namespace DotVVM.Framework.Binding
 {
 
-    static partial class DotvvmPropertyIdAssignment
+    internal static partial class DotvvmPropertyIdAssignment
     {
         /// Type and property group IDs bellow this are reserved for manual ID assignment
         const int RESERVED_CONTROL_TYPES = 256;
@@ -46,6 +46,7 @@ namespace DotVVM.Framework.Binding
         }
 
 #region Optimized metadata accessors
+        /// <summary> Equivalent to <see cref="DotvvmProperty.IsValueInherited" /> </summary>
         public static bool IsInherited(DotvvmPropertyId propertyId)
         {
             if (propertyId.CanUseFastAccessors)
@@ -54,6 +55,8 @@ namespace DotVVM.Framework.Binding
             return BitmapRead(controls[propertyId.TypeId].inheritedBitmap, propertyId.MemberId);
         }
 
+        /// <summary> Returns if the DotvvmProperty uses standard GetValue/SetValue method and we can avoid the dynamic dispatch </summary>
+        /// <seealso cref="TypeCanUseAnyDirectAccess(Type)" />
         public static bool UsesStandardAccessors(DotvvmPropertyId propertyId)
         {
             if (propertyId.CanUseFastAccessors)
@@ -68,9 +71,10 @@ namespace DotVVM.Framework.Binding
             }
         }
 
+        /// <summary> Returns if the given property is of the <see cref="ActiveDotvvmProperty"/> or <see cref="ActiveDotvvmPropertyGroup" /> type </summary>
         public static bool IsActive(DotvvmPropertyId propertyId)
         {
-            Debug.Assert(DotvvmPropertyIdAssignment.GetProperty(propertyId) != null, $"Property {propertyId} not registered.");
+            Debug.Assert(GetProperty(propertyId) != null, $"Property {propertyId} not registered.");
             ulong[] bitmap;
             uint index;
             if (propertyId.IsPropertyGroup)
@@ -85,7 +89,8 @@ namespace DotVVM.Framework.Binding
             }
             return BitmapRead(bitmap, index);
         }
-
+        
+        /// <summary> Returns the DotvvmProperty with a given ID, or returns null if no such property exists. New instance of <see cref="GroupedDotvvmProperty"/> might be created. </summary>
         public static DotvvmProperty? GetProperty(DotvvmPropertyId id)
         {
             if (id.IsPropertyGroup)
@@ -111,6 +116,7 @@ namespace DotVVM.Framework.Binding
             }
         }
 
+        /// <summary> Returns the <see cref="DotvvmProperty"/> or <see cref="DotvvmPropertyGroup"/> with the given id </summary>
         public static Compilation.IControlAttributeDescriptor? GetPropertyOrPropertyGroup(DotvvmPropertyId id)
         {
             if (id.IsPropertyGroup)
@@ -132,6 +138,7 @@ namespace DotVVM.Framework.Binding
             }
         }
 
+        /// <summary> Returns the value of the property or property group. If the property is not set, returns the default value. </summary>
         public static object? GetValueRaw(DotvvmBindableObject obj, DotvvmPropertyId id, bool inherit = true)
         {
             if (id.CanUseFastAccessors)
@@ -148,6 +155,7 @@ namespace DotVVM.Framework.Binding
             }
         }
 
+        /// <summary> Returns the value of the property or property group. If the property is not set, returns the default value. </summary>
         public static MarkupOptionsAttribute GetMarkupOptions(DotvvmPropertyId id)
         {
             if (id.IsPropertyGroup)
@@ -164,6 +172,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary> Property or property group has type assignable to IBinding and bindings should not be evaluated in GetValue </summary>
+        /// <seealso cref="DotvvmProperty.IsBindingProperty"/>
         public static bool IsBindingProperty(DotvvmPropertyId id)
         {
             if (id.IsPropertyGroup)
@@ -202,6 +211,7 @@ namespace DotVVM.Framework.Binding
 
             return unlikely(type);
 
+            [MethodImpl(MethodImplOptions.NoInlining)]
             static ushort unlikely(Type type)
             {
                 var types = MemoryMarshal.CreateReadOnlySpan(ref type, 1);
@@ -219,7 +229,14 @@ namespace DotVVM.Framework.Binding
             {
                 if (controlCounter + types.Length >= controls.Length)
                 {
-                    VolatileResize(ref controls, 1 << (BitOperations.Log2((uint)(controlCounter + types.Length)) + 1));
+#if NET6_0_OR_GREATER
+                    var nextPow2 = 1 << (BitOperations.Log2((uint)(controlCounter + types.Length)) + 1);
+#else
+                    var nextPow2 = types.Length * 2;
+                    while (nextPow2 < controlCounter + types.Length)
+                        nextPow2 *= 2;
+#endif
+                    VolatileResize(ref controls, nextPow2);
                 }
                 for (int i = 0; i < types.Length; i++)
                 {
@@ -247,6 +264,7 @@ namespace DotVVM.Framework.Binding
                 }
             }
         }
+
         public static DotvvmPropertyId RegisterProperty(DotvvmProperty property)
         {
             if (property.GetType() == typeof(GroupedDotvvmProperty))
@@ -318,6 +336,7 @@ namespace DotVVM.Framework.Binding
         }
 
         private static readonly ConcurrentDictionary<Type, (bool getter, bool setter)> cacheTypeCanUseDirectAccess = new(concurrencyLevel: 1, capacity: 10);
+
         /// <summary> Does the property use the default GetValue/SetValue methods? </summary>
         public static (bool getter, bool setter) TypeCanUseDirectAccess(Type propertyType)
         {
@@ -380,22 +399,9 @@ namespace DotVVM.Framework.Binding
 #endregion Registration
 
 #region Group members
-        private static ushort PredefinedPropertyGroupMemberId(ReadOnlySpan<char> name)
-        {
-            switch (name)
-            {
-                case "class": return GroupMembers.@class;
-                case "id": return GroupMembers.id;
-                case "style": return GroupMembers.style;
-                case "name": return GroupMembers.name;
-                case "data-bind": return GroupMembers.data_bind;
-                default: return 0;
-            }
-        }
-
         public static ushort GetGroupMemberId(string name, bool registerIfNotFound)
         {
-            var id = PredefinedPropertyGroupMemberId(name);
+            var id = GroupMembers.TryGetId(name);
             if (id != 0)
                 return id;
             if (propertyGroupMemberIds.TryGetValue(name, out id))
@@ -444,8 +450,11 @@ namespace DotVVM.Framework.Binding
         private struct ControlTypeInfo
         {
             public DotvvmProperty?[] properties;
+            /// <summary> Bitmap for <see cref="DotvvmProperty.IsValueInherited" /> </summary>
             public ulong[] inheritedBitmap;
+            /// <summary> Bitmap for <see cref="TypeCanUseAnyDirectAccess(Type)" /> </summary>
             public ulong[] standardBitmap;
+            /// <summary> Bitmap storing if property is <see cref="ActiveDotvvmProperty" /> </summary>
             public ulong[] activeBitmap;
             /// TODO split struct to part used during registration and part at runtime for lookups
             public object locker;

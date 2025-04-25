@@ -190,7 +190,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             var paralelismLimiter = new SemaphoreSlim(Environment.ProcessorCount);
 
-            var controlIdsAssigned = Enumerable.Range(0, assemblies.Count).Select(_ => new TaskCompletionSource()).ToArray();
+            var controlIdsAssigned = Enumerable.Range(0, assemblies.Count).Select(_ => new TaskCompletionSource<bool>()).ToArray();
 
             var tasks = Enumerable.Range(0, assemblies.Count).Select(i => Task.Run(async () => {
                 await paralelismLimiter.WaitAsync();
@@ -207,10 +207,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     if (i > 0)
                         await controlIdsAssigned[i - 1].Task;
                     var controlIds = new ushort[controls.Count];
-                    DotvvmPropertyIdAssignment.RegisterTypes(CollectionsMarshal.AsSpan(controls), controlIds);
+                    DotvvmPropertyIdAssignment.RegisterTypes(
+#if NET6_0_OR_GREATER
+                        CollectionsMarshal.AsSpan(controls),
+#else
+                        controls.ToArray().AsSpan(),
+#endif
+                        controlIds);
                     
                     // let the next assembly run
-                    controlIdsAssigned[i].SetResult();
+                    controlIdsAssigned[i].SetResult(true);
 
                     foreach (var type in controls)
                     {
@@ -285,36 +291,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     DotvvmCapabilityProperty.RegisterCapability(type, capabilityType, capabilityAttributeProvider: new CustomAttributesProvider());
                 }
             }
-        }
-
-        private Assembly[] GetAllRelevantAssemblies(string dotvvmAssembly)
-        {
-#if DotNetCore
-            var assemblies = compiledAssemblyCache.GetAllAssemblies();
-#else
-            var loadedAssemblies = compiledAssemblyCache.GetAllAssemblies()
-                .Where(a => ReferencesAssembly(a.GetReferencedAssemblies(), dotvvmAssembly));
-
-            var visitedAssemblies = new HashSet<string>();
-
-            // ReflectionUtils.GetAllAssemblies() in netframework returns only assemblies which have already been loaded into
-            // the current AppDomain, to return all assemblies we traverse recursively all referenced Assemblies
-            var assemblies = loadedAssemblies
-                .SelectRecursively(a => a.GetReferencedAssemblies().Where(an => visitedAssemblies.Add(an.FullName)).Select(an => {
-                    try
-                    {
-                        return Assembly.Load(an);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception($"Unable to load assembly '{an.FullName}' referenced by '{a.FullName}'.", ex);
-                    }
-                }))
-                .Where(a => ReferencesAssembly(a.GetReferencedAssemblies(), dotvvmAssembly))
-                .Distinct()
-                .ToArray();
-#endif
-            return assemblies;
         }
 
         /// <summary>

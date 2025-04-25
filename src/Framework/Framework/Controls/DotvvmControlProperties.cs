@@ -12,7 +12,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Utils;
-using Impl = DotVVM.Framework.Controls.PropertyImmutableHashtable;
+using Impl = DotVVM.Framework.Controls.PropertyDictionaryImpl;
 
 namespace DotVVM.Framework.Controls
 {
@@ -130,11 +130,10 @@ namespace DotVVM.Framework.Controls
 
         public void AssignBulk(DotvvmPropertyId[] keys, object?[] values, bool ownsKeys, bool ownsValues)
         {
+            if (keys is null || values is null || !(keys.Length is 8 or 16) || keys.Length != values.Length || values.GetType() != typeof(object[]))
+                throwArgumentError(keys, values);
+
             CheckInvariant();
-            // The our unsafe memory accesses are quite likely to mess up with array covariance, just make sure we don't encounter that
-            Debug.Assert(values.GetType() == typeof(object[]));
-            Debug.Assert(keys.GetType() == typeof(DotvvmPropertyId[]));
-            Debug.Assert(keys.Length == values.Length);
             if (this.values == null || Object.ReferenceEquals(this.keys, keys))
             {
                 // empty -> fast assignment
@@ -157,10 +156,27 @@ namespace DotVVM.Framework.Controls
                 }
             }
             CheckInvariant();
+
+            [DoesNotReturn, MethodImpl(NoInlining)]
+            void throwArgumentError(DotvvmPropertyId[]? keys, object?[]? values)
+            {
+                ThrowHelpers.ArgumentNull(nameof(keys));
+                ThrowHelpers.ArgumentNull(nameof(values));
+                if (keys.Length is not 8 and not 16)
+                    throw new ArgumentException($"The length of keys array must be 8 or 16.", nameof(keys));
+                if (keys.Length != values.Length)
+                    throw new ArgumentException($"The length of values array must be the same.", nameof(keys));
+                // The our unsafe memory accesses are quite likely to mess up with array covariance, just make sure we don't encounter that
+                if (values.GetType() != typeof(object[]))
+                    throw new ArgumentException($"The values array must be of type {typeof(object[])}.", nameof(values));
+                throw new Exception("Unknown error");
+            }
         }
 
         public void AssignBulk(Dictionary<DotvvmPropertyId, object?> values, bool owns)
         {
+            ThrowHelpers.ArgumentNull(values);
+
             CheckInvariant();
             if (this.values == null || object.ReferenceEquals(this.values, values))
             {
@@ -266,7 +282,7 @@ namespace DotVVM.Framework.Controls
             CheckInvariant();
             if (state == TableState.Array8)
             {
-                return Impl.CountPropertyGroup8(this.keys, groupId);
+                return Impl.CountPropertyGroup8(this.keys!, groupId);
             }
             return CountPropertyGroupOutlined(groupId);
         }
@@ -303,9 +319,14 @@ namespace DotVVM.Framework.Controls
             if (state == TableState.Array8)
             {
                 var index = Impl.FindSlot8(this.keys!, p);
+                Debug.Assert(index < 8);
                 if (index >= 0)
                 {
+#if NET6_0_OR_GREATER
+                    value = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(valuesAsArray), index);
+#else
                     value = valuesAsArray[index];
+#endif
                     return true;
                 }
                 else
@@ -366,6 +387,7 @@ namespace DotVVM.Framework.Controls
             {
                 var keys = this.keys!;
                 var slot = Impl.FindSlotOrFree8(keys, p, out var exists);
+                Debug.Assert(slot < 8);
                 if (slot >= 0)
                 {
                     if (!exists)
@@ -373,10 +395,10 @@ namespace DotVVM.Framework.Controls
                         if (!ownsKeys)
                             keys = CloneKeys();
                         // arrays are always size >= 8
-                        Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(keys), slot) = p;
+                        Unsafe.Add(ref Impl.UnsafeArrayReference(keys), slot) = p;
                     }
                     this.OwnValues();
-                    Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(this.valuesAsArray), slot) = value; // avoid covariance check
+                    Unsafe.Add(ref Impl.UnsafeArrayReference(this.valuesAsArray), slot) = value; // avoid covariance check
                     CheckInvariant();
                     Debug.Assert(GetOrThrow(p) == value, $"{p} was not set to {value}.");
                     return;
@@ -396,6 +418,7 @@ namespace DotVVM.Framework.Controls
                 var slot = state == TableState.Array8
                                 ? Impl.FindSlotOrFree8(keys, p, out var exists)
                                 : Impl.FindSlotOrFree16(keys, p, out exists);
+                Debug.Assert(slot < 16);
                 if (slot >= 0)
                 {
                     Debug.Assert(slot < keys.Length && slot < valuesAsArray.Length, $"Slot {slot} is out of range for keys {keys.Length} and values {valuesAsArray.Length} (prop={p}, value={value})");
@@ -456,6 +479,7 @@ namespace DotVVM.Framework.Controls
                 Debug.Assert(values!.GetType() == typeof(object[]));
                 Debug.Assert(keys is {});
                 var slot = Impl.FindSlotOrFree8(this.keys, p, out var exists);
+                Debug.Assert(slot < 8);
                 if (slot >= 0)
                 {
                     if (exists)
@@ -465,8 +489,8 @@ namespace DotVVM.Framework.Controls
                     OwnValues();
                     OwnKeys();
                     // arrays are always length >= 8
-                    Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(keys), slot) = p;
-                    Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(valuesAsArray), slot) = value; // avoid covariance check
+                    Unsafe.Add(ref Impl.UnsafeArrayReference(keys), slot) = p;
+                    Unsafe.Add(ref Impl.UnsafeArrayReference(valuesAsArray), slot) = value; // avoid covariance check
                     CheckInvariant();
                     Debug.Assert(GetOrThrow(p) == value, $"{p} was not set to {value}.");
                     return true;
@@ -485,7 +509,7 @@ namespace DotVVM.Framework.Controls
             {
                 Debug.Assert(this.values is object[]);
                 Debug.Assert(keys is DotvvmPropertyId[]);
-                var slot = state == TableState.Array8
+                var slot = this.state == TableState.Array8
                                 ? Impl.FindSlotOrFree8(keys, p, out var exists)
                                 : Impl.FindSlotOrFree16(keys, p, out exists);
                 if (slot >= 0)
@@ -503,7 +527,7 @@ namespace DotVVM.Framework.Controls
                         keys[slot] = p;
                         var valuesAsArray = this.valuesAsArray;
                         Impl.Assert(valuesAsArray.Length > slot);
-                        Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(valuesAsArray), slot) = value; // avoid covariance check
+                        Unsafe.Add(ref Impl.UnsafeArrayReference(valuesAsArray), slot) = value; // avoid covariance check
                         CheckInvariant();
                         Debug.Assert(GetOrThrow(p) == value, $"{p} was not set to {value}.");
                         return true;
@@ -515,7 +539,7 @@ namespace DotVVM.Framework.Controls
                     goto TailRecursion;
                 }
             }
-            if (values == null)
+            if (this.values == null)
             {
                 SetEmptyToSingle(p, value);
                 return true;
@@ -927,7 +951,16 @@ namespace DotVVM.Framework.Controls
             {
                 var index = this.index + 1;
                 var bitmap = this.bitmap >> index;
+#if NET5_0_OR_GREATER
                 this.index = index + BitOperations.TrailingZeroCount(bitmap);
+#else
+                while ((bitmap & 1) == 0)
+                {
+                    index++;
+                    bitmap >>= 1;
+                }
+                this.index = index;
+#endif
                 return bitmap != 0;
             }
             else

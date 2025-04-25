@@ -8,6 +8,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -315,6 +316,43 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(2, control1.GetCapability<BitMoreComplexCapability>().Nullable);
         }
 
+        [DataTestMethod]
+        [DataRow(typeof(TestControl1), "Something", MappingMode.Attribute, true, true)]
+        [DataRow(typeof(TestControl1), "SomethingElse", MappingMode.Attribute, false, true)]
+        [DataRow(typeof(TestControl1), "Visible", MappingMode.Attribute, true, true)]
+        [DataRow(typeof(TestControl1), "ID", MappingMode.Attribute, true, true)]
+        [DataRow(typeof(TestControl2), "Something", MappingMode.Attribute, true, true)]
+        [DataRow(typeof(TestControl2), "SomethingElse", MappingMode.Attribute, false, true)]
+        [DataRow(typeof(TestControl2), "AnotherHtml:Visible", MappingMode.Attribute, true, true)]
+        [DataRow(typeof(TestControl3), "Something", MappingMode.Attribute, true, false)]
+        [DataRow(typeof(TestControl3), "SomethingElse", MappingMode.Attribute, false, true)]
+        [DataRow(typeof(TestControl4), "Something", MappingMode.Attribute, true, false)]
+        [DataRow(typeof(TestControl4), "SomethingElse", MappingMode.Attribute, false, true)]
+        [DataRow(typeof(TestControl5), "SomethingElse", MappingMode.Attribute, false, true)]
+        [DataRow(typeof(TestControl5), "AnotherTest:SomethingElse", MappingMode.Attribute, false, true)]
+        [DataRow(typeof(TestControl5), "ItemSomethingElse", MappingMode.Attribute, false, true)]
+        [DataRow(typeof(TestControl6), "BindingOnly", MappingMode.Attribute, true, false)]
+        [DataRow(typeof(TestControl6), "ValueOrBinding", MappingMode.Attribute, true, true)]
+        [DataRow(typeof(TestControl6), "ValueOrBindingNullable", MappingMode.Attribute, true, true)]
+        [DataRow(typeof(TestControl6), "Nullable", MappingMode.Attribute, false, true)]
+        [DataRow(typeof(TestControl6), "NotNullable", MappingMode.Attribute, false, true)]
+        [DataRow(typeof(TestControl6), "Template", MappingMode.InnerElement, false, true)]
+        [DataRow(typeof(TestControl6), "NestedControl", MappingMode.InnerElement, false, true)]
+        [DataRow(typeof(TestControl6), "NestedControls", MappingMode.InnerElement, false, true)]
+        public void PropertyImplicitMarkupOptions(Type control, string property, MappingMode expectedMode, bool expectedAllowsBinding, bool expectedAllowsValue)
+        {
+
+            var c = (DotvvmBindableObject)Activator.CreateInstance(control);
+            var allProps = DotvvmProperty.ResolveProperties(control).Select(p => p.Name);
+            var prop = DotvvmProperty.ResolveProperty(control, property);
+            Assert.IsNotNull(prop, $"{control.Name}.{property} is not defined. These properties exist: {string.Join(", ", allProps)}");
+
+            Assert.AreEqual(expectedMode, prop.MarkupOptions.MappingMode);
+            Assert.AreEqual(expectedAllowsBinding, prop.MarkupOptions.AllowBinding);
+            Assert.AreEqual(expectedAllowsValue, prop.MarkupOptions.AllowHardCodedValue);
+        }
+
+
 
         public class TestControl1:
             HtmlGenericControl,
@@ -445,6 +483,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [DotvvmControlCapability]
         public sealed record TestNestedCapability
         {
+            [MarkupOptions(AllowBinding = true, AllowHardCodedValue = false)]
             public string Something { get; init; } = "abc";
             public TestCapability Test { get; init; }
             public HtmlCapability Html { get; init; }
@@ -470,6 +509,9 @@ namespace DotVVM.Framework.Tests.Runtime
             public ValueOrBinding<int>? ValueOrBindingNullable { get; init; }
             public int? Nullable { get; init; }
             public int NotNullable { get; init; } = 30;
+            public ITemplate Template { get; init; }
+            public HtmlGenericControl NestedControl { get; init; }
+            public List<HtmlGenericControl> NestedControls { get; init; }
         }
 
     }

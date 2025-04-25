@@ -9,7 +9,10 @@ using System.Collections;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Utils;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+#if Vectorize
 using System.Runtime.Intrinsics;
+#endif
 
 namespace DotVVM.Framework.Binding
 {
@@ -31,18 +34,13 @@ namespace DotVVM.Framework.Binding
             return DotvvmPropertyId.CreatePropertyGroupId(group.Id, memberId);
         }
 
-        string GetMemberName(DotvvmPropertyId key)
-        {
-            return DotvvmPropertyIdAssignment.GetGroupMemberName((ushort)(key.Id & 0xFF_FF))!;
-        }
-
         public IEnumerable<string> Keys
         {
             get
             {
                 foreach (var (p, _) in control.properties.PropertyGroup(group.Id))
                 {
-                    yield return GetMemberName(p);
+                    yield return DotvvmPropertyIdAssignment.GetGroupMemberName(p.MemberId)!;
                 }
             }
         }
@@ -191,7 +189,7 @@ namespace DotVVM.Framework.Binding
         public static IDictionary<string, TValue> CreateValueDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
         {
             Dictionary<string, TValue> result;
-#if NET8_0_OR_GREATER
+#if Vectorize
             // don't bother counting without vector instructions
             if (Vector256.IsHardwareAccelerated)
             {
@@ -209,7 +207,7 @@ namespace DotVVM.Framework.Binding
             {
                 if (p.IsInPropertyGroup(group.Id))
                 {
-                    var name = DotvvmPropertyIdAssignment.GetGroupMemberName((ushort)(p.Id & 0xFF_FF))!;
+                    var name = DotvvmPropertyIdAssignment.GetGroupMemberName(p.MemberId)!;
                     var valueObj = control.EvalPropertyValue(group, valueRaw);
                     if (valueObj is TValue value)
                         result.Add(name, value);
@@ -223,7 +221,7 @@ namespace DotVVM.Framework.Binding
         public static IDictionary<string, ValueOrBinding<TValue>> CreatePropertyDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
         {
             Dictionary<string, ValueOrBinding<TValue>> result;
-#if NET8_0_OR_GREATER
+#if Vectorize
             // don't bother counting without vector instructions
             if (Vector256.IsHardwareAccelerated)
             {
@@ -241,7 +239,7 @@ namespace DotVVM.Framework.Binding
             {
                 if (p.IsInPropertyGroup(group.Id))
                 {
-                    var name = DotvvmPropertyIdAssignment.GetGroupMemberName((ushort)(p.Id & 0xFF_FF))!;
+                    var name = DotvvmPropertyIdAssignment.GetGroupMemberName(p.MemberId)!;
                     result.Add(name, ValueOrBinding<TValue>.FromBoxedValue(valRaw));
                 }
             }
@@ -332,14 +330,10 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary> Enumerates all keys and values. If a property contains a binding, it will be automatically evaluated. </summary>
-        public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
-        {
-            foreach (var (p, value) in control.properties.PropertyGroup(group.Id))
-            {
-                var name = GetMemberName(p);
-                yield return new KeyValuePair<string, TValue>(name, (TValue)control.EvalPropertyValue(group, value)!);
-            }
-        }
+        public Enumerator GetEnumerator() =>
+            new Enumerator(control, group, control.properties.EnumeratePropertyGroup(group.Id));
+
+        IEnumerator<KeyValuePair<string, TValue>> IEnumerable<KeyValuePair<string, TValue>>.GetEnumerator() => GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary> Enumerates all keys and values, without evaluating the bindings. </summary>
@@ -386,7 +380,7 @@ namespace DotVVM.Framework.Binding
                 get
                 {
                     var (p, value) = inner.Current;
-                    var mem = DotvvmPropertyIdAssignment.GetGroupMemberName((ushort)(p.Id & 0xFF_FF))!;
+                    var mem = DotvvmPropertyIdAssignment.GetGroupMemberName(p.MemberId)!;
                     return new KeyValuePair<string, object?>(mem, value);
                 }
             }
@@ -395,6 +389,36 @@ namespace DotVVM.Framework.Binding
 
             public RawValuesEnumerator(DotvvmControlPropertyIdGroupEnumerator dotvvmControlPropertyIdEnumerator)
             {
+                this.inner = dotvvmControlPropertyIdEnumerator;
+            }
+
+            public bool MoveNext() => inner.MoveNext();
+            public void Reset() => inner.Reset();
+            public void Dispose() => inner.Dispose();
+        }
+        public struct Enumerator : IEnumerator<KeyValuePair<string, TValue>>
+        {
+            private readonly DotvvmPropertyGroup group;
+            private readonly DotvvmBindableObject control;
+            private DotvvmControlPropertyIdGroupEnumerator inner;
+
+            public KeyValuePair<string, TValue> Current
+            {
+                get
+                {
+                    var (p, valueRaw) = inner.Current;
+                    var mem = DotvvmPropertyIdAssignment.GetGroupMemberName(p.MemberId)!;
+                    var value = (TValue)control.EvalPropertyValue(group, valueRaw)!;
+                    return new KeyValuePair<string, TValue>(mem, value);
+                }
+            }
+
+            object IEnumerator.Current => Current;
+
+            public Enumerator(DotvvmBindableObject control, DotvvmPropertyGroup group, DotvvmControlPropertyIdGroupEnumerator dotvvmControlPropertyIdEnumerator)
+            {
+                this.control = control;
+                this.group = group;
                 this.inner = dotvvmControlPropertyIdEnumerator;
             }
 
