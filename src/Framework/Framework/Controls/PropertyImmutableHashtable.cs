@@ -1,4 +1,3 @@
-#define Vectorize // for easier testing on without old Framework
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,15 +7,13 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Hosting.ErrorPages;
-using System.Security;
 using System.Diagnostics.CodeAnalysis;
 
-#if NET6_0_OR_GREATER && Vectorize
+#if Vectorize
 using System.Runtime.Intrinsics;
 #endif
 
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
 using UnreachableException = System.Diagnostics.UnreachableException;
 #else
 using UnreachableException = System.Exception;
@@ -24,7 +21,7 @@ using UnreachableException = System.Exception;
 
 namespace DotVVM.Framework.Controls
 {
-    internal static class PropertyImmutableHashtable
+    internal static class PropertyDictionaryImpl
     {
         /// <summary> Up to this size, we don't bother with hashing as all keys can just be compared and searched with a single AVX instruction. </summary>
         public const int AdhocTableSize = 8;
@@ -49,7 +46,7 @@ namespace DotVVM.Framework.Controls
         [MethodImpl(Inline)]
         private static bool ContainsKey8(ref DotvvmPropertyId keys, DotvvmPropertyId p)
         {
-#if NET8_0_OR_GREATER && Vectorize
+#if Vectorize
             if (Vector128.IsHardwareAccelerated)
             {
                 Debug.Assert(Vector256<uint>.Count == AdhocTableSize);
@@ -72,13 +69,13 @@ namespace DotVVM.Framework.Controls
         public static bool ContainsKey8(DotvvmPropertyId[] keys, DotvvmPropertyId p)
         {
             Debug.Assert(keys.Length == AdhocTableSize);
-            return ContainsKey8(ref MemoryMarshal.GetArrayDataReference(keys), p);
+            return ContainsKey8(ref UnsafeArrayReference(keys), p);
         }
 
         [MethodImpl(Inline)]
         private static bool ContainsKey16(ref DotvvmPropertyId keys, DotvvmPropertyId p)
         {
-#if NET8_0_OR_GREATER && Vectorize
+#if Vectorize
             if (Vector128.IsHardwareAccelerated)
             {
                 Debug.Assert(Vector256<uint>.Count == AdhocTableSize);
@@ -94,13 +91,13 @@ namespace DotVVM.Framework.Controls
         public static bool ContainsKey16(DotvvmPropertyId[] keys, DotvvmPropertyId p)
         {
             Debug.Assert(keys.Length == AdhocLargeTableSize);
-            return ContainsKey16(ref MemoryMarshal.GetArrayDataReference(keys), p);
+            return ContainsKey16(ref UnsafeArrayReference(keys), p);
         }
 
         [MethodImpl(Inline)]
         private static int FindSlot8(ref DotvvmPropertyId keys, DotvvmPropertyId p)
         {
-#if NET8_0_OR_GREATER && Vectorize
+#if Vectorize
             if (Vector128.IsHardwareAccelerated)
             {
                 Debug.Assert(Vector256<uint>.Count == AdhocTableSize);
@@ -132,13 +129,13 @@ namespace DotVVM.Framework.Controls
         public static int FindSlot8(DotvvmPropertyId[] keys, DotvvmPropertyId p)
         {
             Debug.Assert(keys.Length == AdhocTableSize);
-            return FindSlot8(ref MemoryMarshal.GetArrayDataReference(keys), p);
+            return FindSlot8(ref UnsafeArrayReference(keys), p);
         }
 
         [MethodImpl(Inline)]
         private static int FindSlot16(ref DotvvmPropertyId keys, DotvvmPropertyId p)
         {
-#if NET8_0_OR_GREATER && Vectorize
+#if Vectorize
             if (Vector128.IsHardwareAccelerated)
             {
                 var v1 = Unsafe.ReadUnaligned<Vector256<uint>>(ref Unsafe.As<DotvvmPropertyId, byte>(ref keys));
@@ -169,7 +166,7 @@ namespace DotVVM.Framework.Controls
         public static int FindSlot16(DotvvmPropertyId[] keys, DotvvmPropertyId p)
         {
             Debug.Assert(keys.Length == AdhocLargeTableSize);
-            return FindSlot16(ref MemoryMarshal.GetArrayDataReference(keys), p);
+            return FindSlot16(ref UnsafeArrayReference(keys), p);
         }
 
         public static int FindSlot(DotvvmPropertyId[] keys, DotvvmPropertyId p)
@@ -191,7 +188,7 @@ namespace DotVVM.Framework.Controls
         [MethodImpl(Inline)]
         private static int FindSlotOrFree8(ref DotvvmPropertyId keys, DotvvmPropertyId p, out bool exists)
         {
-#if NET8_0_OR_GREATER
+#if Vectorize
             if (Vector128.IsHardwareAccelerated)
             {
                 var v = Unsafe.ReadUnaligned<Vector256<uint>>(ref Unsafe.As<DotvvmPropertyId, byte>(ref keys));
@@ -235,7 +232,7 @@ namespace DotVVM.Framework.Controls
         [MethodImpl(Inline)]
         private static int FindSlotOrFree16(ref DotvvmPropertyId keys, DotvvmPropertyId p, out bool exists)
         {
-#if NET8_0_OR_GREATER
+#if Vectorize
             if (Vector128.IsHardwareAccelerated)
             {
                 var v1 = Unsafe.ReadUnaligned<Vector256<uint>>(ref Unsafe.As<DotvvmPropertyId, byte>(ref keys));
@@ -274,10 +271,10 @@ namespace DotVVM.Framework.Controls
 
         [MethodImpl(Inline)]
         public static int FindSlotOrFree8(DotvvmPropertyId[] keys, DotvvmPropertyId p, out bool exists) =>
-            FindSlotOrFree8(ref MemoryMarshal.GetArrayDataReference(keys), p, out exists);
+            FindSlotOrFree8(ref UnsafeArrayReference(keys), p, out exists);
         [MethodImpl(NoInlining)]
         public static int FindSlotOrFree16(DotvvmPropertyId[] keys, DotvvmPropertyId p, out bool exists) =>
-            FindSlotOrFree16(ref MemoryMarshal.GetArrayDataReference(keys), p, out exists);
+            FindSlotOrFree16(ref UnsafeArrayReference(keys), p, out exists);
 
         public static ushort FindGroupBitmap(ref DotvvmPropertyId keys, int length, ushort groupId)
         {
@@ -286,7 +283,7 @@ namespace DotVVM.Framework.Controls
             ushort idPrefix = DotvvmPropertyId.CreatePropertyGroupId(groupId, 0).TypeId; // groupId ^ 0x8000
 
             ushort bitmap = 0;
-#if NET8_0_OR_GREATER
+#if Vectorize
             if (Vector128.IsHardwareAccelerated)
             {
                 var v1 = Unsafe.ReadUnaligned<Vector256<uint>>(in Unsafe.As<DotvvmPropertyId, byte>(ref keys));
@@ -316,19 +313,19 @@ namespace DotVVM.Framework.Controls
 
         public static ushort FindGroupBitmap(DotvvmPropertyId[] keys, ushort groupId)
         {
-            return FindGroupBitmap(ref MemoryMarshal.GetArrayDataReference(keys), keys.Length, groupId);
+            return FindGroupBitmap(ref UnsafeArrayReference(keys), keys.Length, groupId);
         }
 
         public static bool ContainsPropertyGroup(DotvvmPropertyId[] keys, ushort groupId)
         {
-            Debug.Assert(keys.Length % Vector256<uint>.Count == 0);
             Debug.Assert(keys.Length >= AdhocTableSize);
             Debug.Assert(keys.Length % 8 == 0);
 
             ushort idPrefix = DotvvmPropertyId.CreatePropertyGroupId(groupId, 0).TypeId;
-            ref var keysRef = ref MemoryMarshal.GetArrayDataReference(keys);
 
-#if NET8_0_OR_GREATER
+#if Vectorize
+            Debug.Assert(keys.Length % Vector256<uint>.Count == 0);
+            ref var keysRef = ref MemoryMarshal.GetArrayDataReference(keys);
             if (Vector128.IsHardwareAccelerated)
             {
                 for (int i = 0; i < keys.Length; i += 8)
@@ -354,13 +351,14 @@ namespace DotVVM.Framework.Controls
 
         public static int Count(DotvvmPropertyId[] keys)
         {
-            Debug.Assert(keys.Length % Vector256<uint>.Count == 0);
+            Debug.Assert(keys.Length % 8 == 0);
             Debug.Assert(keys.Length >= AdhocTableSize);
 
-            ref var keysRef = ref MemoryMarshal.GetArrayDataReference(keys);
-            Debug.Assert(keys.Length % 8 == 0);
 
-#if NET8_0_OR_GREATER
+#if Vectorize
+            ref var keysRef = ref MemoryMarshal.GetArrayDataReference(keys);
+
+            Debug.Assert(keys.Length % Vector256<uint>.Count == 0);
             if (Vector128.IsHardwareAccelerated)
             {
                 int zeroCount = 0;
@@ -387,7 +385,7 @@ namespace DotVVM.Framework.Controls
             ushort idPrefix = DotvvmPropertyId.CreatePropertyGroupId(groupId, 0).TypeId;
             ref var keysInts = ref Unsafe.As<DotvvmPropertyId, uint>(ref keys);
 
-#if NET8_0_OR_GREATER && Vectorize
+#if Vectorize
             if (Vector128.IsHardwareAccelerated)
             {
                 var v = Unsafe.ReadUnaligned<Vector256<uint>>(ref Unsafe.As<DotvvmPropertyId, byte>(ref keys));
@@ -410,14 +408,14 @@ namespace DotVVM.Framework.Controls
         public static int CountPropertyGroup8(DotvvmPropertyId[] keys, ushort groupId)
         {
             Debug.Assert(keys.Length == 8);
-            ref var keysRef = ref MemoryMarshal.GetArrayDataReference(keys);
+            ref var keysRef = ref UnsafeArrayReference(keys);
             return CountPropertyGroup8(ref keysRef, groupId);
         }
 
         public static int CountPropertyGroup(DotvvmPropertyId[] keys, ushort groupId)
         {
             Debug.Assert(keys.Length % 8 == 0);
-            ref var keysRef = ref MemoryMarshal.GetArrayDataReference(keys);
+            ref var keysRef = ref UnsafeArrayReference(keys);
 
             int count = 0;
             for (int i = 0; i < keys.Length; i += 8)
@@ -433,6 +431,22 @@ namespace DotVVM.Framework.Controls
             x ? (byte)1 : (byte)0;
 #else
             Unsafe.As<bool, byte>(ref x);
+#endif
+
+        [MethodImpl(Inline)]
+        public static ref DotvvmPropertyId UnsafeArrayReference(DotvvmPropertyId[] array) =>
+#if NET6_0_OR_GREATER
+            ref MemoryMarshal.GetArrayDataReference(array);
+#else
+            ref array[0];
+#endif
+
+        [MethodImpl(Inline)]
+        public static ref T UnsafeArrayReference<T>(T[] array) =>
+#if NET6_0_OR_GREATER
+            ref MemoryMarshal.GetArrayDataReference(array);
+#else
+            ref array[0];
 #endif
 
         static ConcurrentDictionary<DotvvmPropertyId[], (uint, DotvvmPropertyId[])> tableCache = new(new EqCmp());
@@ -468,11 +482,11 @@ namespace DotVVM.Framework.Controls
 
         [DoesNotReturn]
         [MethodImpl(NoInlining)]
-        public static void Fail() => throw new UnreachableException("Assertion failed in DotVVM property dictionary. This is a serious bug, please report it.");
+        public static void Fail() => Fail<object>();
 
         [DoesNotReturn]
         [MethodImpl(NoInlining)]
-        public static T Fail<T>() => throw new UnreachableException("Assertion failed in DotVVM property dictionary. This is a serious bug, please report it.");
+        public static T Fail<T>() => throw new UnreachableException("Assertion failed in DotVVM property dictionary. The collection state was probably corrupted by concurrent access, or by a serious DotVVM bug.");
 
         private static bool IsOrderedWithoutDuplicatesAndZero(DotvvmPropertyId[] keys)
         {

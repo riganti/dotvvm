@@ -70,7 +70,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <PackageReference Include="Portable.System.DateTimeOnly" Version="6.0.2" />
     <Reference Include="Microsoft.CSharp" />
-    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="System.Memory" Version="4.6.3" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
@@ -97,6 +97,9 @@
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' != 'net472' ">
     <DefineConstants>$(DefineConstants);DotNetCore</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' != 'net472' and '$(TargetFramework)' != 'netstandard2.1' ">
+    <DefineConstants>$(DefineConstants);Vectorize</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <DefineConstants>$(DefineConstants);CSharp8Polyfill;NoSpan;INTERNAL_NULLABLE_ATTRIBUTES</DefineConstants>

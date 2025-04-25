@@ -26,6 +26,7 @@ namespace DotVVM.Framework.Binding
             public const ushort Validation = 14;
             public const ushort ValidationSummary = 15;
             public const ushort Internal = 16;
+            public const ushort RenderSettings = 17;
 
             public static readonly ImmutableArray<(Type type, ushort id)> List = ImmutableArray.Create(
                 (typeof(DotvvmBindableObject), DotvvmBindableObject),
@@ -43,7 +44,8 @@ namespace DotVVM.Framework.Binding
                 (typeof(Validator), Validator),
                 (typeof(Validation), Validation),
                 (typeof(ValidationSummary), ValidationSummary),
-                (typeof(Internal), Internal)
+                (typeof(Internal), Internal),
+                (typeof(RenderSettings), RenderSettings)
             );
         }
     }

@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public bool IsBindingProperty { get; }
         internal ushort Id { get; }
 
-        private readonly ConcurrentDictionary<ushort, WeakReference<GroupedDotvvmProperty>> generatedProperties = new();
+        private readonly ConcurrentDictionary<ushort, GroupedDotvvmProperty> generatedProperties = new();
 
         /// <summary> The capability which declared this property. When the property is declared by an capability, it can only be used by this capability. </summary>
         public DotvvmCapabilityProperty? OwningCapability { get; }
@@ -104,19 +104,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public GroupedDotvvmProperty GetDotvvmProperty(ushort nameId)
         {
-            while (true)
+            if (generatedProperties.TryGetValue(nameId, out var result))
             {
-                if (generatedProperties.TryGetValue(nameId, out var resultRef))
-                {
-                    if (resultRef.TryGetTarget(out var result))
-                        return result;
-                    else
-                        generatedProperties.TryUpdate(nameId, new(CreateMemberProperty(nameId)), resultRef);
-                }
-                else
-                {
-                    generatedProperties.TryAdd(nameId, new(CreateMemberProperty(nameId)));
-                }
+                return result;
+            }
+            else
+            {
+                generatedProperties.TryAdd(nameId, CreateMemberProperty(nameId));
+                return generatedProperties[nameId];
             }
         }
 
