@@ -188,12 +188,12 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         /// <summary> Set DotVVM properties as array of keys and array of values </summary>
         private bool TryEmitPerfectHashAssignment(ParameterExpression control, List<(DotvvmProperty prop, Expression value)> properties)
         {
-            if (properties.Count > PropertyImmutableHashtable.MaxArrayTableSize)
+            if (properties.Count > PropertyDictionaryImpl.MaxArrayTableSize)
             {
                 return false;
             }
 
-            var (_, keys, values) = PropertyImmutableHashtable.CreateTableWithValues<Expression>(properties.Select(p => p.prop.Id).ToArray(), properties.Select(p => p.value).ToArray());
+            var (_, keys, values) = PropertyDictionaryImpl.CreateTableWithValues<Expression>(properties.Select(p => p.prop.Id).ToArray(), properties.Select(p => p.value).ToArray());
 
             Expression valueExpr;
             bool ownsValues;
@@ -214,7 +214,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             var keyExpr = EmitValue(keys);
 
             // PropertyImmutableHashtable.SetValuesToDotvvmControl(control, keys, values, hashSeed)
-            var magicSetValueCall = Expression.Call(typeof(PropertyImmutableHashtable), nameof(PropertyImmutableHashtable.SetValuesToDotvvmControl), emptyTypeArguments, Expression.Convert(control, typeof(DotvvmBindableObject)), keyExpr, valueExpr, EmitValue(false), EmitValue(ownsValues));
+            var magicSetValueCall = Expression.Call(typeof(PropertyDictionaryImpl), nameof(PropertyDictionaryImpl.SetValuesToDotvvmControl), emptyTypeArguments, Expression.Convert(control, typeof(DotvvmBindableObject)), keyExpr, valueExpr, EmitValue(false), EmitValue(ownsValues));
 
             EmitStatement(magicSetValueCall);
             return true;
@@ -269,7 +269,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             }
 
             // PropertyImmutableHashtable.SetValuesToDotvvmControl(control, dict)
-            var magicSetValueCall = Expression.Call(typeof(PropertyImmutableHashtable), nameof(PropertyImmutableHashtable.SetValuesToDotvvmControl), emptyTypeArguments,
+            var magicSetValueCall = Expression.Call(typeof(PropertyDictionaryImpl), nameof(PropertyDictionaryImpl.SetValuesToDotvvmControl), emptyTypeArguments,
                 /*control:*/ Expression.Convert(control, typeof(DotvvmBindableObject)),
                 /*dict:*/ dict,
                 /*owns:*/ EmitValue(variables.Count > 0));

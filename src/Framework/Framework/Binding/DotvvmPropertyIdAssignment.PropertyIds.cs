@@ -67,6 +67,10 @@ namespace DotVVM.Framework.Binding
             public const uint TextBox_Enabled = TypeIds.TextBox << 16 | 1;
             /// <seealso cref="TextBox.UpdateTextOnInputProperty" />
             public const uint TextBox_UpdateTextOnInput = TypeIds.TextBox << 16 | 3;
+            /// <seealso cref="RenderSettings.ModeProperty" />
+            public const uint RenderSettings_Mode = TypeIds.RenderSettings << 16 | 1;
+
+            // TODO
         }
     }
 }
