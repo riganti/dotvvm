@@ -10,12 +10,16 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Utils;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Tests.Runtime
@@ -364,7 +368,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var properties = Enumerable.Range(0, 1000).Select(i => HtmlGenericControl.AttributesGroupDescriptor.GetDotvvmProperty("data-" + i.ToString())).ToArray();
 
-            var setter = PropertyImmutableHashtable.CreateBulkSetter(properties, Enumerable.Range(0, 1000).Select(i => (object?)i).ToArray());
+            var setter = PropertyDictionaryImpl.CreateBulkSetter(properties, Enumerable.Range(0, 1000).Select(i => (object?)i).ToArray());
 
             var control1 = new HtmlGenericControl("div");
             setter(control1);
@@ -458,6 +462,86 @@ namespace DotVVM.Framework.Tests.Runtime
                 Assert.AreEqual(i, control.Attributes["data-" + i.ToString()]);
 
                 XAssert.Equal(Enumerable.Range(0, i+1).Cast<object>(), control.Attributes.Values);
+            }
+        }
+
+        [TestMethod, Ignore]
+        public void DotvvmProperty_ParallelAccess_DoesntCrashProcess()
+        {
+            var properties = new DotvvmProperty[] {
+                DotvvmBindableObject.DataContextProperty,
+                DotvvmControl.IncludeInPageProperty,
+                HtmlGenericControl.VisibleProperty,
+                TextBox.EnabledProperty,
+                HtmlGenericControl.AttributesGroupDescriptor.GetDotvvmProperty("data-1"),
+                HtmlGenericControl.AttributesGroupDescriptor.GetDotvvmProperty("data-2"),
+                HtmlGenericControl.AttributesGroupDescriptor.GetDotvvmProperty("data-3"),
+                HtmlGenericControl.AttributesGroupDescriptor.GetDotvvmProperty("data-4"),
+                Button.EnabledProperty,
+                FormControls.EnabledProperty
+            };
+            var control = new PlaceHolder();
+
+            var exceptions = new ConcurrentBag<Exception>();
+
+            ThreadPool.SetMinThreads(100, 100);
+            Parallel.For(0, 10_000_000_000, new ParallelOptions { MaxDegreeOfParallelism = 100 }, i => {
+                try
+                {
+                    var value = control.GetValue(properties[(i / 2) % properties.Length]);
+                    control.properties.TryGet(properties[i % properties.Length], out value);
+                    if (i % 2 == 0)
+                    {
+                        control.SetValue(properties[i % properties.Length], BoxingUtils.Box(i % 2 == 1));
+                    }
+                    else
+                    {
+                        control.properties.TryAdd(properties[i % properties.Length], BoxingUtils.Box(i % 2 == 1));
+                    }
+
+                    if (i % 16 == 0)
+                    {
+                        switch (Random.Shared.Next(0, 4))
+                        {
+                            case 0:
+                                control = new PlaceHolder();
+                                break;
+                            case 1:
+                                control = (PlaceHolder)control.CloneControl();
+                                break;
+                            case 2:
+                                foreach (var prop in control.Properties.Keys)
+                                    control.Properties.Remove(prop);
+                                break;
+                            case 3:
+                                foreach (var prop in control.properties.PropertyGroup(HtmlGenericControl.AttributesGroupDescriptor.Id))
+                                    control.properties.Remove(prop.Key);
+                                break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                    control = new PlaceHolder();
+                }
+                // if (control.properties.Count() >= 16)
+                //     throw new Exception("Too many properties");
+            });
+
+            var exceptionGroups = exceptions
+                .GroupBy(e => e.GetType().Name + ": " + e.Message)
+                // .GroupBy(e => e.ToString())
+                .Select(g => (g.Key, g.Count()))
+                .OrderByDescending(g => g.Item2)
+                .ToList();
+            foreach (var (key, count) in exceptionGroups)
+            {
+                Console.WriteLine($"{key}: {count}");
+            }
+            if (exceptions.Count > 0)
+            {
+                Assert.Fail($"There were {exceptions.Count} exceptions thrown during the test. See the output for details.");
             }
         }
     }
