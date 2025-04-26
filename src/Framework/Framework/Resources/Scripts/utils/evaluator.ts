@@ -94,10 +94,7 @@ export function wrapObservable(func: () => any, isArray?: boolean): KnockoutComp
     });
 
     if (isArray) {
-        for (const i of ["push", "pop", "unshift", "shift", "reverse", "sort", "splice", "slice", "replace", "indexOf", "remove", "removeAll"]) {
-            (wrapper as any)[i] = (...args: any) => updateObservableArray(func, i, args);
-        }
-        wrapper = wrapper.extend({ trackArrayChanges: true });
+        proxyObservableArrayMethods(wrapper, () => getExpressionResult(func))
     }
 
     return wrapper.extend({ notify: "always" });
@@ -113,16 +110,20 @@ function updateObservable(getObservable: () => KnockoutObservable<any>, value: a
     }
 }
 
-function updateObservableArray(getObservableArray: () => KnockoutObservableArray<any>, fnName: string, args: any[]) {
-    const result = getExpressionResult(getObservableArray);
-
-    if (!isObservableArray(result)) {
-        logError("validation", `Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.`);
-    } else {
-        result[fnName].apply(result, args);
+export function proxyObservableArrayMethods(wrapper: KnockoutObservable<any>, getObservableArray: () => any) {
+    for (const fnName of ["push", "pop", "unshift", "shift", "reverse", "sort", "splice", "slice", "replace", "indexOf", "remove", "removeAll"]) {
+        (wrapper as any)[fnName] = (...args: any) => {
+            const result = getExpressionResult(getObservableArray)
+        
+            if (!isObservableArray(result)) {
+                return logError("validation", compileConstants.debug ? `Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.` : 'Target is not observableArray')
+            } else {
+                return result[fnName](...args)
+            }
+        }
     }
+    wrapper.extend({ trackArrayChanges: true })
 }
-
 export const unwrapComputedProperty = (obs: any) =>
     ko.isComputed(obs) && "wrappedProperty" in obs ?
     (obs as any)["wrappedProperty"]() : // workaround for dotvvm-with-control-properties handler
