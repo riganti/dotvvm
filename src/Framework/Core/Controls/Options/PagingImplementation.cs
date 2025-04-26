@@ -24,7 +24,8 @@ namespace DotVVM.Framework.Controls
                 : queryable;
         }
 
-        /// <summary> Attempts to count the queryable asynchronously. EF Core IQueryables are supported, and IQueryables which return IAsyncEnumerable from GroupBy operator also work correctly. Otherwise, a synchronous fallback is user, or <see cref="CustomAsyncQueryableCountDelegate" /> may be set to add support for an ORM mapper of choice. </summary>
+#if NET6_0_OR_GREATER
+        /// <summary> Attempts to count the queryable asynchronously. EF Core IQueryables are supported, and IQueryables which return IAsyncEnumerable from GroupBy operator also work correctly. Otherwise, a synchronous fallback is used, or <see cref="CustomAsyncQueryableCountDelegate" /> may be set to add support for an ORM mapper of choice. </summary>
         public static async Task<int> QueryableAsyncCount<T>(IQueryable<T> queryable, CancellationToken ct = default)
         {
             if (CustomAsyncQueryableCountDelegate is {} customDelegate)
@@ -37,9 +38,14 @@ namespace DotVVM.Framework.Controls
             }
 
             var queryableType = queryable.GetType();
+            // Note: there is not a standard way to get a count from IAsyncEnumerable instance, without enumerating it.
+            //       we use two heuristics to try to get the count using the query provider:
+            //          * if we detect usage of EF Core, call its CountAsync method
+            //          * otherwise, do it as .GroupBy(_ => 1).Select(group => group.Count()).SingleOrDefault()
+            //  (if you are reading this and need a separate hack for your favorite ORM, you can set
+            //   CustomAsyncQueryableCountDelegate, and we do accept PRs adding new heuristics ;) )
             return await (
-                EfCoreAsyncCountHack(queryable, queryableType, ct) ?? // TODO: test this
-                Ef6AsyncCountHack(queryable, ct) ?? // TODO: test this
+                EfCoreAsyncCountHack(queryable, queryableType, ct) ??
                 StandardAsyncCountHack(queryable, ct)
             );
         }
@@ -64,34 +70,14 @@ namespace DotVVM.Framework.Controls
             return (Task<int>)countMethodGeneric.Invoke(null, new object[] { queryable, ct })!;
         }
 
-        static readonly Type? ef6IDbAsyncQueryProvider = Type.GetType("System.Data.Entity.Infrastructure.IDbAsyncQueryProvider, EntityFramework"); // https://learn.microsoft.com/en-us/dotnet/api/system.data.entity.infrastructure.idbasyncqueryprovider?view=entity-framework-6.2.0
-        static MethodInfo? ef6MethodCache;
-        static Task<int>? Ef6AsyncCountHack<T>(IQueryable<T> queryable, CancellationToken ct)
-        {
-            if (ef6IDbAsyncQueryProvider is null)
-                return null;
-            if (!ef6IDbAsyncQueryProvider.IsInstanceOfType(queryable.Provider))
-                return null;
-
-            var countMethod = ef6MethodCache ?? Type.GetType("System.Data.Entity.QueryableExtensions, EntityFramework")!.GetMethods().SingleOrDefault(m => m.Name == "CountAsync" && m.GetParameters() is { Length: 2 } parameters && parameters[1].ParameterType == typeof(CancellationToken))!;
-            if (countMethod is null)
-                return null;
-
-            if (ef6MethodCache is null)
-                Interlocked.CompareExchange(ref ef6MethodCache, countMethod, null);
-
-            var countMethodGeneric = countMethod.MakeGenericMethod(typeof(T));
-            return (Task<int>)countMethodGeneric.Invoke(null, new object[] { queryable, ct })!;
-        }
-
         static Task<int> StandardAsyncCountHack<T>(IQueryable<T> queryable, CancellationToken ct)
         {
 #if NETSTANDARD2_1_OR_GREATER
             var countGroupHack = queryable.GroupBy(_ => 1).Select(group => group.Count());
-            // if not IAsyncEnumerable, just use synchronous Count
+            // if not IAsyncEnumerable, just use synchronous Count on a new thread
             if (countGroupHack is not IAsyncEnumerable<int> countGroupEnumerable)
             {
-                return Task.FromResult(queryable.Count());
+                return Task.Factory.StartNew(() => queryable.Count(), TaskCreationOptions.LongRunning);
             }
 
             return FirstOrDefaultAsync(countGroupEnumerable, ct);
@@ -105,5 +91,6 @@ namespace DotVVM.Framework.Controls
             throw new Exception("IAsyncEnumerable is not supported on .NET Framework and the queryable does not support EntityFramework CountAsync.");
 #endif
         }
+#endif
     }
 }

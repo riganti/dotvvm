@@ -125,11 +125,29 @@ namespace DotVVM.Framework.Controls
 
         public virtual void ProcessLoadedItems<T>(IQueryable<T> filteredQueryable, IList<T> items)
         {
-            TotalItemsCount = filteredQueryable.Count();
+            if (items.Count < PageSize)
+            {
+                TotalItemsCount = PageIndex * PageSize + items.Count;
+            }
+            else
+            {
+                TotalItemsCount = filteredQueryable.Count();
+            }
         }
         public async Task ProcessLoadedItemsAsync<T>(IQueryable<T> filteredQueryable, IList<T> items, CancellationToken cancellationToken)
         {
-            TotalItemsCount = await PagingImplementation.QueryableAsyncCount(filteredQueryable, cancellationToken);
+#if NET6_0_OR_GREATER
+            if (items.Count < PageSize)
+            {
+                TotalItemsCount = PageIndex * PageSize + items.Count;
+            }
+            else
+            {
+                TotalItemsCount = await PagingImplementation.QueryableAsyncCount(filteredQueryable, cancellationToken);
+            }
+#else
+            throw new NotSupportedException("LoadFromQueryableAsync and ProcessLoadedItemsAsync methods are not supported on .NET Framework.");
+#endif
         }
 
     }
