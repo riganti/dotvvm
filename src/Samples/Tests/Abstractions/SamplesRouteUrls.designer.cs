@@ -18,7 +18,6 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
         public const string ComplexSamples_ClassBindings_ClassBindings = "ComplexSamples/ClassBindings/ClassBindings";
         public const string ComplexSamples_EmptyDataTemplate_RepeaterGridView = "ComplexSamples/EmptyDataTemplate/RepeaterGridView";
-        public const string ComplexSamples_EventPropagation_EventPropagation = "ComplexSamples/EventPropagation/EventPropagation";
         public const string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater = "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
@@ -153,6 +152,9 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_TextBox_TextBox_FormatDoubleProperty = "ControlSamples/TextBox/TextBox_FormatDoubleProperty";
         public const string ControlSamples_TextBox_TextBox_Format_Binding = "ControlSamples/TextBox/TextBox_Format_Binding";
         public const string ControlSamples_TextBox_TextBox_Types = "ControlSamples/TextBox/TextBox_Types";
+        public const string ControlSamples_Timer_LongCommand = "ControlSamples/Timer/LongCommand";
+        public const string ControlSamples_Timer_Removal = "ControlSamples/Timer/Removal";
+        public const string ControlSamples_Timer_Timer = "ControlSamples/Timer/Timer";
         public const string ControlSamples_UpdateProgress_UpdateProgress = "ControlSamples/UpdateProgress/UpdateProgress";
         public const string ControlSamples_UpdateProgress_UpdateProgressDelay = "ControlSamples/UpdateProgress/UpdateProgressDelay";
         public const string ControlSamples_UpdateProgress_UpdateProgressQueues = "ControlSamples/UpdateProgress/UpdateProgressQueues";
@@ -269,6 +271,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
         public const string FeatureSamples_JavascriptTranslation_ArrayTranslation = "FeatureSamples/JavascriptTranslation/ArrayTranslation";
+        public const string FeatureSamples_JavascriptTranslation_CommandInsideWhere = "FeatureSamples/JavascriptTranslation/CommandInsideWhere";
         public const string FeatureSamples_JavascriptTranslation_DateOnlyTranslations = "FeatureSamples/JavascriptTranslation/DateOnlyTranslations";
         public const string FeatureSamples_JavascriptTranslation_DateTimeTranslations = "FeatureSamples/JavascriptTranslation/DateTimeTranslations";
         public const string FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation = "FeatureSamples/JavascriptTranslation/DictionaryIndexerTranslation";
@@ -276,8 +279,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_JavascriptTranslation_ListIndexerTranslation = "FeatureSamples/JavascriptTranslation/ListIndexerTranslation";
         public const string FeatureSamples_JavascriptTranslation_ListMethodTranslations = "FeatureSamples/JavascriptTranslation/ListMethodTranslations";
         public const string FeatureSamples_JavascriptTranslation_MathMethodTranslation = "FeatureSamples/JavascriptTranslation/MathMethodTranslation";
-        public const string FeatureSamples_JavascriptTranslation_TimeOnlyTranslations = "FeatureSamples/JavascriptTranslation/TimeOnlyTranslations";
         public const string FeatureSamples_JavascriptTranslation_StringMethodTranslations = "FeatureSamples/JavascriptTranslation/StringMethodTranslations";
+        public const string FeatureSamples_JavascriptTranslation_TimeOnlyTranslations = "FeatureSamples/JavascriptTranslation/TimeOnlyTranslations";
         public const string FeatureSamples_JavascriptTranslation_WebUtilityTranslations = "FeatureSamples/JavascriptTranslation/WebUtilityTranslations";
         public const string FeatureSamples_JsComponentIntegration_ReactComponentIntegration = "FeatureSamples/JsComponentIntegration/ReactComponentIntegration";
         public const string FeatureSamples_JsComponentIntegration_SvelteComponentIntegration = "FeatureSamples/JsComponentIntegration/SvelteComponentIntegration";

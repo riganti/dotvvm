@@ -1,0 +1,23 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.Timer.RemovalViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>Making sure that removing timer disposes the callback</h1>
+
+    <p class="result">{{value: Value}}</p>
+    <dot:CheckBox Text="Disabled" data-ui="disabled" Checked="{value: Disabled}" />
+    
+    <dot:Timer Command="{staticCommand: Value = Value + 1}" Interval="1000" Enabled="{value: !Disabled}"
+               IncludeInPage="{value: !IsRemoved}"/>
+    <dot:Button Text="Remove timer from DOM" data-ui="remove" Click="{staticCommand: IsRemoved = true}" />
+
+</body>
+</html>
+
+
