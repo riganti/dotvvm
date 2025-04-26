@@ -9,6 +9,11 @@ namespace DotVVM.Framework.Routing
     public abstract class RouteBase
     {
         /// <summary>
+        /// Contains additional metadata about the route.
+        /// </summary>
+        public IDictionary<object, object> ExtensionData { get; } = new FreezableDictionary<object, object>();
+
+        /// <summary>
         /// Gets or sets a factory that provides an implementation of IDotvvmPresenter to handle the matching requests.
         /// </summary>
         public Func<IServiceProvider, IDotvvmPresenter> PresenterFactory { get; }

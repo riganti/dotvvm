@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="virtualPathPrefix">Virtual path prefix of added routes</param>
         /// <param name="content">Contains routes to be added</param>
         /// <param name="presenterFactory">Default presenter factory common to all routes in the group</param>
-        public void AddGroup(string groupName,
+        public DotvvmRouteTable AddGroup(string groupName,
             string urlPrefix,
             string virtualPathPrefix,
             Action<DotvvmRouteTable> content,
@@ -86,12 +86,14 @@ namespace DotVVM.Framework.Routing
                 routeNamePrefix: group?.RouteNamePrefix + groupName + "_",
                 urlPrefix,
                 virtualPathPrefix,
-                addToParentRouteTable: Add,
+                addToParentRouteTable: r => Add(r),
                 presenterFactory,
                 localizedUrls);
 
             content(newGroup);
             routeTableGroups.Add(groupName, newGroup);
+
+            return newGroup;
         }
 
         /// <summary>
@@ -120,9 +122,9 @@ namespace DotVVM.Framework.Routing
         /// <param name="virtualPath">The virtual path of the Dothtml file.</param>
         /// <param name="defaultValues">The default values.</param>
         /// <param name="presenterFactory">Delegate creating the presenter handling this route</param>
-        public void Add(string routeName, string url, string? virtualPath, object? defaultValues = null, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null, LocalizedRouteUrl[]? localizedUrls = null)
+        public RouteBase Add(string routeName, string url, string? virtualPath, object? defaultValues = null, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null, LocalizedRouteUrl[]? localizedUrls = null)
         {
-            AddCore(routeName, url, virtualPath, defaultValues, presenterFactory, localizedUrls);
+            return AddCore(routeName, url, virtualPath, defaultValues, presenterFactory, localizedUrls);
         }
 
         /// <summary>
@@ -132,9 +134,9 @@ namespace DotVVM.Framework.Routing
         /// <param name="url">The URL.</param>
         /// <param name="defaultValues">The default values.</param>
         /// <param name="presenterFactory">The presenter factory.</param>
-        public void Add(string routeName, string url, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, object? defaultValues = null, LocalizedRouteUrl[]? localizedUrls = null)
+        public RouteBase Add(string routeName, string url, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, object? defaultValues = null, LocalizedRouteUrl[]? localizedUrls = null)
         {
-            AddCore(routeName, url, virtualPath: null, defaultValues, presenterFactory, localizedUrls);
+            return AddCore(routeName, url, virtualPath: null, defaultValues, presenterFactory, localizedUrls);
         }
 
         /// <summary>
@@ -144,20 +146,20 @@ namespace DotVVM.Framework.Routing
         /// <param name="url">The URL.</param>
         /// <param name="presenterType">The presenter factory.</param>
         /// <param name="defaultValues">The default values.</param>
-        public void Add(string routeName, string url, Type presenterType, object? defaultValues = null, LocalizedRouteUrl[]? localizedUrls = null)
+        public RouteBase Add(string routeName, string url, Type presenterType, object? defaultValues = null, LocalizedRouteUrl[]? localizedUrls = null)
         {
             if (!typeof(IDotvvmPresenter).IsAssignableFrom(presenterType))
             {
                 throw new ArgumentException($@"{nameof(presenterType)} has to inherit from DotVVM.Framework.Hosting.IDotvvmPresenter.", nameof(presenterType));
             }
             Func<IServiceProvider, IDotvvmPresenter> presenterFactory = provider => (IDotvvmPresenter)provider.GetRequiredService(presenterType);
-            AddCore(routeName, url, virtualPath: null, defaultValues, presenterFactory, localizedUrls);
+            return AddCore(routeName, url, virtualPath: null, defaultValues, presenterFactory, localizedUrls);
         }
 
         /// <summary>
         /// Adds the specified name.
         /// </summary>
-        public void Add(RouteBase route)
+        public RouteBase Add(RouteBase route)
         {
             ThrowIfFrozen();
             if (dictionary.ContainsKey(route.RouteName))
@@ -175,9 +177,11 @@ namespace DotVVM.Framework.Routing
             {
                 partialMatchRoutes.Add(partialMatchRoute);
             }
+
+            return route;
         }
 
-        private void AddCore(string routeName, string url, string? virtualPath, object? defaultValues, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory, LocalizedRouteUrl[]? localizedUrls = null)
+        private RouteBase AddCore(string routeName, string url, string? virtualPath, object? defaultValues, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory, LocalizedRouteUrl[]? localizedUrls = null)
         {
             ThrowIfFrozen();
 
@@ -202,6 +206,8 @@ namespace DotVVM.Framework.Routing
                     localizedUrls.Select(l => new LocalizedRouteUrl(l.CultureIdentifier, l.RouteUrl)).ToArray(),
                     virtualPath, routeName, defaultValues, presenterFactory, configuration);
             Add(route);
+
+            return route;
         }
 
         /// <summary>
@@ -210,7 +216,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="routeName">Name of the redirection.</param>
         /// <param name="urlPattern">URL pattern to redirect from.</param>
         /// <param name="targetUrl">URL which will be used as a target for redirection.</param>
-        public void AddUrlRedirection(string routeName, string urlPattern, string targetUrl, object? defaultValues = null, bool permanent = false)
+        public RouteBase AddUrlRedirection(string routeName, string urlPattern, string targetUrl, object? defaultValues = null, bool permanent = false)
             => AddUrlRedirection(routeName, urlPattern, _ => targetUrl, defaultValues, permanent);
 
         /// <summary>
@@ -219,7 +225,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="routeName">Name of the redirection.</param>
         /// <param name="urlPattern">URL pattern to redirect from.</param>
         /// <param name="targetUrlProvider">URL provider to obtain context-based redirection targets.</param>
-        public void AddUrlRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> targetUrlProvider, object? defaultValues = null, bool permanent = false)
+        public RouteBase AddUrlRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> targetUrlProvider, object? defaultValues = null, bool permanent = false)
         {
             IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => new DelegatePresenter(context =>
             {
@@ -230,7 +236,7 @@ namespace DotVVM.Framework.Routing
                 else
                     context.RedirectToUrl(targetUrl);
             });
-            AddCore(routeName, urlPattern, virtualPath: null, defaultValues, presenterFactory);
+            return AddCore(routeName, urlPattern, virtualPath: null, defaultValues, presenterFactory);
         }
 
         /// <summary>
@@ -240,7 +246,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="urlPattern">URL pattern to redirect from.</param>
         /// <param name="targetRouteName">Route name which will be used as a target for redirection.</param>
         /// <param name="urlSuffixProvider">Provider to obtain context-based URL suffix.</param>
-        public void AddRouteRedirection(string routeName, string urlPattern, string targetRouteName,
+        public RouteBase AddRouteRedirection(string routeName, string urlPattern, string targetRouteName,
             object? defaultValues = null, bool permanent = false, Func<IDotvvmRequestContext, Dictionary<string, object?>>? parametersProvider = null,
             Func<IDotvvmRequestContext, string>? urlSuffixProvider = null)
             => AddRouteRedirection(routeName, urlPattern, _ => targetRouteName, defaultValues, permanent, parametersProvider, urlSuffixProvider);
@@ -252,7 +258,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="urlPattern">URL pattern to redirect from.</param>
         /// <param name="targetRouteNameProvider">Route name provider to obtain context-based redirection targets.</param>
         /// <param name="urlSuffixProvider">Provider to obtain context-based URL suffix.</param>
-        public void AddRouteRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> targetRouteNameProvider,
+        public RouteBase AddRouteRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> targetRouteNameProvider,
             object? defaultValues = null, bool permanent = false, Func<IDotvvmRequestContext, Dictionary<string, object?>>? parametersProvider = null,
             Func<IDotvvmRequestContext, string>? urlSuffixProvider = null)
         {
@@ -267,7 +273,7 @@ namespace DotVVM.Framework.Routing
                 else
                     context.RedirectToRoute(targetRouteName, newParameterValues, urlSuffix: urlSuffix);
             });
-            AddCore(routeName, urlPattern, virtualPath: null, defaultValues, presenterFactory);
+            return AddCore(routeName, urlPattern, virtualPath: null, defaultValues, presenterFactory);
         }
 
         public void AddPartialMatchHandler(IPartialMatchRouteHandler handler)
