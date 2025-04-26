@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Controls
         /// <summary> Generates a function expression that invokes the command with specified commandArguments. Creates code like `(...commandArguments) => dotvvm.postBack(...)` </summary>
         public static string GenerateClientPostbackLambda(string propertyName, ICommandBinding command, DotvvmBindableObject control, PostbackScriptOptions? options = null)
         {
-            options ??= PostbackScriptOptions.KnockoutBinding;
+            options = PostbackScriptOptions.KnockoutBinding.Override(options);
 
             var addArguments = options.CommandArgs is null && (command is IStaticCommandBinding || command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter));
             if (addArguments)
@@ -183,7 +183,7 @@ namespace DotVVM.Framework.Controls
 
             string getHandlerScript()
             {
-                if (!options.AllowPostbackHandlers) return "[]";
+                if (options.AllowPostbackHandlers == false) return "[]";
                 // turn validation off for static commands
                 var validationPathExpr = expression is IStaticCommandBinding ? null : GetValidationTargetExpression(control);
                 return GetPostBackHandlersScript(control, propertyName,
@@ -194,8 +194,8 @@ namespace DotVVM.Framework.Controls
                     $"[\"validate\", {{fn:{validationPathExpr.Value.javascriptExpression}, path:{MakeStringLiteral(validationPathExpr.Value.identificationExpression)}}}]",
 
                     // use window.setTimeout
-                    options.UseWindowSetTimeout ? "\"timeout\"" : null,
-                    options.IsOnChange ? "\"suppressOnUpdating\"" : null,
+                    options.UseWindowSetTimeout == true ? "\"timeout\"" : null,
+                    options.IsOnChange == true ? "\"suppressOnUpdating\"" : null,
                     GenerateConcurrencyModeHandler(propertyName, control)
                 );
             }
@@ -212,13 +212,14 @@ namespace DotVVM.Framework.Controls
                 adjustedExpression = adjustedExpression.AssignParameters(options.ParameterAssignment);
             }
             // when the expression changes the dataContext, we need to override the default knockout context fo the command binding.
+            var elementAccessor = options.ElementAccessor ?? CodeParameterAssignment.FromIdentifier("this");
             CodeParameterAssignment knockoutContext;
             CodeParameterAssignment viewModel = default;
             if (!isStaticCommand)
             {
                 knockoutContext = options.KoContext ?? (
                     // adjustedExpression != expression.CommandJavascript ?
-                    new CodeParameterAssignment(new ParametrizedCode.Builder { "ko.contextFor(", options.ElementAccessor.Code!, ")" }.Build(OperatorPrecedence.Max))
+                    new CodeParameterAssignment(new ParametrizedCode.Builder { "ko.contextFor(", elementAccessor.Code!, ")" }.Build(OperatorPrecedence.Max))
                 );
                 viewModel = JavascriptTranslator.KnockoutViewModelParameter.DefaultAssignment.Code;
             }
@@ -240,7 +241,7 @@ namespace DotVVM.Framework.Controls
             {
                 var commandArgsString = (options.CommandArgs?.Code != null) ? SubstituteArguments(options.CommandArgs!.Value.Code!) : "[]";
                 var args = new List<string> {
-                    SubstituteArguments(options.ElementAccessor.Code!),
+                    SubstituteArguments(elementAccessor.Code!),
                     getHandlerScript(),
                     commandArgsString,
                     optionalKnockoutContext.Code?.Apply(SubstituteArguments) ?? "undefined",
@@ -270,7 +271,7 @@ namespace DotVVM.Framework.Controls
             string SubstituteArguments(ParametrizedCode parametrizedCode)
             {
                 return parametrizedCode.ToString(p =>
-                    p == JavascriptTranslator.CurrentElementParameter ? options.ElementAccessor :
+                    p == JavascriptTranslator.CurrentElementParameter ? elementAccessor :
                     p == CommandBindingExpression.CurrentPathParameter ? CodeParameterAssignment.FromIdentifier(getContextPath(control)) :
                     p == CommandBindingExpression.ControlUniqueIdParameter ? uniqueControlId?.GetParametrizedJsExpression(control) ?? CodeParameterAssignment.FromLiteral("") :
                     p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
