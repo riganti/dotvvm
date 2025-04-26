@@ -109,12 +109,6 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (context.RequestType == DotvvmRequestType.Navigate)
-            {
-                writer.AddStyleAttribute("display", "none");
-            }
-            writer.AddKnockoutDataBind("if", "dotvvm.isSpaReady");
-
             base.AddAttributesToRender(writer, context);
         }
 
