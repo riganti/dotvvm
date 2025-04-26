@@ -184,7 +184,7 @@ namespace DotVVM.Framework.Compilation
                 try
                 {
                     if (forceRecompile)
-                        controlBuilderFactory.InvalidateCache(file.VirtualPath);
+                        controlBuilderFactory.InvalidateCache(file.VirtualPath!);
 
                     var pageBuilder = controlBuilderFactory.GetControlBuilder(file.VirtualPath!);
 
