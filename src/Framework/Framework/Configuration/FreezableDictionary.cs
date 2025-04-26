@@ -95,6 +95,8 @@ namespace DotVVM.Framework.Configuration
             set { ThrowIfFrozen(); dict[index] = value; }
         }
 
+        public Dictionary<K, V> CreateCopy() => new(dict, dict.Comparer);
+
         public int Count => dict.Count;
 
         public bool IsReadOnly => isFrozen;

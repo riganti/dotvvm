@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Gets the URL pattern for the route.
         /// </summary>
-        public string Url { get; private set; }
+        public string Url { get; }
 
         /// <summary>
         /// Gets the URL pattern for the route, but it must not contain type parameter types (i.e. should turn a/{id:int}/{name:regex(...)} into a/{id}/{name}
@@ -31,8 +31,8 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Gets the default values of the optional parameters.
         /// </summary>
-        public IReadOnlyDictionary<string, object?> DefaultValues => _defaultValues;
-        private FreezableDictionary<string, object?> _defaultValues;
+        public IReadOnlyDictionary<string, object?> DefaultValues => defaultValues;
+        private readonly FreezableDictionary<string, object?> defaultValues;
 
         /// <summary>
         /// Gets or sets the virtual path to the view.
@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Routing
         public RouteBase(string url, string? virtualPath, string name, object? defaultValues, Func<IServiceProvider, IDotvvmPresenter> presenterFactory)
             : this(url, virtualPath, name, new Dictionary<string, object?>(), presenterFactory)
         {
-            AddOrUpdateParameterCollection(_defaultValues, defaultValues);
+            AddOrUpdateParameterCollection(this.defaultValues, defaultValues);
         }
 
         /// <summary>
@@ -65,11 +65,11 @@ namespace DotVVM.Framework.Routing
 
             if (defaultValues != null)
             {
-                _defaultValues = new FreezableDictionary<string, object?>(defaultValues, StringComparer.OrdinalIgnoreCase);
+                this.defaultValues = new FreezableDictionary<string, object?>(defaultValues, StringComparer.OrdinalIgnoreCase);
             }
             else
             {
-                _defaultValues = new FreezableDictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+                this.defaultValues = new FreezableDictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
             }
         }
 
@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Routing
             if (newRouteValues == null)
                 throw new ArgumentNullException(nameof(newRouteValues));
 
-            var values = new Dictionary<string, object?>(_defaultValues, StringComparer.OrdinalIgnoreCase);
+            var values = new Dictionary<string, object?>(defaultValues, StringComparer.OrdinalIgnoreCase);
             AddOrUpdateParameterCollection(values, currentRouteValues);
             AddOrUpdateParameterCollection(values, newRouteValues);
 
@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Routing
             if (currentRouteValues == null)
                 throw new ArgumentNullException(nameof(currentRouteValues));
 
-            var values = new Dictionary<string, object?>(_defaultValues, StringComparer.OrdinalIgnoreCase);
+            var values = new Dictionary<string, object?>(defaultValues, StringComparer.OrdinalIgnoreCase);
             AddOrUpdateParameterCollection(values, currentRouteValues);
             AddOrUpdateParameterCollection(values, newRouteValues);
 
@@ -127,7 +127,7 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public string BuildUrl(object? routeValues = null)
         {
-            var values = new Dictionary<string, object?>(_defaultValues, StringComparer.OrdinalIgnoreCase);
+            var values = new Dictionary<string, object?>(defaultValues, StringComparer.OrdinalIgnoreCase);
             AddOrUpdateParameterCollection(values, routeValues);
 
             return BuildUrl(values);
@@ -143,7 +143,7 @@ namespace DotVVM.Framework.Routing
                 routeValues = new Dictionary<string, object?>();
             }
 
-            var values = new Dictionary<string, object?>(_defaultValues, StringComparer.OrdinalIgnoreCase);
+            var values = new Dictionary<string, object?>(defaultValues, StringComparer.OrdinalIgnoreCase);
             AddOrUpdateParameterCollection(values, routeValues);
 
             return BuildUrlCore(values);
@@ -199,12 +199,12 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public virtual IDotvvmPresenter GetPresenter(IServiceProvider provider) => PresenterFactory(provider);
 
-        public Dictionary<string, object?> CloneDefaultValues() => new Dictionary<string, object?>(_defaultValues, StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, object?> CloneDefaultValues() => defaultValues.CreateCopy();
 
 
         private bool isFrozen = false;
 
-        private void ThrowIfFrozen()
+        protected void ThrowIfFrozen()
         {
             if (isFrozen)
                 throw FreezableUtils.Error(this.GetType().Name);
@@ -212,7 +212,7 @@ namespace DotVVM.Framework.Routing
         public void Freeze()
         {
             this.isFrozen = true;
-            this._defaultValues.Freeze();
+            this.defaultValues.Freeze();
 
             Freeze2();
         }
