@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Configuration
             }
         }
     }
-    sealed class FreezableDictionary<K, V> : IDictionary<K, V>, IReadOnlyCollection<KeyValuePair<K, V>>
+    sealed class FreezableDictionary<K, V> : IDictionary<K, V>, IReadOnlyCollection<KeyValuePair<K, V>>, IReadOnlyDictionary<K, V>
         where K : notnull
     {
         private readonly Dictionary<K, V> dict;
@@ -95,6 +95,8 @@ namespace DotVVM.Framework.Configuration
             set { ThrowIfFrozen(); dict[index] = value; }
         }
 
+        public Dictionary<K, V> CreateCopy() => new(dict, dict.Comparer);
+
         public int Count => dict.Count;
 
         public bool IsReadOnly => isFrozen;
@@ -102,5 +104,9 @@ namespace DotVVM.Framework.Configuration
         public ICollection<K> Keys => ((IDictionary<K, V>)dict).Keys.ToArray();
 
         public ICollection<V> Values => ((IDictionary<K, V>)dict).Values.ToArray();
+
+        IEnumerable<K> IReadOnlyDictionary<K, V>.Keys => Keys;
+
+        IEnumerable<V> IReadOnlyDictionary<K, V>.Values => Values;
     }
 }

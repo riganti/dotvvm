@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Testing
 
             var context = DotvvmTestHelper.CreateContext(
                 Configuration,
-                route: new Framework.Routing.DotvvmRoute("testpage", fileName, null, _ => throw new Exception(), Configuration),
+                route: new Framework.Routing.DotvvmRoute("testpage", fileName, "testpage", null, _ => throw new Exception(), Configuration),
                 requestType: postback is object ? DotvvmRequestType.Command : DotvvmRequestType.Navigate
             );
             context.CsrfToken = null;
@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Testing
             Console.WriteLine(viewModel);
             return new PageRunResult(
                 this,
-                context.Route.VirtualPath,
+                context.Route!.VirtualPath!,
                 JsonNode.Parse(viewModel)!.AsObject(),
                 htmlOutput,
                 headResources,
