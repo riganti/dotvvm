@@ -3,6 +3,7 @@ using DotVVM.Framework.Runtime.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Runtime.Tracing;
@@ -40,9 +41,14 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         public static string GetRouteMatchUrl(IDotvvmRequestContext context)
         {
-            if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.Url.Query, out var url))
+            return GetRouteMatchUrl(context.HttpContext.Request.Path.Value!, context.HttpContext.Request.Url.Query);
+        }
+
+        public static string GetRouteMatchUrl(string requestPath, string queryString)
+        {
+            if (!TryParseGooglebotHashbangEscapedFragment(queryString, out var url))
             {
-                url = context.HttpContext.Request.Path.Value;
+                url = requestPath;
             }
             url = url?.Trim('/') ?? "";
 

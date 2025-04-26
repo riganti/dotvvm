@@ -64,7 +64,8 @@ namespace DotVVM.Framework.Routing
             string urlPrefix,
             string virtualPathPrefix,
             Action<DotvvmRouteTable> content,
-            Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null)
+            Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null,
+            LocalizedRouteUrl[]? localizedUrls = null)
         {
             ThrowIfFrozen();
             if (string.IsNullOrEmpty(groupName))
@@ -77,6 +78,7 @@ namespace DotVVM.Framework.Routing
             }
             urlPrefix = CombinePath(group?.UrlPrefix, urlPrefix);
             virtualPathPrefix = CombinePath(group?.VirtualPathPrefix, virtualPathPrefix);
+            localizedUrls = CombineLocalizedUrls(group, urlPrefix, localizedUrls);
 
             var newGroup = new DotvvmRouteTable(configuration);
             newGroup.group = new RouteTableGroup(
@@ -85,7 +87,8 @@ namespace DotVVM.Framework.Routing
                 urlPrefix,
                 virtualPathPrefix,
                 addToParentRouteTable: Add,
-                presenterFactory);
+                presenterFactory,
+                localizedUrls);
 
             content(newGroup);
             routeTableGroups.Add(groupName, newGroup);
@@ -180,6 +183,8 @@ namespace DotVVM.Framework.Routing
 
             if (url == null)
                 throw new ArgumentNullException(nameof(url));
+
+            localizedUrls = CombineLocalizedUrls(group, url, localizedUrls);
             url = CombinePath(group?.UrlPrefix, url);
 
             virtualPath = CombinePath(group?.VirtualPathPrefix, virtualPath);
@@ -194,7 +199,7 @@ namespace DotVVM.Framework.Routing
             RouteBase route = localizedUrls == null
                 ? new DotvvmRoute(url, virtualPath, routeName, defaultValues, presenterFactory, configuration)
                 : new LocalizedDotvvmRoute(url,
-                    localizedUrls.Select(l => new LocalizedRouteUrl(l.CultureIdentifier, CombinePath(group?.UrlPrefix, l.RouteUrl))).ToArray(),
+                    localizedUrls.Select(l => new LocalizedRouteUrl(l.CultureIdentifier, l.RouteUrl)).ToArray(),
                     virtualPath, routeName, defaultValues, presenterFactory, configuration);
             Add(route);
         }
@@ -328,6 +333,29 @@ namespace DotVVM.Framework.Routing
             }
 
             return $"{prefix}/{appendedPath}";
+        }
+
+        private LocalizedRouteUrl[]? CombineLocalizedUrls(RouteTableGroup? group, string routeUrl, LocalizedRouteUrl[]? localizedUrls)
+        {
+            if (group == null)
+            {
+                return localizedUrls;
+            }
+            if (group.LocalizedUrls == null && localizedUrls == null)
+            {
+                return null;
+            }
+
+            var groupCultures = group.LocalizedUrls?.ToDictionary(u => u.CultureIdentifier, u => u.RouteUrl) ?? new();
+            var routeCultures = localizedUrls?.ToDictionary(u => u.CultureIdentifier, u => u.RouteUrl) ?? new();
+
+            return groupCultures.Keys.Union(routeCultures.Keys)
+                .Select(c =>
+                    new LocalizedRouteUrl(c, CombinePath(
+                        groupCultures.TryGetValue(c, out var localizedGroupUrl) ? localizedGroupUrl : group.UrlPrefix,
+                        routeCultures.TryGetValue(c, out var localizedRouteUrl) ? localizedRouteUrl : routeUrl)
+                    ))
+                .ToArray();
         }
 
         private bool isFrozen = false;
