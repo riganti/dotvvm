@@ -159,8 +159,10 @@ namespace DotVVM.Framework.Compilation.Directives
                     baseType.FullName + "||" + string.Join("|", imports) + "||" + string.Join("|", properties)
                 )
             );
-            var hash = Convert.ToBase64String(hashBytes, 0, 16);
-
+            var hash = Convert.ToBase64String(hashBytes, 0, 16)
+                .Replace('+', '_')
+                .Replace('/', '_')
+                .TrimEnd('=');
             var typeName = "DotvvmMarkupControl-" + hash;
 
             return GetOrCreateDynamicType(baseType, typeName, propertyDirectives);
