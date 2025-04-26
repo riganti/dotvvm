@@ -191,12 +191,24 @@ namespace DotVVM.Framework.Testing
             });
         }
 
+        public IBinding CreateBinding(BindingType type, string expression, DataContextStack dataContext, Type? expectedType = null)
+        {
+            return type switch {
+                BindingType.Value => ValueBinding<object>(expression, dataContext, expectedType),
+                BindingType.Resource => ResourceBinding<object>(expression, dataContext, expectedType),
+                BindingType.Command => Command(expression, dataContext, expectedType),
+                BindingType.StaticCommand => StaticCommand(expression, dataContext, expectedType),
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+        }
+
         public T ExecuteBinding<T>(
             string expression, object[] viewModelStack,
             DataContextStack? dataContextType = null,
             NamespaceImport[]? imports = null,
             DotvvmControl? markupControl = null,
-            Type? expectedType = null
+            Type? expectedType = null,
+            BindingType bindingType = BindingType.Resource
         )
         {
             if (dataContextType is null)
@@ -207,7 +219,7 @@ namespace DotVVM.Framework.Testing
             }
             if (imports is {})
                 dataContextType = DataContextStack.Create(dataContextType.DataContextType, dataContextType.Parent, Enumerable.Concat(imports, dataContextType.NamespaceImports).ToArray(), dataContextType.ExtensionParameters, dataContextType.BindingPropertyResolvers);
-            var binding = ResourceBinding<T>(expression, dataContextType, expectedType: expectedType);
+            var binding = CreateBinding(bindingType, expression, dataContextType, expectedType: expectedType ?? typeof(T));
             var rootControl = new PlaceHolder();
             if (markupControl is {})
                 markupControl.Children.Add(rootControl);
@@ -215,7 +227,8 @@ namespace DotVVM.Framework.Testing
             try
             {
                 var control = BuildFakeControlHierarchy(dataContextType, viewModelStack, rootControl);
-                return binding.BindingDelegate.Invoke(control);
+                control.SetValue(Literal.TextProperty, binding);
+                return (T)control.GetValue(Literal.TextProperty)!;
             }
             finally
             {
@@ -271,6 +284,14 @@ namespace DotVVM.Framework.Testing
                 else
                     return value;
             }
+        }
+
+        public enum BindingType
+        {
+            Value,
+            Resource,
+            Command,
+            StaticCommand
         }
     }
 }
