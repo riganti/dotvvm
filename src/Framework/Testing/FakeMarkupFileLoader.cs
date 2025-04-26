@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Testing
 
         public string GetMarkupFileVirtualPath(Hosting.IDotvvmRequestContext context)
         {
-            return context.Route!.VirtualPath;
+            return context.Route!.VirtualPath!;
         }
     }
 }

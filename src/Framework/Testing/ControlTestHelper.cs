@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Testing
             Console.WriteLine(viewModel);
             return new PageRunResult(
                 this,
-                context.Route.VirtualPath,
+                context.Route!.VirtualPath!,
                 JsonNode.Parse(viewModel)!.AsObject(),
                 htmlOutput,
                 headResources,
