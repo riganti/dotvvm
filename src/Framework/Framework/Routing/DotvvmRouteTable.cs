@@ -312,18 +312,19 @@ namespace DotVVM.Framework.Routing
         [return: NotNullIfNotNull(nameof(appendedPath))]
         private string? CombinePath(string? prefix, string? appendedPath)
         {
+            if (appendedPath == null)
+            {
+                // NB: if you are adding presenter route inside a group, we ignore the group's virtual path because presenter routes have VirtualPath = null
+                return null;
+            }
+
             if (string.IsNullOrEmpty(prefix))
             {
                 return appendedPath;
             }
-
-            if (appendedPath == null)
+            else if (string.IsNullOrEmpty(appendedPath))
             {
-                return null;
-            }
-            else if (appendedPath == string.Empty)
-            {
-                return prefix ?? string.Empty;
+                return prefix;
             }
 
             return $"{prefix}/{appendedPath}";
