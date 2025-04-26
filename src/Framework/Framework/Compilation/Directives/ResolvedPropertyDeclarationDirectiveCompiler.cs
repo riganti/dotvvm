@@ -12,6 +12,7 @@ namespace DotVVM.Framework.Compilation.Directives
     public class ResolvedPropertyDeclarationDirectiveCompiler : PropertyDeclarationDirectiveCompiler
     {
         private static readonly Lazy<ModuleBuilder> DynamicMarkupControlAssembly = new(CreateDynamicMarkupControlAssembly);
+        private static readonly object locker = new();
 
         public ResolvedPropertyDeclarationDirectiveCompiler(
             ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>> directiveNodesByName,
@@ -45,18 +46,29 @@ namespace DotVVM.Framework.Compilation.Directives
             string typeName,
             ImmutableList<IAbstractPropertyDeclarationDirective> propertyDirectives)
         {
-            if (DynamicMarkupControlAssembly.Value.GetType(typeName) is { } type)
+            // this must be done in the lock, otherwise the DynamicMarkupControlAssembly can return TypeBuilder instead of fully-built System.Type
+            lock (locker)
             {
-                return new ResolvedTypeDescriptor(type);
+                if (DynamicMarkupControlAssembly.Value.GetType(typeName) is { } type)
+                {
+                    return new ResolvedTypeDescriptor(type);
+                }
+
+                try
+                {
+                    var declaringTypeBuilder =
+                        DynamicMarkupControlAssembly.Value.DefineType(typeName, TypeAttributes.Public, ResolvedTypeDescriptor.ToSystemType(baseType));
+                    var createdTypeInfo = declaringTypeBuilder.CreateTypeInfo()?.AsType();
+
+                    return createdTypeInfo is not null
+                        ? new ResolvedTypeDescriptor(createdTypeInfo)
+                        : null;
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"Failed to create dynamic type '{typeName}'", ex);
+                }
             }
-
-            var declaringTypeBuilder =
-                DynamicMarkupControlAssembly.Value.DefineType(typeName, TypeAttributes.Public, ResolvedTypeDescriptor.ToSystemType(baseType));
-            var createdTypeInfo = declaringTypeBuilder.CreateTypeInfo()?.AsType();
-
-            return createdTypeInfo is not null
-                ? new ResolvedTypeDescriptor(createdTypeInfo)
-                : null;
         }
 
         private static ModuleBuilder CreateDynamicMarkupControlAssembly()
