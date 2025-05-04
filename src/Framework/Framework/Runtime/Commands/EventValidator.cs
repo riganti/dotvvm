@@ -5,8 +5,7 @@ using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.ViewModel;
-using DotVVM.Framework.Runtime.Commands;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Runtime.Commands
 {
@@ -29,11 +28,13 @@ namespace DotVVM.Framework.Runtime.Commands
             }
 
             // validate the command against the control
-            if (result.Control is IEventValidationHandler)
+            if (result.Control is IEventValidationHandler validationHandler)
             {
-                if (!((IEventValidationHandler)result.Control).ValidateCommand(result.Property!))
+                if (!validationHandler.ValidateCommand(result.Property!))
                 {
-                    throw EventValidationException(result?.ErrorMessage, result?.CandidateBindings);
+                    var config = (viewRootControl.GetValue(Internal.RequestContextProperty) as IDotvvmRequestContext)?.Configuration;
+                    var message = $"Execution of '{result.Binding}' was disallowed by '{result.Control.DebugString(config, multiline: false)}'.";
+                    throw EventValidationException(message, result?.CandidateBindings);
                 }
             }
             return result;
@@ -60,7 +61,7 @@ namespace DotVVM.Framework.Runtime.Commands
 
             var candidateBindings = new Dictionary<FindBindingResult.BindingMatchChecklist, CandidateBindings>();
             var infoMessage = new StringBuilder();
-
+ 
             var walker = new ControlTreeWalker(viewRootControl);
             walker.ProcessControlTree((control) =>
             {
@@ -154,7 +155,7 @@ namespace DotVVM.Framework.Runtime.Commands
             else if (candidateBindings.All(b => !b.Key.DataContextPathMatch))
             {
                 // nothing in the specified data context path
-                errorMessage = $"Invalid command invocation - Nothing was found inside DataContext '{string.Join("/", path)}'. Please check if ViewModel is populated.";
+                errorMessage = $"Invalid command invocation - No commands were found inside DataContext '{string.Join("/", path)}'. Please check if ViewModel is populated.";
             }
             else
             {
