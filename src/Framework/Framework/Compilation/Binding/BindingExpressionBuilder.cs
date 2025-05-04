@@ -18,7 +18,6 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         private readonly CompiledAssemblyCache compiledAssemblyCache;
         private readonly ExtensionMethodsCache extensionMethodsCache;
-        private MemberExpressionFactory? memberExpressionFactory;
 
         public BindingExpressionBuilder(CompiledAssemblyCache compiledAssemblyCache, ExtensionMethodsCache extensionMethodsCache)
         {
@@ -30,7 +29,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             try
             {
-                memberExpressionFactory = new MemberExpressionFactory(extensionMethodsCache, options.ImportNamespaces);
+                var memberExpressionFactory = new MemberExpressionFactory(extensionMethodsCache, options.ImportNamespaces);
 
                 var tokenizer = new BindingTokenizer();
                 tokenizer.Tokenize(expression);
