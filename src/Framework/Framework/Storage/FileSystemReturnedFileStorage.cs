@@ -55,6 +55,12 @@ namespace DotVVM.Framework.Storage
                 throw new ArgumentNullException(nameof(directory));
             }
 
+            // Check if the directory is a root directory
+            if (Path.GetFullPath(directory).Equals(Path.GetPathRoot(Path.GetFullPath(directory)), StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException($"The {nameof(directory)} cannot be set to a root directory for security reasons.", nameof(directory));
+            }
+
             TempDirectory = directory;
             if (!Directory.Exists(TempDirectory))
             {
@@ -97,12 +103,12 @@ namespace DotVVM.Framework.Storage
 
         private string GetDataFilePath(Guid id)
         {
-            return Path.Combine(TempDirectory, id + ".data");
+            return Path.Combine(TempDirectory, $"dotvvm-returned-file-{id}.data");
         }
 
         private string GetMetadataFilePath(Guid id)
         {
-            return Path.Combine(TempDirectory, id + ".metadata");
+            return Path.Combine(TempDirectory, $"dotvvm-returned-file-{id}.metadata");
         }
 
         public Task<ReturnedFile> GetFileAsync(Guid id)
@@ -142,7 +148,10 @@ namespace DotVVM.Framework.Storage
 
         public void DeleteOldFiles(DateTime maxCreatedDate)
         {
-            var files = Directory.GetFiles(TempDirectory).Where(t => File.GetCreationTime(t) < maxCreatedDate);
+            var files = Directory.GetFiles(TempDirectory)
+                .Where(t => File.GetCreationTime(t) < maxCreatedDate)
+                .Where(t => Path.GetFileName(t).StartsWith("dotvvm-returned-file-", StringComparison.OrdinalIgnoreCase));
+                
             foreach (var file in files)
             {
                 try
