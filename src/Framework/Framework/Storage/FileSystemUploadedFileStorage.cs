@@ -29,12 +29,6 @@ namespace DotVVM.Framework.Storage
                 throw new ArgumentNullException(nameof(tempDirectory));
             }
             
-            // Check if the directory is a root directory
-            if (Path.GetFullPath(tempDirectory).Equals(Path.GetPathRoot(Path.GetFullPath(tempDirectory)), StringComparison.OrdinalIgnoreCase))
-            {
-                throw new ArgumentException($"The {nameof(tempDirectory)} cannot be set to a root directory for security reasons.", nameof(tempDirectory));
-            }
-
             TempDirectory = tempDirectory;
             AutoDeleteInterval = autoDeleteInterval;
 
