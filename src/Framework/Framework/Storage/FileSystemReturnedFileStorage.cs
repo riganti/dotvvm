@@ -55,12 +55,6 @@ namespace DotVVM.Framework.Storage
                 throw new ArgumentNullException(nameof(directory));
             }
 
-            // Check if the directory is a root directory
-            if (Path.GetFullPath(directory).Equals(Path.GetPathRoot(Path.GetFullPath(directory)), StringComparison.OrdinalIgnoreCase))
-            {
-                throw new ArgumentException($"The {nameof(directory)} cannot be set to a root directory for security reasons.", nameof(directory));
-            }
-
             TempDirectory = directory;
             if (!Directory.Exists(TempDirectory))
             {
