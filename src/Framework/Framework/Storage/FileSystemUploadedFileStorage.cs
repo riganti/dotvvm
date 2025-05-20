@@ -24,6 +24,11 @@ namespace DotVVM.Framework.Storage
         /// </summary>
         public FileSystemUploadedFileStorage(string tempDirectory, TimeSpan autoDeleteInterval)
         {
+            if (string.IsNullOrEmpty(tempDirectory))
+            {
+                throw new ArgumentNullException(nameof(tempDirectory));
+            }
+            
             TempDirectory = tempDirectory;
             AutoDeleteInterval = autoDeleteInterval;
 
@@ -95,6 +100,7 @@ namespace DotVVM.Framework.Storage
             {
                 files = Directory.GetFiles(TempDirectory)
                     .Where(t => File.GetCreationTime(t) < maxCreatedDate)
+                    .Where(t => Path.GetFileName(t).StartsWith("dotvvm-uploaded-file-", StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
             catch (IOException)
@@ -121,7 +127,7 @@ namespace DotVVM.Framework.Storage
         /// </summary>
         private string GetFileName(Guid id)
         {
-            return Path.Combine(TempDirectory, id + ".tmp");
+            return Path.Combine(TempDirectory, $"dotvvm-uploaded-file-{id}.tmp");
         }
 
 
