@@ -1053,10 +1053,12 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void BindingCompiler_DelegateConversion_TaskFromResult()
+        [DataRow(BindingTestHelper.BindingType.Command)]
+        [DataRow(BindingTestHelper.BindingType.StaticCommand)]
+        public void BindingCompiler_DelegateConversion_TaskFromResult(BindingTestHelper.BindingType bindingType)
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
-            var function = ExecuteBinding("StringProp + arg", new [] { vm }, null, expectedType: typeof(Func<string, Task<string>>)) as Func<string, Task<string>>;
+            var function = bindingHelper.ExecuteBinding<Func<string, Task<string>>>("StringProp + arg", [ vm ], bindingType: bindingType);
             Assert.IsNotNull(function);
             var result = function("test");
             Assert.IsTrue(result.IsCompleted);
@@ -1064,13 +1066,16 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void BindingCompiler_DelegateConversion_CompletedTask()
+        [DataRow(BindingTestHelper.BindingType.Command)]
+        [DataRow(BindingTestHelper.BindingType.StaticCommand)]
+        public void BindingCompiler_DelegateConversion_CompletedTask(BindingTestHelper.BindingType bindingType)
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
-            var function = ExecuteBinding("SetStringProp(arg, 4)", new [] { vm }, null, expectedType: typeof(Func<string, Task>)) as Func<string, Task>;
+            var function = bindingHelper.ExecuteBinding<Func<string, Task>>("StringProp = arg + 4", [ vm ], bindingType: bindingType);
             Assert.IsNotNull(function);
             var result = function("test");
             Assert.IsTrue(result.IsCompleted);
+            Assert.IsTrue(result == (object)Task.CompletedTask);
             Assert.AreEqual("test4", vm.StringProp);
         }
 
@@ -1364,6 +1369,20 @@ namespace DotVVM.Framework.Tests.Binding
             XAssert.Contains("Property 'TestViewModelWithInitOnlyProperties.MyProperty' is init-only", exception.Message);
 
             Assert.AreEqual(999, vm.MyProperty);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ValueBindingCannotDoLambdaConversion()
+        {
+            // command bindings automatically convert `x` to `() => x`, as all command should return Func<Task> delegate
+            // however, this should be disabled for value bindings
+
+            var vm = new TestViewModel();
+            var exception = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("1", [vm], expectedType: typeof(Command)));
+            var exception2 = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("1", [vm], expectedType: typeof(Func<int>)));
+
+            XAssert.Contains("Cannot convert '1' of type int to DotVVM.Framework.Binding.Expressions.Command.", exception.Message);
+            XAssert.Contains("Cannot convert '1' of type int to System.Func<int>.", exception2.Message);
         }
     }
     public class TestViewModel
