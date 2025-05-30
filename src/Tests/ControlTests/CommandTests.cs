@@ -4,6 +4,9 @@ using DotVVM.Framework.Testing;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Tests.Binding;
+using System;
+using DotVVM.Framework.Runtime.Commands;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -32,6 +35,32 @@ namespace DotVVM.Framework.Tests.ControlTests
             await r.RunCommand("Text = NestedVM.TestProp + NestedVM2.TestProp + NestedVM3.A");
 
             Assert.AreEqual("Text2Text30", (string)r.ViewModelJson["Text"]);
+        }
+
+        [TestMethod]
+        [DataRow(true, true), DataRow(true, false), DataRow(false, true), DataRow(false, false), ]
+        public async Task EventValidation_Button(bool visible, bool enabled)
+        {
+            var r = await cth.RunPage(typeof(TestViewModel), """
+                <dot:Button Text=Click
+                            Click={command: IntProp = IntProp + 1}
+                            Visible={value: BoolProp}
+                            Enabled={value: StringProp == "test"} />
+                """);
+
+            r.ViewModelJson["BoolProp"] = visible;
+            r.ViewModelJson["StringProp"] = enabled ? "test" : "nope";
+
+            if (visible && enabled)
+            {
+                await r.RunCommand("IntProp = IntProp + 1");
+                Assert.AreEqual(1, (int)r.ViewModelJson["IntProp"]);
+            }
+            else
+            {
+                var exception = await Assert.ThrowsExceptionAsync<InvalidCommandInvocationException>(() => r.RunCommand("IntProp = IntProp + 1"));
+                StringAssert.Contains(exception.Message, "Execution of '{command: IntProp = IntProp + 1}' was disallowed by '<dot:Button Click={command: IntProp = IntProp + 1} Enabled={value: StringProp == \"test\"} Text=Click Visible={value: BoolProp} />");
+            }
         }
 
         
