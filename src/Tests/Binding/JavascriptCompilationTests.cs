@@ -1637,5 +1637,4 @@ namespace DotVVM.Framework.Tests.Binding
         public TestEnum Enum { get; set; }
         public string String { get; set; }
     }
-
 }

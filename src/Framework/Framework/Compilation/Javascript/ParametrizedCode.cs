@@ -303,6 +303,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             public void Add(ParametrizedCode code, byte operatorPrecedence = 20)
             {
+                ThrowHelpers.ArgumentNull(code);
                 var needsParens = code.OperatorPrecedence.NeedsParens(operatorPrecedence);
                 if (needsParens) Add("(");
                 code.CopyTo(this);
