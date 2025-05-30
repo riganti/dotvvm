@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
-using DotVVM.Framework.Configuration;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
@@ -27,10 +26,13 @@ namespace DotVVM.Samples.Tests.Feature
             // Check if running on Linux
             var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-            // This is a simple check - in a real scenario, we would need to access the actual DotvvmConfiguration
-            // Since we can't access the configuration directly in the test, we'll check for environment variable
-            // that might indicate experimental features are enabled
-            var experimentalFeaturesEnabled = Environment.GetEnvironmentVariable("DOTVVM_EXPERIMENTAL_FEATURES") == "1";
+            // Look for environment variable that might indicate experimental features are enabled
+            var experimentalFeaturesEnabled = false;
+            var envVar = Environment.GetEnvironmentVariable("DOTVVM_EXPERIMENTAL_FEATURES");
+            if (!string.IsNullOrEmpty(envVar))
+            {
+                experimentalFeaturesEnabled = envVar == "1" || envVar.ToLowerInvariant() == "true";
+            }
 
             return isLinux && experimentalFeaturesEnabled;
         }

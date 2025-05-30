@@ -14,6 +14,15 @@ namespace DotVVM.Samples.Tests.Feature
         public DateTimeSerializationTests(ITestOutputHelper output) : base(output)
         {
         }
+        
+        /// <summary>
+        /// Helper method to validate if a string can be parsed as DateTime
+        /// </summary>
+        private bool IsValidDateTime(string value, CultureInfo culture)
+        {
+            DateTime dt;
+            return DateTime.TryParse(value, culture, out dt);
+        }
 
         [Fact]
         public void Feature_DateTimeSerialization_DateTimeSerialization()
@@ -68,11 +77,11 @@ namespace DotVVM.Samples.Tests.Feature
 
                     // Check if value exists in the first field without relying on specific DateTime values
                     AssertUI.Attribute(browser.ElementAt("input[type=text]", 0), "value",
-                        s => !string.IsNullOrEmpty(s) && DateTime.TryParse(s, culture, DateTimeStyles.None, out _));
+                        s => !string.IsNullOrEmpty(s) && IsValidDateTime(s, culture));
 
                     // Check if value exists in the second field without relying on specific DateTime values
                     AssertUI.Attribute(browser.ElementAt("input[type=text]", 1), "value",
-                        s => !string.IsNullOrEmpty(s) && DateTime.TryParse(s, culture, DateTimeStyles.None, out _));
+                        s => !string.IsNullOrEmpty(s) && IsValidDateTime(s, culture));
                 });
             }
             finally
