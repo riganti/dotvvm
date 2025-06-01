@@ -109,6 +109,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            writer.AddKnockoutDataBind("if", "true"); // yep, go ahead and try to remove it
             base.AddAttributesToRender(writer, context);
         }
 

@@ -67,6 +67,7 @@ export function updateViewModelAndControls(resultObject: any, updateTypeInfo: (t
 
     // we have to update knockout viewmodel before we try to apply new data into the observables
     getStateManager().doUpdateNow()
+    ko.tasks.runEarly()
 
     // add new updated controls
     restoreUpdatedControls(resultObject, updatedControls);
