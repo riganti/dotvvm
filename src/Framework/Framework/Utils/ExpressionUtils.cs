@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Utils
 
         public static Expression Replace<TRes>(Expression<Func<TRes>> ex)
         {
-            return Replace(ex as LambdaExpression);
+            return ex.Body;
         }
         public static Expression Replace<T1, TRes>(Expression<Func<T1, TRes>> ex, Expression p1)
         {
