@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
@@ -43,15 +44,20 @@ namespace DotVVM.AutoUI.Metadata
             var selectorAttribute = p.GetCustomAttribute<SelectionAttribute>();
             var uiHintAttributes = p.GetCustomAttributes<UIHintAttribute>();
 
-            return new PropertyDisplayMetadata(p)
-            {
+            return new PropertyDisplayMetadata(p) {
                 DisplayName = LocalizableString.CreateNullable(displayAttribute?.Name, displayAttribute?.ResourceType),
                 Placeholder = LocalizableString.CreateNullable(displayAttribute?.Prompt, displayAttribute?.ResourceType),
                 Description = LocalizableString.CreateNullable(displayAttribute?.Description, displayAttribute?.ResourceType),
                 Order = displayAttribute?.GetOrder(),
                 GroupName = displayAttribute?.GetGroupName(),
                 FormatString = displayFormatAttribute?.DataFormatString,
-                NullDisplayText = displayFormatAttribute?.NullDisplayText,
+                NullDisplayText = LocalizableString.CreateNullable(displayFormatAttribute?.NullDisplayText,
+#if NET6_0_OR_GREATER
+                    displayFormatAttribute?.NullDisplayTextResourceType
+#else
+                    null
+#endif
+                ),
                 AutoGenerateField = displayAttribute?.GetAutoGenerateField() ?? true,
                 VisibleAttributes = p.GetCustomAttributes<VisibleAttribute>().ToList(),
                 DataType = dataTypeAttribute?.DataType,
