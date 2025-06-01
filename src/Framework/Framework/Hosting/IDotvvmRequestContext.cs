@@ -8,6 +8,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using System.Text.Json;
+using System.Threading;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -17,6 +18,11 @@ namespace DotVVM.Framework.Hosting
         /// Gets the underlying object for this HTTP request.
         /// </summary>
         IHttpContext HttpContext { get; }
+
+        /// <summary>
+        /// A <see cref="CancellationToken" /> which is cancelled when the HTTP request is aborted.
+        /// </summary>
+        CancellationToken RequestAborted { get; }
 
         /// <summary>
         /// Csrf protection token.

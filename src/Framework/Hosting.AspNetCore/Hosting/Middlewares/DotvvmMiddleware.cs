@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Hosting
             }
             catch (Exception ex) when (useErrorPage)
             {
-                if (context.Response.HasStarted)
+                if (context.Response.HasStarted || context.RequestAborted.IsCancellationRequested)
                     throw; // the response has already started, don't do anything, we can't write anyway
 
                 context.Response.StatusCode = 500;
@@ -113,7 +113,8 @@ namespace DotVVM.Framework.Hosting
                 ConvertHttpContext(context),
                 Configuration,
                 context.RequestServices,
-                requestType
+                requestType,
+                context.RequestAborted
             );
 
         public static bool IsInCurrentVirtualDirectory(IHttpContext context, ref string url)

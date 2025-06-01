@@ -116,6 +116,8 @@ namespace DotVVM.Framework.Hosting
                 await context.InterruptRequestAsMethodNotAllowedAsync();
             }
 
+            context.RequestAborted.ThrowIfCancellationRequested();
+
             await ValidateSecFetchHeaders(context);
 
             var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
@@ -311,6 +313,7 @@ namespace DotVVM.Framework.Hosting
             catch (DotvvmHttpException) { throw; }
             catch (Exception ex)
             {
+                context.RequestAborted.ThrowIfCancellationRequested();
                 // run OnPageException on action filters
                 foreach (var filter in requestFilters)
                 {
@@ -401,6 +404,7 @@ namespace DotVVM.Framework.Hosting
                 await filter.OnCommandExecutingAsync(context, action);
             }
 
+            context.RequestAborted.ThrowIfCancellationRequested();
             try
             {
                 var commandResultOrNotYetComputedAwaitable = action.Action();
@@ -429,6 +433,7 @@ namespace DotVVM.Framework.Hosting
             }
             finally
             {
+                context.RequestAborted.ThrowIfCancellationRequested();
                 // run OnCommandExecuted on action filters
                 foreach (var filter in methodFilters.Reverse())
                 {
