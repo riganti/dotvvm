@@ -46,7 +46,8 @@ namespace DotVVM.AutoUI.PropertyHandlers.FormEditors
 
             if (isNullable)
             {
-                control.AppendChildren(new SelectorItem(property.NullDisplayText ?? "---", null!));
+                control.AppendChildren(new SelectorItem(
+                    property.NullDisplayText?.ToBinding(context.BindingService) ?? new("---"), new((object?)null)));
             }
 
             return control

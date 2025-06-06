@@ -68,7 +68,7 @@ public class PropertyDisplayMetadataModifier
     /// </summary>
     public PropertyDisplayMetadataModifier SetNullDisplayText(string nullDisplayText)
     {
-        actions.Add(m => m.NullDisplayText = nullDisplayText);
+        actions.Add(m => m.NullDisplayText = LocalizableString.Constant(nullDisplayText));
         return this;
     }
 

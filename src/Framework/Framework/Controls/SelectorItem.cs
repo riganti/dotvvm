@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Controls
             Value = value;
         }
 
-        public SelectorItem(ValueOrBinding<string> text, ValueOrBinding<object> value)
+        public SelectorItem(ValueOrBinding<string> text, ValueOrBinding<object?> value)
             : this()
         {
             this.SetValue(TextProperty, text);

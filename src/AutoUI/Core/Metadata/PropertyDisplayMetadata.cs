@@ -30,7 +30,7 @@ namespace DotVVM.AutoUI.Metadata
 
         public string? FormatString { get; set; }
 
-        public string? NullDisplayText { get; set; }
+        public LocalizableString? NullDisplayText { get; set; }
 
         public bool AutoGenerateField { get; set; }
 
