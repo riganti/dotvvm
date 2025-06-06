@@ -31,12 +31,12 @@ public static class DotvvmRequestContextExtensions
     }
 
     /// <summary>
-    /// Gets cancellation token for the request
+    /// Returns the <see cref="IDotvvmRequestContext.RequestAborted"/> 
     /// </summary>
+    [Obsolete("Use IDotvvmRequestContext.RequestAborted instead.")]
     public static CancellationToken GetCancellationToken(this IDotvvmRequestContext context)
     {
-        var cancellationService = context.Services.GetRequiredService<IRequestCancellationTokenProvider>();
-        return cancellationService.GetCancellationToken(context);
+        return context.RequestAborted;
     }
 
     /// <summary>

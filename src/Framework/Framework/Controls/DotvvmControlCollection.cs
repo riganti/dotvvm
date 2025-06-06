@@ -406,6 +406,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public static void InvokePageLifeCycleEventRecursive(DotvvmControl rootControl, LifeCycleEventType eventType, IDotvvmRequestContext context)
         {
+            context.RequestAborted.ThrowIfCancellationRequested();
             var timer = ValueStopwatch.StartNew();
             try
             {
