@@ -60,19 +60,13 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
-            public override IEnumerable<Delegate> GetResolvers() => new Delegate[] {
+            public override IEnumerable<Delegate> GetResolvers() => [
+                ..BindingCompilationService.GetDelegates([ new CommandBindingExpression.OptionsAttribute.CommonCommandMethods() ]),
                 new Func<StaticCommandJsAstProperty, RequiredRuntimeResourcesBindingProperty>(js => {
                     var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n!.Resources).ToImmutableArray();
                     return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
-                }),
-                
-                new Func<AssignedPropertyBindingProperty, ExpectedTypeBindingProperty>(property => {
-                    var prop = property?.DotvvmProperty;
-                    if (prop == null) return new ExpectedTypeBindingProperty(typeof(Command));
-
-                    return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(Command)) : prop.PropertyType);
                 })
-            };
+            ];
         }
     }
 

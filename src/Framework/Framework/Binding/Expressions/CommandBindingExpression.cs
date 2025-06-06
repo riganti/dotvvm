@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
@@ -76,7 +77,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
-            public override IEnumerable<Delegate> GetResolvers() => BindingCompilationService.GetDelegates(new[] { new Methods() });
+            public override IEnumerable<Delegate> GetResolvers() => BindingCompilationService.GetDelegates([ new CommonCommandMethods(),  new Methods() ]);
 
             public class Methods
             {
@@ -85,7 +86,11 @@ namespace DotVVM.Framework.Binding.Expressions
                         id.Id,
                         needsCommandArgs: expression?.Expression.Type?.GetDelegateArguments()?.Length.Apply(len => len != 0)
                     ));
+            }
 
+            /// <summary> resolvers shared by command and static command binding </summary>
+            public class CommonCommandMethods
+            {
                 public ExpectedTypeBindingProperty GetExpectedType(AssignedPropertyBindingProperty? property = null)
                 {
                     var prop = property?.DotvvmProperty;
@@ -96,7 +101,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
                     // replace object with Command, we can't produce anything else than a delegate from a command binding
                     if (type is null || type == typeof(object))
-                        type = typeof(Delegate);
+                        type = typeof(Command);
                     
                     if (!type.IsDelegate())
                     {
@@ -106,6 +111,18 @@ namespace DotVVM.Framework.Binding.Expressions
 
                     return new ExpectedTypeBindingProperty(type);
                 }
+                public CastedExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty expr, ExpectedTypeBindingProperty? expectedType = null)
+                {
+                    var destType = expectedType?.Type ?? typeof(object);
+                    var convertedExpr = TypeConversion.ImplicitConversion(expr.Expression, destType, throwException: false, allowToString: true);
+                    return new CastedExpressionBindingProperty(
+                        // if the expression is of type object (i.e. null literal) try the lambda conversion.
+                        convertedExpr != null && expr.Expression.Type != typeof(object) ? convertedExpr :
+                        TypeConversion.MagicLambdaConversion(expr.Expression, destType) ?? convertedExpr ??
+                        TypeConversion.EnsureImplicitConversion(expr.Expression, destType, allowToString: true)!
+                    );
+                }
+
             }
         }
 

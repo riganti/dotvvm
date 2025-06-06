@@ -75,12 +75,8 @@ namespace DotVVM.Framework.Compilation.Binding
         public CastedExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty expr, ExpectedTypeBindingProperty? expectedType = null)
         {
             var destType = expectedType?.Type ?? typeof(object);
-            var convertedExpr = TypeConversion.ImplicitConversion(expr.Expression, destType, throwException: false, allowToString: true);
             return new CastedExpressionBindingProperty(
-                // if the expression is of type object (i.e. null literal) try the lambda conversion.
-                convertedExpr != null && expr.Expression.Type != typeof(object) ? convertedExpr :
-                TypeConversion.MagicLambdaConversion(expr.Expression, destType) ?? convertedExpr ??
-                TypeConversion.EnsureImplicitConversion(expr.Expression, destType, allowToString: true)!
+                TypeConversion.EnsureImplicitConversion(expr.Expression, destType, allowToString: true)
             );
         }
 
