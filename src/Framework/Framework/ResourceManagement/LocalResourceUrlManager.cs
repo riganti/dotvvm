@@ -92,8 +92,23 @@ namespace DotVVM.Framework.ResourceManagement
             return TryLoadAlternativeFile(name, hash, context);
         }
 
+        private static bool IsAllowedFileName(string name)
+        {
+            if (name.StartsWith("."))
+                return false;
+            if (name.Contains('/') || name.Contains('\\'))
+                return false;
+            if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+                return false;
+
+            return name.EndsWith(".map", StringComparison.OrdinalIgnoreCase);
+        }
+
         private ILocalResourceLocation? TryLoadAlternativeFile(string name, string hash, IDotvvmRequestContext context)
         {
+            if (!IsAllowedFileName(name))
+                return null;
+
             if (alternateDirectories != null && alternateDirectories.TryGetValue(hash, out var filePath) && filePath != null)
             {
                 var directory = Path.GetDirectoryName(Path.Combine(context.Configuration.ApplicationPhysicalPath, filePath));
