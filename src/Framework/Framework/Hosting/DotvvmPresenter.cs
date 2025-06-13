@@ -344,7 +344,7 @@ namespace DotVVM.Framework.Hosting
             {
                 using (var requestBody = ReadRequestBody(context.HttpContext.Request, routeName: null))
                 {
-                    postData = await JsonDocument.ParseAsync(requestBody);
+                    postData = await JsonDocument.ParseAsync(requestBody, cancellationToken: context.RequestAborted);
                 }
                 context.ReceivedViewModelJson = postData;
 
@@ -433,12 +433,13 @@ namespace DotVVM.Framework.Hosting
             }
             finally
             {
-                context.RequestAborted.ThrowIfCancellationRequested();
                 // run OnCommandExecuted on action filters
                 foreach (var filter in methodFilters.Reverse())
                 {
                     await filter.OnCommandExecutedAsync(context, action, context.CommandException);
                 }
+
+                context.RequestAborted.ThrowIfCancellationRequested();
 
                 if (context.CommandException != null && !context.IsCommandExceptionHandled)
                 {

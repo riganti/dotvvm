@@ -108,7 +108,6 @@ namespace Owin
                 s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
                 s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
-                s.TryAddSingleton<IRequestCancellationTokenProvider, RequestCancellationTokenProvider>();
                 s.TryAddSingleton<IStartupTracer>(startupTracer);
 
                 startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserServicesRegistrationStarted);
