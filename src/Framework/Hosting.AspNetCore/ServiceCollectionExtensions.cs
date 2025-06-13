@@ -82,7 +82,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
             services.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
-            services.TryAddSingleton<IRequestCancellationTokenProvider, RequestCancellationTokenProvider>();
 
             services.TryAddSingleton<IStartupTracer>(startupTracer);
 

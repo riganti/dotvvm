@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
             var mockContext = new TestHttpContext();
 
             var configuration = DotvvmConfiguration.CreateDefault();
-            _requestContext = new DotvvmRequestContext(mockContext, configuration, configuration.ServiceProvider, requestType: DotvvmRequestType.Navigate);
+            _requestContext = new DotvvmRequestContext(mockContext, configuration, configuration.ServiceProvider, requestType: DotvvmRequestType.Navigate, requestAborted: default);
         }
 
 

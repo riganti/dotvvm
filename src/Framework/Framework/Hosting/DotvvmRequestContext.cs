@@ -9,6 +9,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Utils;
 using System.Text.Json;
+using System.Threading;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -122,16 +123,20 @@ namespace DotVVM.Framework.Hosting
 
         public IHttpContext HttpContext { get; set; }
 
+        public CancellationToken RequestAborted { get; set; }
+
         public DotvvmRequestContext(
             IHttpContext httpContext,
             DotvvmConfiguration configuration,
             IServiceProvider? services,
-            DotvvmRequestType? requestType = null)
+            DotvvmRequestType? requestType,
+            CancellationToken requestAborted)
         {
             if (httpContext is null) throw new ArgumentNullException(nameof(httpContext));
             if (configuration is null) throw new ArgumentNullException(nameof(configuration));
 
             HttpContext = httpContext;
+            RequestAborted = requestAborted;
             RequestType = requestType ?? DetermineRequestType(httpContext);
             Configuration = configuration;
             _services = services;

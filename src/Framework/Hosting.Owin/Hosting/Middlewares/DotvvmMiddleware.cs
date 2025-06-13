@@ -111,7 +111,9 @@ namespace DotVVM.Framework.Hosting
             return new DotvvmRequestContext(
                 ConvertHttpContext(context),
                 Configuration,
-                scope.ServiceProvider
+                scope.ServiceProvider,
+                requestType: null,
+                requestAborted: context.Request.CallCancelled
             );
         }
 
