@@ -34,8 +34,8 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
         gate.disablePostbacks()
 
         // compose URLs
-        // TODO: get rid of ___dotvvm-spa___
-        const spaFullUrl = uri.addVirtualDirectoryToUrl("/___dotvvm-spa___" + uri.addLeadingSlash(url));
+        // TODO: get rid of _dotvvm/spa
+        const spaFullUrl = uri.addVirtualDirectoryToUrl("/_dotvvm/spa" + uri.addLeadingSlash(url));
         const displayUrl = uri.addVirtualDirectoryToUrl(url);
 
         // send the request
