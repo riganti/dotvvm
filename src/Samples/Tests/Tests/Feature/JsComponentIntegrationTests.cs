@@ -47,7 +47,7 @@ namespace DotVVM.Samples.Tests.Feature
                     paths.ThrowIfSequenceEmpty(WaitForOptions.Disabled);
                 });
 
-                browser.First("command-regenerate").Click();
+                browser.First("command-regenerate").Click().Wait(500);
 
                 WaitForExecutor.WaitFor(() => {
                     var paths = browser.FindElements(".recharts-line > path", By.CssSelector);
