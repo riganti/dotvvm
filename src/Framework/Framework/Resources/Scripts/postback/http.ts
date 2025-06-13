@@ -51,26 +51,38 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<Wrap
     return { result: await response.json(), response };
 }
 
+let csrfTokenFactory: Promise<string> | undefined;
+
 export async function fetchCsrfToken(signal: AbortSignal | undefined): Promise<string> {
     let token = getState().$csrfToken
     if (token == null) {
-        let response;
+        csrfTokenFactory ??= (async () => {
+            let response;
+            try {
+                const url = addLeadingSlash(concatUrl(getVirtualDirectory() || "", "_dotvvm/csrfToken"));
+                response = await fetch(url, { signal });
+            }
+            catch (err) {
+                logWarning("postback", `CSRF token fetch failed.`);
+                throw new DotvvmPostbackError({ type: "network", err });
+            }
+
+            if (response.status != 200) {
+                logWarning("postback", `CSRF token fetch failed. HTTP status: ${response.statusText}`);
+                throw new DotvvmPostbackError({ type: "csrfToken" });
+            }
+
+            return await response.text();
+        })();
+
         try {
-            const url = addLeadingSlash(concatUrl(getVirtualDirectory() || "", "_dotvvm/csrfToken"));
-            response = await fetch(url, { signal });
+            token = await csrfTokenFactory;
+            getStateManager().setState({ ...getState(), $csrfToken: token })
         }
         catch (err) {
-            logWarning("postback", `CSRF token fetch failed.`);
-            throw new DotvvmPostbackError({ type: "network", err });
+            csrfTokenFactory = void 0;
+            throw err;
         }
-
-        if (response.status != 200) {
-            logWarning("postback", `CSRF token fetch failed. HTTP status: ${response.statusText}`);
-            throw new DotvvmPostbackError({ type: "csrfToken" });
-        }
-
-        token = await response.text()
-        getStateManager().setState({ ...getState(), $csrfToken: token })
     }
     return token
 }
