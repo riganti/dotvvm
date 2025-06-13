@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Core.Storage;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect
@@ -58,7 +59,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect
             var stream = new MemoryStream("test custom file"u8.ToArray());
             var generatedFileId = await returnedFileStorage.StoreFileAsync(stream, metadata).ConfigureAwait(false);
 
-            var url = Context.TranslateVirtualPath("~/dotvvmReturnedFile?id=" + generatedFileId);
+            var url = Context.TranslateVirtualPath($"~/{HostingConstants.ReturnedFileMatchUrl}?id=" + generatedFileId);
             Context.RedirectToUrl(url);
         }
     }

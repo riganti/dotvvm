@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         {
             var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
 
-            if (url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal))
+            if (url.StartsWith(HostingConstants.ReturnedFileMatchUrl, StringComparison.Ordinal))
             {
                 await ValidateSecFetch(request);
                 await RenderReturnedFile(request.HttpContext, request.Services.GetRequiredService<IReturnedFileStorage>());

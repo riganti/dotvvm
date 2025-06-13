@@ -56,7 +56,7 @@ export async function fetchCsrfToken(signal: AbortSignal | undefined): Promise<s
     if (token == null) {
         let response;
         try {
-            const url = addLeadingSlash(concatUrl(getVirtualDirectory() || "", "___dotvvm-create-csrf-token___"));
+            const url = addLeadingSlash(concatUrl(getVirtualDirectory() || "", "_dotvvm/csrfToken"));
             response = await fetch(url, { signal });
         }
         catch (err) {
@@ -75,7 +75,7 @@ export async function fetchCsrfToken(signal: AbortSignal | undefined): Promise<s
     return token
 }
 
-export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>, iteration: number = 0, customErrorHandler: () => void = () => {}): Promise<TResult> {
+export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>, iteration: number = 0, customErrorHandler: () => void = () => { }): Promise<TResult> {
     try {
         const result = await postbackFunction();
         return result;
