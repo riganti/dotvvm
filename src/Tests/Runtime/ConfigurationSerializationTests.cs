@@ -138,7 +138,7 @@ namespace DotVVM.Framework.Tests.Runtime
             c.Resources.Register("r6", new InlineScriptResource("alert(1)"));
             c.Resources.Register("r7", new InlineScriptResource(new FileResourceLocation("some-script.js")));
             c.Resources.Register("r8", new NullResource());
-            c.Resources.Register("r9", new TemplateResource("<div></div>"));
+            c.Resources.Register("r9", new TemplateResource("<div></div>"u8.ToArray()));
 
 
             checkConfig(c);

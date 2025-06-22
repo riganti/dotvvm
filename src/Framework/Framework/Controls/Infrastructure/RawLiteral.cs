@@ -6,34 +6,43 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting;
 using System.Net;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
     public sealed class RawLiteral : DotvvmControl
     {
-        public string EncodedText { get; }
-        public string UnencodedText { get; }
+        private readonly byte[] _encodedText;
+        private readonly byte[] _unencodedText;
+        public ReadOnlyMemory<byte> EncodedText => _encodedText;
+        public string EncodedTextString => StringUtils.Utf8.GetString(_encodedText);
+        public ReadOnlyMemory<byte> UnencodedText => _unencodedText;
+        public string UnencodedTextString => StringUtils.Utf8.GetString(_unencodedText);
         public bool IsWhitespace { get; }
-        public RawLiteral(string text, string unencodedText, bool isWhitespace = false)
+        public RawLiteral(byte[] text, byte[] unencodedText, bool isWhitespace = false)
         {
-            EncodedText = text;
-            UnencodedText = unencodedText;
+            _encodedText = text;
+            _unencodedText = unencodedText;
             IsWhitespace = isWhitespace;
             LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
-        public static RawLiteral Create(string text) =>
-            new RawLiteral(
-                WebUtility.HtmlEncode(text),
-                text,
-                String.IsNullOrWhiteSpace(text));
+        public static RawLiteral Create(string text)
+        {
+            var enc = WebUtility.HtmlEncode(text);
+            var unencodedBytes = StringUtils.Utf8.GetBytes(text);
+            return new RawLiteral(
+                object.ReferenceEquals(enc, text) ? unencodedBytes : StringUtils.Utf8.GetBytes(enc),
+                unencodedBytes,
+                string.IsNullOrWhiteSpace(text));
+        }
 
         public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (IsWhitespace)
-                writer.WriteUnencodedWhitespace(EncodedText);
+                writer.WriteUnencodedWhitespace(_encodedText);
             else
-                writer.WriteUnencodedText(EncodedText);
+                writer.WriteUnencodedText(_encodedText);
         }
     }
 }

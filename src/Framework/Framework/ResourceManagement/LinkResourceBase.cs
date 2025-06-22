@@ -7,6 +7,7 @@ using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -105,10 +106,10 @@ namespace DotVVM.Framework.ResourceManagement
 
         protected string RenderLinkToString(IResourceLocation location, IDotvvmRequestContext context, string resourceName)
         {
-            var text = new StringWriter();
-            var writer = new HtmlWriter(text, context);
+            using var text = new Utf8StringWriter();
+            using var writer = new HtmlWriter(text, context);
             RenderLink(location, writer, context, resourceName);
-            return text.ToString();
+            return StringUtils.Utf8Decode(text.PendingBytes);
         }
 
         public abstract void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName);

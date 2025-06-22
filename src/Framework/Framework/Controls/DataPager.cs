@@ -323,7 +323,7 @@ namespace DotVVM.Framework.Controls
                 helperBinding.Add("dataSet", dataSetBinding.GetKnockoutBindingExpression(this, unwrapped: true));
                 var loadDataExpression = KnockoutHelper.GenerateClientPostbackLambda("LoadData", loadData, this, new PostbackScriptOptions(elementAccessor: "$element", koContext: CodeParameterAssignment.FromIdentifier("$context")));
                 helperBinding.Add("loadDataSet", loadDataExpression);
-                writer.AddKnockoutDataBind("dotvvm-gridviewdataset", helperBinding.ToString());
+                writer.AddKnockoutDataBind("dotvvm-gridviewdataset", helperBinding);
             }
 
             if (GetValueBinding(EnabledProperty) is IValueBinding enabledBinding)

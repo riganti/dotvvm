@@ -15,6 +15,9 @@ using System.Collections;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Hosting;
+using System.IO;
+using System.Diagnostics;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -35,12 +38,12 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             control.SetValue(Internal.RequestContextProperty, context);
             control.DataContext = viewModel;
-            using  (var sw = new System.IO.StringWriter())
+            var ms = new MemoryStream();
+            using (var html = new HtmlWriter(ms, context))
             {
-                var html = new HtmlWriter(sw, context);
                 control.Render(html, context);
-                return sw.ToString();
             }
+            return StringUtils.Utf8Decode(ms.ToSpan());
         }
 
         // Test that all HtmlGenericControl properties are bindable and the value binding is evaluated both client-side and server-side, regardless of the RenderMode.

@@ -11,6 +11,7 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -51,12 +52,12 @@ namespace DotVVM.Framework.Tests.Runtime
             view.SetValue(Internal.RequestContextProperty, context);
 
             DotvvmControlCollection.InvokePageLifeCycleEventRecursive(view, LifeCycleEventType.PreRenderComplete, context);
-            using (var text = new StringWriter())
+            var ms = new MemoryStream();
+            using (var html = new HtmlWriter(ms, context))
             {
-                var html = new HtmlWriter(text, context);
                 view.Render(html, context);
-                return text.ToString();
             }
+            return StringUtils.Utf8Decode(ms.ToSpan());
         }
 
         protected Func<string> CreateControlRenderer(string control, object viewModel)

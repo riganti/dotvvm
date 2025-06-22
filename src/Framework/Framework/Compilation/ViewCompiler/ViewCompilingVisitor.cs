@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -17,6 +18,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
     {
         protected readonly DefaultViewCompilerCodeEmitter emitter;
         protected readonly IBindingCompiler bindingCompiler;
+        private readonly HashSet<byte[]> utf8stringDeduplication = new HashSet<byte[]>(ByteArrayEqualityComparer.Instance);
 
         protected int currentTemplateIndex;
         protected string? controlName;
@@ -80,11 +82,25 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             BuildCompiledView = emitter.PopMethod<Func<IControlBuilderFactory, IServiceProvider, DotvvmControl>>();
         }
 
+        private static readonly ConstructorInfo rawLiteralCtor = typeof(RawLiteral).GetConstructor([typeof(byte[]), typeof(byte[]), typeof(bool)]).NotNull("RawLiteral ctor not found");
+
         protected ParameterExpression EmitCreateControl(Type type, object[] arguments)
         {
             // if marked with [RequireDependencyInjection] attribute, invoke injected factory
             if (type.GetCustomAttribute(typeof(DependencyInjection.RequireDependencyInjectionAttribute)) is DependencyInjection.RequireDependencyInjectionAttribute requireDiAttr)
                 return emitter.EmitCustomInjectionFactoryInvocation(requireDiAttr.FactoryType, type);
+            if (type == typeof(RawLiteral))
+            {
+                // Convert strings to UTF-8 byte arrays
+                var encoded = (string)arguments[0];
+                var unencoded = (string)arguments[1];
+                var isWhitespace = (bool)arguments[2];
+                return emitter.EmitCreateVariable(
+                    Expression.New(rawLiteralCtor,
+                                   Expression.Constant(Utf8Dedupe(encoded)),
+                                   Expression.Constant(Utf8Dedupe(unencoded)),
+                                   Expression.Constant(isWhitespace)));
+            }
             // if matching ctor exists, invoke it directly
             else if (type.GetConstructors().FirstOrDefault(ctor =>
                 ctor.GetParameters().Count(p => !p.HasDefaultValue) <= arguments.Length &&
@@ -266,6 +282,22 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         protected Expression ProcessBinding(ResolvedBinding binding)
         {
             return bindingCompiler.EmitCreateBinding(emitter, binding);
+        }
+
+        protected byte[] Utf8Dedupe(string value) =>
+            Utf8Dedupe(value.ToUtf8Bytes());
+
+        protected byte[] Utf8Dedupe(byte[] value)
+        {
+            if (utf8stringDeduplication.Add(value))
+            {
+                return value;
+            }
+            else
+            {
+                utf8stringDeduplication.TryGetValue(value, out var dedupedValue);
+                return dedupedValue.NotNull();
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -39,6 +40,10 @@ namespace DotVVM.Framework.Controls
         /// <param name="bindingGroup">A group of name-value pairs.</param>
         void AddKnockoutDataBind(string name, KnockoutBindingGroup bindingGroup);
 
+        void WriteAttributeUnbuffered(ReadOnlySpan<byte> name, ReadOnlySpan<byte> value);
+        void WriteAttributeUnbuffered(ReadOnlySpan<byte> name, string value);
+        System.IO.Stream WriteAttributeUnbuffered(ReadOnlySpan<byte> name);
+
         /// <summary> Writes knockout virtual element (the &gt;!-- ko name: --> comment). It must be ended using <see cref="WriteKnockoutDataBindEndComment" /> method. </summary>
         /// <param name="name">The name of the binding handler.</param>
         /// <param name="expression">The binding expression.</param>
@@ -55,8 +60,8 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the self closing tag with attributes that were added in <see cref="HtmlWriter.AddAttribute"/> method.
         /// </summary>
-        void RenderSelfClosingTag(string name);
 
+        void RenderSelfClosingTag(string name);
         /// <summary>
         /// Renders the end tag.
         /// </summary>
@@ -67,17 +72,23 @@ namespace DotVVM.Framework.Controls
         /// Writes the text.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if some attributes were already written in the HtmlWriter.</exception>
-        void WriteText(string text);
+        void WriteText(string text, bool escapeQuotes = false, bool escapeApos = false);
+        void WriteText(ReadOnlySpan<byte> textUtf8, bool escapeQuotes = false, bool escapeApos = false);
+        // System.IO.Stream WriteTextStream(bool escapeQuotes = false, bool escapeApos = false);
 
         /// <summary>
         /// Writes the unencoded text.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if some attributes were already written in the HtmlWriter.</exception>
         void WriteUnencodedText(string text);
+        void WriteUnencodedText(ReadOnlySpan<byte> textUtf8);
+        // System.IO.Stream WriteUnencodedTextStream();
+
         /// <summary>
         /// Writes the unencoded text which is treated as whitespace. Does not throw an exception if there are attributes written in the writer.
         /// </summary>
         void WriteUnencodedWhitespace(string text);
+        void WriteUnencodedWhitespace(ReadOnlySpan<byte> textUtf8);
 
         /// <summary>
         /// Writes the specified HTML attribute and value (e.g. href="myUrl"). 

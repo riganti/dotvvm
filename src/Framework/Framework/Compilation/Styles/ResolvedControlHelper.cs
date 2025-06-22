@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
             if (obj is RawLiteral literal)
             {
-                rc.ConstructorParameters = new object[] { literal.EncodedText, literal.UnencodedText, BoxingUtils.Box(literal.IsWhitespace) };
+                rc.ConstructorParameters = new object[] { literal.EncodedTextString, literal.UnencodedTextString, BoxingUtils.Box(literal.IsWhitespace) };
             }
             else if (type == typeof(HtmlGenericControl) && obj is HtmlGenericControl htmlControl)
             {
@@ -384,7 +384,9 @@ namespace DotVVM.Framework.Compilation.Styles
             if (services is null)
                 throw new ArgumentNullException(nameof(services));
 
-            var control = (DotvvmBindableObject)ActivatorUtilities.CreateInstance(services, c.Metadata.Type, c.ConstructorParameters ?? Array.Empty<object>());
+            var control =
+                c.Metadata.Type == typeof(RawLiteral) ? new RawLiteral(((string)c.ConstructorParameters![0]).ToUtf8Bytes(), ((string)c.ConstructorParameters![1]).ToUtf8Bytes(), (bool)c.ConstructorParameters[2]) :
+                (DotvvmBindableObject)ActivatorUtilities.CreateInstance(services, c.Metadata.Type, c.ConstructorParameters ?? Array.Empty<object>());
 
             foreach (var p in c.Properties.Values)
             {

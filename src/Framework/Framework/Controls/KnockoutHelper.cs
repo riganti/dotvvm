@@ -1,10 +1,12 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Unicode;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
@@ -173,7 +175,7 @@ namespace DotVVM.Framework.Controls
                     var pathFragment = current.GetDataContextPathFragment();
                     if (pathFragment != null)
                     {
-                        result.Add(MakeStringLiteral(pathFragment));
+                        result.Add(MakeStringLiteral(pathFragment, htmlSafe: false));
                     }
                     current = current.Parent;
                 }
@@ -191,7 +193,7 @@ namespace DotVVM.Framework.Controls
                     validationPathExpr == null ? null :
                     validationPathExpr.Value.identificationExpression == "/" ? "\"validate-root\"" :
                     validationPathExpr.Value.identificationExpression == "_this" ? "\"validate-this\"" :
-                    $"[\"validate\", {{fn:{validationPathExpr.Value.javascriptExpression}, path:{MakeStringLiteral(validationPathExpr.Value.identificationExpression)}}}]",
+                    $"[\"validate\", {{fn:{validationPathExpr.Value.javascriptExpression}, path:{MakeStringLiteral(validationPathExpr.Value.identificationExpression, htmlSafe: false)}}}]",
 
                     // use window.setTimeout
                     options.UseWindowSetTimeout == true ? "\"timeout\"" : null,
@@ -310,14 +312,14 @@ namespace DotVVM.Framework.Controls
 
                     if (options.Count == 0)
                     {
-                        sb.Append(MakeStringLiteral(name));
+                        sb.Append(MakeStringLiteral(name, htmlSafe: false));
                     }
                     else
                     {
                         string script = GenerateHandlerOptions(handler, options);
 
                         sb.Append("[");
-                        sb.Append(MakeStringLiteral(name));
+                        sb.Append(MakeStringLiteral(name, htmlSafe: false));
                         sb.Append(",");
                         sb.Append(script);
                         sb.Append("]");
@@ -429,7 +431,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                return $"[{handlerNameJson},{{q:{MakeStringLiteral(queueName!)}}}]";
+                return $"[{handlerNameJson},{{q:{MakeStringLiteral(queueName!, htmlSafe: false)}}}]";
             }
         }
         
@@ -530,6 +532,30 @@ namespace DotVVM.Framework.Controls
                 }
             }
             return string.Concat("\"", encoder.Encode(value), "\"");
+        }
+
+        internal static void WriteStringLiteral(Utf8StringWriter writer, string value, bool htmlSafe = true)
+        {
+            var encoder = htmlSafe ? DefaultSerializerSettingsProvider.Instance.HtmlSafeLessParanoidEncoder : JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+            if (value.Length < 256)
+            {
+                Span<byte> utf8 = stackalloc byte[256];
+                Span<byte> utf8Encoded = writer.GetSpan(value.Length * 2 + 16);
+
+                if (Utf8.FromUtf16(value, utf8, out _, out var utf8Bytes) == OperationStatus.Done &&
+                    encoder.EncodeUtf8(utf8.Slice(0, utf8Bytes), utf8Encoded.Slice(1, utf8Encoded.Length - 2), out _, out var encodedBytes) == OperationStatus.Done)
+                {
+                    utf8Encoded[0] = (byte)'"';
+                    utf8Encoded[encodedBytes + 1] = (byte)'"';
+                    writer.Advance(encodedBytes + 2);
+
+                    return;
+                }
+            }
+
+            writer.WriteByte((byte)'"');
+            writer.Write(encoder.Encode(value));
+            writer.WriteByte((byte)'"');
         }
 
         public static string ConvertToCamelCase(string name)

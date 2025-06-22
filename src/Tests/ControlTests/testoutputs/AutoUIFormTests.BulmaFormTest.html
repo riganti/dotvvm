@@ -10,7 +10,7 @@
 			<div class="field-body">
 				<div class="field">
 					<div class="control">
-						<input class="input" data-bind="dotvvm-validation: StringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, dotvvm-textbox-text: StringProp" id="StringProp__input" type="text">
+						<input class="input" data-bind="dotvvm-validation: StringProp, dotvvm-textbox-text: StringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }" id="StringProp__input" type="text">
 					</div>
 					<span class="help is-danger" data-bind="dotvvm-validation: StringProp, dotvvm-validationOptions: { hideWhenValid: true, showErrorMessageText: true }"></span>
 				</div>
@@ -23,7 +23,7 @@
 			<div class="field-body">
 				<div class="field">
 					<div class="control">
-						<textarea class="textarea" data-bind="dotvvm-validation: MultiLineStringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, dotvvm-textbox-text: MultiLineStringProp" id="MultiLineStringProp__input"></textarea>
+						<textarea class="textarea" data-bind="dotvvm-validation: MultiLineStringProp, dotvvm-textbox-text: MultiLineStringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }" id="MultiLineStringProp__input"></textarea>
 					</div>
 					<span class="help is-danger" data-bind="dotvvm-validation: MultiLineStringProp, dotvvm-validationOptions: { hideWhenValid: true, showErrorMessageText: true }"></span>
 				</div>
@@ -51,7 +51,7 @@
 				<div class="field">
 					<div class="control">
 						<div class="select">
-							<select data-bind="dotvvm-validation: EnumProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, value: EnumProp, valueAllowUnset: true" id="EnumProp__input">
+							<select data-bind="dotvvm-validation: EnumProp, value: EnumProp, valueAllowUnset: true, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }" id="EnumProp__input">
 								<option value="One">One</option>
 								<option value="Two">Two</option>
 							</select>
@@ -69,7 +69,7 @@
 				<div class="field">
 					<div class="control">
 						<div class="select">
-							<select data-bind="dotvvm-validation: ProductId, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }, options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: ProductId, valueAllowUnset: true" id="ProductId__input"></select>
+							<select data-bind="dotvvm-validation: ProductId, options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: ProductId, valueAllowUnset: true, dotvvm-validationOptions: { invalidCssClass: &quot;is-danger&quot;, setToolTipText: true }" id="ProductId__input"></select>
 						</div>
 					</div>
 					<span class="help is-danger" data-bind="dotvvm-validation: ProductId, dotvvm-validationOptions: { hideWhenValid: true, showErrorMessageText: true }"></span>

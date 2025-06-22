@@ -12,6 +12,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Testing;
+using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -99,13 +100,15 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void BindingGroup_EnumProperty()
         {
-            var writer = new StringWriter();
-            var html = new HtmlWriter(writer, CreateContext(new object()));
-            html.AddKnockoutDataBind("tt", new KnockoutBindingGroup() {
-                { "test", new TextBox(){ Type = TextBoxType.Date }, TextBox.TypeProperty }
-            });
-            html.RenderSelfClosingTag("span");
-            Assert.AreEqual("<spandata-bind='tt:{test:\"Date\"}'/>", writer.ToString().Replace(" ", ""));
+            var ms = new MemoryStream();
+            using (var html = new HtmlWriter(ms, CreateContext(new object())))
+            {
+                html.AddKnockoutDataBind("tt", new KnockoutBindingGroup() {
+                    { "test", new TextBox(){ Type = TextBoxType.Date }, TextBox.TypeProperty }
+                });
+                html.RenderSelfClosingTag("span");
+            }
+            Assert.AreEqual("<spandata-bind='tt:{test:\"Date\"}'/>", StringUtils.Utf8Decode(ms.ToSpan()).Replace(" ", ""));
         }
 
         [TestMethod]

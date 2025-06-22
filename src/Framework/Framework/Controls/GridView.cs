@@ -569,7 +569,7 @@ namespace DotVVM.Framework.Controls
                     var loadDataExpression = KnockoutHelper.GenerateClientPostbackLambda("LoadData", loadData, this, new PostbackScriptOptions(elementAccessor: "$element", koContext: CodeParameterAssignment.FromIdentifier("$context")));
                     helperBinding.Add("loadDataSet", loadDataExpression);
                 }
-                writer.AddKnockoutDataBind("dotvvm-gridviewdataset", helperBinding.ToString());
+                writer.AddKnockoutDataBind("dotvvm-gridviewdataset", helperBinding);
             }
 
             base.AddAttributesToRender(writer, context);

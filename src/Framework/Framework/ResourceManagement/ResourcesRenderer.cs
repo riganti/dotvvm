@@ -10,7 +10,7 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public static class ResourcesRenderer
     {
-        private static ConditionalWeakTable<IResource, string> renderedCache = new ConditionalWeakTable<IResource, string>();
+        private static ConditionalWeakTable<IResource, byte[]> renderedCache = new ConditionalWeakTable<IResource, byte[]>();
 
         public static void RenderResourceCached(this NamedResource resource, IHtmlWriter writer, IDotvvmRequestContext context)
         {
@@ -25,9 +25,9 @@ namespace DotVVM.Framework.ResourceManagement
 
             if (preload) comment = "[preload link] " + comment;
 
-            writer.WriteUnencodedText("\n    <!-- ");
+            writer.WriteUnencodedText("\n    <!-- "u8);
             writer.WriteText(comment);
-            writer.WriteUnencodedText(" -->\n    ");
+            writer.WriteUnencodedText(" -->\n    "u8);
             //                               ^~~~ most likely this info will be written directly in the <body> or <head>, so it should be indented by one level.
             //                                    we don't have any better way to know how we should indent
         }
@@ -77,18 +77,19 @@ namespace DotVVM.Framework.ResourceManagement
                 writer.WriteUnencodedText("\n");
         }
 
-        public static string GetRenderedTextCached(this NamedResource resource, IDotvvmRequestContext context) =>
+        public static byte[] GetRenderedTextCached(this NamedResource resource, IDotvvmRequestContext context) =>
             // don't use cache when debug, so the resource can be refreshed when file is changed
             context.Configuration.Debug ?
-            RenderToString(resource, context) :
-            renderedCache.GetValue(resource.Resource, _ => RenderToString(resource, context));
+            RenderToBytes(resource, context) :
+            renderedCache.GetValue(resource.Resource, _ => RenderToBytes(resource, context));
 
-        private static string RenderToString(NamedResource resource, IDotvvmRequestContext context)
+        private static byte[] RenderToBytes(NamedResource resource, IDotvvmRequestContext context)
         {
-            using (var text = new StringWriter())
+            var utf8 = new Utf8StringWriter();
+            using (var writer = new HtmlWriter(utf8, context))
             {
-                resource.Resource.Render(new HtmlWriter(text, context), context, resource.Name);
-                return text.ToString();
+                resource.Resource.Render(writer, context, resource.Name);
+                return utf8.PendingBytes.ToArray();
             }
         }
     }

@@ -10,6 +10,9 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
 using System.Text;
 using DotVVM.Framework.Configuration;
+using System.Buffers;
+using DotVVM.Framework.Utils;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -18,9 +21,8 @@ namespace DotVVM.Framework.Runtime
         protected virtual MemoryStream RenderPage(IDotvvmRequestContext context, DotvvmView view)
         {
             var outStream = new MemoryStream();
-            using (var textWriter = new StreamWriter(outStream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), 4096, leaveOpen: true))
+            using (var htmlWriter = new HtmlWriter(outStream, context, leaveStreamOpen: true))
             {
-                var htmlWriter = new HtmlWriter(textWriter, context);
                 view.Render(htmlWriter, context);
             }
             outStream.Position = 0;
@@ -47,50 +49,75 @@ namespace DotVVM.Framework.Runtime
                 throw new Exception($"Required resources were not rendered, make sure that page contains <head> and <body> elements or <dot:HeadResourceLinks> and <dot:BodyResourceLinks> controls.");
         }
 
-        public virtual IEnumerable<(string name, string html)> RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page)
+        public virtual IEnumerable<(string name, Action<ReadOnlySpanAction<byte, string>> html)> RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page)
         {
             var stack = new Stack<DotvvmControl>();
             stack.Push(page);
-            do
+            Utf8StringWriter? utf8 = null;
+            HtmlWriter? htmlWriter = null;
+            try
             {
-                var control = stack.Pop();
-
-                if (control.properties.TryGet(PostBack.UpdateProperty, out var val) && true.Equals(val))
+                do
                 {
-                    using (var w = new StringWriter())
-                    {
-                        control.Render(new HtmlWriter(w, context), context);
+                    var control = stack.Pop();
 
+                    if (control.properties.TryGet(PostBack.UpdateProperty, out var val) && true.Equals(val))
+                    {
                         var clientId = control.GetDotvvmUniqueId().ValueOrDefault;
                         if (clientId == null)
                         {
                             throw new DotvvmControlException(control, "This control cannot use PostBack.Update=\"true\" because it has dynamic ID. This happens when the control is inside a Repeater or other data-bound control and the RenderSettings.Mode=\"Client\".");
                         }
-                        var result = w.ToString();
-                        if (string.IsNullOrWhiteSpace(result))
-                        {
-                            throw new DotvvmControlException(control, "The PostBack.Update=\"true\" property is set on this control, but the control does not render anything. ");
-                        }
-                        if (!result.Contains(clientId))
-                        {
-                            throw new DotvvmControlException(control, "The PostBack.Update=\"true\" property is set on this control, but the control does not render the correct client ID.");
-                        }
-                        yield return (clientId, result);
-                    }
-                }
-                else
-                {
-                    foreach (var child in control.Children)
-                    {
-                        stack.Push(child);
-                    }
-                }
+                        Action<ReadOnlySpanAction<byte, string>> renderHtml = (spanCallback) => {
+                            if (htmlWriter is null)
+                            {
+                                utf8 = new Utf8StringWriter();
+                                htmlWriter = new HtmlWriter(utf8, context);
+                            }
+                            else
+                            {
+                                htmlWriter.Reset();
+                                Debug.Assert(utf8!.PendingBytes.IsEmpty);
+                            }
 
-            } while (stack.Count > 0);
+                            control.Render(htmlWriter, context);
+
+                            htmlWriter.Reset();
+                            var result = utf8.PendingBytes;
+
+                            if (StringUtils.IsEmptyOrAsciiWhiteSpace(result))
+                            {
+                                throw new DotvvmControlException(control, "The PostBack.Update=\"true\" property is set on this control, but the control does not render anything. ");
+                            }
+                            if (MemoryExtensions.IndexOf(result, clientId.ToUtf8Bytes()) < 0)
+                            {
+                                throw new DotvvmControlException(control, "The PostBack.Update=\"true\" property is set on this control, but the control does not render the correct client ID.");
+                            }
+
+                            spanCallback(result, clientId);
+                        };
+
+                        yield return (clientId, renderHtml);
+                    }
+                    else
+                    {
+                        foreach (var child in control.Children)
+                        {
+                            stack.Push(child);
+                        }
+                    }
+
+                } while (stack.Count > 0);
+            }
+            finally
+            {
+                htmlWriter?.Dispose();
+                utf8?.Dispose();
+            }
         }
 
 
-        public virtual async Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view, string serializedViewModel)
+        public virtual async Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view, ReadOnlyMemory<byte> serializedViewModel)
         {
             // return the response
             context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
@@ -105,13 +132,6 @@ namespace DotVVM.Framework.Runtime
             await context.HttpContext.Response.WriteAsync(json);
         }
 
-        public virtual async Task RenderPlainJsonResponse(IHttpContext context, string json)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.OK;
-            context.Response.ContentType = "application/json; charset=utf-8";
-            SetCacheHeaders(context);
-            await context.Response.WriteAsync(json);
-        }
         public virtual async Task RenderPlainJsonResponse(IHttpContext context, ReadOnlyMemory<byte> json)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;

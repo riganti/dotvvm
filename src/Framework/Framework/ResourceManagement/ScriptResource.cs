@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -42,21 +43,20 @@ namespace DotVVM.Framework.ResourceManagement
 
         public void RenderPreloadLink(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            writer.AddAttribute("rel", "preload");
-            writer.AddAttribute("href", Location.GetUrl(context, resourceName));
-            writer.AddAttribute("as", "script");
-
             writer.RenderBeginTag("link");
+            writer.WriteAttributeUnbuffered("rel"u8, "preload"u8);
+            writer.WriteAttributeUnbuffered("href"u8, Location.GetUrl(context, resourceName));
+            writer.WriteAttributeUnbuffered("as"u8, "script"u8);
             writer.RenderEndTag();
         }
         protected override void RenderFallbackLoadingScript(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName, IResourceLocation fallback, string javascriptCondition)
         {
-            var text = new StringWriter();
-            var hw = new HtmlWriter(text, context);
+            using var text = new Utf8StringWriter(bufferSize: 2048);
+            using var hw = new HtmlWriter(text, context);
             RenderLink(fallback, hw, context, resourceName, false);
-            var link = text.ToString();
+            var link = StringUtils.Utf8Decode(text.PendingBytes);
 
-            if (!string.IsNullOrEmpty(link))
+            if (link.Length > 0)
             {
                 var script = KnockoutHelper.MakeStringLiteral(link);
                 var code = GetLoadingScript(javascriptCondition, script);
@@ -64,7 +64,7 @@ namespace DotVVM.Framework.ResourceManagement
                 {
                     writer.AddAttribute("defer", null);
                 }
-                InlineScriptResource.RenderDataUriString(writer, code);
+                InlineScriptResource.RenderDataUriString(writer, code.ToUtf8Bytes());
             }
         }
     }

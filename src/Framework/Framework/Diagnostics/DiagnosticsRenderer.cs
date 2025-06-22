@@ -23,22 +23,21 @@ namespace DotVVM.Framework.Diagnostics
             return html;
         }
 
-        public override Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view, string viewModel)
+        public override Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view, ReadOnlyMemory<byte> viewModelJson)
         {
             if (context.Configuration.Debug && context.Services.GetService<DiagnosticsRequestTracer>() is DiagnosticsRequestTracer tracer)
             {
-                var vmBytes = Encoding.UTF8.GetBytes(viewModel);
-                tracer.LogResponseSize(GetCompressedSize(vmBytes), vmBytes.LongLength);
+                tracer.LogResponseSize(GetCompressedSize(viewModelJson), viewModelJson.Length);
             }
-            return base.WriteViewModelResponse(context, view, viewModel);
+            return base.WriteViewModelResponse(context, view, viewModelJson);
         }
 
-        private long GetCompressedSize(byte[] bytes)
+        private long GetCompressedSize(ReadOnlyMemory<byte> bytes)
         {
             using (var memoryStream = new MemoryStream())
             using (var zipStream = new GZipStream(memoryStream, CompressionLevel.Fastest))
             {
-                zipStream.Write(bytes, 0, bytes.Length);
+                zipStream.Write(bytes.Span);
                 zipStream.Flush();
                 memoryStream.Flush();
                 return memoryStream.Length;

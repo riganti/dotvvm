@@ -62,7 +62,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Serializes the view model.
         /// </summary>
-        public string SerializeViewModel(IDotvvmRequestContext context, object? commandResult = null, IEnumerable<(string name, string html)>? postbackUpdatedControls = null, bool serializeNewResources = false)
+        public ReadOnlyMemory<byte> SerializeViewModel(IDotvvmRequestContext context, object? commandResult = null, IEnumerable<(string name, Action<ReadOnlySpanAction<byte, string>> html)>? postbackUpdatedControls = null, bool serializeNewResources = false)
         {
             var timer = ValueStopwatch.StartNew();
             var utf8json = BuildViewModel(context, commandResult, postbackUpdatedControls, serializeNewResources);
@@ -76,14 +76,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // }
             var requestTracers = context.Services.GetService<IEnumerable<IRequestTracer>>();
             requestTracers?.TracingSerialized(context, (int)utf8json.Length, utf8json);
-            var result = StringUtils.Utf8Decode(utf8json.ToSpan());
 
             var routeLabel = context.RouteLabel();
             var requestType = context.RequestTypeLabel();
             DotvvmMetrics.ViewModelSerializationTime.Record(timer.ElapsedSeconds, routeLabel, requestType);
             DotvvmMetrics.ViewModelSize.Record(utf8json.Length, routeLabel, requestType);
 
-            return result; // TODO: write Utf-8 directly
+            return utf8json.ToMemory();
         }
 
         private bool? ShouldIncludeProperty(string typeId, string property)
@@ -147,7 +146,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public MemoryStream BuildViewModel(IDotvvmRequestContext context, object? commandResult, IEnumerable<(string name, string html)>? postbackUpdatedControls = null, bool serializeNewResources = false)
+        public MemoryStream BuildViewModel(IDotvvmRequestContext context, object? commandResult, IEnumerable<(string name, Action<ReadOnlySpanAction<byte, string>> html)>? postbackUpdatedControls = null, bool serializeNewResources = false)
         {
             (int, int) viewModelBodyPosition;
 
@@ -522,7 +521,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Adds the post back updated controls.
         /// </summary>
-        private void AddPostBackUpdatedControls(IDotvvmRequestContext context, Utf8JsonWriter writer, IEnumerable<(string name, string html)> postBackUpdatedControls)
+        private void AddPostBackUpdatedControls(IDotvvmRequestContext context, Utf8JsonWriter writer, IEnumerable<(string name, Action<ReadOnlySpanAction<byte, string>> renderHtml)> postBackUpdatedControls)
         {
             var first = true;
             foreach (var (controlId, html) in postBackUpdatedControls)
@@ -532,7 +531,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     writer.WriteStartObject("updatedControls"u8);
                     first = false;
                 }
-                writer.WriteString(controlId, html);
+                html((htmlSpan, controlId) => {
+                    writer.WriteString(controlId, htmlSpan);
+                });
             }
 
             if (!first)

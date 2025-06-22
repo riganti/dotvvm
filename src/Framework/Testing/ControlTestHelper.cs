@@ -207,7 +207,7 @@ namespace DotVVM.Framework.Testing
             return new PageRunResult(
                 this,
                 context.Route!.VirtualPath!,
-                JsonNode.Parse(viewModel)!.AsObject(),
+                JsonNode.Parse(viewModel.Span)!.AsObject(),
                 htmlOutput,
                 headResources,
                 bodyResources,
@@ -389,11 +389,10 @@ namespace DotVVM.Framework.Testing
                 context.ResourceManager.GetNamedResourcesInOrder().Where(r => r.Resource is TemplateResource),
                 writer, context, ResourceRenderPosition.Body);
 
-            var str = new StringWriter();
-            var fakeWriter = new HtmlWriter(str, context);
-            base.RenderControl(fakeWriter, context);
-            this.CapturedHtml = str.ToString();
-
+            var ms = new MemoryStream();
+            using (var fakeWriter = new HtmlWriter(ms, context))
+                base.RenderControl(fakeWriter, context);
+            this.CapturedHtml = StringUtils.Utf8Decode(ms.ToArray());
         }
     }
 
@@ -402,10 +401,10 @@ namespace DotVVM.Framework.Testing
         public string? CapturedHtml { get; private set; }
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            var str = new StringWriter();
-            var fakeWriter = new HtmlWriter(str, context);
-            base.RenderControl(fakeWriter, context);
-            this.CapturedHtml = str.ToString();
+            var ms = new MemoryStream();
+            using (var fakeWriter = new HtmlWriter(ms, context))
+                base.RenderControl(fakeWriter, context);
+            this.CapturedHtml = StringUtils.Utf8Decode(ms.ToArray());
         }
     }
 }

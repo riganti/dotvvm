@@ -662,7 +662,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected bool TryGetTextContent(out string textContent)
         {
-            textContent = string.Join(string.Empty, Children.OfType<RawLiteral>().Where(l => !l.IsWhitespace).Select(l => l.UnencodedText));
+            textContent = string.Join(string.Empty, Children.OfType<RawLiteral>().Where(l => !l.IsWhitespace).Select(l => l.UnencodedTextString));
             return Children.All(c => c is RawLiteral);
         }
 

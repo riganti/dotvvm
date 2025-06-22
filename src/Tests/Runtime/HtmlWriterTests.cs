@@ -5,6 +5,7 @@ using System.Text;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Testing;
+using DotVVM.Framework.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Runtime
@@ -14,11 +15,14 @@ namespace DotVVM.Framework.Tests.Runtime
     {
         string WriteHtml(Action<HtmlWriter> a)
         {
-            var text = new StringWriter();
-            a(new HtmlWriter(text, new TestDotvvmRequestContext() {
+            var ms = new MemoryStream();
+            using (var html = new HtmlWriter(ms, new TestDotvvmRequestContext() {
                 Configuration = DotvvmTestHelper.DefaultConfig
-            }));
-            return text.ToString();
+            }))
+            {
+                a(html);
+            }
+            return StringUtils.Utf8Decode(ms.ToSpan());
         }
 
         [TestMethod]

@@ -9,9 +9,9 @@
 		<div class="a class123-some-class" data-bind="class: &quot;a class123-&quot; + (SomeClass() ?? &quot;&quot;), attr: { &quot;data-custom-class-attr&quot;: SomeClass }" data-custom-class-attr="some-class"></div>
 		checkbox with checkbox-checked class
 		<input class="checkbox-checked" data-bind="class: int() > 10 == true ? &quot;checkbox-checked&quot; : &quot;&quot;, dotvvm-CheckState: int() > 10" type="checkbox">
-		<input class="" data-bind="class: Boolean() == true ? &quot;checkbox-checked&quot; : &quot;&quot;, dotvvm-CheckState: Boolean" type="checkbox">
+		<input data-bind="class: Boolean() == true ? &quot;checkbox-checked&quot; : &quot;&quot;, dotvvm-CheckState: Boolean" type="checkbox">
 		a div with visible class
 		<div class="hide" data-bind="css: { hide: !Boolean() }"></div>
-		<input data-bind="css: { hide: Label() == &quot;hidden&quot; }, dotvvm-textbox-text: Label" type="text">
+		<input data-bind="dotvvm-textbox-text: Label, css: { hide: Label() == &quot;hidden&quot; }" type="text">
 	</body>
 </html>

@@ -6,6 +6,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Utils;
 using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
@@ -180,7 +181,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             var type = this.Metadata.Type;
             if (type == typeof(Controls.Infrastructure.RawLiteral))
             {
-                return $"RawLiteral({this.ConstructorParameters?[0]})";
+                var content = this.ConstructorParameters?[0];
+                if (content is byte[] bytes)
+                    content = StringUtils.Utf8Decode(bytes);
+                return $"RawLiteral({content})";
             }
             var tagName =
                 type == typeof(Controls.HtmlGenericControl) ? this.ConstructorParameters?[0] :

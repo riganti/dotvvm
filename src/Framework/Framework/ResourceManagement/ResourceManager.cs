@@ -77,14 +77,14 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Adds the template resource at the end of the HTML document.
         /// </summary>
-        /// <param name="template">The rendered DOM elements.</param>
+        /// <param name="templateUtf8">The rendered DOM elements.</param>
         /// <param name="resourceId">The ID of the template resource.</param>
         /// <returns>Resource ID</returns>
-        public string AddTemplateResource(string template, string resourceId)
+        public string AddTemplateResource(ReadOnlyMemory<byte> templateUtf8, string resourceId)
         {
             if (!requiredResources.ContainsKey(resourceId))
             {
-                AddRequiredResource(resourceId, new TemplateResource(template));
+                AddRequiredResource(resourceId, new TemplateResource(templateUtf8));
             }
             return resourceId;
         }
@@ -92,12 +92,12 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Adds the template resource at the end of the HTML document.
         /// </summary>
-        /// <param name="template">The rendered DOM elements.</param>
+        /// <param name="templateUtf8">The rendered DOM elements.</param>
         /// <returns>Resource ID</returns>
-        public string AddTemplateResource(string template)
+        public string AddTemplateResource(ReadOnlyMemory<byte> templateUtf8)
         {
-            var resourceId = HashUtils.HashAndBase64Encode(template);
-            return AddTemplateResource(template, resourceId);
+            var resourceId = HashUtils.HashAndBase64Encode(templateUtf8.Span);
+            return AddTemplateResource(templateUtf8, resourceId);
         }
         /// <summary>
         /// Adds the resource with unique name.

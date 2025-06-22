@@ -71,13 +71,13 @@ namespace DotVVM.Framework.Tests.Runtime
                 Property5 = null
             };
             context.ViewModel = oldViewModel;
-            var result = serializer.SerializeViewModel(context);
+            var result = StringUtils.Utf8Decode(serializer.SerializeViewModel(context).Span);
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new TestViewModel();
             context.ViewModel = newViewModel;
-            serializer.PopulateViewModel(context, StringUtils.Utf8.GetBytes(result));
+            serializer.PopulateViewModel(context, result.ToUtf8Bytes());
 
             Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
             Assert.AreEqual(oldViewModel.Property2, newViewModel.Property2);
@@ -277,7 +277,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
             var result = serializer.SerializeViewModel(context, commandResult);
 
-            return JsonNode.Parse(result).AsObject();
+            return JsonNode.Parse(result.Span).AsObject();
         }
 
         private JsonObject PrepareStaticCommandResponse(object commandResult, Dictionary<string, object> customProperties = null)
@@ -297,7 +297,7 @@ namespace DotVVM.Framework.Tests.Runtime
             context.ViewModel = viewModel;
 
             serializer.SendDiff = false;
-            return UnwrapSerializedViewModel(serializer.SerializeViewModel(context, null));
+            return UnwrapSerializedViewModel(StringUtils.Utf8Decode(serializer.SerializeViewModel(context, null).Span));
         }
 
         private void PopulateViewModel(object viewModel, string json)
@@ -361,7 +361,7 @@ namespace DotVVM.Framework.Tests.Runtime
             };
             context.ViewModel = oldViewModel;
 
-            var result = serializer.SerializeViewModel(context);
+            var result = StringUtils.Utf8Decode(serializer.SerializeViewModel(context).Span);
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
@@ -436,8 +436,8 @@ namespace DotVVM.Framework.Tests.Runtime
             };
             context.ViewModel = oldViewModel;
 
-            
-            var result = serializer.SerializeViewModel(context);
+
+            var result = StringUtils.Utf8Decode(serializer.SerializeViewModel(context).Span);
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
@@ -463,7 +463,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 Property1 = TestEnum.Second
             };
             context.ViewModel = oldViewModel;
-            var result = serializer.SerializeViewModel(context);
+            var result = StringUtils.Utf8Decode(serializer.SerializeViewModel(context).Span);
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
@@ -512,7 +512,7 @@ namespace DotVVM.Framework.Tests.Runtime
             };
 
             context.ViewModel = oldViewModel;
-            var result = serializer.SerializeViewModel(context);
+            var result = StringUtils.Utf8Decode(serializer.SerializeViewModel(context).Span);
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 

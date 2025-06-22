@@ -1,5 +1,7 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
@@ -11,7 +13,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         ReadOnlyMemory<byte> BuildStaticCommandResponse(IDotvvmRequestContext context, object? commandResult, string[]? knownTypeMetadata = null);
 
-        string SerializeViewModel(IDotvvmRequestContext context, object? commandResult = null, IEnumerable<(string name, string html)>? postbackUpdatedControls = null, bool serializeNewResources = false);
+        ReadOnlyMemory<byte> SerializeViewModel(IDotvvmRequestContext context, object? commandResult = null, IEnumerable<(string name, Action<ReadOnlySpanAction<byte, string>> html)>? postbackUpdatedControls = null, bool serializeNewResources = false);
 
         byte[] SerializeModelState(IDotvvmRequestContext context);
 

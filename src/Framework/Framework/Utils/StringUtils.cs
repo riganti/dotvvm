@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using DotVVM.Framework.Binding;
 using FastExpressionCompiler;
@@ -13,6 +17,8 @@ namespace DotVVM.Framework.Utils
 
         public static string Utf8Decode(byte[] bytes) =>
             Utf8.GetString(bytes);
+        internal static byte[] ToUtf8Bytes(this string str) =>
+            Utf8.GetBytes(str);
         public static string Utf8Decode(ReadOnlySpan<byte> bytes)
         {
 #if DotNetCore
@@ -44,6 +50,72 @@ namespace DotVVM.Framework.Utils
             }
 #endif
         }
+
+        public static bool IsEmptyOrAsciiWhiteSpace(ReadOnlySpan<byte> str)
+        {
+            foreach (var ch in str)
+            {
+                if (ch >= 128 || !char.IsWhiteSpace((char)ch))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static string HexDump(ReadOnlySpan<byte> bytes)
+        {
+            var sb = new StringBuilder();
+            for (int row = 0; row < bytes.Length; row += 16)
+            {
+                sb.AppendFormat("{0,4:X} |", row);
+                sb.AppendFormat("{0,5}: ", row);
+                for (int i = 0; i < 16; i++)
+                {
+                    if (i == 8) sb.Append(" ");
+                    if (row + i < bytes.Length)
+                    {
+                        sb.AppendFormat("{0:X2} ", bytes[row + i].ToString("X2"));
+                    }
+                    else
+                    {
+                        sb.Append("   ");
+                    }
+                }
+
+                for (int i = 0; i < 16; i++)
+                {
+                    if (row + i >= bytes.Length)
+                        break;
+
+                    if (i == 8) sb.Append(" ");
+
+                    var ch = (char)bytes[row + i];
+                    var display = ch switch {
+                        < ' ' => (char)('␀' + ch),
+                        ' ' => '␣',
+                        >= (char)0x20 and <= (char)0x7E => ch,
+                        '\x0080' => '␡',
+                        >= (char)0x80 and <= (char)0xBF => '©',
+                        >= (char)0xC0 and <= (char)0xDF => '②',
+                        >= (char)0xE0 and <= (char)0xEF => '③',
+                        >= (char)0xF0 and <= (char)0xF7 => '④',
+                        >= (char)0xF8 and <= (char)0xFB => '⑤',
+                        >= (char)0xFC and <= (char)0xFD => '⑥',
+                        >= (char)0xFE => '®',
+                        _ => '·'
+                    };
+
+                    sb.Append(display);
+                }
+
+                sb.AppendLine();
+            }
+            
+            return sb.ToString();
+        }
+
         public static string LimitLength(this string source, int length, string ending = "...")
         {
             if (length < source.Length)

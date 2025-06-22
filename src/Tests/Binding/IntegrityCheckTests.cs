@@ -2,6 +2,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
@@ -24,13 +25,12 @@ namespace DotVVM.Framework.Tests.Binding
                 ViewModel = new DotvvmViewModelBase()
             };
 
-            using (var text = new StringWriter())
+            var ms = new MemoryStream();
+            using (var html = new HtmlWriter(ms, context))
             {
-                var html = new HtmlWriter(text, context);
                 jquery.RenderLink(jquery.Location, html, context, "jquery");
-
-                return text.GetStringBuilder().ToString();
             }
+            return StringUtils.Utf8Decode(ms.ToSpan());
         }
 
         [TestMethod]

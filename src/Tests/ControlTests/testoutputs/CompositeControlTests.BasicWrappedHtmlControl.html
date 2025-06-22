@@ -15,7 +15,7 @@
 		<div class="big even"></div>
 		
 		<!-- extended Visible -->
-		<div data-bind="css: { &quot;hidden-class&quot;: !(int() > 10) }, visible: int() > 10"></div>
+		<div data-bind="visible: int() > 10, css: { &quot;hidden-class&quot;: !(int() > 10) }"></div>
 		
 		<!-- Text Property -->
 		<div>Static Text</div>

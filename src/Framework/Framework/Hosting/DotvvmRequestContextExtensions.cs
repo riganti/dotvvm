@@ -184,7 +184,7 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Gets the serialized view model.
     /// </summary>
-    public static string GetSerializedViewModel(this IDotvvmRequestContext context)
+    public static ReadOnlyMemory<byte> GetSerializedViewModel(this IDotvvmRequestContext context)
     {
         return context.Services.GetRequiredService<IViewModelSerializer>().SerializeViewModel(context);
     }

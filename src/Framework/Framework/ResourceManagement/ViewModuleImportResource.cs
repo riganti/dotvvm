@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -20,15 +21,15 @@ namespace DotVVM.Framework.ResourceManagement
 
         public string ResourceName { get; }
 
-        private string registrationScript;
+        private readonly byte[] registrationScript;
 
         public ViewModuleImportResource(string[] referencedModules, string name, string[] dependencies)
         {
             this.ReferencedModules = referencedModules.ToArray();
             this.ResourceName = name;
-            this.Dependencies = new string[] { "dotvvm" }.Concat(dependencies).ToArray();
+            this.Dependencies = [ "dotvvm", ..dependencies ];
 
-            this.registrationScript = $"dotvvm.viewModules.registerMany({{{string.Join(", ", this.ReferencedModules.Select((m, i) => KnockoutHelper.MakeStringLiteral(m) + ": m" + i))}}});";
+            this.registrationScript = StringUtils.Utf8.GetBytes($"dotvvm.viewModules.registerMany({{{string.Join(", ", this.ReferencedModules.Select((m, i) => KnockoutHelper.MakeStringLiteral(m) + ": m" + i))}}});");
         }
 
         public void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
@@ -50,11 +51,11 @@ namespace DotVVM.Framework.ResourceManagement
 
                 location = context.TranslateVirtualPath(location);
 
-                writer.WriteUnencodedText("import * as m");
+                writer.WriteUnencodedText("import * as m"u8);
                 writer.WriteUnencodedText(i.ToString());
-                writer.WriteUnencodedText(" from ");
+                writer.WriteUnencodedText(" from "u8);
                 writer.WriteUnencodedText(KnockoutHelper.MakeStringLiteral(location));
-                writer.WriteUnencodedText(";");
+                writer.WriteUnencodedText(";"u8);
 
                 i += 1;
             }

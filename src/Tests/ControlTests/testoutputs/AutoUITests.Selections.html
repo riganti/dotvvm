@@ -5,7 +5,7 @@
 		<!-- ko with: Entity -->
 		<table class="autoui-form-table">
 			<tbody>
-				<tr data-bind="dotvvm-validation: ProductId, dotvvm-validationOptions: {}, visible: $parent.Products()?.Items()?.length > 0">
+				<tr data-bind="dotvvm-validation: ProductId, visible: $parent.Products()?.Items()?.length > 0, dotvvm-validationOptions: {}">
 					<td class="autoui-label">
 						<label for="ProductId__input">Product id</label>
 					</td>
@@ -13,7 +13,7 @@
 						<select data-bind="options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: ProductId, valueAllowUnset: true" id="ProductId__input"></select>
 					</td>
 				</tr>
-				<tr data-bind="dotvvm-validation: OptionalProductId, dotvvm-validationOptions: {}, visible: $parent.Products()?.Items()?.length > 0">
+				<tr data-bind="dotvvm-validation: OptionalProductId, visible: $parent.Products()?.Items()?.length > 0, dotvvm-validationOptions: {}">
 					<td class="autoui-label">
 						<label for="OptionalProductId__input">Optional product id</label>
 					</td>
@@ -21,7 +21,7 @@
 						<select data-bind="options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: OptionalProductId, valueAllowUnset: true" id="OptionalProductId__input"></select>
 					</td>
 				</tr>
-				<tr data-bind="dotvvm-validation: CountryId, dotvvm-validationOptions: {}, visible: $parent.Countries()?.Items()?.length > 0">
+				<tr data-bind="dotvvm-validation: CountryId, visible: $parent.Countries()?.Items()?.length > 0, dotvvm-validationOptions: {}">
 					<td class="autoui-label">
 						<label for="CountryId__input">Country id</label>
 					</td>

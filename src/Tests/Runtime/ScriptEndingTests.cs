@@ -5,6 +5,8 @@ using System.Linq;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
+using DotVVM.Framework.Utils;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Runtime
@@ -19,17 +21,21 @@ namespace DotVVM.Framework.Tests.Runtime
         [DataRow("</script>   ")]
         [DataRow("djsfkjdsfksdhfk</script  ")]
         [DataRow("fjhdsfkjdskjfh</scrip</SCriPT  ")]
+        [DataRow("fjhdsfkjdskjfh</</SCriPT  ")]
+        [DataRow("fjhdsfkjdskjfh<</SCriPT  ")]
+        [DataRow("fjhdsfkjdskjfh<</SCriPT")]
         [DataRow("</sc</script>ript>")] // none of these is somehow special, just want to take a bit more of them
         public void TestResources(string forbiddenString)
         {
             var cx = DotvvmTestHelper.CreateContext(DotvvmTestHelper.DefaultConfig);
-            var output = new StringWriter();
-            var writer = new HtmlWriter(output, cx);
+            var output = new MemoryStream();
+            using (var writer = new HtmlWriter(output, cx))
+            {
+                var inlineScript = new InlineScriptResource(forbiddenString);
 
-            var inlineScript = new InlineScriptResource(forbiddenString);
-
-            inlineScript.Render(writer, cx, "b");
-            Assert.IsFalse(output.ToString().Contains(forbiddenString));
+                inlineScript.Render(writer, cx, "b");
+            }
+            Assert.IsFalse(StringUtils.Utf8Decode(output.ToArray()).Contains(forbiddenString));
         }
 
         [DataTestMethod]
@@ -56,12 +62,12 @@ namespace DotVVM.Framework.Tests.Runtime
             };
 
             var cx = DotvvmTestHelper.CreateContext(DotvvmTestHelper.DefaultConfig);
-            var output = new StringWriter();
-            var w = new HtmlWriter(output, cx);
-            foreach (var a in resources)
-                a.Render(w, cx, forbiddenString);
+            var output = new MemoryStream();
+            using (var w = new HtmlWriter(output, cx))
+                foreach (var a in resources)
+                    a.Render(w, cx, forbiddenString);
 
-            Assert.IsFalse(output.ToString().Contains(forbiddenString), $"{output} : {forbiddenString}");
+            Assert.IsFalse(StringUtils.Utf8Decode(output.ToArray()).Contains(forbiddenString), $"{output} : {forbiddenString}");
         }
     }
 }

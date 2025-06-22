@@ -102,12 +102,40 @@ namespace DotVVM.Framework.Controls
                 return "{ " + string.Join(", ", entries) + " }";
         }
 
+        internal void WriteToUtf8(Utf8StringWriter writer)
+        {
+            if (entries.Count == 0)
+            {
+                writer.Write("{}");
+                return;
+            }
+            bool multiline = false;
+            foreach (var entry in entries)
+#if DotNetCore
+                if (entry.Expression.Contains('\n'))
+#else
+                if (entry.Expression.Contains("\n"))
+#endif
+                {
+                    multiline = true;
+                    break;
+                }
+            var space = multiline ? (byte)'\n' : (byte)' ';
+            writer.WriteByte((byte)'{', space);
+            for (int i = 0; i < entries.Count; i++)
+            {
+                if (i > 0) writer.WriteByte((byte)',', space);
+                entries[i].WriteToUtf8(writer);
+            }
+            writer.WriteByte(space, (byte)'}');
+        }
+
         IEnumerator<KnockoutBindingInfo> IEnumerable<KnockoutBindingInfo>.GetEnumerator() => GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary> A named expression - a field in the <see cref="KnockoutBindingGroup" /> </summary>
-        public class KnockoutBindingInfo
+        public struct KnockoutBindingInfo
         {
             public KnockoutBindingInfo(string name, string expression)
             {
@@ -126,6 +154,16 @@ namespace DotVVM.Framework.Controls
                     return Name + ": " + Expression;
                 else
                     return KnockoutHelper.MakeStringLiteral(Name) + ": " + Expression;
+            }
+
+            internal void WriteToUtf8(Utf8StringWriter writer)
+            {
+                if (MayBeUnquoted(Name))
+                    writer.Write(Name);
+                else
+                    KnockoutHelper.WriteStringLiteral(writer, Name);
+                writer.WriteByte((byte)':', (byte)' ');
+                writer.Write(Expression);
             }
 
             private static bool MayBeUnquoted(string s)

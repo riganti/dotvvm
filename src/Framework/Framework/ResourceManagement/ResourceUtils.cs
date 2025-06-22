@@ -12,11 +12,10 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public static string AddTemplateResource(this ResourceManager manager, IDotvvmRequestContext context, DotvvmControl control)
         {
-            using (var text = new StringWriter())
-            {
-                control.Render(new HtmlWriter(text, context), context);
-                return manager.AddTemplateResource(text.ToString());
-            }
+            using var text = new Utf8StringWriter();
+            using var writer = new HtmlWriter(text, context);
+            control.Render(writer, context);
+            return manager.AddTemplateResource(text.PendingBytes.ToArray());
         }
 
         public static string AddTemplateResource(
@@ -25,11 +24,10 @@ namespace DotVVM.Framework.ResourceManagement
             DotvvmControl control,
             string resourceId)
         {
-            using (var text = new StringWriter())
-            {
-                control.Render(new HtmlWriter(text, context), context);
-                return manager.AddTemplateResource(text.ToString(), resourceId);
-            }
+            using var text = new Utf8StringWriter();
+            using var writer = new HtmlWriter(text, context);
+            control.Render(writer, context);
+            return manager.AddTemplateResource(text.PendingBytes.ToArray(), resourceId);
         }
 
         public static string ReadToString(this ILocalResourceLocation location, IDotvvmRequestContext context)
@@ -39,9 +37,26 @@ namespace DotVVM.Framework.ResourceManagement
                 using (var resourceStreamReader = new StreamReader(resourceStream))
                 {
                     return resourceStreamReader.ReadToEnd();
-		}
+                }
             }
-	}
+        }
+
+        public static byte[] ReadToBytes(this ILocalResourceLocation location, IDotvvmRequestContext context)
+        {
+            using (var resourceStream = location.LoadResource(context))
+            {
+                int? length = null;
+                try { length = checked((int)resourceStream.Length); }
+                catch { }
+
+                if (length is null)
+                    return resourceStream.ReadToMemory().ToArray();
+
+                var buffer = new byte[length.Value];
+                MemoryUtils.CopyTo(resourceStream, buffer, 0);
+                return buffer;
+            }
+        }
 
         public static void AssertAcyclicDependencies(IResource resource,
             string name,

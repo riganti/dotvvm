@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Immutable;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 using System.Threading;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -13,19 +16,26 @@ namespace DotVVM.Framework.ResourceManagement
     public class InlineStylesheetResource : ResourceBase
     {
         private readonly ILocalResourceLocation? resourceLocation;
-        private volatile Lazy<string>? code;
+        private volatile Lazy<ImmutableArray<byte>>? code;
 
         /// <summary>
         /// Gets the CSS code that will be embedded in the page.
         /// </summary>
         [JsonIgnore]
-        public string Code => code?.Value ?? throw new Exception("`ILocalResourceLocation` cannot be read using property `Code`.");
+        public string Code
+        {
+            get
+            {
+                var utf8 = code?.Value ?? throw new Exception("`ILocalResourceLocation` cannot be read using property `Code`.");
+                return StringUtils.Utf8Decode(utf8.AsSpan());
+            }
+        }
 
 
         [JsonInclude]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName(nameof(Code))]
-        internal string? CodeJsonHack => code?.Value; // ignore if code is in location
+        internal string? CodeJsonHack => code is null ? null : Code; // ignore if code is in location
 
 
         [JsonConstructor]
@@ -36,40 +46,40 @@ namespace DotVVM.Framework.ResourceManagement
 
         public InlineStylesheetResource(string code) : this(new InlineResourceLocation(code))
         {
-            InlineStyleContentGuard(code);
-            this.code = new Lazy<string>(() => code);
-            _ = this.code.Value;
+            var utf8 = StringUtils.Utf8.GetBytes(code);
+            InlineStyleContentGuard(utf8);
+            this.code = new(ImmutableCollectionsMarshal.AsImmutableArray(utf8));
         }
 
 
-        internal static void InlineStyleContentGuard(string code)
+        internal static void InlineStyleContentGuard(ReadOnlySpan<byte> code)
         {
             // We have to make sure, that the element is not ended in the middle.
             // <style> and <script> tags have "raw text" content - https://html.spec.whatwg.org/multipage/syntax.html#raw-text-elements
             // and those element must not contain "</name-of-the-element" substring - https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
-            if (code?.IndexOf("</style", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (InlineScriptResource.ContainsEndTag(code, "style"u8))
                 throw new Exception($"Inline style can't contain `</style`.");
         }
 
         /// <inheritdoc/>
         public override void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            if (this.code == null)
+            if (this.code is null)
             {
-                var newCode = new Lazy<string>(() => {
-                    var c = resourceLocation!.ReadToString(context);
+                var newCode = new Lazy<ImmutableArray<byte>>(() => {
+                    var c = resourceLocation!.ReadToBytes(context);
                     InlineStyleContentGuard(c);
-                    return c;
+                    return ImmutableCollectionsMarshal.AsImmutableArray(c);
                 });
                 // assign the `newValue` into `this.code` iff it's still null
                 Interlocked.CompareExchange(ref this.code, value: newCode, comparand: null);
             }
             var code = this.code.Value;
 
-            if (!string.IsNullOrWhiteSpace(code))
+            if (code.Length > 0)
             {
                 writer.RenderBeginTag("style");
-                writer.WriteUnencodedText(code);
+                writer.WriteUnencodedText(code.AsSpan());
                 writer.RenderEndTag();
             }
         }

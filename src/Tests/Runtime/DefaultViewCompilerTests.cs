@@ -18,6 +18,8 @@ using System.Linq;
 using DotVVM.Framework.DependencyInjection;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -38,7 +40,7 @@ test <dot:Literal Text='test' />";
             Assert.AreEqual(2, page.Children.Count);
 
             Assert.IsInstanceOfType(page.Children[0], typeof(RawLiteral));
-            Assert.AreEqual("test ", ((RawLiteral)page.Children[0]).EncodedText);
+            Assert.AreEqual("test ", ((RawLiteral)page.Children[0]).EncodedTextString);
             Assert.IsInstanceOfType(page.Children[1], typeof(Literal));
             Assert.AreEqual("test", ((Literal)page.Children[1]).Text);
         }
@@ -53,7 +55,7 @@ test <dot:Literal Text='test' />";
             Assert.AreEqual(2, page.Children.Count);
 
             Assert.IsInstanceOfType(page.Children[0], typeof(RawLiteral));
-            Assert.AreEqual("test ", ((RawLiteral)page.Children[0]).EncodedText);
+            Assert.AreEqual("test ", ((RawLiteral)page.Children[0]).EncodedTextString);
             Assert.IsInstanceOfType(page.Children[1], typeof(Literal));
 
             var binding = ((Literal)page.Children[1]).GetBinding(Literal.TextProperty) as ValueBindingExpression;
@@ -71,7 +73,7 @@ test <dot:Literal Text='test' />";
             Assert.AreEqual(2, page.Children.Count);
 
             Assert.IsInstanceOfType(page.Children[0], typeof(RawLiteral));
-            Assert.AreEqual("test ", ((RawLiteral)page.Children[0]).EncodedText);
+            Assert.AreEqual("test ", ((RawLiteral)page.Children[0]).EncodedTextString);
             Assert.IsInstanceOfType(page.Children[1], typeof(Literal));
 
             var binding = ((Literal)page.Children[1]).GetBinding(Literal.TextProperty) as ValueBindingExpression;
@@ -94,7 +96,7 @@ test <dot:Literal Text='test' />";
             Assert.AreEqual(2, page.Children[0].Children.Count);
             Assert.IsTrue(page.Children[0].Children[0] is RawLiteral);
             Assert.IsTrue(page.Children[0].Children[1] is Literal);
-            Assert.AreEqual("test ", ((RawLiteral)page.Children[0].Children[0]).EncodedText);
+            Assert.AreEqual("test ", ((RawLiteral)page.Children[0].Children[0]).EncodedTextString);
             Assert.AreEqual("", ((Literal)page.Children[0].Children[1]).Text);
         }
 
@@ -152,10 +154,10 @@ test <dot:Literal><a /></dot:Literal>";
             ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, placeholder);
 
             Assert.AreEqual(3, placeholder.Children.Count);
-            Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)placeholder.Children[0]).EncodedText));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)placeholder.Children[0]).EncodedTextString));
             Assert.AreEqual("p", ((HtmlGenericControl)placeholder.Children[1]).TagName);
-            Assert.AreEqual("This is a test", ((RawLiteral)placeholder.Children[1].Children[0]).EncodedText);
-            Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)placeholder.Children[2]).EncodedText));
+            Assert.AreEqual("This is a test", ((RawLiteral)placeholder.Children[1].Children[0]).EncodedTextString);
+            Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)placeholder.Children[2]).EncodedTextString));
         }
 
 
@@ -264,7 +266,7 @@ test <dot:Literal><a /></dot:Literal>";
 
             var literal1 = container.Children[0];
             Assert.IsInstanceOfType(literal1, typeof(RawLiteral));
-            Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal1).EncodedText));
+            Assert.IsTrue(StringUtils.IsEmptyOrAsciiWhiteSpace(((RawLiteral)literal1).EncodedText.Span));
 
             var markupControl = container.Children[1];
             Assert.IsInstanceOfType(markupControl, typeof(DotvvmView));
@@ -273,7 +275,7 @@ test <dot:Literal><a /></dot:Literal>";
 
             var literal2 = container.Children[2];
             Assert.IsInstanceOfType(literal2, typeof(RawLiteral));
-            Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal2).EncodedText));
+            Assert.IsTrue(StringUtils.IsEmptyOrAsciiWhiteSpace(((RawLiteral)literal2).EncodedText.Span));
         }
 
         [TestMethod]
@@ -298,7 +300,7 @@ test <dot:Literal><a /></dot:Literal>";
 
             var literal1 = container.Children[0];
             Assert.IsInstanceOfType(literal1, typeof(RawLiteral));
-            Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal1).EncodedText));
+            Assert.IsTrue(StringUtils.IsEmptyOrAsciiWhiteSpace(((RawLiteral)literal1).EncodedText.Span));
 
             var markupControl = container.Children[1];
             Assert.IsInstanceOfType(markupControl, typeof(DotvvmView));
@@ -307,7 +309,7 @@ test <dot:Literal><a /></dot:Literal>";
 
             var literal2 = container.Children[2];
             Assert.IsInstanceOfType(literal2, typeof(RawLiteral));
-            Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal2).EncodedText));
+            Assert.IsTrue(StringUtils.IsEmptyOrAsciiWhiteSpace(((RawLiteral)literal2).EncodedText.Span));
         }
 
 

@@ -6,6 +6,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.ErrorPages;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.HotReload
 {
@@ -16,13 +17,13 @@ namespace DotVVM.HotReload
         {
             if (context.Configuration.Debug)
             {
-                using var textWriter = new StringWriter();
-                var writer = new HtmlWriter(textWriter, context);
+                var ms = new MemoryStream();
+
                 var renderedResources = new HashSet<string>();
+                using (var writer = new HtmlWriter(ms, context))
+                    RenderResource(context, "dotvvm-hotreload", writer, renderedResources);
 
-                RenderResource(context, "dotvvm-hotreload", writer, renderedResources);
-
-                return textWriter.ToString();
+                return StringUtils.Utf8Decode(ms.ToArray());
             }
             else
             {

@@ -7,6 +7,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -24,22 +25,27 @@ namespace DotVVM.Framework.Controls
             ResourcesRenderer.RenderResources(resourceManager, writer, context, ResourceRenderPosition.Body);
 
             // render the serialized viewmodel
-            var serializedViewModel = context.GetSerializedViewModel();
-            writer.AddAttribute("type", "hidden");
-            writer.AddAttribute("id", "__dot_viewmodel_root");
-            writer.AddAttribute("value", serializedViewModel);
-            writer.RenderSelfClosingTag("input");
+            writer.RenderBeginTag("input");
+            writer.WriteAttributeUnbuffered("type"u8, "hidden"u8);
+            writer.WriteAttributeUnbuffered("id"u8, "__dot_viewmodel_root"u8);
+            var viewModel = context.GetSerializedViewModel();
+            writer.WriteAttributeUnbuffered("value"u8, viewModel.Span);
+            // using (var vmStream = writer.WriteAttributeUnbuffered("value"u8))
+            // {
+            //     context.GetSerializedViewModel(vmStream);
+            // }
+            writer.RenderEndTag();
 
             // init on load
-            var initCode = $"window.dotvvm.init({KnockoutHelper.MakeStringLiteral(CultureInfo.CurrentCulture.Name)});";
+            byte[] initCode = [ .."window.dotvvm.init("u8, ..StringUtils.Utf8.GetBytes(KnockoutHelper.MakeStringLiteral(CultureInfo.CurrentCulture.Name)), ..");"u8 ];
             var config = context.Configuration;
             if (!config.Runtime.CompressPostbacks.IsEnabledForRoute(context.Route?.RouteName, defaultValue: !config.Debug))
             {
-                initCode = $"dotvvm.options.compressPOST=false;\n{initCode}";
+                initCode = [ .."dotvvm.options.compressPOST=false;\n"u8, ..initCode ];
             }
             if (config.ExperimentalFeatures.KnockoutDeferUpdates.IsEnabledForRoute(context.Route?.RouteName))
             {
-                initCode = $"ko.options.deferUpdates = true;\n{initCode}";
+                initCode = [ .."ko.options.deferUpdates = true;\n"u8, ..initCode ];
             }
             InlineScriptResource.RenderScript(writer, initCode, defer: true, module: true);
 

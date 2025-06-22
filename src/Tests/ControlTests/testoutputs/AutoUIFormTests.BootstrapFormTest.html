@@ -5,11 +5,11 @@
 		<!-- ko with: Entity -->
 		<div class="mb-3">
 			<label class="form-label" for="StringProp__input">String prop</label>
-			<input class="form-control" data-bind="dotvvm-validation: StringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-invalid&quot; }, dotvvm-textbox-text: StringProp" id="StringProp__input" type="text">
+			<input class="form-control" data-bind="dotvvm-validation: StringProp, dotvvm-textbox-text: StringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-invalid&quot; }" id="StringProp__input" type="text">
 		</div>
 		<div class="mb-3">
 			<label class="form-label" for="MultiLineStringProp__input">Multi line string prop</label>
-			<textarea class="form-control" data-bind="dotvvm-validation: MultiLineStringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-invalid&quot; }, dotvvm-textbox-text: MultiLineStringProp" id="MultiLineStringProp__input"></textarea>
+			<textarea class="form-control" data-bind="dotvvm-validation: MultiLineStringProp, dotvvm-textbox-text: MultiLineStringProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-invalid&quot; }" id="MultiLineStringProp__input"></textarea>
 		</div>
 		<div class="mb-3">
 			<label class="form-check form-check-label" data-bind="dotvvm-validation: BoolProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-invalid&quot; }" id="BoolProp__input">
@@ -19,14 +19,14 @@
 		</div>
 		<div class="mb-3">
 			<label class="form-label" for="EnumProp__input">Enum prop</label>
-			<select class="form-select" data-bind="dotvvm-validation: EnumProp, dotvvm-validationOptions: { invalidCssClass: &quot;is-invalid&quot; }, value: EnumProp, valueAllowUnset: true" id="EnumProp__input">
+			<select class="form-select" data-bind="dotvvm-validation: EnumProp, value: EnumProp, valueAllowUnset: true, dotvvm-validationOptions: { invalidCssClass: &quot;is-invalid&quot; }" id="EnumProp__input">
 				<option value="One">One</option>
 				<option value="Two">Two</option>
 			</select>
 		</div>
 		<div class="mb-3" data-bind="visible: $parent.Products()?.Items()?.length > 0">
 			<label class="form-label" for="ProductId__input">Product id</label>
-			<select class="form-select" data-bind="dotvvm-validation: ProductId, dotvvm-validationOptions: { invalidCssClass: &quot;is-invalid&quot; }, options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: ProductId, valueAllowUnset: true" id="ProductId__input"></select>
+			<select class="form-select" data-bind="dotvvm-validation: ProductId, options: $parent.Products()?.Items, optionsText: (i) => ko.unwrap(i).DisplayName(), optionsValue: (i) => ko.unwrap(i).Value(), value: ProductId, valueAllowUnset: true, dotvvm-validationOptions: { invalidCssClass: &quot;is-invalid&quot; }" id="ProductId__input"></select>
 		</div>
 		<div class="mb-3" data-bind="visible: $parent.Products()?.Items()?.length > 0">
 			<label class="form-label" for="Products__input">Products</label>

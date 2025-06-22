@@ -1,7 +1,7 @@
 <html>
 	<head></head>
 	<body>
-		<ul data-bind="dotvvm-gridviewdataset: { dataSet: Customers(), loadDataSet: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkNvbnRyb2xUZXN0cy5EYXRhUGFnZXJUZXN0c1x1MDAyQkdyaWRWaWV3TW9kZWwsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkQ3VzdG9tZXJzIixbXSwxLG51bGwsIkFBPT0iLG51bGxd&quot;, [args[0]], options),$element,[],args,$context)) }, visible: Customers()?.PagingOptions()?.PagesCount() > 1">
+		<ul data-bind="visible: Customers()?.PagingOptions()?.PagesCount() > 1, dotvvm-gridviewdataset: { dataSet: Customers(), loadDataSet: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkNvbnRyb2xUZXN0cy5EYXRhUGFnZXJUZXN0c1x1MDAyQkdyaWRWaWV3TW9kZWwsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkQ3VzdG9tZXJzIixbXSwxLG51bGwsIkFBPT0iLG51bGxd&quot;, [args[0]], options),$element,[],args,$context)) }">
 			<li class="disabled" data-bind="css: { disabled: Customers()?.PagingOptions()?.IsFirstPage }">
 				<a data-bind="dotvvm-enable: !Customers()?.PagingOptions()?.IsFirstPage()" href="javascript:;" onclick="dotvvm.applyPostbackHandlers(async (options) => {
 	let cx = options.knockoutContext;
