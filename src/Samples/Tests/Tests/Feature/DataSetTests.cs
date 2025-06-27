@@ -62,32 +62,32 @@ namespace DotVVM.Samples.Tests.Feature
                 var issueId1 = browser.ElementAt($"{grid} tbody tr td", 0).GetInnerText();
 
                 // go to page 2
-                browser.ElementAt($"{pager} li", 3).Single("a").Click().Wait(500);
+                browser.ElementAt($"{pager} li", 3).Single("a").Click().Wait(1000);
 
                 AssertUI.TextNotEquals(browser.ElementAt($"{grid} tbody tr td", 0), issueId1);
                 var issueId2 = browser.ElementAt($"{grid} tbody tr td", 0).GetInnerText();
 
                 // go to next page
-                browser.ElementAt($"{pager} li", 5).Single("a").Click().Wait(500);
+                browser.ElementAt($"{pager} li", 5).Single("a").Click().Wait(1000);
 
                 AssertUI.TextNotEquals(browser.ElementAt($"{grid} tbody tr td", 0), issueId1);
                 AssertUI.TextNotEquals(browser.ElementAt($"{grid} tbody tr td", 0), issueId2);
                 var issueId3 = browser.ElementAt($"{grid} tbody tr td", 0).GetInnerText();
 
                 // go to first page
-                browser.ElementAt($"{pager} li", 0).Single("a").Click().Wait(500);
+                browser.ElementAt($"{pager} li", 0).Single("a").Click().Wait(1000);
 
                 AssertUI.TextEquals(browser.ElementAt($"{grid} tbody tr td", 0), issueId1);
 
                 // go to page 4
-                browser.ElementAt($"{pager} li", 5).Single("a").Click().Wait(500);
+                browser.ElementAt($"{pager} li", 5).Single("a").Click().Wait(1000);
 
                 AssertUI.TextNotEquals(browser.ElementAt($"{grid} tbody tr td", 0), issueId1);
                 AssertUI.TextNotEquals(browser.ElementAt($"{grid} tbody tr td", 0), issueId2);
                 AssertUI.TextNotEquals(browser.ElementAt($"{grid} tbody tr td", 0), issueId3);
 
                 // go to previous page
-                browser.ElementAt($"{pager} li", 1).Single("a").Click().Wait(500);
+                browser.ElementAt($"{pager} li", 1).Single("a").Click().Wait(1000);
 
                 AssertUI.TextEquals(browser.ElementAt($"{grid} tbody tr td", 0), issueId3);
             });
