@@ -245,6 +245,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_CompositeControls_BasicSample = "FeatureSamples/CompositeControls/BasicSample";
         public const string FeatureSamples_CompositeControls_ControlPropertyNamingConflict = "FeatureSamples/CompositeControls/ControlPropertyNamingConflict";
         public const string FeatureSamples_ConditionalCssClasses_ConditionalCssClasses = "FeatureSamples/ConditionalCssClasses/ConditionalCssClasses";
+        public const string FeatureSamples_CsrfToken_InvalidateToken = "FeatureSamples/CsrfToken/InvalidateToken";
         public const string FeatureSamples_CustomPrimitiveTypes_Basic = "FeatureSamples/CustomPrimitiveTypes/Basic";
         public const string FeatureSamples_CustomPrimitiveTypes_RouteLink = "FeatureSamples/CustomPrimitiveTypes/RouteLink";
         public const string FeatureSamples_CustomPrimitiveTypes_TextBox = "FeatureSamples/CustomPrimitiveTypes/TextBox";

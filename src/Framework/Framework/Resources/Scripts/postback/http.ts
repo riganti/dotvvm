@@ -77,11 +77,10 @@ export async function fetchCsrfToken(signal: AbortSignal | undefined): Promise<s
 
         try {
             token = await csrfTokenFactory;
-            getStateManager().setState({ ...getState(), $csrfToken: token })
+            getStateManager().setState({ ...getState(), $csrfToken: token });
         }
-        catch (err) {
+        finally {
             csrfTokenFactory = void 0;
-            throw err;
         }
     }
     return token
