@@ -30,11 +30,11 @@ namespace DotVVM.Framework.Binding
             var binding5 = ValueBindingExpression.CreateThisBinding<string>(service, DataContextStack.Create(typeof(string), dataContext));
 
             Assert.AreEqual(binding1, binding2);
-            Assert.AreNotEqual(binding1, binding3);
+            Assert.AreNotEqual<object>(binding1, binding3);
             Assert.AreNotEqual(binding1, binding4);
-            Assert.AreNotEqual(binding2, binding3);
+            Assert.AreNotEqual<object>(binding2, binding3);
             Assert.AreNotEqual(binding2, binding4);
-            Assert.AreNotEqual(binding3, binding4);
+            Assert.AreNotEqual<object>(binding3, binding4);
             Assert.AreEqual(binding4, binding5);
         }
     }

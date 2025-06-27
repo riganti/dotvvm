@@ -1,0 +1,44 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CsrfToken.InvalidateTokenViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>CSRF token invalidation</h1>
+    <p data-ui="result">{{value: Value}}</p>
+
+    <dot:Button Text="Test" data-ui="test-button" Click="{command: Value = Value + 1}" />
+
+    <input type="button" data-ui="change-button" value="Change CSRF token" onclick="dotvvm.patchState({ $csrfToken: 'invalid token' });" />
+    <input type="button" data-ui="erase-button" value="Erase CSRF token" onclick="dotvvm.patchState({ $csrfToken: null });" />
+
+
+    <h3>Request log</h3>
+    <ol ID="request-log" ClientIDMode="Static">
+    </ol>
+
+    <script type="text/javascript">
+        const fetchBackup = window.fetch;
+        window.fetch = async function (url, init) {            
+            const response = await fetchBackup.apply(window, arguments);
+
+            if (typeof url === "string" && url.indexOf("hotReloadHub") < 0) {
+                const ol = document.getElementById("request-log");
+                const li = document.createElement("li");
+                li.innerText = (init.method ?? "GET") + " " + response.status + " " + url;
+                ol.appendChild(li);
+            }
+
+            return response;
+        };
+    </script>
+
+</body>
+</html>
+
+
