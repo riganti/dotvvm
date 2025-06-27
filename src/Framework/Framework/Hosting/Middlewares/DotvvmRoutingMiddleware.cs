@@ -144,6 +144,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             catch (DotvvmHttpException) { throw; }
             catch (Exception exception)
             {
+                context.RequestAborted.ThrowIfCancellationRequested();
                 foreach (var f in filters)
                 {
                     await f.OnPresenterExceptionAsync(context, exception);

@@ -19,6 +19,7 @@ namespace DotVVM.Framework.Testing
     public class TestDotvvmRequestContext : IDotvvmRequestContext
     {
         public IHttpContext HttpContext { get; set; }
+        public CancellationToken RequestAborted { get; set; }
         public string CsrfToken { get; set; }
         public JsonDocument ReceivedViewModelJson { get; set; }
         public object ViewModel { get; set; }
