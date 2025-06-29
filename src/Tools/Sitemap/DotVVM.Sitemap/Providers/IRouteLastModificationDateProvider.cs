@@ -4,5 +4,5 @@ namespace DotVVM.Sitemap.Providers;
 
 public interface IRouteLastModificationDateProvider
 {
-    Task<DateTime> GetLastModifiedTimeAsync(RouteBase route, string? culture, IReadOnlyDictionary<string, object?>? parameters, CancellationToken ct);
+    Task<DateTime> GetLastModifiedTimeAsync(RouteBase route, string? culture, IDictionary<string, object?>? parameters, CancellationToken ct);
 }

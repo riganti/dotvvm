@@ -15,7 +15,7 @@ public class AppDeploymentTimeLastModificationDateProvider : IRouteLastModificat
             : throw new NotSupportedException($"{nameof(AppDeploymentTimeLastModificationDateProvider)} cannot be used in environments without the entry assembly.");
     }
 
-    public Task<DateTime> GetLastModifiedTimeAsync(RouteBase route, string? culture, IReadOnlyDictionary<string, object?>? parameters, CancellationToken ct)
+    public Task<DateTime> GetLastModifiedTimeAsync(RouteBase route, string? culture, IDictionary<string, object?>? parameters, CancellationToken ct)
     {
         return Task.FromResult(appDeploymentTime);
     }
