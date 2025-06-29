@@ -27,6 +27,12 @@ namespace DotVVM.Framework.Routing
 
         private RouteTableGroup? group = null;
 
+        private readonly FreezableDictionary<object, object> extensionData = new();
+        /// <summary>
+        /// Contains additional metadata about the route table.
+        /// </summary>
+        public IDictionary<object, object> ExtensionData => extensionData;
+
         public IReadOnlyList<IPartialMatchRouteHandler> PartialMatchHandlers => partialMatchHandlers;
 
         internal IEnumerable<IPartialMatchRoute> PartialMatchRoutes => partialMatchRoutes;
@@ -60,7 +66,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="virtualPathPrefix">Virtual path prefix of added routes</param>
         /// <param name="content">Contains routes to be added</param>
         /// <param name="presenterFactory">Default presenter factory common to all routes in the group</param>
-        public DotvvmRouteTable AddGroup(string groupName,
+        public RouteTableGroup AddGroup(string groupName,
             string urlPrefix,
             string virtualPathPrefix,
             Action<DotvvmRouteTable> content,
@@ -93,7 +99,10 @@ namespace DotVVM.Framework.Routing
             content(newGroup);
             routeTableGroups.Add(groupName, newGroup);
 
-            return newGroup;
+            // track in which route group the route group is registered
+            newGroup.group.ParentRouteGroup = group;
+
+            return newGroup.group;
         }
 
         /// <summary>
@@ -168,6 +177,13 @@ namespace DotVVM.Framework.Routing
             }
 
             group?.AddToParentRouteTable?.Invoke(route);
+
+            // track in which route group the route is registered
+            if (route.ParentRouteGroup != null)
+            {
+                throw new InvalidOperationException($"The route '{route.RouteName}' is already registered in the route group '{route.ParentRouteGroup.GroupName}'!");
+            }
+            route.ParentRouteGroup = group;
 
             // The list is used for finding the routes because it keeps the ordering, the dictionary is for checking duplicates
             list.Add(new KeyValuePair<string, RouteBase>(route.RouteName, route));
@@ -248,8 +264,8 @@ namespace DotVVM.Framework.Routing
         /// <param name="urlSuffixProvider">Provider to obtain context-based URL suffix.</param>
         public RouteBase AddRouteRedirection(string routeName, string urlPattern, string targetRouteName,
             object? defaultValues = null, bool permanent = false, Func<IDotvvmRequestContext, Dictionary<string, object?>>? parametersProvider = null,
-            Func<IDotvvmRequestContext, string>? urlSuffixProvider = null)
-            => AddRouteRedirection(routeName, urlPattern, _ => targetRouteName, defaultValues, permanent, parametersProvider, urlSuffixProvider);
+            Func<IDotvvmRequestContext, string>? urlSuffixProvider = null, string? culture = null)
+            => AddRouteRedirection(routeName, urlPattern, _ => targetRouteName, defaultValues, permanent, parametersProvider, urlSuffixProvider, culture);
 
         /// <summary>
         /// Adds the specified route redirection entry.
@@ -260,7 +276,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="urlSuffixProvider">Provider to obtain context-based URL suffix.</param>
         public RouteBase AddRouteRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> targetRouteNameProvider,
             object? defaultValues = null, bool permanent = false, Func<IDotvvmRequestContext, Dictionary<string, object?>>? parametersProvider = null,
-            Func<IDotvvmRequestContext, string>? urlSuffixProvider = null)
+            Func<IDotvvmRequestContext, string>? urlSuffixProvider = null, string? culture = null)
         {
             IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => new DelegatePresenter(context =>
             {
@@ -269,9 +285,9 @@ namespace DotVVM.Framework.Routing
                 var urlSuffix = urlSuffixProvider != null ? urlSuffixProvider(context) : context.HttpContext.Request.Url.Query;
 
                 if (permanent)
-                    context.RedirectToRoutePermanent(targetRouteName, newParameterValues, urlSuffix: urlSuffix);
+                    context.RedirectToRoutePermanent(targetRouteName, newParameterValues, urlSuffix: urlSuffix, culture: culture);
                 else
-                    context.RedirectToRoute(targetRouteName, newParameterValues, urlSuffix: urlSuffix);
+                    context.RedirectToRoute(targetRouteName, newParameterValues, urlSuffix: urlSuffix, culture: culture);
             });
             return AddCore(routeName, urlPattern, virtualPath: null, defaultValues, presenterFactory);
         }
@@ -374,6 +390,30 @@ namespace DotVVM.Framework.Routing
         public void Freeze()
         {
             this.isFrozen = true;
+            extensionData.Freeze();
+
+            foreach (var routeTableGroup in routeTableGroups.Values)
+            {
+                routeTableGroup.Freeze();
+            }
+            foreach (var route in dictionary.Values)
+            {
+                route.Freeze();
+            }
+        }
+
+        public RouteBase GetRouteForCulture(string routeName, string? culture)
+        {
+            var route = this[routeName];
+            if (culture != null)
+            {
+                if (route is not LocalizedDotvvmRoute localizedRoute)
+                {
+                    throw new InvalidOperationException($"The route '{routeName}' is not a localized route and cannot be used with culture '{culture}'.");
+                }
+                route = localizedRoute.GetRouteForCulture(culture);
+            }
+            return route;
         }
     }
 }

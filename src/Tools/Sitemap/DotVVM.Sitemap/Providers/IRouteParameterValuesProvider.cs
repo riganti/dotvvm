@@ -4,5 +4,7 @@ namespace DotVVM.Sitemap.Providers;
 
 public interface IRouteParameterValuesProvider
 {
-    Task<Dictionary<string, object?>> GetParameterValuesAsync(RouteBase route, string? culture, CancellationToken ct);
+    Task<IReadOnlyList<RouteInstanceData>> GetParameterValuesAsync(RouteBase route, string? culture, CancellationToken ct);
 }
+
+public record RouteInstanceData(IDictionary<string, object?> ParameterValues, DateTime? LastModifiedDate = null);

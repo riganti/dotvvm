@@ -5,11 +5,12 @@ namespace DotVVM.Sitemap.Options;
 
 public class RouteSitemapOptions
 {
-    public double Priority { get; set; } = 1;
-    public ChangeFrequency ChangeFrequency { get; set; } = ChangeFrequency.Always;
-    public DateTime? LastModified { get; set; } = null;
-    public Type LastModifiedProviderType { get; private set; } = typeof(AppDeploymentTimeLastModificationDateProvider);
-    public Type? ParameterValuesProviderType { get; private set; } = null;
+    public double? Priority { get; set; }
+    public ChangeFrequency? ChangeFrequency { get; set; }
+    public DateTime? LastModified { get; set; }
+    public Type? LastModifiedProviderType { get; private set; }
+    public Type? ParameterValuesProviderType { get; private set; }
+    public bool? Exclude { get; set; }
 
     public RouteSitemapOptions UseLastModifiedProvider<T>() where T : IRouteLastModificationDateProvider
     {
@@ -21,5 +22,18 @@ public class RouteSitemapOptions
     {
         ParameterValuesProviderType = typeof(T);
         return this;
+    }
+
+    public RouteSitemapOptions CreateDerivedOptions(RouteSitemapOptions options)
+    {
+        return new RouteSitemapOptions()
+        {
+            Priority = options.Priority ?? Priority,
+            ChangeFrequency = options.ChangeFrequency ?? ChangeFrequency,
+            LastModified = options.LastModified ?? LastModified,
+            LastModifiedProviderType = options.LastModifiedProviderType ?? LastModifiedProviderType,
+            ParameterValuesProviderType = options.ParameterValuesProviderType ?? ParameterValuesProviderType,
+            Exclude = options.Exclude ?? Exclude
+        };
     }
 }

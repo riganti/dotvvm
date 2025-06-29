@@ -113,9 +113,9 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Returns the redirect response and interrupts the execution of current request.
     /// </summary>
-    public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object? newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string? urlSuffix = null, object? query = null)
+    public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object? newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string? urlSuffix = null, object? query = null, string? culture = null)
     {
-        var route = context.Configuration.RouteTable[routeName];
+        var route = context.Configuration.RouteTable.GetRouteForCulture(routeName, culture);
         var url = route.BuildUrl(context.Parameters!, newRouteValues) + UrlHelper.BuildUrlSuffix(urlSuffix, query);
 
         context.RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
@@ -133,9 +133,9 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Returns the permanent redirect response and interrupts the execution of current request.
     /// </summary>
-    public static void RedirectToRoutePermanent(this IDotvvmRequestContext context, string routeName, object? newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string? urlSuffix = null, object? query = null)
+    public static void RedirectToRoutePermanent(this IDotvvmRequestContext context, string routeName, object? newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string? urlSuffix = null, object? query = null, string? culture = null)
     {
-        var route = context.Configuration.RouteTable[routeName];
+        var route = context.Configuration.RouteTable.GetRouteForCulture(routeName, culture);
         var url = route.BuildUrl(context.Parameters!, newRouteValues) + UrlHelper.BuildUrlSuffix(urlSuffix, query);
 
         context.RedirectToUrlPermanent(url, replaceInHistory, allowSpaRedirect);

@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Xml;
 using System.Xml.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -11,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace DotVVM.Sitemap.Presenters;
 
-public class SitemapPresenter(DotvvmConfiguration configuration) : IDotvvmPresenter
+public class SitemapPresenter(DotvvmConfiguration configuration, IOptions<SitemapOptions> options) : IDotvvmPresenter
 {
     public async Task ProcessRequest(IDotvvmRequestContext context)
     {
@@ -26,17 +25,11 @@ public class SitemapPresenter(DotvvmConfiguration configuration) : IDotvvmPresen
         // write XML
         var xml = BuildXml(entries);
         context.HttpContext.Response.ContentType = "application/xml";
-
-        var writer = new XmlTextWriter(context.HttpContext.Response.Body, System.Text.Encoding.UTF8) {
-            Formatting = Formatting.Indented,
-            Indentation = 2
-        };
-        await xml.WriteToAsync(writer, ct);
+        await xml.SaveAsync(context.HttpContext.Response.Body, SaveOptions.None, ct);
     }
 
     private Uri GetPublicUrl(IDotvvmRequestContext context)
     {
-        var options = context.Services.GetRequiredService<IOptions<SitemapOptions>>();
         if (options.Value.SitePublicUrl != null)
         {
             return options.Value.SitePublicUrl;
@@ -58,7 +51,7 @@ public class SitemapPresenter(DotvvmConfiguration configuration) : IDotvvmPresen
                 entries.Select(e => new XElement(ns + "url",
                     new XElement(ns + "loc", e.Url),
                     e.Priority != null ? new XElement(ns + "priority", e.Priority.Value.ToString("n1", CultureInfo.InvariantCulture)) : null,
-                    e.LastModified != null ? new XElement(ns + "lastmod", e.LastModified.Value.ToString("o")) : null,
+                    e.LastModified != null ? new XElement(ns + "lastmod", e.LastModified.Value.ToString("yyyy-MM-ddTHH:mm:sszzz")) : null,
                     e.ChangeFrequency != ChangeFrequency.Always ? new XElement(ns + "changefreq", e.ChangeFrequency.ToString().ToLowerInvariant()) : null,
                     e.AlternateCultureUrls?.Select(a => new XElement(xhtmlns + "link",
                         new XAttribute("rel", "alternate"),
@@ -74,92 +67,146 @@ public class SitemapPresenter(DotvvmConfiguration configuration) : IDotvvmPresen
     {
         // find routes with RouteSitemapOptions
         var routes = configuration.RouteTable
-            .Select(r => (Route: r, SitemapOptions: r.ExtensionData.TryGetValue(typeof(RouteSitemapOptions), out var o) ? o : null))
-            .Where(r => r.SitemapOptions != null)
-            .Select(r => (r.Route, SitemapOptions: (RouteSitemapOptions)r.SitemapOptions!));
+            .Select(r => (Route: r, SitemapOptions: TryGetRouteSitemapOptions(r)))
+            .Where(r => r.SitemapOptions != null && r.SitemapOptions.Exclude != true)
+            .Where(r => !r.Route.Url.StartsWith("_dotvvm"))
+            .Select(r => (r.Route, SitemapOptions: r.SitemapOptions!));
 
         // expand parameters
-        var entries = new List<SitemapEntry>();
+        var sitemapEntries = new List<SitemapEntry>();
         foreach (var route in routes)
         {
             if (route.Route is LocalizedDotvvmRoute localizedRoute)
             {
                 // obtain entries for each culture
-                var localizedEntries = new List<SitemapEntry>();
+                var localizedEntries = new List<(int RouteInstanceIndex, SitemapEntry Entry)>();
                 foreach (var routeWithCulture in localizedRoute.GetAllCultureRoutes())
                 {
                     localizedEntries.AddRange(await BuildRouteEntriesAsync(context, publicUri, routeWithCulture.Value, routeWithCulture.Key, route.SitemapOptions, ct));
                 }
 
                 // generate alternate links
-                foreach (var entry in localizedEntries)
+                foreach (var routeInstanceEntries in localizedEntries.GroupBy(e => e.RouteInstanceIndex))
                 {
-                    entry.AlternateCultureUrls = localizedEntries
-                        .Where(e => e != entry)
-                        .ToDictionary(e => e.Culture, e => e.Url);
+                    foreach (var routeInstanceEntry in routeInstanceEntries)
+                    {
+                        routeInstanceEntry.Entry.AlternateCultureUrls = routeInstanceEntries
+                            .Where(e => e != routeInstanceEntry)
+                            .ToDictionary(e => e.Entry.Culture, e => e.Entry.Url);
+                    }
                 }
 
-                entries.AddRange(localizedEntries);
+                sitemapEntries.AddRange(localizedEntries.Select(e => e.Entry));
             }
             else
             {
                 // single culture route
-                entries.AddRange(await BuildRouteEntriesAsync(context, publicUri, route.Route, null, route.SitemapOptions, ct));
+                var routeEntries = await BuildRouteEntriesAsync(context, publicUri, route.Route, null, route.SitemapOptions, ct);
+                sitemapEntries.AddRange(routeEntries.Select(e => e.Entry));
             }
 
             ct.ThrowIfCancellationRequested();
         }
 
-        return entries;
+        return sitemapEntries;
     }
 
-    private async Task<IEnumerable<SitemapEntry>> BuildRouteEntriesAsync(IDotvvmRequestContext context, Uri publicUri, RouteBase route, string? culture, RouteSitemapOptions sitemapOptions, CancellationToken ct)
+    private RouteSitemapOptions? TryGetRouteSitemapOptions(RouteBase route)
     {
-        var entries = new List<SitemapEntry>();
-        var lastModifiedProvider = context.Services.GetRequiredService(sitemapOptions.LastModifiedProviderType);
+        var chain = GetRouteSitemapOptionsChain(route).Reverse();
+
+        RouteSitemapOptions? result = null;
+        foreach (var options in chain)
+        {
+            result = (result ?? new RouteSitemapOptions()).CreateDerivedOptions(options);
+        }
+        return result;
+    }
+
+    private IEnumerable<RouteSitemapOptions> GetRouteSitemapOptionsChain(RouteBase route)
+    {
+        if (route.ExtensionData.TryGetValue(typeof(RouteSitemapOptions), out var o) && o is RouteSitemapOptions routeOptions)
+        {
+            yield return routeOptions;
+        }
+        if (route.VirtualPath == null)
+        {
+            // routes without virtual path are excluded by default if they do not specify options explicitly
+            yield return new RouteSitemapOptions() { Exclude = true };
+        }
+
+        var parentGroup = route.ParentRouteGroup;
+        while (parentGroup != null)
+        {
+            if (parentGroup.ExtensionData.TryGetValue(typeof(RouteSitemapOptions), out var o2) && o2 is RouteSitemapOptions groupOptions)
+            {
+                yield return groupOptions;
+            }
+            parentGroup = parentGroup.ParentRouteGroup;
+        }
+
+        if (configuration.RouteTable.ExtensionData.TryGetValue(typeof(RouteSitemapOptions), out var o3) && o3 is RouteSitemapOptions routeTableOptions)
+        {
+            yield return routeTableOptions;
+        }
+    }
+
+    private async Task<IEnumerable<(int RouteInstanceIndex, SitemapEntry Entry)>> BuildRouteEntriesAsync(IDotvvmRequestContext context, Uri publicUri, RouteBase route, string? culture, RouteSitemapOptions sitemapOptions, CancellationToken ct)
+    {
+        var entries = new List<(int RouteInstanceIndex, SitemapEntry Entry)>();
+        var lastModifiedProvider = context.Services.GetRequiredService(sitemapOptions.LastModifiedProviderType ?? typeof(AppDeploymentTimeLastModificationDateProvider));
 
         if (sitemapOptions.ParameterValuesProviderType is { } providerType)
         {
             // there are multiple pages with different content for the same route
             var provider = context.Services.GetRequiredService(providerType);
 
-            var parameterValues = await ((IRouteParameterValuesProvider)provider).GetParameterValuesAsync(route, culture, ct);
+            var routeInstances = await ((IRouteParameterValuesProvider)provider).GetParameterValuesAsync(route, culture, ct);
             ct.ThrowIfCancellationRequested();
 
-            foreach (var parameterValue in parameterValues)
+            for (var index = 0; index < routeInstances.Count; index++)
             {
-                var pageUrl = route.BuildUrl(parameterValue).TrimStart('~', '/');
-                entries.Add(new SitemapEntry()
+                var routeInstance = routeInstances[index];
+                var pageUrl = route.BuildUrl(routeInstance.ParameterValues).TrimStart('~', '/');
+                var entry = new SitemapEntry()
                 {
                     Url = new Uri(publicUri, pageUrl).ToString(),
                     Culture = string.IsNullOrEmpty(culture) ? "x-default" : culture,
-                    ChangeFrequency = sitemapOptions.ChangeFrequency,
-                    LastModified = await GetLastModifiedDateAsync(parameterValues),
-                });
+                    ChangeFrequency = sitemapOptions.ChangeFrequency ?? ChangeFrequency.Always,
+                    LastModified = await GetLastModifiedDateAsync(routeInstance),
+                    Priority = sitemapOptions.Priority ?? 1d
+                };
+                entries.Add((index, entry));
             }
         }
         else
         {
             // single instance of the route
-            entries.Add(new SitemapEntry()
+            var entry = new SitemapEntry()
             {
-                Url = route.BuildUrl(),
+                Url = new Uri(publicUri, route.BuildUrl().TrimStart('~', '/')).ToString(),
                 Culture = string.IsNullOrEmpty(culture) ? "x-default" : culture,
-                ChangeFrequency = sitemapOptions.ChangeFrequency,
-                LastModified = await GetLastModifiedDateAsync(null)
-            });
+                ChangeFrequency = sitemapOptions.ChangeFrequency ?? ChangeFrequency.Always,
+                LastModified = await GetLastModifiedDateAsync(null),
+                Priority = sitemapOptions.Priority ?? 1d
+            };
+            entries.Add((0, entry));
         }
 
         return entries;
 
-        async Task<DateTime> GetLastModifiedDateAsync(Dictionary<string, object?>? parameterValues)
+        async Task<DateTime> GetLastModifiedDateAsync(RouteInstanceData? routeInstanceData)
         {
-            if (sitemapOptions.LastModified != null)
+            if (routeInstanceData is { LastModifiedDate: not null })
+            {
+                return routeInstanceData.LastModifiedDate.Value;
+            }
+            else if (sitemapOptions.LastModified != null)
             {
                 return sitemapOptions.LastModified.Value;
             }
 
-            return await ((IRouteLastModificationDateProvider)lastModifiedProvider).GetLastModifiedTimeAsync(route, culture, parameterValues, ct);
+            return await ((IRouteLastModificationDateProvider)lastModifiedProvider).GetLastModifiedTimeAsync(route, culture, routeInstanceData?.ParameterValues, ct);
         }
     }
 }
