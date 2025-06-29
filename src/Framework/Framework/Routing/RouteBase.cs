@@ -8,6 +8,12 @@ namespace DotVVM.Framework.Routing
 {
     public abstract class RouteBase
     {
+        private readonly FreezableDictionary<object, object> extensionData = new();
+        /// <summary>
+        /// Contains additional metadata about the route.
+        /// </summary>
+        public IDictionary<object, object> ExtensionData => extensionData;
+
         /// <summary>
         /// Gets or sets a factory that provides an implementation of IDotvvmPresenter to handle the matching requests.
         /// </summary>
@@ -84,6 +90,11 @@ namespace DotVVM.Framework.Routing
         /// Gets the metadata of the route parameters.
         /// </summary>
         public abstract IEnumerable<KeyValuePair<string, DotvvmRouteParameterMetadata>> ParameterMetadata { get; }
+
+        /// <summary>
+        /// Gets the parent route group that contains this route.
+        /// </summary>
+        public RouteTableGroup? ParentRouteGroup { get; internal set; }
 
         /// <summary>
         /// Determines whether the route matches to the specified URL and extracts the parameter values.
@@ -213,6 +224,7 @@ namespace DotVVM.Framework.Routing
         {
             this.isFrozen = true;
             this.defaultValues.Freeze();
+            this.extensionData.Freeze();
 
             Freeze2();
         }
