@@ -183,7 +183,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void Call_GlobalExtensionMethod()
         {
-            var expectedMethod = MethodFindingHelper.GetMethodFromExpression(() => default(IDotvvmRequestContext).RedirectToRoute("", null, false, true, "", null));
+            var expectedMethod = MethodFindingHelper.GetMethodFromExpression(() => default(IDotvvmRequestContext).RedirectToRoute("", null, false, true, "", null, null));
             Assert.IsNull(expectedMethod.DeclaringType.Namespace, "The test is not valid if the method is not in the global namespace");
             var importedTarget = new MethodGroupExpression(
                 Expression.Parameter(typeof(IDotvvmRequestContext)),
