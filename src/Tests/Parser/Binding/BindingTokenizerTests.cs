@@ -337,6 +337,135 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(index, tokens.Count);
         }
 
+        [TestMethod]
+        public void BindingTokenizer_NewKeyword_Valid()
+        {
+            var tokens = Tokenize("new");
+
+            Assert.AreEqual(1, tokens.Count);
+            Assert.AreEqual(BindingTokenType.NewKeyword, tokens[0].Type);
+            Assert.AreEqual("new", tokens[0].Text);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_NewKeywordWithClass_Valid()
+        {
+            var tokens = Tokenize("new MyClass");
+
+            Assert.AreEqual(3, tokens.Count);
+            Assert.AreEqual(BindingTokenType.NewKeyword, tokens[0].Type);
+            Assert.AreEqual("new", tokens[0].Text);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[1].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
+            Assert.AreEqual("MyClass", tokens[2].Text);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_NewKeywordWithConstructorCall_Valid()
+        {
+            var tokens = Tokenize("new MyClass()");
+
+            Assert.AreEqual(5, tokens.Count);
+            Assert.AreEqual(BindingTokenType.NewKeyword, tokens[0].Type);
+            Assert.AreEqual("new", tokens[0].Text);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[1].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
+            Assert.AreEqual("MyClass", tokens[2].Text);
+            Assert.AreEqual(BindingTokenType.OpenParenthesis, tokens[3].Type);
+            Assert.AreEqual(BindingTokenType.CloseParenthesis, tokens[4].Type);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_NewKeywordWithArguments_Valid()
+        {
+            var tokens = Tokenize("new MyClass(arg1, 42)");
+
+            var index = 0;
+            Assert.AreEqual(BindingTokenType.NewKeyword, tokens[index++].Type);
+            Assert.AreEqual("new", tokens[index - 1].Text);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual("MyClass", tokens[index - 1].Text);
+            Assert.AreEqual(BindingTokenType.OpenParenthesis, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual("arg1", tokens[index - 1].Text);
+            Assert.AreEqual(BindingTokenType.Comma, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual("42", tokens[index - 1].Text);
+            Assert.AreEqual(BindingTokenType.CloseParenthesis, tokens[index++].Type);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_NewNotKeywordWhenPartOfIdentifier_Valid()
+        {
+            var tokens = Tokenize("newVariable");
+
+            Assert.AreEqual(1, tokens.Count);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[0].Type);
+            Assert.AreEqual("newVariable", tokens[0].Text);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_NewKeywordInComplexExpression_Valid()
+        {
+            var tokens = Tokenize("value + new MyClass(42) * 2");
+
+            var foundNewKeyword = false;
+            foreach (var token in tokens)
+            {
+                if (token.Type == BindingTokenType.NewKeyword)
+                {
+                    foundNewKeyword = true;
+                    Assert.AreEqual("new", token.Text);
+                    break;
+                }
+            }
+            Assert.IsTrue(foundNewKeyword, "Expected to find NewKeyword token in expression");
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_CurlyBraces_Valid()
+        {
+            var tokenizer = new BindingTokenizer();
+            tokenizer.Tokenize("{ }");
+
+            Assert.AreEqual(3, tokenizer.Tokens.Count);
+            Assert.AreEqual(BindingTokenType.OpenCurlyBrace, tokenizer.Tokens[0].Type);
+            Assert.AreEqual("{", tokenizer.Tokens[0].Text);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokenizer.Tokens[1].Type);
+            Assert.AreEqual(BindingTokenType.CloseCurlyBrace, tokenizer.Tokens[2].Type);
+            Assert.AreEqual("}", tokenizer.Tokens[2].Text);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_ArrayInitializerSyntax_Valid()
+        {
+            var tokenizer = new BindingTokenizer();
+            tokenizer.Tokenize("new int[] { 1, 2 }");
+
+            var tokenTypes = tokenizer.Tokens.Select(t => t.Type).ToArray();
+            var expectedTypes = new[]
+            {
+                BindingTokenType.NewKeyword,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.OpenArrayBrace,
+                BindingTokenType.CloseArrayBrace,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.OpenCurlyBrace,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.Comma,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.CloseCurlyBrace
+            };
+
+            CollectionAssert.AreEqual(expectedTypes, tokenTypes);
+        }
+
         private static List<BindingToken> Tokenize(string expression)
         {
             // tokenize

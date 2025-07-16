@@ -83,6 +83,18 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         CreateToken(BindingTokenType.CloseArrayBrace, "]");
                         break;
 
+                    case '{':
+                        FinishIncompleteIdentifier();
+                        Read();
+                        CreateToken(BindingTokenType.OpenCurlyBrace, "{");
+                        break;
+
+                    case '}':
+                        FinishIncompleteIdentifier();
+                        Read();
+                        CreateToken(BindingTokenType.CloseCurlyBrace, "}");
+                        break;
+
                     case '+':
                         FinishIncompleteIdentifier();
                         Read();
@@ -290,7 +302,20 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
         {
             if (DistanceSinceLastToken > 0)
             {
-                CreateToken(BindingTokenType.Identifier);
+                var text = GetCurrentTokenText();
+                var tokenType = GetKeywordTokenType(text);
+                CreateToken(tokenType);
+            }
+        }
+
+        private BindingTokenType GetKeywordTokenType(string text)
+        {
+            switch (text)
+            {
+                case "new":
+                    return BindingTokenType.NewKeyword;
+                default:
+                    return BindingTokenType.Identifier;
             }
         }
 

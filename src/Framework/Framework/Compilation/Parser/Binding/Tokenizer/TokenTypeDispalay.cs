@@ -22,6 +22,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                 case BindingTokenType.CloseParenthesis: return ")";
                 case BindingTokenType.OpenArrayBrace: return "[";
                 case BindingTokenType.CloseArrayBrace: return "]";
+                case BindingTokenType.OpenCurlyBrace: return "{";
+                case BindingTokenType.CloseCurlyBrace: return "}";
                 case BindingTokenType.AddOperator: return "+";
                 case BindingTokenType.SubtractOperator: return "-";
                 case BindingTokenType.MultiplyOperator: return "*";
@@ -45,6 +47,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                 case BindingTokenType.OrOperator: return "|";
                 case BindingTokenType.OrElseOperator: return "||";
                 case BindingTokenType.AssignOperator: return "=";
+                case BindingTokenType.NewKeyword: return "new";
                 default: return "Unknown";
             }
         }
