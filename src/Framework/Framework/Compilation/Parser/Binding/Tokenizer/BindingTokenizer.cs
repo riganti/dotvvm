@@ -89,6 +89,18 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         CreateToken(BindingTokenType.CloseArrayBrace, "]");
                         break;
 
+                    case '{':
+                        FinishIncompleteIdentifier();
+                        Read();
+                        CreateToken(BindingTokenType.OpenCurlyBrace, "{");
+                        break;
+
+                    case '}':
+                        FinishIncompleteIdentifier();
+                        Read();
+                        CreateToken(BindingTokenType.CloseCurlyBrace, "}");
+                        break;
+
                     case '+':
                         FinishIncompleteIdentifier();
                         Read();

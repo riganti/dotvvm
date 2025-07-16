@@ -1102,6 +1102,8 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(voidBlockExpectedLength, middleExpression.Length);
 
         }
+
+        [DataTestMethod]
         [DataRow("var x=A(); !x", "x", DisplayName = "Variable (var) expression")]
         [DataRow("var var=A(); !var", "var", DisplayName = "Variable (var) expression, name=var")]
         [DataRow("var x = A(); !x", "x", DisplayName = "Variable (var) expression with whitespaces")]
@@ -1515,6 +1517,243 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(operatorType, node.Operator);
             Assert.IsInstanceOfType(node.FirstExpression, typeof(TLeft));
             Assert.IsInstanceOfType(node.SecondExpression, typeof(TRight));
+        }
+
+        [TestMethod]
+        public void BindingParser_NewExpression_SimpleClass_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("new MyClass()");
+
+            Assert.IsInstanceOfType(result, typeof(ConstructorCallBindingParserNode));
+            var constructorCall = (ConstructorCallBindingParserNode)result;
+            
+            Assert.IsInstanceOfType(constructorCall.TypeExpression, typeof(SimpleNameBindingParserNode));
+            Assert.AreEqual("MyClass", ((SimpleNameBindingParserNode)constructorCall.TypeExpression).Name);
+            Assert.AreEqual(0, constructorCall.ArgumentExpressions.Count);
+        }
+
+        [TestMethod]
+        public void BindingParser_NewExpression_WithArguments_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("new MyClass(arg1, 42, \"test\")");
+
+            Assert.IsInstanceOfType(result, typeof(ConstructorCallBindingParserNode));
+            var constructorCall = (ConstructorCallBindingParserNode)result;
+            
+            Assert.IsInstanceOfType(constructorCall.TypeExpression, typeof(SimpleNameBindingParserNode));
+            Assert.AreEqual("MyClass", ((SimpleNameBindingParserNode)constructorCall.TypeExpression).Name);
+            Assert.AreEqual(3, constructorCall.ArgumentExpressions.Count);
+            
+            // Check first argument (identifier)
+            Assert.IsInstanceOfType(constructorCall.ArgumentExpressions[0], typeof(IdentifierNameBindingParserNode));
+            Assert.AreEqual("arg1", ((IdentifierNameBindingParserNode)constructorCall.ArgumentExpressions[0]).Name);
+            
+            // Check second argument (number literal)
+            Assert.IsInstanceOfType(constructorCall.ArgumentExpressions[1], typeof(LiteralExpressionBindingParserNode));
+            Assert.AreEqual(42, ((LiteralExpressionBindingParserNode)constructorCall.ArgumentExpressions[1]).Value);
+            
+            // Check third argument (string literal)
+            Assert.IsInstanceOfType(constructorCall.ArgumentExpressions[2], typeof(LiteralExpressionBindingParserNode));
+            Assert.AreEqual("test", ((LiteralExpressionBindingParserNode)constructorCall.ArgumentExpressions[2]).Value);
+        }
+
+        [TestMethod]
+        public void BindingParser_NewExpression_FullyQualifiedType_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("new System.DateTime(2023, 12, 25)");
+
+            Assert.IsInstanceOfType(result, typeof(ConstructorCallBindingParserNode));
+            var constructorCall = (ConstructorCallBindingParserNode)result;
+            
+            Assert.IsInstanceOfType(constructorCall.TypeExpression, typeof(MemberAccessBindingParserNode));
+            Assert.AreEqual(3, constructorCall.ArgumentExpressions.Count);
+            Assert.AreEqual("new System.DateTime(2023, 12, 25)", constructorCall.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_NewExpression_GenericType_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("new List<string>()");
+
+            Assert.IsInstanceOfType(result, typeof(ConstructorCallBindingParserNode));
+            var constructorCall = (ConstructorCallBindingParserNode)result;
+            
+            Assert.IsInstanceOfType(constructorCall.TypeExpression, typeof(TypeOrFunctionReferenceBindingParserNode));
+            Assert.AreEqual(0, constructorCall.ArgumentExpressions.Count);
+            Assert.AreEqual("new List<string>()", constructorCall.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_NewExpression_WithoutParentheses_SyntaxError()
+        {
+            var result = bindingParserNodeFactory.Parse("new MyClass");
+
+            Assert.IsInstanceOfType(result, typeof(ConstructorCallBindingParserNode));
+            var constructorCall = (ConstructorCallBindingParserNode)result;
+            
+            Assert.IsInstanceOfType(constructorCall.TypeExpression, typeof(SimpleNameBindingParserNode));
+            Assert.AreEqual("MyClass", ((SimpleNameBindingParserNode)constructorCall.TypeExpression).Name);
+            Assert.AreEqual(0, constructorCall.ArgumentExpressions.Count);
+            
+            // Should have a parsing error
+            Assert.IsTrue(result.HasNodeErrors);
+            Assert.IsTrue(result.NodeErrors.Any(e => e.Contains("Constructor call must have parentheses")));
+        }
+
+        [TestMethod]
+        public void BindingParser_NewExpression_NestedInExpression_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("value + new MyClass(42)");
+
+            Assert.IsInstanceOfType(result, typeof(BinaryOperatorBindingParserNode));
+            var binaryOp = (BinaryOperatorBindingParserNode)result;
+            
+            Assert.AreEqual(BindingTokenType.AddOperator, binaryOp.Operator);
+            Assert.IsInstanceOfType(binaryOp.FirstExpression, typeof(IdentifierNameBindingParserNode));
+            Assert.IsInstanceOfType(binaryOp.SecondExpression, typeof(ConstructorCallBindingParserNode));
+            
+            var constructorCall = (ConstructorCallBindingParserNode)binaryOp.SecondExpression;
+            Assert.AreEqual("MyClass", ((SimpleNameBindingParserNode)constructorCall.TypeExpression).Name);
+            Assert.AreEqual(1, constructorCall.ArgumentExpressions.Count);
+        }
+
+        [TestMethod]
+        public void BindingParser_NewExpression_AsMethodArgument_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("SomeMethod(new MyClass(), 42)");
+
+            Assert.IsInstanceOfType(result, typeof(FunctionCallBindingParserNode));
+            var functionCall = (FunctionCallBindingParserNode)result;
+            
+            Assert.AreEqual(2, functionCall.ArgumentExpressions.Count);
+            Assert.IsInstanceOfType(functionCall.ArgumentExpressions[0], typeof(ConstructorCallBindingParserNode));
+            
+            var constructorCall = (ConstructorCallBindingParserNode)functionCall.ArgumentExpressions[0];
+            Assert.AreEqual("MyClass", ((SimpleNameBindingParserNode)constructorCall.TypeExpression).Name);
+        }
+
+        [TestMethod]
+        public void BindingParser_TypeInferredConstructorCall_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("new(1, 2, 3)");
+
+            Assert.IsInstanceOfType(result, typeof(TypeInferredConstructorCallBindingParserNode));
+            var constructorCall = (TypeInferredConstructorCallBindingParserNode)result;
+            
+            Assert.AreEqual(3, constructorCall.ArgumentExpressions.Count);
+            Assert.AreEqual("new(1, 2, 3)", constructorCall.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_TypeInferredConstructorCall_NoArguments_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("new()");
+
+            Assert.IsInstanceOfType(result, typeof(TypeInferredConstructorCallBindingParserNode));
+            var constructorCall = (TypeInferredConstructorCallBindingParserNode)result;
+            
+            Assert.AreEqual(0, constructorCall.ArgumentExpressions.Count);
+            Assert.AreEqual("new()", constructorCall.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_ArrayConstruction_WithSize_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("new int[5]");
+
+            Assert.IsInstanceOfType(result, typeof(ArrayConstructionBindingParserNode));
+            var arrayConstruction = (ArrayConstructionBindingParserNode)result;
+            
+            Assert.IsNotNull(arrayConstruction.ElementTypeExpression);
+            Assert.IsNotNull(arrayConstruction.SizeExpression);
+            Assert.IsNull(arrayConstruction.InitializerExpressions);
+            Assert.AreEqual("new int[5]", arrayConstruction.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_ArrayConstruction_WithInitializers_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("new int[] { 1, 2, 3 }");
+
+            Assert.IsInstanceOfType(result, typeof(ArrayConstructionBindingParserNode));
+            var arrayConstruction = (ArrayConstructionBindingParserNode)result;
+            
+            Assert.IsNotNull(arrayConstruction.ElementTypeExpression);
+            Assert.IsNull(arrayConstruction.SizeExpression);
+            Assert.IsNotNull(arrayConstruction.InitializerExpressions);
+            Assert.AreEqual(3, arrayConstruction.InitializerExpressions.Count);
+            Assert.AreEqual("new int[] { 1, 2, 3 }", arrayConstruction.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_ArrayConstruction_TypeInferred_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("new[] { 1, 2, 3 }");
+
+            Assert.IsInstanceOfType(result, typeof(ArrayConstructionBindingParserNode));
+            var arrayConstruction = (ArrayConstructionBindingParserNode)result;
+            
+            Assert.IsNull(arrayConstruction.ElementTypeExpression);
+            Assert.IsNull(arrayConstruction.SizeExpression);
+            Assert.IsNotNull(arrayConstruction.InitializerExpressions);
+            Assert.AreEqual(3, arrayConstruction.InitializerExpressions.Count);
+            Assert.AreEqual("new[] { 1, 2, 3 }", arrayConstruction.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_ArrayConstruction_EmptyInitializers_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("new int[] { }");
+
+            Assert.IsInstanceOfType(result, typeof(ArrayConstructionBindingParserNode));
+            var arrayConstruction = (ArrayConstructionBindingParserNode)result;
+            
+            Assert.IsNotNull(arrayConstruction.ElementTypeExpression);
+            Assert.IsNull(arrayConstruction.SizeExpression);
+            Assert.IsNotNull(arrayConstruction.InitializerExpressions);
+            Assert.AreEqual(0, arrayConstruction.InitializerExpressions.Count);
+            Assert.AreEqual("new int[] {  }", arrayConstruction.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_ArrayConstruction_MultidimensionalArray_SyntaxError()
+        {
+            var result = bindingParserNodeFactory.Parse("new int[5, 3]");
+
+            Assert.IsInstanceOfType(result, typeof(ArrayConstructionBindingParserNode));
+            var arrayConstruction = (ArrayConstructionBindingParserNode)result;
+            
+            // Should have a parsing error
+            Assert.IsTrue(result.HasNodeErrors);
+            Assert.IsTrue(result.NodeErrors.Any(e => e.Contains("Multi-dimensional arrays are not supported")));
+        }
+
+        [TestMethod]
+        public void BindingParser_ArrayConstruction_EmptyBracketsWithoutInitializer_SyntaxError()
+        {
+            var result = bindingParserNodeFactory.Parse("new int[]");
+
+            Assert.IsInstanceOfType(result, typeof(ArrayConstructionBindingParserNode));
+            var arrayConstruction = (ArrayConstructionBindingParserNode)result;
+            
+            // Should have a parsing error
+            Assert.IsTrue(result.HasNodeErrors);
+            Assert.IsTrue(result.NodeErrors.Any(e => e.Contains("must be followed by initializer list")));
+        }
+
+        [TestMethod]
+        public void BindingParser_ArrayConstruction_NestedInExpression_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("SomeMethod(new int[] { 1, 2, 3 })");
+
+            Assert.IsInstanceOfType(result, typeof(FunctionCallBindingParserNode));
+            var functionCall = (FunctionCallBindingParserNode)result;
+            
+            Assert.AreEqual(1, functionCall.ArgumentExpressions.Count);
+            Assert.IsInstanceOfType(functionCall.ArgumentExpressions[0], typeof(ArrayConstructionBindingParserNode));
+            
+            var arrayConstruction = (ArrayConstructionBindingParserNode)functionCall.ArgumentExpressions[0];
+            Assert.AreEqual(3, arrayConstruction.InitializerExpressions!.Count);
         }
     }
 }

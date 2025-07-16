@@ -13,6 +13,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
         CloseParenthesis,
         OpenArrayBrace,
         CloseArrayBrace,
+        OpenCurlyBrace,
+        CloseCurlyBrace,
 
         AddOperator,
         SubtractOperator,
