@@ -56,7 +56,7 @@ namespace DotVVM.Samples.Tests.Feature
                     a.writeContents(updated);
 
                     browser.Wait(1000);
-                    AssertUI.TextEquals(browser.First("h1"), "Server Error, HTTP 500: Unhandled exception occurred");
+                    AssertUI.TextEquals(browser.First("h1"), "Server Error: ViewChanges.dothtml compilation failed.");
 
                     updated = a.original.Replace("<dot:TextBox Text='{value: NonExistentValue}' />", "<dot:TextBox Text='{value: Value}' />");
                     a.writeContents(updated);

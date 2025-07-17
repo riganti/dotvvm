@@ -8,20 +8,18 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class ExceptionModel
     {
-        public ExceptionModel(string typeName, string message, StackFrameModel[] stack, Exception originalException, ExceptionAdditionalInfo[] additionalInfos)
+        public ExceptionModel(Type exceptionType, StackFrameModel[] stack, Exception originalException, ExceptionAdditionalInfo[] additionalInfos)
         {
-            TypeName = typeName;
-            Message = message;
+            ExceptionType = exceptionType;
             Stack = stack;
-            OriginalException = originalException;
+            Exception = originalException;
             AdditionalInfo = additionalInfos;
         }
 
-        public string TypeName { get; set; }
-        public string Message { get; set; }
+        public Type ExceptionType { get; set; }
         public StackFrameModel[] Stack { get; set; }
         public ExceptionModel? InnerException { get; set; }
-        public Exception OriginalException { get; set; }
+        public Exception Exception { get; set; }
         public ExceptionAdditionalInfo[] AdditionalInfo { get; set; }
     }
 }

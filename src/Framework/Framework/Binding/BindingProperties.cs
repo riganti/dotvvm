@@ -12,6 +12,7 @@ using Microsoft.CodeAnalysis;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Reflection;
+using System.Net;
 
 namespace DotVVM.Framework.Binding.Properties
 {
@@ -156,7 +157,7 @@ namespace DotVVM.Framework.Binding.Properties
     /// <summary>
     /// Contains (mutable) list of error that are produced during the binding lifetime.
     /// </summary>
-    public sealed class BindingErrorReporterProperty
+    public sealed class BindingErrorReporterProperty : IDebugHtmlFormattableObject
     {
         public ConcurrentStack<(Type req, Exception error, DiagnosticSeverity severity)> Errors = new ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)>();
         public bool HasErrors => Errors.Any(e => e.severity == DiagnosticSeverity.Error);
@@ -167,21 +168,60 @@ namespace DotVVM.Framework.Binding.Properties
         }
         public IEnumerable<Exception> Exceptions => Errors.Select(e => e.error);
 
-        public override string ToString()
+        string? CountMessage()
         {
             var errCount = Errors.Count(e => e.severity == DiagnosticSeverity.Error);
             var warnCount = Errors.Count(e => e.severity == DiagnosticSeverity.Warning);
             var infoCount = Errors.Count(e => e.severity == DiagnosticSeverity.Info);
             if (errCount + warnCount + infoCount == 0)
-                return "No errors";
+                return null;
 
             var msgCount = string.Join(", ", new string?[] {
                 errCount > 0 ? $"{errCount} errors" : null,
                 warnCount > 0 ? $"{warnCount} warnings" : null,
-                infoCount > 0 ? $"{infoCount} warnings" : null,
-                }.OfType<string>());
-            
+                infoCount > 0 ? $"{infoCount} infos" : null,
+            }.OfType<string>());
+            return msgCount;
+        }
+
+        public override string ToString()
+        {
+            var msgCount = CountMessage();
+            if (msgCount == null)
+                return "No errors";
             return $"{msgCount}: {string.Join("; ", Errors.Select(e => e.error?.Message))}";
+        }
+
+        public string DebugHtmlString(IFormatProvider? formatProvider, bool isBlock)
+        {
+            var msgCount = CountMessage();
+            if (msgCount == null)
+                return "<b>No errors</b>";
+
+            var result = new StringBuilder()
+                .Append("<b>").Append(WebUtility.HtmlEncode(msgCount)).Append("</b>: ")
+                .Append(isBlock ? "<ul>" : "");
+
+            foreach (var (req, error, severity) in Errors)
+            {
+                result.Append(isBlock ? "<li>" : "")
+                    .Append("<span class=syntax-underline-")
+                    .Append(severity switch {
+                        DiagnosticSeverity.Error => "error",
+                        DiagnosticSeverity.Warning => "warning",
+                        _ => "info"
+                    })
+                    .Append(">")
+                    .Append(req.DebugHtmlString(fullName: false, titleFullName: true))
+                    .Append("</span>: ")
+                    .Append(HtmlFormattingUtils.TryFormatAsHtml(error, formatProvider, false))
+                    .Append(isBlock ? "</li>" : "");
+            }
+
+            if (isBlock)
+                result.Append("</ul>");
+
+            return result.ToString();
         }
     }
 

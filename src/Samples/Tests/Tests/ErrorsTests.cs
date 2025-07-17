@@ -21,13 +21,12 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_MissingViewModel);
-                AssertUI.InnerText(browser.First(".summary")
-                      ,
+                AssertUI.InnerText(browser.First(".summary"),
                           s =>
-                              s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
                               s.Contains("@viewModel") &&
                               s.Contains("missing")
                           );
+                AssertUI.Attribute(browser.First("exceptionType", By.ClassName), "title", a => a == "DotVVM.Framework.Compilation.DotvvmCompilationException");
             });
         }
 
@@ -39,9 +38,9 @@ namespace DotVVM.Samples.Tests
                 AssertUI.InnerText(browser.First(".summary")
                     ,
                         s =>
-                            s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException", StringComparison.OrdinalIgnoreCase) &&
                             s.Contains("Could not resolve type 'invalid_viewmodel_class'", StringComparison.OrdinalIgnoreCase)
                             );
+                AssertUI.Attribute(browser.First("exceptionType", By.ClassName), "title", a => a == "DotVVM.Framework.Compilation.DotvvmCompilationException");
             });
         }
 
@@ -242,9 +241,10 @@ namespace DotVVM.Samples.Tests
                 AssertUI.InnerText(browser.First(".summary")
                     ,
                         s =>
-                            s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
                             s.Contains("requires a DataContext of type")
                         );
+                AssertUI.Attribute(browser.First("exceptionType", By.ClassName), "title", a => a == "DotVVM.Framework.Compilation.DotvvmCompilationException");
+                AssertUI.InnerTextEquals(browser.First(".exceptionType"), "DotvvmCompilationException");
             });
         }
 
@@ -388,7 +388,7 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidServiceDirective);
 
                 AssertUI.TextEquals(browser.First("exceptionType", By.ClassName),
-                    "DotVVM.Framework.Compilation.DotvvmCompilationException");
+                    "DotvvmCompilationException");
                 AssertUI.TextEquals(browser.First("exceptionMessage", By.ClassName),
                     "Could not resolve type 'DotVVM.InvalidNamespace.NonExistingService'.");
             });
@@ -400,7 +400,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidLocationFallback);
 
-                AssertUI.TextEquals(browser.First(".exceptionType"), "System.NotSupportedException");
+                AssertUI.TextEquals(browser.First(".exceptionType"), "NotSupportedException");
                 AssertUI.TextEquals(browser.First(".exceptionMessage"), "LocationFallback is " +
                     "not supported on resources with Location of type ILocalResourceLocation.");
             });
@@ -413,7 +413,7 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_ResourceCircularDependency);
 
                 AssertUI.TextEquals(browser.First("exceptionType", By.ClassName),
-                    "DotVVM.Framework.ResourceManagement.DotvvmCyclicResourceDependencyException");
+                    "DotvvmCyclicResourceDependencyException");
                 AssertUI.TextEquals(browser.First("exceptionMessage", By.ClassName),
                     "Resource \"Errors_ResourceCircularDependency\" has a cyclic dependency: Errors_ResourceCircularDependency --> Errors_ResourceCircularDependency");
             });
@@ -428,9 +428,9 @@ namespace DotVVM.Samples.Tests
                 AssertUI.InnerText(browser.First(".summary")
                     ,
                     s =>
-                        s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException", StringComparison.OrdinalIgnoreCase) &&
                         s.Contains("The WrapperTagName property cannot be set when RenderWrapperTag is false!", StringComparison.OrdinalIgnoreCase)
                 );
+                AssertUI.Attribute(browser.First("exceptionType", By.ClassName), "title", a => a == "DotVVM.Framework.Compilation.DotvvmCompilationException");
             });
         }
 
@@ -440,10 +440,10 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_UndefinedRouteLinkParameters);
 
-                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
                 AssertUI.InnerText(browser.First(".exceptionMessage"),
                     s => s.Contains("The following parameters are not present in route", StringComparison.OrdinalIgnoreCase),
                     "Exception should contain information about the route name and undefined parameters");
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotvvmCompilationException");
             });
         }
 
@@ -453,7 +453,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidRouteName);
 
-                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotvvmCompilationException");
                 AssertUI.TextEquals(browser.First(".exceptionMessage"), "RouteLink validation at line 18: RouteName \"NonExistingRouteName\" does not exist.",
                    failureMessage: "Exception should contain information about the undefined route name");
             });
