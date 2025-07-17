@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             // this would allow it.
             // We will thus fill the cookie table with "redacted" values and then fill it in JS.
             var table = Cookies.Select(c => new KeyValuePair<string, string>(c.Key, "redacted value of HTTP only cookie"));
-            writer.WriteKVTable(table, "cookie-table");
+            writer.WriteKVTable(table, "cookie-table", "Name", "Value");
 
             writer.WriteUnencoded(@"
             <script>
