@@ -142,7 +142,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var iex =
                 exs.OfType<DotvvmCompilationException>().FirstOrDefault() ??
                 exs.OfType<IDotvvmException>()
-                   .Where(dex => dex.GetLocation() != null)
+                   .Where(dex => dex.GetLocation() is { FileName: { } })
                    .FirstOrDefault()?.TheException;
 
             if (iex != null) return new DotvvmMarkupErrorSection(ex);
