@@ -29,5 +29,14 @@ namespace DotVVM.Framework.Controls
             : base(message, Location: location, InnerException: innerException)
         {
         }
+
+        protected override bool PrintMembers(System.Text.StringBuilder builder)
+        {
+            if (base.PrintMembers(builder))
+                builder.Append(", ");
+            if (FileName != null)
+                builder.Append("FileName = ").Append(FileName).Append(", ");
+            return false;
+        }
     }
 }

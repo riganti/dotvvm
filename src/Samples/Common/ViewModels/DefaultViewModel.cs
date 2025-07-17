@@ -16,6 +16,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 
         [Bind(Direction.None)]
         public List<RouteData> Routes { get; set; }
+        public string BAzmek => throw new NotImplementedException("This property is not implemented in this sample.");
 
         public override Task Init()
         {
@@ -33,6 +34,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
         public class RouteData
         {
             public string Url { get; set; }
+
 
             public string RouteName { get; set; }
         }
