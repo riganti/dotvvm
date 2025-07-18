@@ -3,8 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using DotVVM.Core.Storage;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Utils;
 
@@ -33,7 +36,19 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public virtual bool RenderOnServer
         {
-            get { return (RenderMode)GetValue(RenderSettings.ModeProperty)! == RenderMode.Server; }
+            get
+            {
+                for (var c = this; c != null; c = c.Parent)
+                {
+                    if (c.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.RenderSettings_Mode, out var value))
+                    {
+                        if (value is IBinding binding)
+                            value = c.EvalBinding(binding, isDataContext: false);
+                        return ((RenderMode)value!) == RenderMode.Server;
+                    }
+                }
+                return false;
+            }
         }
 
         /// <summary>
@@ -43,7 +58,7 @@ namespace DotVVM.Framework.Controls
         public DotvvmBindableObject? Parent { get; set; }
 
         // WORKAROUND: Roslyn is unable to cache the delegate itself
-        private static Func<Type, DotvvmProperty[]> _dotvvmProperty_ResolveProperties = DotvvmProperty.ResolveProperties;
+        private static readonly Func<Type, DotvvmProperty[]> _dotvvmProperty_ResolveProperties = DotvvmProperty.ResolveProperties;
 
         /// <summary>
         /// Gets all properties declared on this class or on any of its base classes.
@@ -71,17 +86,20 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowHardCodedValue = false, AllowResourceBinding = true)]
         public object? DataContext
         {
-            get {
+            get
+            {
                 for (var c = this; c != null; c = c.Parent)
                 {
-                    if (c.properties.TryGet(DotvvmBindableObject.DataContextProperty, out var value))
+                    if (c.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.DotvvmBindableObject_DataContext, out var value))
                     {
-                        return c.EvalPropertyValue(DotvvmBindableObject.DataContextProperty, value);
+                        return value is IBinding binding
+                            ? c.EvalBinding(binding, isDataContext: true)
+                            : value;
                     }
                 }
                 return null;
             }
-            set { this.properties.Set(DataContextProperty, value); }
+            set { this.properties.Set(DotvvmPropertyIdAssignment.PropertyIds.DotvvmBindableObject_DataContext, value); }
         }
 
         DotvvmBindableObject IDotvvmObjectLike.Self => this;
@@ -97,30 +115,58 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary> If the object is IBinding and the property is not of type IBinding, it is evaluated. </summary>
+#if NET6_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] // let PGO specialize over value independently of call-site
+#endif
         internal object? EvalPropertyValue(DotvvmProperty property, object? value)
         {
-            if (property.IsBindingProperty) return value;
-            if (value is IBinding)
-            {
-                DotvvmBindableObject control = this;
-                // DataContext is always bound to it's parent, setting it right here is a bit faster
-                if (property == DataContextProperty)
-                    control = control.Parent ?? throw new DotvvmControlException(this, "Cannot set DataContext binding on the root control");
-                // handle binding
-                if (value is IStaticValueBinding binding)
-                {
-                    value = binding.Evaluate(control);
-                }
-                else if (value is ICommandBinding command)
-                {
-                    value = command.GetCommandDelegate(control);
-                }
-                else
-                {
-                    throw new NotSupportedException($"Cannot evaluate binding {value} of type {value.GetType().Name}.");
-                }
-            }
+            if (!property.IsBindingProperty && value is IBinding binding)
+                return EvalBinding(binding, property == DataContextProperty);
             return value;
+        }
+
+        /// <summary> If the object is IBinding and the property is not of type IBinding, it is evaluated. </summary>
+#if NET6_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] // let PGO specialize over value independently of call-site
+#endif
+        internal object? EvalPropertyValue(DotvvmPropertyGroup property, object? value)
+        {
+            if (!property.IsBindingProperty && value is IBinding binding)
+                return EvalBinding(binding, isDataContext: false);
+            return value;
+        }
+
+        /// <summary> If the object is IBinding and the property is not of type IBinding, it is evaluated. </summary>
+#if NET6_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] // let PGO specialize over value independently of call-site
+#endif
+        internal object? EvalPropertyValue(DotvvmPropertyId property, object? value)
+        {
+            if (value is IBinding binding && !DotvvmPropertyIdAssignment.IsBindingProperty(property))
+                return EvalBinding(binding, property.Id == DotvvmPropertyIdAssignment.PropertyIds.DotvvmBindableObject_DataContext);
+            return value;
+        }
+
+        private object? EvalBinding(IBinding binding, bool isDataContext)
+        {
+            DotvvmBindableObject control = this;
+            // DataContext is always bound to it's parent
+            if (isDataContext)
+                control = control.Parent ?? throw new DotvvmControlException(this, "Cannot set DataContext binding on the root control");
+            // handle binding
+            if (binding is IStaticValueBinding resourceBinding)
+            {
+                return resourceBinding.Evaluate(control);
+            }
+            else if (binding is ICommandBinding command)
+            {
+                return command.GetCommandDelegate(control);
+            }
+            else
+            {
+                throw new NotSupportedException($"Cannot evaluate binding {binding} of type {binding.GetType().Name}.");
+            }
+
         }
 
         /// <summary>
@@ -137,10 +183,9 @@ namespace DotVVM.Framework.Controls
             return property.GetValue(this, inherit);
         }
 
-        /// <summary> For internal use, public because it's used from our generated code. If want to use it, create the arguments using <see cref="PropertyImmutableHashtable.CreateTableWithValues{T}(DotvvmProperty[], T[])" /> </summary>
-        public void MagicSetValue(DotvvmProperty[] keys, object[] values, int hashSeed)
+        public virtual object? GetValueRaw(DotvvmPropertyId property, bool inherit = true)
         {
-            this.properties.AssignBulk(keys, values, hashSeed);
+            return DotvvmPropertyIdAssignment.GetValueRaw(this, property, inherit);
         }
 
         /// <summary> Sets the value of a specified property. </summary>
@@ -411,7 +456,7 @@ namespace DotVVM.Framework.Controls
         protected internal virtual DotvvmBindableObject CloneControl()
         {
             var newThis = (DotvvmBindableObject)this.MemberwiseClone();
-            this.properties.CloneInto(ref newThis.properties);
+            this.properties.CloneInto(ref newThis.properties, newThis);
             return newThis;
         }
 
