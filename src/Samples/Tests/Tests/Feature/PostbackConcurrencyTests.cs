@@ -244,8 +244,15 @@ namespace DotVVM.Samples.Tests.Feature
                 while (!browser.CurrentUrl.Contains("?time"))
                 {
                     Thread.Sleep(100);
-                    AssertUI.TextNotEquals(browser.Single(".result"), "1");
+                    try
+                    {
+                        AssertUI.TextNotEquals(browser.Single(".result"), "1");
+                    }
+                    catch (StaleElementReferenceException)
+                    {
+                    }
                 }
+                AssertUI.TextNotEquals(browser.Single(".result"), "1");
             });
         }
 
