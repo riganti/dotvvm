@@ -1,4 +1,5 @@
-﻿using DotVVM.Samples.Tests.Base;
+﻿using System.Linq;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
@@ -19,6 +20,8 @@ public class CsrfTokenTests(ITestOutputHelper output) : AppSeleniumTest(output)
 
             var result = browser.Single("result", SelectByDataUi);
             var testButton = browser.Single("test-button", SelectByDataUi);
+
+            var lazyCsrfToken = (bool)browser.GetJavaScriptExecutor().ExecuteScript("return (typeof dotvvm.state.$csrfToken === 'undefined')");
 
             testButton.Click();
             CheckRequests(
@@ -52,6 +55,11 @@ public class CsrfTokenTests(ITestOutputHelper output) : AppSeleniumTest(output)
 
             void CheckRequests(params string[] expected)
             {
+                if (lazyCsrfToken)
+                {
+                    expected = new[] { "GET 200 /_dotvvm/csrfToken" }.Concat(expected).ToArray();
+                }
+
                 var items = browser.FindElements("#request-log li");
                 items.ThrowIfDifferentCountThan(expected.Length);
 
