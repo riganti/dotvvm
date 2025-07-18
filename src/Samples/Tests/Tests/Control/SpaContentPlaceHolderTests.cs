@@ -59,6 +59,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 // test the browse back button
                 browser.NavigateBack();
+                browser.Wait(500);
                 AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA + "/16");
 
                 // test first page
@@ -151,6 +152,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 // test the browse back button
                 browser.NavigateBack();
+                browser.Wait(500);
                 AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA + "/16");
 
                 // test first page
@@ -209,7 +211,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_MultiSpaDefault);
 
                 var defaultUrl = browser.CurrentUrl;
-                var baseUrl = browser.CurrentUrl.Substring(0, browser.CurrentUrlPath.LastIndexOf('/'));
+                var baseUrl = defaultUrl.Substring(0, defaultUrl.LastIndexOf('/'));
                 var routeLinks = browser.FindElements("a");
 
                 routeLinks.First().Click();
