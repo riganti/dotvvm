@@ -7,6 +7,7 @@ using System.Net;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Storage;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using DotVVM.Framework.Hosting.Middlewares;
@@ -83,6 +84,7 @@ public static class DotvvmRequestContextExtensions
     /// Interrupts the execution of the current request.
     /// </summary>
     [DebuggerHidden]
+    [DoesNotReturn]
     public static void InterruptRequest(this IDotvvmRequestContext context)
     {
         throw new DotvvmInterruptRequestExecutionException();
@@ -91,6 +93,7 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Returns the redirect response and interrupts the execution of current request.
     /// </summary>
+    [DoesNotReturn]
     public static void RedirectToUrl(this IDotvvmRequestContext context, string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
     {
         context.SetRedirectResponse(context.TranslateVirtualPath(url), (int)HttpStatusCode.Redirect, replaceInHistory, allowSpaRedirect);
@@ -100,6 +103,7 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Verifies that the URL is local and returns the redirect response and interrupts the execution of current request.
     /// </summary>
+    [DoesNotReturn]
     public static void RedirectToLocalUrl(this IDotvvmRequestContext context, string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
     {
         if (!UrlHelper.IsLocalUrl(url))
@@ -113,6 +117,7 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Returns the redirect response and interrupts the execution of current request.
     /// </summary>
+    [DoesNotReturn]
     public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object? newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string? urlSuffix = null, object? query = null)
     {
         var route = context.Configuration.RouteTable[routeName];
@@ -124,6 +129,7 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Returns the permanent redirect response and interrupts the execution of current request.
     /// </summary>
+    [DoesNotReturn]
     public static void RedirectToUrlPermanent(this IDotvvmRequestContext context, string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
     {
         context.SetRedirectResponse(context.TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently, replaceInHistory, allowSpaRedirect);
@@ -133,6 +139,7 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Returns the permanent redirect response and interrupts the execution of current request.
     /// </summary>
+    [DoesNotReturn]
     public static void RedirectToRoutePermanent(this IDotvvmRequestContext context, string routeName, object? newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string? urlSuffix = null, object? query = null)
     {
         var route = context.Configuration.RouteTable[routeName];
@@ -223,6 +230,7 @@ public static class DotvvmRequestContextExtensions
     /// Redirects the client to the specified file.
     /// </summary>
     [Obsolete("Use ReturnFileAsync() instead")]
+    [DoesNotReturn]
     public static void ReturnFile(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
         context.ReturnFile(new MemoryStream(bytes), fileName, mimeType, additionalHeaders, attachmentDispositionType);
 
@@ -230,17 +238,21 @@ public static class DotvvmRequestContextExtensions
     /// Redirects the client to the specified file.
     /// </summary>
     [Obsolete("Use ReturnFileAsync() instead")]
+    [DoesNotReturn]
     public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
         context.ReturnFileAsync(stream, fileName, mimeType, additionalHeaders, attachmentDispositionType).GetAwaiter().GetResult();
+
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
+    [DoesNotReturn]
     public static Task ReturnFileAsync(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
         context.ReturnFileAsync(new MemoryStream(bytes), fileName, mimeType, additionalHeaders, attachmentDispositionType);
 
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
+    [DoesNotReturn]
     public static async Task ReturnFileAsync(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null)
     {
         var returnedFileStorage = context.Services.GetService<IReturnedFileStorage>();
@@ -266,6 +278,7 @@ public static class DotvvmRequestContextExtensions
         throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
     }
 
+    [DoesNotReturn]
     internal static async Task RejectRequest(this IDotvvmRequestContext context, string message, int statusCode = 403)
     {
         DotvvmMetrics.RequestsRejected.Add(1,
