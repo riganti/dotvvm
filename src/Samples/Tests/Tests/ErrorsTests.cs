@@ -177,7 +177,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_EmptyBinding);
 
-                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Identifier name was expected"));
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("An expression was expected"));
                 AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{{value: }}"));
             });
         }

@@ -487,11 +487,11 @@ namespace DotVVM.Framework.Tests.Binding
         [DataTestMethod]
         [DataRow("_this.CustomDelegateInvoker((string a, int b) => $'{a}-{b}')", "a-1")]
         [DataRow("_this.CustomDelegateInvoker((a, b) => $'{a}-{b}')", "a-1")]
-        [DataRow("_this.CustomListDelegateInvoker((List<string> as) => as.Select(a => a + 'vv'))", "avv,bvv")]
-        [DataRow("_this.CustomListDelegateInvoker((as) => as.Select(a => a + 'vv'))", "avv,bvv")]
-        [DataRow("_this.CustomGenericDelegateInvoker(1, (List<int> as) => as.Select(a => a + 1))", "2,2")]
-        [DataRow("_this.CustomGenericDelegateInvoker(1, as => as.Select(a => a + 1))", "2,2")]
-        [DataRow("_this.CustomGenericDelegateInvoker(true, as => as.Select(a => !a))", "False,False")]
+        [DataRow("_this.CustomListDelegateInvoker((List<string> @as) => @as.Select(a => a + 'vv'))", "avv,bvv")]
+        [DataRow("_this.CustomListDelegateInvoker((@as) => @as.Select(a => a + 'vv'))", "avv,bvv")]
+        [DataRow("_this.CustomGenericDelegateInvoker(1, (List<int> @as) => @as.Select(a => a + 1))", "2,2")]
+        [DataRow("_this.CustomGenericDelegateInvoker(1, @as => @as.Select(a => a + 1))", "2,2")]
+        [DataRow("_this.CustomGenericDelegateInvoker(true, @as => @as.Select(a => !a))", "False,False")]
         public void BindingCompiler_Valid_LambdaParameter_CustomDelegate(string expr, string expectedResult)
         {
             var viewModel = new TestLambdaCompilation();
@@ -1384,6 +1384,60 @@ namespace DotVVM.Framework.Tests.Binding
             XAssert.Contains("Cannot convert '1' of type int to DotVVM.Framework.Binding.Expressions.Command.", exception.Message);
             XAssert.Contains("Cannot convert '1' of type int to System.Func<int>.", exception2.Message);
         }
+
+        [TestMethod]
+        public void BindingCompiler_EscapedIdentifier_Assignment()
+        {
+            var viewModel = new TestViewModelWithKeywordProperties();
+            ExecuteBinding("@class = 'new-class'", viewModel);
+            Assert.AreEqual("new-class", viewModel.@class);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_EscapedIdentifier_LambdaExplicitType()
+        {
+            var function = (Func<string, string>)ExecuteBinding("(string @volatile) => @return(@volatile + _this.@string + @while)", new TestViewModelWithKeywordProperties());
+            var result = function("test");
+            Assert.AreEqual("testtest-stringtest-while", result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_EscapedIdentifier_LambdaImplicitType()
+        {
+            var function = (Func<string, string>)ExecuteBinding("@this => @return(@this + _this.@string + @while)", [new TestViewModelWithKeywordProperties()], expectedType: typeof(Func<string, string>));
+            var result = function("test");
+            Assert.AreEqual("testtest-stringtest-while", result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_EscapedIdentifier_VariableAndProperty()
+        {
+            var result = ExecuteBinding("var @new = @class; @new + '-' + @while", new TestViewModelWithKeywordProperties());
+            Assert.AreEqual("test-class-test-while", result);
+        }
+
+        [TestMethod]
+        [DataRow("class + 30")]
+        [DataRow("class => 1")]
+        [DataRow("(class) => 1")]
+        [DataRow("(int class) => 1")]
+        [DataRow("(System.Int32 class) => 1")]
+        [DataRow("var class = 1; 10")]
+        public void BindingCompiler_KeywordIdentifier_ErrorMessage(string expr)
+        {
+            var result = XAssert.ThrowsAny<Exception>(() => ExecuteBinding(expr, [new TestViewModelWithKeywordProperties()], expectedType: typeof(Func<int, int>)));
+            Console.WriteLine(result.Message);
+            XAssert.Contains("'@class'", result.Message);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Lambda_IncompleteParameter_ErrorMessage()
+        {
+            var r = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("(int a, System.String) => 1", [new TestViewModel()], expectedType: typeof(Func<int, string, int>)));
+
+            Console.WriteLine(r.Message);
+            XAssert.Contains("Lambda parameter of type 'System.String' is missing a name.", r.Message);
+        }
     }
     public class TestViewModel
     {
@@ -1638,6 +1692,17 @@ namespace DotVVM.Framework.Tests.Binding
     public class Strings
     {
         public static string SomeResource = "hello";
+    }
+    
+    public class TestViewModelWithKeywordProperties
+    {
+        public string @class { get; set; } = "test-class";
+        public string @for { get; set; } = "test-for";
+        public string @while { get; set; } = "test-while";
+        public string @string { get; set; } = "test-string";
+        public int @int { get; set; } = 1;
+
+        public string @return(string @this) => @this;
     }
 }
 

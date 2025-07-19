@@ -34,6 +34,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 
                 switch (ch)
                 {
+                    case '@':
+                        FinishIncompleteIdentifier();
+                        Read(); // consume @
+                        ReadEscapedIdentifier();
+                        break;
+
                     case '.':
                         if (DistanceSinceLastToken > 0 && GetCurrentTokenText().All(c => Char.IsDigit(c)))
                         {
@@ -286,13 +292,112 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             return new BindingToken(text, type, lineNumber, columnNumber, length, startPosition + bindingPositionOffset);
         }
 
+        private void ReadEscapedIdentifier()
+        {
+            if (!char.IsLetter(Peek()) && Peek() != '_')
+            {
+                CreateToken(BindingTokenType.EscapedIdentifier, errorProvider: t => CreateTokenError(t, "Expected identifier after '@'"));
+                return;
+            }
+
+            while (char.IsLetterOrDigit(Peek()) || Peek() == '_')
+                Read();
+
+            CreateToken(BindingTokenType.EscapedIdentifier);
+        }
+
         private void FinishIncompleteIdentifier()
         {
             if (DistanceSinceLastToken > 0)
             {
-                CreateToken(BindingTokenType.Identifier);
+                var text = GetCurrentTokenText();
+
+                CreateToken(GetIdentifierTokenType(text));
             }
         }
+
+        private static BindingTokenType GetIdentifierTokenType(string text) =>
+            text switch {
+                "abstract" => BindingTokenType.KeywordAbstract,
+                "as" => BindingTokenType.KeywordAs,
+                "base" => BindingTokenType.KeywordBase,
+                "bool" => BindingTokenType.KeywordBool,
+                "break" => BindingTokenType.KeywordBreak,
+                "byte" => BindingTokenType.KeywordByte,
+                "case" => BindingTokenType.KeywordCase,
+                "catch" => BindingTokenType.KeywordCatch,
+                "char" => BindingTokenType.KeywordChar,
+                "checked" => BindingTokenType.KeywordChecked,
+                "class" => BindingTokenType.KeywordClass,
+                "const" => BindingTokenType.KeywordConst,
+                "continue" => BindingTokenType.KeywordContinue,
+                "decimal" => BindingTokenType.KeywordDecimal,
+                "default" => BindingTokenType.KeywordDefault,
+                "delegate" => BindingTokenType.KeywordDelegate,
+                "do" => BindingTokenType.KeywordDo,
+                "double" => BindingTokenType.KeywordDouble,
+                "else" => BindingTokenType.KeywordElse,
+                "enum" => BindingTokenType.KeywordEnum,
+                "event" => BindingTokenType.KeywordEvent,
+                "explicit" => BindingTokenType.KeywordExplicit,
+                "extern" => BindingTokenType.KeywordExtern,
+                "false" => BindingTokenType.KeywordFalse,
+                "finally" => BindingTokenType.KeywordFinally,
+                "fixed" => BindingTokenType.KeywordFixed,
+                "float" => BindingTokenType.KeywordFloat,
+                "for" => BindingTokenType.KeywordFor,
+                "foreach" => BindingTokenType.KeywordForeach,
+                "goto" => BindingTokenType.KeywordGoto,
+                "if" => BindingTokenType.KeywordIf,
+                "implicit" => BindingTokenType.KeywordImplicit,
+                "in" => BindingTokenType.KeywordIn,
+                "int" => BindingTokenType.KeywordInt,
+                "interface" => BindingTokenType.KeywordInterface,
+                "internal" => BindingTokenType.KeywordInternal,
+                "is" => BindingTokenType.KeywordIs,
+                "lock" => BindingTokenType.KeywordLock,
+                "long" => BindingTokenType.KeywordLong,
+                "namespace" => BindingTokenType.KeywordNamespace,
+                "new" => BindingTokenType.KeywordNew,
+                "null" => BindingTokenType.KeywordNull,
+                "object" => BindingTokenType.KeywordObject,
+                "operator" => BindingTokenType.KeywordOperator,
+                "out" => BindingTokenType.KeywordOut,
+                "override" => BindingTokenType.KeywordOverride,
+                "params" => BindingTokenType.KeywordParams,
+                "private" => BindingTokenType.KeywordPrivate,
+                "protected" => BindingTokenType.KeywordProtected,
+                "public" => BindingTokenType.KeywordPublic,
+                "readonly" => BindingTokenType.KeywordReadonly,
+                "ref" => BindingTokenType.KeywordRef,
+                "return" => BindingTokenType.KeywordReturn,
+                "sbyte" => BindingTokenType.KeywordSbyte,
+                "sealed" => BindingTokenType.KeywordSealed,
+                "short" => BindingTokenType.KeywordShort,
+                "sizeof" => BindingTokenType.KeywordSizeof,
+                "stackalloc" => BindingTokenType.KeywordStackalloc,
+                "static" => BindingTokenType.KeywordStatic,
+                "string" => BindingTokenType.KeywordString,
+                "struct" => BindingTokenType.KeywordStruct,
+                "switch" => BindingTokenType.KeywordSwitch,
+                "this" => BindingTokenType.KeywordThis,
+                "throw" => BindingTokenType.KeywordThrow,
+                "true" => BindingTokenType.KeywordTrue,
+                "try" => BindingTokenType.KeywordTry,
+                "typeof" => BindingTokenType.KeywordTypeof,
+                "uint" => BindingTokenType.KeywordUint,
+                "ulong" => BindingTokenType.KeywordUlong,
+                "unchecked" => BindingTokenType.KeywordUnchecked,
+                "unsafe" => BindingTokenType.KeywordUnsafe,
+                "ushort" => BindingTokenType.KeywordUshort,
+                "using" => BindingTokenType.KeywordUsing,
+                "virtual" => BindingTokenType.KeywordVirtual,
+                "void" => BindingTokenType.KeywordVoid,
+                "volatile" => BindingTokenType.KeywordVolatile,
+                "while" => BindingTokenType.KeywordWhile,
+                _ => BindingTokenType.Identifier
+            };
+
 
         internal void EnsureUnsupportedOperator(BindingTokenType preferredOperatorToken)
         {
