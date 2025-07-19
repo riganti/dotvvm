@@ -21,6 +21,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => Enumerable.Empty<BindingParserNode>();
 
-        public override string ToDisplayString() => $"{Name}";
+        public override string ToDisplayString() => NameToken.Text;
     }
 }

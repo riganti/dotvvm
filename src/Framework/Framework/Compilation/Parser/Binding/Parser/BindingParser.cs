@@ -471,20 +471,19 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         private BindingParserNode ReadLambdaExpression()
         {
             var startIndex = CurrentIndex;
-            SetRestorePoint();
+            var restorePoint = SetRestorePoint();
 
             // Try to read lambda parameters
             if (!TryReadLambdaParametersExpression(out var parameters) || PeekType() != BindingTokenType.LambdaOperator)
             {
                 // Fail - we should try to parse as an expression
-                Restore();
+                Restore(restorePoint);
                 return CreateNode(ReadIdentifierExpression(false), startIndex);
             }
 
             // Read lambda operator
             Read();
             SkipWhiteSpace();
-            ClearRestorePoint();
 
             // Read lambda body expression
             var body = ReadExpression();
@@ -532,11 +531,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             else
             {
                 // Support lambdas with single implicit parameter and no parentheses: arg => Method(arg)
-                var parameter = ReadIdentifierExpression(false);
-                if (parameter.HasNodeErrors)
+                var parameter = ReadIdentifierNameExpression();
+                if (parameter is not SimpleNameBindingParserNode simpleParameterName)
                     return false;
 
-                parameters.Add(new LambdaParameterBindingParserNode(null, CreateNode(parameter, startIndex)));
+                parameters.Add(new LambdaParameterBindingParserNode(null, CreateNode(simpleParameterName, startIndex)));
             }
 
             if (waitingForParameter)
@@ -545,31 +544,46 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return true;
         }
 
-        private bool TryReadLambdaParameterDefinition(out TypeReferenceBindingParserNode? type, out BindingParserNode? name)
+        private bool TryReadLambdaParameterDefinition(out TypeReferenceBindingParserNode? type, out SimpleNameBindingParserNode? name)
         {
             name = null;
             type = null;
-            if (PeekType() != BindingTokenType.Identifier)
-                return false;
+            var startIndex = CurrentIndex;
 
             if (!TryReadTypeReference(out type))
                 return false;
             SkipWhiteSpace();
 
-            if (PeekType() != BindingTokenType.Identifier)
+            if (PeekType() is not BindingTokenType.Identifier and not BindingTokenType.EscapedIdentifier &&
+                !PeekType().IsKeyword())
             {
-                name = type;
+                // Only one identifier - it's the parameter name, not a type
+                if (type is ActualTypeReferenceBindingParserNode { Type: SimpleNameBindingParserNode typeName })
+                {
+                    name = typeName;
+                }
+                else
+                {
+                    // just better error message for: * people using keywords as names like `(class) => class.ToString()`
+                    //                                * forgotten parameter name
+                    var keywordHelp = type is ActualTypeReferenceBindingParserNode { Type: PredefinedTypeBindingParserNode }
+                                        ? $" Did you mean '@{type.ToDisplayString()}'?"
+                                        : string.Empty;
+                    name = CreateNode(new SimpleNameBindingParserNode(type.ToDisplayString()), startIndex, error: $"Lambda parameter of type '{type.ToDisplayString()}' is missing a name." + keywordHelp);
+                }
                 type = null;
                 return true;
             }
             else
             {
-                name = ReadIdentifierExpression(true);
+                // Two identifiers - first is type, second is parameter name
+                name = ReadIdentifierNameExpression() as SimpleNameBindingParserNode;
+
+                if (name is null)
+                    return false;
             }
 
             // Name must always be a simple name binding
-            if (!(name is SimpleNameBindingParserNode))
-                return false;
 
             return true;
         }
@@ -677,7 +691,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 {
                     expression = ReadArrayAccess(startIndex, expression);
                 }
-                else if (!onlyTypeName && next.Type == BindingTokenType.Identifier && expression is SimpleNameBindingParserNode keywordNameExpression)
+                else if (!onlyTypeName && next.Type is BindingTokenType.Identifier or BindingTokenType.EscapedIdentifier && expression is SimpleNameBindingParserNode { IsEscapedKeyword: false } keywordNameExpression)
                 {
                     // we have `identifier identifier` - the first one must be a KEYWORD USAGE
 
@@ -842,35 +856,36 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             SkipWhiteSpace();
 
-            if (Peek() is BindingToken identifier && identifier.Type == BindingTokenType.Identifier)
+            var token = Peek();
+            if (token is null)
+                return CreateIdentifierExpected(startIndex, "An expression was expected!");
+
+            if (token.Type is BindingTokenType.KeywordTrue or BindingTokenType.KeywordFalse)
             {
-                if (identifier.Text == "true" || identifier.Text == "false")
-                {
-                    Read();
-                    SkipWhiteSpace();
-                    return CreateNode(new LiteralExpressionBindingParserNode(identifier.Text == "true"), startIndex);
-                }
-                else if (identifier.Text == "null")
-                {
-                    Read();
-                    SkipWhiteSpace();
-                    return CreateNode(new LiteralExpressionBindingParserNode(null), startIndex);
-                }
-                else if (Char.IsDigit(identifier.Text[0]))
-                {
-                    // number value
-                    var number = ParseNumberLiteral(identifier.Text, out var error);
+                Read();
+                SkipWhiteSpace();
+                return CreateNode(new LiteralExpressionBindingParserNode(token.Type == BindingTokenType.KeywordTrue), startIndex);
+            }
+            else if (Peek()?.Type == BindingTokenType.KeywordNull)
+            {
+                Read();
+                SkipWhiteSpace();
+                return CreateNode(new LiteralExpressionBindingParserNode(null), startIndex);
+            }
+            else if (token is { Type: BindingTokenType.Identifier, Text.Length: > 0 } && char.IsDigit(token.Text[0]))
+            {
+                // number value
+                var number = ParseNumberLiteral(token.Text, out var error);
 
-                    Read();
-                    SkipWhiteSpace();
+                Read();
+                SkipWhiteSpace();
 
-                    var node = CreateNode(new LiteralExpressionBindingParserNode(number), startIndex);
-                    if (error is object)
-                    {
-                        node.NodeErrors.Add(error);
-                    }
-                    return node;
+                var node = CreateNode(new LiteralExpressionBindingParserNode(number), startIndex);
+                if (error is object)
+                {
+                    node.NodeErrors.Add(error);
                 }
+                return node;
             }
 
             return CreateNode(ReadIdentifierNameExpression(), startIndex);
@@ -881,30 +896,50 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             SkipWhiteSpace();
 
-            if (Peek() is BindingToken identifier && identifier.Type == BindingTokenType.Identifier)
+            var token = Peek();
+            if (token is null)
+                return CreateIdentifierExpected(startIndex, "Identifier name was expected!");
+
+            if (token.Type is BindingTokenType.Identifier or BindingTokenType.EscapedIdentifier)
             {
                 Read();
                 SkipWhiteSpace();
-                return CreateNode(new SimpleNameBindingParserNode(identifier), startIndex);
+                return CreateNode(new SimpleNameBindingParserNode(token), startIndex);
             }
 
+            if (token.Type.IsKeywordType())
+            {
+                // DotVVM supports keywords as identifiers, so we can return them as identifiers
+                Read();
+                SkipWhiteSpace();
+                return CreateNode(new PredefinedTypeBindingParserNode(token), startIndex);
+            }
+
+            if (token.Type.IsKeyword())
+            {
+                var keyword = Peek()!.Text;
+                // DotVVM used to support keywords as identifiers, so let's at least have a reasonable error now
+                Read();
+                SkipWhiteSpace();
+                return CreateIdentifierExpected(startIndex, $"Identifier was expected, but keyword '{keyword}' was encountered. Did you intent to prefix it with an at sign: '@{keyword}'?", name: keyword);
+            }
+
+
             // create virtual empty identifier expression
-            return CreateIdentifierExpected(startIndex);
+            return CreateIdentifierExpected(startIndex, "Identifier name was expected!");
         }
 
-        private SimpleNameBindingParserNode CreateIdentifierExpected(int startIndex)
+        private SimpleNameBindingParserNode CreateIdentifierExpected(int startIndex, string error, string name = "")
         {
             return CreateNode(
-                new SimpleNameBindingParserNode("") {
-                    NodeErrors = { "Identifier name was expected!" }
-                },
+                new SimpleNameBindingParserNode(name) { NodeErrors = { error } },
                 startIndex);
         }
 
         private bool TryReadGenericArguments(int startIndex, BindingParserNode type, [NotNullWhen(returnValue: true)] out TypeOrFunctionReferenceBindingParserNode? typeOrFunction)
         {
             Assert(BindingTokenType.LessThanOperator);
-            SetRestorePoint();
+            var restorePoint = SetRestorePoint();
 
             var next = Read();
             bool failure = false;
@@ -937,11 +972,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             if (!failure)
             {
                 Read();
-                ClearRestorePoint();
                 typeOrFunction = CreateNode(new TypeOrFunctionReferenceBindingParserNode(type, arguments), startIndex);
                 return true;
             }
-            Restore();
+            Restore(restorePoint);
             typeOrFunction = null;
             return false;
         }

@@ -31,6 +31,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitSimpleName((SimpleNameBindingParserNode)node);
             }
+            else if (node is PredefinedTypeBindingParserNode)
+            {
+                return VisitPredefinedTypeName((PredefinedTypeBindingParserNode)node);
+            }
             else if (node is LiteralExpressionBindingParserNode)
             {
                 return VisitLiteralExpression((LiteralExpressionBindingParserNode)node);
@@ -138,6 +142,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         }
 
         protected virtual T VisitSimpleName(SimpleNameBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
+        protected virtual T VisitPredefinedTypeName(PredefinedTypeBindingParserNode node)
         {
             return DefaultVisit(node);
         }
