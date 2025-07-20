@@ -1417,6 +1417,19 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_KeywordIdentifier_EscapedPredefinedType()
+        {
+            var sanityCheck = ExecuteBinding("string.Empty", [new object()]);
+            Assert.AreEqual("", sanityCheck);
+            var sanityCheck2 = ExecuteBinding("@String.Empty", imports: [new("System")]);
+            Assert.AreEqual("", sanityCheck2);
+
+            var result = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("@string.Empty", [new object()]));
+            Console.WriteLine(result.Message);
+            XAssert.Contains("Could not resolve identifier 'string.Empty'", result.Message);
+        }
+
+        [TestMethod]
         [DataRow("class + 30")]
         [DataRow("class => 1")]
         [DataRow("(class) => 1")]
