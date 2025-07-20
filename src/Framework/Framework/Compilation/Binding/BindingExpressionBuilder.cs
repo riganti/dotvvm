@@ -40,8 +40,11 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (!parser.OnEnd())
                 {
                     var bindingToken = parser.Peek().NotNull();
+                    var keywordHelp = bindingToken.Type.IsKeyword()
+                        ? $" Did you mean to use '@{bindingToken.Text}'?"
+                        : string.Empty;
                     throw new BindingCompilationException(
-                        $"Unexpected token '{expression.Substring(0, bindingToken.StartPosition)} ---->{bindingToken.Text}<---- {expression.Substring(bindingToken.EndPosition)}'",
+                        $"Unexpected token '{expression.Substring(0, bindingToken.StartPosition)} ---->{bindingToken.Text}<---- {expression.Substring(bindingToken.EndPosition)}'. {keywordHelp}",
                         null, new TokenBase[] { bindingToken });
                 }
                 foreach (var n in node.EnumerateNodes())
