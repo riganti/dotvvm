@@ -23,16 +23,21 @@ using Microsoft.Extensions.Logging;
 using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Encodings.Web;
+using System.Net;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class DefaultViewModelSerializer : IViewModelSerializer
     {
-        private const string GeneralViewModelRecommendations = "Check out general viewModel recommendation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels.";
+        private const string GeneralViewModelRecommendations = "Check out general viewModel recommendation at https://www.dotvvm.com/docs/tutorials/basics-viewmodels.";
+        private const string GeneralViewModelRecommendationsHtml = "Check out general viewModel recommendation at <a href='https://www.dotvvm.com/docs/tutorials/basics-viewmodels'>dotvvm.com/docs/tutorials/basics-viewmodels</a>.";
 
-        public record SerializationException(bool Serialize, Type? ViewModelType, string JsonPath, Exception InnerException): RecordException(InnerException)
+        public record SerializationException(bool Serialize, Type? ViewModelType, string JsonPath, Exception InnerException) : RecordException(InnerException), IDebugHtmlFormattableObject
         {
-            public override string Message => $"Could not {(Serialize ? "" : "de")}serialize viewModel of type { ViewModelType?.Name ?? null }. Serialization failed at property { JsonPath }. {GeneralViewModelRecommendations}";
+            public override string Message => $"Could not {(Serialize ? "" : "de")}serialize viewModel of type {ViewModelType?.Name ?? null}. Serialization failed at property {JsonPath}. {GeneralViewModelRecommendations}";
+
+            public string DebugHtmlString(IFormatProvider? formatProvider, bool isBlock) =>
+                $"Could not {(Serialize ? "" : "de")}serialize viewModel of type {ViewModelType.DebugHtmlString(false, true)}. Serialization failed at property <b class=syntax-prop>{WebUtility.HtmlEncode(JsonPath)}</b>. {GeneralViewModelRecommendationsHtml}";
         }
 
         private CommandResolver commandResolver = new CommandResolver();

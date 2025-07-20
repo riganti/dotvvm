@@ -19,6 +19,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.Encodings.Web;
 using FastExpressionCompiler;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -30,14 +31,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         public const string ErrorPageJsResourceName = "DotVVM.Framework.Resources.Scripts.DotVVM.ErrorPage.js";
 
         public ErrorPageTemplate(int errorCode,
-            string errorDescription,
             string summary,
             IErrorSectionFormatter[] formatters,
             Exception exception,
             IDotvvmRequestContext? context)
         {
             ErrorCode = errorCode;
-            ErrorDescription = errorDescription;
             Summary = summary;
             Formatters = formatters;
             Exception = exception;
@@ -45,7 +44,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         }
 
         public int ErrorCode { get; }
-        public string ErrorDescription { get; }
         public string Summary { get; }
         public IErrorSectionFormatter[] Formatters { get; }
         public IDotvvmRequestContext? Context { get; }
@@ -70,6 +68,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             // head
             Write(
 $@"<!DOCTYPE html>
+<!-- SERVER ERROR: unhandled exception has been thrown, plain-text stack trace is listed at the end -->
 <html>
     <head>
         <title>Server Error in Application</title>
@@ -112,8 +111,24 @@ $@"
         <div class=header-toolbox>
             <button type=button id=save-and-share-button class=execute title='Saves the error as HTML so you can share it with your coworkers'>Save and Share</button>
         </div>
-        <h1 class=error-text>Server Error, HTTP {ErrorCode}: {WebUtility.HtmlEncode(ErrorDescription)}</h1>
-        <pre class=summary>{WebUtility.HtmlEncode(Summary)}</pre>
+        <h1 class=error-text>");
+
+            WriteText(ErrorCode switch {
+                500 => "Server Error: ",
+                _ => $"HTTP Error {ErrorCode}: "
+            });
+
+            if (Exception is DotvvmCompilationException { CompilationError: { Location: { FileName: not "" and not null } location } compilationError })
+            {
+                WriteUnencoded($"{Path.GetFileName(location.FileName)} compilation failed.");
+            }
+            else
+            {
+                WriteUnencoded($"{HtmlFormattingUtils.DebugHtmlString(Exception.GetType(), false, true)} was not handled.");
+            }
+
+            WriteUnencoded($@"</h1>
+        <pre class=summary>{HtmlFormattingUtils.TryFormatAsHtml(Exception, null, isBlock: true)}</pre>
         <hr />
         <div>
 ");
@@ -149,10 +164,22 @@ $@"
             WriteLine(jsReader.ReadToEnd());
         }
 
-        Write(@"
+            Write(@"
         </script>
     </body>
 </html>
+
+<!--
+");
+            // And now in plain text for people getting this in a terminal
+            WriteUnencoded($"\x1b[31;1;4mServer Error {ErrorCode}: {Exception.GetType().ToCode().Replace("-->", "-→")} was not handled:\x1b[0m\n\n");
+
+            Write(Exception.ToString().Replace("-->", "-→"));
+            //                         ^^^^^^^^^^^^^^^^^^^^
+            //    Exception.ToString() contains an "arrow" which ends the HTML comment, so we replace the arrow with
+            //    Unicode character to avoid spilling out the text in HTML page (and potential XSS vector)
+            Write(@"
+-->
 ");
             return builder.ToString();
         }
@@ -392,14 +419,14 @@ $@"
             Write("</pre>");
         }
 
-        public void WriteKVTable<K, V>(IEnumerable<KeyValuePair<K, V>> table, string className = "")
+        public void WriteKVTable<K, V>(IEnumerable<KeyValuePair<K, V>> table, string className = "", string keyTitle = "Variable", string valueTitle = "Values")
         {
             Write($@"
     <table class='kvtable {className}'>
         <thead>
         <tr>
-            <th> Variable </th>
-            <th> Value </th>
+            <th> {keyTitle} </th>
+            <th> {valueTitle} </th>
         </tr>
         </thead>
         <tbody>");
@@ -408,18 +435,15 @@ $@"
                 Write("<tr><td>");
                 WriteObject(kvp.Key);
                 Write("</td><td>");
-                WriteObject(kvp.Value);
+                WriteObject(kvp.Value, allowBlock: true);
                 WriteLine("</td></tr>");
             }
             Write("</tbody></table>");
         }
 
-        public void WriteObject(object? obj)
+        public void WriteObject(object? obj, bool allowBlock = false)
         {
-            if (obj is IEnumerable<string>)
-                WriteText(string.Concat((IEnumerable<string>)obj));
-            else
-                WriteText(Convert.ToString(obj));
+            WriteUnencoded(HtmlFormattingUtils.TryFormatAsHtml(obj, null, allowBlock, "", ""));
         }
 
         private void Write(string? textToAppend)

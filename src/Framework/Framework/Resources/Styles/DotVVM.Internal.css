@@ -35,7 +35,6 @@ html {
     width: 100%;
     height: 100%;
     font-size: 62.5%;
-    line-height: 1;
     scroll-behavior: smooth;
 }
 
@@ -44,23 +43,28 @@ html {
 :root {
     --heading-color: #333333;
     --nav-color: #2980b9;
-    --activate-color: #de1212;
-    --idle-color: #bcbcbc;
+    --execute-color: #a82f23;
+    --idle-color: #969696;
     --text-color: #333333;
-    --hint-color: #bbbbbb;
+    --hint-color: #7c7878;
+    --border-color: #bbbbbb;
     --error-color: #de1212;
     --error-dark-color: #a82f23;
     --warning-color: #ffa322;
-    --warning-dark-color: #940c00;
+    --warning-dark-color: #ac7c00;
     --success-color: green;
 
 
     /* stolen colors from VSCode light theme */
     --syntax-class: #267f99;
     --syntax-prop: #001080;
+    --syntax-literal: #a20d0d;
     --syntax-method: #795e26;
     --syntax-keyword: #0000ff;
-    --syntax-pink: color: #af00db;;
+    --syntax-pink: #af00db;
+    --syntax-comment: #007f00;
+    --syntax-value: #008557; /* CSS numeric values have this color */
+    --syntax-value2: #0050a4; /* CSS unquoted string values have this color */
     --syntax-black: #000000;
     --font-monospace: "Droid Sans Mono", "Consolas", "monospace", monospace
 }
@@ -71,12 +75,11 @@ body {
     font-size: 1.5rem;
     color: var(--text-color);
     margin: 1rem;
-    line-height: 1.2;
 }
 
 h1 {
     font-weight: normal;
-    font-size: 3.2rem;
+    font-size: 3rem;
     font-style: italic;
     color: var(--heading-color);
     margin: 2rem 0;
@@ -96,7 +99,15 @@ h3 {
 }
 
 .summary {
-    margin: 1.5rem 0;
+    display: block;
+    /* padding: 1.5rem 0; */
+    font-size: 2rem;
+
+    /* limit to 20 lines with fadeout effect (the message is repeated later, but now let's show the menu, source etc.) */
+    max-height: 15em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    mask-image: linear-gradient(180deg, #000 11em, transparent);
 }
 
 .hint-text {
@@ -144,7 +155,7 @@ table {
         border-right: none;
         border-bottom: none;
         border-left: none;
-        border-top: 0.1rem var(--hint-color) solid;
+        border-top: 0.1rem var(--border-color) solid;
         box-sizing: border-box;
     }
         table tr:first-child th, table tr:first-child td {
@@ -152,7 +163,7 @@ table {
         }
 
         table tr.row-continues td {
-            /* border-top: 0.1rem var(--hint-color) dashed; */
+            /* border-top: 0.1rem var(--border-color) dashed; */
             border-top: none;
         }
 
@@ -272,6 +283,9 @@ nav {
     cursor: pointer;
     background-color: var(--idle-color);
 }
+    .nav:hover {
+        background-color: color-mix(in srgb, var(--idle-color), black 20%)
+    }
 
     .nav.active {
         background-color: var(--nav-color);
@@ -284,7 +298,7 @@ nav {
 
 /* Interaction */
 input.execute, button.execute {
-    background-color: var(--hint-color);
+    background-color: var(--idle-color);
     padding: 0.4rem 2rem;
     color: white;
     cursor: pointer;
@@ -292,7 +306,7 @@ input.execute, button.execute {
 }
 
     input.execute:hover, button.execute:hover {
-        background-color: var(--activate-color);
+        background-color: var(--execute-color);
     }
 
 a.execute {
@@ -302,7 +316,7 @@ a.execute {
 }
 
     a.execute:hover {
-        color: var(--activate-color);
+        color: var(--execute-color);
     }
 
 .header-toolbox {
@@ -330,7 +344,7 @@ hr {
         display: inline-block;
         padding: 0.5rem;
         background-color: white;
-        border: 0.1rem solid var(--hint-color);
+        border: 0.1rem solid var(--border-color);
         min-width: 20rem;
     }
 
@@ -362,6 +376,49 @@ ul {
 code {
     font-family: var(--font-monospace);
     color: var(--syntax-black);
+}
+
+.syntax-class, .syntax-typeparam, .syntax-interface {
+    color: var(--syntax-class);
+}
+.syntax-prop {
+    color: var(--syntax-prop);
+}
+.syntax-literal {
+    color: var(--syntax-literal);
+}
+.syntax-method {
+    color: var(--syntax-method);
+}
+.syntax-keyword {
+    color: var(--syntax-keyword);
+}
+.syntax-pink {
+    color: var(--syntax-pink);
+}
+.syntax-value {
+    color: var(--syntax-value);
+}
+.syntax-value2 {
+    color: var(--syntax-value2);
+}
+.syntax-black {
+    color: var(--syntax-black);
+}
+.syntax-comment {
+    color: var(--syntax-comment);
+    font-style: italic;
+}
+
+
+.syntax-underline-error {
+    text-decoration: var(--error-dark-color) wavy underline;
+}
+.syntax-underline-warning {
+    text-decoration: var(--warning-dark-color) wavy underline;
+}
+.syntax-underline-info {
+    text-decoration: var(--success-color) wavy underline;
 }
 
 code.element {

@@ -163,7 +163,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Complex_Error);
 
                 AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Return type") && s.Contains("ItemValueBinding") && s.Contains("primitive type"));
-                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
+                AssertUI.Attribute(browser.First(".exceptionType"), "title", s => s == "DotVVM.Framework.Compilation.DotvvmCompilationException");
                 AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("ItemValueBinding=") && s.Contains("{value:"));
             });
         }
@@ -220,7 +220,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_ComplexToInt_Error);
 
                 AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox.ComboxItemBindingViewModel.ComplexType") && s.Contains("not assignable") && s.Contains("int"));
-                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
+                AssertUI.Attribute(browser.First(".exceptionType"), "title", s => s == "DotVVM.Framework.Compilation.DotvvmCompilationException");
                 AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{value: SelectedInt}"));
             });
         }
@@ -233,7 +233,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error);
 
                 AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("string") && s.Contains("not assignable") && s.Contains("int"));
-                AssertUI.InnerText(browser.First(".summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
+                AssertUI.Attribute(browser.First(".exceptionType"), "title", s => s == "DotVVM.Framework.Compilation.DotvvmCompilationException");
                 AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{value: SelectedInt}"));
             });
         }
