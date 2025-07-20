@@ -67,20 +67,6 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private static readonly ImmutableDictionary<string, Expression> predefinedTypes =
             ImmutableDictionary<string, Expression>.Empty
-                .Add("object", CreateStatic(typeof(Object)))
-                .Add("bool", CreateStatic(typeof(Boolean)))
-                .Add("byte", CreateStatic(typeof(Byte)))
-                .Add("char", CreateStatic(typeof(Char)))
-                .Add("short", CreateStatic(typeof(Int16)))
-                .Add("int", CreateStatic(typeof(Int32)))
-                .Add("long", CreateStatic(typeof(Int64)))
-                .Add("ushort", CreateStatic(typeof(UInt16)))
-                .Add("uint", CreateStatic(typeof(UInt32)))
-                .Add("ulong", CreateStatic(typeof(UInt64)))
-                .Add("decimal", CreateStatic(typeof(Decimal)))
-                .Add("double", CreateStatic(typeof(Double)))
-                .Add("float", CreateStatic(typeof(Single)))
-                .Add("string", CreateStatic(typeof(String)))
                 .Add("Object", CreateStatic(typeof(Object)))
                 .Add("Boolean", CreateStatic(typeof(Boolean)))
                 .Add("Byte", CreateStatic(typeof(Byte)))
