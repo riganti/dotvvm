@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Compilation.Binding
                         : string.Empty;
                     throw new BindingCompilationException(
                         $"Unexpected token '{expression.Substring(0, bindingToken.StartPosition)} ---->{bindingToken.Text}<---- {expression.Substring(bindingToken.EndPosition)}'. {keywordHelp}",
-                        null, new TokenBase[] { bindingToken });
+                        null, [ bindingToken ]);
                 }
                 foreach (var n in node.EnumerateNodes())
                 {

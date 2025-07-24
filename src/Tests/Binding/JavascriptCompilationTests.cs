@@ -1346,7 +1346,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_ParameterPropertyNotExists()
         {
             // _index exists on parent, but not on _this
-            var e = Assert.ThrowsException<Exception>(() =>
+            var e = Assert.ThrowsException<BindingCompilationException>(() =>
                 CompileBinding("_this._index", new [] { typeof(object), typeof(string) }));
             Assert.AreEqual("Could not find instance member _index on type string.", e.Message);
         }

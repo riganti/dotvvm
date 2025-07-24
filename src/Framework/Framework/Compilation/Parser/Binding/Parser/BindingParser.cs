@@ -1417,145 +1417,84 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         private BindingParserNode ReadConstructorCallExpression()
         {
             var startIndex = CurrentIndex;
-            SkipWhiteSpace();
 
-            // Read the 'new' keyword
-            if (Peek()?.Type != BindingTokenType.KeywordNew)
-            {
-                return CreateNode(new SimpleNameBindingParserNode(""), startIndex, "Expected 'new' keyword.");
-            }
+            Assert(BindingTokenType.KeywordNew);
             Read();
             SkipWhiteSpace();
 
-            // Check for type-inferred constructor call: new(...)
-            if (Peek()?.Type == BindingTokenType.OpenParenthesis)
+            BindingParserNode? type = null;
+            if (PeekType() is not BindingTokenType.OpenArrayBrace and not BindingTokenType.OpenParenthesis)
             {
-                Read(); // consume '('
-                var constructorArguments = ReadArguments(() => Peek()?.Type == BindingTokenType.CloseParenthesis);
-                var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
-                Read(); // consume ')'
-                SkipWhiteSpace();
-
-                var constructorCall = new TypeInferredConstructorCallBindingParserNode(constructorArguments);
-                return CreateNode(constructorCall, startIndex, error ? "The ')' was expected." : null);
-            }
-
-            // Read the type expression (might be empty for array syntax like new[])
-            BindingParserNode? typeExpression = null;
-            if (Peek()?.Type != BindingTokenType.OpenArrayBrace)
-            {
-                typeExpression = ReadIdentifierExpression(onlyTypeName: true);
+                type = ReadIdentifierExpression(onlyTypeName: true);
                 SkipWhiteSpace();
             }
 
-            // Check for array construction syntax
-            if (Peek()?.Type == BindingTokenType.OpenArrayBrace)
+            if (PeekType() == BindingTokenType.OpenArrayBrace)
             {
-                Read(); // consume '['
-                
-                // Check if this is a multi-dimensional array (contains comma)
-                var beforeArrayContentIndex = CurrentIndex;
-                var hasComma = false;
-                var bracketDepth = 1;
-                
-                while (bracketDepth > 0 && !OnEnd())
+                Read();
+                SkipWhiteSpace();
+
+                // Expected syntax: `new [] { ... }`
+                //              or: `new int[] { }`
+                //              or: `new int[5]`
+                List<BindingParserNode>? arraySize;
+                if (type is {})
                 {
-                    var token = Peek();
-                    if (token?.Type == BindingTokenType.OpenArrayBrace)
-                        bracketDepth++;
-                    else if (token?.Type == BindingTokenType.CloseArrayBrace)
-                        bracketDepth--;
-                    else if (token?.Type == BindingTokenType.Comma && bracketDepth == 1)
-                        hasComma = true;
-                    
-                    if (bracketDepth > 0)
-                        Read();
-                }
-                
-                // Reset to read array content properly
-                CurrentIndex = beforeArrayContentIndex;
-                
-                if (hasComma)
-                {
-                    // Multi-dimensional array - not supported
-                    var arrayConstruction = new ArrayConstructionBindingParserNode(typeExpression, new List<BindingParserNode>());
-                    
-                    // Skip to the end of the array brackets
-                    bracketDepth = 1;
-                    while (bracketDepth > 0 && !OnEnd())
+                    arraySize = ReadArguments(() => PeekType() == BindingTokenType.CloseArrayBrace);
+                    if (arraySize.Count > 1)
                     {
-                        var token = Read();
-                        if (token?.Type == BindingTokenType.OpenArrayBrace)
-                            bracketDepth++;
-                        else if (token?.Type == BindingTokenType.CloseArrayBrace)
-                            bracketDepth--;
-                    }
-                    
-                    SkipWhiteSpace();
-                    return CreateNode(arrayConstruction, startIndex, "Multi-dimensional arrays are not supported in DotVVM binding expressions.");
-                }
-                
-                // Check if array brackets are empty (for array with initializers) or contain size expression
-                if (Peek()?.Type == BindingTokenType.CloseArrayBrace)
-                {
-                    Read(); // consume ']'
-                    SkipWhiteSpace();
-                    
-                    // Must be followed by array initializer: new int[] { ... } or new[] { ... }
-                    if (Peek()?.Type == BindingTokenType.OpenCurlyBrace)
-                    {
-                        Read(); // consume '{'
-                        SkipWhiteSpace();
-                        
-                        var initializerExpressions = new List<BindingParserNode>();
-                        if (Peek()?.Type != BindingTokenType.CloseCurlyBrace)
-                        {
-                            initializerExpressions = ReadArguments(() => Peek()?.Type == BindingTokenType.CloseCurlyBrace);
-                        }
-                        
-                        var closeBraceError = IsCurrentTokenIncorrect(BindingTokenType.CloseCurlyBrace);
-                        Read(); // consume '}'
-                        SkipWhiteSpace();
-                        
-                        var arrayConstruction = new ArrayConstructionBindingParserNode(typeExpression, initializerExpressions);
-                        return CreateNode(arrayConstruction, startIndex, closeBraceError ? "The '}' was expected." : null);
-                    }
-                    else
-                    {
-                        var arrayConstruction = new ArrayConstructionBindingParserNode(typeExpression, new List<BindingParserNode>());
-                        return CreateNode(arrayConstruction, startIndex, "Array construction with empty brackets must be followed by initializer list: { ... }");
+                        for (var i = 1; i < arraySize.Count; i++)
+                            arraySize[i].NodeErrors.Add("Multi-dimensional arrays are not supported in DotVVM bindings.");
                     }
                 }
                 else
+                    arraySize = [];
+
+                if (PeekType() != BindingTokenType.CloseArrayBrace)
+                    return CreateNode(new ArrayConstructionBindingParserNode(type, arraySize, null), startIndex, "Expected ']' to close the array construction expression.");
+                Read();
+                SkipWhiteSpace();
+
+                // Initializer: { ...}
+                List<BindingParserNode>? initializer = null;
+                if (PeekType() == BindingTokenType.OpenCurlyBrace)
                 {
-                    // Array with size: new int[5]
-                    var sizeExpression = ReadExpression();
-                    var closeBracketError = IsCurrentTokenIncorrect(BindingTokenType.CloseArrayBrace);
-                    Read(); // consume ']'
+                    Read();
                     SkipWhiteSpace();
-                    
-                    var arrayConstruction = new ArrayConstructionBindingParserNode(typeExpression!, sizeExpression);
-                    return CreateNode(arrayConstruction, startIndex, closeBracketError ? "The ']' was expected." : null);
+
+                    initializer = ReadArguments(() => PeekType() == BindingTokenType.CloseCurlyBrace);
+
+                    if (PeekType() != BindingTokenType.CloseCurlyBrace)
+                        return CreateNode(new ArrayConstructionBindingParserNode(type, arraySize, initializer), startIndex, "Expected '}' to close the array initializer expression.");
+
+                    Read();
+                    SkipWhiteSpace();
                 }
+                else if (arraySize is [] || type is null)
+                {
+                    return CreateNode(new ArrayConstructionBindingParserNode(type, arraySize, null), startIndex, "Expected '{': the array must either have a size or an initializer.");
+                }
+
+                return CreateNode(new ArrayConstructionBindingParserNode(type, arraySize, initializer), startIndex);
             }
 
             // Regular constructor call - parentheses are required
-            var arguments = new List<BindingParserNode>();
-            if (Peek()?.Type == BindingTokenType.OpenParenthesis)
+            if (PeekType() == BindingTokenType.OpenParenthesis)
             {
-                Read(); // consume '('
-                arguments = ReadArguments(() => Peek()?.Type == BindingTokenType.CloseParenthesis);
-                var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
-                Read(); // consume ')'
+                Read();
+                var arguments = ReadArguments(() => PeekType() == BindingTokenType.CloseParenthesis);
+
+                if (PeekType() != BindingTokenType.CloseParenthesis)
+                    return CreateNode(new ConstructorCallBindingParserNode(type, arguments), startIndex, "Expected ')' to close the constructor call expression.");
+
+                Read();
                 SkipWhiteSpace();
 
-                var constructorCall = new ConstructorCallBindingParserNode(typeExpression!, arguments);
-                return CreateNode(constructorCall, startIndex, error ? "The ')' was expected." : null);
+                return CreateNode(new ConstructorCallBindingParserNode(type, arguments), startIndex);
             }
             else
             {
-                // Constructor call without parentheses is a syntax error
-                var constructorCall = new ConstructorCallBindingParserNode(typeExpression!, arguments);
+                var constructorCall = new ConstructorCallBindingParserNode(type, []);
                 return CreateNode(constructorCall, startIndex, "Constructor call must have parentheses, even if no arguments are provided.");
             }
         }

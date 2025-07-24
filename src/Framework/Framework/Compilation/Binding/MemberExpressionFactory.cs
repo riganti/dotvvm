@@ -282,7 +282,36 @@ namespace DotVVM.Framework.Compilation.Binding
             );
         }
 
-        private MethodRecognitionResult FindValidMethodOverloads(Expression? target, Type type, string name, BindingFlags flags, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs)
+        public Expression Constructor(Type type, Expression[] args, IDictionary<string, Expression>? namedArgs = null)
+        {
+            if (type.IsAbstract)
+                throw new InvalidOperationException($"Cannot create an instance of abstract type '{type.ToCode()}'.");
+
+            var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+
+            var matchingConstructors =
+                constructors.Select(c => TryCallMethod(c, null, args, namedArgs))
+                            .WhereNotNull()
+                            .ToList();
+
+            if (matchingConstructors is [])
+            {
+                if (type.IsValueType && args is [] && namedArgs is null or { Count: 0 })
+                    return Expression.Default(type);
+
+                throw new Exception($"Could not find a constructor for type '{type.ToCode()}({FormatArgumentTypes(args, namedArgs)})'.");
+            }
+
+            var overload = BestOverload(matchingConstructors, [], ".ctor");
+            return Expression.New(overload.Method, overload.Arguments);
+        }
+
+        static string FormatArgumentTypes(IEnumerable<Expression> arguments, IEnumerable<KeyValuePair<string, Expression>>? namedArgs) =>
+            string.Join(", ",
+                arguments.Select(a => a.Type.ToCode(stripNamespace: true))
+                .Concat(namedArgs?.Select(na => na.Key + ": " + na.Value.Type.ToCode(stripNamespace: true)) ?? []));
+
+        private MethodRecognitionResult<MethodInfo> FindValidMethodOverloads(Expression? target, Type type, string name, BindingFlags flags, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs)
         {
             bool extensionMethods = false;
             var methods = FindValidMethodOverloads(type.GetAllMethods(flags), name, false, typeArguments, arguments, namedArgs);
@@ -315,7 +344,8 @@ namespace DotVVM.Framework.Compilation.Binding
             return BestOverload(methods, extensionMethods ? Type.EmptyTypes : new[] { type }, name);
         }
 
-        private MethodRecognitionResult BestOverload(List<MethodRecognitionResult> methods, Type[] callingOnType, string name)
+        private MethodRecognitionResult<T> BestOverload<T>(List<MethodRecognitionResult<T>> methods, Type[] callingOnType, string name)
+            where T : MethodBase
         {
             if (methods.Count == 1)
                 return methods[0];
@@ -342,9 +372,9 @@ namespace DotVVM.Framework.Compilation.Binding
             return extensionMethodsCache.GetExtensionsForNamespaces(importedNamespaces.Select(ns => ns.Namespace).Append(globalNamespace).Distinct().ToArray());
         }
 
-        private List<MethodRecognitionResult> FindValidMethodOverloads(IEnumerable<MethodInfo> methods, string name, bool isExtension, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs)
+        private List<MethodRecognitionResult<MethodInfo>> FindValidMethodOverloads(IEnumerable<MethodInfo> methods, string name, bool isExtension, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs)
         {
-            var result = new List<MethodRecognitionResult>();
+            var result = new List<MethodRecognitionResult<MethodInfo>>();
             foreach (var m in methods)
             {
                 if (m is null || m.Name != name)
@@ -393,9 +423,9 @@ namespace DotVVM.Framework.Compilation.Binding
             return distance;
         }
 
-        sealed class MethodRecognitionResult
+        sealed class MethodRecognitionResult<TMethod> where TMethod : MethodBase
         {
-            public MethodRecognitionResult(int automaticTypeArgCount, int castCount, Expression[] arguments, MethodInfo method, int paramsArrayCount, bool isExtension, bool hasParamsAttribute)
+            public MethodRecognitionResult(int automaticTypeArgCount, int castCount, Expression[] arguments, TMethod method, int paramsArrayCount, bool isExtension, bool hasParamsAttribute)
             {
                 AutomaticTypeArgCount = automaticTypeArgCount;
                 CastCount = castCount;
@@ -409,7 +439,7 @@ namespace DotVVM.Framework.Compilation.Binding
             public int AutomaticTypeArgCount { get; set; }
             public int CastCount { get; set; }
             public Expression[] Arguments { get; set; }
-            public MethodInfo Method { get; set; }
+            public TMethod Method { get; set; }
             public int ParamsArrayCount { get; set; }
             public bool IsExtension { get; set; }
             public bool HasParamsAttribute { get; set; }
@@ -437,7 +467,8 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        private MethodRecognitionResult? TryCallMethod(MethodInfo method, Type[]? typeArguments, Expression[] positionalArguments, IDictionary<string, Expression>? namedArguments)
+        private MethodRecognitionResult<TMethod>? TryCallMethod<TMethod>(TMethod method, Type[]? typeArguments, Expression[] positionalArguments, IDictionary<string, Expression>? namedArguments)
+            where TMethod : MethodBase
         {
             if (positionalArguments.Contains(null)) throw new ArgumentNullException("positionalArguments[]");
             var parameters = method.GetParameters();
@@ -448,7 +479,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var hasParamsArrayAttributes = parameters.LastOrDefault()?.IsDefined(ParamArrayAttributeType) == true;
             int automaticTypeArgs = 0;
             // resolve generic parameters
-            if (method.ContainsGenericParameters)
+            if (method.ContainsGenericParameters && method is MethodInfo methodInfo)
             {
                 var genericArguments = method.GetGenericArguments();
                 var typeArgs = new Type[genericArguments.Length];
@@ -475,7 +506,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 try
                 {
-                    method = method.MakeGenericMethod(typeArgs);
+                    method = (TMethod)(MethodBase)methodInfo.MakeGenericMethod(typeArgs);
                 }
                 catch (ArgumentException e) when (e.GetBaseException() is System.Security.VerificationException)
                 {
@@ -527,7 +558,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
 
-            return new MethodRecognitionResult(
+            return new MethodRecognitionResult<TMethod>(
                 automaticTypeArgCount: automaticTypeArgs,
                 castCount: castCount,
                 method: method,

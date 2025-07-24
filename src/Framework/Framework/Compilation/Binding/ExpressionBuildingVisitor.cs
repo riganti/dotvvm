@@ -15,6 +15,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using FastExpressionCompiler;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -30,7 +31,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private TypeInferer inferer;
         private int expressionDepth;
-        private List<Exception>? currentErrors;
+        private List<ExceptionDispatchInfo>? currentErrors;
         private readonly MemberExpressionFactory memberExpressionFactory;
 
         public ExpressionBuildingVisitor(TypeRegistry registry, MemberExpressionFactory memberExpressionFactory, Type? expectedType = null)
@@ -52,26 +53,24 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             catch (BindingCompilationException exception)
             {
-                if (currentErrors == null) currentErrors = new List<Exception>();
-                currentErrors.Add(exception);
+                AddError(exception);
             }
             catch (Exception exception)
             {
-                if (currentErrors == null) currentErrors = new List<Exception>();
-                currentErrors.Add(new BindingCompilationException(defaultErrorMessage, exception, node));
+                AddError(new BindingCompilationException(defaultErrorMessage, exception, node));
             }
             if (!allowResultNull && result == null)
             {
-                if (currentErrors == null) currentErrors = new List<Exception>();
-                currentErrors.Add(new BindingCompilationException(defaultErrorMessage, node));
+                AddError(new BindingCompilationException(defaultErrorMessage, node));
             }
             return result;
         }
 
         protected void AddError(params Exception[] errors)
         {
-            if (currentErrors == null) currentErrors = new List<Exception>(errors);
-            else currentErrors.AddRange(errors);
+            currentErrors ??= [];
+            foreach (var e in errors)
+                currentErrors.Add(ExceptionDispatchInfo.Capture(e));
         }
 
         protected void ThrowOnErrors()
@@ -82,12 +81,9 @@ namespace DotVVM.Framework.Compilation.Binding
                 this.currentErrors = null;
                 if (currentErrors.Count == 1)
                 {
-                    if (currentErrors[0].TargetSite == null
-                        || (currentErrors[0] is BindingCompilationException compilationException && compilationException.Tokens == null)
-                        || (currentErrors[0] is AggregateException aggregateException && aggregateException.Message == null))
-                        throw currentErrors[0];
+                    currentErrors[0].Throw();
                 }
-                throw new AggregateException(currentErrors);
+                throw new AggregateException(currentErrors.Select(e => e.SourceException));
             }
         }
 
@@ -100,6 +96,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 expressionDepth++;
                 ThrowIfNotTypeNameRelevant(node);
                 return base.Visit(node);
+            }
+            catch (Exception e) when (e is not BindingCompilationException)
+            {
+                throw new BindingCompilationException(e.Message, e, node);
             }
             finally
             {
@@ -261,6 +261,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     continue;
                 }
 
+                inferer.SetProbedArgumentIndex(i);
                 args[i] = HandleErrors(node.ArgumentExpressions[i], Visit)!;
                 inferer.SetArgument(args[i], i);
             }
@@ -620,24 +621,25 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitBlock(BlockBindingParserNode node)
         {
-            var left = HandleErrors(node.FirstExpression, Visit) ?? Expression.Default(typeof(void));
+            var left = HandleErrors(node.FirstExpression, Visit);
 
             var originalVariables = this.Variables;
             ParameterExpression? variable = null;
             if (node.Variable is object)
             {
-                variable = Expression.Parameter(left.Type, node.Variable.Name);
+                ThrowOnErrors(); // cannot infer variable type
+                variable = Expression.Parameter(left!.Type, node.Variable.Name);
                 this.Variables = this.Variables.SetItem(node.Variable.Name, variable);
 
                 left = Expression.Assign(variable, left);
             }
 
-            var right = HandleErrors(node.SecondExpression, Visit) ?? Expression.Default(typeof(void));
+            var right = HandleErrors(node.SecondExpression, Visit)!;
 
             this.Variables = originalVariables;
             ThrowOnErrors();
 
-            if (typeof(Task).IsAssignableFrom(left.Type))
+            if (typeof(Task).IsAssignableFrom(left!.Type))
             {
                 if (variable is object)
                     throw new NotImplementedException("Variable definition of type Task is not supported.");
@@ -727,6 +729,123 @@ namespace DotVVM.Framework.Compilation.Binding
             if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode) && !(node is AssemblyQualifiedNameBindingParserNode) && !(node is TypeReferenceBindingParserNode) && !(node is TypeOrFunctionReferenceBindingParserNode))
             {
                 throw new BindingCompilationException("Only type name is supported.", node);
+            }
+        }
+
+        protected override Expression VisitConstructorCall(ConstructorCallBindingParserNode node)
+        {
+            Type? targetType;
+
+            if (node.TypeExpression is null)
+            {
+                targetType = inferer.Infer((expressionDepth == 1) ? ExpectedType : null)
+                                    .Constructor(node.ArgumentExpressions.Count).Type;
+
+                if (targetType is null)
+                    throw new BindingCompilationException($"Could not infer the constructed type of {node.ToDisplayString()}. Please specify the type name explicitly.", node);
+            }
+            else
+            {
+                var typeExpr = HandleErrors(node.TypeExpression, Visit);
+                if (typeExpr is StaticClassIdentifierExpression classExpr)
+                    targetType = classExpr.Type;
+                else if (typeExpr is UnknownStaticClassIdentifierExpression unknownType)
+                    throw unknownType.Error();
+                else
+                    throw new BindingCompilationException($"Cannot construct '{node.TypeExpression.ToDisplayString()}' ('{typeExpr}'), it's not a type reference.", node.TypeExpression);
+            }
+
+            var args = new Expression[node.ArgumentExpressions.Count];
+
+            // inferer.BeginFunctionCall(null, args.Length); // TODO
+
+            var lambdaNodeIndices = new List<int>();
+            // Initially process all nodes that are not lambdas
+            for (var i = 0; i < args.Length; i++)
+            {
+                if (node.ArgumentExpressions[i] is LambdaBindingParserNode)
+                {
+                    lambdaNodeIndices.Add(i);
+                    continue;
+                }
+
+                args[i] = HandleErrors(node.ArgumentExpressions[i], Visit)!;
+                // inferer.SetArgument(args[i], i);
+            }
+            // Subsequently process all lambdas
+            foreach (var index in lambdaNodeIndices)
+            {
+                // inferer.SetProbedArgumentIndex(index);
+                args[index] = HandleErrors(node.ArgumentExpressions[index], Visit)!;
+                // inferer.SetArgument(args[index], index);
+            }
+
+            // inferer.EndFunctionCall();
+            ThrowOnErrors();
+
+            return memberExpressionFactory.Constructor(targetType, args);
+        }
+
+        protected override Expression VisitArrayConstruction(ArrayConstructionBindingParserNode node)
+        {
+            var size = node.Size.Select(x => HandleErrors(x, Visit)).ToArray();
+            var typeExpr = node.ElementType is null ? null : HandleErrors(node.ElementType, Visit);
+            var args = node.Initializers?.Select(e => HandleErrors(e, Visit)).ToArray();
+
+            ThrowOnErrors();
+
+            if (size.Length > 1)
+                throw new BindingCompilationException("Multi-dimensional arrays are not supported.", node);
+
+            if (size.Length == 0 && args is null)
+                throw new BindingCompilationException("Array construction requires either a size expression or initializer expressions.", node);
+            if (size.Length > 0 && args is {})
+                throw new BindingCompilationException("Array construction cannot have both size and initializer expressions.", node.Size[0]);
+            if (typeExpr is null && args is null or [])
+                    throw new BindingCompilationException("No best type found for implicitly-typed array.", node);
+
+            var elementType = (typeExpr as StaticClassIdentifierExpression)?.Type;
+            if (typeExpr is { } && elementType is null)
+                throw new BindingCompilationException($"'{node.ElementType!.ToDisplayString()}' is not a type reference.", node.ElementType);
+
+            if (args is null)
+            {
+                var sizeConverted =
+                    TypeConversion.ImplicitConversion(size[0]!, typeof(int)) ??
+                    TypeConversion.ImplicitConversion(size[0]!, typeof(ulong)) ??
+                    TypeConversion.EnsureImplicitConversion(size[0]!, typeof(long));
+
+                return Expression.NewArrayBounds(elementType!, sizeConverted);
+            }
+            else
+            {
+                elementType ??= InferArrayElementType(args!);
+
+                for (var i = 0; i < args.Length; i++)
+                    args[i] = TypeConversion.EnsureImplicitConversion(args[i].NotNull(), elementType);
+
+                return Expression.NewArrayInit(elementType, args!);
+            }
+
+            Type InferArrayElementType(Expression[] initExprs)
+            {
+                var firstType = initExprs[0].Type;
+
+                var typeSet = initExprs.Select(expr => expr.Type).ToHashSet();
+                if (typeSet.Count == 1)
+                    return firstType; // all have same type
+
+                var compatibleTypes = typeSet.Where(t => initExprs.All(expr => TypeConversion.ImplicitConversion(expr, t) != null)).Take(2).ToArray();
+
+                if (compatibleTypes.Length == 1)
+                    return compatibleTypes[0];
+
+                if (compatibleTypes.Length == 0)
+                    throw new Exception($"Cannot determine a common type for array initializer expressions: {string.Join(", ", typeSet.Select(e => e.ToCode()))}");
+                if (compatibleTypes.Length > 1)
+                    throw new Exception($"Multiple compatible types found for array initializer expressions: {string.Join(", ", compatibleTypes.Select(e => e.ToCode()))}");
+
+                return compatibleTypes[0];
             }
         }
     }

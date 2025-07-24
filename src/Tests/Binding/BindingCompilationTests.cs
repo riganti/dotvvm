@@ -1451,6 +1451,185 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(r.Message);
             XAssert.Contains("Lambda parameter of type 'System.String' is missing a name.", r.Message);
         }
+
+        [TestMethod]
+        public void BindingCompiler_ConstructorCall_DateTime()
+        {
+            var result = ExecuteBinding("new System.DateTime(2023, 1, 15)", new TestViewModel());
+            Assert.AreEqual(new DateTime(2023, 1, 15), result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ConstructorCall_TimeSpan()
+        {
+            var result = ExecuteBinding("new System.TimeSpan(1, 2, 3)", new TestViewModel());
+            Assert.AreEqual(new TimeSpan(1, 2, 3), result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ConstructorCall_TimeSpanWithLong()
+        {
+            var result = ExecuteBinding("new System.TimeSpan(10000L)", new TestViewModel());
+            Assert.AreEqual(new TimeSpan(10000L), result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ConstructorCall_Parameterless_Struct()
+        {
+            var result = ExecuteBinding("new System.DateTime()", new TestViewModel());
+            Assert.AreEqual(default(DateTime), result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ConstructorCall_Parameterless_Guid()
+        {
+            var result = ExecuteBinding("new System.Guid()", new TestViewModel());
+            Assert.AreEqual(default(Guid), result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ConstructorCall_WithNamespaceImport()
+        {
+            var result = ExecuteBinding("new System.DateTime(2023, 12, 25)", new TestViewModel());
+            Assert.AreEqual(new DateTime(2023, 12, 25), result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ConstructorCall_NestedCall()
+        {
+            var imports = new[] { new NamespaceImport("System") };
+            var result = ExecuteBinding("new TimeSpan(new System.DateTime(2023, 1, 1).Ticks)", [new TestViewModel()], imports);
+            Assert.AreEqual(new TimeSpan(new DateTime(2023, 1, 1).Ticks), result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_TypeInferredConstructor_FromExpectedType()
+        {
+            var imports = new[] { new NamespaceImport("System") };
+            var result = ExecuteBinding("new(2023, 6, 1)", new[] { new TestViewModel() }, imports, expectedType: typeof(DateTime));
+            Assert.AreEqual(new DateTime(2023, 6, 1), result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_TypeInferredConstructor_TimeSpan()
+        {
+            var imports = new[] { new NamespaceImport("System") };
+            var result = ExecuteBinding("new(5, 30, 0)", new[] { new TestViewModel() }, imports, expectedType: typeof(TimeSpan));
+            Assert.AreEqual(new TimeSpan(5, 30, 0), result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayConstruction_WithSize()
+        {
+            var result = ExecuteBinding("new int[3]", new TestViewModel());
+            Assert.IsInstanceOfType(result, typeof(int[]));
+            var array = (int[])result;
+            Assert.AreEqual(3, array.Length);
+            Assert.AreEqual(0, array[0]); // Default value
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayConstruction_WithVariableSize()
+        {
+            var vm = new TestViewModel { IntProp = 5 };
+            var result = ExecuteBinding("new string[IntProp]", vm);
+            Assert.IsInstanceOfType(result, typeof(string[]));
+            var array = (string[])result;
+            Assert.AreEqual(5, array.Length);
+            Assert.IsNull(array[0]); // Default value for string
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayConstruction_WithInitializer()
+        {
+            var result = ExecuteBinding("new int[] { 1, 2, 3 }", new TestViewModel());
+            Assert.IsInstanceOfType(result, typeof(int[]));
+            var array = (int[])result;
+            Assert.AreEqual(3, array.Length);
+            Assert.AreEqual(1, array[0]);
+            Assert.AreEqual(2, array[1]);
+            Assert.AreEqual(3, array[2]);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayConstruction_WithInitializer_Strings()
+        {
+            var result = ExecuteBinding("new string[] { \"hello\", \"world\" }", new TestViewModel());
+            Assert.IsInstanceOfType(result, typeof(string[]));
+            var array = (string[])result;
+            Assert.AreEqual(2, array.Length);
+            Assert.AreEqual("hello", array[0]);
+            Assert.AreEqual("world", array[1]);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayConstruction_TypeInferred()
+        {
+            var result = ExecuteBinding("new[] { 1, 2, 3 }", new TestViewModel());
+            Assert.IsInstanceOfType(result, typeof(int[]));
+            var array = (int[])result;
+            Assert.AreEqual(3, array.Length);
+            Assert.AreEqual(1, array[0]);
+            Assert.AreEqual(2, array[1]);
+            Assert.AreEqual(3, array[2]);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayConstruction_TypeInferred_Strings()
+        {
+            var result = ExecuteBinding("new[] { \"a\", \"b\", \"c\" }", new TestViewModel());
+            Assert.IsInstanceOfType(result, typeof(string[]));
+            var array = (string[])result;
+            Assert.AreEqual(3, array.Length);
+            Assert.AreEqual("a", array[0]);
+            Assert.AreEqual("b", array[1]);
+            Assert.AreEqual("c", array[2]);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayConstruction_WithViewModelProperty()
+        {
+            var vm = new TestViewModel { StringProp = "test", IntProp = 42 };
+            var result = ExecuteBinding("new[] { StringProp, IntProp.ToString() }", vm);
+            XAssert.Equal<string>(["test", "42"], XAssert.IsAssignableFrom<string[]>(result));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ConstructorCall_WithExpressionArguments()
+        {
+            var vm = new TestViewModel { IntProp = 2023 };
+            var result = ExecuteBinding("new System.DateTime(IntProp, IntProp - 2022, IntProp - 2022)", vm);
+            Assert.AreEqual(new DateTime(2023, 1, 1), result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BindingPropertyException))]
+        public void BindingCompiler_ConstructorCall_InvalidType_ThrowsException()
+        {
+            ExecuteBinding("new NonExistentType()", new TestViewModel());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BindingPropertyException))]
+        public void BindingCompiler_ConstructorCall_InvalidArguments_ThrowsException()
+        {
+            var imports = new[] { new NamespaceImport("System") };
+            ExecuteBinding("new DateTime(\"not a number\")", new[] { new TestViewModel() }, imports);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BindingPropertyException))]
+        public void BindingCompiler_TypeInferredConstructor_CannotInfer_ThrowsException()
+        {
+            ExecuteBinding("new(1, 2, 3)", new[] { new TestViewModel() }, null, expectedType: typeof(object));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BindingPropertyException))]
+        public void BindingCompiler_ArrayConstruction_InvalidSize_ThrowsException()
+        {
+            ExecuteBinding("new int[\"not a number\"]", new TestViewModel());
+        }
     }
     public class TestViewModel
     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
@@ -9,7 +10,7 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public class BindingCompilationException : Exception
     {
-        public IEnumerable<TokenBase> Tokens { get; set; }
+        public ImmutableArray<BindingToken> Tokens { get; set; }
         public string? Expression { get; set; }
 
         public BindingCompilationException(string message, Exception? innerException, BindingParserNode node)
@@ -29,13 +30,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 tokensList.RemoveRange(trailingWhitespace + 1, tokensList.Count - trailingWhitespace - 1);
                 tokensList.RemoveRange(0, leadingWhitespace);
             }
-            Tokens = tokensList;
-        }
-
-        public BindingCompilationException(string message, Exception? innerException, IEnumerable<TokenBase> tokens)
-            : base(message, innerException)
-        {
-            Tokens = tokens;
+            Tokens = tokensList.ToImmutableArray();
         }
 
         public BindingCompilationException(string message, BindingParserNode node)

@@ -8,10 +8,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ConstructorCallBindingParserNode : BindingParserNode
     {
-        public BindingParserNode TypeExpression { get; private set; }
-        public List<BindingParserNode> ArgumentExpressions { get; private set; }
+        public BindingParserNode? TypeExpression { get; }
+        public bool IsTypeInferred => TypeExpression is null;
+        public List<BindingParserNode> ArgumentExpressions { get; }
 
-        public ConstructorCallBindingParserNode(BindingParserNode typeExpression, List<BindingParserNode> argumentExpressions)
+        public ConstructorCallBindingParserNode(BindingParserNode? typeExpression, List<BindingParserNode> argumentExpressions)
         {
             TypeExpression = typeExpression;
             ArgumentExpressions = argumentExpressions;
@@ -21,14 +22,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             return
                 base.EnumerateNodes()
-                    .Concat(TypeExpression.EnumerateNodes())
+                    .Concat(TypeExpression?.EnumerateNodes() ?? [])
                     .Concat(ArgumentExpressions.SelectMany(a => a.EnumerateNodes()));
         }
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
-            => new[] { TypeExpression }.Concat(ArgumentExpressions);
+            => TypeExpression is null ? ArgumentExpressions : Enumerable.Concat([TypeExpression ], ArgumentExpressions);
 
         public override string ToDisplayString() 
-            => $"new {TypeExpression.ToDisplayString()}({string.Join(", ", ArgumentExpressions.Select(e => e.ToDisplayString()))})";
+            => $"new {TypeExpression?.ToDisplayString()}({string.Join(", ", ArgumentExpressions.Select(e => e.ToDisplayString()))})";
     }
 }

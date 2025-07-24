@@ -23,5 +23,6 @@ namespace DotVVM.Framework.Compilation.Inference
     internal interface IFluentInferer
     {
         LambdaTypeInferenceResult Lambda(int argsCount);
+        ConstructorTypeInferenceResult Constructor(int argsCount);
     }
 }
