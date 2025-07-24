@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     var bindingToken = parser.Peek().NotNull();
                     throw new BindingCompilationException(
                         $"Unexpected token '{expression.Substring(0, bindingToken.StartPosition)} ---->{bindingToken.Text}<---- {expression.Substring(bindingToken.EndPosition)}'",
-                        null, new TokenBase[] { bindingToken });
+                        null, [bindingToken]);
                 }
                 foreach (var n in node.EnumerateNodes())
                 {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Properties;
@@ -42,8 +43,8 @@ namespace DotVVM.Framework.Compilation
 
         DotvvmCompilationSourceLocation? MapBindingLocation(ResolvedBinding binding, DotvvmProperty? relatedProperty, BindingCompilationException error)
         {
-            var tokens = error.Tokens?.ToArray();
-            if (tokens is null or {Length:0})
+            var tokens = error.Tokens;
+            if (tokens is [])
                 return null;
 
             var valueNode = (binding.BindingNode as DothtmlBindingNode)?.ValueNode;
@@ -60,7 +61,7 @@ namespace DotVVM.Framework.Compilation
                 tokens = tokens.Select(t => t switch {
                     BindingToken bt => bt.RemapPosition(valueToken),
                     _ => t // dothtml tokens most likely already have correct position
-                }).ToArray();
+                }).ToImmutableArray();
                 return new DotvvmCompilationSourceLocation(binding, valueNode, tokens) { RelatedBinding = binding.Binding, RelatedProperty = relatedProperty };
             }
         }
