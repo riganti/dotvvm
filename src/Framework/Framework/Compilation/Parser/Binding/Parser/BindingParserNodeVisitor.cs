@@ -87,6 +87,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitVoid(voidNode);
             }
+            else if (node is ConstructorCallBindingParserNode constructorCallNode)
+            {
+                return VisitConstructorCall(constructorCallNode);
+            }
+            else if (node is ArrayConstructionBindingParserNode arrayConstructionNode)
+            {
+                return VisitArrayConstruction(arrayConstructionNode);
+            }
             else if (node is ArrayInitializerExpression arrayInitializerExpression)
             {
                 return VisitArrayInitializer(arrayInitializerExpression);
@@ -197,6 +205,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         }
 
         protected virtual T VisitVoid(VoidBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
+        protected virtual T VisitConstructorCall(ConstructorCallBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
+        protected virtual T VisitArrayConstruction(ArrayConstructionBindingParserNode node)
         {
             return DefaultVisit(node);
         }
