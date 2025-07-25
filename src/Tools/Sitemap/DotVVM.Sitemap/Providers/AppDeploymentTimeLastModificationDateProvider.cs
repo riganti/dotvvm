@@ -3,6 +3,9 @@ using DotVVM.Framework.Routing;
 
 namespace DotVVM.Sitemap.Providers;
 
+/// <summary>
+/// Resolves the last modification date for a route based on the deployment time of the application's entry assembly.
+/// </summary>
 public class AppDeploymentTimeLastModificationDateProvider : IRouteLastModificationDateProvider
 {
     private static readonly DateTime appDeploymentTime;
@@ -15,8 +18,9 @@ public class AppDeploymentTimeLastModificationDateProvider : IRouteLastModificat
             : throw new NotSupportedException($"{nameof(AppDeploymentTimeLastModificationDateProvider)} cannot be used in environments without the entry assembly.");
     }
 
-    public Task<DateTime> GetLastModifiedTimeAsync(RouteBase route, string? culture, IDictionary<string, object?>? parameters, CancellationToken ct)
+    /// <inheritdoc />
+    public async Task<DateTime?> GetLastModifiedTimeAsync(RouteBase route, CancellationToken ct)
     {
-        return Task.FromResult(appDeploymentTime);
+        return appDeploymentTime;
     }
 }

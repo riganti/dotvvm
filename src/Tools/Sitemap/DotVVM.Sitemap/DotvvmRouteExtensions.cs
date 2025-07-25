@@ -8,27 +8,36 @@ public static class DotvvmRouteExtensions
 {
     public static RouteBase WithSitemapOptions(this RouteBase route, Action<RouteSitemapOptions> configure)
     {
-        var options = new RouteSitemapOptions();
-        configure(options);
-        route.ExtensionData.Add(typeof(RouteSitemapOptions), options);
+        if (!route.ExtensionData.TryGetValue(typeof(RouteSitemapOptions), out var options))
+        {
+            options = new RouteSitemapOptions();
+            route.ExtensionData.Add(typeof(RouteSitemapOptions), options);
+        }
+        configure(options as RouteSitemapOptions ?? throw new InvalidOperationException("The ExtensionData dictionary item must be of type RouteSitemapOptions!"));
 
         return route;
     }
 
     public static RouteTableGroup WithDefaultSitemapOptions(this RouteTableGroup routeGroup, Action<RouteSitemapOptions> configure)
     {
-        var options = new RouteSitemapOptions();
-        configure(options);
-        routeGroup.ExtensionData.Add(typeof(RouteSitemapOptions), options);
+        if (!routeGroup.ExtensionData.TryGetValue(typeof(RouteSitemapOptions), out var options))
+        {
+            options = new RouteSitemapOptions();
+            routeGroup.ExtensionData.Add(typeof(RouteSitemapOptions), options);
+        }
+        configure(options as RouteSitemapOptions ?? throw new InvalidOperationException("The ExtensionData dictionary item must be of type RouteSitemapOptions!"));
 
         return routeGroup;
     }
 
     public static DotvvmRouteTable WithDefaultSitemapOptions(this DotvvmRouteTable routeTable, Action<RouteSitemapOptions> configure)
     {
-        var options = new RouteSitemapOptions();
-        configure(options);
-        routeTable.ExtensionData.Add(typeof(RouteSitemapOptions), options);
+        if (!routeTable.ExtensionData.TryGetValue(typeof(RouteSitemapOptions), out var options))
+        {
+            options = new RouteSitemapOptions();
+            routeTable.ExtensionData.Add(typeof(RouteSitemapOptions), options);
+        }
+        configure(options as RouteSitemapOptions ?? throw new InvalidOperationException("The ExtensionData dictionary item must be of type RouteSitemapOptions!"));
 
         return routeTable;
     }
