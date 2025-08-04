@@ -11,7 +11,8 @@ public class NullHandlingTests(ITestOutputHelper output) : AppSeleniumTest(outpu
     [Theory]
     [InlineData("resource-button")]
     [InlineData("value-button")]
-    public void Feature_HtmlTag_NonPairHtmlTag(string buttonId)
+    [Trait("Category", "dev-only")] // error page
+    public void Feature_NullHandling_Button_Enabled(string buttonId)
     {
         RunInAllBrowsers(browser => {
             browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_NullHandling_Button_Enabled);
