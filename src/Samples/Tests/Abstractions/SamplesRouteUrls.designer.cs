@@ -304,6 +304,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ModalDialog_ModalDialog = "FeatureSamples/ModalDialog/ModalDialog";
         public const string FeatureSamples_NestedMasterPages_Content = "FeatureSamples/NestedMasterPages/Content";
         public const string FeatureSamples_NoJsForm_NoJsForm = "FeatureSamples/NoJsForm/NoJsForm";
+        public const string FeatureSamples_NullHandling_Button_Enabled = "FeatureSamples/NullHandling/Button_Enabled";
         public const string FeatureSamples_ParameterBinding_OptionalParameterBinding = "FeatureSamples/ParameterBinding/OptionalParameterBinding";
         public const string FeatureSamples_ParameterBinding_ParameterBinding = "FeatureSamples/ParameterBinding/ParameterBinding";
         public const string FeatureSamples_PostBack_ConfirmPostBackHandler = "FeatureSamples/PostBack/ConfirmPostBackHandler";

@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Controls
         {
             writer.AddKnockoutDataBind("dotvvm-enable", this, EnabledProperty, () =>
             {
-                if (!Enabled)
+                if (GetValue(EnabledProperty) is not true)
                 {
                     writer.AddAttribute("disabled", "disabled");
                 }
@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Controls
         {
             if (targetProperty == ClickProperty)
             {
-                return Enabled && Visible;
+                return GetValue(EnabledProperty) is true && GetValue(VisibleProperty) is true;
             }
             return false;
         }
