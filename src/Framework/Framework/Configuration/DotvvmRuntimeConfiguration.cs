@@ -35,6 +35,13 @@ namespace DotVVM.Framework.Configuration
         public long MaxPostbackSizeBytes { get; set; } = 1024 * 1024 * 128; // 128 MB
 
         /// <summary>
+        /// When enabled, the DotVVM runtime only automatically load assemblies listed in <see cref="DotvvmMarkupConfiguration.Assemblies"/>. This may prevent failures during startup and reduce startup time.
+        /// See <see href="https://www.dotvvm.com/docs/4.0/pages/concepts/configuration/explicit-assembly-loading"> documentation page </see> for more information
+        /// </summary>
+        [JsonPropertyName("explicitAssemblyLoading")]
+        public DotvvmGlobalFeatureFlag ExplicitAssemblyLoading { get; } = new DotvvmGlobalFeatureFlag("ExplicitAssemblyLoading");
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRuntimeConfiguration"/> class.
         /// </summary>
         public DotvvmRuntimeConfiguration()
@@ -54,6 +61,7 @@ namespace DotVVM.Framework.Configuration
             this.isFrozen = true;
             FreezableList.Freeze(ref _globalFilters);
             ReloadMarkupFiles.Freeze();
+            ExplicitAssemblyLoading.Freeze();
         }
     }
 }

@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 DotVVM.AutoUI.AutoUIExtensions.AddAutoUI(new DotvvmServiceCollection(s));
             });
             // otherwise it behaves differently on .NET framework
-            c.ExperimentalFeatures.ExplicitAssemblyLoading.Enable();
+            c.Runtime.ExplicitAssemblyLoading.Enable();
             c.DefaultCulture = "en-US";
             checkConfig(c, includeProperties: true);
         }
