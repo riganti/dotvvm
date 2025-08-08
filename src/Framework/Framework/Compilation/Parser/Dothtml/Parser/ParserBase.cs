@@ -88,26 +88,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             return token;
         }
 
-        private Stack<int> _restorePoints = new Stack<int>();
-        protected void SetRestorePoint()
+        protected RestorePoint SetRestorePoint()
         {
-            _restorePoints.Push(CurrentIndex);
+            return new RestorePoint(CurrentIndex);
         }
 
-        protected void ClearRestorePoint()
+        protected void Restore(RestorePoint point)
         {
-            if(_restorePoints.Count > 0)
-            {
-                _restorePoints.Pop();
-            }
-        }
-
-        protected void Restore()
-        {
-            if(_restorePoints.Count != 0)
-            {
-                CurrentIndex = _restorePoints.Pop();
-            }
+            CurrentIndex = point.Index;
         }
 
         protected AggregateList<TToken>.Part PeekPart()
@@ -141,5 +129,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                 current = Peek();
             }
         }
+
+        public readonly record struct RestorePoint(int Index);
     }
 }

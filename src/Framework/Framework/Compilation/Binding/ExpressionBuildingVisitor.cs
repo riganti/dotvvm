@@ -283,6 +283,30 @@ namespace DotVVM.Framework.Compilation.Binding
             return GetMemberOrTypeExpression(node, null) ?? Expression.Default(typeof(void));
         }
 
+        protected override Expression VisitPredefinedTypeName(PredefinedTypeBindingParserNode node)
+        {
+            var type = node.NameToken.Type switch {
+                BindingTokenType.KeywordBool => typeof(bool),
+                BindingTokenType.KeywordByte => typeof(byte),
+                BindingTokenType.KeywordChar => typeof(char),
+                BindingTokenType.KeywordDecimal => typeof(decimal),
+                BindingTokenType.KeywordDouble => typeof(double),
+                BindingTokenType.KeywordFloat => typeof(float),
+                BindingTokenType.KeywordInt => typeof(int),
+                BindingTokenType.KeywordLong => typeof(long),
+                BindingTokenType.KeywordObject => typeof(object),
+                BindingTokenType.KeywordSbyte => typeof(sbyte),
+                BindingTokenType.KeywordShort => typeof(short),
+                BindingTokenType.KeywordString => typeof(string),
+                BindingTokenType.KeywordUint => typeof(uint),
+                BindingTokenType.KeywordUlong => typeof(ulong),
+                BindingTokenType.KeywordUshort => typeof(ushort),
+                BindingTokenType.KeywordVoid => typeof(void),
+                _ => throw new NotSupportedException($"Predefined type {node.Name} is not supported")
+            };
+            return new StaticClassIdentifierExpression(type);
+        }
+
         protected override Expression VisitAssemblyQualifiedName(AssemblyQualifiedNameBindingParserNode node)
         {
             if (node.AssemblyName.HasNodeErrors)
@@ -496,13 +520,13 @@ namespace DotVVM.Framework.Compilation.Binding
             if (node.ResolvedType != null)
             {
                 // Type was not specified but was inferred
-                return Expression.Parameter(node.ResolvedType, node.Name.ToDisplayString());
+                return Expression.Parameter(node.ResolvedType, node.Name.Name);
             }
             else
             {
                 // Type was specified and needs to be obtained from binding node
                 var parameterType = Visit(node.Type!).Type;
-                return Expression.Parameter(parameterType, node.Name.ToDisplayString());
+                return Expression.Parameter(parameterType, node.Name.Name);
             }
         }
 
@@ -672,7 +696,17 @@ namespace DotVVM.Framework.Compilation.Binding
                     return variable;
                 if (Scope is object && memberExpressionFactory.GetMember(Scope, node.Name, typeParameters, throwExceptions: false, onlyMemberTypes: ResolveOnlyTypeName, disableExtensionMethods: true) is Expression scopeMember)
                     return scopeMember;
-                return Registry.Resolve(node.Name, throwOnNotFound: false);
+                if (Registry.Resolve(node.Name, throwOnNotFound: false) is { } resolvedType)
+                    return resolvedType;
+
+                if (!node.IsEscapedKeyword)
+                {
+                    if (name == "nuint")
+                        return new StaticClassIdentifierExpression(typeof(nuint));
+                    if (name == "nint")
+                        return new StaticClassIdentifierExpression(typeof(nint));
+                }
+                return null;
             }
         }
 

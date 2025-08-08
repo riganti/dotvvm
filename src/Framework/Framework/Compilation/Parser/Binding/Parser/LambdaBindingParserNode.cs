@@ -36,10 +36,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     public class LambdaParameterBindingParserNode : BindingParserNode
     {
         public BindingParserNode? Type { get; private set; }
-        public BindingParserNode Name { get; private set; }
+        public SimpleNameBindingParserNode Name { get; private set; }
         public Type? ResolvedType { get; private set; }
 
-        public LambdaParameterBindingParserNode(BindingParserNode? type, BindingParserNode name)
+        public LambdaParameterBindingParserNode(BindingParserNode? type, SimpleNameBindingParserNode name)
         {
             Type = type;
             Name = name;
