@@ -30,25 +30,25 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("input[type=text]", 0).Clear().SendKeys("18.2.1988");
                 browser.ElementAt("input[type=button]", 1).Click();
 
-                AssertUI.InnerText(browser.ElementAt("span", 0), s => WrapTestException(DateTime.Parse(s).Equals(new DateTime(1988, 2, 18))));
+                AssertUI.InnerText(browser.ElementAt("span", 0), s => WrapTestException(() => DateTime.Parse(s).Equals(new DateTime(1988, 2, 18))));
 
                 browser.ElementAt("input[type=text]", 0).Clear();
                 browser.ElementAt("input[type=button]", 1).Click();
 
-                AssertUI.InnerText(browser.ElementAt("span", 0), s => WrapTestException(DateTime.Parse(s).Equals(new DateTime(1988, 2, 18))));
+                AssertUI.InnerText(browser.ElementAt("span", 0), s => WrapTestException(() => DateTime.Parse(s).Equals(new DateTime(1988, 2, 18))));
 
                 // make the viewmodel valid again
                 browser.ElementAt("input[type=text]", 0).Clear().SendKeys("18.2.1988");
                 browser.ElementAt("input[type=button]", 1).Click();
 
-                AssertUI.InnerText(browser.ElementAt("span", 0), s => WrapTestException(DateTime.Parse(s).Equals(new DateTime(1988, 2, 18))));
+                AssertUI.InnerText(browser.ElementAt("span", 0), s => WrapTestException(() => DateTime.Parse(s).Equals(new DateTime(1988, 2, 18))));
 
                 // verify the second date
                 browser.ElementAt("input[type=text]", 1).Clear().SendKeys("2011-03-19 16:48:17");
                 browser.ElementAt("input[type=button]", 3).Click();
 
                 AssertUI.InnerText(browser.ElementAt("span", 1),
-                        s => WrapTestException(DateTime.Parse(s).Equals(new DateTime(2011, 3, 19, 16, 48, 0))));
+                        s => WrapTestException(() => DateTime.Parse(s).Equals(new DateTime(2011, 3, 19, 16, 48, 0))));
 
                 browser.ElementAt("input[type=text]", 1).Clear();
                 browser.ElementAt("input[type=button]", 3).Click();
@@ -62,11 +62,11 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // there is no time in the field
                 AssertUI.Attribute(browser.ElementAt("input[type=text]", 0), "value",
-                    s => WrapTestException((DateTime.Now - DateTime.Parse(s, culture)).TotalHours < 24));
+                    s => WrapTestException(() => (DateTime.Now - DateTime.Parse(s, culture)).TotalHours < 24));
 
                 // the minutes can differ slightly
                 AssertUI.Attribute(browser.ElementAt("input[type=text]", 1), "value",
-                    s => WrapTestException((DateTime.Now - DateTime.Parse(s, culture)).TotalMinutes < 1));
+                    s => WrapTestException(() => (DateTime.Now - DateTime.Parse(s, culture)).TotalMinutes < 1));
             });
         }
 
@@ -85,15 +85,15 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Single("input[data-ui='set-static-date-button']").Click();
 
                 AssertUI.Attribute(browser.Single("input[data-ui='static-date']"), "value",
-                    s => WrapTestException(DateTime.Parse(s, culture) == new DateTime(2000, 1, 1)));
+                    s => WrapTestException(() => DateTime.Parse(s, culture) == new DateTime(2000, 1, 1)));
             });
         }
 
-        private T WrapTestException<T>(T value)
+        private T WrapTestException<T>(Func<T> value)
         {
             try
             {
-                return value;
+                return value();
             }
             catch (Exception ex)
             {
