@@ -55,8 +55,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             stack.Reverse();
 
             var m = new ExceptionModel(
-                exception.GetType().FullName ?? "Unknown exception",
-                exception.Message,
+                exception.GetType(),
                 stack.ToArray(),
                 exception,
                 additionalInfos!
@@ -350,7 +349,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     .Where(t => t != null)
                     .ToArray()!,
                 errorCode: context.Response.StatusCode,
-                errorDescription: "Unhandled exception occurred",
                 summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600),
                 context: DotvvmRequestContext.TryGetCurrent(context),
                 exception: exception);
@@ -358,14 +356,18 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return template.TransformText();
         }
 
-        static (string name, object? value) StripBindingProperty(string name, object value)
+        static (object name, object? value) StripBindingProperty(Type property, object value)
         {
             var t = value.GetType();
-            var props = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (props.Length != 1)
-                return (name, value);
+            var props = t.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            if (props.Length != 1 || value is IDebugHtmlFormattableObject)
+                return (property, value);
 
-            return (name + "." + props[0].Name, props[0].GetValue(value));
+            var newName =
+                HtmlFormattingUtils.PreformattedHtmlObject.Create(property)
+                    .Append("." + props[0].Name, $".<span class=syntax-prop>{WebUtility.HtmlEncode(props[0].Name)}</span>");
+
+            return (newName, props[0].GetValue(value));
         }
 
         private static ExceptionModel LoadDemystifiedException(ErrorFormatter formatter, Exception exception)
@@ -408,13 +410,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             f.Formatters.Add((e, o) => {
                 var b = e.AllInnerExceptions().OfType<IDotvvmException>().Select(a => a.RelatedBinding).OfType<ICloneableBinding>().FirstOrDefault();
                 if (b == null) return null;
-                return new DictionarySection<object, object?>("Binding", "binding",
-                    new []{ new KeyValuePair<object, object?>("Type", b.GetType().FullName!) }
-                    .Concat(
-                        b.GetAllComputedProperties()
-                        .Select(a => StripBindingProperty(a.GetType().Name, a))
+                return new DictionarySection<object, object?>("Binding", "binding", [
+                    new("Type", b.GetType()),
+                    .. b.GetAllComputedProperties()
+                        .Select(a => StripBindingProperty(a.GetType(), a))
                         .Select(a => new KeyValuePair<object, object?>(a.name, a.value))
-                    ).ToArray());
+                ]) { KeyTitle = "Binding property" };
             });
             f.Formatters.Add((e, o) => new CookiesSection(o.Request.Cookies));
             f.Formatters.Add((e, o) => new DictionarySection<string, string>(
@@ -430,15 +431,17 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     return new KeyValuePair<string, string>(info.Name!,
                         $"Version={versionString}, Culture={cultureString}, PublicKeyToken={publicKeyString}");
                 })
-            ));
-            f.Formatters.Add((e, o) => new DictionarySection<string, string[]>(
+            ) { KeyTitle = "Assembly", ValueTitle = "Info" });
+            f.Formatters.Add((e, o) => new DictionarySection<string, string>(
                 "Request Headers",
                 "reqHeaders",
                 o.Request.Headers.Select(h =>
                     h.Key.Equals("Cookie", StringComparison.OrdinalIgnoreCase) ?
-                        new ("Cookie", new [] {"<redacted, see Cookies tab or devtools>"}) :
-                        h)
-            ));
+                        new("Cookie", "<redacted, see Cookies tab or devtools>") :
+                    h.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase) ?
+                        new(h.Key, "<redacted>") :
+                    new KeyValuePair<string, string>(h.Key, string.Join("; ", h.Value)))
+            ) { KeyTitle = "HTTP Header" });
             f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo(
                 "Loader Exceptions",
                 e.LoaderExceptions.Select(lde => lde!.GetType().Name + ": " + lde.Message).ToArray(),

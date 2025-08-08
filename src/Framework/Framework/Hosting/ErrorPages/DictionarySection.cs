@@ -7,10 +7,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class DictionarySection<K, V> : IErrorSectionFormatter
     {
-        public string DisplayName { get; set; }
+        public string DisplayName { get; init; }
+        public string KeyTitle { get; init; } = "Variable";
+        public string ValueTitle { get; init; } = "Value";
 
-        public string Id { get; set; }
-        public KeyValuePair<K, V>[] Table { get; set; }
+        public string Id { get; init; }
+        public KeyValuePair<K, V>[] Table { get; init; }
 
         public DictionarySection(string name, string id, IEnumerable<KeyValuePair<K, V>> table)
         {

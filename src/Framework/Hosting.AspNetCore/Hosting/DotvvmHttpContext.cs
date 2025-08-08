@@ -4,6 +4,7 @@ using System.Security.Claims;
 using DotVVM.Framework.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -31,10 +32,10 @@ namespace DotVVM.Framework.Hosting
         public IEnumerable<Tuple<string, IEnumerable<KeyValuePair<string, object>>>> GetEnvironmentTabs()
         {
             yield return Tuple.Create("Features", OriginalContext.Features
-                .Select(k => new KeyValuePair<string, object>(k.Key.ToString(), k.Value)));
+                .Select(k => new KeyValuePair<string, object>(k.Key.ToCode(), k.Value.ToString())));
 
             yield return Tuple.Create("Items", OriginalContext.Items
-                .Select(k => new KeyValuePair<string, object>(k.Key.ToString(), k.Value)));
+                .Select(k => new KeyValuePair<string, object>(k.Key.ToString(), k.Value.ToString())));
         }
     }
 }

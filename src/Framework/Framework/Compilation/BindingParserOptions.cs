@@ -7,10 +7,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Binding.Expressions;
+using FastExpressionCompiler;
+using System.Net;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class BindingParserOptions
+    public class BindingParserOptions : IDebugHtmlFormattableObject
     {
         public Type BindingType { get; }
         public string ScopeParameter { get; }
@@ -41,14 +43,14 @@ namespace DotVVM.Framework.Compilation
         }
 
         public static BindingParserOptions Create<TBinding>(string scopeParameter = "_this", IEnumerable<NamespaceImport>? importNs = null, ImmutableArray<BindingExtensionParameter>? extParameters = null)
-            => new BindingParserOptions(typeof(TBinding), scopeParameter, 
+            => new BindingParserOptions(typeof(TBinding), scopeParameter,
                 importNamespaces: importNs?.ToImmutableArray(),
                 extParameters: extParameters);
 
         public static BindingParserOptions Create(Type bindingType, string scopeParameter = "_this", IEnumerable<NamespaceImport>? importNs = null, ImmutableArray<BindingExtensionParameter>? extParameters = null)
             => new BindingParserOptions(bindingType, scopeParameter,
-                importNamespaces: importNs?.ToImmutableArray(), 
-                extParameters: extParameters).AddParameters(new [] { new CurrentUserExtensionParameter() });
+                importNamespaces: importNs?.ToImmutableArray(),
+                extParameters: extParameters).AddParameters(new[] { new CurrentUserExtensionParameter() });
 
         public static readonly BindingParserOptions Value = Create(typeof(ValueBindingExpression<>));
         public static readonly BindingParserOptions ControlProperty = Create(typeof(ControlPropertyBindingExpression<>));
@@ -78,14 +80,54 @@ namespace DotVVM.Framework.Compilation
 
         public override string ToString()
         {
-            string?[] features = new [] {
-                BindingType.Name,
+            string?[] features = new[] {
+                BindingType.ToCode(stripNamespace: true),
                 ImportNamespaces.Any() ? "imports=[" + string.Join(", ", this.ImportNamespaces) + "]" : null,
                 ExtensionParameters.Any() ? "ext=[" + string.Join(", ", this.ExtensionParameters.Select(e => e.Identifier + ": " + e.ParameterType.Name)) + "]" : null,
                 ScopeParameter != "_this" ? "scope=" + ScopeParameter : null,
             };
             return "{" + features.Where(a => a != null).StringJoin(", ") + "}";
 
+        }
+
+        public string DebugHtmlString(IFormatProvider? formatProvider, bool isBlock)
+        {
+            List<string> result = [
+                isBlock ? "<ul>" : "<span>{",
+                isBlock ? "<li>type = <b>" : "<b>",
+                BindingType.DebugHtmlString(false, true),
+                isBlock ? "</b></li>" : "</b>: "
+            ];
+
+            if (ImportNamespaces.Any())
+                result.AddRange([
+                    isBlock ? "<li>" : "",
+                    "<b>imports</b> =", isBlock ? " " : "[",
+                    string.Join(", ", this.ImportNamespaces.Select(i =>
+                        i.HasAlias ? $"<span class=syntax-class>{WebUtility.HtmlEncode(i.Alias)}</span>={WebUtility.HtmlEncode(i.Namespace)}"
+                                   : $"{WebUtility.HtmlEncode(i.Namespace)}")),
+                    isBlock ? "</li>" : "]"
+                ]);
+
+            if (ExtensionParameters.Any())
+                result.AddRange([
+                    isBlock ? "<li>" : "",
+                    "<b>ext</b> =", isBlock ? " " : "[",
+                    string.Join(", ", this.ExtensionParameters.Select(e =>
+                        $"{WebUtility.HtmlEncode(e.Identifier)}: {e.ParameterType.DebugHtmlString(false, true)}")),
+                    isBlock ? "</li>" : "]"
+                ]);
+
+            if (ScopeParameter != "_this")
+                result.AddRange([
+                    isBlock ? "<li>" : "",
+                    "<b>scope</b> =", WebUtility.HtmlEncode(ScopeParameter),
+                    isBlock ? "</li>" : ""
+                ]);
+
+            result.Add(isBlock ? "</ul>" : "}");
+
+            return string.Concat(result);
         }
     }
 }

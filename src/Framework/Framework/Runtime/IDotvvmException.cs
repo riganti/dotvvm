@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
@@ -7,6 +8,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -41,6 +43,46 @@ namespace DotVVM.Framework.Runtime
         public DotvvmBindableObject? RelatedControl { get; set; } = RelatedControl;
         public DotvvmLocationInfo? Location { get; set; } = Location;
         Exception IDotvvmException.TheException => this;
+
+        protected override bool PrintMembers(StringBuilder builder)
+        {
+            if (base.PrintMembers(builder))
+                builder.Append(", ");
+
+            if (Location is {})
+            {
+                var str = Location switch {
+                    { FileName: {} file, LineNumber: {} line } => $"{file}:{line}",
+                    { FileName: {} file } => file,
+                    { LineNumber: {} line } => $"Line {line}",
+                    _ => null
+                };
+                if (str != null)
+                    builder.Append("Location = ").Append(str).Append(", ");
+                if (Location.ControlType is {} && RelatedControl is null)
+                    builder.Append("ControlType = ").Append(Location.ControlType.ToCode(stripNamespace: true)).Append(", ");
+            }
+
+            if (RelatedProperty is {})
+                builder.Append("Property = ").Append(RelatedProperty.Name).Append(", ");
+
+            if (RelatedControl is {})
+                builder.Append("Control = ").Append(RelatedControl.DebugString(multiline: false)).Append(", ");
+
+            if (RelatedBinding is {})
+                builder.Append("Binding = ").Append(RelatedBinding.ToString()).Append(", ");
+
+            if (RelatedResolvedControl is {})
+                builder.Append("ResolvedControl = ").Append(RelatedResolvedControl.ToString()).Append(", ");
+
+            if (RelatedDothtmlNode is {})
+                builder.Append("DothtmlNode = ").Append(RelatedDothtmlNode.ToString()).Append(", ");
+
+            if (RelatedResource is {})
+                builder.Append("Resource = ").Append(RelatedResource).Append(", ");
+
+            return false;
+        }
     }
 
     public static class DotvvmExceptionExtensions

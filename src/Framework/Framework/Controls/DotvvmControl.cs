@@ -198,16 +198,14 @@ namespace DotVVM.Framework.Controls
             {
                 RenderControl(writer, context);
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not IDotvvmException { RelatedControl: {} })
             {
-                if (e is IDotvvmException { RelatedControl: not null })
-                    throw;
                 if (e is DotvvmExceptionBase dotvvmException)
                 {
                     dotvvmException.RelatedControl = this;
                     throw;
                 }
-                throw new DotvvmControlException(this, "Error occurred in Render method", e);
+                throw new DotvvmControlException(this, $"Error occurred in {GetType().Name}.Render method", e);
             }
         }
 

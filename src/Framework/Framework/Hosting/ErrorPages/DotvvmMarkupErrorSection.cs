@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
@@ -11,6 +12,7 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -38,10 +40,10 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
             var source = ExtractSource(exc);
 
-            w.WriteUnencoded("<div class='exception'><span class='exceptionType'>");
-            w.WriteText(exc.GetType().FullName);
-            w.WriteUnencoded("</span><pre class='exceptionMessage'>");
-            w.WriteText(exc.Message);
+            w.WriteUnencoded($"<div class='exception'><span class='exceptionType' title='{WebUtility.HtmlEncode(exc.GetType().FullName)}'>");
+            w.WriteUnencoded(exc.GetType().DebugHtmlString(false, false));
+            w.WriteUnencoded("</span>: <pre class='exceptionMessage'>");
+            w.WriteUnencoded(HtmlFormattingUtils.TryFormatAsHtml(exc, null, isBlock: true));
             w.WriteUnencoded("</pre>");
             if (source != null)
             {
@@ -140,7 +142,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var iex =
                 exs.OfType<DotvvmCompilationException>().FirstOrDefault() ??
                 exs.OfType<IDotvvmException>()
-                   .Where(dex => dex.GetLocation() != null)
+                   .Where(dex => dex.GetLocation() is { FileName: { } })
                    .FirstOrDefault()?.TheException;
 
             if (iex != null) return new DotvvmMarkupErrorSection(ex);

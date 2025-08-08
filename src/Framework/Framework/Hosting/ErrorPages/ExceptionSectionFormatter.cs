@@ -33,10 +33,10 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             {
                 WriteException(w, model.InnerException);
             }
-            w.WriteUnencoded("<div class='exception'><span class='exceptionType'>");
-            w.WriteText(model.TypeName);
-            w.WriteUnencoded("</span><pre class='exceptionMessage'>");
-            w.WriteText(model.Message);
+            w.WriteUnencoded($"<div class='exception'><span class='exceptionType' title='{WebUtility.HtmlEncode(model.ExceptionType.FullName)}'>");
+            w.WriteUnencoded(model.ExceptionType.DebugHtmlString(false, false));
+            w.WriteUnencoded("</span>: <pre class='exceptionMessage'>");
+            w.WriteUnencoded(HtmlFormattingUtils.TryFormatAsHtml(model.Exception, null, isBlock: true));
             w.WriteUnencoded("</pre><hr />");
             if (model.AdditionalInfo != null && model.AdditionalInfo.Length > 0)
             {
@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 }
                 w.WriteUnencoded("</div>");
             }
-            w.ObjectBrowser(model.OriginalException);
+            w.ObjectBrowser(model.Exception);
             w.WriteUnencoded("<hr /><div class='exceptionStackTrace'>");
             foreach (var frame in model.Stack)
             {
@@ -137,10 +137,8 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         public void WriteStyle(IErrorWriter w)
         {
             w.WriteUnencoded(@"
-.exception .exceptionType:after { content: ': '; }
-.exception .exceptionType { font-size: 1.1em; font-weight: bold; }
-.exception .exceptionMessage { font-style: italic; }
-.exceptionStackTrace {  }
+.exception .exceptionType { font-weight: bold; }
+.exception .exceptionType, .exception .exceptionMessage { font-size: 1.25em; }
 .exceptionStackTrace .frame { padding: 2px; margin: 0 0 0 30px; border-bottom: 1px #ddd solid; }
 .exceptionStackTrace .frame:hover { background-color: #f0f0f0; }
 ");

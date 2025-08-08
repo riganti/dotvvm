@@ -41,7 +41,7 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelProtection_SignedNestedInServerToClient);
 
-                AssertUI.InnerTextEquals(browser.First("h1"), "Server Error, HTTP 500: Unhandled exception occurred");
+                AssertUI.InnerTextEquals(browser.First("h1"), "Server Error: DotvvmControlException was not handled.");
             });
         }
 
