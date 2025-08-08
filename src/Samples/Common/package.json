@@ -4,23 +4,26 @@
   "description": "",
   "main": "react-app.js",
   "dependencies": {
-    "@rollup/plugin-commonjs": "20.0.0",
-    "@rollup/plugin-node-resolve": "13.0.5",
-    "@rollup/plugin-replace": "3.0.0",
-    "@rollup/plugin-typescript": "8.2.5",
-    "@sveltejs/pancake": "^0.0.18",
-    "@tsconfig/svelte": "^3.0.0",
+    "@rollup/plugin-commonjs": "28.0.6",
+    "@rollup/plugin-node-resolve": "16.0.1",
+    "@rollup/plugin-replace": "6.0.2",
+    "@rollup/plugin-typescript": "12.1.4",
+    "@tsconfig/svelte": "^5.0.0",
     "bulma": "^0.9.3",
-    "dotvvm-jscomponent-react": "portal:../../Framework/JsComponent.React",
+    "d3-scale": "^4.0.2",
+    "d3-shape": "^3.2.0",
+    "dotvvm-jscomponent-react": "file:../../Framework/JsComponent.React",
+    "dotvvm-jscomponent-svelte": "file:../../Framework/JsComponent.Svelte",
+    "layercake": "^8.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "recharts": "^2.1.4",
-    "rollup": "^2.57.0",
-    "rollup-plugin-svelte": "^6.0.0",
-    "svelte": "^3.45.0",
-    "svelte-preprocess": "^4.10.1",
+    "rollup": "^4.46.2",
+    "rollup-plugin-svelte": "^7.2.2",
+    "svelte": "^5.37.2",
+    "svelte-preprocess": "^6.0.3",
     "tslib": "^2.3.1",
-    "typescript": "^4.5.4"
+    "typescript": "^5.0.0"
   },
   "devDependencies": {
     "@types/knockout": "^3.4.71",
@@ -31,7 +34,7 @@
     "build": "npm run build-production && npm run build-development",
     "build-development": "rollup -c",
     "build-production": "rollup -c --environment BUILD:production",
-    "install": "npm ci --prefix node_modules/dotvvm-jscomponent-react && npm run prepack --prefix node_modules/dotvvm-jscomponent-react"
+    "install": "npm ci --prefix node_modules/dotvvm-jscomponent-react && npm run prepack --prefix node_modules/dotvvm-jscomponent-react && npm ci --prefix node_modules/dotvvm-jscomponent-svelte && npm run prepack --prefix node_modules/dotvvm-jscomponent-svelte"
   },
   "author": "RIGANTI s.r.o.",
   "license": "Apache-2.0"
