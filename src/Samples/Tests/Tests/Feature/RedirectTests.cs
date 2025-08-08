@@ -86,6 +86,10 @@ namespace DotVVM.Samples.Tests.Feature
             {
                 return false;
             }
+            catch (UnknownErrorException)
+            {
+                return false;
+            }
         }
 
         [Fact]

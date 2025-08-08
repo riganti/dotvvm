@@ -46,8 +46,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                     // go to Test page and verify the success
                     browser.ElementAt("a", 1).Click();
-                    browser.WaitForPostback();
-                    AssertUI.TextEquals(browser.Single("h2"), "Test");
+                    browser.WaitFor(() => AssertUI.TextEquals(browser.Single("h2"), "Test", waitForOptions: WaitForOptions.Disabled), 5000);
 
                     SetOfflineMode(true);
 
