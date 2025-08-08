@@ -1,0 +1,30 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.NullHandling.Button_EnabledViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Repro for ButtonBase.Enabled bug</h1>
+
+    <dot:Button Enabled="{resource: Null.Enabled}" Text="resource binding" Click="{command: Value = Value + 1}" data-ui="resource-button" />
+
+    <dot:Button Enabled="{value: Null.Enabled}" Text="value binding" Click="{command: Value = Value + 1}" data-ui="value-button"/>
+
+    <a onclick="unlockButtons(); return false;" href="#">Unlock by JS</a>
+
+    <p class="result">{{value: Value}}</p>
+
+    <script type="text/javascript">
+    function unlockButtons() {
+        Array.from(document.querySelectorAll('input[type=button]')).forEach(b => b.disabled = null);
+    }
+    </script>
+</body>
+</html>
+
+
