@@ -15,7 +15,7 @@ public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
         ConfigureResources(config, applicationPath);
 
         // https://www.dotvvm.com/docs/4.0/pages/concepts/configuration/explicit-assembly-loading
-        config.ExperimentalFeatures.ExplicitAssemblyLoading.Enable();
+        config.Runtime.ExplicitAssemblyLoading.Enable();
 
         // Use this for command heavy applications
         // - DotVVM will store the viewmodels on the server, and client will only have to send back diffs

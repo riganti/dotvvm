@@ -7,6 +7,12 @@ namespace DotVVM.Framework.Configuration
 {
     public class DotvvmExperimentalFeaturesConfiguration
     {
+        public DotvvmExperimentalFeaturesConfiguration(DotvvmGlobalFeatureFlag explicitAssemblyLoading)
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            ExplicitAssemblyLoading = explicitAssemblyLoading;
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
 
         // Add a DotvvmExperimentalFeatureFlag property for each experimental feature here
 
@@ -30,8 +36,9 @@ namespace DotVVM.Framework.Configuration
         /// When enabled, the DotVVM runtime only automatically load assemblies listed in <see cref="DotvvmMarkupConfiguration.Assemblies"/>. This may prevent failures during startup and reduce startup time.
         /// See <see href="https://www.dotvvm.com/docs/4.0/pages/concepts/configuration/explicit-assembly-loading"> documentation page </see> for more information
         /// </summary>
-        [JsonPropertyName("explicitAssemblyLoading")]
-        public DotvvmGlobalFeatureFlag ExplicitAssemblyLoading { get; private set; } = new DotvvmGlobalFeatureFlag("ExplicitAssemblyLoading");
+        [JsonIgnore]
+        [Obsolete("ExplicitAssemblyLoading has been moved to DotvvmConfiguration.Runtime.ExplicitAssemblyLoading. This property is provided for backward compatibility only.", false)]
+        public DotvvmGlobalFeatureFlag ExplicitAssemblyLoading { get; private set; }
 
 
         /// <summary>
@@ -50,7 +57,6 @@ namespace DotVVM.Framework.Configuration
         {
             LazyCsrfToken.Freeze();
             ServerSideViewModelCache.Freeze();
-            ExplicitAssemblyLoading.Freeze();
         }
     }
 

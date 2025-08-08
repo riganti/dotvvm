@@ -133,7 +133,7 @@ namespace DotVVM.Framework.Compilation
 
         public Assembly[] GetAllAssemblies()
         {
-            if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
+            if (configuration.Runtime.ExplicitAssemblyLoading.Enabled)
             {
                 return GetReferencedAssemblies();
             }

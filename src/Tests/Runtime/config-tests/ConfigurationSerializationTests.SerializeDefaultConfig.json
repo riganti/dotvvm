@@ -131,13 +131,13 @@
       }
     },
     "security": {},
-    "runtime": {},
-    "defaultCulture": "en-US",
-    "experimentalFeatures": {
+    "runtime": {
       "explicitAssemblyLoading": {
         "enabled": true
       }
     },
+    "defaultCulture": "en-US",
+    "experimentalFeatures": {},
     "diagnostics": {
       "compilationPage": {},
       "perfWarnings": {}

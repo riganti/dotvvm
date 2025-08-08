@@ -187,5 +187,15 @@ namespace DotVVM.Framework.Tests.Runtime
 
             check.CheckException(() => config.AssertConfigurationIsValid());
         }
+
+        [TestMethod]
+#pragma warning disable CS0618 // Type or member is obsolete
+        public void ExplicitAssemblyLoading_BackwardCompatibility()
+        {
+            var config = DotvvmTestHelper.DefaultConfig;
+
+            Assert.AreSame(config.Runtime.ExplicitAssemblyLoading, config.ExperimentalFeatures.ExplicitAssemblyLoading);
+        }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

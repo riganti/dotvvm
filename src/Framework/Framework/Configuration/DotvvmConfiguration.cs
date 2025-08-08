@@ -117,12 +117,7 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets the configuration for experimental features.
         /// </summary>
         [JsonPropertyName("experimentalFeatures")]
-        public DotvvmExperimentalFeaturesConfiguration ExperimentalFeatures
-        {
-            get => _experimentalFeatures;
-            set { ThrowIfFrozen(); _experimentalFeatures = value; }
-        }
-        private DotvvmExperimentalFeaturesConfiguration _experimentalFeatures = new DotvvmExperimentalFeaturesConfiguration();
+        public DotvvmExperimentalFeaturesConfiguration ExperimentalFeatures { get; }
 
         /// <summary>
         /// Gets or sets whether the application should run in debug mode.
@@ -230,8 +225,8 @@ namespace DotVVM.Framework.Configuration
             _defaultCulture = CultureInfo.CurrentCulture.Name;
             Markup = new DotvvmMarkupConfiguration(new Lazy<JavascriptTranslatorConfiguration>(() => ServiceProvider.GetRequiredService<IOptions<JavascriptTranslatorConfiguration>>().Value));
             RouteTable = new DotvvmRouteTable(this);
+            ExperimentalFeatures = new DotvvmExperimentalFeaturesConfiguration(Runtime.ExplicitAssemblyLoading);
             _styles = new StyleRepository(this);
-
         }
 
         private static ServiceCollection CreateDefaultServiceCollection()

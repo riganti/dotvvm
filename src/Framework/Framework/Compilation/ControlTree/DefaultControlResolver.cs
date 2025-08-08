@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var dotvvmAssembly = typeof(DotvvmControl).Assembly.GetName().Name!;
             var dotvvmInitTask = InvokeStaticConstructorsOnDotvvmControls();
 
-            if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
+            if (configuration.Runtime.ExplicitAssemblyLoading.Enabled)
             {
                 // use only explicitly specified assemblies from configuration
                 // and do not call GetTypeInfo to prevent unnecessary dependent assemblies from loading

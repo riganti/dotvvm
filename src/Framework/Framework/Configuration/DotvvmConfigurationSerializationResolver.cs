@@ -25,11 +25,12 @@ namespace DotVVM.Framework.Configuration
                 type == typeof(DotvvmPerfWarningsConfiguration) ||
                 type == typeof(DotvvmDiagnosticsConfiguration) ||
                 type == typeof(DotvvmMarkupConfiguration) ||
-                type == typeof(DotvvmExperimentalFeaturesConfiguration) ||
                 type == typeof(ViewCompilationConfiguration))
             {
                 defaults = Activator.CreateInstance(type, nonPublic: true);
             }
+            else if (type == typeof(DotvvmExperimentalFeaturesConfiguration))
+                defaults = new DotvvmExperimentalFeaturesConfiguration(new(""));
             else if (type == typeof(DotvvmConfiguration))
             {
                 defaults = new DotvvmConfiguration(new EmptyServiceProvider()) { DefaultCulture = null! };
