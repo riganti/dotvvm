@@ -1,164 +1,164 @@
-
 <script lang="ts">
-	// adjusted example from https://pancake-charts.surge.sh/
-	import * as Pancake from '@sveltejs/pancake';
-	import { createEventDispatcher } from 'svelte';
+	import { LayerCake, Svg, Html } from 'layercake';
+	import { line } from 'd3-shape';
 
-	export let data
+	console.log(LayerCake, Svg, Html, line) // workaround for some bundler bug
 
-	let y1, y2, keys
-	$: {
-		y1 = +Infinity
-		y2 = -Infinity
+	let { data, onSelected } = $props()
 
-		keys = Object.keys(data[0]).slice(1).filter(x => x != "Name")
-		
-		data.forEach(row => {
-			keys.forEach(k => {
-				const d = row[k]
-				if (d < y1) y1 = d;
-				if (d > y2) y2 = d;
-			})
-		})
-	}
+	let selectedItem = $state(null);
 
-	let closest;
+	let transformedData = $derived(data.map((row, index) => ({
+		x: index,
+		Line1: row.Line1,
+		Line2: row.Line2,
+		Line3: row.Line3
+	})))
 
-	function getPoints(data, key) {
-		return data.map((row, x) => ({ y: row[key], x }))
-	}
+	const seriesNames = ['Line1', 'Line2', 'Line3'];
+	const seriesColors = ['#ff3e00', '#40b0ff', '#40ff40'];
 
-	const dispatch = createEventDispatcher();
-
-	$: {
-		if (closest)
-			dispatch("selected", closest.key)
-	}
-
-	$: points = data.flatMap((row, x) => {
-		return keys.map(key => ({
-			y: row[key],
-			x,
-			key
-		}))
+	$effect(() => {
+		if (selectedItem && onSelected) {
+			onSelected(`${selectedItem.series}: ${selectedItem.value}`);
+		}
 	});
+
+	function handlePointClick(series, value, x, y) {
+		selectedItem = { series, value, x, y };
+	}
 </script>
 
 <div class="chart">
-	<Pancake.Chart {y1} {y2} x1={0} x2={data.length}>
-		<Pancake.Grid horizontal count={5} let:value>
-			<div class="grid-line horizontal"><span>{value}</span></div>
-		</Pancake.Grid>
+	<LayerCake
+		padding={{ top: 20, right: 30, bottom: 40, left: 50 }}
+		x={d => d.x}
+		y={seriesNames}
+		xDomain={[0, transformedData.length - 1]}
+		yDomain={[0, null]}
+		data={transformedData}
+		let:xScale
+		let:yScale
+		let:width
+		let:height
+	>
+		<Svg>
+			<!-- Grid lines -->
+			<g class="grid">
+				{#each yScale.ticks(5) as tick}
+					<line
+						x1={0}
+						x2={width}
+						y1={yScale(tick)}
+						y2={yScale(tick)}
+						stroke="#f0f0f0"
+						stroke-width="1"
+					/>
+				{/each}
+				{#each xScale.ticks(5) as tick}
+					<line
+						x1={xScale(tick)}
+						x2={xScale(tick)}
+						y1={0}
+						y2={height}
+						stroke="#f0f0f0"
+						stroke-width="1"
+					/>
+				{/each}
+			</g>
 
-		<Pancake.Grid vertical count={5} let:value>
-			<span class="x-label">{value}</span>
-		</Pancake.Grid>
+			<!-- Axes -->
+			<g class="axis x-axis">
+				<line x1={0} x2={width} y1={height} y2={height} stroke="#333" stroke-width="1"/>
+				{#each xScale.ticks(5) as tick}
+					<g transform="translate({xScale(tick)}, {height})">
+						<line y1="0" y2="6" stroke="#333"/>
+						<text y="20" text-anchor="middle" font-size="12" fill="#666">
+							{tick}
+						</text>
+					</g>
+				{/each}
+			</g>
 
-		<Pancake.Svg>
-			{#each keys as k}
-				<Pancake.SvgLine data={getPoints(data, k)} let:d>
-					<path class="data" {d}></path>
-				</Pancake.SvgLine>
+			<g class="axis y-axis">
+				<line x1={0} x2={0} y1={0} y2={height} stroke="#333" stroke-width="1"/>
+				{#each yScale.ticks(5) as tick}
+					<g transform="translate(0, {yScale(tick)})">
+						<line x1="-6" x2="0" stroke="#333"/>
+						<text x="-10" text-anchor="end" font-size="12" fill="#666" dy="0.35em">
+							{tick}
+						</text>
+					</g>
+				{/each}
+			</g>
+
+			<!-- Data lines -->
+			{#each seriesNames as series, i}
+				{@const pathData = line()
+					.x(d => xScale(d.x))
+					.y(d => yScale(d[series]))
+					(transformedData)}
+				<path
+					d={pathData}
+					fill="none"
+					stroke={seriesColors[i]}
+					stroke-width="2"
+				/>
 			{/each}
 
-			{#if closest}
-				<Pancake.SvgLine data={getPoints(data, closest.key)} let:d>
-					<path class="highlight" {d}></path>
-				</Pancake.SvgLine>
-			{/if}
-		</Pancake.Svg>
+			<!-- Data points -->
+			{#each transformedData as d, i}
+				{#each seriesNames as series, j}
+					<circle
+						cx={xScale(d.x)}
+						cy={yScale(d[series])}
+						r="4"
+						fill={seriesColors[j]}
+						stroke="white"
+						stroke-width="2"
+						style="cursor: pointer"
+						onclick={() => handlePointClick(series, d[series], xScale(d.x), yScale(d[series]))}
+					/>
+				{/each}
+			{/each}
+		</Svg>
+	</LayerCake>
 
-		{#if closest}
-			<Pancake.Point x={closest.x} y={closest.y}>
-				<span class="annotation-point"></span>
-				<div class="annotation" style="transform: translate(-{100 * (closest.x / data.length)}%,0)">
-					<strong>{closest.key}</strong>
-					<span>{closest.x}: {closest.y}</span>
-				</div>
-			</Pancake.Point>
-		{/if}
-
-		<Pancake.Quadtree data={points} bind:closest/>
-	</Pancake.Chart>
+	{#if selectedItem}
+		<div class="selection-info">
+			Selected: {selectedItem.series} = {selectedItem.value}
+		</div>
+	{/if}
 </div>
+
 <style>
 	.chart {
 		height: 400px;
-		padding: 3em 0 2em 2em;
-		margin: 0 0 36px 0;
-	}
-
-	.grid-line {
+		padding: 1rem;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		margin: 1rem 0;
 		position: relative;
-		display: block;
 	}
 
-	.grid-line.horizontal {
-		width: calc(100% + 2em);
-		left: -2em;
-		border-bottom: 1px dashed #ccc;
+	.selection-info {
+		margin-top: 1rem;
+		padding: 0.5rem;
+		background-color: #f9f9f9;
+		border-radius: 4px;
+		font-size: 14px;
+		border: 1px solid #eee;
 	}
 
-	.grid-line span {
-		position: absolute;
-		left: 0;
-		bottom: 2px;
+	:global(.layercake-container) {
+		height: 100%;
+	}
+
+	.grid line {
+		opacity: 0.7;
+	}
+
+	.axis text {
 		font-family: sans-serif;
-		font-size: 14px;
-		color: #999;
-	}
-
-	.x-label {
-		position: absolute;
-		width: 4em;
-		left: -2em;
-		bottom: -22px;
-		font-family: sans-serif;
-		font-size: 14px;
-		color: #999;
-		text-align: center;
-	}
-
-	path.data {
-		stroke: rgba(0,0,0,0.2);
-		stroke-linejoin: round;
-		stroke-linecap: round;
-		stroke-width: 1px;
-		fill: none;
-	}
-
-	.highlight {
-		stroke: #ff3e00;
-		fill: none;
-		stroke-width: 2;
-	}
-
-	.annotation {
-		position: absolute;
-		white-space: nowrap;
-		bottom: 1em;
-		line-height: 1.2;
-		background-color: rgba(255,255,255,0.9);
-		padding: 0.2em 0.4em;
-		border-radius: 2px;
-	}
-
-	.annotation-point {
-		position: absolute;
-		width: 10px;
-		height: 10px;
-		background-color: #ff3e00;
-		border-radius: 50%;
-		transform: translate(-50%,-50%);
-	}
-
-	.annotation strong {
-		display: block;
-		font-size: 20px;
-	}
-
-	.annotation span {
-		display: block;
-		font-size: 14px;
 	}
 </style>

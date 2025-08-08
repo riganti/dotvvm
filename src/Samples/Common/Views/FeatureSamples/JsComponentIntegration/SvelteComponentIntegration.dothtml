@@ -6,11 +6,13 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title></title>
+    <title>Svelte JSComponent</title>
 </head>
 <body>
 
-    <div data-ui="rechart-control">
+    <h1>Svelte JSComponent Integration Demo</h1>
+
+    <div data-ui="chart-control">
         <js:chart IncludeInPage={value: IncludeInPage}
                      data={value: Data}
                      onSelected={staticCommand: (string n) => CurrentThing = n}
@@ -30,17 +32,16 @@
     <h3> Two way binding: </h3>
 
     <div>
-        <js:incrementer i={value: Counter} />
+        <js:incrementer i={value: Counter} html:data-ui="svelte-incrementer" />
 
         <div>
-            DotVVM: {{value: Counter}}
-            <dot:Button Click={command: Counter = Counter + 1} Text="+" />
-            <dot:Button Click={staticCommand: Counter = Counter - 1} Text="-" />
+            DotVVM: <span data-ui="dotvvm-counter">{{value: Counter}}</span>
+            <dot:Button Click={command: Counter = Counter + 1} html:data-ui="dotvvm-plus" Text="+" />
+            <dot:Button Click={staticCommand: Counter = Counter - 1} html:data-ui="dotvvm-minus" Text="-" />
         </div>
 
     </div>
-
-    <h3> Knockout templates rendered from Svelte component </h3>
+    <h3> Knockout templates rendered from Svelte JSComponent </h3>
 
     <dot:CheckBox Checked="{value: Condition}" data-ui="template-condition" Text="Condition for template selector" />
 
@@ -56,7 +57,7 @@
             </span>
             <ul data-ui="template2-commandSection">
                 <li>
-                    <js:Button text="Test command" dataUI="template2-command" click="{command: ChangeCurrentThing()}" />
+                    <js:Button text="Test command" dataUI="template2-command" click="{command: ChangeCurrentThing()}"/>
                 </li>
                 <li>
                     <dot:Button Text="Test static command" data-ui="template2-clientStaticCommand" Click="{staticCommand:  CurrentThing = "StaticCommandInvoked"}" />
@@ -64,11 +65,12 @@
                 <li>
                     <dot:Button Text="Test server static command" data-ui="template2-serverStaticCommand" Click="{staticCommand: CurrentThing = viewModelType.GetCurrentThing() }" />
                 </li>
+                <li>
+                    Counter: {{value: Counter}}
+                </li>
             </ul>
         </template2>
     </js:TemplateSelector>
 
 </body>
 </html>
-
-
