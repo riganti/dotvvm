@@ -244,8 +244,15 @@ namespace DotVVM.Samples.Tests.Feature
                 while (!browser.CurrentUrl.Contains("?time"))
                 {
                     Thread.Sleep(100);
-                    AssertUI.TextNotEquals(browser.Single(".result"), "1");
+                    try
+                    {
+                        AssertUI.TextNotEquals(browser.Single(".result"), "1");
+                    }
+                    catch (StaleElementReferenceException)
+                    {
+                    }
                 }
+                AssertUI.TextNotEquals(browser.Single(".result"), "1");
             });
         }
 
@@ -264,9 +271,9 @@ namespace DotVVM.Samples.Tests.Feature
                 while (!browser.CurrentUrl.Contains("?time"))
                 {
                     attempt++;
-                    if (attempt > 50)
+                    if (attempt > 100) // the site blocks for about 7 seconds before the URL changes
                     {
-                        Assert.Fail("The redirect didn't happen.");
+                        Assert.Fail($"The redirect didn't happen, current URL: {browser.CurrentUrl}");
                     }
 
                     Thread.Sleep(100);
