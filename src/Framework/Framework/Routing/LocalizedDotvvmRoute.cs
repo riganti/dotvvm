@@ -77,6 +77,10 @@ namespace DotVVM.Framework.Routing
                 : throw new NotSupportedException("Invalid localized route - no default route found!");
         }
 
+        /// <summary>
+        /// Gets a dictionary of all localized routes, where the key is the culture identifier and the value is the corresponding <see cref="DotvvmRoute"/>.
+        /// The default language route is stored with an empty string key.
+        /// </summary>
         public IReadOnlyDictionary<string, DotvvmRoute> GetAllCultureRoutes() => localizedRoutes;
 
         public static void ValidateCultureName(string cultureIdentifier)

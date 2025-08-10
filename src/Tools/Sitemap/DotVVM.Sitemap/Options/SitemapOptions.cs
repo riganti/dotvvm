@@ -7,4 +7,9 @@ public class SitemapOptions
     /// If not set, it will be detected from the HTTP request.
     /// </summary>
     public Uri? SitePublicUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the default culture for the sitemap.
+    /// </summary>
+    public string DefaultCulture { get; set; } = "x-default";
 }

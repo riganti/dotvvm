@@ -1,7 +1,7 @@
-﻿using DotVVM.Framework.Configuration;
-using DotVVM.Sitemap.Options;
+﻿using DotVVM.Sitemap.Options;
 using DotVVM.Sitemap.Presenters;
 
+// ReSharper disable once CheckNamespace
 namespace DotVVM.Framework.Routing;
 
 public static class DotvvmRouteExtensions
