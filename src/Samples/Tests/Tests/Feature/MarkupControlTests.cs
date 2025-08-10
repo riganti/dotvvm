@@ -341,12 +341,11 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.WaitFor(() => AssertUI.TextEquals(browser.Last("article>span"), "test1"), 2000);
 
-
                 editButton().Click();
                 input().Clear().SendKeys("changed");
                 save().Click();
 
-                AssertUI.Any(browser.FindElements("article>span")).TextEquals("changed");
+                browser.WaitFor(() => AssertUI.Any(browser.FindElements("article>span")).TextEquals("changed"), 2000);
 
                 editButton().Click();
                 input().Clear().SendKeys("changed2");
