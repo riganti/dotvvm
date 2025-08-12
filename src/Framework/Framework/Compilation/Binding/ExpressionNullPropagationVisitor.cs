@@ -6,6 +6,7 @@ using DotVVM.Framework.Utils;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -110,6 +111,23 @@ namespace DotVVM.Framework.Compilation.Binding
                 Expression.MakeUnary(node.NodeType, operand, node.Type, node.Method));
         }
 
+        protected override Expression VisitNewArray(NewArrayExpression node)
+        {
+            if (node.NodeType == ExpressionType.NewArrayInit)
+            {
+                var elementType = node.Type.GetElementType().NotNull();
+                if (elementType.IsAssignableFromNull())
+                    return base.VisitNewArray(node);
+
+                var expressionTypes = UnwrapNullableTypes(node.Expressions);
+                return node.Update(expressionTypes);
+            }
+            else
+            {
+                return node.Update(UnwrapNullableTypes(node.Expressions));
+            }
+        }
+
         protected override Expression VisitInvocation(InvocationExpression node)
         {
             return CheckForNull(Visit(node.Expression), target =>
@@ -210,7 +228,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     ThrowHelpers.UnwrapNullableMethod.MakeGenericMethod(expectedType),
                     expression,
                     Expression.Constant(formattedExpression, typeof(string)),
-                    Expression.Constant(expectedType.FullName, typeof(string))
+                    Expression.Constant(expectedType.ToCode(), typeof(string))
                 );
             }
             else

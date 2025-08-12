@@ -1565,13 +1565,13 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_ArrayConstruction_TypeInferred()
         {
-            var result = ExecuteBinding("new[] { 1, 2, 3 }", new TestViewModel());
-            Assert.IsInstanceOfType(result, typeof(int[]));
-            var array = (int[])result;
+            var result = ExecuteBinding("new[] { 1, 2, 3.5 }", new TestViewModel());
+            Assert.IsInstanceOfType(result, typeof(double[]));
+            var array = (double[])result;
             Assert.AreEqual(3, array.Length);
             Assert.AreEqual(1, array[0]);
             Assert.AreEqual(2, array[1]);
-            Assert.AreEqual(3, array[2]);
+            Assert.AreEqual(3.5, array[2]);
         }
 
         [TestMethod]
@@ -1587,11 +1587,34 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void BindingCompiler_ArrayConstruction_WithViewModelProperty()
+        public void BindingCompiler_ArrayConstruction_ImplicitConversion()
         {
-            var vm = new TestViewModel { StringProp = "test", IntProp = 42 };
-            var result = ExecuteBinding("new[] { StringProp, IntProp.ToString() }", vm);
-            XAssert.Equal<string>(["test", "42"], XAssert.IsAssignableFrom<string[]>(result));
+            var vm = new TestViewModel { IntProp = 42, DoubleProp = 41.5 };
+            var result = ExecuteBinding("new[] { IntProp, DoubleProp }", vm);
+            XAssert.Equal(new [] { 42, 41.5 }, XAssert.IsAssignableFrom<double[]>(result));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayConstruction_Bounds()
+        {
+            var vm = new TestViewModel { TestViewModel2 = new() { Struct = new() { Int = 10 } } };
+            var result = ExecuteBinding("new int[TestViewModel2.Struct.Int]", vm);
+            XAssert.Equal(new int[10], XAssert.IsAssignableFrom<int[]>(result));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayConstruction_BoundsNull()
+        {
+            var vm = new TestViewModel { TestViewModel2 = null };
+            var exception = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("new int[TestViewModel2.Struct.Int]", vm));
+            Assert.AreEqual("Binding expression 'vm_this.TestViewModel2.Struct.Int' of type 'int' has evaluated to null.", exception.Message);
+        }
+        [TestMethod]
+        public void BindingCompiler_ArrayConstruction_BoundsHandledNull()
+        {
+            var vm = new TestViewModel { TestViewModel2 = null };
+            var result = ExecuteBinding("new int[TestViewModel2.Struct.Int ?? 24]", vm);
+            XAssert.Equal(new int[24], XAssert.IsAssignableFrom<int[]>(result));
         }
 
         [TestMethod]
@@ -1603,32 +1626,33 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BindingPropertyException))]
         public void BindingCompiler_ConstructorCall_InvalidType_ThrowsException()
         {
-            ExecuteBinding("new NonExistentType()", new TestViewModel());
+            var exception = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("new NonExistentType()", new TestViewModel()));
+            StringAssert.Contains(exception.Message, "NonExistentType");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BindingPropertyException))]
         public void BindingCompiler_ConstructorCall_InvalidArguments_ThrowsException()
         {
             var imports = new[] { new NamespaceImport("System") };
-            ExecuteBinding("new DateTime(\"not a number\")", new[] { new TestViewModel() }, imports);
+            var exception = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("new DateTime(\"not a number\")", new[] { new TestViewModel() }, imports));
+            StringAssert.Contains(exception.Message, "DateTime");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BindingPropertyException))]
         public void BindingCompiler_TypeInferredConstructor_CannotInfer_ThrowsException()
         {
-            ExecuteBinding("new(1, 2, 3)", new[] { new TestViewModel() }, null, expectedType: typeof(object));
+            var exception = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("new(1, 2, 3)", new[] { new TestViewModel() }, null, expectedType: typeof(object)));
+            Console.WriteLine(exception.Message);
+            StringAssert.Contains(exception.Message, "Could not infer the constructed type of");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BindingPropertyException))]
         public void BindingCompiler_ArrayConstruction_InvalidSize_ThrowsException()
         {
-            ExecuteBinding("new int[\"not a number\"]", new TestViewModel());
+            var exception = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("new int[\"not a number\"]", new TestViewModel()));
+            StringAssert.Contains(exception.Message, "Cannot convert");
         }
     }
     public class TestViewModel
