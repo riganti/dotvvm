@@ -1524,12 +1524,11 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         {
             var result = bindingParserNodeFactory.Parse("new MyClass()");
 
-            Assert.IsInstanceOfType(result, typeof(ConstructorCallBindingParserNode));
-            var constructorCall = (ConstructorCallBindingParserNode)result;
+            var constructorCall = XAssert.IsAssignableFrom<ConstructorCallBindingParserNode>(result);
+            var typeExpression = XAssert.IsAssignableFrom<SimpleNameBindingParserNode>(constructorCall.TypeExpression);
             
-            Assert.IsInstanceOfType(constructorCall.TypeExpression, typeof(SimpleNameBindingParserNode));
-            Assert.AreEqual("MyClass", ((SimpleNameBindingParserNode)constructorCall.TypeExpression).Name);
-            Assert.AreEqual(0, constructorCall.ArgumentExpressions.Count);
+            Assert.AreEqual("MyClass", typeExpression.Name);
+            XAssert.Empty(constructorCall.ArgumentExpressions);
         }
 
         [TestMethod]
@@ -1537,24 +1536,23 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         {
             var result = bindingParserNodeFactory.Parse("new MyClass(arg1, 42, \"test\")");
 
-            Assert.IsInstanceOfType(result, typeof(ConstructorCallBindingParserNode));
-            var constructorCall = (ConstructorCallBindingParserNode)result;
+            var constructorCall = XAssert.IsAssignableFrom<ConstructorCallBindingParserNode>(result);
+            var typeExpression = XAssert.IsAssignableFrom<SimpleNameBindingParserNode>(constructorCall.TypeExpression);
             
-            Assert.IsInstanceOfType(constructorCall.TypeExpression, typeof(SimpleNameBindingParserNode));
-            Assert.AreEqual("MyClass", ((SimpleNameBindingParserNode)constructorCall.TypeExpression).Name);
+            Assert.AreEqual("MyClass", typeExpression.Name);
             Assert.AreEqual(3, constructorCall.ArgumentExpressions.Count);
             
             // Check first argument (identifier)
-            Assert.IsInstanceOfType(constructorCall.ArgumentExpressions[0], typeof(IdentifierNameBindingParserNode));
-            Assert.AreEqual("arg1", ((IdentifierNameBindingParserNode)constructorCall.ArgumentExpressions[0]).Name);
+            var arg1 = XAssert.IsAssignableFrom<IdentifierNameBindingParserNode>(constructorCall.ArgumentExpressions[0]);
+            Assert.AreEqual("arg1", arg1.Name);
             
             // Check second argument (number literal)
-            Assert.IsInstanceOfType(constructorCall.ArgumentExpressions[1], typeof(LiteralExpressionBindingParserNode));
-            Assert.AreEqual(42, ((LiteralExpressionBindingParserNode)constructorCall.ArgumentExpressions[1]).Value);
+            var arg2 = XAssert.IsAssignableFrom<LiteralExpressionBindingParserNode>(constructorCall.ArgumentExpressions[1]);
+            Assert.AreEqual(42, arg2.Value);
             
             // Check third argument (string literal)
-            Assert.IsInstanceOfType(constructorCall.ArgumentExpressions[2], typeof(LiteralExpressionBindingParserNode));
-            Assert.AreEqual("test", ((LiteralExpressionBindingParserNode)constructorCall.ArgumentExpressions[2]).Value);
+            var arg3 = XAssert.IsAssignableFrom<LiteralExpressionBindingParserNode>(constructorCall.ArgumentExpressions[2]);
+            Assert.AreEqual("test", arg3.Value);
         }
 
         [TestMethod]
@@ -1562,10 +1560,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         {
             var result = bindingParserNodeFactory.Parse("new System.DateTime(2023, 12, 25)");
 
-            Assert.IsInstanceOfType(result, typeof(ConstructorCallBindingParserNode));
-            var constructorCall = (ConstructorCallBindingParserNode)result;
+            var constructorCall = XAssert.IsAssignableFrom<ConstructorCallBindingParserNode>(result);
             
-            Assert.IsInstanceOfType(constructorCall.TypeExpression, typeof(MemberAccessBindingParserNode));
+            XAssert.IsAssignableFrom<MemberAccessBindingParserNode>(constructorCall.TypeExpression);
             Assert.AreEqual(3, constructorCall.ArgumentExpressions.Count);
             Assert.AreEqual("new System.DateTime(2023, 12, 25)", constructorCall.ToDisplayString());
         }
@@ -1575,11 +1572,10 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         {
             var result = bindingParserNodeFactory.Parse("new List<string>()");
 
-            Assert.IsInstanceOfType(result, typeof(ConstructorCallBindingParserNode));
-            var constructorCall = (ConstructorCallBindingParserNode)result;
+            var constructorCall = XAssert.IsAssignableFrom<ConstructorCallBindingParserNode>(result);
             
-            Assert.IsInstanceOfType(constructorCall.TypeExpression, typeof(TypeOrFunctionReferenceBindingParserNode));
-            Assert.AreEqual(0, constructorCall.ArgumentExpressions.Count);
+            XAssert.IsAssignableFrom<TypeOrFunctionReferenceBindingParserNode>(constructorCall.TypeExpression);
+            XAssert.Empty(constructorCall.ArgumentExpressions);
             Assert.AreEqual("new List<string>()", constructorCall.ToDisplayString());
         }
 
@@ -1588,16 +1584,15 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         {
             var result = bindingParserNodeFactory.Parse("new MyClass");
 
-            Assert.IsInstanceOfType(result, typeof(ConstructorCallBindingParserNode));
-            var constructorCall = (ConstructorCallBindingParserNode)result;
+            var constructorCall = XAssert.IsAssignableFrom<ConstructorCallBindingParserNode>(result);
+            var typeExpression = XAssert.IsAssignableFrom<SimpleNameBindingParserNode>(constructorCall.TypeExpression);
             
-            Assert.IsInstanceOfType(constructorCall.TypeExpression, typeof(SimpleNameBindingParserNode));
-            Assert.AreEqual("MyClass", ((SimpleNameBindingParserNode)constructorCall.TypeExpression).Name);
-            Assert.AreEqual(0, constructorCall.ArgumentExpressions.Count);
+            Assert.AreEqual("MyClass", typeExpression.Name);
+            XAssert.Empty(constructorCall.ArgumentExpressions);
             
             // Should have a parsing error
             Assert.IsTrue(result.HasNodeErrors);
-            Assert.IsTrue(result.NodeErrors.Any(e => e.Contains("Constructor call must have parentheses")));
+            XAssert.Contains("Constructor call must have parentheses", result.NodeErrors.StringJoin(";"));
         }
 
         [TestMethod]
@@ -1605,15 +1600,14 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         {
             var result = bindingParserNodeFactory.Parse("value + new MyClass(42)");
 
-            Assert.IsInstanceOfType(result, typeof(BinaryOperatorBindingParserNode));
-            var binaryOp = (BinaryOperatorBindingParserNode)result;
+            var binaryOp = XAssert.IsAssignableFrom<BinaryOperatorBindingParserNode>(result);
             
             Assert.AreEqual(BindingTokenType.AddOperator, binaryOp.Operator);
-            Assert.IsInstanceOfType(binaryOp.FirstExpression, typeof(IdentifierNameBindingParserNode));
-            Assert.IsInstanceOfType(binaryOp.SecondExpression, typeof(ConstructorCallBindingParserNode));
+            XAssert.IsAssignableFrom<IdentifierNameBindingParserNode>(binaryOp.FirstExpression);
             
-            var constructorCall = (ConstructorCallBindingParserNode)binaryOp.SecondExpression;
-            Assert.AreEqual("MyClass", ((SimpleNameBindingParserNode)constructorCall.TypeExpression).Name);
+            var constructorCall = XAssert.IsAssignableFrom<ConstructorCallBindingParserNode>(binaryOp.SecondExpression);
+            var typeExpression = XAssert.IsAssignableFrom<SimpleNameBindingParserNode>(constructorCall.TypeExpression);
+            Assert.AreEqual("MyClass", typeExpression.Name);
             Assert.AreEqual(1, constructorCall.ArgumentExpressions.Count);
         }
 
@@ -1625,10 +1619,10 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var functionCall = XAssert.IsAssignableFrom<FunctionCallBindingParserNode>(result);
             
             Assert.AreEqual(2, functionCall.ArgumentExpressions.Count);
-            Assert.IsInstanceOfType(functionCall.ArgumentExpressions[0], typeof(ConstructorCallBindingParserNode));
             
-            var constructorCall = (ConstructorCallBindingParserNode)functionCall.ArgumentExpressions[0];
-            Assert.AreEqual("MyClass", ((SimpleNameBindingParserNode)constructorCall.TypeExpression).Name);
+            var constructorCall = XAssert.IsAssignableFrom<ConstructorCallBindingParserNode>(functionCall.ArgumentExpressions[0]);
+            var typeExpression = XAssert.IsAssignableFrom<SimpleNameBindingParserNode>(constructorCall.TypeExpression);
+            Assert.AreEqual("MyClass", typeExpression.Name);
         }
 
         [TestMethod]
@@ -1663,7 +1657,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var arrayConstruction = XAssert.IsAssignableFrom<ArrayConstructionBindingParserNode>(result);
             
             Assert.IsNotNull(arrayConstruction.ElementType);
-            Assert.IsNotNull(arrayConstruction.Size);
+            XAssert.NotEmpty(arrayConstruction.Size);
             Assert.IsNull(arrayConstruction.Initializers);
             Assert.AreEqual("new int[5]", arrayConstruction.ToDisplayString());
         }
@@ -1706,7 +1700,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsNotNull(arrayConstruction.ElementType);
             XAssert.Empty(arrayConstruction.Size);
             Assert.IsNotNull(arrayConstruction.Initializers);
-            Assert.AreEqual(0, arrayConstruction.Initializers.Count);
+            XAssert.Empty(arrayConstruction.Initializers);
             Assert.AreEqual("new int[] {}", arrayConstruction.ToDisplayString());
         }
 
@@ -1716,7 +1710,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var result = bindingParserNodeFactory.Parse("new int[5, 3]");
             var arrayConstruction = XAssert.IsAssignableFrom<ArrayConstructionBindingParserNode>(result);
             Assert.IsTrue(arrayConstruction.Size[1].HasNodeErrors);
-            Assert.IsTrue(arrayConstruction.Size[1].NodeErrors.Any(e => e.Contains("Multi-dimensional arrays are not supported")));
+            XAssert.Contains("Multi-dimensional arrays are not supported", arrayConstruction.Size[1].NodeErrors.StringJoin(";"));
         }
 
         [TestMethod]
@@ -1724,12 +1718,11 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         {
             var result = bindingParserNodeFactory.Parse("new int[]");
 
-            Assert.IsInstanceOfType(result, typeof(ArrayConstructionBindingParserNode));
-            var arrayConstruction = (ArrayConstructionBindingParserNode)result;
+            var arrayConstruction = XAssert.IsAssignableFrom<ArrayConstructionBindingParserNode>(result);
             
             // Should have a parsing error
             Assert.IsTrue(result.HasNodeErrors);
-            Assert.IsTrue(result.NodeErrors.Any(e => e.Contains("the array must either have a size or an initializer")));
+            XAssert.Contains("the array must either have a size or an initializer", result.NodeErrors.StringJoin(";"));
         }
 
         [TestMethod]
@@ -1737,13 +1730,11 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         {
             var result = bindingParserNodeFactory.Parse("SomeMethod(new int[] { 1, 2, 3 })");
 
-            Assert.IsInstanceOfType(result, typeof(FunctionCallBindingParserNode));
-            var functionCall = (FunctionCallBindingParserNode)result;
+            var functionCall = XAssert.IsAssignableFrom<FunctionCallBindingParserNode>(result);
             
             Assert.AreEqual(1, functionCall.ArgumentExpressions.Count);
-            Assert.IsInstanceOfType(functionCall.ArgumentExpressions[0], typeof(ArrayConstructionBindingParserNode));
             
-            var arrayConstruction = (ArrayConstructionBindingParserNode)functionCall.ArgumentExpressions[0];
+            var arrayConstruction = XAssert.IsAssignableFrom<ArrayConstructionBindingParserNode>(functionCall.ArgumentExpressions[0]);
             Assert.AreEqual(3, arrayConstruction.Initializers!.Count);
         }
     }

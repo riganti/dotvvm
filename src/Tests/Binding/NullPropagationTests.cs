@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Tests.Binding
                     // none of the methods we call actually throws, so it always has to be ours friendly NRE
                     Assert.IsTrue(ex.Message.StartsWith("Binding expression"));
                     // and it must only occur for value types
-                    Assert.IsTrue(new [] { "System.Int", "System.TimeSpan", "System.Char", "System.Double" }.Any(ex.Message.Contains));
+                    Assert.IsTrue(new [] { "'int'", "'System.TimeSpan'", "'char'", "'double'" }.Any(ex.Message.Contains), message: ex.Message);
                 }
                 catch (Exception e)
                 {
@@ -377,7 +377,7 @@ namespace DotVVM.Framework.Tests.Binding
             );
             var convertExpression = (TestEnvironmentHelper.GetFrameworkType() == TestEnvironmentHelper.FrameworkType.Net)
                 ? "Convert(v.IntProp, Double)" : "Convert(v.IntProp)";
-            Assert.AreEqual($"Binding expression '{convertExpression}' of type 'System.Double' has evaluated to null.", ex.Message);
+            Assert.AreEqual($"Binding expression '{convertExpression}' of type 'double' has evaluated to null.", ex.Message);
 
             Assert.AreEqual(1000d, EvalExpression<TestViewModel>(v => TimeSpan.FromSeconds(v.IntProp).TotalMilliseconds, new TestViewModel { IntProp = 1 }));
         }
