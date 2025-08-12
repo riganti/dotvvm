@@ -1,13 +1,17 @@
 <script lang="ts">
-	import KoTemplate from './KnockoutTemplateSvelteComponent.svelte'
+	import { KnockoutTemplateSvelteComponent } from 'dotvvm-jscomponent-svelte';
 
-	export let condition
-	export let template1
-	export let template2
+	// const { condition, template1, template2, ...restProps } = $props();
+	export let condition: boolean;
+	export let template1: string;
+	export let template2: string;
+
+
+	console.assert(KnockoutTemplateSvelteComponent != null)
 </script>
 
-<div>
-	<KoTemplate
+<div {...$$restProps}>
+	<KnockoutTemplateSvelteComponent
 		wrapperTag="p"
 		class={condition ? 'template1' : 'template2'}
 		templateName={condition ? template1 : template2}
