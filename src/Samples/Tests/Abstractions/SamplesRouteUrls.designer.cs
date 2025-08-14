@@ -356,6 +356,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Serialization_ObservableCollectionShouldContainObservables = "FeatureSamples/Serialization/ObservableCollectionShouldContainObservables";
         public const string FeatureSamples_Serialization_Serialization = "FeatureSamples/Serialization/Serialization";
         public const string FeatureSamples_Serialization_SerializationDateTimeOffset = "FeatureSamples/Serialization/SerializationDateTimeOffset";
+        public const string FeatureSamples_Serialization_SpecialFloatSerialization = "FeatureSamples/Serialization/SpecialFloatSerialization";
         public const string FeatureSamples_Serialization_TimeSpan = "FeatureSamples/Serialization/TimeSpan";
         public const string FeatureSamples_Serialization_TransferredOnlyInPath = "FeatureSamples/Serialization/TransferredOnlyInPath";
         public const string FeatureSamples_ServerComments_ServerComments = "FeatureSamples/ServerComments/ServerComments";

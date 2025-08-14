@@ -47,6 +47,62 @@ test("Initial knockout ViewModel", () => {
     expect(warnMock).toHaveBeenCalledTimes(0);
 })
 
+test("NaN/Infinity values in state and observables", () => {
+    printTheWarning = true
+
+    // Create a separate state manager for this test to avoid interfering with the global one
+    const testStateManager = new StateManager({
+        $type: "tFloats",
+        FloatNaN: "NaN",
+        FloatInfinity: Infinity,
+        FloatNegativeInfinity: -Infinity
+    } as any)
+
+    const testVm = testStateManager.stateObservable as any
+    testStateManager.doUpdateNow()
+
+    // Check initial values in observables
+    expect(Number.isNaN(testVm().FloatNaN())).toBeTruthy()
+    expect(testVm().FloatInfinity()).toBe(Infinity)
+    expect(testVm().FloatNegativeInfinity()).toBe(-Infinity)
+
+    // Check that values are correctly stored in dotvvm.state
+    expect(Number.isNaN((testStateManager.state as any).FloatNaN)).toBeTruthy()
+    expect((testStateManager.state as any).FloatInfinity).toBe(Infinity)
+    expect((testStateManager.state as any).FloatNegativeInfinity).toBe(-Infinity)
+
+    // Update state with new NaN/Infinity values
+    testStateManager.setState({
+        ...testStateManager.state,
+        FloatNaN: -Infinity,
+        FloatInfinity: NaN,
+        FloatNegativeInfinity: "Infinity"
+    } as any)
+    testStateManager.doUpdateNow()
+
+    // Check that observables are correctly updated
+    expect(testVm().FloatNaN()).toBe(-Infinity)
+    expect(Number.isNaN(testVm().FloatInfinity())).toBeTruthy()
+    expect(testVm().FloatNegativeInfinity()).toBe(Infinity)
+
+    // Check that state is correctly updated
+    expect((testStateManager.state as any).FloatNaN).toBe(-Infinity)
+    expect(Number.isNaN((testStateManager.state as any).FloatInfinity)).toBeTruthy()
+    expect((testStateManager.state as any).FloatNegativeInfinity).toBe(Infinity)
+
+    // Update via observables and check state
+    testVm().FloatNaN(NaN)
+    testVm().FloatInfinity(Infinity)
+    testVm().FloatNegativeInfinity(-Infinity)
+
+    expect(Number.isNaN((testStateManager.state as any).FloatNaN)).toBeTruthy()
+    expect((testStateManager.state as any).FloatInfinity).toBe(Infinity)
+    expect((testStateManager.state as any).FloatNegativeInfinity).toBe(-Infinity)
+
+    expect(warnMock).toHaveBeenCalledTimes(0)
+})
+
+
 test("Dirty flag", () => {
     expect(s.isDirty).toBeFalsy()
     s.setState(s.state) // same state should do nothing

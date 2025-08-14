@@ -1,4 +1,4 @@
-import { serialize } from '../serialization/serialize';
+import { jsonStringify, serialize } from '../serialization/serialize';
 import { getInitialUrl, getViewModel } from '../dotvvm-base';
 import * as events from '../events';
 import * as http from './http'
@@ -60,7 +60,7 @@ export async function staticCommandPostback(command: string, args: any[], option
 
         response = await http.postJSON<DotvvmStaticCommandResponse>(
             getInitialUrl(),
-            JSON.stringify(data),
+            jsonStringify(data),
             options.abortSignal,
             { "X-PostbackType": "StaticCommand" }
         );

@@ -15,6 +15,7 @@ import { isPrimitive } from '../utils/objects';
 import * as stateManager from '../state-manager'
 import { mapUpdatableProperties } from '../serialization/deserialize';
 import { logError } from '../utils/logging';
+import { jsonStringify } from '../serialization/serialize';
 
 let lastStartedPostbackId: number;
 
@@ -77,7 +78,7 @@ export async function postbackCore(
         }
 
         const initialUrl = getInitialUrl();
-        let response = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data), options.abortSignal);
+        let response = await http.postJSON<PostbackResponse>(initialUrl, jsonStringify(data), options.abortSignal);
 
         if (response.result.action == "viewModelNotCached") {
             // repeat the request with full viewmodel
@@ -87,7 +88,7 @@ export async function postbackCore(
             delete data.viewModelCache;
             data.viewModel = postedViewModel;
 
-            response = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data), options.abortSignal);
+            response = await http.postJSON<PostbackResponse>(initialUrl, jsonStringify(data), options.abortSignal);
         }
 
         events.postbackResponseReceived.trigger({

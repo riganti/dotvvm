@@ -328,6 +328,25 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Serialization_SpecialFloatSerialization()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_SpecialFloatSerialization);
+
+                browser.Single("postback-btn", SelectByDataUi).Click();
+                browser.WaitFor(() => AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "command NaNValue: NaN, PositiveInfinity: ∞, NegativeInfinity: -∞", waitForOptions: WaitForOptions.Disabled), 3000);
+
+                browser.Single("staticcommand-btn", SelectByDataUi).Click();
+                browser.WaitFor(() => AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "staticCommand1 NaNValue: NaN, PositiveInfinity: ∞, NegativeInfinity: -∞", waitForOptions: WaitForOptions.Disabled), 3000);
+
+
+                browser.Single("staticcommand-vm-btn", SelectByDataUi).Click();
+                browser.WaitFor(() => AssertUI.InnerTextEquals(browser.Single("result", SelectByDataUi), "staticCommand2 NaNValue: NaN, PositiveInfinity: ∞, NegativeInfinity: -∞", waitForOptions: WaitForOptions.Disabled), 3000);
+
+            });
+        }
+
         public SerializationTests(ITestOutputHelper output) : base(output)
         {
         }

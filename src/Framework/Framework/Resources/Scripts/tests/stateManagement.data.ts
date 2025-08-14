@@ -125,6 +125,14 @@ initDotvvm({
                     ]
                 }
             }
+        },
+        tFloats: {
+            type: "object",
+            properties: {
+                FloatNaN: { type: "Double" },
+                FloatInfinity: { type: "Double" },
+                FloatNegativeInfinity: { type: "Single" }
+            }
         }
     }
 })

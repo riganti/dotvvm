@@ -108,6 +108,10 @@ function validateFloat(value: any) {
     if (isNumber(value)) {
         return { value: +value, wasCoerced: value !== +value };
     }
+
+    if (value != value || value === "NaN") {
+        return { value: NaN, wasCoerced: value == value }
+    }
 }
 
 function validateString(value: any) {
