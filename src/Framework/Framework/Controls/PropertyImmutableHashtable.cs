@@ -277,6 +277,7 @@ namespace DotVVM.Framework.Controls
         public static int FindSlotOrFree16(DotvvmPropertyId[] keys, DotvvmPropertyId p, out bool exists) =>
             FindSlotOrFree16(ref UnsafeArrayReference(keys), p, out exists);
 
+        [MethodImpl(Inline)]
         public static ushort FindGroupBitmap(ref DotvvmPropertyId keys, int length, ushort groupId)
         {
             Debug.Assert(length is AdhocTableSize or AdhocLargeTableSize);
@@ -312,6 +313,7 @@ namespace DotVVM.Framework.Controls
             return bitmap;
         }
 
+        [MethodImpl(Inline)]
         public static ushort FindGroupBitmap(DotvvmPropertyId[] keys, ushort groupId)
         {
             return FindGroupBitmap(ref UnsafeArrayReference(keys), keys.Length, groupId);

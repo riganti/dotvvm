@@ -312,75 +312,77 @@ namespace DotVVM.Framework.Controls
 
         public void ClearPropertyGroup(ushort groupId)
         {
-            switch (state)
+            if (state == TableState.Empty)
+                return;
+            else if (state == TableState.Dictinary)
             {
-                case TableState.Empty:
-                    return;
-                case TableState.Array8:
-                case TableState.Array16:
+                ClearPropertyGroupOutlined(groupId);
+                return;
+            }
+            
+            Debug.Assert(state is TableState.Array16 or TableState.Array8);
+            var bitmap = Impl.FindGroupBitmap(this.keys!, groupId);
+            if (bitmap == 0)
+                return;
+
+            OwnKeys();
+            OwnValues();
+
+            int index = 0;
+            var values = Impl.UnsafeArrayReference(this.valuesAsArray);
+            var keys = Impl.UnsafeArrayReference(this.keys!);
+            do
+            {
+                int bit = BitOperations.TrailingZeroCount(bitmap);
+                bitmap >>= (bit + 1);
+                index += bit;
+                Debug.Assert(this.keys![index].IsInPropertyGroup(groupId), $"Key {this.keys[index]} at index {index} is not in property group {groupId}");
+                Unsafe.Add(ref keys, index) = default;
+                Unsafe.Add(ref values, index) = null;
+                index++;
+            } while (bitmap != 0);
+            CheckInvariant();
+        }
+
+        private void ClearPropertyGroupOutlined(ushort groupId)
+        {
+            var dict = this.valuesAsDictionary;
+            // we want to avoid allocating the list if there is only one property
+            DotvvmPropertyId toRemove = default;
+            List<DotvvmPropertyId>? toRemoveRest = null;
+
+            foreach (var (p, _) in dict)
+            {
+                if (p.IsInPropertyGroup(groupId))
                 {
-                    var bitmap = Impl.FindGroupBitmap(this.keys!, groupId);
-                    int index = 0;
-                    if (bitmap == 0)
-                        return;
-                    OwnKeys();
-                    OwnValues();
-                    do
+                    if (toRemove.Id == 0)
+                        toRemove = p;
+                    else
                     {
-                        int bit = BitOperations.TrailingZeroCount(bitmap);
-                        bitmap >>= (bit + 1);
-                        index += bit;
-                        Debug.Assert(keys![index].IsInPropertyGroup(groupId), $"Key {keys[index]} at index {index} is not in property group {groupId}");
-                        keys![index] = default;
-                        valuesAsArray[index] = null;
-                        index++;
-                    } while (bitmap != 0);
-                    CheckInvariant();
-                    return;
-                }
-                case TableState.Dictinary:
-                {
-                    var dict = this.valuesAsDictionary;
-                    // we want to avoid allocating the list if there is only one property
-                    DotvvmPropertyId toRemove = default;
-                    List<DotvvmPropertyId>? toRemoveRest = null;
-
-                    foreach (var (p, _) in dict)
-                    {
-                        if (p.IsInPropertyGroup(groupId))
-                        {
-                            if (toRemove.Id == 0)
-                                toRemove = p;
-                            else
-                            {
-                                toRemoveRest ??= new List<DotvvmPropertyId>();
-                                toRemoveRest.Add(p);
-                            }
-                        }
+                        toRemoveRest ??= new List<DotvvmPropertyId>();
+                        toRemoveRest.Add(p);
                     }
-
-                    if (toRemove.Id != 0)
-                    {
-                        if (!ownsValues)
-                        {
-                            CloneValues();
-                            dict = this.valuesAsDictionary;
-                        }
-
-                        dict.Remove(toRemove);
-                    }
-
-                    if (toRemoveRest is {})
-                    {
-                        Debug.Assert(ownsValues);
-                        foreach (var p in toRemoveRest)
-                            dict.Remove(p);
-                    }
-                    CheckInvariant();
-                    return;
                 }
             }
-            Impl.Fail();
+
+            if (toRemove.Id != 0)
+            {
+                if (!ownsValues)
+                {
+                    CloneValues();
+                    dict = this.valuesAsDictionary;
+                }
+
+                dict.Remove(toRemove);
+            }
+
+            if (toRemoveRest is {})
+            {
+                Debug.Assert(ownsValues);
+                foreach (var p in toRemoveRest)
+                    dict.Remove(p);
+            }
+            CheckInvariant();
         }
 
         [MethodImpl(Inline)]
@@ -396,9 +398,9 @@ namespace DotVVM.Framework.Controls
                 if (index >= 0)
                 {
 #if NET6_0_OR_GREATER
-                    value = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(valuesAsArray), index);
+                    value = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(valuesAsArrayUnsafe), index);
 #else
-                    value = valuesAsArray[index];
+                    value = valuesAsArrayUnsafe![index];
 #endif
                     return true;
                 }
@@ -422,7 +424,12 @@ namespace DotVVM.Framework.Controls
                     var index = Impl.FindSlot16(this.keys!, p);
                     if (index >= 0)
                     {
-                        value = valuesAsArray[index];
+
+#if NET6_0_OR_GREATER
+                        value = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(valuesAsArrayUnsafe), index);
+#else
+                        value = valuesAsArrayUnsafe![index];
+#endif
                         return true;
                     }
                     else
@@ -463,7 +470,7 @@ namespace DotVVM.Framework.Controls
         public void Set(DotvvmPropertyId p, object? value)
         {
             CheckInvariant();
-            if (p.MemberId == 0) ThrowZeroPropertyId();
+            if (p.MemberId == 0) { ThrowZeroPropertyId(); return; }
 
             if (state == TableState.Array8)
             {
