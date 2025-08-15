@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -23,7 +24,7 @@ namespace DotVVM.Framework.Controls
         public string Text
         {
             get { return GetValue(TextProperty)?.ToString() ?? ""; }
-            set { SetValue(TextProperty, value); }
+            set { properties.Set(DotvvmPropertyIdAssignment.PropertyIds.Literal_Text, value); }
         }
 
         public static readonly DotvvmProperty TextProperty =
@@ -36,7 +37,7 @@ namespace DotVVM.Framework.Controls
         public string? FormatString
         {
             get { return (string?)GetValue(FormatStringProperty); }
-            set { SetValue(FormatStringProperty, value); }
+            set { properties.Set(DotvvmPropertyIdAssignment.PropertyIds.Literal_FormatString, value); }
         }
 
         public static readonly DotvvmProperty FormatStringProperty =
@@ -49,7 +50,7 @@ namespace DotVVM.Framework.Controls
         public bool RenderSpanElement
         {
             get { return (bool)GetValue(RenderSpanElementProperty)!; }
-            set { SetValue(RenderSpanElementProperty, value); }
+            set { properties.Set(DotvvmPropertyIdAssignment.PropertyIds.Literal_RenderSpanElement, value); }
         }
 
         public static readonly DotvvmProperty RenderSpanElementProperty =
@@ -75,19 +76,19 @@ namespace DotVVM.Framework.Controls
 
         public Literal(ValueOrBinding<string> text, bool renderSpan = false): this()
         {
-            SetValue(TextProperty, text);
+            properties.Set(DotvvmPropertyIdAssignment.PropertyIds.Literal_Text, text.UnwrapToObject());
             RenderSpanElement = renderSpan;
         }
 
         public Literal(ValueOrBinding text, bool renderSpan = false): this()
         {
-            SetValue(TextProperty, text);
+            properties.Set(DotvvmPropertyIdAssignment.PropertyIds.Literal_Text, text.UnwrapToObject());
             RenderSpanElement = renderSpan;
         }
 
         public Literal(IStaticValueBinding text, bool renderSpan = false): this()
         {
-            SetBinding(TextProperty, text);
+            properties.Set(DotvvmPropertyIdAssignment.PropertyIds.Literal_Text, text);
             RenderSpanElement = renderSpan;
         }
 

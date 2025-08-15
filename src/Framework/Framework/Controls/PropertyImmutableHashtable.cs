@@ -102,10 +102,10 @@ namespace DotVVM.Framework.Controls
             {
                 Debug.Assert(Vector256<uint>.Count == AdhocTableSize);
                 var v = Unsafe.ReadUnaligned<Vector256<uint>>(ref Unsafe.As<DotvvmPropertyId, byte>(ref keys));
-                var eq = Vector256.Equals(v, Vector256.Create(p.Id)).ExtractMostSignificantBits();
-                if (eq != 0)
+                var eq = Vector256.Equals(v, Vector256.Create(p.Id));
+                if (eq != Vector256<uint>.Zero)
                 {
-                    return BitOperations.TrailingZeroCount(eq);
+                    return BitOperations.TrailingZeroCount(eq.ExtractMostSignificantBits());
                 }
                 else
                 {
@@ -192,16 +192,17 @@ namespace DotVVM.Framework.Controls
             if (Vector128.IsHardwareAccelerated)
             {
                 var v = Unsafe.ReadUnaligned<Vector256<uint>>(ref Unsafe.As<DotvvmPropertyId, byte>(ref keys));
-                var eq = Vector256.Equals(v, Vector256.Create(p.Id)).ExtractMostSignificantBits();
-                exists = eq != 0;
-                if (eq != 0)
+                var eq = Vector256.Equals(v, Vector256.Create(p.Id));
+                if (eq != Vector256<uint>.Zero)
                 {
-                    return BitOperations.TrailingZeroCount(eq);
+                    exists = true;
+                    return BitOperations.TrailingZeroCount(eq.ExtractMostSignificantBits());
                 }
-                var empty = Vector256.Equals(v, Vector256<uint>.Zero).ExtractMostSignificantBits();
-                if (empty != 0)
+                exists = false;
+                var empty = Vector256.Equals(v, Vector256<uint>.Zero);
+                if (empty != Vector256<uint>.Zero)
                 {
-                    return BitOperations.TrailingZeroCount(empty);
+                    return BitOperations.TrailingZeroCount(empty.ExtractMostSignificantBits());
                 }
 
                 return -1;
@@ -354,24 +355,22 @@ namespace DotVVM.Framework.Controls
             Debug.Assert(keys.Length % 8 == 0);
             Debug.Assert(keys.Length >= AdhocTableSize);
 
-
 #if Vectorize
+            int count = 0;
             ref var keysRef = ref MemoryMarshal.GetArrayDataReference(keys);
 
             Debug.Assert(keys.Length % Vector256<uint>.Count == 0);
             if (Vector128.IsHardwareAccelerated)
             {
-                int zeroCount = 0;
                 for (int i = 0; i < keys.Length; i += Vector256<uint>.Count)
                 {
                     var v = Unsafe.ReadUnaligned<Vector256<uint>>(in Unsafe.As<DotvvmPropertyId, byte>(ref Unsafe.Add(ref keysRef, i)));
-                    var isZero = Vector256.Equals(v, Vector256.Create(0u)).ExtractMostSignificantBits();
-                    zeroCount += BitOperations.PopCount(isZero);
+                    var notZero = Vector256.GreaterThan(v, Vector256.Create<uint>(0)).ExtractMostSignificantBits();
+                    count += BitOperations.PopCount(notZero);
                 }
-                return keys.Length - zeroCount;
+                return count;
             }
 #endif
-            int count = 0;
             for (int i = 0; i < keys.Length; i++)
             {
                 count += BoolToInt(keys[i].Id == 0);

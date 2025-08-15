@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Controls
                 }
                 return null;
             }
-            set { this.properties.Set(DotvvmPropertyIdAssignment.PropertyIds.DotvvmBindableObject_DataContext, value); }
+            set => properties.Set(DotvvmPropertyIdAssignment.PropertyIds.DotvvmBindableObject_DataContext, value);
         }
 
         DotvvmBindableObject IDotvvmObjectLike.Self => this;
@@ -147,7 +147,7 @@ namespace DotVVM.Framework.Controls
             return value;
         }
 
-        private object? EvalBinding(IBinding binding, bool isDataContext)
+        internal object? EvalBinding(IBinding binding, bool isDataContext)
         {
             DotvvmBindableObject control = this;
             // DataContext is always bound to it's parent
@@ -201,9 +201,7 @@ namespace DotVVM.Framework.Controls
         public ValueOrBinding<T> GetValueOrBinding<T>(DotvvmProperty property, bool inherit = true)
         {
             var value = this.GetValueRaw(property, inherit);
-            if (value is IBinding binding)
-                return new ValueOrBinding<T>(binding);
-            else return new ValueOrBinding<T>((T)value!);
+            return ValueOrBinding<T>.FromBoxedValue(value);
         }
 
         /// <summary>
@@ -246,6 +244,17 @@ namespace DotVVM.Framework.Controls
         public void SetValueRaw(DotvvmProperty property, object? value)
         {
             property.SetValue(this, value);
+        }
+
+        /// <summary>
+        /// Sets the value or a binding to the specified property.
+        /// </summary>
+        public void SetValueRaw(DotvvmPropertyId property, object? value)
+        {
+            if (property.CanUseFastAccessors)
+                properties.Set(property, value);
+            else
+                property.PropertyInstance.SetValue(this, value);
         }
 
         /// <summary>
@@ -339,7 +348,7 @@ namespace DotVVM.Framework.Controls
             var c = this;
             while (c != null)
             {
-                if (c.properties.TryGet(Internal.IsControlBindingTargetProperty, out var x) && (bool)x!)
+                if (c.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.Internal_IsControlBindingTarget, out var x) && (bool)x!)
                 {
                     return c;
                 }
@@ -354,7 +363,7 @@ namespace DotVVM.Framework.Controls
         public DotvvmBindableObject? GetClosestControlBindingTarget(out int numberOfDataContextChanges) =>
             (Parent ?? this).GetClosestWithPropertyValue(
                 out numberOfDataContextChanges,
-                (control, _) => control.properties.TryGet(Internal.IsControlBindingTargetProperty, out var x) && (bool)x!);
+                (control, _) => control.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.Internal_IsControlBindingTarget, out var x) && (bool)x!);
 
         /// <summary>
         /// Gets the closest control binding target and returns number of DataContext changes since the target. Returns null if the control is not found.
@@ -419,8 +428,9 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public IEnumerable<KeyValuePair<DotvvmProperty, IBinding>> GetAllBindings()
         {
-            return Properties.Where(p => p.Value is IBinding)
-                .Select(p => new KeyValuePair<DotvvmProperty, IBinding>(p.Key, (IBinding)p.Value!));
+            foreach (var (propId, value) in properties)
+                if (value is IBinding binding)
+                    yield return new KeyValuePair<DotvvmProperty, IBinding>(propId.PropertyInstance, binding);
         }
 
         /// <summary>

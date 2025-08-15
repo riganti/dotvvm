@@ -146,7 +146,10 @@ namespace DotVVM.Framework.Binding
                 if (obj.properties.TryGet(id, out var value))
                     return value;
 
-                return propertyGroups[id.GroupId]!.DefaultValue;
+                if (id.IsPropertyGroup)
+                    return propertyGroups[id.GroupId]!.DefaultValue;
+                else
+                    return controls[id.TypeId].properties[id.MemberId]!.DefaultValue;
             }
             else
             {
@@ -255,8 +258,8 @@ namespace DotVVM.Framework.Binding
                         controls[id].activeBitmap = new ulong[(DEFAULT_PROPERTY_COUNT - 1) / 64 + 1];
                         if (id < RESERVED_CONTROL_TYPES)
                         {
-                            controls[id].counterStandard = DEFAULT_PROPERTY_COUNT;
-                            controls[id].counterNonStandard = DEFAULT_PROPERTY_COUNT;
+                            controls[id].counterStandard = RESERVED_PROPERTY_COUNT;
+                            controls[id].counterNonStandard = RESERVED_PROPERTY_COUNT;
                         }
                         typeIds[type] = id;
                     }
@@ -286,7 +289,7 @@ namespace DotVVM.Framework.Binding
                         throw new InvalidOperationException($"Predefined property ID of {property} cannot be 0.");
                     if (id >> 16 != typeId)
                         throw new InvalidOperationException($"Predefined property ID of {property} does not match the property declaring type ID.");
-                    if ((id & 0xffff) > DEFAULT_PROPERTY_COUNT)
+                    if ((id & 0xffff) > RESERVED_PROPERTY_COUNT)
                         throw new InvalidOperationException($"Predefined property ID of {property} is too high (there is only {RESERVED_PROPERTY_COUNT} reserved slots).");
                     if (canUseDirectAccess != (id % 2 == 0))
                         throw new InvalidOperationException($"Predefined property ID of {property} does not match the property canUseDirectAccess={canUseDirectAccess}. The ID must be {(canUseDirectAccess ? "even" : "odd")} number.");
@@ -370,9 +373,25 @@ namespace DotVVM.Framework.Binding
         {
             lock (groupRegisterLock)
             {
-                var id = (ushort)groupCounter++;
-                if (id == 0)
-                    throw new Exception("Too many property groups registered already.");
+                ushort id;
+
+                // Check for predefined property group ID using reflection (similar to property registration)
+                var declaringTypeId = RegisterType(group.DeclaringType);
+                if (declaringTypeId < RESERVED_CONTROL_TYPES &&
+                    typeof(PropertyGroupIds).GetField(group.DeclaringType.Name + "_" + group.Name, BindingFlags.Static | BindingFlags.Public)?.GetValue(null) is {} predefinedId)
+                {
+                    id = (ushort)predefinedId;
+                    if (id == 0)
+                        throw new InvalidOperationException($"Predefined property group ID of {group} cannot be 0.");
+                    if (id > RESERVED_CONTROL_TYPES)
+                        throw new InvalidOperationException($"Predefined property group ID of {group} is too high (there is only {RESERVED_CONTROL_TYPES} reserved slots).");
+                }
+                else
+                {
+                    id = (ushort)groupCounter++;
+                    if (id == 0)
+                        throw new Exception("Too many property groups registered already.");
+                }
 
                 if (id >= propertyGroups.Length)
                 {

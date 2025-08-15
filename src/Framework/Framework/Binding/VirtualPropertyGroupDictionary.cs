@@ -10,6 +10,8 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Utils;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
+
 #if Vectorize
 using System.Runtime.Intrinsics;
 #endif
@@ -20,25 +22,58 @@ namespace DotVVM.Framework.Binding
     public readonly struct VirtualPropertyGroupDictionary<TValue> : IDictionary<string, TValue>, IReadOnlyDictionary<string, TValue>
     {
         private readonly DotvvmBindableObject control;
-        private readonly DotvvmPropertyGroup group;
+        private readonly ushort groupId;
+        private readonly bool isBindingProperty;
 
         public VirtualPropertyGroupDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
         {
             this.control = control;
-            this.group = group;
+            this.groupId = group.Id;
+            this.isBindingProperty = group.IsBindingProperty;
         }
+
+        internal VirtualPropertyGroupDictionary(DotvvmBindableObject control, ushort groupId, bool isBindingProperty)
+        {
+            this.control = control;
+            this.groupId = groupId;
+            this.isBindingProperty = isBindingProperty;
+        }
+
+        public DotvvmBindableObject Control => control;
+        public ushort GroupId => groupId;
+        public DotvvmPropertyGroup Group => DotvvmPropertyIdAssignment.GetPropertyGroup(groupId).NotNull();
 
         DotvvmPropertyId GetMemberId(string key, bool createNew = false)
         {
             var memberId = DotvvmPropertyIdAssignment.GetGroupMemberId(key, registerIfNotFound: createNew);
-            return DotvvmPropertyId.CreatePropertyGroupId(group.Id, memberId);
+            return DotvvmPropertyId.CreatePropertyGroupId(groupId, memberId);
         }
+
+        TValue EvalPropertyValue(object? value)
+        {
+            if (typeof(TValue).IsValueType)
+            { // => cheap type check
+                if (value is TValue val)
+                    return val;
+                return EvalPropertyValueCore(value);
+            }
+            else
+            {
+                if (!isBindingProperty && value is IBinding binding)
+                {
+                    value = control.EvalBinding(binding, false);
+                }
+                return (TValue)value!;
+            }
+        }
+        TValue EvalPropertyValueCore(object? value) =>
+            (TValue)control.EvalPropertyValue(Group, value)!;
 
         public IEnumerable<string> Keys
         {
             get
             {
-                foreach (var (p, _) in control.properties.PropertyGroup(group.Id))
+                foreach (var (p, _) in control.properties.PropertyGroup(groupId))
                 {
                     yield return DotvvmPropertyIdAssignment.GetGroupMemberName(p.MemberId)!;
                 }
@@ -50,9 +85,9 @@ namespace DotVVM.Framework.Binding
         {
             get
             {
-                foreach (var (p, value) in control.properties.PropertyGroup(group.Id))
+                foreach (var (p, value) in control.properties.PropertyGroup(groupId))
                 {
-                    yield return (TValue)control.EvalPropertyValue(group, value)!;
+                    yield return EvalPropertyValue(value);
                 }
             }
         }
@@ -61,17 +96,17 @@ namespace DotVVM.Framework.Binding
         {
             get
             {
-                foreach (var (p, _) in control.properties.PropertyGroup(group.Id))
+                var group = DotvvmPropertyIdAssignment.GetPropertyGroup(groupId).NotNull();
+                foreach (var (p, _) in control.properties.PropertyGroup(groupId))
                 {
-                    var prop = group.GetDotvvmProperty(p.MemberId);
-                    yield return prop;
+                    yield return group.GetDotvvmProperty(p.MemberId);
                 }
             }
         }
 
-        public int Count => control.properties.CountPropertyGroup(group.Id);
+        public int Count => control.properties.CountPropertyGroup(groupId);
 
-        public bool Any() => control.properties.ContainsPropertyGroup(group.Id);
+        public bool Any() => control.properties.ContainsPropertyGroup(groupId);
 
         public bool IsReadOnly => false;
 
@@ -86,14 +121,11 @@ namespace DotVVM.Framework.Binding
             {
                 var p = GetMemberId(key);
                 if (control.properties.TryGet(p, out var value))
-                    return (TValue)control.EvalPropertyValue(group, value)!;
+                    return EvalPropertyValue(value);
                 else
-                    return (TValue)group.DefaultValue!;
+                    return (TValue)Group.DefaultValue!;
             }
-            set
-            {
-                control.properties.Set(GetMemberId(key), value);
-            }
+            set => control.properties.Set(GetMemberId(key, createNew: true), value);
         }
 
         /// <summary> Gets the value binding set to a specified property. Returns null if the property is not a binding, throws if the binding some kind of command. </summary>
@@ -115,7 +147,7 @@ namespace DotVVM.Framework.Binding
             if (control.properties.TryGet(GetMemberId(key), out var value))
                 return value;
             else
-                return group.DefaultValue!;
+                return DotvvmPropertyIdAssignment.GetPropertyGroup(groupId)!.DefaultValue!;
         }
 
         /// <summary> Adds value or overwrites the property identified by <paramref name="key"/>. </summary>
@@ -130,14 +162,18 @@ namespace DotVVM.Framework.Binding
         public void SetBinding(string key, IBinding binding) =>
             control.properties.Set(GetMemberId(key, createNew: true), binding);
 
-        public bool ContainsKey(string key)
+        internal void SetInternal(ushort key, object? value)
         {
-            return control.properties.Contains(GetMemberId(key));
+            Debug.Assert(DotvvmPropertyIdAssignment.GetGroupMemberName(key) is not null);
+            control.properties.Set(DotvvmPropertyId.CreatePropertyGroupId(groupId, key), value);
         }
+
+        public bool ContainsKey(string key) =>
+            control.properties.Contains(GetMemberId(key));
 
         private void AddOnConflict(DotvvmPropertyId id, string key, object? value)
         {
-            var merger = this.group.ValueMerger;
+            var merger = this.Group.ValueMerger;
             if (merger is null)
                 throw new ArgumentException($"Cannot Add({key}, {value}) since the value is already set and merging is not enabled on this property group.");
             var mergedValue = merger.MergePlainValues(id, control.properties.GetOrThrow(id), value);
@@ -146,7 +182,7 @@ namespace DotVVM.Framework.Binding
 
         internal void AddInternal(ushort key, object? val)
         {
-            var prop = DotvvmPropertyId.CreatePropertyGroupId(group.Id, key);
+            var prop = DotvvmPropertyId.CreatePropertyGroupId(groupId, key);
             if (!control.properties.TryAdd(prop, val))
                 AddOnConflict(prop, prop.GroupMemberName.NotNull(), val);
         }
@@ -154,20 +190,22 @@ namespace DotVVM.Framework.Binding
         public void Add(string key, ValueOrBinding<TValue> value)
         {
             var prop = GetMemberId(key, createNew: true);
-            object? val = value.UnwrapToObject(); // TODO VOB boxing
+            object? val = value.UnwrapToObject();
             if (!control.properties.TryAdd(prop, val))
                 AddOnConflict(prop, key, val);
         }
 
         /// <summary> Adds the property identified by <paramref name="key"/>. If the property is already set, it tries appending the value using the group's <see cref="Compilation.IAttributeValueMerger" /> </summary>
-        public void Add(string key, TValue value) =>
-            this.Add(key, new ValueOrBinding<TValue>(value));
+        public void Add(string key, TValue value)
+        {
+            var prop = GetMemberId(key, createNew: true);
+            var val = BoxingUtils.BoxGeneric(value);
+            if (!control.properties.TryAdd(prop, val))
+                AddOnConflict(prop, key, val);
+        }
 
         /// <summary> Adds the property identified by <paramref name="key"/>. If the property is already set, it tries appending the value using the group's <see cref="Compilation.IAttributeValueMerger" /> </summary>
-        public void AddBinding(string key, IBinding? binding)
-        {
-            Add(key, new ValueOrBinding<TValue>(binding!));
-        }
+        public void AddBinding(string key, IBinding? binding) => Add(key, new ValueOrBinding<TValue>(binding!));
 
         public void CopyFrom(IEnumerable<KeyValuePair<string, TValue>> values, bool clear = false)
         {
@@ -186,14 +224,29 @@ namespace DotVVM.Framework.Binding
                 Set(item.Key, item.Value);
             }
         }
-        public static IDictionary<string, TValue> CreateValueDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
+
+        public void CopyFrom<TValue2>(VirtualPropertyGroupDictionary<TValue2> values, bool clear = false)
+            where TValue2 : TValue
+        {
+            if (clear) this.Clear();
+            foreach (var (oldId, value) in values.control.properties.PropertyGroup(values.groupId))
+            {
+                var newId = DotvvmPropertyId.CreatePropertyGroupId(groupId, oldId.MemberId);
+                control.properties.Set(newId, value);
+            }
+        }
+
+        public static IDictionary<string, TValue> CreateValueDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group) =>
+            CreateValueDictionary(control, group.Id);
+
+        internal static IDictionary<string, TValue> CreateValueDictionary(DotvvmBindableObject control, ushort groupId)
         {
             Dictionary<string, TValue> result;
 #if Vectorize
             // don't bother counting without vector instructions
-            if (Vector256.IsHardwareAccelerated)
+            if (Vector128.IsHardwareAccelerated)
             {
-                var count = control.properties.CountPropertyGroup(group.Id);
+                var count = control.properties.CountPropertyGroup(groupId);
                 result = new(count);
                 if (count == 0)
                     return result;
@@ -205,10 +258,10 @@ namespace DotVVM.Framework.Binding
 #endif
             foreach (var (p, valueRaw) in control.properties)
             {
-                if (p.IsInPropertyGroup(group.Id))
+                if (p.IsInPropertyGroup(groupId))
                 {
                     var name = DotvvmPropertyIdAssignment.GetGroupMemberName(p.MemberId)!;
-                    var valueObj = control.EvalPropertyValue(group, valueRaw);
+                    var valueObj = control.EvalPropertyValue(DotvvmPropertyId.CreatePropertyGroupId(groupId, 1), valueRaw);
                     if (valueObj is TValue value)
                         result.Add(name, value);
                     else if (valueObj is null)
@@ -218,14 +271,17 @@ namespace DotVVM.Framework.Binding
             return result;
         }
 
-        public static IDictionary<string, ValueOrBinding<TValue>> CreatePropertyDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
+        public static IDictionary<string, ValueOrBinding<TValue>> CreatePropertyDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group) =>
+            CreatePropertyDictionary(control, group.Id);
+
+        internal static IDictionary<string, ValueOrBinding<TValue>> CreatePropertyDictionary(DotvvmBindableObject control, ushort groupId)
         {
             Dictionary<string, ValueOrBinding<TValue>> result;
 #if Vectorize
             // don't bother counting without vector instructions
-            if (Vector256.IsHardwareAccelerated)
+            if (Vector128.IsHardwareAccelerated)
             {
-                var count = control.properties.CountPropertyGroup(group.Id);
+                var count = control.properties.CountPropertyGroup(groupId);
                 result = new(count);
                 if (count == 0)
                     return result;
@@ -237,7 +293,7 @@ namespace DotVVM.Framework.Binding
 #endif
             foreach (var (p, valRaw) in control.properties)
             {
-                if (p.IsInPropertyGroup(group.Id))
+                if (p.IsInPropertyGroup(groupId))
                 {
                     var name = DotvvmPropertyIdAssignment.GetGroupMemberName(p.MemberId)!;
                     result.Add(name, ValueOrBinding<TValue>.FromBoxedValue(valRaw));
@@ -256,10 +312,10 @@ namespace DotVVM.Framework.Binding
 #pragma warning restore CS8767
         {
             var memberId = DotvvmPropertyIdAssignment.GetGroupMemberId(key, registerIfNotFound: false);
-            var p = DotvvmPropertyId.CreatePropertyGroupId(group.Id, memberId);
+            var p = DotvvmPropertyId.CreatePropertyGroupId(groupId, memberId);
             if (control.properties.TryGet(p, out var valueRaw))
             {
-                value = (TValue)control.EvalPropertyValue(group, valueRaw)!;
+                value = EvalPropertyValue(valueRaw);
                 return true;
             }
             else
@@ -270,35 +326,9 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary> Adds the property-value pair to the dictionary. If the property is already set, it tries appending the value using the group's <see cref="Compilation.IAttributeValueMerger" /> </summary>
-        public void Add(KeyValuePair<string, TValue> item)
-        {
-            Add(item.Key, item.Value);
-        }
+        public void Add(KeyValuePair<string, TValue> item) => Add(item.Key, item.Value);
 
-        public void Clear()
-        {
-            // we want to avoid allocating the list if there is only one property
-            DotvvmPropertyId toRemove = default;
-            List<DotvvmPropertyId>? toRemoveRest = null;
-
-            foreach (var (p, _) in control.properties.PropertyGroup(group.Id))
-            {
-                if (toRemove.Id == 0)
-                    toRemove = p;
-                else
-                {
-                    toRemoveRest ??= new List<DotvvmPropertyId>();
-                    toRemoveRest.Add(p);
-                }
-            }
-
-            if (toRemove.Id != 0)
-                control.properties.Remove(toRemove);
-
-            if (toRemoveRest is {})
-                foreach (var p in toRemoveRest)
-                    control.properties.Remove(p);
-        }
+        public void Clear() => control.properties.ClearPropertyGroup(groupId);
 
         public bool Contains(KeyValuePair<string, TValue> item)
         {
@@ -331,7 +361,7 @@ namespace DotVVM.Framework.Binding
 
         /// <summary> Enumerates all keys and values. If a property contains a binding, it will be automatically evaluated. </summary>
         public Enumerator GetEnumerator() =>
-            new Enumerator(control, group, control.properties.EnumeratePropertyGroup(group.Id));
+            new Enumerator(control, Group, control.properties.EnumeratePropertyGroup(groupId));
 
         IEnumerator<KeyValuePair<string, TValue>> IEnumerable<KeyValuePair<string, TValue>>.GetEnumerator() => GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -358,7 +388,7 @@ namespace DotVVM.Framework.Binding
             {
                 get
                 {
-                    foreach (var (_, value) in self.control.properties.PropertyGroup(self.group.Id))
+                    foreach (var (_, value) in self.control.properties.PropertyGroup(self.groupId))
                         yield return value;
                 }
             }
@@ -367,7 +397,7 @@ namespace DotVVM.Framework.Binding
 
             public bool ContainsKey(string key) => self.ContainsKey(key);
 
-            public RawValuesEnumerator GetEnumerator() => new RawValuesEnumerator(self.control.properties.EnumeratePropertyGroup(self.group.Id));
+            public RawValuesEnumerator GetEnumerator() => new RawValuesEnumerator(self.control.properties.EnumeratePropertyGroup(self.groupId));
             IEnumerator<KeyValuePair<string, object?>> IEnumerable<KeyValuePair<string, object?>>.GetEnumerator() => GetEnumerator();
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }

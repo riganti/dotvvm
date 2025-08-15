@@ -129,6 +129,8 @@ namespace DotVVM.Framework.Binding
 
         public override string ToString()
         {
+            if (IsZero)
+                return "[0000_0000]";
             if (IsPropertyGroup)
             {
                 var pg = PropertyGroupInstance;

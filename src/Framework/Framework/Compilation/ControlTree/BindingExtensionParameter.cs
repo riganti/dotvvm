@@ -92,12 +92,18 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         }
 
-        internal static int GetIndex(DotvvmBindableObject c) =>
-            (c.NotNull("control is null, is the binding executed in the right data context?")
-            .GetAllAncestors(true, false)
-            .OfType<DataItemContainer>()
-            .FirstOrDefault() ?? throw new DotvvmControlException(c, "Could not find ancestor DataItemContainer that stores the current collection index."))
-            .DataItemIndex ?? throw new DotvvmControlException(c, "Nearest DataItemContainer does have the collection index specified.");
+        internal static int GetIndex(DotvvmBindableObject c)
+        {
+            c.NotNull("control is null, is the binding executed in the right data context?");
+            for (var ancestor = c; ancestor != null; ancestor = ancestor.Parent)
+            {
+                if (ancestor is DataItemContainer container)
+                {
+                    return container.DataItemIndex ?? throw new DotvvmControlException(c, "Nearest DataItemContainer does have the collection index specified.");
+                }
+            }
+            throw new DotvvmControlException(c, "Could not find ancestor DataItemContainer that stores the current collection index.");
+        }
 
         public override Expression GetServerEquivalent(Expression controlParameter)
         {

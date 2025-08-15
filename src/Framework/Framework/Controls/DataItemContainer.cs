@@ -50,10 +50,14 @@ namespace DotVVM.Framework.Controls
             {
                 if (this.index is int) return this.index;
 
-                var value = GetValue(Internal.UniqueIDProperty);
+                var value = properties.GetOrNull(DotvvmPropertyIdAssignment.PropertyIds.Internal_UniqueID);
                 return value is string id && int.TryParse(id, NumberStyles.Integer, CultureInfo.InvariantCulture, out var index) ? index : (int?)null;
             }
-            set { this.index = value; SetValue(Internal.UniqueIDProperty, value?.ToString()); }
+            set
+            {
+                this.index = value;
+                properties.Set(DotvvmPropertyIdAssignment.PropertyIds.Internal_UniqueID, value?.ToString());
+            }
         }
 
         public bool RenderItemBinding { get; set; } = true;

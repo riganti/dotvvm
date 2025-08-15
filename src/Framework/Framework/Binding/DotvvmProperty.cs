@@ -209,9 +209,10 @@ namespace DotVVM.Framework.Binding
 
         private object? GetInheritedValue(DotvvmBindableObject control)
         {
+            var id = this.Id;
             for (var p = control.Parent; p is not null; p = p.Parent)
             {
-                if (p.properties.TryGet(Id, out var v))
+                if (p.properties.TryGet(id, out var v))
                     return v;
             }
             return DefaultValue;

@@ -17,10 +17,13 @@ namespace DotVVM.Framework.Binding
     {
         IBinding? BindingOrDefault { get; }
         object? BoxedValue { get; }
+
+        /// <summary> Returns the value or the binding from the ValueOrBinding container. Equivalent to calling <code>vob.BindingOrDefault ?? vob.BoxedValue</code> </summary>
+        object? UnwrapToObject();
     }
 
     /// <summary> Represents either a binding or a constant value. In TypeScript this would be <typeparamref name="T"/> | <see cref="IBinding"/>. Note that `default(<see cref="ValueOrBinding{T}" />)` is the same as `new <see cref="ValueOrBinding{T}" />(default(T))` </summary>
-    public struct ValueOrBinding<T> : ValueOrBinding
+    public readonly struct ValueOrBinding<T> : ValueOrBinding
     {
         private readonly IBinding? binding;
         [AllowNull]
@@ -92,6 +95,9 @@ namespace DotVVM.Framework.Binding
         /// <summary> Gets a value from ValueOrBinding or throws an exception if the it contains a binding. To evaluate the binding use the <see cref="Evaluate(DotvvmBindableObject)" /> method. </summary>
         public T GetValue() =>
             HasValue ? value : throw new DotvvmControlException($"Value was expected but ValueOrBinding<{typeof(T).Name}> contains a binding: {binding}.") { RelatedBinding = binding };
+
+        /// <summary> Returns the value or the binding from the ValueOrBinding container. Equivalent to calling <code>vob.BindingOrDefault ?? vob.BoxedValue</code> </summary>
+        public object? UnwrapToObject() => binding ?? BoxingUtils.BoxGeneric(value);
 
         /// <summary> Returns a ValueOrBinding with new type T which is a base type of the old T2 </summary>
         public static ValueOrBinding<T> DownCast<T2>(ValueOrBinding<T2> createFrom)
@@ -192,6 +198,5 @@ namespace DotVVM.Framework.Binding
         public override string? ToString() =>
             HasBinding ? binding.ToString() :
             value is null ? "null" : value.ToString();
-
     }
 }

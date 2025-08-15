@@ -48,6 +48,10 @@ namespace DotVVM.Framework.Compilation.Binding
         public static Expression BoxToObject(Expression src)
         {
             var type = src.Type;
+            if (src is ConstantExpression { Value: bool boolean })
+                return Expression.Field(null, typeof(BoxingUtils), boolean ? nameof(BoxingUtils.True) : nameof(BoxingUtils.False));
+            if (src is ConstantExpression { Value: (int)0 })
+                return Expression.Field(null, typeof(BoxingUtils), nameof(BoxingUtils.Zero));
             if (type == typeof(bool) || type == typeof(bool?) || type == typeof(int) || type == typeof(int?))
                 return Expression.Call(typeof(BoxingUtils), "Box", Type.EmptyTypes, src);
             if (src is ConstantExpression { Value: var constant })
