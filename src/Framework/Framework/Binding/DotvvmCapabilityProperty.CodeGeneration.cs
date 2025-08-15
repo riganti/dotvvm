@@ -76,27 +76,28 @@ namespace DotVVM.Framework.Binding
                 var valueParameter = Expression.Parameter(type, "value");
                 var ctor = typeof(VirtualPropertyGroupDictionary<>)
                     .MakeGenericType(propType)
-                    .GetConstructor(new [] { typeof(DotvvmBindableObject), typeof(DotvvmPropertyGroup) })!;
+                    .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, [ typeof(DotvvmBindableObject), typeof(ushort), typeof(bool) ])!;
                 var createMethod = typeof(VirtualPropertyGroupDictionary<>)
                     .MakeGenericType(propType)
                     .GetMethod(
                         typeof(ValueOrBinding).IsAssignableFrom(elementType) ? nameof(VirtualPropertyGroupDictionary<int>.CreatePropertyDictionary) :
                         nameof(VirtualPropertyGroupDictionary<int>.CreateValueDictionary),
-                        BindingFlags.Public | BindingFlags.Static
+                        BindingFlags.NonPublic | BindingFlags.Static,
+                        [ typeof(DotvvmBindableObject), typeof(ushort) ]
                     )!;
                 var enumerableType = typeof(IEnumerable<>).MakeGenericType(typeof(KeyValuePair<,>).MakeGenericType(typeof(string), elementType));
                 var copyFromMethod =
                     typeof(VirtualPropertyGroupDictionary<>)
                     .MakeGenericType(propType)
-                    .GetMethod("CopyFrom", new [] { enumerableType, typeof(bool) })!;
+                    .GetMethod("CopyFrom", [ enumerableType, typeof(bool) ])!;
                 return (
                     Lambda(
-                        Convert(Call(createMethod, currentControlParameter, Constant(pgroup)), type),
+                        Convert(Call(createMethod, currentControlParameter, Constant(pgroup.Id)), type),
                         currentControlParameter
                     ),
                     Lambda(
                         Call(
-                            New(ctor, currentControlParameter, Constant(pgroup)),
+                            New(ctor, currentControlParameter, Constant(pgroup.Id), Constant(pgroup.IsBindingProperty)),
                             copyFromMethod,
                             Convert(valueParameter, enumerableType),
                             Constant(true) // clear

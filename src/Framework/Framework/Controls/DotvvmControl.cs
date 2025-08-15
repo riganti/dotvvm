@@ -80,13 +80,13 @@ namespace DotVVM.Framework.Controls
 
         ValueOrBinding<string>? EnsureClientId()
         {
-            if (!IsPropertySet(IDProperty))
+            if (!properties.Contains(DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_ID))
             {
                 return null;
             }
-            if (IsPropertySet(ClientIDProperty))
+            if (properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_ClientID, out var rawClientId))
             {
-                return GetValueOrBinding<string>(ClientIDProperty);
+                return ValueOrBinding<string>.FromBoxedValue(rawClientId);
             }
 
             var id = CreateClientId();
@@ -189,7 +189,7 @@ namespace DotVVM.Framework.Controls
 
             writer.SetErrorContext(this);
 
-            if (properties.Contains(PostBack.UpdateProperty))
+            if (properties.Contains(DotvvmPropertyIdAssignment.PropertyIds.PostBack_Update))
             {
                 AddDotvvmUniqueIdAttribute();
             }
@@ -219,7 +219,7 @@ namespace DotVVM.Framework.Controls
             {
                 throw new DotvvmControlException(this, "Postback.Update cannot be set on property which don't render html attributes.");
             }
-            htmlAttributes.Attributes.Set("data-dotvvm-id", GetDotvvmUniqueId().UnwrapToObject());
+            htmlAttributes.Attributes.SetInternal(DotvvmPropertyIdAssignment.GroupMembers.data_dotvvm_id, GetDotvvmUniqueId().UnwrapToObject());
         }
 
         protected struct RenderState
@@ -464,7 +464,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public static bool IsNamingContainer(DotvvmBindableObject control)
         {
-            return (bool)Internal.IsNamingContainerProperty.GetValue(control)!;
+            return control.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.Internal_IsNamingContainer, out var value) && (bool)value!;
         }
 
         /// <summary>
@@ -509,7 +509,7 @@ namespace DotVVM.Framework.Controls
             // build the client ID
             JoinValuesOrBindings(GetUniqueIdFragments(), prefix, suffix);
 
-        private ValueOrBinding<string> JoinValuesOrBindings(IReadOnlyList<object?> fragments, ValueOrBinding<string?> prefix, ValueOrBinding<string?> suffix)
+        private ValueOrBinding<string> JoinValuesOrBindings(List<object?> fragments, ValueOrBinding<string?> prefix, ValueOrBinding<string?> suffix)
         {
             if (fragments.Count == 1 && prefix.ValueIsNullOrEmpty() && suffix.ValueIsNullOrEmpty())
             {
@@ -576,14 +576,15 @@ namespace DotVVM.Framework.Controls
         {
             var fragments = new List<object?>
             {
-                Internal.UniqueIDProperty.GetValue(this)
+                properties.GetOrNull(DotvvmPropertyIdAssignment.PropertyIds.Internal_UniqueID)
             };
-            foreach (var ancestor in GetAllAncestors())
+            for (var ancestor = Parent; ancestor is {}; ancestor = ancestor.Parent)
             {
                 if (IsNamingContainer(ancestor))
                 {
                     fragments.Add(
-                        Internal.ClientIDFragmentProperty.GetValue(ancestor) ?? Internal.UniqueIDProperty.GetValue(ancestor)
+                        ancestor.properties.GetOrNull(DotvvmPropertyIdAssignment.PropertyIds.Internal_ClientIDFragment) ??
+                        ancestor.properties.GetOrNull(DotvvmPropertyIdAssignment.PropertyIds.Internal_UniqueID)
                     );
                 }
             }
@@ -593,10 +594,9 @@ namespace DotVVM.Framework.Controls
 
         private List<object?>? GetClientIdFragments()
         {
-            var rawId = IDProperty.GetValue(this);
-
+            var rawId = properties.GetOrNull(DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_ID);
             // can't generate ID from nothing
-            if (rawId == null) return null;
+            if (rawId is null) return null;
 
             var fragments = new List<object?> { rawId };
             if (ClientIDMode == ClientIDMode.Static)
@@ -607,7 +607,7 @@ namespace DotVVM.Framework.Controls
 
             DotvvmControl? childContainer = null;
             var searchingForIdElement = false;
-            foreach (var ancestor in GetAllAncestors())
+            for (var ancestor = Parent; ancestor is {}; ancestor = ancestor.Parent)
             {
                 if (ancestor is not DotvvmControl ancestorControl)
                 {
@@ -622,11 +622,11 @@ namespace DotVVM.Framework.Controls
                     }
                     searchingForIdElement = false;
 
-                    if (Internal.ClientIDFragmentProperty.GetValue(ancestorControl) is {} clientIdExpression)
+                    if (ancestorControl.properties.GetOrNull(DotvvmPropertyIdAssignment.PropertyIds.Internal_ClientIDFragment) is {} clientIdExpression)
                     {
                         fragments.Add(clientIdExpression);
                     }
-                    else if (ancestorControl.GetValueRaw(IDProperty) is var ancestorId && ancestorId is not null or "")
+                    else if (ancestorControl.properties.GetOrNull(DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_ID) is var ancestorId && ancestorId is not null or "")
                     {
                         // add the ID fragment
                         fragments.Add(ancestorId);
@@ -638,9 +638,9 @@ namespace DotVVM.Framework.Controls
                     }
                 }
 
-                if (searchingForIdElement && ancestorControl.IsPropertySet(ClientIDProperty))
+                if (searchingForIdElement && ancestorControl.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_ClientID, out var clientId))
                 {
-                    fragments.Add(ancestorControl.GetValueRaw(ClientIDProperty));
+                    fragments.Add(clientId);
                     searchingForIdElement = false;
                 }
 

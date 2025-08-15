@@ -68,11 +68,14 @@ namespace DotVVM.Framework.Runtime.Commands
                 if (resultBinding == null)
                 {
                     // find bindings of current control
-                    var bindings = control.GetAllBindings()
-                        .Where(b => b.Value is CommandBindingExpression);
 
-                    foreach (var binding in bindings)
+                    foreach (var (propertyId, rawValue) in control.properties)
                     {
+                        if (rawValue is not CommandBindingExpression binding)
+                            continue;
+                        var property = propertyId.PropertyInstance;
+
+
                         infoMessage.Clear();
                         var bindingMatch = new FindBindingResult.BindingMatchChecklist();
 
@@ -88,7 +91,7 @@ namespace DotVVM.Framework.Runtime.Commands
                         }
 
                         //checking binding id
-                        if (((CommandBindingExpression) binding.Value).BindingId == commandId)
+                        if (binding.BindingId == commandId)
                         {
                             bindingMatch.BindingIdMatch = true;
                         }
@@ -124,23 +127,23 @@ namespace DotVVM.Framework.Runtime.Commands
                         if(bindingMatch.AllMatches)
                         {
                             //correct binding found
-                            resultBinding = (CommandBindingExpression)binding.Value;
+                            resultBinding = binding;
                             resultControl = control;
-                            resultProperty = binding.Key;
+                            resultProperty = property;
                         }
                         else
                         {
                             // only add information about ID mismatch if no other mismatch was found to avoid information clutter
                             if (!bindingMatch.BindingIdMatch && infoMessage.Length == 0)
                             {
-                                infoMessage.Append($"Expected internal binding id: '{commandId}' Command binding id: '{((CommandBindingExpression)binding.Value).BindingId}'");
+                                infoMessage.Append($"Expected internal binding id: '{commandId}' Command binding id: '{binding.BindingId}'");
                             }
                             if (!candidateBindings.ContainsKey(bindingMatch))
                             {
                                 candidateBindings.Add(bindingMatch, new CandidateBindings());
                             }
                             candidateBindings[bindingMatch]
-                                .AddBinding(new(infoMessage.ToString(), binding.Value));
+                                .AddBinding(new(infoMessage.ToString(), binding));
                         }
                     }
                 }

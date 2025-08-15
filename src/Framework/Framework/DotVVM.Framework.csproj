@@ -132,7 +132,13 @@
     <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
     <TypescriptFile Include="Resources/Scripts/**/*.ts" />
     <UpToDateCheckInput Include="Resources/Scripts/**/*.ts" />
+    <None Include="scripts/generate-property-ids.mjs" />
   </ItemGroup>
+
+    <!-- Generate PropertyId assignment files before compilation -->
+  <Target Name="GeneratePropertyIds" Inputs="scripts/generate-property-ids.mjs" Outputs="Binding/DotvvmPropertyIdAssignment.GroupMembers.cs;Binding/DotvvmPropertyIdAssignment.PropertyGroupIds.cs;Binding/DotvvmPropertyIdAssignment.TypeIds.cs;Binding/DotvvmPropertyIdAssignment.PropertyIds.cs" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+    <Exec Command="node scripts/generate-property-ids.mjs" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
 
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
   <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">

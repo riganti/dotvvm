@@ -193,13 +193,16 @@ namespace DotVVM.Framework.Controls
         public static TControl AddAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue>? value)
             where TControl : IControlWithHtmlAttributes
         {
-            return AddAttribute(control, attribute, value?.UnwrapToObject());
+            if (value is { } v)
+                control.Attributes.Add(attribute, v.UnwrapToObject());
+            return control;
         }
         /// <summary> Appends a value into the specified html attribute. If the attribute already exists, the old and new values are merged. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl AddAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue> value)
             where TControl : IControlWithHtmlAttributes
         {
-            return AddAttribute(control, attribute, value.UnwrapToObject());
+            control.Attributes.Add(attribute, value.UnwrapToObject());
+            return control;
         }
 
         /// <summary> Appends a list of css attributes to the control. If the attributes already exist, the old and new values are merged. Returns <paramref name="control"/> for fluent API usage. </summary>
@@ -215,8 +218,7 @@ namespace DotVVM.Framework.Controls
         public static TControl AddAttributes<TControl, TValue>(this TControl control, VirtualPropertyGroupDictionary<TValue> attributes)
             where TControl : IControlWithHtmlAttributes
         {
-            foreach (var a in attributes.RawValues)
-                AddAttribute(control, a.Key, a.Value);
+            control.Attributes.CopyFrom(attributes);
             return control;
         }
 

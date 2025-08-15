@@ -304,12 +304,22 @@ namespace DotVVM.Framework.Tests.Runtime
                     if (p.PropertyInfo.PropertyType != p.PropertyType)
                         Console.WriteLine(p);
 
+                    instance.properties.Remove(p.Id);
+                    Assert.AreEqual(p.DefaultValue, instance.GetValue(p), $"GetValue default value {p}");
+                    Assert.AreEqual(p.DefaultValue, instance.GetValueRaw(p.Id), $"GetValue(id) default value {p}");
+                    Assert.AreEqual(p.DefaultValue, p.PropertyInfo.GetValue(instance), $"Getter default value {p}");
+
                     foreach (var example in GetExampleValues(p.PropertyType))
                     {
                         instance.SetValue(p, example);
                         Assert.AreEqual(example, instance.GetValue(p), $"GetValue is behaving weird {p}");
                         Assert.AreEqual(example, instance.GetValueRaw(p.Id), $"GetValue(id) is behaving weird {p}");
                         Assert.AreEqual(example, p.PropertyInfo.GetValue(instance), $"Getter is broken in {p}");
+
+                        if (p.Id.CanUseFastAccessors)
+                        {
+                            Assert.AreEqual(example, instance.properties.GetOrThrow(p.Id), "$instance.properties.GetOrThrow {p}");
+                        }
                     }
 
                     if (p.PropertyInfo.SetMethod == null)
@@ -543,6 +553,126 @@ namespace DotVVM.Framework.Tests.Runtime
             {
                 Assert.Fail($"There were {exceptions.Count} exceptions thrown during the test. See the output for details.");
             }
+        }
+
+        [DataTestMethod]
+        [DataRow(0, 0, 0)]
+        [DataRow(1, 1, 1)]
+        [DataRow(30, 1, 1)]
+        [DataRow(1, 30, 1)]
+        [DataRow(1, 1, 30)]
+        [DataRow(1, 1, 8)]
+        [DataRow(1, 8, 1)]
+        [DataRow(8, 1, 1)]
+        [DataRow(5, 5, 8)]
+        [DataRow(5, 8, 5)]
+        [DataRow(8, 5, 5)]
+        [DataRow(5, 5, 5)]
+        [DataRow(8, 8, 8)]
+        public void PropertyGroup_Clear(int attributeCount, int classCount, int styleCount)
+        {
+            var control = new HtmlGenericControl();
+            control.InnerText = "test-inner-text";
+            var attributes = control.Attributes;
+
+            (int, int, int) counts() => (control.Attributes.Count, control.CssClasses.Count, control.CssStyles.Count);
+            Assert.AreEqual(0, control.Attributes.Count);
+            Assert.AreEqual(0, control.CssClasses.Count);
+            Assert.AreEqual(0, control.CssStyles.Count);
+
+            for (int i = 0; i < attributeCount; i++)
+                attributes.Set($"test-attribute-{i}", $"value{i}");
+
+            Assert.AreEqual((attributeCount, 0, 0), counts());
+
+            for (int i = 0; i < classCount; i++)
+                control.CssClasses.Add($"test-class-{i}", true);
+
+            Assert.AreEqual((attributeCount, classCount, 0), counts());
+
+
+            for (int i = 0; i < styleCount; i++)
+                control.CssStyles.Add($"test-style-{i}", $"value{i}");
+
+            Assert.AreEqual((attributeCount, classCount, styleCount), counts());
+
+            control.CssClasses.Clear();
+            var checkpoint1 = control.CloneControl();
+            Assert.AreEqual((attributeCount, 0, styleCount), counts());
+            control.CssClasses.Add("another-class", true);
+            Assert.AreEqual((attributeCount, 1, styleCount), counts());
+
+            for (int i = 0; i < attributeCount; i++)
+                Assert.AreEqual(attributes[$"test-attribute-{i}"], $"value{i}");
+
+            for (int i = 0; i < classCount; i++)
+                Assert.IsFalse(control.CssClasses.ContainsKey($"test-class-{i}"));
+
+            for (int i = 0; i < styleCount; i++)
+                Assert.AreEqual($"value{i}", control.CssStyles[$"test-style-{i}"]);
+
+            control.Attributes.Clear();
+
+            Assert.AreEqual((0, 1, styleCount), counts());
+            var checkpoint2 = control.CloneControl();
+
+            for (int i = 0; i < attributeCount; i++)
+                Assert.IsFalse(attributes.ContainsKey($"test-attribute-{i}"));
+            for (int i = 0; i < classCount; i++)
+                Assert.IsFalse(control.CssClasses.ContainsKey($"test-class-{i}"));
+            for (int i = 0; i < styleCount; i++)
+                Assert.AreEqual($"value{i}", control.CssStyles[$"test-style-{i}"]);
+
+            Assert.IsTrue(control.CssClasses["another-class"]);
+
+            control.CssStyles.Clear();
+
+            for (int i = 0; i < styleCount; i++)
+                Assert.IsFalse(control.CssStyles.ContainsKey($"test-style-{i}"), $"Style 'test-style-{i}' should not exist.");
+
+            Assert.IsTrue(control.CssClasses["another-class"]);
+
+            Assert.AreEqual("test-inner-text", control.InnerText);
+
+            control = (HtmlGenericControl)checkpoint1;
+            Assert.AreEqual((attributeCount, 0, styleCount), counts());
+            control = (HtmlGenericControl)checkpoint2;
+            Assert.AreEqual((0, 1, styleCount), counts());
+        }
+
+        [TestMethod]
+        public void PropertyIds_MatchGeneratedConstants()
+        {
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_ClientID, (uint)DotvvmControl.ClientIDProperty.Id);
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_IncludeInPage, (uint)DotvvmControl.IncludeInPageProperty.Id);
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyIds.HtmlGenericControl_Visible, (uint)HtmlGenericControl.VisibleProperty.Id);
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyIds.HtmlGenericControl_InnerText, (uint)HtmlGenericControl.InnerTextProperty.Id);
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyIds.Literal_Text, (uint)Literal.TextProperty.Id);
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyIds.ButtonBase_Click, (uint)Button.ClickProperty.Id);
+        }
+
+        [TestMethod]
+        public void PropertyGroupIds_MatchGeneratedConstants()
+        {
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_Attributes, HtmlGenericControl.AttributesGroupDescriptor.Id);
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_CssClasses, HtmlGenericControl.CssClassesGroupDescriptor.Id);
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_CssStyles, HtmlGenericControl.CssStylesGroupDescriptor.Id);
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyGroupIds.RouteLink_Params, RouteLink.ParamsGroupDescriptor.Id);
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyGroupIds.RouteLink_QueryParameters, RouteLink.QueryParametersGroupDescriptor.Id);
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyGroupIds.JsComponent_Props, JsComponent.PropsGroupDescriptor.Id);
+            Assert.AreEqual(DotvvmPropertyIdAssignment.PropertyGroupIds.JsComponent_Templates, JsComponent.TemplatesGroupDescriptor.Id);
+        }
+
+        [TestMethod]
+        public void PropertyIds_AreUnique()
+        {
+            XAssert.Distinct(DotvvmProperty.AllProperties.Select(p => p.Id));
+        }
+
+        [TestMethod]
+        public void PropertyGroupIds_AreUnique()
+        {
+            XAssert.Distinct(DotvvmPropertyGroup.AllGroups.Select(g => g.Id));
         }
     }
 }

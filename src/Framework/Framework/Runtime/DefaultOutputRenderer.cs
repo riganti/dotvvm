@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Runtime
             {
                 var control = stack.Pop();
 
-                if (control.properties.TryGet(PostBack.UpdateProperty, out var val) && true.Equals(val))
+                if (control.properties.GetOrNull(DotvvmPropertyIdAssignment.PropertyIds.PostBack_Update) is true)
                 {
                     using (var w = new StringWriter())
                     {

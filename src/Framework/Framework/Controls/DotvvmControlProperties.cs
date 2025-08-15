@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Controls
                 case TableState.Array16:
                     Debug.Assert(keys is {});
                     Debug.Assert(values is object[]);
-                    Debug.Assert(keys.Length == valuesAsArray.Length);
+                    Debug.Assert(keys.Length == valuesAsArray.Length, $"keys.Length={keys.Length} != values.Length={valuesAsArray.Length}");
                     Debug.Assert(keys.Length == (state == TableState.Array8 ? 8 : 16));
                     for (int i = keys.Length - 1; i >= 0 ; i--)
                     {
@@ -310,6 +310,79 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        public void ClearPropertyGroup(ushort groupId)
+        {
+            switch (state)
+            {
+                case TableState.Empty:
+                    return;
+                case TableState.Array8:
+                case TableState.Array16:
+                {
+                    var bitmap = Impl.FindGroupBitmap(this.keys!, groupId);
+                    int index = 0;
+                    if (bitmap == 0)
+                        return;
+                    OwnKeys();
+                    OwnValues();
+                    do
+                    {
+                        int bit = BitOperations.TrailingZeroCount(bitmap);
+                        bitmap >>= (bit + 1);
+                        index += bit;
+                        Debug.Assert(keys![index].IsInPropertyGroup(groupId), $"Key {keys[index]} at index {index} is not in property group {groupId}");
+                        keys![index] = default;
+                        valuesAsArray[index] = null;
+                        index++;
+                    } while (bitmap != 0);
+                    CheckInvariant();
+                    return;
+                }
+                case TableState.Dictinary:
+                {
+                    var dict = this.valuesAsDictionary;
+                    // we want to avoid allocating the list if there is only one property
+                    DotvvmPropertyId toRemove = default;
+                    List<DotvvmPropertyId>? toRemoveRest = null;
+
+                    foreach (var (p, _) in dict)
+                    {
+                        if (p.IsInPropertyGroup(groupId))
+                        {
+                            if (toRemove.Id == 0)
+                                toRemove = p;
+                            else
+                            {
+                                toRemoveRest ??= new List<DotvvmPropertyId>();
+                                toRemoveRest.Add(p);
+                            }
+                        }
+                    }
+
+                    if (toRemove.Id != 0)
+                    {
+                        if (!ownsValues)
+                        {
+                            CloneValues();
+                            dict = this.valuesAsDictionary;
+                        }
+
+                        dict.Remove(toRemove);
+                    }
+
+                    if (toRemoveRest is {})
+                    {
+                        Debug.Assert(ownsValues);
+                        foreach (var p in toRemoveRest)
+                            dict.Remove(p);
+                    }
+                    CheckInvariant();
+                    return;
+                }
+            }
+            Impl.Fail();
+        }
+
         [MethodImpl(Inline)]
         public readonly bool TryGet(DotvvmProperty p, out object? value) => TryGet(p.Id, out value);
         [MethodImpl(Inline)]
@@ -376,6 +449,15 @@ namespace DotVVM.Framework.Controls
         private readonly object? ThrowKeyNotFound(DotvvmPropertyId p) => throw new KeyNotFoundException($"Property {p} was not found.");
 
         [MethodImpl(Inline)]
+        public readonly object? GetOrNull(DotvvmProperty p) => GetOrNull(p.Id);
+        [MethodImpl(Inline)]
+        public readonly object? GetOrNull(DotvvmPropertyId p)
+        {
+            TryGet(p, out var x);
+            return x;
+        }
+
+        [MethodImpl(Inline)]
         public void Set(DotvvmProperty p, object? value) => Set(p.Id, value);
         // not necessarily great for inlining
         public void Set(DotvvmPropertyId p, object? value)
@@ -409,7 +491,7 @@ namespace DotVVM.Framework.Controls
         }
         private void SetOutlined(DotvvmPropertyId p, object? value)
         {
-            TailRecursion:
+            TailCall:
 
             var keys = this.keys;
             if (keys is {})
@@ -443,7 +525,7 @@ namespace DotVVM.Framework.Controls
                 else
                 {
                     IncreaseSize();
-                    goto TailRecursion;
+                    goto TailCall;
                 }
             }
             else if (values == null)
@@ -501,8 +583,7 @@ namespace DotVVM.Framework.Controls
 
         private bool TryAddOulined(DotvvmPropertyId p, object? value)
         {
-
-            TailRecursion:
+            TailCall:
 
             var keys = this.keys;
             if (keys != null)
@@ -536,7 +617,7 @@ namespace DotVVM.Framework.Controls
                 else
                 {
                     IncreaseSize();
-                    goto TailRecursion;
+                    goto TailCall;
                 }
             }
             if (this.values == null)
@@ -547,7 +628,6 @@ namespace DotVVM.Framework.Controls
             else
             {
                 // System.Dictionary backend
-                var valuesAsDictionary = this.valuesAsDictionary;
 #if CSharp8Polyfill
                 if (valuesAsDictionary.TryGetValue(p, out var existingValue))
                     return Object.ReferenceEquals(existingValue, value);
@@ -863,7 +943,7 @@ namespace DotVVM.Framework.Controls
                 }
 
                 var properties = new DotvvmPropertyId[valuesAsDictionary.Count >= 8 ? 16 : 8];
-                var values = new object?[properties.Length >= 8 ? 16 : 8];
+                var values = new object?[properties.Length];
                 int j = 0;
                 foreach (var x in valuesAsDictionary)
                 {

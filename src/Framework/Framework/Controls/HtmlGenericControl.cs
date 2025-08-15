@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> A dictionary of html attributes that are rendered on this control's html tag. </summary>
         [PropertyGroup(new[] { "", "html:" })]
-        public VirtualPropertyGroupDictionary<object?> Attributes => new(this, AttributesGroupDescriptor);
+        public VirtualPropertyGroupDictionary<object?> Attributes => new(this, DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_Attributes, false);
 
         /// <summary> A dictionary of html attributes that are rendered on this control's html tag. </summary>
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> A dictionary of css classes. All classes whose value is `true` will be placed in the `class` attribute. </summary>
         [PropertyGroup("Class-", ValueType = typeof(bool))]
-        public VirtualPropertyGroupDictionary<bool> CssClasses => new(this, CssClassesGroupDescriptor);
+        public VirtualPropertyGroupDictionary<bool> CssClasses => new(this, DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_CssClasses, false);
 
         /// <summary> A dictionary of css classes. All classes whose value is `true` will be placed in the `class` attribute. </summary>
         public static DotvvmPropertyGroup CssClassesGroupDescriptor =
@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> A dictionary of css styles which will be placed in the `style` attribute. </summary>
         [PropertyGroup("Style-")]
-        public VirtualPropertyGroupDictionary<object> CssStyles => new(this, CssStylesGroupDescriptor);
+        public VirtualPropertyGroupDictionary<object> CssStyles => new(this, DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_CssStyles, false);
 
         /// <summary> A dictionary of css styles which will be placed in the `style` attribute. </summary>
         public static DotvvmPropertyGroup CssStylesGroupDescriptor =
@@ -191,15 +191,15 @@ namespace DotVVM.Framework.Controls
                 r.HasId = true;
             else if (prop == DotvvmPropertyIdAssignment.PropertyIds.HtmlGenericControl_InnerText)
                 r.InnerText = value;
-            else if (prop == PostBack.UpdateProperty.Id)
+            else if (prop == DotvvmPropertyIdAssignment.PropertyIds.PostBack_Update)
                 r.HasPostbackUpdate = (bool)this.EvalPropertyValue(prop, value)!;
             else if (prop.IsPropertyGroup)
             {
-                if (prop.IsInPropertyGroup(CssClassesGroupDescriptor.Id))
+                if (prop.IsInPropertyGroup(DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_CssClasses))
                     r.HasClass = true;
-                else if (prop.IsInPropertyGroup(CssStylesGroupDescriptor.Id))
+                else if (prop.IsInPropertyGroup(DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_CssStyles))
                     r.HasStyle = true;
-                else if (prop.IsInPropertyGroup(AttributesGroupDescriptor.Id))
+                else if (prop.IsInPropertyGroup(DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_Attributes))
                     r.HasAttributes = true;
                 else return false;
             }
