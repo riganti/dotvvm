@@ -76,14 +76,16 @@ namespace DotVVM.Framework.Binding
                 var valueParameter = Expression.Parameter(type, "value");
                 var ctor = typeof(VirtualPropertyGroupDictionary<>)
                     .MakeGenericType(propType)
-                    .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, [ typeof(DotvvmBindableObject), typeof(ushort), typeof(bool) ])!;
+                    .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, [ typeof(DotvvmBindableObject), typeof(ushort), typeof(bool) ], null)!;
                 var createMethod = typeof(VirtualPropertyGroupDictionary<>)
                     .MakeGenericType(propType)
                     .GetMethod(
                         typeof(ValueOrBinding).IsAssignableFrom(elementType) ? nameof(VirtualPropertyGroupDictionary<int>.CreatePropertyDictionary) :
                         nameof(VirtualPropertyGroupDictionary<int>.CreateValueDictionary),
                         BindingFlags.NonPublic | BindingFlags.Static,
-                        [ typeof(DotvvmBindableObject), typeof(ushort) ]
+                        binder: null,
+                        [ typeof(DotvvmBindableObject), typeof(ushort) ],
+                        modifiers: null
                     )!;
                 var enumerableType = typeof(IEnumerable<>).MakeGenericType(typeof(KeyValuePair<,>).MakeGenericType(typeof(string), elementType));
                 var copyFromMethod =

@@ -108,8 +108,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 {
                     if (name.Name is null)
                         namelessAssemblies.Add(a);
+#if DotNetCore
                     else if (renumbering.TryAdd(name.Name, assemblyList.Count))
                     {
+#else
+                    else if (!renumbering.ContainsKey(name.Name))
+                    {
+                        renumbering.Add(name.Name, assemblyList.Count);
+#endif
                         assemblyList.Add(a);
                         references.Add(r);
                     }

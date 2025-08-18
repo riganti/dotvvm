@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Controls
     {
         // There are 3 possible states of this structure:
         // 1. Empty -> keys == values == null
-        // 2. Dictinary -> keys == null & values is Dictionary<DotvvmPropertyId, object> --> it falls back to traditional mutable property dictionary
+        // 2. Dictionary -> keys == null & values is Dictionary<DotvvmPropertyId, object> --> it falls back to traditional mutable property dictionary
         // 3. Array8 or Array16 -> keys is DotvvmPropertyId[] & values is object[] -- small linear search array
 
         // Note about unsafe code:
@@ -118,7 +118,7 @@ namespace DotVVM.Framework.Controls
                         }
                     }
                     break;
-                case TableState.Dictinary:
+                case TableState.Dictionary:
                     Debug.Assert(keys is null);
                     Debug.Assert(values is Dictionary<DotvvmPropertyId, object>);
                     break;
@@ -160,8 +160,8 @@ namespace DotVVM.Framework.Controls
             [DoesNotReturn, MethodImpl(NoInlining)]
             void throwArgumentError(DotvvmPropertyId[]? keys, object?[]? values)
             {
-                ThrowHelpers.ArgumentNull(nameof(keys));
-                ThrowHelpers.ArgumentNull(nameof(values));
+                ThrowHelpers.ArgumentNull(keys);
+                ThrowHelpers.ArgumentNull(values);
                 if (keys.Length is not 8 and not 16)
                     throw new ArgumentException($"The length of keys array must be 8 or 16.", nameof(keys));
                 if (keys.Length != values.Length)
@@ -183,15 +183,20 @@ namespace DotVVM.Framework.Controls
                 this.keys = null;
                 this.valuesAsDictionary = values;
                 this.ownsValues = owns;
-                this.state = TableState.Dictinary;
+                this.state = TableState.Dictionary;
             }
             else
             {
-                if (owns)
+                if (owns && values.Count >= 8)
                 {
                     foreach (var (k, v) in this)
                     {
+#if DotNetCore
                         values.TryAdd(k, v);
+#else
+                        if (!values.ContainsKey(k))
+                            values[k] = v;
+#endif
                     }
                     this.values = values;
                     this.keys = null;
@@ -236,7 +241,7 @@ namespace DotVVM.Framework.Controls
             {
                 return Impl.ContainsKey16(this.keys!, p);
             }
-            if (state == TableState.Dictinary)
+            if (state == TableState.Dictionary)
             {
                 return valuesAsDictionary!.ContainsKey(p);
             }
@@ -295,7 +300,7 @@ namespace DotVVM.Framework.Controls
                     return 0;
                 case TableState.Array16:
                     return Impl.CountPropertyGroup(this.keys!, groupId);
-                case TableState.Dictinary:
+                case TableState.Dictionary:
                 {
                     int count = 0;
                     foreach (var key in valuesAsDictionary.Keys)
@@ -314,23 +319,25 @@ namespace DotVVM.Framework.Controls
         {
             if (state == TableState.Empty)
                 return;
-            else if (state == TableState.Dictinary)
+            else if (state == TableState.Dictionary)
             {
                 ClearPropertyGroupOutlined(groupId);
                 return;
             }
-            
+
             Debug.Assert(state is TableState.Array16 or TableState.Array8);
+#if Vectorize
             var bitmap = Impl.FindGroupBitmap(this.keys!, groupId);
             if (bitmap == 0)
                 return;
 
             OwnKeys();
             OwnValues();
+            Impl.Assert(this.keys!.Length == this.valuesAsArray.Length);
 
             int index = 0;
-            var values = Impl.UnsafeArrayReference(this.valuesAsArray);
-            var keys = Impl.UnsafeArrayReference(this.keys!);
+            ref var values = ref Impl.UnsafeArrayReference(this.valuesAsArray);
+            ref var keys = ref Impl.UnsafeArrayReference(this.keys);
             do
             {
                 int bit = BitOperations.TrailingZeroCount(bitmap);
@@ -341,6 +348,21 @@ namespace DotVVM.Framework.Controls
                 Unsafe.Add(ref values, index) = null;
                 index++;
             } while (bitmap != 0);
+#else
+            var keys = this.keys!;
+            for (var i = 0; i < keys.Length; i++)
+            {
+                if (keys[i].IsInPropertyGroup(groupId))
+                {
+                    if (!ownsKeys)
+                        keys = CloneKeys();
+                    if (!ownsValues)
+                        CloneValues();
+                    keys[i] = default;
+                    this.valuesAsArray[i] = null;
+                }
+            }
+#endif
             CheckInvariant();
         }
 
@@ -398,7 +420,7 @@ namespace DotVVM.Framework.Controls
                 if (index >= 0)
                 {
 #if NET6_0_OR_GREATER
-                    value = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(valuesAsArrayUnsafe), index);
+                    value = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(valuesAsArrayUnsafe!), index);
 #else
                     value = valuesAsArrayUnsafe![index];
 #endif
@@ -426,7 +448,7 @@ namespace DotVVM.Framework.Controls
                     {
 
 #if NET6_0_OR_GREATER
-                        value = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(valuesAsArrayUnsafe), index);
+                        value = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(valuesAsArrayUnsafe!), index);
 #else
                         value = valuesAsArrayUnsafe![index];
 #endif
@@ -438,7 +460,7 @@ namespace DotVVM.Framework.Controls
                         return false;
                     }
                 }
-                case TableState.Dictinary:
+                case TableState.Dictionary:
                     return valuesAsDictionary.TryGetValue(p, out value);
                 default:
                     value = null;
@@ -740,9 +762,6 @@ namespace DotVVM.Framework.Controls
             return Impl.Count(this.keys);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static byte BoolToInt(bool x) => Unsafe.As<bool, byte>(ref x);
-
         internal void CloneInto(ref DotvvmControlProperties newDict, DotvvmBindableObject newParent)
         {
             CheckInvariant();
@@ -886,7 +905,7 @@ namespace DotVVM.Framework.Controls
                 case TableState.Array16:
                     SwitchToDictionary();
                     break;
-                case TableState.Dictinary:
+                case TableState.Dictionary:
                     break;
                 default:
                     Impl.Fail();
@@ -912,17 +931,17 @@ namespace DotVVM.Framework.Controls
                         if (keysTmp[i].Id != 0)
                             d[keysTmp[i]] = valuesTmp[i];
                     }
-                    this.state = TableState.Dictinary;
+                    this.state = TableState.Dictionary;
                     this.valuesAsDictionary = d;
                     this.keys = null;
                     this.ownsValues = true;
                     break;
                 case TableState.Empty:
-                    this.state = TableState.Dictinary;
+                    this.state = TableState.Dictionary;
                     this.valuesAsDictionary = new Dictionary<DotvvmPropertyId, object?>();
                     this.ownsValues = true;
                     break;
-                case TableState.Dictinary:
+                case TableState.Dictionary:
                     break;
                 default:
                     Impl.Fail();
@@ -988,7 +1007,7 @@ namespace DotVVM.Framework.Controls
         public enum TableState : byte
         {
             Empty = 0,
-            Dictinary = 1,
+            Dictionary = 1,
             Array8 = 2,
             Array16 = 3,
         }
