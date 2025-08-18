@@ -357,8 +357,8 @@ namespace DotVVM.Framework.Controls
             Debug.Assert(keys.Length % 8 == 0);
             Debug.Assert(keys.Length >= AdhocTableSize);
 
-#if Vectorize
             int count = 0;
+#if Vectorize
             ref var keysRef = ref MemoryMarshal.GetArrayDataReference(keys);
 
             Debug.Assert(keys.Length % Vector256<uint>.Count == 0);
@@ -375,7 +375,7 @@ namespace DotVVM.Framework.Controls
 #endif
             for (int i = 0; i < keys.Length; i++)
             {
-                count += BoolToInt(keys[i].Id == 0);
+                count += BoolToInt(keys[i].Id != 0);
             }
             return count;
         }
@@ -480,6 +480,16 @@ namespace DotVVM.Framework.Controls
             if (!condition)
                 Fail();
         }
+
+// #if !NETSTANDARD1_5_OR_GREATER
+//         [MethodImpl(Inline)]
+//         public static int TrailingZeroCount(uint v)
+//         {
+//             // https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightFloatCast
+//             float f = (float)(v & -v); // cast the least significant bit in v to a float
+//             return (int)(Unsafe.As<float, uint>(ref f) >> 23) - 0x7f;
+//         }
+// #endif
 
         [DoesNotReturn]
         [MethodImpl(NoInlining)]

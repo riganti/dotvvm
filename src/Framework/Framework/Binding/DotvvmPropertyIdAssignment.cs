@@ -217,9 +217,8 @@ namespace DotVVM.Framework.Binding
             [MethodImpl(MethodImplOptions.NoInlining)]
             static ushort unlikely(Type type)
             {
-                var types = MemoryMarshal.CreateReadOnlySpan(ref type, 1);
                 Span<ushort> ids = stackalloc ushort[1];
-                RegisterTypes(types, ids);
+                RegisterTypes([type], ids);
                 return ids[0];
             }
         }
@@ -420,7 +419,7 @@ namespace DotVVM.Framework.Binding
 #region Group members
         public static ushort GetGroupMemberId(string name, bool registerIfNotFound)
         {
-            var id = GroupMembers.TryGetId(name);
+            var id = GroupMembers.TryGetId(name.AsSpan());
             if (id != 0)
                 return id;
             if (propertyGroupMemberIds.TryGetValue(name, out id))

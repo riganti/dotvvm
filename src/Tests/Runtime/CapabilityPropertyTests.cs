@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

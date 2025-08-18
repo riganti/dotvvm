@@ -10,14 +10,13 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Utils;
-using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -476,6 +475,7 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod, Ignore]
+        [Conditional("NET6_0_OR_GREATER")]
         public void DotvvmProperty_ParallelAccess_DoesntCrashProcess()
         {
             var properties = new DotvvmProperty[] {
