@@ -1,6 +1,6 @@
 @viewModel DotVVM.Samples.BasicSamples.ViewModels.DefaultViewModel, DotVVM.Samples.Common
 @masterPage Views/Samples.dotmaster
-
+@route test
 <dot:Content ContentPlaceHolderID="Main">
     <dot:Repeater WrapperTagName="ul" DataSource={resource: Routes }>
         <li><a href={resource: Url}>{{resource: RouteName}}</a></li>
