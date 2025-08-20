@@ -1,7 +1,5 @@
-<script>
-	export let text
-	export let click
-	export let dataUI
+<script lang="ts">
+	let { text, click, dataUI, ...restProps } = $props();
 </script>
 
-<button data-ui={dataUI} on:click={e => click()}>{text}</button>
+<button data-ui={dataUI} onclick={e => click()} {...restProps}>{text}</button>
