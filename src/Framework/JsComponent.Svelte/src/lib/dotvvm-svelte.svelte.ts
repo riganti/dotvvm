@@ -33,35 +33,29 @@ function getKnockoutContext(element: HTMLElement): KnockoutBindingContext {
 /**
  * Converts Svelte 5 component to DotVVM component usable through `<js:MyComponent />` syntax (or the JsComponent class).
  * See [the complete guide](https://www.dotvvm.com/docs/4.0/pages/concepts/client-side-development/integrate-third-party-controls/svelte).
- * 
+ *
  * The component will receive all properties, commands and templates as Svelte props.
  *  * Properties are plain JS objects and values, notably they don't contain any knockout observables
  *  * Commands are functions returning a promise, optionally expecting arguments if they were specified in the dothtml markup
- *  * Templates are only string IDs which can be passed to the `KnockoutTemplateSvelteComponent` 
- * 
+ *  * Templates are only string IDs which can be passed to the `KnockoutTemplateSvelteComponent`
+ *
  * Additional property `setProps` is passed to the component, which can be used to update the component's properties (if the bound expression is updatable, otherwise it will throw an error).
  * * Usage: `props.setProps({ myProperty: props.myProperty + 1 })`
  */
 export const registerSvelteControl = <T extends Record<string, any>>(
-    SvelteControl: Component<T>, 
+    SvelteControl: Component<T>,
     defaultProps: Partial<T> = {}
 ) => ({
     create: (elm: HTMLElement, props: any, commands: any, templates: any, setProps: (props: any) => void) => {
-        // const setProps = (updatedProps: any) => {
-        //     currentProps = { ...currentProps, ...updatedProps }
-        //     setPropsRaw(updatedProps)
-        //     TODO
-        // }
-
         const initialProps = { ...defaultProps, ...commands, ...templates }
         let currentProps = { ...initialProps, ...props }
-        
+
         const events: Record<string, any> = {}
         for (const cmd of Object.keys(commands)) {
             if (cmd.startsWith('on')) {
                 // Convert onHover -> hover, on:hover -> hover
                 const eventName = cmd[2] === ':' ? cmd.substring(3) : cmd[2].toLowerCase() + cmd.substring(3)
-                
+
                 // Listen to custom events from the component
                 events[eventName] = (event: any) => {
                     commands[cmd](event.detail)
