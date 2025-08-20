@@ -474,8 +474,8 @@ namespace DotVVM.Framework.Tests.Runtime
             }
         }
 
+#if NET6_0_OR_GREATER
         [TestMethod, Ignore]
-        [Conditional("NET6_0_OR_GREATER")]
         public void DotvvmProperty_ParallelAccess_DoesntCrashProcess()
         {
             var properties = new DotvvmProperty[] {
@@ -554,6 +554,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 Assert.Fail($"There were {exceptions.Count} exceptions thrown during the test. See the output for details.");
             }
         }
+#endif
 
         [DataTestMethod]
         [DataRow(0, 0, 0)]
