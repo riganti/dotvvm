@@ -26,6 +26,7 @@ namespace DotVVM.Framework.Utils
         }
         public static object? Box(int? v) => v.HasValue ? Box(v.GetValueOrDefault()) : null;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? BoxGeneric<T>(T v)
         {
             if (typeof(T).IsValueType)
