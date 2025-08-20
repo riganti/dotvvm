@@ -1,0 +1,27 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization.SpecialFloatSerializationViewModel
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Special Float Serialization Sample</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Special Float Serialization Sample</h2>
+
+        <p>
+            <strong>NaN value:</strong> {{value: NaNValue}}<br />
+            <strong>Positive Infinity:</strong> {{value: PositiveInfinity}}<br />
+            <strong>Negative Infinity:</strong> {{value: NegativeInfinity}}
+        </p>
+
+        <dot:Button Text="Serialize Values (Postback)" data-ui="postback-btn" Click="{command: SerializeValues()}" />
+        <dot:Button Text="Serialize Values (Static Command)" data-ui="staticcommand-btn" Click="{staticCommand: Result = ViewModel.SerializeValuesStatic(NaNValue, PositiveInfinity, NegativeInfinity)}" />
+        <dot:Button Text="Serialize Whole ViewModel (Static Command)" data-ui="staticcommand-vm-btn" Click="{staticCommand: Result = ViewModel.SerializeWholeViewModel(_root)}" />
+
+        <p>
+            <strong>Result:</strong>
+            <span data-ui="result">{{value: Result}}</span>
+        </p>
+    </div>
+</body>
+</html>

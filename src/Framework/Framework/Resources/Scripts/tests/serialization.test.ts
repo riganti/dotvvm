@@ -1,6 +1,6 @@
 import dotvvm from '../dotvvm-root'
 import { deserialize } from '../serialization/deserialize'
-import { serialize } from '../serialization/serialize'
+import { serialize, jsonStringify } from '../serialization/serialize'
 import { serializeDate } from '../serialization/date'
 import { tryCoerce } from '../metadata/coercer';
 import { createComplexObservableSubViewmodel, createComplexObservableViewmodel, ObservableHierarchy, ObservableSubHierarchy, ObservableSubSubHierarchy } from "./observableHierarchies"
@@ -674,6 +674,12 @@ describe("DotVVM.Serialization - serialize", () => {
     test("Serialize Date into string", () => {
         const d = serialize(new Date(Date.UTC(2015, 7, 1, 13, 56, 42)))
         expect(d).toBe("2015-08-01T13:56:42.0000000")
+    })
+
+    test("jsonStringify - float special values", () => {
+        const data = [1, NaN, Infinity, -Infinity, 2];
+        const result = jsonStringify(data);
+        expect(result).toBe(`[\n    1,\n    "NaN",\n    "Infinity",\n    "-Infinity",\n    2\n]`)
     })
 
     test("Serialize object with Date property", () => {

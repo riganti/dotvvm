@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -41,6 +42,9 @@ namespace DotVVM.Framework.Configuration
 #if !DotNetCore
                     new DotvvmTimeOnlyJsonConverter(),
                     new DotvvmDateOnlyJsonConverter(),
+#endif
+#if NET6_0_OR_GREATER
+                    new HalfJsonConverter(),
 #endif
                 },
                 NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,

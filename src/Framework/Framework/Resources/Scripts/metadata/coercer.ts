@@ -1,4 +1,5 @@
 import { serializeDate } from "../serialization/date";
+import { jsonStringify } from "../serialization/serialize";
 import { CoerceError } from "../shared-classes";
 import { keys } from "../utils/objects";
 import { tryCoerceEnum } from "./enums";
@@ -101,7 +102,7 @@ function tryCoerceArray(value: any, innerType: TypeDefinition, originalValue: an
             return { value: items, wasCoerced: true };
         }
     }
-    return new CoerceError(`Value '${JSON.stringify(value)}' is not an array of type '${formatTypeName(innerType)}'.`);
+    return new CoerceError(`Value '${jsonStringify(value)}' is not an array of type '${formatTypeName(innerType)}'.`);
 }
 
 function tryCoercePrimitiveType(value: any, type: string): CoerceResult {

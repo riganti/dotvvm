@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DotVVM.Framework.Utils
 {
@@ -133,6 +134,34 @@ namespace DotVVM.Framework.Utils
             return reader.HasValueSequence ? checked((int)reader.ValueSequence.Length) : reader.ValueSpan.Length;
         }
 
+        public static float GetFloat32Value(this in Utf8JsonReader reader)
+        {
+            if (reader.TokenType == JsonTokenType.String)
+                return (float)reader.GetStringFloatValue();
+            return reader.GetSingle();
+        }
+
+        public static double GetFloat64Value(this in Utf8JsonReader reader)
+        {
+            if (reader.TokenType == JsonTokenType.String)
+                return reader.GetStringFloatValue();
+            return reader.GetDouble();
+        }
+
+        public static double GetStringFloatValue(this in Utf8JsonReader reader)
+        {
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                var stringValue = reader.GetString()!;
+                return stringValue switch {
+                    "Infinity" => double.PositiveInfinity,
+                    "-Infinity" => double.NegativeInfinity,
+                    _ => double.Parse(stringValue)
+                };
+            }
+            return reader.GetDouble();
+        }
+
         public static void WriteFloatValue(Utf8JsonWriter writer, double number)
         {
 #if DotNetCore
@@ -161,7 +190,7 @@ namespace DotVVM.Framework.Utils
             if (double.IsNaN(number))
                 writer.WriteStringValue("NaN"u8);
             else if (double.IsPositiveInfinity(number))
-                writer.WriteStringValue("+Infinity"u8);
+                writer.WriteStringValue("Infinity"u8);
             else if (double.IsNegativeInfinity(number))
                 writer.WriteStringValue("-Infinity"u8);
             else
@@ -204,4 +233,13 @@ namespace DotVVM.Framework.Utils
             return JsonSerializer.Deserialize<T>(ref reader, options)!;
         }
     }
+
+#if NET6_0_OR_GREATER
+    public class HalfJsonConverter : JsonConverter<Half>
+    {
+        public override Half Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => (Half)reader.GetFloat32Value();
+
+        public override void Write(Utf8JsonWriter writer, Half value, JsonSerializerOptions options) => SystemTextJsonUtils.WriteFloatValue(writer, (float)value);
+    }
+#endif
 }

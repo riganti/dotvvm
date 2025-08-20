@@ -125,3 +125,14 @@ function findObject(obj: any, matcher: (o: any) => boolean): string[] | null {
     }
     return null;
 }
+
+export function jsonStringify(value: any, indent = compileConstants.debug ? "    " : undefined): string {
+    return JSON.stringify(value, (key, val) => {
+        if (typeof val === "number") {
+            if (!isFinite(val)) {
+                return String(val)
+            }
+        }
+        return val
+    }, indent)
+}

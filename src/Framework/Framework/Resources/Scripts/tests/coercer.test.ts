@@ -113,6 +113,42 @@ test("number - valid, convert from string and keep decimal places", () => {
     expect(result.value).toEqual(1234.56);
 })
 
+test("float - special values, NaN from string", () => {
+    const result = tryCoerce("NaN", "Single");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(Number.isNaN(result.value)).toBeTruthy();
+})
+
+test("float - special values, Infinity from string", () => {
+    const result = tryCoerce("Infinity", "Single");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual(Infinity);
+})
+
+test("float - special values, -Infinity from string", () => {
+    const result = tryCoerce("-Infinity", "Single");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual(-Infinity);
+})
+
+test("double - special values, NaN from string", () => {
+    const result = tryCoerce("NaN", "Double");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(Number.isNaN(result.value)).toBeTruthy();
+})
+
+test("double - special values, Infinity from string", () => {
+    const result = tryCoerce("Infinity", "Double");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual(Infinity);
+})
+
+test("double - special values, -Infinity from string", () => {
+    const result = tryCoerce("-Infinity", "Double");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual(-Infinity);
+})
+
 test("number - invalid, out of range", () => {
     const result = tryCoerce(100000, "Int16");
     expect(result.isError).toBeTruthy();

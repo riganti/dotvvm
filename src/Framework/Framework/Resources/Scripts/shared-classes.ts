@@ -1,7 +1,9 @@
+import { jsonStringify } from "./serialization/serialize"
+
 export class DotvvmPostbackError {
     constructor(public reason: DotvvmPostbackErrorReason) {
     }
-    toString() { return "PostbackRejectionError(" + JSON.stringify(this.reason, null, "   ") + ")"}
+    toString() { return "PostbackRejectionError(" + jsonStringify(this.reason) + ")"}
 }
 
 export class CoerceError extends Error implements CoerceErrorType {

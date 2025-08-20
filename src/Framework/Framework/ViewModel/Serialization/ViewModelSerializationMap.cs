@@ -598,7 +598,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (type == typeof(decimal))
                 return Call(reader, "GetDecimal", Type.EmptyTypes);
             if (type == typeof(double))
-                return Call(reader, "GetDouble", Type.EmptyTypes);
+                return Call(
+                    typeof(SystemTextJsonUtils).GetMethod(nameof(SystemTextJsonUtils.GetFloat64Value))!,
+                    reader
+                );
             if (type == typeof(Guid))
                 return Call(reader, "GetGuid", Type.EmptyTypes);
             if (type == typeof(short))
@@ -610,7 +613,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (type == typeof(sbyte))
                 return Call(reader, "GetSByte", Type.EmptyTypes);
             if (type == typeof(float))
-                return Call(reader, "GetSingle", Type.EmptyTypes);
+                return Call(
+                    typeof(SystemTextJsonUtils).GetMethod(nameof(SystemTextJsonUtils.GetFloat32Value))!,
+                    reader
+                );
+#if NET6_0_OR_GREATER
+            if (type == typeof(Half))
+                return Convert(Call(
+                    typeof(SystemTextJsonUtils).GetMethod(nameof(SystemTextJsonUtils.GetFloat32Value))!,
+                    reader
+                ), typeof(Half));
+#endif
             if (type == typeof(string))
                 return Call(reader, "GetString", Type.EmptyTypes);
             if (type == typeof(ushort))
@@ -636,6 +649,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     typeof(SystemTextJsonUtils).GetMethod(nameof(SystemTextJsonUtils.WriteFloatValue), [ typeof(Utf8JsonWriter), type ])!,
                     writer, value
                 );
+#if NET6_0_OR_GREATER
+            if (type == typeof(Half))
+                return Call(
+                    typeof(SystemTextJsonUtils).GetMethod(nameof(SystemTextJsonUtils.WriteFloatValue), [ typeof(Utf8JsonWriter), typeof(float) ])!,
+                    writer, Convert(value, typeof(float))
+                );
+#endif
             if (type == typeof(decimal) ||
                 type == typeof(int) || type == typeof(uint) || type == typeof(long) || type == typeof(ulong))
                 return Call(writer, "WriteNumberValue", Type.EmptyTypes, value);

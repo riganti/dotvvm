@@ -473,7 +473,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("2000-01-01T15:00:00", json["DateTime2"].GetValue<string>());
             Assert.AreEqual("2000-01-01T15:00:00", json["DateTime3"].GetValue<string>());
         }
-        
+
         [TestMethod]
         public void SupportsDateTime_MicrosecondPrecision()
         {
@@ -602,6 +602,54 @@ namespace DotVVM.Framework.Tests.ViewModel
 
             Assert.AreEqual(obj.NestedVM.SomeNestedVM.Primitive, obj2.NestedVM.SomeNestedVM.Primitive);
             Assert.AreEqual(obj.NestedVM.BrokenGetter, obj2.NestedVM.BrokenGetter);
+        }
+
+        [DataTestMethod]
+        [DataRow(double.NaN, "NaN")]
+        [DataRow(double.PositiveInfinity, "Infinity")]
+        [DataRow(double.NegativeInfinity, "-Infinity")]
+        public void SupportsSpecialFloatValues(double value, string expectedJsonValue)
+        {
+            var obj = new TestViewModelWithSpecialFloats()
+            {
+                FloatValue = (float)value,
+                FloatArray = [(float)value, (float)value],
+                FloatDict = new() { { "a", (float)value }, { "b", (float)value } },
+                DoubleValue = value,
+                DoubleArray = [value, value],
+                DoubleDict = new() { { "a", value }, { "b", value } },
+#if NET6_0_OR_GREATER
+                HalfValue = (Half)value,
+                HalfArray = [(Half)value, (Half)value],
+                HalfDict = new() { { "a", (Half)value }, { "b", (Half)value } }
+#endif
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual((float)value, obj2.FloatValue);
+            foreach (var v in obj2.FloatArray) Assert.AreEqual((float)value, v);
+            foreach (var v in obj2.FloatDict.Values) Assert.AreEqual((float)value, v);
+            Assert.AreEqual(expectedJsonValue, json["FloatValue"].GetValue<string>());
+            Assert.AreEqual(value, obj2.DoubleValue);
+            foreach (var v in obj2.DoubleArray) Assert.AreEqual(value, v);
+            foreach (var v in obj2.DoubleDict.Values) Assert.AreEqual(value, v);
+            Assert.AreEqual(expectedJsonValue, json["DoubleValue"].GetValue<string>());
+#if NET6_0_OR_GREATER
+            Assert.AreEqual((Half)value, obj2.HalfValue);
+            foreach (var v in obj2.HalfArray) Assert.AreEqual((System.Half)value, v);
+            foreach (var v in obj2.HalfDict.Values) Assert.AreEqual((System.Half)value, v);
+            Assert.AreEqual(expectedJsonValue, json["HalfValue"].GetValue<string>());
+#endif
+
+            foreach (var type in new[] { "Float", "Double",
+#if NET6_0_OR_GREATER
+                    "Half"
+#endif
+                    })
+            {
+                Assert.IsTrue(json[$"{type}Array"].AsArray().All(x => x.GetValue<string>() == expectedJsonValue));
+                Assert.IsTrue(json[$"{type}Dict"].AsArray().All(x => x["Value"].GetValue<string>() == expectedJsonValue));
+            }
         }
         public class ViewModelWithService
         {
@@ -1142,5 +1190,22 @@ namespace DotVVM.Framework.Tests.ViewModel
     {
         [Bind(Name = "Value")] // make sure that the attribute presence does not affect the default behavior
         public TStatic Value { get; set; }
+    }
+
+    public class TestViewModelWithSpecialFloats
+    {
+        public float FloatValue { get; set; }
+        public float[] FloatArray { get; set; }
+        public Dictionary<string, float> FloatDict { get; set; }
+
+        public double DoubleValue { get; set; }
+        public double[] DoubleArray { get; set; }
+        public Dictionary<string, double> DoubleDict { get; set; }
+
+#if NET6_0_OR_GREATER
+        public System.Half HalfValue { get; set; }
+        public System.Half[] HalfArray { get; set; }
+        public Dictionary<string, System.Half> HalfDict { get; set; }
+#endif
     }
 }
