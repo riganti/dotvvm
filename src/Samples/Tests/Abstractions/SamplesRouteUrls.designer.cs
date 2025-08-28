@@ -368,6 +368,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ServerSideStyles_ServerSideStyles_MatchingViewModel = "FeatureSamples/ServerSideStyles/ServerSideStyles_MatchingViewModel";
         public const string FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles = "FeatureSamples/ServerSideStyles/DirectoryStyle/ServerSideStyles";
         public const string FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles = "FeatureSamples/ServerSideStyles/NoDirectoryStyle/ServerSideStyles";
+        public const string FeatureSamples_SpaBackNavigation_Page1 = "FeatureSamples/SpaBackNavigation/Page1";
+        public const string FeatureSamples_SpaBackNavigation_Page2 = "FeatureSamples/SpaBackNavigation/Page2";
         public const string FeatureSamples_StaticCommand_CustomAwaitable = "FeatureSamples/StaticCommand/CustomAwaitable";
         public const string FeatureSamples_StaticCommand_StaticCommand = "FeatureSamples/StaticCommand/StaticCommand";
         public const string FeatureSamples_StaticCommand_StaticCommand_ArrayAssigment = "FeatureSamples/StaticCommand/StaticCommand_ArrayAssigment";
