@@ -41,6 +41,10 @@ export function getKnownTypes() {
     return keys(types);
 }
 
+export function getCurrentTypeMap() {
+    return types;
+}
+
 export function updateTypeInfo(newTypes: TypeMap | undefined) {
     types = { ...types, ...newTypes };
 }
