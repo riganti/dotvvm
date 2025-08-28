@@ -138,7 +138,7 @@ function persistViewModel() {
             typeMetadata: getCurrentTypeMap(),
             viewModel: getState(),
             viewModelCacheId: getViewModelCacheId(),
-            url: history.state.url
+            url: history.state?.url ?? initialViewModelWrapper.url
         }
     }, "")
     // avoid storing the viewmodel hidden field, as Firefox would also reuse it on page reloads
