@@ -4,7 +4,10 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <Content Remove="wwwroot\test.pdf" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\test.pdf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />

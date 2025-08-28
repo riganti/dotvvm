@@ -6,9 +6,10 @@ import * as resourceLoader from './postback/resourceLoader'
 import bindingHandlers from './binding-handlers/all-handlers'
 import * as events from './events';
 import * as spaEvents from './spa/events';
-import { replaceTypeInfo } from './metadata/typeMap'
+import { getKnownTypes, replaceTypeInfo, getCurrentTypeMap } from './metadata/typeMap'
 
 import { StateManager } from './state-manager'
+import { getTypeMetadata } from './metadata/metadataHelper'
 
 export const options = {
     compressPOST: true
@@ -132,7 +133,13 @@ const getViewModelStorageElement = () =>
 function persistViewModel() {
     history.replaceState({
         ...history.state,
-        viewModel: { ...initialViewModelWrapper, viewModel: getState() }
+        viewModel: {
+            ...initialViewModelWrapper,
+            typeMetadata: getCurrentTypeMap(),
+            viewModel: getState(),
+            viewModelCacheId: getViewModelCacheId(),
+            url: history.state.url
+        }
     }, "")
     // avoid storing the viewmodel hidden field, as Firefox would also reuse it on page reloads
     getViewModelStorageElement()?.remove()
