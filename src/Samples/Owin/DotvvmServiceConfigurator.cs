@@ -1,4 +1,5 @@
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Routing;
 using DotVVM.Samples.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,8 @@ namespace DotVVM.Samples.BasicSamples
             CommonConfiguration.ConfigureServices(services);
             services.AddDefaultTempStorages("Temp");
             services.AddHotReload();
-            
+            services.AddSitemap(opt => opt.SitemapRouteName = "Sitemap");
+
             services.Services.AddSingleton<ILoggerFactory>(_ => LoggerFactory.Create(c => c.AddConsole()));
             services.Services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         }

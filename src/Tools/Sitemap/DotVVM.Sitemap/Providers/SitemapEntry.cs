@@ -1,4 +1,5 @@
-﻿using DotVVM.Sitemap.Options;
+﻿using System.Collections.Generic;
+using DotVVM.Sitemap.Options;
 
 namespace DotVVM.Sitemap.Providers;
 

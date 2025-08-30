@@ -1,4 +1,8 @@
-﻿namespace DotVVM.Sitemap.Providers;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace DotVVM.Sitemap.Providers;
 
 /// <summary>
 /// Represents a provider that resolves sitemap entries for routes with parameters.

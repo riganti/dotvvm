@@ -134,6 +134,9 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.IsFalse(nestedGroup.Contains(route1));
             Assert.IsFalse(nestedGroup2.Contains(route1));
 
+            Assert.AreEqual(nestedGroup2.group, table[route3].ParentRouteGroup);
+            Assert.AreEqual(nestedGroup.group, table[route2].ParentRouteGroup);
+            Assert.AreEqual(group.group, table[route1].ParentRouteGroup);
 
             Assert.IsTrue(group[route3].IsMatch("UrlPrefix1/UrlPrefix2/UrlPrefix3/Article3", out _));
             Assert.IsTrue(group[route2].IsMatch("UrlPrefix1/UrlPrefix2/Article2", out _));

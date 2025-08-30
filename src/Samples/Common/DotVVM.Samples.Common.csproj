@@ -53,6 +53,7 @@
     <ProjectReference Include="../Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj" />
     <ProjectReference Include="../EmbeddedResourceControls/EmbeddedResourceControls.csproj" />
     <ProjectReference Include="../../AutoUI/Core/DotVVM.AutoUI.csproj" />
+    <ProjectReference Include="..\..\Tools\Sitemap\DotVVM.Sitemap\DotVVM.Sitemap.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">

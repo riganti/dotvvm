@@ -29,6 +29,7 @@
     <ProjectReference Include="../Framework/Framework/DotVVM.Framework.csproj" />
     <ProjectReference Include="../Framework/Testing/DotVVM.Framework.Testing.csproj" />
     <ProjectReference Include="../AutoUI/Core/DotVVM.AutoUI.csproj" />
+    <ProjectReference Include="..\Tools\Sitemap\DotVVM.Sitemap\DotVVM.Sitemap.csproj" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' != '$(OldFrameworkTargetVersion)'">
     <DefineConstants>$(DefineConstants);DotNetCore</DefineConstants>
@@ -105,6 +106,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>CustomResourceFile.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Sitemap\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

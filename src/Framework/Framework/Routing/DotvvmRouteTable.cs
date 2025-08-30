@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Routing
         private readonly Dictionary<string, DotvvmRouteTable> routeTableGroups
             = new Dictionary<string, DotvvmRouteTable>();
 
-        private RouteTableGroup? group = null;
+        internal RouteTableGroup? group = null;
 
         private readonly FreezableDictionary<object, object> extensionData = new();
         /// <summary>
@@ -177,12 +177,6 @@ namespace DotVVM.Framework.Routing
             }
 
             group?.AddToParentRouteTable?.Invoke(route);
-
-            // track in which route group the route is registered
-            if (route.ParentRouteGroup != null)
-            {
-                throw new InvalidOperationException($"The route '{route.RouteName}' is already registered in the route group '{route.ParentRouteGroup.GroupName}'!");
-            }
             route.ParentRouteGroup = group;
 
             // The list is used for finding the routes because it keeps the ordering, the dictionary is for checking duplicates

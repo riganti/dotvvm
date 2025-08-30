@@ -216,7 +216,8 @@ namespace DotVVM.Samples.BasicSamples
 
         private static void AddRoutes(DotvvmConfiguration config)
         {
-            config.RouteTable.Add("Default", "", "Views/Default.dothtml");
+            config.RouteTable.Add("Default", "", "Views/Default.dothtml")
+                .WithSitemapOptions(sitemap => sitemap.Priority = 1);
 
             config.RouteTable.Add("ComplexSamples_SPARedirect_home", "ComplexSamples/SPARedirect", "Views/ComplexSamples/SPARedirect/home.dothtml");
 
@@ -237,7 +238,8 @@ namespace DotVVM.Samples.BasicSamples
                 localizedUrls: new LocalizedRouteUrl[] {
                         new("cs-CZ", "cs/FeatureSamples/Localization/lokalizovana-routa"),
                         new("de", "de/FeatureSamples/Localization/lokalisierte-route"),
-                });
+                })
+                .WithSitemapOptions(sitemap => sitemap.Priority = 0.5);
             config.RouteTable.AddPartialMatchHandler(new CanonicalRedirectPartialMatchRouteHandler());
 
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));

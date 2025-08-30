@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using DotVVM.Sitemap.Options;
@@ -61,7 +63,8 @@ public class SitemapXmlBuilder
 
     private string FormatChangeFrequency(ChangeFrequency changeFrequency) => changeFrequency.ToString().ToLowerInvariant();
 
-    private string FormatLastModified(DateTime lastModified) => lastModified.ToString("yyyy-MM-ddTHH:mm:sszzz");
+    // NB: the +00:00 is required by the sitemap spec, and .NET Framework places there current timezone offset despite the fact the value is in UTC
+    private string FormatLastModified(DateTime lastModified) => lastModified.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture) + "+00:00";
 
     private string FormatPriority(double priority) => priority.ToString("n1", CultureInfo.InvariantCulture);
 }

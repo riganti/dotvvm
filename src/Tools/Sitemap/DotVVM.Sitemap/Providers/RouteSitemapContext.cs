@@ -1,4 +1,7 @@
-﻿using DotVVM.Framework.Routing;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using DotVVM.Framework.Routing;
 using DotVVM.Sitemap.Options;
 
 namespace DotVVM.Sitemap.Providers;
@@ -75,25 +78,31 @@ public class RouteSitemapContext
         {
             throw new ArgumentNullException(nameof(localizedParameterValues), "Localized parameter values cannot be provided for non-localized routes.");
         }
-
-        if (IsLocalized && localizedParameterValues == null)
+        if (IsLocalized && localizedParameterValues != null && localizedParameterValues.Keys.Except(Cultures!).Any())
         {
-            // if parameterValues are not provided for localized routes, use the same values for all cultures
-            localizedParameterValues = Cultures!.ToDictionary(c => c, _ => parameterValues);
+            throw new ArgumentException($"Localized parameter values contain cultures that are not supported by the route: {string.Join(", ", localizedParameterValues.Keys.Except(Cultures!))}. Supported cultures are: {string.Join(", ", Cultures!)}.", nameof(localizedParameterValues));
         }
 
         try
         {
             var url = BuildPublicUrl(Route, parameterValues);
-            var localizedUrls = localizedParameterValues?.ToDictionary(
-                e => e.Key,
-                e => BuildPublicUrl(((LocalizedDotvvmRoute)Route).GetRouteForCulture(e.Key), e.Value));
+
+            Dictionary<string, string>? localizedUrls = null;
+            if (IsLocalized)
+            {
+                localizedUrls = Cultures!.ToDictionary(
+                    c => c,
+                    c => BuildPublicUrl(
+                        ((LocalizedDotvvmRoute)Route).GetRouteForCulture(c),
+                        localizedParameterValues?.TryGetValue(c, out var result) == true ? result : parameterValues)
+                );
+            }
 
             entries.Add(new SitemapEntry(url, localizedUrls, Options.CreateDerivedOptions(overrideOptions)));
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Failed to create sitemap entry for route '{Route.RouteName}'. Ensure that the supplied parameter names correspond to the route parameters ({string.Join(", ", ParameterNames)}){(IsLocalized ? $" and route culture names ({string.Join(", ", Cultures!)})" : "")}. See inner exception for details.", ex);
+            throw new ArgumentException($"Failed to create sitemap entry for route '{Route.RouteName}'. Ensure that the supplied parameter names correspond to the route parameters ({string.Join(", ", ParameterNames)}){(IsLocalized ? $" and route culture names ({string.Join(", ", Cultures!)})" : "")}. See inner exception for details.", ex);
         }
     }
 

@@ -1,4 +1,6 @@
-﻿namespace DotVVM.Sitemap.Options;
+﻿using System;
+
+namespace DotVVM.Sitemap.Options;
 
 public class RouteSitemapOptions
 {

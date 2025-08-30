@@ -1,4 +1,6 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 using DotVVM.Framework.Hosting;
 using DotVVM.Sitemap.Options;
 using DotVVM.Sitemap.Services;
@@ -21,7 +23,12 @@ public class SitemapPresenter(IOptions<SitemapOptions> options, SitemapResolver 
         // write XML
         var xml = sitemapXmlBuilder.BuildXml(entries, publicUrl);
         context.HttpContext.Response.ContentType = "application/xml";
+
+#if NET5_0_OR_GREATER
         await xml.SaveAsync(context.HttpContext.Response.Body, SaveOptions.None, ct);
+#else
+        xml.Save(context.HttpContext.Response.Body, SaveOptions.None);
+#endif
     }
 
     private Uri GetPublicUrl(IDotvvmRequestContext context)
