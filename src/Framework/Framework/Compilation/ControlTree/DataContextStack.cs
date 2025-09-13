@@ -3,7 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
+using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
@@ -15,7 +17,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     /// Represents compile-time DataContext info - Type of current DataContext, it's parent and other available parameters
     /// </summary>
     [HandleAsImmutableObjectInDotvvmPropertyAttribute]
-    public sealed class DataContextStack : IDataContextStack
+    public sealed class DataContextStack : IDataContextStack, IDebugHtmlFormattableObject
     {
         public DataContextStack? Parent { get; }
         /// <summary> Type of `_this` </summary>
@@ -191,6 +193,38 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private string ToStringWithoutParent() =>
             ToStringFeatures()[..^1].WhereNotNull().StringJoin(", ");
 
+        internal string DebugHtmlString(IFormatProvider? formatProvider, bool isBlock, bool includeParents)
+        {
+            var result = new StringBuilder()
+                .Append("type=").Append(this.DataContextType.DebugHtmlString(fullName: false)).Append(", ");
+            if (this.ServerSideOnly)
+                result.Append("server-side-only, ");
+            if (this.NamespaceImports.Any())
+                result.Append("imports=[")
+                    .AppendJoin(", ", this.NamespaceImports.Select(i =>
+                        $"<span class='syntax-prop'>{WebUtility.HtmlEncode(i.ToString())}</span>"))
+                    .Append("], ");
+            if (this.ExtensionParameters.Any())
+                result.Append("ext=[")
+                    .AppendJoin(", ", this.ExtensionParameters.Select(e =>
+                        $"<span class='syntax-prop' title='{WebUtility.HtmlEncode(e.GetType().ToCode(true))}'>{WebUtility.HtmlEncode(e.Identifier)}</span>: " +
+                        e.ParameterType.DebugHtmlString(fullName: false)))
+                    .Append("], ");
+            if (this.BindingPropertyResolvers.Any())
+                result.Append("resolvers=[")
+                    .AppendJoin(", ", this.BindingPropertyResolvers.Select(s => WebUtility.HtmlEncode(s.Method.ToString())))
+                    .Append("], ");
+            if (this.Parent != null && includeParents)
+                result.Append("par=[")
+                    .AppendJoin(", ", this.EnumerableItems().Skip(1).Select(p =>
+                        $"<span title='{WebUtility.HtmlEncode(p.ToStringWithoutParent())}'>{p.DataContextType.DebugHtmlString(fullName: false, titleFullName: false)}</span>"))
+                    .Append("], ");
+            result.Remove(result.Length - 2, 2); // ", "
+            return result.ToString();
+        }
+
+        string IDebugHtmlFormattableObject.DebugHtmlString(IFormatProvider? formatProvider, bool isBlock) =>
+            DebugHtmlString(formatProvider, isBlock, includeParents: true);
 
         //private static ConditionalWeakTable<DataContextStack, DataContextStack> internCache = new ConditionalWeakTable<DataContextStack, DataContextStack>();
         public static DataContextStack Create(Type type,
@@ -256,36 +290,48 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
-        public static (string a, string b)[][] CompareStacksMessage(DataContextStack a, DataContextStack b)
+        internal static (int levelA, int levelB, (object a, object b)[] spans)[] CompareStacksMessage(DataContextStack a, DataContextStack b)
         {
             var alignment = StringSimilarity.SequenceAlignment<DataContextStack>(
                 a.EnumerableItems().ToArray().AsSpan(), b.EnumerableItems().ToArray().AsSpan(),
                 Difference,
                 gapCost: 10);
 
+            int levelA = -1, levelB = -1;
+
             return alignment.Select(pair => {
-                return CompareMessage(pair.a, pair.b);
+                if (pair.a is {}) levelA++;
+                if (pair.b is {}) levelB++;
+
+                return (levelA, levelB, CompareMessage(pair.a, pair.b));
             }).ToArray();
         }
 
         /// <summary> Provides a formatted string for two DataContextStacks with aligned fragments used for highlighting. Does not include the parent context. </summary>
-        public static (string a, string b)[] CompareMessage(DataContextStack? a, DataContextStack? b)
+        internal static (object a, object b)[] CompareMessage(DataContextStack? a, DataContextStack? b)
         {
-            if (a == null || b == null) return new[] { (a?.ToStringWithoutParent() ?? "(missing)", b?.ToStringWithoutParent() ?? "(missing)") };
+            if (a == null || b == null)
+                return [(
+                    a is null ? "(missing)" : HtmlFormattingUtils.AsHtmlFormattable(a, (a, block) => a.DebugHtmlString(null, block, includeParents: false), a => a.ToStringWithoutParent()),
+                    b is null ? "(missing)" : HtmlFormattingUtils.AsHtmlFormattable(b, (b, block) => b.DebugHtmlString(null, block, includeParents: false), b => b.ToStringWithoutParent())
+                )];
 
-            var result = new List<(string, string)>();
+            var result = new List<(object, object)>();
 
-            void same(string str) => result.Add((str, str));
-            void different(string? a, string? b) => result.Add((a ?? "", b ?? ""));
-            
+            void same(object str) => result.Add((str, str));
+            void different(object? a, object? b) => result.Add((a ?? "", b ?? ""));
+            void differentF<T>(T a, T b, Func<T, object> fmt) => result.Add((fmt(a), fmt(b)));
+
             same("type=");
             if (a.DataContextType == b.DataContextType)
-                same(a.DataContextType.ToCode(stripNamespace: true));
+                same(a.DataContextType.AsDebugHtmlFormattable(fullName: false));
             else
             {
-                different(a.DataContextType.Namespace, b.DataContextType.Namespace);
+                differentF(a.DataContextType, b.DataContextType,
+                    fmt: x => HtmlFormattingUtils.AsHtmlFormattable(x.Namespace, (x, _) => $"<span class='syntax-prop'>{WebUtility.HtmlEncode(x)}</span>."));
                 same(".");
-                different(a.DataContextType.ToCode(stripNamespace: true), b.DataContextType.ToCode(stripNamespace: true));
+                differentF(a.DataContextType, b.DataContextType,
+                    fmt: x => x.AsDebugHtmlFormattable(fullName: false));
             }
 
             if (a.ServerSideOnly || b.ServerSideOnly)
@@ -329,27 +375,34 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         same(", ");
 
                     if (Equals(aExt, bExt))
-                        same(aExt!.Identifier);
+                        same(fmtIdentifier(aExt!));
                     else if (aExt is null)
-                        different("", bExt!.Identifier + ": " + bExt.ParameterType.CSharpName);
+                        different("", new HtmlFormattingUtils.CompositeHtmlFormattableObject([ fmtIdentifier(bExt!), ": ", bExt!.ParameterType.AsDebugHtmlFormattable(fullName: false) ]));
                     else if (bExt is null)
-                        different(aExt.Identifier + ": " + aExt.ParameterType.CSharpName, "");
+                        different(new HtmlFormattingUtils.CompositeHtmlFormattableObject([ fmtIdentifier(aExt!), ": ", aExt.ParameterType.AsDebugHtmlFormattable(fullName: false) ]), "");
                     else
                     {
-                        different(aExt.Identifier, bExt.Identifier);
+                        differentF(aExt, bExt, fmtIdentifier);
                         same(": ");
                         if (aExt.ParameterType.IsEqualTo(bExt.ParameterType))
-                            same(aExt.ParameterType.CSharpName);
+                            same(aExt.ParameterType.AsDebugHtmlFormattable(fullName: false));
                         else
-                            different(aExt.ParameterType.CSharpFullName, bExt.ParameterType.CSharpFullName);
+                            differentF(aExt.ParameterType, bExt.ParameterType,
+                                fmt: x => x.AsDebugHtmlFormattable(fullName: true));
 
                         if (aExt.Identifier == bExt.Identifier && aExt.GetType() != bExt.GetType())
                         {
                             same(" (");
-                            different(aExt.GetType().ToCode(), bExt.GetType().ToCode());
+                            differentF(aExt.GetType(), bExt.GetType(),
+                                fmt: x => x.AsDebugHtmlFormattable(fullName: false));
                             same(")");
                         }
                     }
+
+                    IDebugHtmlFormattableObject fmtIdentifier(BindingExtensionParameter x) =>
+                        HtmlFormattingUtils.AsHtmlFormattable(x,
+                            (x, _) => $"<span class='syntax-prop' title='{WebUtility.HtmlEncode(x.GetType().ToCode(stripNamespace: true))}'>{WebUtility.HtmlEncode(x.Identifier)}</span>",
+                            x => x.Identifier);
                 }
 
                 same("]");

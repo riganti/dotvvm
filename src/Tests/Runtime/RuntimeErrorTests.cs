@@ -23,6 +23,10 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Testing;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using static DotVVM.Framework.Binding.BindingHelper;
+using AngleSharp.Html.Parser;
+using AngleSharp.Html;
+using System.IO;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -177,5 +181,42 @@ namespace DotVVM.Framework.Tests.Runtime
             var type2 = DataContextStack.CreateCollectionElement(typeof(int), root);
             check.CheckException(() => TriggerDataContextMismatchError(type1, type2));
         }
+        [TestMethod]
+        public void InvalidDataContextTypeException_HtmlFormatting_DeepStacks_AlmostSameParameter()
+        {
+            var root = DataContextStack.Create(
+                typeof(Binding.TestViewModel3),
+                extensionParameters: [ new CurrentMarkupControlExtensionParameter(new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl))) ]
+            );
+
+            var parent3 = DataContextStack.Create(typeof(Binding.TestViewModel), root);
+            var controlParent2 = DataContextStack.Create(
+                typeof(Binding.TestViewModel),
+                parent3,
+                extensionParameters: [ new InjectedServiceExtensionParameter("service", new ResolvedTypeDescriptor(typeof(IServiceProvider))) ]  // subtle diff: "service"
+            );
+            var controlParent = DataContextStack.CreateCollectionElement(typeof(int), controlParent2);
+            var controlStack = DataContextStack.Create(typeof(string), controlParent);
+
+            var bindingParent2 = DataContextStack.Create(
+                typeof(Binding.TestViewModel),
+                parent3,
+                extensionParameters: [ new InjectedServiceExtensionParameter("<service>", new ResolvedTypeDescriptor(typeof(IServiceProvider))) ] // subtle diff: "<service>"
+            );
+            var bindingParent = DataContextStack.CreateCollectionElement(typeof(int), bindingParent2);
+            var bindingStack = DataContextStack.Create(typeof(string), bindingParent);
+
+            var ex = Assert.ThrowsExactly<InvalidDataContextTypeException>(() => TriggerDataContextMismatchError(bindingStack, controlStack));
+            var html = ex.DebugHtmlString(null, isBlock: true);
+
+            var doc = new HtmlParser().ParseDocument(html);
+
+            XAssert.DoesNotContain("<service", html); // should be escaped
+
+            var formatted = new StringWriter();
+            doc.ToHtml(formatted, new PrettyMarkupFormatter() { Indentation = "\t", NewLine = "\n" });
+            check.CheckString(formatted.ToString(), fileExtension: "html");
+        }
+
     }
 }

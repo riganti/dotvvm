@@ -7,11 +7,23 @@ namespace DotVVM.Framework.Utils
     internal static class StringSimilarity
     {
         /// <summary> Edit distance with deletion (Visble), insertion (Visivble), substitution (Visinle) and transposition (Visilbe) </summary>
-        public static int DamerauLevenshteinDistance(string a, string b)
+        public static int DamerauLevenshteinDistance(ReadOnlySpan<char> a, ReadOnlySpan<char> b)
         {
             // https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
 
-            if (a.Length * b.Length > 100_000)
+            // optimization: skip common prefix and suffix (the edit distance is zero)
+            while (a.Length > 0 && b.Length > 0 && a[0] == b[0])
+            {
+                a = a.Slice(1);
+                b = b.Slice(1);
+            }
+            while (a.Length > 0 && b.Length > 0 && a[a.Length - 1] == b[b.Length - 1])
+            {
+                a = a.Slice(0, a.Length - 1);
+                b = b.Slice(0, b.Length - 1);
+            }
+
+            if (a.Length * b.Length > 100_000 || a.Length == 0 || b.Length == 0)
                 // avoid comparing long strings
                 return a.Length + b.Length;
 
@@ -33,7 +45,7 @@ namespace DotVVM.Framework.Utils
                     d[i+1, j+1] = min(d[i, j+1] + deletionCost,
                                   d[i+1, j] + insertionCost,
                                   d[i, j] + substitutionCost);
-                    if (i > 1 && j > 1 && a[i] == b[j-1] && a[i-1] == b[j])
+                    if (i >= 1 && j >= 1 && a[i] == b[j-1] && a[i-1] == b[j])
                     {
                         var transpositionCost = 1;
                         d[i+1, j+1] = min(d[i+1, j+1],
