@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var a = "abc";
             var b = "abc";
-            var aligned = StringSimilarity.SequenceAlignment<char>(a, b, (x, y) => x == y ? 0 : 1);
+            var aligned = StringSimilarity.SequenceAlignment<char>(a.AsSpan(), b.AsSpan(), (x, y) => x == y ? 0 : 1);
 
             XAssert.Equal([ ('a','a'), ('b','b'), ('c','c') ], aligned);
         }

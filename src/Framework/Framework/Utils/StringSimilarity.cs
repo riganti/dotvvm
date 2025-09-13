@@ -7,6 +7,7 @@ namespace DotVVM.Framework.Utils
     internal static class StringSimilarity
     {
         /// <summary> Edit distance with deletion (Visble), insertion (Visivble), substitution (Visinle) and transposition (Visilbe) </summary>
+        public static int DamerauLevenshteinDistance(string a, string b) => DamerauLevenshteinDistance(a.AsSpan(), b.AsSpan());
         public static int DamerauLevenshteinDistance(ReadOnlySpan<char> a, ReadOnlySpan<char> b)
         {
             // https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance

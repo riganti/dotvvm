@@ -589,7 +589,7 @@ namespace DotVVM.Framework.Binding
                         var bindingMessage = new StringBuilder();
                         foreach (var (controlO, bindingO) in stackComparison[i].spans)
                         {
-                            var (control, binding) = (controlO.ToString(), bindingO.ToString());
+                            var (control, binding) = (controlO.ToString() ?? "", bindingO.ToString() ?? "");
                             var length = Math.Max(control.Length, binding.Length);
                             if (control == binding)
                             {

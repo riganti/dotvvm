@@ -6,10 +6,14 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Hosting;
 using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Utils
 {
+#if !DotNetCore
+    internal delegate void SpanAction<T, in TArg>(Span<T> span, TArg arg);
+#endif
     public static class StringUtils
     {
         public static readonly UTF8Encoding Utf8 = new UTF8Encoding(false, throwOnInvalidBytes: true);
@@ -59,7 +63,7 @@ namespace DotVVM.Framework.Utils
             }
         }
 
-        public static string CreateString<T>(int length, T state, SpanAction<char, T> action)
+        internal static string CreateString<T>(int length, T state, SpanAction<char, T> action)
         {
 #if DotNetCore
             return string.Create(length, state, action);
@@ -76,6 +80,20 @@ namespace DotVVM.Framework.Utils
             }
 #endif
         }
+
+#if !DotNetCore
+        internal static StringBuilder AppendJoin(this StringBuilder sb, string separator, IEnumerable<string> values)
+        {
+            bool first = true;
+            foreach (var v in values)
+            {
+                if (!first) sb.Append(separator);
+                sb.Append(v);
+                first = false;
+            }
+            return sb;
+        }
+#endif
 
         public static string PadCenter(string str, int length)
         {

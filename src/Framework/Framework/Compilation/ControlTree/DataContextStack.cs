@@ -178,20 +178,20 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
-        private string?[] ToStringFeatures() => [
+        private string?[] ToStringFeatures(bool includeParent) => [
             $"type={this.DataContextType.ToCode()}",
             this.ServerSideOnly ? "server-side-only" : null,
             this.NamespaceImports.Any() ? "imports=[" + string.Join(", ", this.NamespaceImports) + "]" : null,
             this.ExtensionParameters.Any() ? "ext=[" + string.Join(", ", this.ExtensionParameters.Select(e => e.Identifier + ": " + e.ParameterType.CSharpName)) + "]" : null,
             this.BindingPropertyResolvers.Any() ? "resolvers=[" + string.Join(", ", this.BindingPropertyResolvers.Select(s => s.Method)) + "]" : null,
-            this.Parent != null ? "par=[" + string.Join(", ", this.Parents().Select(p => p.ToCode(stripNamespace: true))) + "]" : null
+            includeParent && this.Parent != null ? "par=[" + string.Join(", ", this.Parents().Select(p => p.ToCode(stripNamespace: true))) + "]" : null
         ];
 
         public override string ToString() =>
-            "(" + ToStringFeatures().WhereNotNull().StringJoin(", ") + ")";
+            "(" + ToStringFeatures(true).WhereNotNull().StringJoin(", ") + ")";
 
         private string ToStringWithoutParent() =>
-            ToStringFeatures()[..^1].WhereNotNull().StringJoin(", ");
+            ToStringFeatures(false).WhereNotNull().StringJoin(", ");
 
         internal string DebugHtmlString(IFormatProvider? formatProvider, bool isBlock, bool includeParents)
         {
