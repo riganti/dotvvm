@@ -48,6 +48,7 @@ namespace DotVVM.Framework.Testing
             this.Configuration.Markup.AddCodeControls("tc", exampleControl: typeof(FakeHeadResourceLink));
             this.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
             this.Configuration.Debug = debug;
+            this.Configuration.Runtime.AllowResourceVersionHash.Disable(); // reduce noise in tests
             config?.Invoke(this.Configuration);
             presenter = (DotvvmPresenter)this.Configuration.ServiceProvider.GetRequiredService<IDotvvmPresenter>();
         }

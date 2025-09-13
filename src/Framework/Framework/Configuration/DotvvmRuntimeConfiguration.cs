@@ -34,6 +34,23 @@ namespace DotVVM.Framework.Configuration
         [JsonPropertyName("maxPostbackSizeBytes")]
         public long MaxPostbackSizeBytes { get; set; } = 1024 * 1024 * 128; // 128 MB
 
+        /// <summary> Whether DotVVM resources requests must have the correct version hash to be served, or any hash will be accepted by the server and possibly an unexpected resource version will be returned. </summary>
+        /// <remarks>
+        /// Enabling this option may improve security, as users should only be able to download scripts, which are used on pages which they can access.
+        /// Unauthorized attacker will therefore only have access to the resources used on the login page.
+        /// However, if application is updated while a user is loading a page, it may fail to load resources which have changed in the meantime.
+        /// </remarks>
+        [JsonPropertyName("requireResourceVersionHash")]
+        public DotvvmGlobal3StateFeatureFlag RequireResourceVersionHash { get; } = new("RequireResourceVersionHash") { Enabled = null };
+
+        /// <summary> Allows loading of *.map files from the same directory as the resource itself (for FileResourceLocation, or EmbeddedResourceLocation with DebugFilePath set). By default, this is enabled in debug mode. </summary>
+        [JsonPropertyName("allowResourceMapFiles")]
+        public DotvvmGlobal3StateFeatureFlag AllowResourceMapFiles { get; } = new("AllowResourceMapFiles") { Enabled = null };
+
+        /// <summary> Whether DotVVM should add version hash to the resource URL and use immutable caching. Since v5.0, this is enabled by default in all configurations, the v4 behavior can be reverted by setting <c>AllowResourceVersionHash.Enable = null</c>. </summary>
+        [JsonPropertyName("allowResourceVersionHash")]
+        public DotvvmGlobal3StateFeatureFlag AllowResourceVersionHash { get; } = new("AllowResourceVersionHash") { Enabled = null };
+
         /// <summary>
         /// When enabled, the DotVVM runtime only automatically load assemblies listed in <see cref="DotvvmMarkupConfiguration.Assemblies"/>. This may prevent failures during startup and reduce startup time.
         /// See <see href="https://www.dotvvm.com/docs/4.0/pages/concepts/configuration/explicit-assembly-loading"> documentation page </see> for more information

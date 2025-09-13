@@ -110,6 +110,7 @@ namespace DotVVM.Framework.Testing
             config.RouteTable.Add("TestRoute", "TestRoute", "TestView.dothtml");
             config.Debug = true;
             config.Diagnostics.Apply(config);
+            config.Runtime.AllowResourceVersionHash.Disable(); // reduce noise in tests
             config.Freeze();
             return config;
         });

@@ -24,16 +24,21 @@ namespace DotVVM.Framework.Hosting.Middlewares
         public async Task<bool> Handle(IDotvvmRequestContext request)
         {
             var sw = ValueStopwatch.StartNew(isActive: DotvvmMetrics.ResourceServeDuration.Enabled);
-            var resource = urlManager.FindResource(request.HttpContext.Request.Url.ToString(), request, out var mimeType);
+            var url = DotvvmRoutingMiddleware.GetRouteMatchUrl(request);
+            var resource = urlManager.FindResource(url, request, out var mimeType);
             if (resource != null)
             {
                 try
                 {
                     request.HttpContext.Response.ContentType = mimeType;
-                    if (!this.config.Debug)
-                        request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "public, max-age=31536000, immutable" });
+                    if (request.Query.ContainsKey("v"))
+                    {
+                        request.HttpContext.Response.Headers.Add("Cache-Control", [ "public, max-age=31536000, immutable" ]);
+                    }
                     else
-                        request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "no-cache, no-store, must-revalidate" });
+                    {
+                        request.HttpContext.Response.Headers.Add("Cache-Control", [ "no-cache, no-store, must-revalidate" ]);
+                    }
                     using (var body = resource.LoadResource(request))
                     {
                         if (body.CanSeek)
