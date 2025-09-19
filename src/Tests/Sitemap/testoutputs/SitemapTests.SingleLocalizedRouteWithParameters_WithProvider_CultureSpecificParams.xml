@@ -1,0 +1,22 @@
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://localhost/single-route/one</loc>
+    <link rel="alternate" hreflang="en" href="http://localhost/single-route/one" xmlns="http://www.w3.org/1999/xhtml" />
+    <link rel="alternate" hreflang="cs" href="http://localhost/jedna-routa/jedna" xmlns="http://www.w3.org/1999/xhtml" />
+  </url>
+  <url>
+    <loc>http://localhost/jedna-routa/jedna</loc>
+    <link rel="alternate" hreflang="en" href="http://localhost/single-route/one" xmlns="http://www.w3.org/1999/xhtml" />
+    <link rel="alternate" hreflang="cs" href="http://localhost/jedna-routa/jedna" xmlns="http://www.w3.org/1999/xhtml" />
+  </url>
+  <url>
+    <loc>http://localhost/single-route/two</loc>
+    <link rel="alternate" hreflang="en" href="http://localhost/single-route/two" xmlns="http://www.w3.org/1999/xhtml" />
+    <link rel="alternate" hreflang="cs" href="http://localhost/jedna-routa/dva" xmlns="http://www.w3.org/1999/xhtml" />
+  </url>
+  <url>
+    <loc>http://localhost/jedna-routa/dva</loc>
+    <link rel="alternate" hreflang="en" href="http://localhost/single-route/two" xmlns="http://www.w3.org/1999/xhtml" />
+    <link rel="alternate" hreflang="cs" href="http://localhost/jedna-routa/dva" xmlns="http://www.w3.org/1999/xhtml" />
+  </url>
+</urlset>

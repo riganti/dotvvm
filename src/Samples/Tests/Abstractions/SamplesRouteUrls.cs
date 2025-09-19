@@ -2,6 +2,9 @@
 {
     public partial class SamplesRouteUrls
     {
+        public const string Sitemap =
+            "sitemap.xml";
+
         public const string FeatureSamples_PostbackConcurrency_DefaultMode =
             "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=Default";
 
