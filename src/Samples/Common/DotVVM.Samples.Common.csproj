@@ -99,7 +99,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
-  <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="script/react-app.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+  <Target Name="CompileJS" Inputs="@(TypescriptFile);package.json" Outputs="script/react-app.js script/svelte-app.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
 
     <PropertyGroup>
       <EnvOverrides>NO_COLOR=1;FORCE_COLOR=0;TERM=dumb</EnvOverrides>
@@ -114,11 +114,9 @@
     <Exec Command="yarnpkg install --immutable" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
     <Exec Command="npm ci" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
 
-    <Exec Command="yarnpkg build-production" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
-    <Exec Command="yarnpkg build-development" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="yarnpkg build" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
 
-    <Exec Command="npm run build-production" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
-    <Exec Command="npm run build-development" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="npm run build" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
   </Target>
 
 </Project>

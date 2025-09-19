@@ -7,7 +7,7 @@ import svelte from 'rollup-plugin-svelte';
 import ts from 'typescript'
 //import livereload from '@rollup/plugin-livereload';
 //import { terser } from '@rollup/plugin-terser';
-const production = !process.env.ROLLUP_WATCH;
+const production = false;
 export default [{
     input: './Scripts/react/react-app.tsx',
     preserveSymlinks: true,
@@ -30,6 +30,7 @@ export default [{
     ]
 },{
     input: './Scripts/svelte/svelte-app.ts',
+    external: ['Scripts/svelte/Chart.css'],
     preserveSymlinks: true,
     output: {
         format: 'esm',
@@ -41,7 +42,6 @@ export default [{
             compilerOptions: {
                 dev: !production,
                 css: "injected",
-                cssOutputFilename: "./script/svelte-app.css"
             },
             emitCss: false,
             preprocess: sveltePreprocess(),

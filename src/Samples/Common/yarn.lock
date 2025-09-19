@@ -819,37 +819,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotvvm-jscomponent-react@file:../../Framework/JsComponent.React::locator=dotvvm.samples.common%40workspace%3A.":
-  version: 4.1.0-experimental-0006
-  resolution: "dotvvm-jscomponent-react@file:../../Framework/JsComponent.React#../../Framework/JsComponent.React::hash=1dad57&locator=dotvvm.samples.common%40workspace%3A."
+"dotvvm-jscomponent-react@portal:../../Framework/JsComponent.React::locator=dotvvm.samples.common%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "dotvvm-jscomponent-react@portal:../../Framework/JsComponent.React::locator=dotvvm.samples.common%40workspace%3A."
   dependencies:
-    dotvvm-types: ^4.1.0-preview10-final
+    dotvvm-types: ^5.0.0-preview03-final
   peerDependencies:
     react: ">=16"
     react-dom: ">=16"
-  checksum: c7f8f958546e64a84edcb0ef26942bd5163964cefcb2b92fad13d32dc9e80a1db41bd25b44ee5ab621e9b449055ddd112b83bbe102af0663da729d82943f08a7
   languageName: node
-  linkType: hard
+  linkType: soft
 
-"dotvvm-jscomponent-svelte@file:../../Framework/JsComponent.Svelte::locator=dotvvm.samples.common%40workspace%3A.":
-  version: 5.0.0-experimental01
-  resolution: "dotvvm-jscomponent-svelte@file:../../Framework/JsComponent.Svelte#../../Framework/JsComponent.Svelte::hash=ed78f9&locator=dotvvm.samples.common%40workspace%3A."
+"dotvvm-jscomponent-svelte@portal:../../Framework/JsComponent.Svelte::locator=dotvvm.samples.common%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "dotvvm-jscomponent-svelte@portal:../../Framework/JsComponent.Svelte::locator=dotvvm.samples.common%40workspace%3A."
   dependencies:
     dotvvm-types: ^5.0.0-preview03-final
   peerDependencies:
     svelte: ^5.0.0
-  checksum: 6ca43a1e36a8efc02e02f06480c52ba13368c42d5b13b94b819053d05630902ac194ad30131c3bde448576e62f986c63ca41f7d0788cdd19db87df9bc8820f0a
   languageName: node
-  linkType: hard
-
-"dotvvm-types@npm:^4.1.0-preview10-final":
-  version: 4.3.8
-  resolution: "dotvvm-types@npm:4.3.8"
-  dependencies:
-    "@types/knockout": ^3.4.69
-  checksum: 68a2f5b75716b4839e577dacc013e3d550f542e05bdc5be24481cf03fbb549cb0fd984ddc3672550be54acc3bfbab7fe0bc756f9ba436caedd7dd72d2b0afdeb
-  languageName: node
-  linkType: hard
+  linkType: soft
 
 "dotvvm-types@npm:^5.0.0-preview03-final":
   version: 5.0.0-preview03-final
@@ -875,8 +864,8 @@ __metadata:
     bulma: ^0.9.3
     d3-scale: ^4.0.2
     d3-shape: ^3.2.0
-    dotvvm-jscomponent-react: "file:../../Framework/JsComponent.React"
-    dotvvm-jscomponent-svelte: "file:../../Framework/JsComponent.Svelte"
+    dotvvm-jscomponent-react: "portal:../../Framework/JsComponent.React"
+    dotvvm-jscomponent-svelte: "portal:../../Framework/JsComponent.Svelte"
     layercake: ^8.0.0
     react: ^17.0.2
     react-dom: ^17.0.2

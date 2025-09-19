@@ -12,8 +12,8 @@
     "bulma": "^0.9.3",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
-    "dotvvm-jscomponent-react": "file:../../Framework/JsComponent.React",
-    "dotvvm-jscomponent-svelte": "file:../../Framework/JsComponent.Svelte",
+    "dotvvm-jscomponent-react": "portal:../../Framework/JsComponent.React",
+    "dotvvm-jscomponent-svelte": "portal:../../Framework/JsComponent.Svelte",
     "layercake": "^8.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -31,10 +31,8 @@
     "@types/react-dom": "^17.0.9"
   },
   "scripts": {
-    "build": "npm run build-production && npm run build-development",
-    "build-development": "rollup -c",
-    "build-production": "rollup -c --environment BUILD:production",
-    "install": "npm ci --prefix node_modules/dotvvm-jscomponent-react && npm run prepack --prefix node_modules/dotvvm-jscomponent-react && npm ci --prefix node_modules/dotvvm-jscomponent-svelte && npm run prepack --prefix node_modules/dotvvm-jscomponent-svelte"
+    "build": "rollup -c",
+    "install": "npm ci --prefix node_modules/dotvvm-jscomponent-react && npm run prepack --prefix node_modules/dotvvm-jscomponent-react && npm ci --prefix node_modules/dotvvm-jscomponent-svelte install && npm run prepack --prefix node_modules/dotvvm-jscomponent-svelte"
   },
   "author": "RIGANTI s.r.o.",
   "license": "Apache-2.0"

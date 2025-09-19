@@ -167,6 +167,14 @@ function start_samples {
     PROJECT=$1
     PORT=$2
     PID_VAR=$3
+
+    dotnet build "$ROOT/${PROJECT}" \
+        -p:WarningLevel=0 \
+        --no-restore \
+        --configuration "$CONFIGURATION"
+
+    echo "Project '${PROJECT}' compiled"
+
     dotnet run --project "$ROOT/${PROJECT}" \
         -p:WarningLevel=0 \
         --no-restore \
