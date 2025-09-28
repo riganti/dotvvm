@@ -697,7 +697,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             if (property.AllowDynamicDispatch && !type.IsSealed)
             {
-                if (converter is IDotvvmJsonConverter)
+                if (viewModelJsonConverter.CanConvert(type))
                 {
                     return Call(
                         JsonSerializationCodegenFragments.DeserializeViewModelDynamicMethod.MakeGenericMethod(type),

@@ -38,9 +38,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                    genericTypeDef == typeof(ImmutableArray<>) ||
                    genericTypeDef == typeof(ImmutableList<>) ||
                    genericTypeDef == typeof(IList<>) ||
-                //    genericTypeDef == typeof(ICollection<>) ||
-                //    genericTypeDef == typeof(IReadOnlyList<>) ||
-                //    genericTypeDef == typeof(IReadOnlyCollection<>) ||
+                   genericTypeDef == typeof(ICollection<>) ||
+                   genericTypeDef == typeof(IReadOnlyList<>) ||
+                   genericTypeDef == typeof(IReadOnlyCollection<>) ||
                    genericTypeDef == typeof(IEnumerable<>);
                 // false;
         }
