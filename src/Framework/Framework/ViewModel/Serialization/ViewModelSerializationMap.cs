@@ -851,15 +851,21 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var type = existingValue?.GetType();
             if (type is null || type == typeof(TValue))
                 return SystemTextJsonUtils.Deserialize<TValue>(ref reader, options);
-            
+
             // we actually have to do the dynamic dispatch
-            // if ViewModelJsonConverter wants to handle the type, we call it directly to support Populate
-            // otherwise, just JsonSerializer.Deserialize with the specific type
+            // first check if ViewModelJsonConverter wants to handle the type
             if (factory.CanConvert(type))
             {
                 var converter = factory.GetDotvvmConverter(type);
                 return populate ? (TValue?)converter.PopulateUntyped(ref reader, type, existingValue, options, state)
                                 : (TValue?)converter.ReadUntyped(ref reader, type, options, state);
+            }
+
+            // also check if any other converter supports DotVVM population
+            var jsonConverter = options.GetConverter(type);
+            if (jsonConverter is IDotvvmJsonConverter dotvvmConverter && populate)
+            {
+                return (TValue?)dotvvmConverter.PopulateUntyped(ref reader, type, existingValue, options, state);
             }
 
             return (TValue?)JsonSerializer.Deserialize(ref reader, type!, options);

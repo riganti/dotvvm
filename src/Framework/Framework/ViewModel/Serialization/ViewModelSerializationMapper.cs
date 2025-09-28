@@ -156,6 +156,20 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return shadowed.Values.ToArray();
         }
 
+        private static bool TryGetDotvvmConverter(Type propertyType, IDotvvmJsonOptionsProvider jsonOptions)
+        {
+            try
+            {
+                var converter = jsonOptions.ViewModelJsonOptions.GetConverter(propertyType);
+                return converter is IDotvvmJsonConverter;
+            }
+            catch
+            {
+                // GetConverter might throw for types without metadata
+                return false;
+            }
+        }
+
         /// <summary>
         /// Gets the properties of the specified type.
         /// </summary>
@@ -199,7 +213,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     transferToServer: ctorParam is {} || canSet,
                     transferAfterPostback: canGet,
                     transferFirstRequest: canGet,
-                    populate: (ViewModelJsonConverter.CanConvertType(propertyType) || propertyType == typeof(object)) && canGet
+                    populate: ((ViewModelJsonConverter.CanConvertType(propertyType) || propertyType == typeof(object)) && canGet) ||
+                             (canGet && TryGetDotvvmConverter(propertyType, jsonOptions))
                 );
                 propertyMap.ConstructorParameter = ctorParam;
                 propertyMap.JsonConverter = GetJsonConverter(property);
