@@ -2,12 +2,12 @@ import typescript from '@rollup/plugin-typescript'
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import replace from '@rollup/plugin-replace';
-import sveltePreprocess from 'svelte-preprocess';
+import { sveltePreprocess } from 'svelte-preprocess';
 import svelte from 'rollup-plugin-svelte';
 import ts from 'typescript'
 //import livereload from '@rollup/plugin-livereload';
 //import { terser } from '@rollup/plugin-terser';
-const production = !process.env.ROLLUP_WATCH;
+const production = false;
 export default [{
     input: './Scripts/react/react-app.tsx',
     preserveSymlinks: true,
@@ -24,11 +24,13 @@ export default [{
         resolve({ browser: true }),
         commonjs(),
         replace({
-            'process.env.NODE_ENV': JSON.stringify('production')
+            'process.env.NODE_ENV': JSON.stringify('production'),
+            preventAssignment: true
         })
     ]
 },{
     input: './Scripts/svelte/svelte-app.ts',
+    external: ['Scripts/svelte/Chart.css'],
     preserveSymlinks: true,
     output: {
         format: 'esm',
@@ -37,20 +39,29 @@ export default [{
     },
     plugins: [
         svelte({
-            dev: !production,
-            css: css => {
-                css.write("svelte-app.css");
+            compilerOptions: {
+                dev: !production,
+                css: "injected",
             },
+            emitCss: false,
             preprocess: sveltePreprocess(),
         }),
-        resolve({ browser: true, dedupe: ['svelte'] }),
+        resolve({ 
+            browser: true, 
+            dedupe: ['svelte'],
+            alias: {
+                'svelte': 'svelte'
+            }
+        }),
         commonjs(),
         typescript({
             tsconfig: "tsconfig.svelte.json",
-            typescript: ts
+            typescript: ts,
+            sourceMap: !production
         }),
         replace({
-            'process.env.NODE_ENV': JSON.stringify('production')
+            'process.env.NODE_ENV': JSON.stringify('production'),
+            preventAssignment: true
         })
     ]
 }]

@@ -4,6 +4,7 @@
     "noEmitOnError": true,
     "removeComments": false,
     "sourceMap": true,
+    "moduleResolution": "bundler",
     "jsx": "react",
     "target": "es6",
     "lib": [

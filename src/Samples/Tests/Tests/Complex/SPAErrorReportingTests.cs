@@ -80,12 +80,16 @@ namespace DotVVM.Samples.Tests.Complex
                     AssertUI.TextEquals(browser.Single("*[data-ui=sample-text]"), "Sample Static Text");
 
                     browser.ElementAt("a", 0).Click();
-                    AssertUI.TextEquals(browser.Single("h2"), "Default");
-                    AssertUI.TextEquals(browser.Single("#numberOfErrors"), "3");
+                    browser.WaitFor(() => {
+                        AssertUI.TextEquals(browser.Single("h2"), "Default", waitForOptions: WaitForOptions.Disabled);
+                        AssertUI.TextEquals(browser.Single("#numberOfErrors"), "3", waitForOptions: WaitForOptions.Disabled);
+                    }, 3_000);
 
                     browser.ElementAt("a", 1).Click();
-                    AssertUI.TextEquals(browser.Single("h2"), "Test");
-                    AssertUI.TextEquals(browser.Single("#numberOfErrors"), "3");
+                    browser.WaitFor(() => {
+                        AssertUI.TextEquals(browser.Single("h2"), "Test", waitForOptions: WaitForOptions.Disabled);
+                        AssertUI.TextEquals(browser.Single("#numberOfErrors"), "3", waitForOptions: WaitForOptions.Disabled);
+                    }, 3_000);
 
                     SetOfflineMode(true);
 

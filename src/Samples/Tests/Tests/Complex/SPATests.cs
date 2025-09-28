@@ -24,15 +24,19 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.ElementAt("a", 1).Click();
 
                 // check url and page contents
-                AssertUI.TextEquals(browser.Single("h2"), "Test");
-                AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/test"));
+                browser.WaitFor(() => {
+                    AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/test"), waitForOptions: WaitForOptions.Disabled);
+                    AssertUI.TextEquals(browser.Single("h2"), "Test", waitForOptions: WaitForOptions.Disabled);
+                }, 2_000);
 
                 // use the back button
                 browser.NavigateBack();
 
                 // check url and page contents
-                AssertUI.TextEquals(browser.Single("h2"), "Default");
-                AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/default"));
+                browser.WaitFor(() => {
+                    AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/default"), waitForOptions: WaitForOptions.Disabled);
+                    AssertUI.TextEquals(browser.Single("h2"), "Default", waitForOptions: WaitForOptions.Disabled);
+                }, 2_000);
 
                 // exit SPA using the back button
                 browser.NavigateBack();
@@ -41,36 +45,46 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.NavigateForward();
 
                 // check url and page contents
-                AssertUI.TextEquals(browser.Single("h2"), "Default");
-                AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/default"));
+                browser.WaitFor(() => {
+                    AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/default"), waitForOptions: WaitForOptions.Disabled);
+                    AssertUI.TextEquals(browser.Single("h2"), "Default", waitForOptions: WaitForOptions.Disabled);
+                }, 2_000);
 
                 // go forward to the test page
                 browser.NavigateForward();
 
                 // check url and page contents
-                AssertUI.TextEquals(browser.Single("h2"), "Test");
-                AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/test"));
+                browser.WaitFor(() => {
+                    AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/test"), waitForOptions: WaitForOptions.Disabled);
+                    AssertUI.TextEquals(browser.Single("h2"), "Test", waitForOptions: WaitForOptions.Disabled);
+                }, 2_000);
 
                 // open the default page
                 browser.ElementAt("a", 0).Click();
 
                 // check url and page contents
-                AssertUI.TextEquals(browser.Single("h2"), "Default");
-                AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/default"));
+                browser.WaitFor(() => {
+                    AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/default"), waitForOptions: WaitForOptions.Disabled);
+                    AssertUI.TextEquals(browser.Single("h2"), "Default", waitForOptions: WaitForOptions.Disabled);
+                }, 2_000);
 
                 // go back to the test page
                 browser.NavigateBack();
 
                 // check url and page contents
-                AssertUI.TextEquals(browser.Single("h2"), "Test");
-                AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/test"));
+                browser.WaitFor(() => {
+                    AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/test"), waitForOptions: WaitForOptions.Disabled);
+                    AssertUI.TextEquals(browser.Single("h2"), "Test", waitForOptions: WaitForOptions.Disabled);
+                }, 3_000);
 
                 // go back to the default page
                 browser.NavigateBack();
 
                 // check url and page contents
-                AssertUI.TextEquals(browser.Single("h2"), "Default");
-                AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/default"));
+                browser.WaitFor(() => {
+                    AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/default"), waitForOptions: WaitForOptions.Disabled);
+                    AssertUI.TextEquals(browser.Single("h2"), "Default", waitForOptions: WaitForOptions.Disabled);
+                }, 3_000);
             });
         }
 

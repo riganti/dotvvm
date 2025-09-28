@@ -786,9 +786,10 @@ namespace DotVVM.Samples.Tests.Feature
                 }
 
 
-
-                var countOfDisplayedAsterisks = browser.FindElements("div > span",By.CssSelector).Where(t=>t.GetInnerText()=="*").Count(t => t.IsDisplayed());
-                Assert.Equal(expectedCountOfValidationAsterisks, countOfDisplayedAsterisks);
+                browser.WaitFor(() => {
+                    var countOfDisplayedAsterisks = browser.FindElements("div > span",By.CssSelector).Where(t=>t.GetInnerText()=="*").Count(t => t.IsDisplayed());
+                    Assert.Equal(expectedCountOfValidationAsterisks, countOfDisplayedAsterisks);
+                }, 2_000);
             });
         }
         [Theory]
