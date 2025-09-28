@@ -64,11 +64,12 @@ export function clearViewModelCache() {
     delete getCoreState()._viewModelCacheId;
     delete getCoreState()._viewModelCache;
 }
+export function updateInitialUrl(url: string) {
+    getCoreState()._initialUrl = url;
+}
 export function getCulture(): string { return getCoreState()._culture; }
 
 export function getStateManager(): StateManager<RootViewModel> { return getCoreState()._stateManager }
-
-let initialViewModelWrapper: any;
 
 function isBackForwardNavigation() {
     return (performance.getEntriesByType?.("navigation").at(-1) as PerformanceNavigationTiming)?.type == "back_forward";
@@ -80,9 +81,11 @@ export function initCore(culture: string): void {
     }
 
     // load the viewmodel
-    const thisViewModel = initialViewModelWrapper =
-        (isBackForwardNavigation() ? history.state?.viewModel : null) ??
-        JSON.parse(getViewModelStorageElement().value);
+    const thisViewModel =
+    {
+        ...JSON.parse(getViewModelStorageElement().value),
+        ...(isBackForwardNavigation() ? history.state?.viewModel : null)
+    };
 
     resourceLoader.registerResources(thisViewModel.renderedResources)
 
@@ -101,7 +104,7 @@ export function initCore(culture: string): void {
 
     // store cached viewmodel
     if (thisViewModel.viewModelCacheId) {
-        updateViewModelCache(thisViewModel.viewModelCacheId, thisViewModel.viewModel);
+        updateViewModelCache(thisViewModel.viewModelCacheId, thisViewModel.viewModelCache ?? thisViewModel.viewModel);
     }
 
     events.init.trigger({ viewModel: manager.state });
@@ -110,17 +113,6 @@ export function initCore(culture: string): void {
     window.addEventListener("beforeunload", e => {
         persistViewModel();
     });
-
-    if (compileConstants.isSpa) {
-        spaEvents.spaNavigated.subscribe(a => {
-            currentCoreState = {
-                _culture: currentCoreState!._culture,
-                _initialUrl: a.serverResponseObject.url,
-                _virtualDirectory: a.serverResponseObject.virtualDirectory!,
-                _stateManager: currentCoreState!._stateManager
-            }
-        });
-    }
 }
 
 export function initBindings() {
@@ -134,11 +126,11 @@ function persistViewModel() {
     history.replaceState({
         ...history.state,
         viewModel: {
-            ...initialViewModelWrapper,
             typeMetadata: getCurrentTypeMap(),
             viewModel: getState(),
+            viewModelCache: getViewModelCache(),
             viewModelCacheId: getViewModelCacheId(),
-            url: history.state?.url ?? initialViewModelWrapper.url
+            url: getInitialUrl()
         }
     }, "")
     // avoid storing the viewmodel hidden field, as Firefox would also reuse it on page reloads
