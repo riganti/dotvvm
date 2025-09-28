@@ -35,6 +35,7 @@
           "LocationType": "DotVVM.Framework.ResourceManagement.FileResourceLocation, DotVVM.Framework",
           "MimeType": "text/javascript",
           "VerifyResourceIntegrity": true,
+          "FetchPriority": "Auto",
           "RenderPosition": "Anywhere"
         }
       }

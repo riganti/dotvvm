@@ -32,6 +32,8 @@ namespace DotVVM.Framework.ResourceManagement
         private void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName, bool defer)
         {
             AddSrcAndIntegrity(writer, context, location.GetUrl(context, resourceName), "src");
+            AddFetchPriority(writer, location, FetchPriority);
+
             if (MimeType != "text/javascript") // this is the default, no need to write it
                 writer.AddAttribute("type", MimeType);
             if (defer)

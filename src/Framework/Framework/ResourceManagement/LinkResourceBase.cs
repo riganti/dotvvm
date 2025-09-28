@@ -33,6 +33,8 @@ namespace DotVVM.Framework.ResourceManagement
         public bool VerifyResourceIntegrity { get; set; } = true;
         public string? IntegrityHash { get; set; }
 
+        public ResourceFetchPriority FetchPriority { get; set; } = ResourceFetchPriority.Auto;
+
         public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType, IResourceLocation location) : base(renderPosition)
         {
             this.Location = location;
@@ -99,7 +101,7 @@ namespace DotVVM.Framework.ResourceManagement
     script.text = originalScript.text;
     script.id = originalScript.id;
     document.head.appendChild(script);
-}}";
+}}".Replace("\r\n", "\n");
 
         protected string RenderLinkToString(IResourceLocation location, IDotvvmRequestContext context, string resourceName)
         {
@@ -143,6 +145,13 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 AddIntegrityAttribute(writer, context, url);
             }
+        }
+
+        protected void AddFetchPriority(IHtmlWriter writer, IResourceLocation location, ResourceFetchPriority fetchPriority)
+        {
+            // add fetchpriority only to the primary location, not to fallbacks
+            if (location == (object)Location && fetchPriority != ResourceFetchPriority.Auto)
+                writer.AddAttribute("fetchpriority", fetchPriority == ResourceFetchPriority.High ? "high" : "low");
         }
     }
 
