@@ -1459,6 +1459,7 @@ namespace DotVVM.Framework.Tests.Binding
         public int IntProp { get; set; }
         public int? NullableIntProp { get; set; }
         public double DoubleProp { get; set; }
+        public float FloatProp { get; set; }
         public TestViewModel2 TestViewModel2 { get; set; }
         public TestViewModel2 TestViewModel2B { get; set; }
         public TestEnum EnumProperty { get; set; }
