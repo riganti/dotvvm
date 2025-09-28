@@ -26,8 +26,10 @@
     <EmbeddedResource Include="Resources\Scripts\DotVVM.ErrorPage.js" />
     <EmbeddedResource Include="obj/javascript/root-only/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-only-debug/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-only-debug/dotvvm-root.js.map" />
     <EmbeddedResource Include="obj/javascript/root-spa/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-spa-debug/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-spa-debug/dotvvm-root.js.map" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.min.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
