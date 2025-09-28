@@ -82,9 +82,8 @@ namespace DotVVM.Framework.ResourceManagement
             var name = DecodeResourceName(requestedName);
             var fileName = (string)parameters["fileName"]!;
             var hash = (string?)context.Query["v"];
-            var type = context.Query.TryGetValue("type", out var x) ? x : null;
             if (resources.FindResource(name) is IResource resource &&
-                FindLocation(resource, type, out mimeType) is ILocalResourceLocation location)
+                FindLocation(resource, out mimeType) is ILocalResourceLocation location)
             {
                 if (fileName == requestedName)
                 {
@@ -144,7 +143,7 @@ namespace DotVVM.Framework.ResourceManagement
             return null;
         }
 
-        protected ILocalResourceLocation? FindLocation(IResource resource, string? type, out string? mimeType)
+        protected ILocalResourceLocation? FindLocation(IResource resource, out string? mimeType)
         {
             if (!(resource is ILinkResource link))
             {
@@ -154,7 +153,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             mimeType = link.MimeType;
             return link
-                .GetLocations(type)
+                .GetLocations()
                 .OfType<ILocalResourceLocation>()
                 .FirstOrDefault();
         }
