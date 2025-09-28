@@ -1,12 +1,19 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Hosting;
 using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Utils
 {
+#if !DotNetCore
+    internal delegate void SpanAction<T, in TArg>(Span<T> span, TArg arg);
+#endif
     public static class StringUtils
     {
         public static readonly UTF8Encoding Utf8 = new UTF8Encoding(false, throwOnInvalidBytes: true);
@@ -54,6 +61,54 @@ namespace DotVVM.Framework.Utils
             {
                 return source;
             }
+        }
+
+        internal static string CreateString<T>(int length, T state, SpanAction<char, T> action)
+        {
+#if DotNetCore
+            return string.Create(length, state, action);
+#else
+            var buffer = ArrayPool<char>.Shared.Rent(length);
+            try
+            {
+                action(buffer.AsSpan(0, length), state);
+                return new string(buffer, 0, length);
+            }
+            finally
+            {
+                ArrayPool<char>.Shared.Return(buffer);
+            }
+#endif
+        }
+
+#if !DotNetCore
+        internal static StringBuilder AppendJoin(this StringBuilder sb, string separator, IEnumerable<string> values)
+        {
+            bool first = true;
+            foreach (var v in values)
+            {
+                if (!first) sb.Append(separator);
+                sb.Append(v);
+                first = false;
+            }
+            return sb;
+        }
+#endif
+
+        public static string PadCenter(string str, int length)
+        {
+            var charBoundaries = StringInfo.ParseCombiningCharacters(str);
+            if (charBoundaries.Length >= length)
+                return str;
+
+            return CreateString(str.Length + length - charBoundaries.Length, (str, length, charBoundaries), (span, state) =>
+            {
+                var (str, length, charBoundaries) = state;
+                var start = (length - charBoundaries.Length) / 2;
+                span.Slice(0, start).Fill(' ');
+                str.AsSpan().CopyTo(span.Slice(start));
+                span.Slice(start + str.Length).Fill(' ');
+            });
         }
 
         internal static string DotvvmInternString(this char ch, string? str = null) =>

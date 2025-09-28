@@ -349,7 +349,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     .Where(t => t != null)
                     .ToArray()!,
                 errorCode: context.Response.StatusCode,
-                summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600),
+                summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(3000),
                 context: DotvvmRequestContext.TryGetCurrent(context),
                 exception: exception);
 

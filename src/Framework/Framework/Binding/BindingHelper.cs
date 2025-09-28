@@ -21,6 +21,7 @@ using DotVVM.Framework.Runtime;
 using FastExpressionCompiler;
 using System.Diagnostics;
 using System.Reflection;
+using System.Net;
 
 namespace DotVVM.Framework.Binding
 {
@@ -564,17 +565,115 @@ namespace DotVVM.Framework.Binding
             : DotvvmExceptionBase(
                 RelatedBinding: ContextObject as IBinding,
                 RelatedControl: Control
-            )
+            ),
+            IDebugHtmlFormattableObject
         {
+            private string FmtLevel(int level) => level switch {
+                -1 => "?",
+                0 => "_this",
+                1 => "_parent",
+                _ => $"_parent{level}"
+            };
             public override string Message
             {
                 get
                 {
-                    var actualContextsHelp =
-                        ActualContextTypes is null ? "" :
-                        $" Real data context types: {string.Join(", ", ActualContextTypes.Select(t => t?.ToCode(stripNamespace: true) ?? "null"))}.";
-                    return  $"Could not find DataContext space of '{ContextObject}'. The DataContextType property of the binding does not correspond to DataContextType of the {Control.GetType().Name} nor any of its ancestors. Control's context is {ControlContext}, binding's context is {BindingContext}." + actualContextsHelp;
+                    var message = new StringBuilder()
+                        .Append($"Could not find DataContext space of '{ContextObject}'. The DataContextType property of the binding does not correspond to DataContextType of the {Control.GetType().Name} nor any of its ancestors.");
+
+                    var stackComparison = DataContextStack.CompareStacksMessage(ControlContext, BindingContext);
+
+                    for (var i = 0; i < stackComparison.Length; i++)
+                    {
+                        var controlMessage = new StringBuilder();
+                        var bindingMessage = new StringBuilder();
+                        foreach (var (controlO, bindingO) in stackComparison[i].spans)
+                        {
+                            var (control, binding) = (controlO.ToString() ?? "", bindingO.ToString() ?? "");
+                            var length = Math.Max(control.Length, binding.Length);
+                            if (control == binding)
+                            {
+                                controlMessage.Append(control);
+                                bindingMessage.Append(binding);
+                            }
+                            else
+                            {
+                                controlMessage.Append(StringUtils.PadCenter(control, length + 2));
+                                bindingMessage.Append(StringUtils.PadCenter(binding, length + 2));
+                            }
+                        }
+
+                        if (controlMessage.Equals(bindingMessage))
+                        {
+                            message.Append($"\nBoth    {FmtLevel(stackComparison[i].levelA),-8}: ").Append(controlMessage);
+                        }
+                        else 
+                        {
+                            message.Append($"\nControl {FmtLevel(stackComparison[i].levelA),-8}: ").Append(controlMessage);
+                            message.Append($"\nBinding {FmtLevel(stackComparison[i].levelB),-8}: ").Append(bindingMessage);
+                        }
+                    }
+
+                    if (ActualContextTypes is {} and not [])
+                        message.Append($"\nReal data context types: {string.Join(", ", ActualContextTypes.Select(t => t?.ToCode(stripNamespace: true) ?? "null"))}");
+                    return message.ToString();
                 }
+            }
+
+            public string DebugHtmlString(IFormatProvider? formatProvider, bool isBlock)
+            {
+                var html = new StringBuilder()
+                    .Append($"Could not find DataContext space of '{HtmlFormattingUtils.TryFormatAsHtml(ContextObject, formatProvider, false)}'. ")
+                    .Append($"The DataContextType property of the binding does not correspond to DataContextType of the {Control.GetType().DebugHtmlString(fullName: false, titleFullName: true)} nor any of its ancestors.");
+
+                var stackComparison = DataContextStack.CompareStacksMessage(ControlContext, BindingContext);
+
+                if (stackComparison.Length > 0)
+                {
+                    html.Append("<div class=dc-compare style='display: grid; grid-template-columns: auto 1fr;'>");
+
+                    for (var i = 0; i < stackComparison.Length; i++)
+                    {
+                        html.Append("<div class=dc-level style='color: var(--hint-color); margin-bottom: 0.5rem;'>")
+                            .Append($"<div>Control {WebUtility.HtmlEncode(FmtLevel(stackComparison[i].levelA))}: </div>")
+                            .Append($"<div>Binding {WebUtility.HtmlEncode(FmtLevel(stackComparison[i].levelB))}: </div>")
+                            .Append("</div>")
+                            .Append("<div class=dc-comparison>");
+
+                        foreach (var (control, binding) in stackComparison[i].spans)
+                        {
+                            var tokenStyle = control == binding
+                                ? ""
+                                : "background-color: var(--error-light-color, #ffebee); text-decoration: underline;";
+
+                            html.Append($"<div class=dc-token style='display: inline-block;{tokenStyle}'>");
+                            html.Append($"<div>{HtmlFormattingUtils.TryFormatAsHtml(control, null, false)}</div>");
+                            html.Append($"<div>{HtmlFormattingUtils.TryFormatAsHtml(binding, null, false)}</div>");
+
+                            html.Append("</div>");
+                        }
+
+                        html.Append("</div>"); // .dc-comparison
+                    }
+
+                    html.Append("</div>"); // .dc-compare
+                }
+
+                if (ActualContextTypes is {} and not [])
+                {
+                    html.Append("<div>Real data context types: ");
+
+                    var typeStrings = new List<string>();
+                    foreach (var t in ActualContextTypes)
+                    {
+                        typeStrings.Add(t.DebugHtmlString(fullName: false, titleFullName: true));
+                    }
+
+                    html.AppendJoin(", ", typeStrings);
+                    html.Append("</div>");
+                }
+
+                return html.ToString();
             }
         }
 
