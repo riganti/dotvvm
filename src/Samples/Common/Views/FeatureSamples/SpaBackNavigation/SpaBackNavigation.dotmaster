@@ -1,0 +1,26 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.SpaBackNavigation.SpaBackNavigationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>SPA Back-Forward navigation</h1>
+
+    <nav>
+        <ul>
+            <li><dot:RouteLink RouteName="FeatureSamples_SpaBackNavigation_Page1">Page 1</dot:RouteLink></li>
+            <li><dot:RouteLink RouteName="FeatureSamples_SpaBackNavigation_Page2">Page 2</dot:RouteLink></li>
+        </ul>
+    </nav>
+
+    <dot:SpaContentPlaceHolder ID="MainContent" />
+
+</body>
+</html>
+
+

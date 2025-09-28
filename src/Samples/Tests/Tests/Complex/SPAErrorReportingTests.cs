@@ -45,25 +45,25 @@ namespace DotVVM.Samples.Tests.Complex
                     browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPAErrorReporting_default);
 
                     // go to Test page and verify the success
-                    browser.ElementAt("a", 1).Click();
+                    browser.ElementAt("a", 1).Click().Wait(250);
                     browser.WaitFor(() => AssertUI.TextEquals(browser.Single("h2"), "Test", waitForOptions: WaitForOptions.Disabled), 5000);
 
                     SetOfflineMode(true);
 
                     // try to submit command in offline mode (we don't have CSRF token in Lazy CSRF mode yet, so we should fail in fetchCsrfToken)
                     browser.Single("input[type=text]").SendKeys("aaa");
-                    browser.ElementAt("input[type=button]", 0).Click();
+                    browser.ElementAt("input[type=button]", 0).Click().Wait(250);
                     browser.Single("#debugWindow button").Click();
                     AssertUI.TextEquals(browser.Single("#numberOfErrors"), "1");
 
                     // try to submit static command in offline mode
                     browser.Single("input[type=text]").SendKeys("aaa");
-                    browser.ElementAt("input[type=button]", 1).Click();
+                    browser.ElementAt("input[type=button]", 1).Click().Wait(250);
                     browser.Single("#debugWindow button").Click();
                     AssertUI.TextEquals(browser.Single("#numberOfErrors"), "2");
 
                     // try to go back in offline mode
-                    browser.ElementAt("a", 0).Click();
+                    browser.ElementAt("a", 0).Click().Wait(250);
                     AssertUI.TextEquals(browser.Single("h2"), "Test");
                     browser.Single("#debugWindow button").Click();
                     AssertUI.TextEquals(browser.Single("#numberOfErrors"), "3");
@@ -71,11 +71,11 @@ namespace DotVVM.Samples.Tests.Complex
                     SetOfflineMode(false);
 
                     // go back to online mode and retry (we should now obtain the CSRF token in lazy CSRF mode)
-                    browser.ElementAt("input[type=button]", 0).Click();
+                    browser.ElementAt("input[type=button]", 0).Click().Wait(250);
                     AssertUI.TextEquals(browser.Single("#numberOfErrors"), "3");
                     AssertUI.TextEquals(browser.Single("*[data-ui=sample-text]"), "Sample Text");
 
-                    browser.ElementAt("input[type=button]", 1).Click();
+                    browser.ElementAt("input[type=button]", 1).Click().Wait(250);
                     AssertUI.TextEquals(browser.Single("#numberOfErrors"), "3");
                     AssertUI.TextEquals(browser.Single("*[data-ui=sample-text]"), "Sample Static Text");
 
@@ -95,13 +95,13 @@ namespace DotVVM.Samples.Tests.Complex
 
                     // try to submit command in offline mode again (now we have valid CSRF token so we should fail on the postback itself)
                     browser.Single("input[type=text]").SendKeys("aaa");
-                    browser.ElementAt("input[type=button]", 0).Click();
+                    browser.ElementAt("input[type=button]", 0).Click().Wait(250);
                     browser.Single("#debugWindow button").Click();
                     AssertUI.TextEquals(browser.Single("#numberOfErrors"), "4");
 
                     // try to submit static command in offline mode
                     browser.Single("input[type=text]").SendKeys("aaa");
-                    browser.ElementAt("input[type=button]", 1).Click();
+                    browser.ElementAt("input[type=button]", 1).Click().Wait(250);
                     browser.Single("#debugWindow button").Click();
                     AssertUI.TextEquals(browser.Single("#numberOfErrors"), "5");
                 }

@@ -1,7 +1,7 @@
 ﻿import * as postback from '../postback/postback';
 import * as uri from '../utils/uri';
 import * as http from '../postback/http';
-import { getViewModel } from '../dotvvm-base';
+import { getViewModel, updateInitialUrl } from '../dotvvm-base';
 import { loadResourceList } from '../postback/resourceLoader';
 import * as updater from '../postback/updater';
 import * as events from './events';
@@ -58,6 +58,7 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
                 clearApiCachedValues();
             }
             updater.updateViewModelAndControls(response.result, replaceTypeInfo);
+            updateInitialUrl(url);
             isSpaReady(true);
         } else if (response.result.action === "redirect") {
             // always replace current page in history on navigation redirect, otherwise back button doesn't work (only navigates back to redirect)
