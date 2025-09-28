@@ -103,7 +103,7 @@ jobs:
           -rigantiSecret "${{ secrets.SIGN_RIGANTI_SECRET }}" `
           -rigantiCertificate "${{ secrets.SIGN_RIGANTI_CERTIFICATE_NAME }}"
 
-  publish-dotvvm-types:
+  publish-npm:
     runs-on: windows-2022
     needs: read-input
     steps:
@@ -129,6 +129,20 @@ jobs:
         cat "${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json";
       working-directory: ci/scripts/npm/dotvvm-types
 
+    - name: Build JsComponent.React
+      run: >
+        npm ci
+        npm version "${{ needs.read-input.outputs.version }}" --no-git-tag-version
+        npm pack
+      working-directory: src/Framework/JsComponent.React
+
+    - name: Build JsComponent.Svelte
+      run: >
+        npm ci
+        npm version "${{ needs.read-input.outputs.version }}" --no-git-tag-version
+        npm pack
+      working-directory: src/Framework/JsComponent.Svelte
+
     - name: Set internal npm registry
       run: >
         ./ci/scripts/Set-NpmRegistry.ps1 `
@@ -141,3 +155,11 @@ jobs:
     - name: Publish dotvvm-types
       run: npm publish
       working-directory: ci/scripts/npm/dotvvm-types
+
+    - name: Publish JsComponent.React
+      run: npm publish
+      working-directory: src/Framework/JsComponent.React
+
+    - name: Publish JsComponent.Svelte
+      run: npm publish
+      working-directory: src/Framework/JsComponent.Svelte
