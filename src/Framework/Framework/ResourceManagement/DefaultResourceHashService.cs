@@ -11,7 +11,7 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public class DefaultResourceHashService : IResourceHashService
     {
-        private ConditionalWeakTable<ILocalResourceLocation, byte[]> hashCache = new ConditionalWeakTable<ILocalResourceLocation, byte[]>();
+        private ConditionalWeakTable<ILocalResourceLocation, byte[]> hashCache = new();
 
         private Func<HashAlgorithm> hashFactory = SHA256.Create;
         private string hashFunctionName = "sha256";
@@ -20,7 +20,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             this.hashFactory = factory;
             this.hashFunctionName = functionName;
-            hashCache = new ConditionalWeakTable<ILocalResourceLocation, byte[]>();
+            hashCache = new();
         }
 
         protected virtual byte[] ComputeHash(Stream stream)
