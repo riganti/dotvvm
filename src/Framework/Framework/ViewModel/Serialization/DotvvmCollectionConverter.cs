@@ -19,14 +19,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
     public class DotvvmCollectionConverter : JsonConverterFactory
     {
         public override bool CanConvert(Type typeToConvert) =>
-            IsCollection(typeToConvert); // && ReflectionUtils.IsPrimitiveType(ReflectionUtils.GetEnumerableType(typeToConvert) ?? typeof(object));
+            IsCollection(typeToConvert) && !ReflectionUtils.IsPrimitiveType(ReflectionUtils.GetEnumerableType(typeToConvert) ?? typeof(object));
 
         static bool IsAbstractType(Type type) =>
             type.IsAbstract || type == typeof(object);
 
         static bool IsCollection(Type type)
         {
-            // Only handle collections that we know how to populate
             if (type.IsArray && type.GetArrayRank() == 1)
                 return true;
 
