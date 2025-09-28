@@ -106,7 +106,12 @@ function validateInt(value: any, min: number, max: number) {
 
 function validateFloat(value: any) {
     if (isNumber(value)) {
-        return { value: +value, wasCoerced: value !== +value };
+        return { value: +value, wasCoerced: value !== +value }
+    }
+
+    const isNaN = Number.isNaN(value)
+    if (isNaN || value === "NaN") {
+        return { value: NaN, wasCoerced: !isNaN }
     }
 }
 
