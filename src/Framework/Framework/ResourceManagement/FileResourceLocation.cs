@@ -30,5 +30,6 @@ namespace DotVVM.Framework.ResourceManagement
             File.OpenRead(Path.Combine(context.Configuration.ApplicationPhysicalPath, context.Configuration.Debug ? DebugFilePath : FilePath));
 
         public string GetFilePath(IDotvvmRequestContext context) => FilePath;
+        ILocalResourceLocation? IDebugFileLocalLocation.TryGetSourceMap(string fileName) => null;
     }
 }

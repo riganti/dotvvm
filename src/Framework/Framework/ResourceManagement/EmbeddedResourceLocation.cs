@@ -20,7 +20,11 @@ namespace DotVVM.Framework.ResourceManagement
         /// File where the resource is located for debug purposes
         /// </summary>
         public string? DebugFilePath { get; set; }
-        public EmbeddedResourceLocation(Assembly assembly, string name, string? debugFilePath = null, string? debugName = null)
+
+        [JsonIgnore]
+        public (string fileName, string resourceName)[] SourceMap { get; }
+
+        public EmbeddedResourceLocation(Assembly assembly, string name, string? debugFilePath = null, string? debugName = null, (string fileName, string resourceName)[]? sourceMaps = null)
         {
             if (assembly.GetManifestResourceInfo(name) == null) throw new ArgumentException($"Could not find resource '{name}' in assembly {assembly.GetName().Name}. Did you mean one of {string.Join(", ", assembly.GetManifestResourceNames())}?", nameof(name));
 
@@ -37,6 +41,13 @@ namespace DotVVM.Framework.ResourceManagement
                 this.DebugName = name;
             }
 
+            this.SourceMap = sourceMaps ?? [];
+            foreach (var (_, resourceName) in this.SourceMap)
+            {
+                if (assembly.GetManifestResourceInfo(resourceName) is null)
+                    throw new ArgumentException($"Could not find resource '{resourceName}' in assembly {assembly.GetName().Name}. Did you mean one of {string.Join(", ", assembly.GetManifestResourceNames())}?", nameof(sourceMaps));
+            }
+
             this.DebugFilePath = debugFilePath;
         }
 
@@ -49,5 +60,16 @@ namespace DotVVM.Framework.ResourceManagement
         }
 
         public string? GetFilePath(IDotvvmRequestContext context) => DebugFilePath;
+        public ILocalResourceLocation? TryGetSourceMap(string fileName)
+        {
+            foreach (var (f, resourceName) in SourceMap)
+            {
+                if (f == fileName)
+                {
+                    return new EmbeddedResourceLocation(Assembly, resourceName);
+                }
+            }
+            return null;
+        }
     }
 }

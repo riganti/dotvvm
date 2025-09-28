@@ -124,10 +124,17 @@ namespace DotVVM.Framework.ResourceManagement
                 return null;
             }
 
+            var locations = (resource as ILinkResource)?.GetLocations().OfType<IDebugFileLocalLocation>().ToArray() ?? [];
+
+            foreach (var location in locations)
+            {
+                if (location.TryGetSourceMap(fileName) is {} sourceMap)
+                    return sourceMap;
+            }
+
             // Load something.map.js or anything from the same directory
             var resourceDirectories =
-                (resource as ILinkResource)?.GetLocations()
-                    .OfType<IDebugFileLocalLocation>()
+                locations
                     .Select(x => x.GetFilePath(context)).WhereNotNull()
                     .Select(filePath => Path.GetDirectoryName(Path.Combine(context.Configuration.ApplicationPhysicalPath, filePath))).WhereNotNull()
                     .Distinct();

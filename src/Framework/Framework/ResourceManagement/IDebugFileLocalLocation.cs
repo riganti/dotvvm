@@ -9,5 +9,6 @@ namespace DotVVM.Framework.ResourceManagement
     public interface IDebugFileLocalLocation: ILocalResourceLocation
     {
         string? GetFilePath(IDotvvmRequestContext context);
+        ILocalResourceLocation? TryGetSourceMap(string fileName);
     }
 }
