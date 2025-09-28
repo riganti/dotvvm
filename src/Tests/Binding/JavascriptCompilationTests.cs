@@ -1123,6 +1123,23 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("Math.Tan(DoubleProp)", "Math.tan(DoubleProp())")]
         [DataRow("Math.Tanh(DoubleProp)", "Math.tanh(DoubleProp())")]
         [DataRow("Math.Truncate(DoubleProp)", "Math.trunc(DoubleProp())")]
+        [DataRow("double.IsNaN(DoubleProp)", "Number.isNaN(DoubleProp())")]
+        [DataRow("float.IsNaN(FloatProp)", "Number.isNaN(FloatProp())")]
+#if DotNetCore
+        [DataRow("double.IsFinite(DoubleProp)", "Number.isFinite(DoubleProp())")]
+        [DataRow("float.IsFinite(FloatProp)", "Number.isFinite(FloatProp())")]
+#endif
+        [DataRow("double.IsInfinity(DoubleProp)", "Math.abs(DoubleProp())==Infinity")]
+        [DataRow("float.IsInfinity(FloatProp)", "Math.abs(FloatProp())==Infinity")]
+        [DataRow("double.IsPositiveInfinity(DoubleProp)", "DoubleProp()==Infinity")]
+        [DataRow("float.IsPositiveInfinity(FloatProp)", "FloatProp()==Infinity")]
+        [DataRow("double.IsNegativeInfinity(DoubleProp)", "DoubleProp()==-Infinity")]
+        [DataRow("float.IsNegativeInfinity(FloatProp)", "FloatProp()==-Infinity")]
+        public void JsTranslator_DoubleFloat_IsChecks(string binding, string expected)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual(expected, result);
+        }
         public void JsTranslator_MathMethods(string binding, string expected)
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });

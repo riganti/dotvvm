@@ -523,6 +523,39 @@ namespace DotVVM.Framework.Compilation.Javascript
                 args => new JsIdentifierExpression("Math").Member("tanh").Invoke(args[1])));
             AddMethodTranslator(() => Math.Truncate(1.0d), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("trunc").Invoke(args[1])));
+
+
+            // double/single finite/NaN/infinity checks
+            var isNaN = new GenericMethodCompiler(args => new JsIdentifierExpression("Number").Member("isNaN").Invoke(args[1]));
+            AddMethodTranslator(() => double.IsNaN(0d), isNaN);
+            AddMethodTranslator(() => float.IsNaN(0f), isNaN);
+
+#if DotNetCore
+            var isFinite = new GenericMethodCompiler(args => new JsIdentifierExpression("Number").Member("isFinite").Invoke(args[1]));
+            AddMethodTranslator(() => double.IsFinite(0d), isFinite);
+            AddMethodTranslator(() => float.IsFinite(0f), isFinite);
+#endif
+
+            var isInfinity = new GenericMethodCompiler(args => new JsIdentifierExpression("Math").Member("abs").Invoke(args[1]).Binary(BinaryOperatorType.Equal, new JsIdentifierExpression("Infinity")));
+            AddMethodTranslator(() => double.IsInfinity(0d), isInfinity);
+            AddMethodTranslator(() => float.IsInfinity(0f), isInfinity);
+
+            var isPosInfinity = new GenericMethodCompiler(
+                args => args[1].Binary(BinaryOperatorType.Equal, new JsIdentifierExpression("Infinity")));
+            AddMethodTranslator(() => double.IsPositiveInfinity(0d), isPosInfinity);
+            AddMethodTranslator(() => float.IsPositiveInfinity(0f), isPosInfinity);
+
+            var isNegInfinity = new GenericMethodCompiler(
+                args => args[1].Binary(BinaryOperatorType.Equal, new JsIdentifierExpression("Infinity").Unary(UnaryOperatorType.Minus)));
+            AddMethodTranslator(() => double.IsNegativeInfinity(0d), isNegInfinity);
+            AddMethodTranslator(() => float.IsNegativeInfinity(0f), isNegInfinity);
+
+#if NET8_0_OR_GREATER
+            var isInteger = new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Number").Member("isInteger").Invoke(args[1]));
+            AddMethodTranslator(() => double.IsInteger(0d), isInteger);
+            AddMethodTranslator(() => float.IsInteger(0f), isInteger);
+#endif
         }
 
         private bool EnsureIsComparableInJavascript(MethodInfo method, Type type)
