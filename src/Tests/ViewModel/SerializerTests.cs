@@ -307,10 +307,10 @@ namespace DotVVM.Framework.Tests.ViewModel
             );
             var objPopulated = PopulateViewModel(json, obj2);
 
-            // The collection instances should be preserved
             Assert.AreSame(objPopulated, obj2);
             Assert.AreSame(originalInstances.Collection, objPopulated.ViewModels);
-            Assert.AreSame(originalInstances.StringCollection, objPopulated.Strings);
+            // primitive collections are replaced
+            Assert.AreNotSame(originalInstances.StringCollection, objPopulated.Strings);
 
             // The collection should have the new content
             Assert.AreEqual(3, objPopulated.ViewModels.Count);
@@ -1740,6 +1740,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public System.Half HalfValue { get; set; }
         public System.Half[] HalfArray { get; set; }
         public Dictionary<string, System.Half> HalfDict { get; set; }
+#endif
     }
     public class TestViewModelWithCollections
     {

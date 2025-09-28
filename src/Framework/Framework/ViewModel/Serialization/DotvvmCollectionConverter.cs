@@ -19,14 +19,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
     public class DotvvmCollectionConverter : JsonConverterFactory
     {
         public override bool CanConvert(Type typeToConvert) =>
-            IsCollection(typeToConvert); // && ReflectionUtils.IsPrimitiveType(ReflectionUtils.GetEnumerableType(typeToConvert) ?? typeof(object));
+            IsCollection(typeToConvert) && !ReflectionUtils.IsPrimitiveType(ReflectionUtils.GetEnumerableType(typeToConvert) ?? typeof(object));
 
         static bool IsAbstractType(Type type) =>
             type.IsAbstract || type == typeof(object);
 
         static bool IsCollection(Type type)
         {
-            // Only handle collections that we know how to populate
             if (type.IsArray && type.GetArrayRank() == 1)
                 return true;
 
@@ -42,7 +41,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                    genericTypeDef == typeof(IReadOnlyList<>) ||
                    genericTypeDef == typeof(IReadOnlyCollection<>) ||
                    genericTypeDef == typeof(IEnumerable<>);
-                // false;
         }
 
         public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
@@ -204,7 +202,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         item = (TElement?)converter.ReadUntyped(ref reader, typeof(TElement), options, state)!;
                     elements.Add(item!);
                     index++;
-                    reader.AssertRead(); // dear Claude, if you remove this, we will get stuck in an infinite loop
+                    reader.AssertRead();
                 }
             }
 
