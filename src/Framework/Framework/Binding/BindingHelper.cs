@@ -64,8 +64,8 @@ namespace DotVVM.Framework.Binding
         /// Gets Internal.PathFragmentProperty or DataContext.KnockoutExpression. Returns null if none of these is set.
         /// </summary>
         public static string? GetDataContextPathFragment(this DotvvmBindableObject currentControl) =>
-            currentControl.properties.TryGet(Internal.PathFragmentProperty, out var pathFragment) && pathFragment is string pathFragmentStr ? pathFragmentStr :
-            currentControl.properties.TryGet(DotvvmBindableObject.DataContextProperty, out var dataContext) && dataContext is IValueBinding binding ?
+            currentControl.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.Internal_PathFragment, out var pathFragment) && pathFragment is string pathFragmentStr ? pathFragmentStr :
+            currentControl.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.DotvvmBindableObject_DataContext, out var dataContext) && dataContext is IValueBinding binding ?
                 binding.GetProperty<SimplePathExpressionBindingProperty>()
                 .Code.FormatKnockoutScript(currentControl, binding) :
             null;
@@ -88,16 +88,16 @@ namespace DotVVM.Framework.Binding
             if (bindingContext == null || controlContext == null || controlContext.Equals(bindingContext)) return (0, control);
 
             var changes = 0;
-            foreach (var a in control.GetAllAncestors(includingThis: true))
+            for (var ancestor = control; ancestor is {}; ancestor = ancestor.Parent)
             {
-                var ancestorContext = a.GetDataContextType(inherit: false);
+                var ancestorContext = ancestor.GetDataContextType(inherit: false);
                 if (bindingContext.Equals(ancestorContext))
-                    return (changes, a);
+                    return (changes, ancestor);
 
                 // count only client-side data contexts (DataContext={resource:} is skipped in JS)
-                if (a.properties.TryGet(DotvvmBindableObject.DataContextProperty, out var ancestorRuntimeContext))
+                if (ancestor.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.DotvvmBindableObject_DataContext, out var ancestorRuntimeContext))
                 {
-                    if (a.properties.TryGet(Internal.IsServerOnlyDataContextProperty, out var isServerOnly) && isServerOnly != null)
+                    if (ancestor.properties.GetOrNull(DotvvmPropertyIdAssignment.PropertyIds.Internal_IsServerOnlyDataContext) is {} isServerOnly)
                     {
                         if (isServerOnly is false)
                             changes++;
@@ -173,9 +173,8 @@ namespace DotVVM.Framework.Binding
                 // this has O(h^2) complexity because GetValue calls another GetDataContexts,
                 // but this function is used rarely - for exceptions, manually created bindings, ...
                 // Normal bindings have specialized code generated in BindingCompiler
-                if (c.IsPropertySet(DotvvmBindableObject.DataContextProperty, inherit: false))
+                if (c.properties.Contains(DotvvmPropertyIdAssignment.PropertyIds.DotvvmBindableObject_DataContext))
                 {
-                    Debug.Assert(c.properties.Contains(DotvvmBindableObject.DataContextProperty), "Control claims that DataContextProperty is set, but it's not present in the properties dictionary.");
                     yield return c.GetValue(DotvvmBindableObject.DataContextProperty);
                     count--;
                 }

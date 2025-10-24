@@ -82,7 +82,7 @@ namespace DotVVM.Framework.Controls
         {
             for (; obj != null; obj = obj.Parent)
             {
-                if (obj.properties.TryGet(Internal.DataContextTypeProperty, out var v))
+                if (obj.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.Internal_DataContextType, out var v))
                     return (DataContextStack?)v;
             }
             return null;
@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Controls
         {
             if (inherit)
                 return obj.GetDataContextType();
-            else if (obj.properties.TryGet(Internal.DataContextTypeProperty, out var v))
+            else if (obj.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.Internal_DataContextType, out var v))
                 return (DataContextStack?)v;
             else
                 return null;
@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Controls
         public static TControl SetDataContextType<TControl>(this TControl control, DataContextStack? stack)
             where TControl : DotvvmBindableObject
         {
-            control.properties.Set(Internal.DataContextTypeProperty, stack);
+            control.properties.Set(DotvvmPropertyIdAssignment.PropertyIds.Internal_DataContextType, stack);
             return control;
         }
     }
