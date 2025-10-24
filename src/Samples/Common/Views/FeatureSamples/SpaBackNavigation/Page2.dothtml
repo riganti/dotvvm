@@ -1,0 +1,21 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.SpaBackNavigation.Page2ViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/SpaBackNavigation/SpaBackNavigation.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <h2>Page2</h2>
+
+    <p>ViewModel $type: {{resource: DotVVM.Framework.Utils.ReflectionUtils.GetTypeHash(_this.GetType())}}</p>
+    <pre ID="viewmodel"></pre>
+    <dot:InlineScript Dependencies="dotvvm">
+        if (history && history.state) {
+            document.getElementById("viewmodel").innerText = JSON.stringify(history.state, null, "  ");
+        }
+    </dot:InlineScript>
+
+    <p><a href="/test.pdf">Go to PDF</a></p>
+
+    <p data-ui="test-binding">{{value: "Bindings work!"}}</p>
+
+</dot:Content>
+
