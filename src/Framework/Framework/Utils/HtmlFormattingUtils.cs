@@ -14,8 +14,9 @@ using FastExpressionCompiler;
 
 internal static class HtmlFormattingUtils
 {
-    public static string DebugHtmlString(this Type? type, bool fullName, bool titleFullName)
+    public static string DebugHtmlString(this Type? type, bool fullName, bool? titleFullName = null)
     {
+        var addTitle = titleFullName ?? !fullName;
         if (type is null)
             return "<span class=syntax-keyword>null</span>";
 
@@ -25,47 +26,47 @@ internal static class HtmlFormattingUtils
         if (type.IsGenericTypeDefinition)
         {
             var args = type.GetGenericArguments();
-            return AddTitleFullName(type, $"{JustName(type, fullName)}<{new string(',', args.Length - 1)}>", titleFullName);
+            return AddTitleFullName(type, $"{JustName(type, fullName)}<{new string(',', args.Length - 1)}>", addTitle);
         }
 
         if (type.IsGenericType)
         {
             if (Nullable.GetUnderlyingType(type) is Type nullableElement)
-                return AddTitleFullName(type, nullableElement.DebugHtmlString(fullName, false) + "?", titleFullName);
+                return AddTitleFullName(type, nullableElement.DebugHtmlString(fullName, false) + "?", addTitle);
 
             var def = type.GetGenericTypeDefinition();
             var args = type.GetGenericArguments();
             var argsHtml = string.Join(", ", args.Select(a => a.DebugHtmlString(fullName, false)));
 
             if (def.Namespace == "System" && def.Name == "ValueTuple")
-                return AddTitleFullName(type, $"({argsHtml})", titleFullName);
+                return AddTitleFullName(type, $"({argsHtml})", addTitle);
             else
-                return AddTitleFullName(type, $"{JustName(def, fullName)}<{argsHtml}>", titleFullName);
+                return AddTitleFullName(type, $"{JustName(def, fullName)}<{argsHtml}>", addTitle);
         }
 
         if (type.IsArray)
         {
             var elementType = type.GetElementType()!;
             var rank = type.GetArrayRank();
-            return AddTitleFullName(type, $"{elementType.DebugHtmlString(fullName, false)}[{new string(',', rank - 1)}]", titleFullName);
+            return AddTitleFullName(type, $"{elementType.DebugHtmlString(fullName, false)}[{new string(',', rank - 1)}]", addTitle);
         }
 
         if (type.IsByRef)
         {
             var elementType = type.GetElementType()!;
-            return AddTitleFullName(type, $"{elementType.DebugHtmlString(fullName, false)}&", titleFullName);
+            return AddTitleFullName(type, $"{elementType.DebugHtmlString(fullName, false)}&", addTitle);
         }
 
         if (type.IsPointer)
         {
             var elementType = type.GetElementType()!;
-            return AddTitleFullName(type, $"{elementType.DebugHtmlString(fullName, false)}*", titleFullName);
+            return AddTitleFullName(type, $"{elementType.DebugHtmlString(fullName, false)}*", addTitle);
         }
 
         if (type.DeclaringType is { } declaringType)
         {
             var declaringTypeHtml = declaringType.DebugHtmlString(fullName, false);
-            return AddTitleFullName(type, $"{declaringTypeHtml}.{JustName(type, false, false)}", titleFullName);
+            return AddTitleFullName(type, $"{declaringTypeHtml}.{JustName(type, false, false)}", addTitle);
         }
 
         if (type == typeof(object))
@@ -105,7 +106,7 @@ internal static class HtmlFormattingUtils
         if (type == typeof(double))
             return "<span class=syntax-keyword>double</span>";
 
-        return JustName(type, fullName, titleFullName);
+        return JustName(type, fullName, addTitle);
 
 
 
@@ -144,80 +145,149 @@ internal static class HtmlFormattingUtils
         }
     }
 
-    public static string DebugHtmlString(this ITypeDescriptor typeDescriptor, bool fullName, bool titleFullName)
+    public static string DebugHtmlString(this ITypeDescriptor typeDescriptor, bool fullName, bool? titleFullName = null)
     {
-        if (typeDescriptor is ResolvedTypeDescriptor resolvedType)
-            return resolvedType.Type.DebugHtmlString(fullName, titleFullName);
+        if (ResolvedTypeDescriptor.TryToSystemType(typeDescriptor) is {} systemType)
+            return systemType.DebugHtmlString(fullName, titleFullName);
         return WebUtility.HtmlEncode(fullName ? typeDescriptor.CSharpFullName : typeDescriptor.CSharpName);
+    }
+
+    public static IDebugHtmlFormattableObject AsDebugHtmlFormattable(this Type type, bool? fullName = null, bool? titleFullName = null) =>
+        AsHtmlFormattable((type, fullName, titleFullName),
+            static (x, isBlock) => x.type.DebugHtmlString(x.fullName ?? isBlock, x.titleFullName),
+            static x => x.type.ToCode(stripNamespace: x.fullName == false));
+
+    public static IDebugHtmlFormattableObject AsDebugHtmlFormattable(this ITypeDescriptor type, bool? fullName = null, bool? titleFullName = null) =>
+        AsHtmlFormattable((type, fullName, titleFullName),
+            static (x, isBlock) => x.type.DebugHtmlString(x.fullName ?? isBlock, x.titleFullName),
+            static x => x.fullName == false ? x.type.CSharpName : x.type.CSharpFullName);
+
+    public sealed class CompositeHtmlFormattableObject : IDebugHtmlFormattableObject
+    {
+        private readonly IReadOnlyList<object?> children;
+        private readonly bool? makeBlock;
+
+        public CompositeHtmlFormattableObject(IReadOnlyList<object?> children, bool? makeBlock = null)
+        {
+            this.children = children;
+            this.makeBlock = makeBlock;
+        }
+
+        private List<(object? obj, bool isBlock)> FlattenHierarchy(List<(object?, bool)> list, bool isBlock)
+        {
+            foreach (var c in children)
+            {
+                if (c is CompositeHtmlFormattableObject composite)
+                    composite.FlattenHierarchy(list, makeBlock ?? isBlock);
+                else
+                    list.Add((c, makeBlock ?? isBlock));
+            }
+            return list;
+        }
+
+        public string DebugHtmlString(IFormatProvider? formatProvider, bool isBlock) =>
+            string.Concat(
+                FlattenHierarchy([], isBlock)
+                .Select(o => TryFormatAsHtml(o.obj, formatProvider, o.isBlock))
+            );
+
+        public override string ToString() => string.Concat(FlattenHierarchy([], true).Select(o => o.obj ?? "null"));
     }
 
     public sealed class PreformattedHtmlObject : IDebugHtmlFormattableObject
     {
-        public string? PlainText { get; }
-        public string HtmlText { get; }
-        public string HtmlBlockText { get; }
-        public PreformattedHtmlObject(string? plainText, string htmlText, string? htmlBlockText = null)
+        public string PlainText { get; }
+
+        private string? _htmlText;
+        public string HtmlText => _htmlText ??= WebUtility.HtmlEncode(PlainText);
+
+        private readonly string? _htmlBlockText;
+        public string HtmlBlockText => _htmlBlockText ?? HtmlText;
+
+        public PreformattedHtmlObject(string plainText, string? htmlText = null, string? htmlBlockText = null)
         {
             ThrowHelpers.ArgumentNull(htmlText);
 
             PlainText = plainText;
-            HtmlText = htmlText;
-            HtmlBlockText = htmlBlockText ?? htmlText;
+            _htmlText = htmlText;
+            _htmlBlockText = htmlBlockText ?? htmlText;
         }
 
-        public static PreformattedHtmlObject Create(object? obj)
+        public static IDebugHtmlFormattableObject Create(string? obj) =>
+            string.IsNullOrEmpty(obj) ? Empty : new PreformattedHtmlObject(obj);
+        public static IDebugHtmlFormattableObject Create(object? obj)
         {
-            var htmlText = TryFormatAsHtml(obj, null, isBlock: false);
-            var htmlBlockText = TryFormatAsHtml(obj, null, isBlock: true);
-            return new PreformattedHtmlObject(
-                plainText: Convert.ToString(obj, null),
-                htmlText: htmlText,
-                htmlBlockText: htmlBlockText == htmlText ? null : htmlBlockText);
+            if (obj is IDebugHtmlFormattableObject result)
+                return result;
+            if (obj is string str)
+                return new PreformattedHtmlObject(str, null);
+            return new CompositeHtmlFormattableObject([ obj ]);
         }
 
-        public PreformattedHtmlObject Append(PreformattedHtmlObject? other) =>
-            other is null ? this :
-            new(PlainText + other.PlainText,
-                HtmlText + other.HtmlText,
-                HtmlBlockText + other.HtmlBlockText);
-
-        public PreformattedHtmlObject Append(string plain, string? html = null)
-        {
-            html ??= WebUtility.HtmlEncode(plain);
-            return new(PlainText + plain, HtmlText + html, HtmlBlockText + html);
-        }
-
-        public static PreformattedHtmlObject operator +(PreformattedHtmlObject? a, PreformattedHtmlObject? b)
-        {
-            if (a is null) return b ?? Empty;
-            if (b is null) return a;
-            return a.Append(b);
-        }
-        public static PreformattedHtmlObject operator +(PreformattedHtmlObject? a, string? b)
+        public static IDebugHtmlFormattableObject operator +(PreformattedHtmlObject? a, IDebugHtmlFormattableObject? b) => a.Append(b);
+        public static IDebugHtmlFormattableObject operator +(PreformattedHtmlObject? a, string? b)
         {
             if (b is null) return a ?? Empty;
             if (a is null) return new PreformattedHtmlObject(b, b);
-            return new PreformattedHtmlObject(a.PlainText + b, a.HtmlText + WebUtility.HtmlEncode(b));
+            return new CompositeHtmlFormattableObject([ a, b ]);
         }
 
-        public string DebugHtmlString(IFormatProvider? formatProvider, bool isBlock)
-        {
-            if (isBlock && HtmlBlockText is { })
-                return HtmlBlockText;
-
-            return HtmlText;
-        }
+        public string DebugHtmlString(IFormatProvider? formatProvider, bool isBlock) =>
+            isBlock ? HtmlBlockText : HtmlText;
 
         public override string ToString() => PlainText ?? HtmlText;
 
         public static PreformattedHtmlObject Empty { get; } = new PreformattedHtmlObject("", "");
     }
 
+    public sealed class CustomHtmlFormattable<T>: IDebugHtmlFormattableObject
+    {
+        public T Object { get; }
+        public Func<T, bool, string> ToHtml { get; }
+        public Func<T, string>? ToPlainString { get; }
+        public CustomHtmlFormattable(T obj, Func<T, bool, string> toHtml, Func<T, string>? toString = null)
+        {
+            Object = obj;
+            ToHtml = toHtml;
+            ToPlainString = toString;
+        }
+
+        public string DebugHtmlString(IFormatProvider? formatProvider, bool isBlock) =>
+            ToHtml(Object, isBlock);
+
+        public override string ToString() => ToPlainString?.Invoke(Object) ?? Object?.ToString() ?? "null";
+    }
+
+    public static IDebugHtmlFormattableObject Append(this IDebugHtmlFormattableObject? a, IDebugHtmlFormattableObject? b)
+    {
+        if (a is null || a == PreformattedHtmlObject.Empty) return b ?? PreformattedHtmlObject.Empty;
+        if (b is null || b == PreformattedHtmlObject.Empty) return a;
+        return new CompositeHtmlFormattableObject([ a, b ]);
+    }
+
+    public static IDebugHtmlFormattableObject Append(this IDebugHtmlFormattableObject? a, string? b)
+    {
+        if (a is null || a == PreformattedHtmlObject.Empty) return PreformattedHtmlObject.Create(b);
+        if (b is null or "") return a;
+        return new CompositeHtmlFormattableObject([ a, b ]);
+    }
+
+    public static IDebugHtmlFormattableObject Append(this IDebugHtmlFormattableObject? a, string b, string bHtml)
+    {
+        if (a is null || a == PreformattedHtmlObject.Empty) return new PreformattedHtmlObject(b, bHtml);
+        if (b is "" && bHtml is "") return a;
+        return new CompositeHtmlFormattableObject([ a, new PreformattedHtmlObject(b, bHtml) ]);
+    }
+
+    public static IDebugHtmlFormattableObject AsHtmlFormattable<T>(T obj, Func<T, bool, string> toHtml, Func<T, string>? toString = null) =>
+        new CustomHtmlFormattable<T>(obj, toHtml, toString);
 
     public static string TryFormatAsHtml(object? obj, IFormatProvider? formatProvider, bool isBlock, string plainPrefix = "", string plainSuffix = "")
     {
         if (obj is null)
             return "<span class=syntax-keyword>null</span>";
+        if (obj is string str)
+            return plainPrefix + WebUtility.HtmlEncode(str) + plainSuffix;
 
         try
         {
