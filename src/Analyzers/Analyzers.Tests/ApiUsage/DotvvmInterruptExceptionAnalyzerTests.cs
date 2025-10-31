@@ -374,5 +374,193 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [Fact]
+        public async Task Test_NoDiagnostics_RethrowInsideIfStatement()
+        {
+            var test = @"
+    using System;
+    using System.Threading.Tasks;
+    using DotVVM.Framework.Hosting;
+
+    namespace ConsoleApplication1
+    {
+        public class TestClass
+        {
+            public async Task OnDownloadFile(IDotvvmRequestContext context)
+            {
+                try
+                {
+                    var bytes = new byte[] { 1, 2, 3 };
+                    await context.ReturnFileAsync(bytes, ""file.csv"", ""application/octet-stream"");
+                }
+                catch (DotvvmInterruptRequestExecutionException ex)
+                {
+                    if (true)
+                    {
+                        throw;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Handle other exceptions
+                }
+            }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
+        public async Task Test_NoDiagnostics_WhenClauseExcludingInterruptException()
+        {
+            var test = @"
+    using System;
+    using System.Threading.Tasks;
+    using DotVVM.Framework.Hosting;
+
+    namespace ConsoleApplication1
+    {
+        public class TestClass
+        {
+            public async Task OnDownloadFile(IDotvvmRequestContext context)
+            {
+                try
+                {
+                    var bytes = new byte[] { 1, 2, 3 };
+                    await context.ReturnFileAsync(bytes, ""file.csv"", ""application/octet-stream"");
+                }
+                catch (Exception ex) when (ex is not DotvvmInterruptRequestExecutionException)
+                {
+                    // Handle other exceptions only
+                }
+            }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
+        public async Task Test_NoDiagnostics_NestedTryBlocks_BothProperlyHandled()
+        {
+            var test = @"
+    using System;
+    using System.Threading.Tasks;
+    using DotVVM.Framework.Hosting;
+
+    namespace ConsoleApplication1
+    {
+        public class TestClass
+        {
+            public async Task OnDownloadFile(IDotvvmRequestContext context)
+            {
+                try
+                {
+                    try
+                    {
+                        var bytes = new byte[] { 1, 2, 3 };
+                        await context.ReturnFileAsync(bytes, ""file.csv"", ""application/octet-stream"");
+                    }
+                    catch (DotvvmInterruptRequestExecutionException)
+                    {
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle other exceptions in inner try
+                    }
+                }
+                catch (DotvvmInterruptRequestExecutionException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    // Handle other exceptions in outer try
+                }
+            }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
+        public async Task Test_Warning_NestedTryBlocks_OuterNotProperlyHandled()
+        {
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using System;
+    using System.Threading.Tasks;
+    using DotVVM.Framework.Hosting;
+
+    namespace ConsoleApplication1
+    {
+        public class TestClass
+        {
+            public async Task OnDownloadFile(IDotvvmRequestContext context)
+            {
+                try
+                {
+                    try
+                    {
+                        var bytes = new byte[] { 1, 2, 3 };
+                        await {|#0:context.ReturnFileAsync(bytes, ""file.csv"", ""application/octet-stream"")|};
+                    }
+                    catch (DotvvmInterruptRequestExecutionException)
+                    {
+                        throw;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Outer catch doesn't properly handle the rethrown exception
+                }
+            }
+        }
+    }",
+
+            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                .WithLocation(0).WithArguments("ReturnFileAsync"));
+        }
+
+        [Fact]
+        public async Task Test_Warning_NestedTryBlocks_InnerNotProperlyHandled()
+        {
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using System;
+    using System.Threading.Tasks;
+    using DotVVM.Framework.Hosting;
+
+    namespace ConsoleApplication1
+    {
+        public class TestClass
+        {
+            public async Task OnDownloadFile(IDotvvmRequestContext context)
+            {
+                try
+                {
+                    try
+                    {
+                        var bytes = new byte[] { 1, 2, 3 };
+                        await {|#0:context.ReturnFileAsync(bytes, ""file.csv"", ""application/octet-stream"")|};
+                    }
+                    catch (Exception ex)
+                    {
+                        // Inner catch doesn't properly handle
+                    }
+                }
+                catch (DotvvmInterruptRequestExecutionException)
+                {
+                    throw;
+                }
+            }
+        }
+    }",
+
+            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                .WithLocation(0).WithArguments("ReturnFileAsync"));
+        }
     }
 }

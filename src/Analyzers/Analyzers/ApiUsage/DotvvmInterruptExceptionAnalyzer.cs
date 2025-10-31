@@ -51,20 +51,15 @@ namespace DotVVM.Analyzers.ApiUsage
                     if (!IsInterruptingMethod(method, dotvvmRequestContext))
                         return;
 
-                    // Check if the invocation is within a try-catch block
-                    var tryOperation = GetEnclosingTryOperation(invocation);
-                    if (tryOperation is null)
-                        return;
-
-                    // Check if DotvvmInterruptRequestExecutionException is properly rethrown
-                    if (HasProperRethrow(tryOperation, dotvvmInterruptException))
-                        return;
-
-                    context.ReportDiagnostic(
-                        Diagnostic.Create(
-                            DoNotCatchDotvvmInterruptException,
-                            invocation.Syntax.GetLocation(),
-                            method.Name));
+                    // Check if the invocation is within a try-catch block and validate all nested try blocks
+                    if (!HasProperExceptionHandling(invocation, dotvvmInterruptException))
+                    {
+                        context.ReportDiagnostic(
+                            Diagnostic.Create(
+                                DoNotCatchDotvvmInterruptException,
+                                invocation.Syntax.GetLocation(),
+                                method.Name));
+                    }
                 }
             }, OperationKind.Invocation);
         }
@@ -89,16 +84,25 @@ namespace DotVVM.Analyzers.ApiUsage
                    methodName.StartsWith("ReturnFile");
         }
 
-        private static ITryOperation? GetEnclosingTryOperation(IOperation operation)
+        /// <summary>
+        /// Checks if the invocation has proper exception handling for all enclosing try blocks
+        /// </summary>
+        private static bool HasProperExceptionHandling(IOperation operation, INamedTypeSymbol dotvvmInterruptException)
         {
             var current = operation.Parent;
             while (current != null)
             {
                 if (current is ITryOperation tryOperation)
-                    return tryOperation;
+                {
+                    // Check if this try block has proper handling for the interrupt exception
+                    if (!HasProperRethrow(tryOperation, dotvvmInterruptException))
+                        return false;
+                }
                 current = current.Parent;
             }
-            return null;
+            
+            // All try blocks (if any) handle the exception properly
+            return true;
         }
 
         private static bool HasProperRethrow(ITryOperation tryOperation, INamedTypeSymbol dotvvmInterruptException)
@@ -110,12 +114,16 @@ namespace DotVVM.Analyzers.ApiUsage
                 if (caughtType == null)
                     continue;
 
+                // Check if the when clause excludes the interrupt exception
+                if (HasWhenClauseExcludingInterruptException(catchClause, dotvvmInterruptException))
+                    continue;
+
                 // Check if this catch could catch the interrupt exception
                 if (IsCatchingInterruptException(caughtType, dotvvmInterruptException))
                 {
                     // If this catch specifically catches DotvvmInterruptRequestExecutionException and rethrows, that's OK
                     if (SymbolEqualityComparer.Default.Equals(caughtType, dotvvmInterruptException) &&
-                        IsJustRethrow(catchClause.Handler))
+                        ContainsRethrow(catchClause.Handler))
                     {
                         // This catch handles the interrupt exception properly by rethrowing it
                         // The exception won't reach subsequent catch blocks, so we're safe
@@ -131,6 +139,20 @@ namespace DotVVM.Analyzers.ApiUsage
             return true;
         }
 
+        /// <summary>
+        /// Check if the when clause mentions the interrupt exception type (assumes it's being excluded)
+        /// </summary>
+        private static bool HasWhenClauseExcludingInterruptException(ICatchClauseOperation catchClause, INamedTypeSymbol dotvvmInterruptException)
+        {
+            if (catchClause.Filter == null)
+                return false;
+
+            // We don't want to fully evaluate the when condition, so we'll just check if the exception type is mentioned
+            // If it's mentioned, we assume it's being excluded (e.g., "when (ex is not DotvvmInterruptRequestExecutionException)")
+            var filterSyntax = catchClause.Filter.Syntax.ToString();
+            return filterSyntax.Contains(dotvvmInterruptException.Name);
+        }
+
         private static bool IsCatchingInterruptException(ITypeSymbol caughtType, INamedTypeSymbol dotvvmInterruptException)
         {
             // Check if caughtType is DotvvmInterruptRequestExecutionException or a base type
@@ -144,16 +166,31 @@ namespace DotVVM.Analyzers.ApiUsage
             return false;
         }
 
-        private static bool IsJustRethrow(IBlockOperation? block)
+        /// <summary>
+        /// Check if the block contains a rethrow (throw;) anywhere, including nested operations
+        /// </summary>
+        private static bool ContainsRethrow(IBlockOperation? block)
         {
             if (block == null)
                 return false;
 
-            var operations = block.Operations;
-            if (operations.Length != 1)
-                return false;
+            return ContainsRethrowRecursive(block);
+        }
 
-            return operations[0] is IThrowOperation throwOp && throwOp.Exception == null;
+        private static bool ContainsRethrowRecursive(IOperation operation)
+        {
+            // Check if this operation is a rethrow
+            if (operation is IThrowOperation throwOp && throwOp.Exception == null)
+                return true;
+
+            // Recursively check children
+            foreach (var child in operation.Children)
+            {
+                if (ContainsRethrowRecursive(child))
+                    return true;
+            }
+
+            return false;
         }
     }
 }
