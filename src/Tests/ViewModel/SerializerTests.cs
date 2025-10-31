@@ -18,6 +18,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Runtime.Serialization;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
@@ -275,6 +276,539 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreSame(originalInstances.P5Key, objPopulated.P5.Key);
             Assert.AreSame(originalInstances.P5Value, objPopulated.P5.Value);
             Assert.AreSame(originalInstances.P6a, objPopulated.P6.Item1);
+        }
+
+        [TestMethod]
+        public void SupportCollectionPopulate()
+        {
+            var obj = new TestViewModelWithCollections() {
+                ViewModels = new List<TestViewModelWithBind> {
+                    new TestViewModelWithBind { P1 = "Item1" },
+                    new TestViewModelWithBind { P1 = "Item2" },
+                    new TestViewModelWithBind { P1 = "Item3" }
+                },
+                Strings = new List<string> { "A", "B", "C" }
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+            Console.WriteLine($"JSON: {json}");
+
+            var obj2 = new TestViewModelWithCollections() {
+                ViewModels = new List<TestViewModelWithBind> {
+                    new TestViewModelWithBind { P1 = "Old1" },
+                    new TestViewModelWithBind { P1 = "Old2" }
+                },
+                Strings = new List<string> { "X", "Y" }
+            };
+            var originalInstances = (
+                Collection: obj2.ViewModels,
+                Item0: obj2.ViewModels[0],
+                Item1_: obj2.ViewModels[1], // avoid name conflict
+                StringCollection: obj2.Strings
+            );
+            var objPopulated = PopulateViewModel(json, obj2);
+
+            Assert.AreSame(objPopulated, obj2);
+            Assert.AreSame(originalInstances.Collection, objPopulated.ViewModels);
+            // primitive collections are replaced
+            Assert.AreNotSame(originalInstances.StringCollection, objPopulated.Strings);
+
+            // The collection should have the new content
+            Assert.AreEqual(3, objPopulated.ViewModels.Count);
+            Assert.AreEqual("Item1", objPopulated.ViewModels[0].P1);
+            Assert.AreEqual("Item2", objPopulated.ViewModels[1].P1);
+            Assert.AreEqual("Item3", objPopulated.ViewModels[2].P1);
+
+            Assert.AreEqual(3, objPopulated.Strings.Count);
+            Assert.AreEqual("A", objPopulated.Strings[0]);
+            Assert.AreEqual("B", objPopulated.Strings[1]);
+            Assert.AreEqual("C", objPopulated.Strings[2]);
+
+            // The existing view model instances should be populated (not replaced)
+            Assert.AreSame(originalInstances.Item0, objPopulated.ViewModels[0]);
+            Assert.AreSame(originalInstances.Item1_, objPopulated.ViewModels[1]);
+
+            Assert.AreEqual("Item1", originalInstances.Item0.P1); // was "Old1"
+            Assert.AreEqual("Item2", originalInstances.Item1_.P1); // was "Old2"
+        }
+
+        [TestMethod]
+        public void SupportNestedCollectionPopulate()
+        {
+            // Clear cache to ensure TestViewModelWithNestedCollections uses the registered DotvvmCollectionConverter
+            var mapper = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>();
+            if (mapper is ViewModelSerializationMapper concreteMapper)
+            {
+                concreteMapper.ClearCache(typeof(TestViewModelWithNestedCollections));
+            }
+
+            var obj = new TestViewModelWithNestedCollections() {
+                Matrix = new List<List<TestViewModelWithBind>> {
+                    new List<TestViewModelWithBind> {
+                        new TestViewModelWithBind { P1 = "Row1Col1" },
+                        new TestViewModelWithBind { P1 = "Row1Col2" }
+                    },
+                    new List<TestViewModelWithBind> {
+                        new TestViewModelWithBind { P1 = "Row2Col1" }
+                    }
+                }
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+            var obj2 = new TestViewModelWithNestedCollections() {
+                Matrix = new List<List<TestViewModelWithBind>> {
+                    new List<TestViewModelWithBind> {
+                        new TestViewModelWithBind { P1 = "OldValue" }
+                    }
+                }
+            };
+            var originalInstances = (
+                Matrix: obj2.Matrix,
+                Row0: obj2.Matrix[0],
+                Item00: obj2.Matrix[0][0]
+            );
+            var objPopulated = PopulateViewModel(json, obj2);
+
+            // The collection instances should be preserved
+            Assert.AreSame(objPopulated, obj2);
+            Assert.AreSame(originalInstances.Matrix, objPopulated.Matrix);
+            Assert.AreSame(originalInstances.Row0, objPopulated.Matrix[0]);
+
+            // The nested collection should have the new content
+            Assert.AreEqual(2, objPopulated.Matrix.Count);
+            Assert.AreEqual(2, objPopulated.Matrix[0].Count);
+            Assert.AreEqual(1, objPopulated.Matrix[1].Count);
+            Assert.AreEqual("Row1Col1", objPopulated.Matrix[0][0].P1);
+            Assert.AreEqual("Row1Col2", objPopulated.Matrix[0][1].P1);
+            Assert.AreEqual("Row2Col1", objPopulated.Matrix[1][0].P1);
+
+            // The existing view model instance should be populated (not replaced)
+            Assert.AreSame(originalInstances.Item00, objPopulated.Matrix[0][0]);
+
+            // Verify that the property was actually updated from its original value
+            // (this confirms the instance was populated, not just that the reference is preserved)
+            Assert.AreEqual("Row1Col1", originalInstances.Item00.P1); // was "OldValue"
+        }
+
+        [TestMethod]
+        public void SupportNestedArraysPopulate()
+        {
+            var obj = new TestViewModelWithNestedCollections() {
+                NestedArrays = new List<List<TestViewModelWithBind[]>> {
+                    new List<TestViewModelWithBind[]> {
+                        new TestViewModelWithBind[] {
+                            new TestViewModelWithBind { P1 = "Row0-Array0-Item0" },
+                            new TestViewModelWithBind { P1 = "Row0-Array0-Item1" }
+                        },
+                        new TestViewModelWithBind[] {
+                            new TestViewModelWithBind { P1 = "Row0-Array1-Item0" }
+                        }
+                    },
+                    new List<TestViewModelWithBind[]> {
+                        new TestViewModelWithBind[] {
+                            new TestViewModelWithBind { P1 = "Row1-Array0-Item0" },
+                            new TestViewModelWithBind { P1 = "Row1-Array0-Item1" },
+                            new TestViewModelWithBind { P1 = "Row1-Array0-Item2" }
+                        }
+                    }
+                }
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+
+            var obj2 = new TestViewModelWithNestedCollections() {
+                NestedArrays = new List<List<TestViewModelWithBind[]>> {
+                    new List<TestViewModelWithBind[]> {
+                        new TestViewModelWithBind[] {
+                            new TestViewModelWithBind { P1 = "Old-Row0-Array0-Item0" }
+                        }
+                    }
+                }
+            };
+
+            // Store references to existing instances for verification
+            var originalInstances = (
+                RootCollection: obj2.NestedArrays,
+                InnerList: obj2.NestedArrays[0],
+                Array: obj2.NestedArrays[0][0],
+                ViewModel: obj2.NestedArrays[0][0][0]
+            );
+
+            var objPopulated = PopulateViewModel(json, obj2);
+
+            // The root collection instance should be preserved
+            Assert.AreSame(objPopulated, obj2);
+            Assert.AreSame(originalInstances.RootCollection, objPopulated.NestedArrays);
+
+            // Verify the nested structure was populated correctly
+            Assert.AreEqual(2, objPopulated.NestedArrays.Count);
+
+            // First row
+            Assert.AreEqual(2, objPopulated.NestedArrays[0].Count);
+            Assert.AreEqual(2, objPopulated.NestedArrays[0][0].Length);
+            Assert.AreEqual("Row0-Array0-Item0", objPopulated.NestedArrays[0][0][0].P1);
+            Assert.AreEqual("Row0-Array0-Item1", objPopulated.NestedArrays[0][0][1].P1);
+            Assert.AreEqual(1, objPopulated.NestedArrays[0][1].Length);
+            Assert.AreEqual("Row0-Array1-Item0", objPopulated.NestedArrays[0][1][0].P1);
+
+            // Second row
+            Assert.AreEqual(1, objPopulated.NestedArrays[1].Count);
+            Assert.AreEqual(3, objPopulated.NestedArrays[1][0].Length);
+            Assert.AreEqual("Row1-Array0-Item0", objPopulated.NestedArrays[1][0][0].P1);
+            Assert.AreEqual("Row1-Array0-Item1", objPopulated.NestedArrays[1][0][1].P1);
+            Assert.AreEqual("Row1-Array0-Item2", objPopulated.NestedArrays[1][0][2].P1);
+
+            // The inner list should be preserved and populated (not replaced)
+            Assert.AreSame(originalInstances.InnerList, objPopulated.NestedArrays[0]);
+
+            // Arrays cannot be populated in-place, so they are replaced
+            Assert.AreNotSame(originalInstances.Array, objPopulated.NestedArrays[0][0]);
+
+            // However, the view model instances within arrays should still be preserved when possible
+            // Let's test this by checking if we can preserve view models during array creation
+            Assert.AreSame(originalInstances.ViewModel, objPopulated.NestedArrays[0][0][0]);
+
+            // Verify that the view model property was actually updated from its original value
+            // (this confirms the instance was populated, not just that the reference is preserved)
+            Assert.AreEqual("Row0-Array0-Item0", originalInstances.ViewModel.P1); // was "Old-Row0-Array0-Item0"
+        }
+
+        [TestMethod]
+        public void PolymorphicCollectionPopulate_NonAbstractBaseDoesNotWork()
+        {
+            var obj = new TestViewModelWithPolymorphicCollection() {
+                Items = new List<BaseItem> {
+                    new DerivedItemA { BaseProperty = "Base1", DerivedAProperty = "DerivedA1" },
+                    new DerivedItemB { BaseProperty = "Base2", DerivedBProperty = "DerivedB1" },
+                    new DerivedItemA { BaseProperty = "Base3", DerivedAProperty = "DerivedA2" }
+                }
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+
+            var obj2 = new TestViewModelWithPolymorphicCollection() {
+                Items = new List<BaseItem> {
+                    new DerivedItemA { BaseProperty = "OldBase1", DerivedAProperty = "OldDerivedA1" },
+                    new DerivedItemB { BaseProperty = "OldBase2", DerivedBProperty = "OldDerivedB1" }
+                }
+            };
+
+            var originalInstances = (
+                Collection: obj2.Items,
+                ItemA: (DerivedItemA)obj2.Items[0],
+                ItemB: (DerivedItemB)obj2.Items[1]
+            );
+
+            var objPopulated = PopulateViewModel(json, obj2);
+
+            Assert.AreSame(objPopulated, obj2);
+            Assert.AreSame(originalInstances.Collection, objPopulated.Items);
+
+            Assert.AreEqual(3, objPopulated.Items.Count);
+
+            Assert.IsInstanceOfType(objPopulated.Items[0], typeof(DerivedItemA));
+            Assert.AreSame(originalInstances.ItemA, objPopulated.Items[0]);
+            var firstItem = (DerivedItemA)objPopulated.Items[0];
+            Assert.AreEqual("Base1", firstItem.BaseProperty);
+            Assert.AreEqual("OldDerivedA1", firstItem.DerivedAProperty);
+
+            Assert.IsInstanceOfType(objPopulated.Items[1], typeof(DerivedItemB));
+            Assert.AreSame(originalInstances.ItemB, objPopulated.Items[1]);
+            var secondItem = (DerivedItemB)objPopulated.Items[1];
+            Assert.AreEqual("Base2", secondItem.BaseProperty);
+            Assert.AreEqual("OldDerivedB1", secondItem.DerivedBProperty);
+
+            var thirdItem = objPopulated.Items[2];
+            Assert.AreEqual(thirdItem.GetType(), typeof(BaseItem));
+            Assert.AreEqual("Base3", thirdItem.BaseProperty);
+        }
+
+        [TestMethod]
+        public void SupportAbstractPolymorphicCollectionPopulate()
+        {
+            var obj = new TestViewModelWithAbstractPolymorphicCollection() {
+                Items = new List<AbstractBaseItem> {
+                    new AbstractDerivedItemA { BaseProperty = "Base1", DerivedAProperty = "DerivedA1" },
+                    new AbstractDerivedItemB { BaseProperty = "Base2", DerivedBProperty = "DerivedB1" }
+                }
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+
+            var obj2 = new TestViewModelWithAbstractPolymorphicCollection() {
+                Items = new List<AbstractBaseItem> {
+                    new AbstractDerivedItemA { BaseProperty = "OldBase1", DerivedAProperty = "OldDerivedA1" },
+                    new AbstractDerivedItemB { BaseProperty = "OldBase2", DerivedBProperty = "OldDerivedB1" }
+                }
+            };
+
+            var originalInstances = (
+                Collection: obj2.Items,
+                ItemA: (AbstractDerivedItemA)obj2.Items[0],
+                ItemB: (AbstractDerivedItemB)obj2.Items[1]
+            );
+
+            var objPopulated = PopulateViewModel(json, obj2);
+
+            // The collection instance should be preserved
+            Assert.AreSame(objPopulated, obj2);
+            Assert.AreSame(originalInstances.Collection, objPopulated.Items);
+
+            // Verify the polymorphic items were populated correctly
+            Assert.AreEqual(2, objPopulated.Items.Count);
+
+            // First item - AbstractDerivedItemA - should be preserved and updated
+            Assert.IsInstanceOfType(objPopulated.Items[0], typeof(AbstractDerivedItemA));
+            Assert.AreSame(originalInstances.ItemA, objPopulated.Items[0]);
+            var firstItem = (AbstractDerivedItemA)objPopulated.Items[0];
+            Assert.AreEqual("Base1", firstItem.BaseProperty);
+            Assert.AreEqual("DerivedA1", firstItem.DerivedAProperty);
+
+            // Second item - AbstractDerivedItemB - should be preserved and updated
+            Assert.IsInstanceOfType(objPopulated.Items[1], typeof(AbstractDerivedItemB));
+            Assert.AreSame(originalInstances.ItemB, objPopulated.Items[1]);
+            var secondItem = (AbstractDerivedItemB)objPopulated.Items[1];
+            Assert.AreEqual("Base2", secondItem.BaseProperty);
+            Assert.AreEqual("DerivedB1", secondItem.DerivedBProperty);
+        }
+
+        [TestMethod]
+        public void SupportKeyValuePairCollection()
+        {
+            var obj = new TestViewModelWithAdvancedCollections()
+            {
+                KeyValuePairs = new List<KeyValuePair<string, TestViewModelWithBind>>
+                {
+                    new KeyValuePair<string, TestViewModelWithBind>("key1", new TestViewModelWithBind { P1 = "Item1", P2 = "Value1" }),
+                    new KeyValuePair<string, TestViewModelWithBind>("key2", new TestViewModelWithBind { P1 = "Item2", P2 = "Value2" }),
+                    new KeyValuePair<string, TestViewModelWithBind>("key3", new TestViewModelWithBind { P1 = "Item3", P2 = "Value3" })
+                }
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+
+            var obj2 = new TestViewModelWithAdvancedCollections()
+            {
+                KeyValuePairs = new List<KeyValuePair<string, TestViewModelWithBind>>
+                {
+                    new KeyValuePair<string, TestViewModelWithBind>("key1", new TestViewModelWithBind { P1 = "OldItem1", P2 = "OldValue1" }),
+                    new KeyValuePair<string, TestViewModelWithBind>("key2", new TestViewModelWithBind { P1 = "OldItem2", P2 = "OldValue2" })
+                }
+            };
+
+            var originalInstances = (
+                Collection: obj2.KeyValuePairs,
+                FirstValue: obj2.KeyValuePairs[0].Value,
+                SecondValue: obj2.KeyValuePairs[1].Value
+            );
+
+            var objPopulated = PopulateViewModel(json, obj2);
+
+            // The collection instance should be preserved
+            Assert.AreSame(objPopulated, obj2);
+            Assert.AreSame(originalInstances.Collection, objPopulated.KeyValuePairs);
+
+            // Verify the key-value pairs were populated correctly
+            Assert.AreEqual(3, objPopulated.KeyValuePairs.Count);
+            Assert.AreEqual("key1", objPopulated.KeyValuePairs[0].Key);
+            Assert.AreEqual("key2", objPopulated.KeyValuePairs[1].Key);
+            Assert.AreEqual("key3", objPopulated.KeyValuePairs[2].Key);
+
+            // First two values should be preserved and updated
+            Assert.AreSame(originalInstances.FirstValue, objPopulated.KeyValuePairs[0].Value);
+            Assert.AreSame(originalInstances.SecondValue, objPopulated.KeyValuePairs[1].Value);
+            Assert.AreEqual("Item1", objPopulated.KeyValuePairs[0].Value.P1);
+            Assert.AreEqual("Item2", objPopulated.KeyValuePairs[1].Value.P1);
+
+            // Third value should be a new instance
+            Assert.AreNotSame(originalInstances.FirstValue, objPopulated.KeyValuePairs[2].Value);
+            Assert.AreEqual("Item3", objPopulated.KeyValuePairs[2].Value.P1);
+        }
+
+        [TestMethod] 
+        public void SupportDictionaryCollection()
+        {
+            var obj = new TestViewModelWithAdvancedCollections()
+            {
+                Dictionary = new Dictionary<string, TestViewModelWithBind>
+                {
+                    ["key1"] = new TestViewModelWithBind { P1 = "Item1", P2 = "Value1" },
+                    ["key2"] = new TestViewModelWithBind { P1 = "Item2", P2 = "Value2" },
+                    ["key3"] = new TestViewModelWithBind { P1 = "Item3", P2 = "Value3" }
+                }
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+
+            var obj2 = new TestViewModelWithAdvancedCollections()
+            {
+                Dictionary = new Dictionary<string, TestViewModelWithBind>
+                {
+                    // Note: Different order to test that population works regardless of order
+                    ["key2"] = new TestViewModelWithBind { P1 = "OldItem2", P2 = "OldValue2" },
+                    ["key1"] = new TestViewModelWithBind { P1 = "OldItem1", P2 = "OldValue1" }
+                }
+            };
+
+            var originalInstances = (
+                Dictionary: obj2.Dictionary,
+                FirstValue: obj2.Dictionary["key1"],
+                SecondValue: obj2.Dictionary["key2"]
+            );
+
+            var objPopulated = PopulateViewModel(json, obj2);
+
+            // The dictionary instance should be preserved
+            Assert.AreSame(objPopulated, obj2);
+            Assert.AreSame(originalInstances.Dictionary, objPopulated.Dictionary);
+
+            // Verify the dictionary was populated correctly
+            Assert.AreEqual(3, objPopulated.Dictionary.Count);
+            Assert.IsTrue(objPopulated.Dictionary.ContainsKey("key1"));
+            Assert.IsTrue(objPopulated.Dictionary.ContainsKey("key2"));
+            Assert.IsTrue(objPopulated.Dictionary.ContainsKey("key3"));
+
+            // Existing values should be preserved and updated
+            Assert.AreSame(originalInstances.FirstValue, objPopulated.Dictionary["key1"]);
+            Assert.AreSame(originalInstances.SecondValue, objPopulated.Dictionary["key2"]);
+            Assert.AreEqual("Item1", objPopulated.Dictionary["key1"].P1);
+            Assert.AreEqual("Item2", objPopulated.Dictionary["key2"].P1);
+
+            // New value should be a new instance
+            Assert.AreNotSame(originalInstances.FirstValue, objPopulated.Dictionary["key3"]);
+            Assert.AreEqual("Item3", objPopulated.Dictionary["key3"].P1);
+        }
+
+        [TestMethod]
+        public void SupportImmutableArrayCollection()
+        {
+            var obj = new TestViewModelWithAdvancedCollections()
+            {
+                ImmutableArray = ImmutableArray.Create(
+                    new TestViewModelWithBind { P1 = "Item1", P2 = "Value1" },
+                    new TestViewModelWithBind { P1 = "Item2", P2 = "Value2" },
+                    new TestViewModelWithBind { P1 = "Item3", P2 = "Value3" }
+                )
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+
+            var obj2 = new TestViewModelWithAdvancedCollections()
+            {
+                ImmutableArray = ImmutableArray.Create(
+                    new TestViewModelWithBind { P1 = "OldItem1", P2 = "OldValue1" },
+                    new TestViewModelWithBind { P1 = "OldItem2", P2 = "OldValue2" }
+                )
+            };
+
+            var originalInstances = (
+                FirstItem: obj2.ImmutableArray[0],
+                SecondItem: obj2.ImmutableArray[1]
+            );
+
+            var objPopulated = PopulateViewModel(json, obj2);
+
+            // The root object should be preserved
+            Assert.AreSame(objPopulated, obj2);
+
+            // Verify the immutable array was populated correctly
+            Assert.AreEqual(3, objPopulated.ImmutableArray.Length);
+
+            // For immutable collections, we can't preserve the collection instance itself,
+            // but we should still be able to preserve individual view model instances where possible
+            Assert.AreSame(originalInstances.FirstItem, objPopulated.ImmutableArray[0]);
+            Assert.AreSame(originalInstances.SecondItem, objPopulated.ImmutableArray[1]);
+            Assert.AreEqual("Item1", objPopulated.ImmutableArray[0].P1);
+            Assert.AreEqual("Item2", objPopulated.ImmutableArray[1].P1);
+
+            // Third item should be a new instance
+            Assert.AreNotSame(originalInstances.FirstItem, objPopulated.ImmutableArray[2]);
+            Assert.AreEqual("Item3", objPopulated.ImmutableArray[2].P1);
+        }
+
+        [TestMethod]
+        public void SupportImmutableListCollection()
+        {
+            var obj = new TestViewModelWithAdvancedCollections()
+            {
+                ImmutableList = ImmutableList.Create(
+                    new TestViewModelWithBind { P1 = "Item1", P2 = "Value1" },
+                    new TestViewModelWithBind { P1 = "Item2", P2 = "Value2" },
+                    new TestViewModelWithBind { P1 = "Item3", P2 = "Value3" }
+                )
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+
+            var obj2 = new TestViewModelWithAdvancedCollections()
+            {
+                ImmutableList = ImmutableList.Create(
+                    new TestViewModelWithBind { P1 = "OldItem1", P2 = "OldValue1" },
+                    new TestViewModelWithBind { P1 = "OldItem2", P2 = "OldValue2" }
+                )
+            };
+
+            var originalInstances = (
+                FirstItem: obj2.ImmutableList[0],
+                SecondItem: obj2.ImmutableList[1]
+            );
+
+            var objPopulated = PopulateViewModel(json, obj2);
+
+            // The root object should be preserved
+            Assert.AreSame(objPopulated, obj2);
+
+            // Verify the immutable list was populated correctly
+            Assert.AreEqual(3, objPopulated.ImmutableList.Count);
+
+            // For immutable collections, we can't preserve the collection instance itself,
+            // but we should still be able to preserve individual view model instances where possible
+            Assert.AreSame(originalInstances.FirstItem, objPopulated.ImmutableList[0]);
+            Assert.AreSame(originalInstances.SecondItem, objPopulated.ImmutableList[1]);
+            Assert.AreEqual("Item1", objPopulated.ImmutableList[0].P1);
+            Assert.AreEqual("Item2", objPopulated.ImmutableList[1].P1);
+
+            // Third item should be a new instance
+            Assert.AreNotSame(originalInstances.FirstItem, objPopulated.ImmutableList[2]);
+            Assert.AreEqual("Item3", objPopulated.ImmutableList[2].P1);
+        }
+
+        [TestMethod]
+        public void SupportImmutableDictionaryCollection()
+        {
+            var obj = new TestViewModelWithAdvancedCollections()
+            {
+                ImmutableDictionary = ImmutableDictionary<string, TestViewModelWithBind>.Empty
+                    .Add("key1", new TestViewModelWithBind { P1 = "Item1", P2 = "Value1" })
+                    .Add("key2", new TestViewModelWithBind { P1 = "Item2", P2 = "Value2" })
+                    .Add("key3", new TestViewModelWithBind { P1 = "Item3", P2 = "Value3" })
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+
+            var obj2 = new TestViewModelWithAdvancedCollections()
+            {
+                ImmutableDictionary = ImmutableDictionary<string, TestViewModelWithBind>.Empty
+                    .Add("key2", new TestViewModelWithBind { P1 = "OldItem2", P2 = "OldValue2" })
+                    .Add("key1", new TestViewModelWithBind { P1 = "OldItem1", P2 = "OldValue1" })
+            };
+
+            var originalInstances = (
+                FirstValue: obj2.ImmutableDictionary["key1"],
+                SecondValue: obj2.ImmutableDictionary["key2"]
+            );
+
+            var objPopulated = PopulateViewModel(json, obj2);
+
+            // The root object should be preserved
+            Assert.AreSame(objPopulated, obj2);
+
+            // Verify the immutable dictionary was populated correctly
+            Assert.AreEqual(3, objPopulated.ImmutableDictionary.Count);
+            Assert.IsTrue(objPopulated.ImmutableDictionary.ContainsKey("key1"));
+            Assert.IsTrue(objPopulated.ImmutableDictionary.ContainsKey("key2"));
+            Assert.IsTrue(objPopulated.ImmutableDictionary.ContainsKey("key3"));
+
+            // For immutable collections, we can't preserve the collection instance itself,
+            // but we should still be able to preserve individual view model instances where possible
+            Assert.AreSame(originalInstances.FirstValue, objPopulated.ImmutableDictionary["key1"]);
+            Assert.AreSame(originalInstances.SecondValue, objPopulated.ImmutableDictionary["key2"]);
+            Assert.AreEqual("Item1", objPopulated.ImmutableDictionary["key1"].P1);
+            Assert.AreEqual("Item2", objPopulated.ImmutableDictionary["key2"].P1);
+
+            // New value should be a new instance
+            Assert.AreNotSame(originalInstances.FirstValue, objPopulated.ImmutableDictionary["key3"]);
+            Assert.AreEqual("Item3", objPopulated.ImmutableDictionary["key3"].P1);
         }
 
         [TestMethod]
@@ -1207,5 +1741,76 @@ namespace DotVVM.Framework.Tests.ViewModel
         public System.Half[] HalfArray { get; set; }
         public Dictionary<string, System.Half> HalfDict { get; set; }
 #endif
+    }
+    public class TestViewModelWithCollections
+    {
+        public List<TestViewModelWithBind> ViewModels { get; set; } = new List<TestViewModelWithBind>();
+        public List<string> Strings { get; set; } = new List<string>();
+    }
+
+    public class TestViewModelWithNestedCollections
+    {
+        public List<List<TestViewModelWithBind>> Matrix { get; set; } = new List<List<TestViewModelWithBind>>();
+        public List<List<TestViewModelWithBind[]>> NestedArrays { get; set; } = new List<List<TestViewModelWithBind[]>>();
+    }
+
+    public class TestViewModelWithPolymorphicCollection
+    {
+        public List<BaseItem> Items { get; set; } = new List<BaseItem>();
+    }
+
+    public class BaseItem
+    {
+        public string BaseProperty { get; set; }
+    }
+
+    public class DerivedItemA : BaseItem
+    {
+        public string DerivedAProperty { get; set; }
+    }
+
+    public class DerivedItemB : BaseItem
+    {
+        public string DerivedBProperty { get; set; }
+    }
+
+    public class TestViewModelWithAdvancedCollections
+    {
+        public List<KeyValuePair<string, TestViewModelWithBind>> KeyValuePairs { get; set; } = new List<KeyValuePair<string, TestViewModelWithBind>>();
+        public Dictionary<string, TestViewModelWithBind> Dictionary { get; set; } = new Dictionary<string, TestViewModelWithBind>();
+        public ImmutableArray<TestViewModelWithBind> ImmutableArray { get; set; } = ImmutableArray<TestViewModelWithBind>.Empty;
+        public ImmutableList<TestViewModelWithBind> ImmutableList { get; set; } = ImmutableList<TestViewModelWithBind>.Empty;
+        public ImmutableDictionary<string, TestViewModelWithBind> ImmutableDictionary { get; set; } = ImmutableDictionary<string, TestViewModelWithBind>.Empty;
+    }
+
+    public class DerivedSubclassA : DerivedItemA
+    {
+        public string SubProperty { get; set; }
+    }
+
+    public class TestViewModelWithConcreteCollection
+    {
+        public List<DerivedItemA> Items { get; set; } = new List<DerivedItemA>();
+    }
+
+    // Test classes for abstract polymorphic collections
+    public abstract class AbstractBaseItem
+    {
+        public string BaseProperty { get; set; }
+    }
+
+    public class AbstractDerivedItemA : AbstractBaseItem
+    {
+        public string DerivedAProperty { get; set; }
+    }
+
+    public class AbstractDerivedItemB : AbstractBaseItem
+    {
+        public string DerivedBProperty { get; set; }
+    }
+
+    public class TestViewModelWithAbstractPolymorphicCollection
+    {
+        public List<AbstractBaseItem> Items { get; set; } = new List<AbstractBaseItem>();
     }
 }

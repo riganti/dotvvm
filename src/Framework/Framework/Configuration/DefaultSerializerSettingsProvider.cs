@@ -37,6 +37,7 @@ namespace DotVVM.Framework.Configuration
                     new DotvvmObjectConverter(),
                     new DotvvmEnumConverter(),
                     new DotvvmDictionaryConverter(),
+                    new DotvvmCollectionConverter(),
                     new DotvvmByteArrayConverter(),
                     new DotvvmCustomPrimitiveTypeConverter(),
 #if !DotNetCore
