@@ -83,9 +83,9 @@ namespace DotVVM.Analyzers.ApiUsage
                 return false;
 
             // Check if the method name matches one of the known interrupting methods
+            // These methods throw DotvvmInterruptRequestExecutionException after setting the response
             var methodName = method.Name;
             return methodName.StartsWith("RedirectTo") || 
-                   methodName.StartsWith("Redirect") ||
                    methodName.StartsWith("ReturnFile");
         }
 
