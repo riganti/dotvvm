@@ -562,5 +562,96 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
                 .WithLocation(0).WithArguments("ReturnFileAsync"));
         }
+
+        [Fact]
+        public async Task Test_Warning_BareCatchBlock_NoRethrow()
+        {
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using System.Threading.Tasks;
+    using DotVVM.Framework.Hosting;
+
+    namespace ConsoleApplication1
+    {
+        public class TestClass
+        {
+            public async Task OnDownloadFile(IDotvvmRequestContext context)
+            {
+                try
+                {
+                    var bytes = new byte[] { 1, 2, 3 };
+                    await {|#0:context.ReturnFileAsync(bytes, ""file.csv"", ""application/octet-stream"")|};
+                }
+                catch
+                {
+                    // Bare catch without rethrow - this is BAD
+                }
+            }
+        }
+    }",
+
+            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                .WithLocation(0).WithArguments("ReturnFileAsync"));
+        }
+
+        [Fact]
+        public async Task Test_Warning_BareCatchBlock_WithRethrow()
+        {
+            // Bare catch blocks are always flagged because we cannot reliably detect rethrows in them
+            // Users should use catch (DotvvmInterruptRequestExecutionException) { throw; } instead
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using System.Threading.Tasks;
+    using DotVVM.Framework.Hosting;
+
+    namespace ConsoleApplication1
+    {
+        public class TestClass
+        {
+            public async Task OnDownloadFile(IDotvvmRequestContext context)
+            {
+                try
+                {
+                    var bytes = new byte[] { 1, 2, 3 };
+                    await {|#0:context.ReturnFileAsync(bytes, ""file.csv"", ""application/octet-stream"")|};
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+        }
+    }",
+
+            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                .WithLocation(0).WithArguments("ReturnFileAsync"));
+        }
+
+        [Fact]
+        public async Task Test_Warning_BareCatchBlock_WithRethrow_NonAsync()
+        {
+            // Bare catch blocks are always flagged because we cannot reliably detect rethrows in them
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using DotVVM.Framework.Hosting;
+
+    namespace ConsoleApplication1
+    {
+        public class TestClass
+        {
+            public void OnRedirect(IDotvvmRequestContext context)
+            {
+                try
+                {
+                    {|#0:context.RedirectToUrl(""/home"")|};
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+        }
+    }",
+
+            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                .WithLocation(0).WithArguments("RedirectToUrl"));
+        }
     }
 }

@@ -111,8 +111,15 @@ namespace DotVVM.Analyzers.ApiUsage
             foreach (var catchClause in tryOperation.Catches)
             {
                 var caughtType = catchClause.ExceptionType;
+                
+                // A bare catch { } (no exception type) catches all exceptions
+                // We cannot reliably detect rethrows in bare catch blocks due to Roslyn limitations
+                // So we conservatively report this as a problem
+                // Users should use catch (DotvvmInterruptRequestExecutionException) { throw; } instead
                 if (caughtType == null)
-                    continue;
+                {
+                    return false;  // Bare catch always fails the check
+                }
 
                 // Check if the when clause excludes the interrupt exception
                 if (HasWhenClauseExcludingInterruptException(catchClause, dotvvmInterruptException))
@@ -169,12 +176,12 @@ namespace DotVVM.Analyzers.ApiUsage
         /// <summary>
         /// Check if the block contains a rethrow (throw;) anywhere, including nested operations
         /// </summary>
-        private static bool ContainsRethrow(IBlockOperation? block)
+        private static bool ContainsRethrow(IOperation? handler)
         {
-            if (block == null)
+            if (handler == null)
                 return false;
 
-            return ContainsRethrowRecursive(block);
+            return ContainsRethrowRecursive(handler);
         }
 
         private static bool ContainsRethrowRecursive(IOperation operation)
