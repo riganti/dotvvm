@@ -167,5 +167,32 @@ namespace DotVVM.Analyzers {
                 return ResourceManager.GetString("Serializability_NonSerializableType_Title", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DotvvmInterruptRequestExecutionException is used internally by DotVVM to interrupt request execution when redirecting or returning files. It must be rethrown or not caught at all..
+        /// </summary>
+        internal static string ApiUsage_DoNotCatchDotvvmInterruptException_Description {
+            get {
+                return ResourceManager.GetString("ApiUsage_DoNotCatchDotvvmInterruptException_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; method call must not be inside a try-catch block unless DotvvmInterruptRequestExecutionException is rethrown.
+        /// </summary>
+        internal static string ApiUsage_DoNotCatchDotvvmInterruptException_Message {
+            get {
+                return ResourceManager.GetString("ApiUsage_DoNotCatchDotvvmInterruptException_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DotvvmInterruptRequestExecutionException must be rethrown.
+        /// </summary>
+        internal static string ApiUsage_DoNotCatchDotvvmInterruptException_Title {
+            get {
+                return ResourceManager.GetString("ApiUsage_DoNotCatchDotvvmInterruptException_Title", resourceCulture);
+            }
+        }
     }
 }
