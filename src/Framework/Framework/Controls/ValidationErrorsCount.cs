@@ -22,7 +22,8 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Gets or sets whether the errors from child objects in the viewmodel will be counted too.
+        /// Gets or sets whether the errors from child objects in the viewmodel will be counted too. 
+        /// Default is <c>true</c> (unlike <see cref="ValidationSummary"/> which defaults to <c>false</c>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool IncludeErrorsFromChildren

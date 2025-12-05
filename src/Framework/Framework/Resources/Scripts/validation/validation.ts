@@ -139,7 +139,7 @@ export function init() {
         init: (element: HTMLElement, valueAccessor: () => ValidationErrorsCountBinding) => {
             const binding = valueAccessor();
 
-            validationErrorsChanged.subscribe(_ => {
+            const updateErrorCount = () => {
                 const errors = getValidationErrors(
                     binding.target,
                     binding.includeErrorsFromChildren,
@@ -154,6 +154,14 @@ export function init() {
                         element.classList.remove(binding.invalidCssClass);
                     }
                 }
+            };
+
+            // Update initially to show current count
+            updateErrorCount();
+
+            // Subscribe to validation errors changes
+            validationErrorsChanged.subscribe(_ => {
+                updateErrorCount();
             });
         }
     }
