@@ -22,6 +22,13 @@ type ValidationSummaryBinding = {
     hideWhenValid: boolean
 }
 
+type ValidationErrorsCountBinding = {
+    target: KnockoutObservable<any>,
+    includeErrorsFromChildren: boolean,
+    includeErrorsFromTarget: boolean,
+    invalidCssClass?: string
+}
+
 type DotvvmValidationErrorsChangedEventArgs = Partial<PostbackOptions> & {
     readonly allErrors: ValidationError[]
 }
@@ -122,6 +129,30 @@ export function init() {
                 
                 if (binding.hideWhenValid) {
                     element.style.display = errors.length > 0 ? "" : "none";
+                }
+            });
+        }
+    }
+
+    // ValidationErrorsCount
+    ko.bindingHandlers["dotvvm-validationErrorsCount"] = {
+        init: (element: HTMLElement, valueAccessor: () => ValidationErrorsCountBinding) => {
+            const binding = valueAccessor();
+
+            validationErrorsChanged.subscribe(_ => {
+                const errors = getValidationErrors(
+                    binding.target,
+                    binding.includeErrorsFromChildren,
+                    binding.includeErrorsFromTarget
+                );
+                element.innerText = errors.length.toString();
+
+                if (binding.invalidCssClass) {
+                    if (errors.length > 0) {
+                        element.classList.add(binding.invalidCssClass);
+                    } else {
+                        element.classList.remove(binding.invalidCssClass);
+                    }
                 }
             });
         }
