@@ -204,7 +204,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         internal static DotvvmSerializationState? Current => current;
 
-        internal static DotvvmSerializationState Create(
+        public static DotvvmSerializationState Create(
             bool isPostback,
             IServiceProvider services,
             JsonObject? readEncryptedValues = null)
