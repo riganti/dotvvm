@@ -1629,7 +1629,56 @@ namespace DotVVM.Framework.Tests.Binding
             var exception = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("new int[\"not a number\"]", new TestViewModel()));
             StringAssert.Contains(exception.Message, "Cannot convert");
         }
+
+        [TestMethod]
+        public void BindingCompiler_ConstructorInference_TupleWithPredicates()
+        {
+            var expression = "new (s => s == \"a\", i => i == 1)";
+            var result = ExecuteBinding(expression, [new TestViewModel()], null, typeof(Tuple<Predicate<string>, Predicate<int>>));
+            var tuple = (Tuple<Predicate<string>, Predicate<int>>)result;
+            Assert.IsTrue(tuple.Item1("a"));
+            Assert.IsFalse(tuple.Item1("b"));
+            Assert.IsTrue(tuple.Item2(1));
+            Assert.IsFalse(tuple.Item2(2));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_PropertyAssignment_ExactExpectedTypeLambda()
+        {
+            var result = ExecuteBinding("StringPredicate = s => s == \"a\"", [(new TestViewModel())]);
+            var predicate = XAssert.IsType<Predicate<string>>(result);
+            Assert.IsTrue(predicate("a"));
+            Assert.IsFalse(predicate("b"));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_PropertyAssignment_ExactExpectedTypeNew()
+        {
+            var result = ExecuteBinding("Tuple = new(1, true)", [ new TestViewModel() ]);
+            
+            // The result of assignment is the assigned value
+            Assert.IsInstanceOfType(result, typeof(Tuple<int, bool>));
+            var tuple = (Tuple<int, bool>)result;
+            Assert.AreEqual(1, tuple.Item1);
+            Assert.AreEqual(true, tuple.Item2);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_NullCoalescing_Inference()
+        {
+            var result = ExecuteBinding("Tuple ?? new(1, true)", [ new TestViewModel() ]);
+            
+            Assert.IsInstanceOfType(result, typeof(Tuple<int, bool>));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Operator_Inference_Fails()
+        {
+            var exception = XAssert.ThrowsAny<Exception>(() => ExecuteBinding("Tuple ?? ! new(1, true)", [ new TestViewModel() ]));
+            StringAssert.Contains(exception.Message, "Could not infer the constructed type");
+        }
     }
+
     public class TestViewModel
     {
         public bool BoolProp { get; set; }
@@ -1670,10 +1719,12 @@ namespace DotVVM.Framework.Tests.Binding
         public ushort UShortProp { get; set; } = 65535;
         public uint UIntProp { get; set; } = 3_000_000_000;
         public double? NullableDoubleProp { get; set; }
+        public Predicate<string> StringPredicate { get; set; }
 
         public VehicleNumber? VehicleNumber { get; set; }
 
         public ReadOnlyCollection<int> ReadOnlyCollection => new ReadOnlyCollection<int>(new[] { 1, 2, 3 });
+
 
         public string SetStringProp(string a, int b)
         {

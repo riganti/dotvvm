@@ -19,13 +19,13 @@ namespace DotVVM.Framework.Compilation.Binding
         public Expression Target { get; }
         public string MethodName { get; }
         public Type[]? TypeArgs { get; }
-        public List<MethodInfo>? Candidates { get; set; }
+        public MethodInfo[]? Candidates { get; set; }
         public bool HasExtensionCandidates { get; }
         public bool IsStatic => Target is StaticClassIdentifierExpression;
 
         private static MethodInfo CreateDelegateMethodInfo = typeof(Delegate).GetMethod("CreateDelegate", new[] { typeof(Type), typeof(object), typeof(MethodInfo) })!;
 
-        public MethodGroupExpression(Expression target, string methodName, Type[]? typeArgs = null, List<MethodInfo>? candidates = null, bool hasExtensionCandidates = false)
+        public MethodGroupExpression(Expression target, string methodName, Type[]? typeArgs = null, MethodInfo[]? candidates = null, bool hasExtensionCandidates = false)
         {
             Target = target;
             MethodName = methodName;

@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Compilation.Inference
     internal interface ITypeInferer
     {
         void BeginFunctionCall(MethodGroupExpression? target, int argsCount);
-        void EndFunctionCall();
+        void PopContext();
 
         void SetArgument(Expression expression, int index);
         void SetProbedArgumentIndex(int index);

@@ -35,7 +35,13 @@ namespace DotVVM.Framework.Compilation.Inference
             }
         }
 
-        public void EndFunctionCall()
+        public void BeginConstructorCall(Type type, int argsCount)
+        {
+            var constructors = type.GetConstructors().ToList<MethodBase>();
+            contextStack.Push(new InfererContext(constructors, argsCount));
+        }
+
+        public void PopContext()
         {
             contextStack.Pop();
         }
@@ -66,20 +72,18 @@ namespace DotVVM.Framework.Compilation.Inference
         {
             var context = contextStack.Peek();
             var argument = context.Arguments[index];
-            if (argument == null)
+            if (argument == null || context.Candidates.Count == 0)
                 return;
 
             var argumentType = argument.Type;
-            if (context.Target == null)
-                return;
 
-            var newCandidates = new List<MethodInfo>();
+            var newCandidates = new List<MethodBase>();
             var newInstantiations = new Dictionary<Type, HashSet<Type>>();
 
             // Check if we can remove some candidates
             // Also try to infer generics based on provided argument
             var tempInstantiations = new Dictionary<Type, Type>();
-            foreach (var candidate in context.Target.Candidates!.Where(c => c.GetParameters().Length > index))
+            foreach (var candidate in context.Candidates.Where(c => c.GetParameters().Length > index))
             {
                 tempInstantiations.Clear();
                 var parameters = candidate.GetParameters();
@@ -116,7 +120,7 @@ namespace DotVVM.Framework.Compilation.Inference
             foreach (var (key, val) in newInstantiations.Where(inst => inst.Value.Count == 1))
                 context.Generics[key] = val.First();
 
-            context.Target.Candidates = newCandidates;
+            context.Candidates = newCandidates;
         }
 
         private bool TryInferInstantiation(Type generic, Type concrete, Dictionary<Type, Type> generics)
@@ -171,6 +175,24 @@ namespace DotVVM.Framework.Compilation.Inference
         {
             this.expectedType = expectedType;
             return this;
+        }
+
+        public void BeginExplicitTypeInference(Type expectedType)
+        {
+            // push "fake" method which only accepts the expected type
+            var invokeMethod = Helper.AcceptTypeMethod.MakeGenericMethod(expectedType);
+            contextStack.Push(new InfererContext([ invokeMethod ], 1));
+        }
+
+        public void BeginNoInference()
+        {
+            contextStack.Push(new InfererContext([], 0));
+        }
+
+        static class Helper
+        {
+            public static readonly MethodInfo AcceptTypeMethod = typeof(Helper).GetMethod(nameof(AcceptType))!;
+            public static void AcceptType<T>(T instance) { }
         }
     }
 }

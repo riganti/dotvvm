@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
 
-            var candidates = members.Cast<MethodInfo>().ToList();
+            var candidates = members.Cast<MethodInfo>().ToArray();
             return new MethodGroupExpression(target, name, typeArguments, candidates, isExtension);
         }
 

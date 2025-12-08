@@ -143,7 +143,10 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitUnaryOperator(UnaryOperatorBindingParserNode node)
         {
+            inferer.BeginNoInference();
             var operand = Visit(node.InnerExpression);
+            inferer.PopContext();
+
             ExpressionType eop;
             switch (node.Operator)
             {
@@ -228,8 +231,20 @@ namespace DotVVM.Framework.Compilation.Binding
                     throw new NotSupportedException($"unary operator { node.Operator } is not supported");
             }
 
+
+            inferer.BeginNoInference();
             var left = HandleErrors(node.FirstExpression, Visit);
+            inferer.PopContext();
+
+            if (node.Operator is BindingTokenType.AssignOperator or BindingTokenType.NullCoalescingOperator)
+                inferer.BeginExplicitTypeInference(left!.Type);
+            else
+                inferer.BeginNoInference();
+
             var right = HandleErrors(node.SecondExpression, Visit);
+
+            inferer.PopContext();
+
             ThrowOnErrors();
 
             return memberExpressionFactory.GetBinaryOperator(left!, right!, eop);
@@ -246,7 +261,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitFunctionCall(FunctionCallBindingParserNode node)
         {
+            inferer.BeginNoInference();
             var target = HandleErrors(node.TargetExpression, Visit);
+            inferer.PopContext();
             var args = new Expression[node.ArgumentExpressions.Count];
 
             inferer.BeginFunctionCall(target as MethodGroupExpression, args.Length);
@@ -273,7 +290,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 inferer.SetArgument(args[index], index);
             }
 
-            inferer.EndFunctionCall();
+            inferer.PopContext();
             ThrowOnErrors();
 
             return memberExpressionFactory.Call(target!, args);
@@ -386,7 +403,9 @@ namespace DotVVM.Framework.Compilation.Binding
                 ? $"{nameNode.Name}`{typeParameters!.Length}"
                 : nameNode.Name;
 
+            inferer.BeginNoInference();
             var target = Visit(node.TargetExpression);
+            inferer.PopContext();
 
             if (target is UnknownStaticClassIdentifierExpression unknownClass)
             {
@@ -757,7 +776,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             var args = new Expression[node.ArgumentExpressions.Count];
 
-            // inferer.BeginFunctionCall(null, args.Length); // TODO
+            inferer.BeginConstructorCall(targetType, args.Length);
 
             var lambdaNodeIndices = new List<int>();
             // Initially process all nodes that are not lambdas
@@ -769,18 +788,19 @@ namespace DotVVM.Framework.Compilation.Binding
                     continue;
                 }
 
+                inferer.SetProbedArgumentIndex(i);
                 args[i] = HandleErrors(node.ArgumentExpressions[i], Visit)!;
-                // inferer.SetArgument(args[i], i);
+                inferer.SetArgument(args[i], i);
             }
             // Subsequently process all lambdas
             foreach (var index in lambdaNodeIndices)
             {
-                // inferer.SetProbedArgumentIndex(index);
+                inferer.SetProbedArgumentIndex(index);
                 args[index] = HandleErrors(node.ArgumentExpressions[index], Visit)!;
-                // inferer.SetArgument(args[index], index);
+                inferer.SetArgument(args[index], index);
             }
 
-            // inferer.EndFunctionCall();
+            inferer.PopContext();
             ThrowOnErrors();
 
             return memberExpressionFactory.Constructor(targetType, args);
