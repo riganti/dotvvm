@@ -22,6 +22,7 @@ using DotVVM.Framework.Utils;
 using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -51,7 +52,7 @@ namespace DotVVM.Framework.Tests.Runtime
             // };
 
             context = DotvvmTestHelper.CreateContext(configuration);
-            serializer = configuration.ServiceProvider.GetRequiredService<IViewModelSerializer>() as DefaultViewModelSerializer;
+            serializer = (DefaultViewModelSerializer)configuration.ServiceProvider.GetRequiredService<IViewModelSerializer>();
         }
 
 
@@ -344,6 +345,11 @@ namespace DotVVM.Framework.Tests.Runtime
             public int PropertyB { get; set; }
         }
 
+        public class ViewModelWithArray
+        {
+            public TestViewModel2[] Items { get; set; }
+        }
+
 
 
         [TestMethod]
@@ -536,6 +542,36 @@ namespace DotVVM.Framework.Tests.Runtime
             PopulateViewModel(viewModel, json);
             Assert.AreEqual(43, viewModel.PropertyPlusOne);
         }
+
+        [TestMethod]
+        public void DeserializeArrayWithFreshlyCreatedViewModel()
+        {
+            var configuration = DotvvmTestHelper.CreateConfiguration();
+            var serializer = (DefaultViewModelSerializer)configuration.ServiceProvider.GetRequiredService<IViewModelSerializer>();
+            
+            // Test with a type that's already been used in other tests
+            var json = """
+            { "Items": [ { "PropertyA": "test", "PropertyB": 123 } ] }
+            """;
+            var viewModel = new ViewModelWithArray();
+            var context = new TestDotvvmRequestContext(configuration.ServiceProvider) {
+                ViewModel = viewModel,
+                Configuration = configuration,
+                HttpContext = new DotvvmHttpContext(new DefaultHttpContext()),
+                ModelState = new ModelState()
+            };
+
+            serializer.PopulateViewModel(context,
+                StringUtils.Utf8.GetBytes(
+                    $$"""{"viewModel": {{json}}  }""")
+            );
+
+            Assert.IsNotNull(viewModel.Items);
+            Assert.AreEqual(1, viewModel.Items.Length);
+            Assert.AreEqual("test", viewModel.Items[0].PropertyA);
+            Assert.AreEqual(123, viewModel.Items[0].PropertyB);
+        }
+
 
         public class GetOnlyPropertyViewModel
         {
