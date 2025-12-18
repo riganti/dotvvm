@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Runtime
         public static DotvvmLocationInfo? GetLocation(this IDotvvmException e)
         {
             return e.Location ??
-                   e.RelatedBinding?.GetProperty<DotvvmLocationInfo>(ErrorHandlingMode.ReturnNull) ??
+                   e.RelatedBinding?.GetPropertyOrDefault<DotvvmLocationInfo>() ??
                    e.RelatedControl?.Apply(DotvvmLocationInfo.FromControl);
         }
     }

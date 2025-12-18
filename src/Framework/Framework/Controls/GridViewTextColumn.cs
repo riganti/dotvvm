@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Controls
         {
             if (string.IsNullOrEmpty(SortExpression))
             {
-                return ValueBinding?.GetProperty<OriginalStringBindingProperty>()?.Code ??
+                return ValueBinding?.GetProperty<OriginalStringBindingProperty>().Code ??
                     throw new DotvvmControlException(this, $"The 'ValueBinding' property must be set on the '{GetType()}' control!");
             }
             else

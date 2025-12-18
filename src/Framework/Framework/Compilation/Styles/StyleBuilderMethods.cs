@@ -155,7 +155,7 @@ public static partial class StyleBuilderExtensionMethods
             throw new ArgumentException($"Setting value '{value}' of type {value.GetType()} is not allowed compile time. The type must be primitive.", nameof(value));
         if (value is IBinding binding)
         {
-            var resultType = binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type;
+            var resultType = binding.GetPropertyOrDefault<ResultTypeBindingProperty>().Type;
             if (resultType != null && resultType != typeof(object) && property.PropertyType.IsAssignableFrom(resultType))
                 throw new ArgumentException($"Binding {value} of type {resultType} is not assignable to property {property} of type {property.PropertyType}", nameof(value));
         }
@@ -173,7 +173,7 @@ public static partial class StyleBuilderExtensionMethods
         DotvvmProperty property,
         Func<IStyleMatchContext<T>, object?> value,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite) =>
-        
+
         sb.AddApplicator(new GenericPropertyStyleApplicator<T>(property, value, options));
 
     /// <summary> Sets a specified property on the matching controls. The value can be computed from any property on the control using the IStyleMatchContext. </summary>
@@ -218,7 +218,7 @@ public static partial class StyleBuilderExtensionMethods
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite,
         BindingParserOptions? bindingOptions = null)
         where T: IStyleBuilder =>
-        
+
         sb.AddApplicator(new PropertyStyleBindingApplicator(
             property,
             binding,

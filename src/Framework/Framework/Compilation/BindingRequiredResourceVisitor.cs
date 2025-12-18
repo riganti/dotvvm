@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
-            var requiredResourceProperty = propertyBinding.Binding.Binding.GetProperty<RequiredRuntimeResourcesBindingProperty>(ErrorHandlingMode.ReturnNull);
+            var requiredResourceProperty = propertyBinding.Binding.Binding.GetPropertyOrDefault<RequiredRuntimeResourcesBindingProperty>();
             if (requiredResourceProperty != null)
             {
                 requiredResources = requiredResources.Union(requiredResourceProperty.Resources);

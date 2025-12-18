@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding.Properties;
@@ -31,47 +32,85 @@ namespace DotVVM.Framework.Binding.Expressions
             AddNullResolvers();
         }
 
-        private protected MaybePropValue<CommandJavascriptBindingProperty> commandJs;
-        private protected MaybePropValue<IdBindingProperty> id;
+        private protected MaybePropValue<ParametrizedCode> commandJs; // CommandJavascriptBindingProperty
+        private protected MaybePropValue<string> id; // IdBindingProperty
         private protected MaybePropValue<ActionFiltersBindingProperty> actionFilters;
+
+        private protected CommandJavascriptBindingProperty GetCommandJavascript(out ErrorWrapper? error) =>
+            commandJs.GetValue(this).TryGet(out var value, out error)
+                ? new CommandJavascriptBindingProperty(value)
+                : default;
+
+        private protected IdBindingProperty GetId(out ErrorWrapper? error) =>
+            id.GetValue(this).TryGet(out var value, out error)
+                ? new IdBindingProperty(value)
+                : default;
 
         private protected override void StoreProperty(object p)
         {
             if (p is CommandJavascriptBindingProperty commandJs)
-                this.commandJs.SetValue(new(commandJs));
+                this.commandJs.SetValue(new(commandJs.Code, null));
             if (p is IdBindingProperty id)
-                this.id.SetValue(new(id));
+                this.id.SetValue(new(id.Id, null));
             if (p is ActionFiltersBindingProperty actionFilters)
-                this.actionFilters.SetValue(new(actionFilters));
+                this.actionFilters.SetValue(new(actionFilters, null));
             else
                 base.StoreProperty(p);
         }
 
-        public override object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        private protected override bool TryGetPropertyVirtual(Type type, out PropValue<object> value)
         {
+            ErrorWrapper? error;
             if (type == typeof(CommandJavascriptBindingProperty))
-                return commandJs.GetValue(this).GetValue(errorMode, this, type);
+            {
+                value = new(GetCommandJavascript(out error), error);
+                return true;
+            }
             if (type == typeof(IdBindingProperty))
-                return id.GetValue(this).GetValue(errorMode, this, type);
+            {
+                value = new(GetId(out error), error);
+                return true;
+            }
             if (type == typeof(ActionFiltersBindingProperty))
-                return actionFilters.GetValue(this).GetValue(errorMode, this, type);
-            return base.GetProperty(type, errorMode);
+            {
+                value = actionFilters.GetValue(this).AsObject();
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+        private protected override bool TryGetPropertyVirtual<T>([MaybeNull] out T value, out ErrorWrapper? error)
+        {
+            if (typeof(T) == typeof(CommandJavascriptBindingProperty))
+            {
+                value = (T)(object)GetCommandJavascript(out error);
+                return true;
+            }
+            if (typeof(T) == typeof(IdBindingProperty))
+            {
+                value = (T)(object)GetId(out error);
+                return false;
+            }
+            value = default;
+            error = null;
+            return false;
         }
 
         private protected override IEnumerable<object?> GetOutOfDictionaryProperties() =>
             base.GetOutOfDictionaryProperties().Concat(new object?[] {
-                commandJs.Value.Value,
-                id.Value.Value,
-                actionFilters.Value.Value,
+                commandJs.Value?.Apply(v => new CommandJavascriptBindingProperty(v)),
+                id.Value?.Apply(v => new IdBindingProperty(v)),
+                actionFilters.Value,
             });
 
 
         public ImmutableArray<IActionFilter> ActionFilters =>
             actionFilters.GetValueOrNull(this)?.Filters ?? ImmutableArray<IActionFilter>.Empty;
 
-        public ParametrizedCode CommandJavascript => commandJs.GetValueOrThrow(this).Code;
+        public ParametrizedCode CommandJavascript => commandJs.GetValueOrThrow(this);
 
-        public string BindingId => id.GetValueOrThrow(this).Id;
+        public string BindingId => id.GetValueOrThrow(this);
 
         public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
 

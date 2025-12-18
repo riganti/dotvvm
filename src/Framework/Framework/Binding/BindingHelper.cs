@@ -28,10 +28,19 @@ namespace DotVVM.Framework.Binding
     public static partial class BindingHelper
     {
         /// <summary> Gets the binding property identified by the type. The result may be null, if <paramref name="errorMode"/> is <see cref="ErrorHandlingMode.ReturnNull">ReturnNul</see> This method should always return the same result and should run fast (may rely on caching, so first call might not be that fast). </summary>
-        [return: MaybeNull]
-        public static T GetProperty<T>(this IBinding binding, ErrorHandlingMode errorMode) => (T)binding.GetProperty(typeof(T), errorMode)!;
-        /// <summary> Gets the binding property identified by the type. This method should always return the same result and should run fast (may rely on caching, so first call might not be that fast). </summary>
-        public static T GetProperty<T>(this IBinding binding) => GetProperty<T>(binding, ErrorHandlingMode.ThrowException)!;
+        public static T? GetProperty<T>(this IBinding binding, ErrorHandlingMode errorMode) =>
+            errorMode switch
+            {
+                ErrorHandlingMode.ReturnNull => binding.TryGetPropety<T>(out var result) ? result : result,
+                ErrorHandlingMode.ThrowException => binding.GetProperty<T>(),
+                _ => (T?)binding.GetProperty(typeof(T), errorMode)
+            };
+
+        public static T? GetPropertyOrDefault<T>(this IBinding binding)
+        {
+            binding.TryGetPropety<T>(out var x);
+            return x;
+        }
 
         [Obsolete]
         public static string GetKnockoutBindingExpression(this IValueBinding binding) =>
@@ -358,10 +367,10 @@ namespace DotVVM.Framework.Binding
             object?[] getContextProperties(IBinding b) =>
                 new object?[] {
                     b.DataContext,
-                    b.GetProperty<BindingResolverCollection>(ErrorHandlingMode.ReturnNull),
-                    b.GetProperty<BindingCompilationRequirementsAttribute>(ErrorHandlingMode.ReturnNull)?.ClearRequirements(),
-                    b.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull),
-                    b.GetProperty<DotvvmLocationInfo>(ErrorHandlingMode.ReturnNull)
+                    b.GetPropertyOrDefault<BindingResolverCollection>(),
+                    b.GetPropertyOrDefault<BindingCompilationRequirementsAttribute>()?.ClearRequirements(),
+                    b.GetPropertyOrDefault<BindingErrorReporterProperty>(),
+                    b.GetPropertyOrDefault<DotvvmLocationInfo>()
                 };
             var service = binding.GetProperty<BindingCompilationService>();
             var bindingType = binding.GetType();
@@ -686,12 +695,12 @@ namespace DotVVM.Framework.Binding
         public record InvalidBindingTypeException(IBinding Binding, Type ExpectedType)
             : DotvvmExceptionBase(RelatedBinding: Binding)
         {
-            public override string Message => $"The binding result type {Binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type.FullName} is not assignable to {ExpectedType.FullName}";
+            public override string Message => $"The binding result type {Binding.GetPropertyOrDefault<ResultTypeBindingProperty>().Type?.FullName} is not assignable to {ExpectedType.FullName}";
 
             public static void CheckType(IBinding binding, Type expectedType)
             {
-                if (binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull) is ResultTypeBindingProperty resultType &&
-                        !expectedType.IsAssignableFrom(resultType.Type))
+                if (binding.GetPropertyOrDefault<ResultTypeBindingProperty>() is { Type: {} resultType } &&
+                        !expectedType.IsAssignableFrom(resultType))
                     throw new InvalidBindingTypeException(binding, expectedType);
             }
         }

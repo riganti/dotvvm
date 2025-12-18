@@ -61,20 +61,19 @@ namespace DotVVM.Framework.Binding
             return introMsg + coreMsg + bindingMsg + pathMsg;
         }
 
-        public BindingPropertyException(IBinding binding, Type property, string message) : this(binding, new [] { property }, message, new Exception[0]) { }
-        public BindingPropertyException(IBinding binding, Type property, Exception? innerException) : this(binding, new [] { property }, null, new [] { innerException }) { }
+        public BindingPropertyException(IBinding binding, Type property, string message) : this(binding, [ property ], message, []) { }
+        public BindingPropertyException(IBinding binding, Type property, Exception? innerException) : this(binding, [ property ], null, [ innerException ]) { }
         public BindingPropertyException(IBinding binding, Type[] propertyPath, string? message, Exception?[]? innerExceptions = null, bool isRequiredProperty = false) : base((string?)null, RelatedBinding: binding, InnerException: innerExceptions?.FirstOrDefault(e => e is object))
         {
             this.PropertyPath = propertyPath;
             this.CoreMessage = message;
             this.IsRequiredProperty = isRequiredProperty;
             this.AdditionalInnerExceptions =
-                (innerExceptions?.Except(new [] { null, InnerException }).ToArray() ?? new Exception[0])!;
+                (innerExceptions?.Except([ null, InnerException ]).ToArray() ?? [])!;
         }
 
-        public BindingPropertyException CloneImpl(IEnumerable<Exception>? additionalExceptions = null, bool? isRequiredProperty = null)
+        private BindingPropertyException CloneImpl(IEnumerable<Exception> additionalExceptions, bool? isRequiredProperty)
         {
-            additionalExceptions ??= Enumerable.Empty<Exception>();
             var n = new BindingPropertyException(Binding, PropertyPath, CoreMessage, AllInnerExceptions.Concat(additionalExceptions).ToArray(), isRequiredProperty ?? this.IsRequiredProperty);
             return n;
         }
@@ -84,7 +83,7 @@ namespace DotVVM.Framework.Binding
             additionalExceptions ??= Enumerable.Empty<Exception>();
             if (property == this.Property)
                 return CloneImpl(additionalExceptions, isRequiredProperty);
-            return new BindingPropertyException(Binding, new [] { property }.Concat(PropertyPath).ToArray(), CoreMessage, AllInnerExceptions.Concat(additionalExceptions).ToArray(), isRequiredProperty ?? false);
+            return new BindingPropertyException(Binding, [property, .. PropertyPath], CoreMessage, AllInnerExceptions.Concat(additionalExceptions).ToArray(), isRequiredProperty ?? false);
         }
 
         public static BindingPropertyException FromArgumentExceptions(IBinding binding, Type property, Exception[] exceptions, bool? isRequiredProperty = null)
@@ -93,7 +92,7 @@ namespace DotVVM.Framework.Binding
                 throw new InvalidOperationException();
             if (exceptions[0] is BindingPropertyException bpe && bpe.Binding == binding)
                 return bpe.Nest(property, exceptions.Skip(1), isRequiredProperty);
-            return new BindingPropertyException(binding, new [] { property }, null, exceptions, isRequiredProperty ?? false);
+            return new BindingPropertyException(binding, [ property ], null, exceptions, isRequiredProperty ?? false);
         }
     }
 }

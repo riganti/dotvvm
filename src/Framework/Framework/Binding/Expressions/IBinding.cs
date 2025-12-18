@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Binding.Expressions
@@ -20,6 +21,15 @@ namespace DotVVM.Framework.Binding.Expressions
     {
         /// <summary> Gets the binding property identified by the type. Returned object will always be of type <paramref name="type"/>, null, or Exception (this depends on the <paramref name="errorMode" />). This method should always return the same result and should run fast (may rely on caching, so first call might not be that fast). </summary>
         object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException);
+
+        /// <summary> Gets the binding property identified by the type, or throws an exception. This method should always return the same result and should run fast (may rely on caching, so first call might not be that fast). </summary>
+        T GetProperty<T>();
+
+        /// <summary> Gets the binding property identified by the type. This method should always return the same result and should run fast (may rely on caching, so first call might not be that fast). </summary>
+        bool TryGetPropety<T>([NotNullWhen(true)] out T? value);
+
+        /// <summary> Gets the binding property identified by the type. This method should always return the same result and should run fast (may rely on caching, so first call might not be that fast). </summary>
+        bool TryGetPropety<T>([NotNullWhen(true)] out T? value, [NotNullWhen(false)] out Exception? error);
 
         /// <summary> If the binding expects a specific data context, this property should return it. "Normal" binding coming from dothtml markup won't return null since they always depend on the data context. </summary>
         DataContextStack? DataContext { get; }

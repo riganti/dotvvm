@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -19,32 +22,54 @@ namespace DotVVM.Framework.Binding.Expressions
     {
         public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) : base(service, properties) { }
 
-        private protected MaybePropValue<StaticCommandOptionsLambdaJavascriptProperty> staticCommandLambdaJs;
+        private protected MaybePropValue<ParametrizedCode> staticCommandLambdaJs; // StaticCommandOptionsLambdaJavascriptProperty
         private protected MaybePropValue<ActionFiltersBindingProperty> actionFilters;
+
+        private protected StaticCommandOptionsLambdaJavascriptProperty GetStaticCommandLambdaJs(out ErrorWrapper? error) =>
+            staticCommandLambdaJs.GetValue(this).TryGet(out var value, out error)
+                ? new StaticCommandOptionsLambdaJavascriptProperty(value!)
+                : default;
 
         private protected override void StoreProperty(object p)
         {
             if (p is StaticCommandOptionsLambdaJavascriptProperty staticCommandLambdaJs)
-                this.staticCommandLambdaJs.SetValue(new(staticCommandLambdaJs));
+                this.staticCommandLambdaJs.SetValue(new(staticCommandLambdaJs.Code, null));
             if (p is ActionFiltersBindingProperty actionFilters)
-                this.actionFilters.SetValue(new(actionFilters));
+                this.actionFilters.SetValue(new(actionFilters, null));
             else
                 base.StoreProperty(p);
         }
 
-        public override object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        private protected override bool TryGetPropertyVirtual(Type type, out PropValue<object> value)
         {
-            if (type == typeof(StaticCommandOptionsLambdaJavascriptProperty))
-                return staticCommandLambdaJs.GetValue(this).GetValue(errorMode, this, type);
             if (type == typeof(ActionFiltersBindingProperty))
-                return actionFilters.GetValue(this).GetValue(errorMode, this, type);
-            return base.GetProperty(type, errorMode);
+            {
+                value = actionFilters.GetValue(this).AsObject();
+                return true;
+            }
+            if (type == typeof(StaticCommandOptionsLambdaJavascriptProperty))
+            {
+                value = new(GetStaticCommandLambdaJs(out var error), error);
+                return true;
+            }
+            return base.TryGetPropertyVirtual(type, out value);
         }
+
+        private protected override bool TryGetPropertyVirtual<T>([MaybeNull] out T value, out ErrorWrapper? error)
+        {
+            if (typeof(T) == typeof(StaticCommandOptionsLambdaJavascriptProperty))
+            {
+                value = (T)(object)GetStaticCommandLambdaJs(out error);
+                return true;
+            }
+            return base.TryGetPropertyVirtual<T>(out value, out error);
+        }
+
 
         private protected override IEnumerable<object?> GetOutOfDictionaryProperties() =>
             base.GetOutOfDictionaryProperties().Concat(new object?[] {
-                staticCommandLambdaJs.Value.Value,
-                actionFilters.Value.Value,
+                staticCommandLambdaJs.Value?.Apply(v => new StaticCommandOptionsLambdaJavascriptProperty(v)),
+                actionFilters.Value,
             });
 
 
@@ -56,7 +81,7 @@ namespace DotVVM.Framework.Binding.Expressions
         public ParametrizedCode CommandJavascript =>
             this.GetProperty<StaticCommandJavascriptProperty>().Code;
 
-        public ParametrizedCode OptionsLambdaJavascript => staticCommandLambdaJs.GetValueOrThrow(this).Code;
+        public ParametrizedCode OptionsLambdaJavascript => staticCommandLambdaJs.GetValueOrThrow(this);
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
@@ -65,12 +90,19 @@ namespace DotVVM.Framework.Binding.Expressions
                 new Func<StaticCommandJsAstProperty, RequiredRuntimeResourcesBindingProperty>(js => {
                     var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n!.Resources).ToImmutableArray();
                     return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
+                }),
+
+                new Func<AssignedPropertyBindingProperty, ExpectedTypeBindingProperty>(property => {
+                    var prop = property.DotvvmProperty;
+                    if (prop == null) return new ExpectedTypeBindingProperty(typeof(Command));
+
+                    return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(Command)) : prop.PropertyType);
                 })
             ];
         }
     }
 
-    public class StaticCommandBindingExpression<T>: StaticCommandBindingExpression, IStaticCommandBinding<T>
+    public class StaticCommandBindingExpression<T> : StaticCommandBindingExpression, IStaticCommandBinding<T>
     {
         public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) : base(service, properties) { }
         public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();

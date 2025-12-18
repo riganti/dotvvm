@@ -50,6 +50,8 @@ namespace DotVVM.Framework.Compilation.Binding
             parsedExpression.Expression.ForEachMember(m => {
                 list.AddRange(ReflectionUtils.GetCustomAttributes<IActionFilter>(m));
             });
+            if (list.Count == 0)
+                return ActionFiltersBindingProperty.Empty;
             return new ActionFiltersBindingProperty(list.ToImmutableArray());
         }
 
@@ -137,22 +139,22 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public SimplePathExpressionBindingProperty FormatSimplePath(IBinding binding)
         {
-            if (binding.GetProperty<KnockoutJsExpressionBindingProperty>(ErrorHandlingMode.ReturnNull) is { } js)
+            if (binding.GetPropertyOrDefault<KnockoutJsExpressionBindingProperty>() is { } js)
             {
                 // if contains api parameter, can't use this as a path
                 if (js.Expression.DescendantNodes().Any(n => n.TryGetAnnotation(out ViewModelInfoAnnotation? vmInfo) && vmInfo.ExtensionParameter is RestApiRegistrationHelpers.ApiExtensionParameter apiParameter))
                     throw new Exception($"Can't get a path expression for command binding from binding that is using rest api.");
                 return new(js.Expression.FormatParametrizedScript());
             }
-            else if (binding.GetProperty<KnockoutExpressionBindingProperty>(ErrorHandlingMode.ReturnNull) is { } expr)
+            else if (binding.GetPropertyOrDefault<KnockoutExpressionBindingProperty>() is { } expr)
             {
                 return new(expr.UnwrappedCode);
             }
-            else if (binding.GetProperty<OriginalStringBindingProperty>(ErrorHandlingMode.ReturnNull) is { } originalString)
+            else if (binding.GetPropertyOrDefault<OriginalStringBindingProperty>() is { } originalString)
             {
                 return new(new ParametrizedCode(originalString.Code));
             }
-            else if (binding.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull) is { } parsedExpression)
+            else if (binding.GetPropertyOrDefault<ParsedExpressionBindingProperty>() is { } parsedExpression)
             {
                 return new(new ParametrizedCode(parsedExpression.Expression.ToCSharpString()));
             }
@@ -211,7 +213,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public BindingCompilationRequirementsAttribute GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property)
         {
-            var prop = property?.DotvvmProperty;
+            var prop = property.DotvvmProperty;
             if (prop == null) return BindingCompilationRequirementsAttribute.Empty;
 
             return
@@ -224,8 +226,8 @@ namespace DotVVM.Framework.Compilation.Binding
         private ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>> bindingCounts = new ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>>();
 
         public IdBindingProperty CreateBindingId(
-            OriginalStringBindingProperty? originalString = null,
-            ParsedExpressionBindingProperty? expression = null,
+            OriginalStringBindingProperty originalString = default,
+            ParsedExpressionBindingProperty expression = default,
             DataContextStack? dataContext = null,
             ResolvedBinding? resolvedBinding = null,
             DotvvmLocationInfo? locationInfo = null)
@@ -240,9 +242,9 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             // don't append expression when original string is present, so it does not have to be always exactly same
-            if (originalString != null)
+            if (originalString.Code != null)
                 sb.Append(originalString.Code);
-            else sb.Append(expression?.Expression.ToString());
+            else sb.Append(expression.Expression?.ToString());
 
             sb.Append(" || ");
             while (dataContext != null)
@@ -293,7 +295,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
         public ExpectedAsStringBindingExpression ExpectAsStringBinding(ParsedExpressionBindingProperty e, IBinding binding, ExpectedTypeBindingProperty? expectedType = null)
         {
-            if (expectedType is {} && expectedType.Type == typeof(string))
+            if (expectedType is { } && expectedType.Value.Type == typeof(string))
                 return new(binding);
 
             return new(binding.DeriveBinding(new ExpectedTypeBindingProperty(typeof(string)), e));

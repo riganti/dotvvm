@@ -29,7 +29,7 @@ namespace DotVVM.Tracing.MiniProfiler
         protected override Task OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
             var commandCode = actionInfo.Binding
-                ?.GetProperty<OriginalStringBindingProperty>(Framework.Binding.Expressions.ErrorHandlingMode.ReturnNull)?.Code;
+                ?.GetPropertyOrDefault<OriginalStringBindingProperty>()?.Code;
 
             var postbackSuffix = commandCode != null ? $"({(actionInfo.IsControlCommand ? "Control Command:" : "Command:")} {commandCode})" : "(Static Command)";
 

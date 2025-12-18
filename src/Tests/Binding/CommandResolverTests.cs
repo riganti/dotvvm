@@ -51,9 +51,9 @@ namespace DotVVM.Framework.Tests.Binding
                 bindingService,
                 vm => vm.Last(),
                 new ParametrizedCode("$root"),
-                additionalProperties: new [] {
+                additionalProperties: [
                     new OriginalStringBindingProperty("_root")
-                }
+                ]
             ));
 
             var placeholder = new HtmlGenericControl("div");

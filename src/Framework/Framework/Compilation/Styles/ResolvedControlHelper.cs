@@ -138,7 +138,7 @@ namespace DotVVM.Framework.Compilation.Styles
         private static Type[] ImmutableContainers = new[] {
             typeof(ImmutableArray<>), typeof(ImmutableList<>), typeof(ImmutableHashSet<>), typeof(ImmutableQueue<>), typeof(ImmutableSortedSet<>), typeof(ImmutableStack<>)
         };
-        
+
         public static bool IsAllowedPropertyValue([NotNullWhen(false)] object? value)
         {
             if (value is ValueOrBinding vob && IsAllowedPropertyValue(vob.UnwrapToObject()) ||
@@ -231,7 +231,7 @@ namespace DotVVM.Framework.Compilation.Styles
             }
             else if (value is IBinding binding)
             {
-                var resolvedBinding = binding.GetProperty<ResolvedBinding>(ErrorHandlingMode.ReturnNull);
+                var resolvedBinding = binding.GetPropertyOrDefault<ResolvedBinding>();
                 return new ResolvedPropertyBinding(property, resolvedBinding ?? new ResolvedBinding(binding));
             }
             else if (value is ResolvedBinding resolvedBinding)

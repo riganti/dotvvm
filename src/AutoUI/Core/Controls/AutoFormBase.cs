@@ -168,7 +168,7 @@ namespace DotVVM.AutoUI.Controls
 
             var property = binding.GetProperty<ReferencedViewModelPropertiesBindingProperty>()?.MainProperty;
 
-            var isEditable = binding.GetProperty<BindingUpdateDelegate>(ErrorHandlingMode.ReturnNull) is { };
+            var isEditable = binding.GetPropertyOrDefault<BindingUpdateDelegate>() is { };
 
             var metadata =
                 property is not null ? context.PropertyDisplayMetadataProvider.GetPropertyMetadata(property)

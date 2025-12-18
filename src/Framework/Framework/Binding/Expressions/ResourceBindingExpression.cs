@@ -1,14 +1,5 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Resources;
-using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Compilation;
-using DotVVM.Framework.Compilation.Parser;
-using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -22,7 +13,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
 
-        public Type ResultType => this.resultType.GetValueOrThrow(this).Type;
+        public Type ResultType => this.resultType.GetValueOrThrow(this);
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {

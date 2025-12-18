@@ -27,13 +27,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public string Value => Binding.GetProperty<OriginalStringBindingProperty>().Code;
 
-        public Expression? Expression => Binding.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression;
+        public Expression? Expression => Binding.GetPropertyOrDefault<ParsedExpressionBindingProperty>().Expression;
 
         public DataContextStack DataContextTypeStack => Binding.DataContext.NotNull();
 
-        public BindingErrorReporterProperty Errors => Binding.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull) ?? new BindingErrorReporterProperty();
+        public BindingErrorReporterProperty Errors => Binding.GetPropertyOrDefault<BindingErrorReporterProperty>() ?? new BindingErrorReporterProperty();
 
-        public ITypeDescriptor? ResultType => ResolvedTypeDescriptor.Create(Binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
+        public ITypeDescriptor? ResultType => ResolvedTypeDescriptor.Create(Binding.GetPropertyOrDefault<ResultTypeBindingProperty>().Type);
 
         IDataContextStack IAbstractBinding.DataContextTypeStack => DataContextTypeStack;
 
@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 DataContextTypeStack,
                 code: null,
                 expression,
-                property ?? Binding.GetProperty<AssignedPropertyBindingProperty>(ErrorHandlingMode.ReturnNull)?.DotvvmProperty) { DothtmlNode = DothtmlNode };
+                property ?? Binding.GetPropertyOrDefault<AssignedPropertyBindingProperty>().DotvvmProperty) { DothtmlNode = DothtmlNode };
         }
 
         public Expression GetExpression() => Binding.GetProperty<ParsedExpressionBindingProperty>().Expression;

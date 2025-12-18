@@ -41,25 +41,32 @@ namespace DotVVM.Framework.Binding.Expressions
         private protected override void StoreProperty(object p)
         {
             if (p is KnockoutExpressionBindingProperty knockoutExpressions)
-                this.knockoutExpressions.SetValue(new(knockoutExpressions));
+                this.knockoutExpressions.SetValue(new(knockoutExpressions, null));
             if (p is ReferencedViewModelPropertiesBindingProperty referencedPropertyExpressions)
-                this.referencedPropertyExpressions.SetValue(new(referencedPropertyExpressions));
+                this.referencedPropertyExpressions.SetValue(new(referencedPropertyExpressions, null));
             else
                 base.StoreProperty(p);
         }
 
-        public override object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        private protected override bool TryGetPropertyVirtual(Type type, out PropValue<object> value)
         {
             if (type == typeof(KnockoutExpressionBindingProperty))
-                return knockoutExpressions.GetValue(this).GetValue(errorMode, this, type);
+            {
+                value = knockoutExpressions.GetValue(this).AsObject();
+                return true;
+            }
             if (type == typeof(ReferencedViewModelPropertiesBindingProperty))
-                return referencedPropertyExpressions.GetValue(this).GetValue(errorMode, this, type);
-            return base.GetProperty(type, errorMode);
+            {
+                value = knockoutExpressions.GetValue(this).AsObject();
+                return true;
+            }
+            return base.TryGetPropertyVirtual(type, out value);
         }
 
         private protected override IEnumerable<object?> GetOutOfDictionaryProperties() =>
             base.GetOutOfDictionaryProperties().Concat(new object?[] {
-                knockoutExpressions.Value.Value
+                knockoutExpressions.Value,
+                referencedPropertyExpressions.Value
             });
 
         public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
@@ -72,7 +79,7 @@ namespace DotVVM.Framework.Binding.Expressions
         public ParametrizedCode UnwrappedKnockoutExpression => KnockoutExpressionBindingProperty.UnwrappedCode;
         public ParametrizedCode WrappedKnockoutExpression => KnockoutExpressionBindingProperty.WrappedCode;
 
-        public Type ResultType => this.resultType.GetValueOrThrow(this).Type;
+        public Type ResultType => this.resultType.GetValueOrThrow(this);
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
@@ -108,7 +115,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         /// Creates binding {value: _this} for a specific data context. Note that the result is cached (non-deterministically, using the <see cref="DotVVM.Framework.Runtime.Caching.IDotvvmCacheAdapter" />)
         public static ValueBindingExpression<T> CreateThisBinding<T>(BindingCompilationService service, DataContextStack dataContext) =>
-            service.Cache.CreateCachedBinding("ValueBindingExpression.ThisBinding", new [] { dataContext }, () => CreateBinding<T>(service, o => (T)o[0]!, dataContext));
+            service.Cache.CreateCachedBinding("ValueBindingExpression.ThisBinding", new[] { dataContext }, () => CreateBinding<T>(service, o => (T)o[0]!, dataContext));
 
         /// Crates a new value binding expression from the specified .NET delegate and Javascript expression. Note that this operation is not very cheap and the result is not cached.
         public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object?[], T> func, JsExpression expression, DataContextStack? dataContext = null) =>

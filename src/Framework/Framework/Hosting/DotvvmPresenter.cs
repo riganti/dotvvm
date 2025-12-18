@@ -239,9 +239,9 @@ namespace DotVVM.Framework.Hosting
                     // get filters
                     var methodFilters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
                         .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType()));
-                    if (actionInfo.Binding?.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull) is ActionFiltersBindingProperty filters)
+                    if (actionInfo.Binding?.GetPropertyOrDefault<ActionFiltersBindingProperty>() is ActionFiltersBindingProperty filters)
                         methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
-                    
+
                     var commandTimer = ValueStopwatch.StartNew();
                     try
                     {

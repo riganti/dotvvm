@@ -325,7 +325,7 @@ namespace DotVVM.Framework.Testing
             viewModel ??= _ => true;
             var filtered =
                 this.Commands
-                    .Where(c => c.command.GetProperty<OriginalStringBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code?.Trim() == text.Trim()
+                    .Where(c => c.command.GetPropertyOrDefault<OriginalStringBindingProperty>().Code?.Trim() == text.Trim()
                              && (viewModel(c.control.DataContext)))
                     .ToArray();
             if (filtered.Length == 0)

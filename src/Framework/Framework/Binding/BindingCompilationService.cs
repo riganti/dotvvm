@@ -17,7 +17,6 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Utils;
-using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Binding
@@ -58,7 +57,7 @@ namespace DotVVM.Framework.Binding
                 bindingResolvers.FindResolver(type) ??
                 this.resolvers.FindResolver(type);
 
-            object? getParameterValue(ParameterInfo p) => binding.GetProperty(p.ParameterType, p.HasDefaultValue ? ErrorHandlingMode.ReturnNull : ErrorHandlingMode.ReturnException) ?? p.DefaultValue;
+            object? getParameterValue(ParameterInfo p) => binding.GetProperty(p.ParameterType.UnwrapNullableType(), p.HasDefaultValue ? ErrorHandlingMode.ReturnNull : ErrorHandlingMode.ReturnException) ?? p.DefaultValue;
 
             Exception? checkArguments(object?[] arguments) =>
                 arguments.OfType<Exception>().ToArray() is var exceptions && exceptions.Any() ?
@@ -67,18 +66,26 @@ namespace DotVVM.Framework.Binding
 
             if (resolver != null)
             {
-                var arguments = resolver.Method.GetParameters().Select(getParameterValue).ToArray();
+                var parameters = resolver.Method.GetParameters();
+                var arguments = new object?[parameters.Length];
+                for (var i = 0; i < parameters.Length; i++)
+                    arguments[i] = getParameterValue(parameters[i]);
                 { if (checkArguments(arguments) is Exception exc) return exc; }
                 var value = resolver.ExceptionSafeDynamicInvoke(arguments);
+
                 // post process the value
                 foreach (var postProcessor in this.resolvers.GetPostProcessors(type)
                     .Concat(bindingResolvers.GetPostProcessors(type)
                     .Concat(additionalResolvers?.GetPostProcessors(type) ?? Enumerable.Empty<Delegate>())))
                 {
                     var method = postProcessor.Method;
-                    arguments = new[] { value }.Concat(method.GetParameters().Skip(1).Select(getParameterValue)).ToArray();
-                    if (checkArguments(arguments) is Exception exc) return exc;
-                    value = postProcessor.ExceptionSafeDynamicInvoke(arguments) ?? value;
+                    var postProcParams = method.GetParameters();
+                    var postProcArguments = new object?[postProcParams.Length];
+                    postProcArguments[0] = value;
+                    for (var i = 1; i < postProcParams.Length; i++)
+                        postProcArguments[i] = getParameterValue(postProcParams[i]);
+                    if (checkArguments(postProcArguments) is Exception exc) return exc;
+                    value = postProcessor.ExceptionSafeDynamicInvoke(postProcArguments) ?? value;
                 }
                 return value ?? new BindingPropertyException(binding, type, "resolver returned null");
             }
@@ -99,7 +106,7 @@ namespace DotVVM.Framework.Binding
         }
 
         protected Exception GetException(IBinding binding, string message) =>
-            binding.GetProperty<ResolvedBinding>(ErrorHandlingMode.ReturnNull) is ResolvedBinding resolvedBinding && resolvedBinding.DothtmlNode is object ?
+            binding.GetPropertyOrDefault<ResolvedBinding>() is ResolvedBinding resolvedBinding && resolvedBinding.DothtmlNode is object ?
                 new DotvvmCompilationException(message, resolvedBinding.DothtmlNode.Tokens) :
             binding.GetProperty<DotvvmLocationInfo>(ErrorHandlingMode.ReturnNull) is DotvvmLocationInfo locationInfo ?
                 new DotvvmControlException(message, null, locationInfo) :
@@ -124,7 +131,7 @@ namespace DotVVM.Framework.Binding
         {
             var requirements = GetDefaultRequirements(binding.GetType());
             if (bindingRequirements != null) foreach (var req in bindingRequirements) requirements = requirements.ApplySecond(req);
-            if (binding.GetProperty<BindingCompilationRequirementsAttribute>(ErrorHandlingMode.ReturnNull) is var second && second != null)
+            if (binding.GetPropertyOrDefault<BindingCompilationRequirementsAttribute>() is var second && second != null)
                 requirements = requirements.ApplySecond(second);
             return requirements;
         }
@@ -141,7 +148,7 @@ namespace DotVVM.Framework.Binding
         {
             DotvvmMetrics.BindingsInitialized.Add(1, new KeyValuePair<string, object?>("binding_type", binding.GetBindingName()), new KeyValuePair<string, object?>("is_lazy_init", false));
 
-            var reporter = binding.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull);
+            var reporter = binding.GetPropertyOrDefault<BindingErrorReporterProperty>();
             var throwException = reporter == null;
             reporter = reporter ?? new BindingErrorReporterProperty();
             foreach (var req in bindingRequirements.Required)
@@ -186,7 +193,7 @@ namespace DotVVM.Framework.Binding
     {
         private ConcurrentDictionary<Type, Delegate>? resolvers = null;
         private ConcurrentDictionary<Type, ConcurrentStack<Delegate>>? postProcs = null;
-        
+
         [MemberNotNull("resolvers")]
         void InitResolvers()
         {

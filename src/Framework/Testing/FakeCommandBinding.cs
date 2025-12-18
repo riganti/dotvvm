@@ -5,6 +5,7 @@ using DotVVM.Framework.Runtime.Filters;
 using System.Collections.Immutable;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Testing
 {
@@ -35,6 +36,20 @@ namespace DotVVM.Framework.Testing
             else if (errorMode == ErrorHandlingMode.ReturnException)
                 return new NotImplementedException();
             else throw new NotImplementedException();
+        }
+
+        public T GetProperty<T>() => (T)GetProperty(typeof(T), ErrorHandlingMode.ThrowException)!;
+
+        public bool TryGetPropety<T>([NotNullWhen(true)] out T? value) => TryGetPropety<T>(out value, out _);
+
+        public bool TryGetPropety<T>([NotNullWhen(true)] out T? value, [NotNullWhen(false)] out Exception? error)
+        {
+            switch (GetProperty(typeof(T), ErrorHandlingMode.ReturnException))
+            {
+                case Exception e: (error, value) = (e, default(T)); return false;
+                case T v: (error, value) = (null, v); return true;
+                default: throw new Exception();
+            }
         }
     }
 

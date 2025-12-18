@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitControl(ResolvedControl control)
         {
-            if(control.Metadata.Type == typeof(Content))
+            if (control.Metadata.Type == typeof(Content))
             {
                 Visit(control, control.Content, base.VisitControl);
                 return;
@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Compilation
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
             var requiredGlobalizeProperty = propertyBinding.Binding.Binding
-                .GetProperty<GlobalizeResourceBindingProperty>(ErrorHandlingMode.ReturnNull);
+                .GetPropertyOrDefault<GlobalizeResourceBindingProperty>();
             if (!isGlobalizeRequired)
             {
                 isGlobalizeRequired = requiredGlobalizeProperty != null;
@@ -62,7 +62,8 @@ namespace DotVVM.Framework.Compilation
                 content.Add(new ResolvedControl(
                     globalizeResourceControl,
                     node.DothtmlNode,
-                    node.TreeRoot.DataContextTypeStack) { Parent = node });
+                    node.TreeRoot.DataContextTypeStack)
+                { Parent = node });
                 isResourcePlaced = true;
             }
         }

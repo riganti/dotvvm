@@ -38,35 +38,35 @@ namespace DotVVM.Framework.Binding.Properties
     /// <summary>
     /// Contains original binding string, as it was typed in dothtml file. (it is trimmed)
     /// </summary>
-    public sealed record OriginalStringBindingProperty(
+    public record struct OriginalStringBindingProperty(
         string Code
     );
 
     /// <summary>
     /// Contains binding's result type.
     /// </summary>
-    public sealed record ResultTypeBindingProperty(
+    public record struct ResultTypeBindingProperty(
         Type Type
     );
 
     /// <summary>
     /// Contains unique id of binding in its DataContext and the page
     /// </summary>
-    public sealed record IdBindingProperty(
+    public record struct IdBindingProperty(
         string Id
     );
 
     /// <summary>
     /// Contains JS code, that will invoke the command. May contain symbolic parameters from `JavascriptTranslator` and `CommandBindingExpression`
     /// </summary>
-    public sealed record CommandJavascriptBindingProperty(
+    public record struct CommandJavascriptBindingProperty(
         ParametrizedCode Code
     );
 
     /// <summary>
     /// Contains JS code, that will invoke the static command wrapped in (options) => ... lambda. May contain symbolic parameters from `CommandBindingExpression`, knockout context is taken from the options
     /// </summary>
-    public sealed record StaticCommandOptionsLambdaJavascriptProperty(
+    public record struct StaticCommandOptionsLambdaJavascriptProperty(
         ParametrizedCode Code
     );
     /// <summary>
@@ -87,21 +87,21 @@ namespace DotVVM.Framework.Binding.Properties
     /// <summary>
     /// Contains <see cref="System.Linq.Expressions.Expression"/> instance that represents code as it was written in markup with minimal processing.
     /// </summary>
-    public sealed record ParsedExpressionBindingProperty(
+    public record struct ParsedExpressionBindingProperty(
         Expression Expression
     );
 
     /// <summary>
     /// Contains <see cref="System.Linq.Expressions.Expression"/> instance that represents code converted to be evaluated as binding (type conversions applied, ...). 
     /// </summary>
-    public sealed record CastedExpressionBindingProperty(
+    public record struct CastedExpressionBindingProperty(
         Expression Expression
     );
 
     /// <summary>
     /// Contains raw translated JS AST that came from JavascriptTranslator. Specifically it has type annotations on it and does not include observable unwraps and null-checks.
     /// </summary>
-    public sealed record KnockoutJsExpressionBindingProperty(
+    public record struct KnockoutJsExpressionBindingProperty(
         JsExpression Expression
     );
 
@@ -110,19 +110,21 @@ namespace DotVVM.Framework.Binding.Properties
     /// </summary>
     public sealed record ActionFiltersBindingProperty(
         ImmutableArray<IActionFilter> Filters
-    );
+    ) {
+        public static readonly ActionFiltersBindingProperty Empty = new(ImmutableArray<IActionFilter>.Empty);
+    }
 
     /// <summary>
     /// Contains expected type of the binding - typically type of the bound property.
     /// </summary>
-    public sealed record ExpectedTypeBindingProperty(
+    public record struct ExpectedTypeBindingProperty(
         Type Type
     );
  
     /// <summary>
     /// Contains the property where the binding is assigned.
     /// </summary>
-    public sealed record AssignedPropertyBindingProperty(
+    public record struct AssignedPropertyBindingProperty(
         DotvvmProperty DotvvmProperty
     );
 

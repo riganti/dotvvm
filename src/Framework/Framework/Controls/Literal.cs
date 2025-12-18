@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Controls
 
             bool isFormattedTypeOrObj(Type? type) => type is null || type == typeof(object) || isFormattedType(type);
 
-            return isFormattedType(binding?.ResultType) && isFormattedTypeOrObj(binding?.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
+            return isFormattedType(binding?.ResultType) && isFormattedTypeOrObj(binding?.GetPropertyOrDefault<ExpectedTypeBindingProperty>().Type);
         }
 
         protected override bool RendersHtmlTag => RenderSpanElement;

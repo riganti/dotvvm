@@ -43,10 +43,10 @@ function trigger100(buttonId) {
     var button = document.getElementById(buttonId);
     var next = function(j) {
         if (j < 100) {
-            window.setTimeout(function () {
+            Promise.resolve().then(function () {
                 button.click();
                 next(j + 1);
-            }, Math.random() * 1);
+            });
         }
     }
     next(0);
