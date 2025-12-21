@@ -22,7 +22,11 @@ using DotVVM.Framework.Utils;
 using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+#if NET6_0_OR_GREATER
 using Microsoft.AspNetCore.Http;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -557,7 +561,11 @@ namespace DotVVM.Framework.Tests.Runtime
             var context = new TestDotvvmRequestContext(configuration.ServiceProvider) {
                 ViewModel = viewModel,
                 Configuration = configuration,
+#if NET6_0_OR_GREATER
                 HttpContext = new DotvvmHttpContext(new DefaultHttpContext()),
+#else
+                HttpContext = new DotvvmHttpContext(new OwinContext()),
+#endif 
                 ModelState = new ModelState()
             };
 
