@@ -87,6 +87,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
             services.TryAddSingleton<IExpressionToDelegateCompiler, DefaultExpressionToDelegateCompiler>();
+            services.TryAddSingleton<IDotvvmVirtualPathTranslator, DotvvmVirtualPathTranslator>();
 
             services.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
             services.TryAddScoped<IDotvvmRequestContext>(s => s.GetRequiredService<DotvvmRequestContextStorage>().Context!);

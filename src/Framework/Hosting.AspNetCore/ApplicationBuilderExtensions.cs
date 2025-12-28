@@ -11,12 +11,18 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Compilation.ControlTree;
+using Microsoft.AspNetCore.Routing;
 
 #if NET5_0_OR_GREATER
 using HostingEnv = Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
 using Microsoft.Extensions.Hosting;
 #else
 using HostingEnv = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+#endif
+
+#if NET9_0_OR_GREATER
+using DotVVM.Framework.Hosting.AspNetCore.StaticAssets;
+using Microsoft.AspNetCore.StaticAssets.Infrastructure;
 #endif
 
 namespace Microsoft.AspNetCore.Builder
@@ -59,7 +65,12 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
         public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, IDotvvmStartup startup, string applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
         {
+#if NET9_0_OR_GREATER
+            SetupStaticAssets(app);
+#endif
+
             var env = app.ApplicationServices.GetRequiredService<HostingEnv>();
+
             var tokenMiddleware = Task.Run(() => ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(app.ApplicationServices));
             var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
             // warm up the translator
@@ -101,5 +112,36 @@ namespace Microsoft.AspNetCore.Builder
 
             return config;
         }
+
+#if NET9_0_OR_GREATER
+        private static void SetupStaticAssets(IApplicationBuilder app)
+        {
+            var provider = app.ApplicationServices.GetRequiredService<StaticAssetsProvider>();
+            // app.UseEndpoints(endpoints =>
+            // {
+            //     var assets = StaticAssetsEndpointDataSourceHelper.ResolveStaticAssetDescriptors(
+            //         endpoints,
+            //         manifestPath: null // TODO: how is this supposed to be used?
+            //     );
+            //     endpoints.MapStaticAssets();
+            //     var assets2 = StaticAssetsEndpointDataSourceHelper.ResolveStaticAssetDescriptors(
+            //         endpoints,
+            //         manifestPath: null // TODO: how is this supposed to be used?
+            //     );
+            //     provider.SetStaticAssets(assets);
+            // });
+            provider.SetStaticAssets(() => {
+                if (app.Properties.TryGetValue("__EndpointRouteBuilder", out var endpointRoutesObj) &&
+                    endpointRoutesObj is IEndpointRouteBuilder endpointRoutes)
+                {
+                    return StaticAssetsEndpointDataSourceHelper.ResolveStaticAssetDescriptors(
+                        endpointRoutes,
+                        manifestPath: null // TODO: how is this supposed to be used?
+                    );
+                }
+                else return [];
+            });
+        }
+#endif
     }
 }

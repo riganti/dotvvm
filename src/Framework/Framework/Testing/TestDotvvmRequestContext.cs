@@ -41,15 +41,11 @@ namespace DotVVM.Framework.Testing
         public string ResultIdFragment { get; set; }
         public DotvvmView View { get; set; }
 
-        private IServiceProvider _services;
-
-        public IServiceProvider Services
-        {
-            get => _services ?? Configuration?.ServiceProvider ?? throw new NotSupportedException();
-            set => _services = value;
-        }
+        public IServiceProvider Services { get; }
 
         public CustomResponsePropertiesManager CustomResponseProperties { get; } = new CustomResponsePropertiesManager();
+
+        public IDotvvmVirtualPathTranslator VirtualPathTranslator => Services.GetRequiredService<IDotvvmVirtualPathTranslator>();
 
         public TestDotvvmRequestContext() { }
         public TestDotvvmRequestContext(IServiceProvider services)
