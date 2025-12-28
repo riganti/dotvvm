@@ -14,56 +14,55 @@ namespace DotVVM.Framework.Utils
         /// <summary> Returns the property path to an unfinished JSON value </summary>
         public static string[] GetFailurePath(ReadOnlySpan<byte> data)
         {
-            // TODO: tests
-            var reader = new Utf8JsonReader(data, false, default);
-            var path = new Stack<(string? name, int index)>();
-            var isArray = false;
-            int arrayIndex = 0;
-            while (reader.Read())
+            // configure higher max depth than default (64), to correctly display path of
+            // the "max depth exceeded" error
+            var options = new JsonReaderOptions { MaxDepth = 196 };
+            var reader = new Utf8JsonReader(data, false, new JsonReaderState(options));
+            reader.AssertRead();
+            if (reader.TokenType != JsonTokenType.StartObject) throw new Exception("wtf");
+            return GetFailurePathInternal(ref reader) ?? throw new Exception("No error in specified JSON");
+        }
+
+        private static string[]? GetFailurePathInternal(ref Utf8JsonReader reader)
+        {
+            if (reader.TokenType == JsonTokenType.None)
+                return [];
+            else if (reader.TokenType == JsonTokenType.StartObject)
             {
-                switch (reader.TokenType)
+                if (!reader.Read()) return [];
+                string? lastProperty = null;
+                while (reader.TokenType == JsonTokenType.PropertyName)
                 {
-                    case JsonTokenType.StartObject:
-                        if (isArray) {
-                            isArray = false;
-                            path.Push((null, arrayIndex));
-                        }
-                        break;
-                    case JsonTokenType.Comment:
-                        break;
-                    case JsonTokenType.StartArray:
-                        isArray = true;
-                        arrayIndex = 0;
-                        break;
-                    case JsonTokenType.EndArray:
-                        isArray = false;
-                        break;
-                    case JsonTokenType.True:
-                    case JsonTokenType.False:
-                    case JsonTokenType.Number:
-                    case JsonTokenType.String:
-                    case JsonTokenType.Null:
-                    case JsonTokenType.EndObject:
-                        if (!isArray) {
-                            var old = path.Pop();
-                            if (old.name is null) {
-                                isArray = true;
-                                arrayIndex = old.index + 1;
-                            }
-                        }
-                        else {
-                            arrayIndex++;
-                        }
-                        break;
-                    case JsonTokenType.PropertyName:
-                        path.Push((reader.GetString()!, -1));
-                        break;
-                    case JsonTokenType.None:
-                        goto Done;
+                    lastProperty = reader.GetString().NotNull();
+                    if (!reader.Read())
+                        return [lastProperty];
+                    if (GetFailurePathInternal(ref reader) is {} nestedError)
+                        return [lastProperty, ..nestedError];
+                    if (!reader.Read())
+                        return [];
                 }
+                if (reader.TokenType != JsonTokenType.EndObject)
+                    return lastProperty is null ? [] : [lastProperty];
+                return null;
             }
-            Done:
-            return path.Reverse().Select(n => n.name ?? n.index.ToString()).ToArray();
+            else if (reader.TokenType == JsonTokenType.StartArray)
+            {
+                if (!reader.Read()) return ["0"];
+                int index = 0;
+                while (reader.TokenType != JsonTokenType.EndArray)
+                {
+                    if (GetFailurePathInternal(ref reader) is {} nestedError)
+                        return [$"{index}", ..nestedError];
+                    index++;
+                    if (!reader.Read() || reader.TokenType == JsonTokenType.None)
+                        return [$"{index}"];
+                }
+                return null;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public static JsonElement? GetPropertyOrNull(this in JsonElement jsonObj, ReadOnlySpan<byte> name) =>
