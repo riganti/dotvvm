@@ -12,6 +12,10 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting.AspNetCore;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Hosting.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
+#if NET9_0_OR_GREATER
+using DotVVM.Framework.Hosting.AspNetCore.StaticAssets;
+#endif
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -74,6 +78,14 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddDataProtection();
             services.AddMemoryCache();
+#if NET9_0_OR_GREATER
+            services.AddSingleton<IDotvvmVirtualPathTranslator, StaticAssetVirtualPathTranslator>();
+            services.TryAddSingleton<StaticAssetsProvider>();
+            services.ConfigureWithServices<DotvvmConfiguration, StaticAssetsProvider, IWebHostEnvironment>((config, provider, env) =>
+            {
+                config.Resources.RegisterNamedParent("asset", new StaticAssetResourceRepository(config, provider, env));
+            });
+#endif
             DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services);
 
             services.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
