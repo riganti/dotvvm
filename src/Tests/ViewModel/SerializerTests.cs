@@ -24,9 +24,12 @@ namespace DotVVM.Framework.Tests.ViewModel
     [TestClass]
     public class FastSerializerTests : SerializerTests
     {
-        static DotvvmConfiguration config = DotvvmTestHelper.CreateConfiguration();
+        static DotvvmConfiguration config;
+        static ViewModelJsonConverter jsonConverter;
+        static JsonSerializerOptions jsonOptions;
         static FastSerializerTests()
         {
+            config = DotvvmTestHelper.CreateConfiguration();
             config.Runtime.ExpressionCompiler = DotvvmExpressionCompilerType.FastExpressionCompiler;
 
             jsonConverter = config.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
@@ -37,14 +40,19 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         protected override DotvvmConfiguration Config => config;
+        protected override ViewModelJsonConverter JsonConverter => jsonConverter;
+        protected override JsonSerializerOptions JsonOptions => jsonOptions;
     }
 
     [TestClass]
     public class StandardSerializerTests : SerializerTests
     {
-        static DotvvmConfiguration config = DotvvmTestHelper.CreateConfiguration();
+        static DotvvmConfiguration config;
+        static ViewModelJsonConverter jsonConverter;
+        static JsonSerializerOptions jsonOptions;
         static StandardSerializerTests()
         {
+            config = DotvvmTestHelper.CreateConfiguration();
             config.Runtime.ExpressionCompiler = DotvvmExpressionCompilerType.Standard;
 
             jsonConverter = config.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
@@ -55,15 +63,17 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         protected override DotvvmConfiguration Config => DotvvmTestHelper.DefaultConfig;
+
+        protected override ViewModelJsonConverter JsonConverter => jsonConverter;
+
+        protected override JsonSerializerOptions JsonOptions => jsonOptions;
     }
 
     public abstract class SerializerTests
     {
-        // inited in derived classes' static constructors
-        protected static ViewModelJsonConverter jsonConverter;
-        protected static JsonSerializerOptions jsonOptions;
-
         protected abstract DotvvmConfiguration Config { get; }
+        protected abstract ViewModelJsonConverter JsonConverter { get; }
+        protected abstract JsonSerializerOptions JsonOptions { get; }
 
         DotvvmSerializationState CreateState(bool isPostback, JsonObject readEncryptedValues = null)
         {
@@ -78,7 +88,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             using var state = CreateState(isPostback, null);
 
-            var json = STJ.JsonSerializer.Serialize(viewModel, jsonOptions);
+            var json = STJ.JsonSerializer.Serialize(viewModel, JsonOptions);
             var ev = state.WriteEncryptedValues.ToSpan();
             encryptedValues = ev.Length > 0 ? JsonNode.Parse(ev).AsObject() : new JsonObject();
             return json;
@@ -88,15 +98,15 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             using var state = CreateState(false, encryptedValues ?? new JsonObject());
 
-            return STJ.JsonSerializer.Deserialize<T>(json, jsonOptions);
+            return STJ.JsonSerializer.Deserialize<T>(json, JsonOptions);
         }
 
         T PopulateViewModel<T>(string json, T existingValue, JsonObject encryptedValues = null)
         {
             using var state = CreateState(true, encryptedValues ?? new JsonObject());
-            var specificConverter = jsonConverter.CreateConverter<T>();
+            var specificConverter = JsonConverter.CreateConverter<T>();
             var jsonReader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
-            return (T)specificConverter.Populate(ref jsonReader, typeof(T), existingValue, jsonOptions, state);
+            return (T)specificConverter.Populate(ref jsonReader, typeof(T), existingValue, JsonOptions, state);
         }
 
         (T vm, JsonObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
