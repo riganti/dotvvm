@@ -199,7 +199,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             catch (Exception ex)
             {
                 if (!LogError(ex, node))
-                    throw new DotvvmCompilationException("", ex, node.Tokens);
+                    throw new DotvvmCompilationException(ex.Message, ex, node.Tokens);
                 else return null;
             }
         }
@@ -413,7 +413,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     // check that binding types are compatible
                     if (!property.PropertyType.IsAssignableFrom(ResolvedTypeDescriptor.Create(binding.BindingType)))
                     {
-                        attribute.ValueNode.AddError($"The property '{property.FullName}' cannot contain a binding of type '{binding.BindingType}'!");
+                        attribute.ValueNode.AddError($"The property '{property.FullName}' cannot contain a binding of type '{binding.BindingType.ToCode()}'!");
                     }
                 }
                 var bindingProperty = treeBuilder.BuildPropertyBinding(property, binding, attribute);

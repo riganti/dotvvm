@@ -1332,16 +1332,16 @@ namespace DotVVM.Framework.Tests.Binding
             ExecuteBinding("TestViewModel2 == _this", new TestViewModel());
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply Equal operator to types DateTime and Object.")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply Equal operator to types DateTime and object.")]
         public void BindingCompiler_InvalidStructReferenceComparison() =>
             ExecuteBinding("DateTime == Time", new TestViewModel());
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply Equal operator to types DateTime and Object.")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply Equal operator to types DateTime and object.")]
         public void BindingCompiler_InvalidStructComparison() =>
             ExecuteBinding("DateTime == Time", new TestViewModel());
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply And operator to types TestEnum and Boolean")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Cannot apply And operator to types TestEnum and bool")]
         public void BindingCompiler_InvalidBitAndComparison() =>
             ExecuteBinding("EnumProperty & 2 == 0", new TestViewModel());
 
