@@ -243,6 +243,7 @@ namespace DotVVM.Framework.Binding
         /// Finds expected DataContext and gets the delegate from command binding.
         /// </summary>
         public static T GetCommandDelegate<T>(this ICommandBinding<T> binding, DotvvmBindableObject control)
+            where T : Delegate
         {
             return ExecDelegate(
                 binding.BindingDelegate,

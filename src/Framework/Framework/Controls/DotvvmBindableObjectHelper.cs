@@ -393,6 +393,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public static ICommandBinding<TProperty>? GetCommandBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
+            where TProperty : Delegate
             => (ICommandBinding<TProperty>?)control.GetCommandBinding(control.GetDotvvmProperty(prop));
 
         /// <summary> Returns the value of the DotvvmProperty referenced in the lambda expression. If the property contains a binding, it is evaluted. </summary>
@@ -426,6 +427,7 @@ namespace DotVVM.Framework.Controls
         /// Gets the command binding set to the dotvvm property of the specified <paramref name="propName" />. Returns null if the property is not a binding, throws if the binding is not command, controlCommand or staticCommand.
         /// </summary>
         public static ICommandBinding<TProperty>? GetCommandBinding<TProperty>(this DotvvmBindableObject control, string propName)
+            where TProperty : Delegate
             => (ICommandBinding<TProperty>?)control.GetCommandBinding(control.GetDotvvmProperty(propName));
 
         /// <summary> Gets the specified control capability - reads all the properties in the capability at once. Throws if this control does not support the capability. </summary>

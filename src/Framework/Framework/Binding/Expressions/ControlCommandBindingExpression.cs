@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using DotVVM.Framework.Compilation;
-using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -21,6 +19,7 @@ namespace DotVVM.Framework.Binding.Expressions
     }
 
     public class ControlCommandBindingExpression<T> : ControlCommandBindingExpression, ICommandBinding<T>
+        where T : Delegate
     {
         public ControlCommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 

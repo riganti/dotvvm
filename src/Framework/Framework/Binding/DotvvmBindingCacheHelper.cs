@@ -97,6 +97,7 @@ namespace DotVVM.Framework.Binding
 
         /// <summary> Compiles a new `{command: ...code...}` binding which can be evaluated server-side and also client-side. The result is implicitly converted to <typeparamref name="TResult" />. The result is cached. Note that command bindings might be easier to create using the <see cref="CommandBindingExpression.CommandBindingExpression(BindingCompilationService, Func{object[], System.Threading.Tasks.Task}, string)" /> constructor. </summary>
         public CommandBindingExpression<TResult> CreateCommand<TResult>(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+            where TResult : Delegate
         {
             return CreateCachedBinding($"Command<{typeof(TResult).ToCode()}>:{code}", new object?[] { dataContext, parserOptions }, () =>
                 new CommandBindingExpression<TResult>(compilationService, new object?[] {
@@ -120,6 +121,7 @@ namespace DotVVM.Framework.Binding
 
         /// <summary> Compiles a new `{staticCommand: ...code...}` binding which can be evaluated server-side and also client-side. The result is implicitly converted to <typeparamref name="TResult" />. The result is cached. </summary>
         public StaticCommandBindingExpression<TResult> CreateStaticCommand<TResult>(string code, DataContextStack dataContext, BindingParserOptions? parserOptions = null)
+            where TResult : Delegate
         {
             return CreateCachedBinding($"StaticCommand<{typeof(TResult).ToCode()}>:{code}", new object?[] { dataContext, parserOptions }, () =>
                 new StaticCommandBindingExpression<TResult>(compilationService, new object?[] {
