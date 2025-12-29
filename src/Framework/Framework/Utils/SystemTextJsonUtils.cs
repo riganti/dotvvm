@@ -18,8 +18,8 @@ namespace DotVVM.Framework.Utils
             // the "max depth exceeded" error
             var options = new JsonReaderOptions { MaxDepth = 196 };
             var reader = new Utf8JsonReader(data, false, new JsonReaderState(options));
-            reader.AssertRead();
-            if (reader.TokenType != JsonTokenType.StartObject) throw new Exception("wtf");
+            if (!reader.Read())
+                return [];
             return GetFailurePathInternal(ref reader) ?? throw new Exception("No error in specified JSON");
         }
 

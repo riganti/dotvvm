@@ -84,12 +84,22 @@ namespace DotVVM.Framework.Tests.ViewModel
             "items/0"
         )]
         [DataRow(
-            $$"""
+            """
             { "arr": [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[1, 2], []]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],
                 "prop": 1
             """,
             "prop"
         )]
+        [DataRow(
+            """
+            [
+                1, 2,
+                { "ok": true },
+                { "not_ok":
+            """,
+            "3/not_ok"
+        )]
+        [DataRow("   ", "")]
         public void GetInvalidJsonErrorPath(string json, string expectedPath)
         {
             var utf8 = StringUtils.Utf8.GetBytes(json);
