@@ -672,7 +672,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var type = existingValue.Type;
             Debug.Assert(type.UnwrapNullableType() == property.Type.UnwrapNullableType(), $"{type} != {property.Type}, property: {property.PropertyInfo.DeclaringType}.{property.Name}");
 
-            if (existingValue.Type.IsNullable())
+            if (ReflectionUtils.IsNullable(existingValue.Type))
             {
                 return Condition(
                     test: Equal(Property(reader, "TokenType"), Constant(JsonTokenType.Null)),

@@ -362,7 +362,7 @@ namespace DotVVM.Framework.Compilation.Binding
                         trueExpr = trueConverted;
                     else if (trueConverted.Type.UnwrapNullableType() == falseConverted.Type.UnwrapNullableType())                    
                     {
-                        if (trueConverted.Type.IsNullable())
+                        if (ReflectionUtils.IsNullable(trueConverted.Type))
                             falseExpr = falseConverted;
                         else
                             trueExpr = trueConverted;

@@ -337,7 +337,7 @@ namespace DotVVM.Framework.Binding
                     dotvvmProperty = new DotvvmProperty(propertyName, type, declaringType, boxedDefaultValue, false, attributeProvider);
                     dotvvmProperty.OwningCapability = declaringCapability;
 
-                    var isNullable = propertyType.IsNullable() || type.IsNullable();
+                    var isNullable = ReflectionUtils.IsNullable(propertyType) || ReflectionUtils.IsNullable(type);
                     if (!defaultValue.HasValue && !isNullable)
                         dotvvmProperty.MarkupOptions._required ??= true;
 
