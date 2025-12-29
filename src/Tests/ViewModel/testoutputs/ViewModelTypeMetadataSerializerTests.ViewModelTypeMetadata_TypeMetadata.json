@@ -28,7 +28,7 @@
 				"type": [
 					{
 						"type": "nullable",
-						"inner": "5B6MnS5n5cISGV0e"
+						"inner": "tpU8HGbU+2oMuuUB"
 					}
 				]
 			},
@@ -69,7 +69,7 @@
 			}
 		}
 	},
-	"5B6MnS5n5cISGV0e": {
+	"tpU8HGbU+2oMuuUB": {
 		"type": "enum",
 		"isFlags": true,
 		"values": {
