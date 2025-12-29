@@ -2,6 +2,8 @@
 @masterPage Views/Samples.dotmaster
 
 <dot:Content ContentPlaceHolderID="Main">
+    <dot:RequiredResource Name="asset:Scripts/testResource.js" />
+    <a href="~/test.zip">Download Test Zip</a>
     <dot:Repeater WrapperTagName="ul" DataSource={resource: Routes }>
         <li><a href={resource: Url}>{{resource: RouteName}}</a></li>
     </dot:Repeater>
