@@ -302,7 +302,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var e = eprop.Expression;
             return new IsNullBindingExpression(binding.DeriveBinding(
-                e.Type.IsNullable() ? Expression.Not(Expression.Property(e, "HasValue")) :
+                ReflectionUtils.IsNullable(e.Type) ? Expression.Not(Expression.Property(e, "HasValue")) :
                 e.Type.IsValueType ? Expression.Constant(false) :
                 Expression.ReferenceEqual(e, Expression.Constant(null, e.Type))
             ));

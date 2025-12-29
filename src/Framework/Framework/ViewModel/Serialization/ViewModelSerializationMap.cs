@@ -17,6 +17,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json.Nodes;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -28,6 +29,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         protected readonly JsonSerializerOptions jsonOptions;
         protected readonly DotvvmConfiguration configuration;
         protected readonly ViewModelJsonConverter viewModelJsonConverter;
+        protected readonly IExpressionToDelegateCompiler expressionCompiler;
 
         public delegate T ReaderDelegate<T>(ref Utf8JsonReader reader, JsonSerializerOptions options, T? existingValue, bool populate, EncryptedValuesReader encryptedValuesReader, DotvvmSerializationState state);
         public delegate void WriterDelegate<T>(Utf8JsonWriter writer, T obj, JsonSerializerOptions options, bool requireTypeField, EncryptedValuesWriter evWriter, DotvvmSerializationState state);
@@ -52,6 +54,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.jsonOptions = jsonOptions;
             this.configuration = configuration;
             this.viewModelJsonConverter = configuration.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
+            this.expressionCompiler = configuration.ServiceProvider.GetRequiredService<IExpressionToDelegateCompiler>();
             Type = type;
             ClientTypeId = type.GetTypeHash();
             Constructor = constructor;
@@ -199,7 +202,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var alwaysCallConstructor = Properties.Any(p => p.TransferToServer && (
                 p.ConstructorParameter is {} ||
                 (p.PropertyInfo as PropertyInfo)?.IsInitOnly() == true));
-            
+
             // We don't want to clone IDotvvmViewModel automatically, because the user is likely to register this specific instance somewhere
             if (alwaysCallConstructor && typeof(IDotvvmViewModel).IsAssignableFrom(Type) && Constructor is {} && !SerialiationMapperAttributeHelper.IsJsonConstructor(Constructor))
             {
@@ -274,7 +277,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                             Call(JsonSerializationCodegenFragments.ReadEncryptedValueMethod, Call(encryptedValuesReader, "ReadValue", Type.EmptyTypes, Constant(propertyIndex)))
                         ),
                         Call(encryptedValuesReader, "Suppress", Type.EmptyTypes),
-                        
+
                         Assign(
                             propertyVar,
                             DeserializePropertyValue(property, readerTmp, propertyVar, jsonOptions, state))
@@ -330,15 +333,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 propertiesSwitch.Add((property.Name, body));
             }
 
-            // while(reader.TokenType == JsonToken.PropertyName && (currentProperty = reader.GetString()) != null && reader.Read())
+            // while((currentProperty = JsonSerializationCodegenFragments.TryReadNextProperty(ref reader)) != null)
             block.Add(ExpressionUtils.While(
-                condition: AndAlso(
-                    NotEqual(Property(reader, "TokenType"), Constant(JsonTokenType.EndObject)),
-                    AndAlso( // TODO: get rid of GetString()...
-                        ReferenceNotEqual(Assign(currentProperty, Call(reader, "GetString", Type.EmptyTypes)), Constant(null, typeof(string))),
-                        Call(reader, "Read", Type.EmptyTypes)
-                    )
-                ),
+                condition: ReferenceNotEqual(Assign(currentProperty, Call(JsonSerializationCodegenFragments.TryReadNextPropertyMethod, reader)), Constant(null, typeof(string))),
             //     switch(currentProperty)
                 body: ExpressionUtils.Switch(
                     condition: currentProperty,
@@ -381,7 +378,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var ex = Lambda<ReaderDelegate<T>>(
                 Block(typeof(T), [ currentProperty, readerTmp, ..propertyVars.Values ], block).OptimizeConstants(),
                 reader, jsonOptions, value, allowPopulate, encryptedValuesReader, state);
-            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
+            return expressionCompiler.Compile(ex);
         }
 
         Expression MemberAccess(Expression obj, ViewModelPropertyMap property)
@@ -420,7 +417,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 var property = Properties[propertyIndex];
                 var endPropertyLabel = Label("end_property_" + property.Name);
-                
+
                 if (property.TransferToClient && property.PropertyInfo is not PropertyInfo { GetMethod: null })
                 {
                     if (property.TransferFirstRequest != property.TransferAfterPostback)
@@ -515,8 +512,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // compile the expression
             var ex = Lambda<WriterDelegate<T>>(
-                Block(new[] { value }, block).OptimizeConstants(), writer, value, jsonOptions, requireTypeField, encryptedValuesWriter, dotvvmState);
-            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
+                Block(block).OptimizeConstants(), writer, value, jsonOptions, requireTypeField, encryptedValuesWriter, dotvvmState);
+            return expressionCompiler.Compile(ex);
         }
 
         /// <summary>
@@ -564,7 +561,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     return read;
                 else
                     return Condition(
-                        test: Equal(Property(reader, "TokenType"), Constant(JsonTokenType.Null)),
+                        test: Call(JsonSerializationCodegenFragments.IsNullTokenTypeMethod, reader),
                         ifTrue: Default(read.Type),
                         ifFalse: read
                     );
@@ -672,10 +669,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var type = existingValue.Type;
             Debug.Assert(type.UnwrapNullableType() == property.Type.UnwrapNullableType(), $"{type} != {property.Type}, property: {property.PropertyInfo.DeclaringType}.{property.Name}");
 
-            if (existingValue.Type.IsNullable())
+            if (ReflectionUtils.IsNullable(existingValue.Type))
             {
                 return Condition(
-                    test: Equal(Property(reader, "TokenType"), Constant(JsonTokenType.Null)),
+                    test: Call(JsonSerializationCodegenFragments.IsNullTokenTypeMethod, reader),
                     ifTrue: Default(type),
                     ifFalse: Convert(DeserializePropertyValue(property, reader, existingValue.UnwrapNullable(throwOnNull: false), jsonOptions, dotvvmState), type)
                 );
@@ -920,6 +917,28 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 reader.Skip();
             }
             reader.Read();
+        }
+
+        public static readonly MethodInfo TryReadNextPropertyMethod = typeof(JsonSerializationCodegenFragments).GetMethod(nameof(TryReadNextProperty), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
+        static string? TryReadNextProperty(ref Utf8JsonReader reader)
+        {
+            if (reader.TokenType == JsonTokenType.EndObject)
+            {
+                return null;
+            }
+            var currentProperty = reader.GetString();
+            if (currentProperty == null)
+            {
+                return null;
+            }
+            reader.Read();
+            return currentProperty;
+        }
+
+        public static readonly MethodInfo IsNullTokenTypeMethod = typeof(JsonSerializationCodegenFragments).GetMethod(nameof(IsNullTokenType), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
+        static bool IsNullTokenType(ref Utf8JsonReader reader)
+        {
+            return reader.TokenType == JsonTokenType.Null;
         }
     }
 }

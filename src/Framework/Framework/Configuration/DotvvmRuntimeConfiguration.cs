@@ -58,6 +58,10 @@ namespace DotVVM.Framework.Configuration
         [JsonPropertyName("explicitAssemblyLoading")]
         public DotvvmGlobalFeatureFlag ExplicitAssemblyLoading { get; } = new DotvvmGlobalFeatureFlag("ExplicitAssemblyLoading");
 
+        /// <summary>Gets or sets which expression compiler will be used for serialization maps and view compilation.</summary>
+        [JsonPropertyName("expressionCompiler")]
+        public DotvvmExpressionCompilerType ExpressionCompiler { get; set; } = DotvvmExpressionCompilerType.FastExpressionCompiler;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRuntimeConfiguration"/> class.
         /// </summary>

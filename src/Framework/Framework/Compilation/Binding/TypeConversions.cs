@@ -66,9 +66,9 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 return Expression.Convert(src, destType);
             }
-            else if (src.Type.IsNullable() || destType.IsNullable())
+            else if (ReflectionUtils.IsNullable(src.Type) || ReflectionUtils.IsNullable(destType))
             {
-                var srcLift = src.Type.IsNullable() ? Expression.Property(src, "Value") : src;
+                var srcLift = ReflectionUtils.IsNullable(src.Type) ? Expression.Property(src, "Value") : src;
                 var destLift = Nullable.GetUnderlyingType(destType) ?? destType;
                 var liftedConverted = ImplicitConversion(srcLift, destLift);
                 if (liftedConverted != null && liftedConverted.NodeType == ExpressionType.Convert && liftedConverted.CastTo<UnaryExpression>().Operand == srcLift)
@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (src.NodeType == ExpressionType.Constant && src.Type == typeof(object) && ((ConstantExpression)src).Value == null)
             {
-                if (destType.IsNullable())
+                if (ReflectionUtils.IsNullable(destType))
                 {
                     return Expression.Constant(Activator.CreateInstance(destType), destType);
                 }

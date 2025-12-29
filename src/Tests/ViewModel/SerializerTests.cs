@@ -1,4 +1,4 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using STJ = System.Text.Json;
@@ -23,49 +23,94 @@ using System.Collections.Immutable;
 namespace DotVVM.Framework.Tests.ViewModel
 {
     [TestClass]
-    public class SerializerTests
+    public class FastSerializerTests : SerializerTests
     {
-        static ViewModelJsonConverter jsonConverter = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
-        static JsonSerializerOptions jsonOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
-            Converters = { jsonConverter },
-            WriteIndented = true
-        };
-        static DotvvmSerializationState CreateState(bool isPostback, JsonObject readEncryptedValues = null)
+        static DotvvmConfiguration config;
+        static ViewModelJsonConverter jsonConverter;
+        static JsonSerializerOptions jsonOptions;
+        static FastSerializerTests()
         {
-            var config = DotvvmTestHelper.DefaultConfig;
+            config = DotvvmTestHelper.CreateConfiguration();
+            config.Runtime.ExpressionCompiler = DotvvmExpressionCompilerType.FastExpressionCompiler;
+
+            jsonConverter = config.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
+            jsonOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
+                Converters = { jsonConverter },
+                WriteIndented = true
+            };
+        }
+
+        protected override DotvvmConfiguration Config => config;
+        protected override ViewModelJsonConverter JsonConverter => jsonConverter;
+        protected override JsonSerializerOptions JsonOptions => jsonOptions;
+    }
+
+    [TestClass]
+    public class StandardSerializerTests : SerializerTests
+    {
+        static DotvvmConfiguration config;
+        static ViewModelJsonConverter jsonConverter;
+        static JsonSerializerOptions jsonOptions;
+        static StandardSerializerTests()
+        {
+            config = DotvvmTestHelper.CreateConfiguration();
+            config.Runtime.ExpressionCompiler = DotvvmExpressionCompilerType.Standard;
+
+            jsonConverter = config.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
+            jsonOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
+                Converters = { jsonConverter },
+                WriteIndented = true
+            };
+        }
+
+        protected override DotvvmConfiguration Config => DotvvmTestHelper.DefaultConfig;
+
+        protected override ViewModelJsonConverter JsonConverter => jsonConverter;
+
+        protected override JsonSerializerOptions JsonOptions => jsonOptions;
+    }
+
+    public abstract class SerializerTests
+    {
+        protected abstract DotvvmConfiguration Config { get; }
+        protected abstract ViewModelJsonConverter JsonConverter { get; }
+        protected abstract JsonSerializerOptions JsonOptions { get; }
+
+        DotvvmSerializationState CreateState(bool isPostback, JsonObject readEncryptedValues = null)
+        {
             return DotvvmSerializationState.Create(
                 isPostback,
-                config.ServiceProvider,
-                readEncryptedValues is null ? null : new JsonObject([ new("0", readEncryptedValues) ])
+                Config.ServiceProvider,
+                readEncryptedValues is null ? null : new JsonObject([new("0", readEncryptedValues)])
             );
         }
 
-        static string Serialize<T>(T viewModel, out JsonObject encryptedValues, bool isPostback = false)
+        string Serialize<T>(T viewModel, out JsonObject encryptedValues, bool isPostback = false)
         {
             using var state = CreateState(isPostback, null);
 
-            var json = STJ.JsonSerializer.Serialize(viewModel, jsonOptions);
+            var json = STJ.JsonSerializer.Serialize(viewModel, JsonOptions);
             var ev = state.WriteEncryptedValues.ToSpan();
             encryptedValues = ev.Length > 0 ? JsonNode.Parse(ev).AsObject() : new JsonObject();
             return json;
         }
 
-        static T Deserialize<T>(string json, JsonObject encryptedValues = null)
+        T Deserialize<T>(string json, JsonObject encryptedValues = null)
         {
             using var state = CreateState(false, encryptedValues ?? new JsonObject());
 
-            return STJ.JsonSerializer.Deserialize<T>(json, jsonOptions);
+            return STJ.JsonSerializer.Deserialize<T>(json, JsonOptions);
         }
 
-        static T PopulateViewModel<T>(string json, T existingValue, JsonObject encryptedValues = null)
+        T PopulateViewModel<T>(string json, T existingValue, JsonObject encryptedValues = null)
         {
             using var state = CreateState(true, encryptedValues ?? new JsonObject());
-            var specificConverter = jsonConverter.CreateConverter<T>();
+            var specificConverter = JsonConverter.CreateConverter<T>();
             var jsonReader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
-            return (T)specificConverter.Populate(ref jsonReader, typeof(T), existingValue, jsonOptions, state);
+            return (T)specificConverter.Populate(ref jsonReader, typeof(T), existingValue, JsonOptions, state);
         }
 
-        internal static (T vm, JsonObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
+        (T vm, JsonObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
         {
             var json = Serialize<T>(viewModel, out var encryptedValues, isPostback);
             var viewModel2 = Deserialize<T>(json, encryptedValues);
@@ -953,7 +998,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         [TestMethod]
         public void SupportConstructorInjection()
         {
-            var service = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<DotvvmTestHelper.ITestSingletonService>();
+            var service = Config.ServiceProvider.GetRequiredService<DotvvmTestHelper.ITestSingletonService>();
             var obj = new ViewModelWithService("test", service);
             var (obj2, json) = SerializeAndDeserialize(obj);
 
@@ -1450,6 +1495,111 @@ namespace DotVVM.Framework.Tests.ViewModel
             {
                 public int Property2B { get; set; }
             }
+        }
+
+        [TestMethod]
+        public void Error_AbstractClassWithPublicConstructor()
+        {
+            AbstractClassWithPublicConstructor obj = new AbstractClassWithPublicConstructor.DerivedClass("test");
+            var ex = Assert.ThrowsException<Exception>(() => SerializeAndDeserialize(obj));
+
+            Assert.AreEqual("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerTests.AbstractClassWithPublicConstructor because it's abstract. Please avoid using abstract types in view model. If you really mean it, you can add a static factory method and mark it with [JsonConstructor] attribute.", ex.Message);
+        }
+
+        public abstract class AbstractClassWithPublicConstructor
+        {
+            public string Property { get; }
+
+            [JsonConstructor]
+            public AbstractClassWithPublicConstructor(string property)
+            {
+                Property = property;
+            }
+
+            public class DerivedClass : AbstractClassWithPublicConstructor
+            {
+                public DerivedClass(string property) : base(property)
+                {
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Error_InitOnlyProperty()
+        {
+            var obj = new ViewModelWithInitOnlyProperty { Property = "test" };
+            var ex = Assert.ThrowsException<Exception>(() => SerializeAndDeserialize(obj));
+
+            Assert.AreEqual("Deserialization of DotVVM.Framework.Tests.ViewModel.SerializerTests.ViewModelWithInitOnlyProperty is not allowed, because it implements IDotvvmViewModel and init-only property Property is transferred client → server. To allow cloning the object on deserialization, mark a constructor with [JsonConstructor].", ex.Message);
+        }
+
+        public class ViewModelWithInitOnlyProperty : DotvvmViewModelBase
+        {
+            public string Property { get; init; }
+        }
+
+        [TestMethod]
+        public void Error_ConstructorNotAllowed()
+        {
+            var obj = new ViewModelWithConstructor("test");
+            var ex = Assert.ThrowsException<Exception>(() => SerializeAndDeserialize(obj));
+
+            Assert.AreEqual("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerTests.ViewModelWithConstructor, no parameterless constructor found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.", ex.Message);
+        }
+
+        public class ViewModelWithConstructor
+        {
+            public string Property { get; set; }
+
+            public ViewModelWithConstructor(string property)
+            {
+                Property = property;
+            }
+        }
+
+        [TestMethod]
+        public void Error_ConstructorMismatch()
+        {
+            var obj = new ViewModelWithConstructorMismatch("test");
+            var ex = Assert.ThrowsException<Exception>(() => SerializeAndDeserialize(obj));
+
+            Assert.AreEqual("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerTests.ViewModelWithConstructorMismatch, constructor parameter something is not mapped to any property.", ex.Message);
+        }
+
+        public class ViewModelWithConstructorMismatch
+        {
+            public string Property { get; set; }
+
+            [JsonConstructor]
+            public ViewModelWithConstructorMismatch(string something)
+            {
+                Property = something;
+            }
+        }
+        [TestMethod]
+        public void Error_ConstructorMismatch2()
+        {
+            // Error handling is different if the mismatched parameter could a service
+            var obj = new ViewModelWithConstructorMismatch2(new ThisCouldBeAService { Property = "test" });
+            var ex = Assert.ThrowsException<Exception>(() => SerializeAndDeserialize(obj));
+
+            Assert.AreEqual("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerTests.ViewModelWithConstructorMismatch2, constructor parameter s is not mapped to any property and service SerializerTests.ThisCouldBeAService was not found in ServiceProvider.", ex.Message);
+        }
+
+        public class ViewModelWithConstructorMismatch2
+        {
+            public string Property { get; set; }
+
+            [JsonConstructor]
+            public ViewModelWithConstructorMismatch2(ThisCouldBeAService s)
+            {
+                Property = s.Property;
+            }
+        }
+
+        public class ThisCouldBeAService
+        {
+            public string Property { get; set; }
         }
 
     }

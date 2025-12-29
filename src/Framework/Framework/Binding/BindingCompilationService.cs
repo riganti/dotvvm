@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Binding
                 if (result is LambdaExpression lambda)
                 {
                     DotvvmMetrics.BindingsCompiled.Add(1, new KeyValuePair<string, object?>("binding_type", binding.GetBindingName()));
-                    return expressionCompiler.Compile(lambda);
+                    return expressionCompiler.Compile(lambda, DotvvmExpressionCompilerType.Standard);
                 }
                 else return result;
             }

@@ -262,7 +262,7 @@ namespace DotVVM.Framework.Compilation.Binding
             // The overload resolution rules of §11.6.4 are applied to the set of candidate operators to select the best operator with respect to the argument list (x, y), and this operator becomes the result of the overload resolution process. If overload resolution fails to select a single best operator, a binding-time error occurs.
 
             var matchingMethods = FindValidMethodOverloads(candidateMethods, operatorName, false, null, new[] { a, b }, null);
-            var liftToNull = matchingMethods.Count == 0 && (a.Type.IsNullable() || b.Type.IsNullable());
+            var liftToNull = matchingMethods.Count == 0 && (ReflectionUtils.IsNullable(a.Type) || ReflectionUtils.IsNullable(b.Type));
             if (liftToNull)
             {
                 matchingMethods = FindValidMethodOverloads(candidateMethods, operatorName, false, null, new[] { a.UnwrapNullable(), b.UnwrapNullable() }, null);

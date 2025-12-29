@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 // the null propagation visitor however runs after this, so we need to convert left to nullable
                 // to make the validation in Expression.Coalesce happy
                 var leftNullable =
-                    left.Type.IsValueType && !left.Type.IsNullable()
+                    left.Type.IsValueType && !ReflectionUtils.IsNullable(left.Type)
                         ? Expression.Convert(left, typeof(Nullable<>).MakeGenericType(left.Type))
                         : left;
                 return Expression.Coalesce(leftNullable, right);
@@ -47,11 +47,11 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             // lift the other side to null
-            if (left.Type.IsNullable() && right.Type.IsValueType && !right.Type.IsNullable())
+            if (ReflectionUtils.IsNullable(left.Type) && right.Type.IsValueType && !ReflectionUtils.IsNullable(right.Type))
             {
                 right = Expression.Convert(right, right.Type.MakeNullableType());
             }
-            else if (right.Type.IsNullable() && left.Type.IsValueType && !left.Type.IsNullable())
+            else if (ReflectionUtils.IsNullable(right.Type) && left.Type.IsValueType && !ReflectionUtils.IsNullable(left.Type))
             {
                 left = Expression.Convert(left, left.Type.MakeNullableType());
             }
