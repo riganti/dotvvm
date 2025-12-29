@@ -13,13 +13,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (!typeToConvert.IsDefined(typeof(JsonConverterAttribute), inherit: false))
                 return false;
-            var attr = typeToConvert.GetCustomAttribute<JsonConverterAttribute>(inherit: false);
+            var attr = typeToConvert.GetCustomAttribute<JsonConverterAttribute>(inherit: false)!;
             return attr.ConverterType is {} || attr.CreateConverter(typeToConvert) is {};
         }
 
         public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
-            var attr = typeToConvert.GetCustomAttribute<JsonConverterAttribute>(inherit: false);
+            var attr = typeToConvert.GetCustomAttribute<JsonConverterAttribute>(inherit: false)!;
             if (attr.CreateConverter(typeToConvert) is {} converter)
                 return converter;
             if (attr.ConverterType is null)

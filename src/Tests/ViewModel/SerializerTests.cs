@@ -1190,7 +1190,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public override TestEnumWithCustomConverter Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var str = reader.GetString();
-            return Enum.Parse<TestEnumWithCustomConverter>(new string(str.Reverse().ToArray()));
+            return (TestEnumWithCustomConverter)Enum.Parse(typeof(TestEnumWithCustomConverter), new string(str.Reverse().ToArray()));
         }
 
         public override void Write(Utf8JsonWriter writer, TestEnumWithCustomConverter value, JsonSerializerOptions options)
