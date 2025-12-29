@@ -125,7 +125,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             """
             [1, 2, 3
             """,
-            ""
+            "3"
         )]
         public void GetInvalidJsonErrorPath(string json, string expectedPath)
         {
