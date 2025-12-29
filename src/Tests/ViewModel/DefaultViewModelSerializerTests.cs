@@ -22,11 +22,6 @@ using DotVVM.Framework.Utils;
 using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-#if NET6_0_OR_GREATER
-using Microsoft.AspNetCore.Http;
-#else
-using Microsoft.Owin;
-#endif
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -446,7 +441,7 @@ namespace DotVVM.Framework.Tests.Runtime
             };
             context.ViewModel = oldViewModel;
 
-            
+
             var result = serializer.SerializeViewModel(context);
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
@@ -552,7 +547,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var configuration = DotvvmTestHelper.CreateConfiguration();
             var serializer = (DefaultViewModelSerializer)configuration.ServiceProvider.GetRequiredService<IViewModelSerializer>();
-            
+
             // Test with a type that's already been used in other tests
             var json = """
             { "Items": [ { "PropertyA": "test", "PropertyB": 123 } ] }
@@ -561,11 +556,6 @@ namespace DotVVM.Framework.Tests.Runtime
             var context = new TestDotvvmRequestContext(configuration.ServiceProvider) {
                 ViewModel = viewModel,
                 Configuration = configuration,
-#if NET6_0_OR_GREATER
-                HttpContext = new DotvvmHttpContext(new DefaultHttpContext()),
-#else
-                HttpContext = new DotvvmHttpContext(new OwinContext()),
-#endif 
                 ModelState = new ModelState()
             };
 
