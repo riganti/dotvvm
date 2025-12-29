@@ -33,6 +33,7 @@ namespace DotVVM.Framework.Configuration
             return new JsonSerializerOptions()
             {
                 Converters = {
+                    new PreferTheJsonConverterAttribute(),
                     new DotvvmDateTimeConverter(),
                     new DotvvmObjectConverter(),
                     new DotvvmEnumConverter(),
