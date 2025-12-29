@@ -19,7 +19,6 @@ namespace DotVVM.Framework.Utils
             var options = new JsonReaderOptions { MaxDepth = 196 };
             var reader = new Utf8JsonReader(data, false, new JsonReaderState(options));
             reader.AssertRead();
-            if (reader.TokenType != JsonTokenType.StartObject) throw new Exception("wtf");
             return GetFailurePathInternal(ref reader) ?? throw new Exception("No error in specified JSON");
         }
 

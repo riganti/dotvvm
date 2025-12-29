@@ -90,6 +90,43 @@ namespace DotVVM.Framework.Tests.ViewModel
             """,
             "prop"
         )]
+        // Test cases for root-level arrays
+        [DataRow(
+            """
+            [1, 2,
+            """,
+            "2"
+        )]
+        [DataRow(
+            """
+            [
+            """,
+            "0"
+        )]
+        [DataRow(
+            """
+            [{"a": 1}, {"b":
+            """,
+            "1/b"
+        )]
+        [DataRow(
+            """
+            [[1, 2], [3,
+            """,
+            "1/1"
+        )]
+        [DataRow(
+            """
+            [[[],
+            """,
+            "1"
+        )]
+        [DataRow(
+            """
+            [1, 2, 3
+            """,
+            ""
+        )]
         public void GetInvalidJsonErrorPath(string json, string expectedPath)
         {
             var utf8 = StringUtils.Utf8.GetBytes(json);
