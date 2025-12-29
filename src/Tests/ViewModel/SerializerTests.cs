@@ -1437,6 +1437,14 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.IsTrue(obj.ItsSerializedAnyway);
         }
 
+        [TestMethod]
+        public void Serializer_SupportCustomEnumConverter()
+        {
+            var (obj, json) = SerializeAndDeserialize<Tuple<TestEnumWithCustomConverter>>(new(TestEnumWithCustomConverter.Case5));
+
+            Assert.AreEqual(TestEnumWithCustomConverter.Case5, obj.Item1);
+            Assert.AreEqual("5esaC", (string)json["Item1"]);
+        }
 
         [TestMethod]
         public void Serializer_CanUseDefaultPolymorphismSupport_1()
@@ -1855,6 +1863,23 @@ namespace DotVVM.Framework.Tests.ViewModel
                 writer.WriteString("Property1"u8, value.Property1);
                 writer.WriteEndObject();
             }
+        }
+    }
+
+    [JsonConverter(typeof(TestEnumCustomConverter))]
+    public enum TestEnumWithCustomConverter { Case1, Case2, Case3, Case4, Case5, Case6, Case7 }
+
+    public class TestEnumCustomConverter : JsonConverter<TestEnumWithCustomConverter>
+    {
+        public override TestEnumWithCustomConverter Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var str = reader.GetString();
+            return (TestEnumWithCustomConverter)Enum.Parse(typeof(TestEnumWithCustomConverter), new string(str.Reverse().ToArray()));
+        }
+
+        public override void Write(Utf8JsonWriter writer, TestEnumWithCustomConverter value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(new string(value.ToString().Reverse().ToArray()));
         }
     }
 
