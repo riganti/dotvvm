@@ -9,30 +9,41 @@ namespace DotVVM.Framework.Binding
 {
     public interface IExpressionToDelegateCompiler
     {
-        Delegate Compile(LambdaExpression expression);
+        Delegate Compile(LambdaExpression expression, DotvvmExpressionCompilerType? preferredExpressionCompiler = null);
+
+        T Compile<T>(Expression<T> expression, DotvvmExpressionCompilerType? preferredExpressionCompiler = null) where T : Delegate;
     }
 
-    public class DefaultExpressionToDelegateCompiler : IExpressionToDelegateCompiler
+    public class DefaultExpressionToDelegateCompiler(DotvvmConfiguration config) : IExpressionToDelegateCompiler
     {
-        readonly bool interpret;
-        public DefaultExpressionToDelegateCompiler(DotvvmConfiguration config)
+        public Delegate Compile(LambdaExpression expression, DotvvmExpressionCompilerType? preferredExpressionCompiler = null)
         {
-            interpret = config.Debug;
+            return (preferredExpressionCompiler ?? config.Runtime.ExpressionCompiler) switch {
+
+                // in Debug, we wanted to use interpretation
+                // the interpreter is broken: https://github.com/dotnet/runtime/issues/96385
+                // interpret ? expression.Compile(preferInterpretation: interpret) :
+                DotvvmExpressionCompilerType.Standard => expression.Compile(),
+
+                DotvvmExpressionCompilerType.FastExpressionCompiler => expression.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression),
+
+                _ => throw new NotSupportedException($"Expression compiler {config.Runtime.ExpressionCompiler} is not supported!")
+            };
         }
-        public Delegate Compile(LambdaExpression expression) =>
-            // the interpreter is broken: https://github.com/dotnet/runtime/issues/96385
-            // interpret ? expression.Compile(preferInterpretation: interpret) :
-            expression.Compile();
-        // TODO: use FastExpressionCompiler
-        // we can't do that atm since it still has some bugs, when these are fixed we should use that for all bindings
-        // {
-        //     var x = expression.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression | CompilerFlags.EnableDelegateDebugInfo);
-        //     var di = x.Target as IDelegateDebugInfo;
 
-        //     Console.WriteLine(di.CSharpString);
-        //     Console.WriteLine(di.ExpressionString);
+        public T Compile<T>(Expression<T> expression, DotvvmExpressionCompilerType? preferredExpressionCompiler = null) where T : Delegate
+        {
+            return (preferredExpressionCompiler ?? config.Runtime.ExpressionCompiler) switch {
 
-        //     return x;
-        // }
+                // in Debug, we wanted to use interpretation
+                // the interpreter is broken: https://github.com/dotnet/runtime/issues/96385
+                // interpret ? expression.Compile(preferInterpretation: interpret) :
+                DotvvmExpressionCompilerType.Standard => expression.Compile(),
+
+                DotvvmExpressionCompilerType.FastExpressionCompiler => expression.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression),
+
+                _ => throw new NotSupportedException($"Expression compiler {config.Runtime.ExpressionCompiler} is not supported!")
+            };
+        }
     }
 }

@@ -17,6 +17,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json.Nodes;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -28,6 +29,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         protected readonly JsonSerializerOptions jsonOptions;
         protected readonly DotvvmConfiguration configuration;
         protected readonly ViewModelJsonConverter viewModelJsonConverter;
+        protected readonly IExpressionToDelegateCompiler expressionCompiler;
 
         public delegate T ReaderDelegate<T>(ref Utf8JsonReader reader, JsonSerializerOptions options, T? existingValue, bool populate, EncryptedValuesReader encryptedValuesReader, DotvvmSerializationState state);
         public delegate void WriterDelegate<T>(Utf8JsonWriter writer, T obj, JsonSerializerOptions options, bool requireTypeField, EncryptedValuesWriter evWriter, DotvvmSerializationState state);
@@ -52,6 +54,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.jsonOptions = jsonOptions;
             this.configuration = configuration;
             this.viewModelJsonConverter = configuration.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
+            this.expressionCompiler = configuration.ServiceProvider.GetRequiredService<IExpressionToDelegateCompiler>();
             Type = type;
             ClientTypeId = type.GetTypeHash();
             Constructor = constructor;
@@ -375,8 +378,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var ex = Lambda<ReaderDelegate<T>>(
                 Block(typeof(T), [ currentProperty, readerTmp, ..propertyVars.Values ], block).OptimizeConstants(),
                 reader, jsonOptions, value, allowPopulate, encryptedValuesReader, state);
-            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
-            //return ex.Compile();
+            return expressionCompiler.Compile(ex);
         }
 
         Expression MemberAccess(Expression obj, ViewModelPropertyMap property)
@@ -511,8 +513,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // compile the expression
             var ex = Lambda<WriterDelegate<T>>(
                 Block(block).OptimizeConstants(), writer, value, jsonOptions, requireTypeField, encryptedValuesWriter, dotvvmState);
-            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
-            //return ex.Compile();
+            return expressionCompiler.Compile(ex);
         }
 
         /// <summary>

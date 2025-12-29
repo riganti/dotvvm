@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation.ViewCompiler
 {
-    public class DefaultViewCompilerCodeEmitter
+    public class DefaultViewCompilerCodeEmitter(IExpressionToDelegateCompiler expressionCompiler)
     {
         private static Type[] emptyTypeArguments = new Type[] { };
 
@@ -352,7 +352,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             var block = Expression.Block(blockInfo.Variables.Values, blockInfo.Expressions);
 
             var lambda = Expression.Lambda<TDelegate>(block, blockInfo.Parameters.Values);
-            return lambda.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
+            return expressionCompiler.Compile(lambda);
         }
 
         private record BlockInfo

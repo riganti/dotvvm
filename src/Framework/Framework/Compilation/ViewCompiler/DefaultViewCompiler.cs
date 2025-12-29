@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -19,17 +20,19 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
     {
         private readonly IControlTreeResolver controlTreeResolver;
         private readonly IBindingCompiler bindingCompiler;
+        private readonly IExpressionToDelegateCompiler expressionCompiler;
         private readonly ViewCompilerConfiguration config;
         private readonly Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory;
         private readonly CompositeDiagnosticsCompilationTracer tracer;
         private readonly ILogger<DefaultViewCompiler>? logger;
 
-        public DefaultViewCompiler(IOptions<ViewCompilerConfiguration> config, IControlTreeResolver controlTreeResolver, IBindingCompiler bindingCompiler, Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory, CompositeDiagnosticsCompilationTracer tracer, ILogger<DefaultViewCompiler>? logger = null)
+        public DefaultViewCompiler(IOptions<ViewCompilerConfiguration> config, IControlTreeResolver controlTreeResolver, IBindingCompiler bindingCompiler, IExpressionToDelegateCompiler expressionCompiler, Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory, CompositeDiagnosticsCompilationTracer tracer, ILogger<DefaultViewCompiler>? logger = null)
         {
             this.config = config.Value;
             this.tracer = tracer;
             this.controlTreeResolver = controlTreeResolver;
             this.bindingCompiler = bindingCompiler;
+            this.expressionCompiler = expressionCompiler;
             this.controlValidatorFactory = controlValidatorFactory;
             this.logger = logger;
         }
@@ -90,7 +93,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
                         var diagnostics = CheckErrors(fileName, sourceCode, tracingHandle, tokenizer.Tokens, node, resolvedView, additionalDiagnostics: validationVisitor.Errors);
                         LogDiagnostics(tracingHandle, diagnostics, fileName, sourceCode);
 
-                        var emitter = new DefaultViewCompilerCodeEmitter();
+                        var emitter = new DefaultViewCompilerCodeEmitter(expressionCompiler);
                         var compilingVisitor = new ViewCompilingVisitor(emitter, bindingCompiler);
 
                         resolvedView.Accept(compilingVisitor);
