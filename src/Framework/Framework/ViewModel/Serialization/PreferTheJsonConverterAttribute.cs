@@ -20,11 +20,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
             var attr = typeToConvert.GetCustomAttribute<JsonConverterAttribute>(inherit: false)!;
-            if (attr.CreateConverter(typeToConvert) is {} converter)
-                return converter;
-            if (attr.ConverterType is null)
-                throw new Exception($"Type {typeToConvert.ToCode()} has a [JsonConverter] attribute, but its CreateConverter returns null sometimes?");
-            return (JsonConverter)Activator.CreateInstance(attr.ConverterType)!;
+            var converter = attr.CreateConverter(typeToConvert);
+            if (converter is null)
+            {
+                if (attr.ConverterType is null)
+                    throw new Exception($"Type {typeToConvert.ToCode()} has a [JsonConverter] attribute, but its CreateConverter returns null sometimes?");
+                converter = (JsonConverter)Activator.CreateInstance(attr.ConverterType)!;
+            }
+
+            if (converter is JsonConverterFactory factory)
+                return factory.CreateConverter(typeToConvert, options);
+            return converter;
         }
     }
 }
