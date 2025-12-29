@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using DotVVM.Framework.Utils;
+using System.Text.Json.Serialization.Metadata;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -48,6 +49,7 @@ namespace DotVVM.Framework.Configuration
                     new HalfJsonConverter(),
 #endif
                 },
+                TypeInfoResolver = new DefaultJsonTypeInfoResolver(),
                 NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
                 Encoder = HtmlSafeLessParanoidEncoder,
                 MaxDepth = defaultMaxSerializationDepth
@@ -72,10 +74,12 @@ namespace DotVVM.Framework.Configuration
             encoderSettings.ForbidCharacters('>', '<');
             HtmlSafeLessParanoidEncoder = JavaScriptEncoder.Create(encoderSettings);
             Settings = CreateSettings();
+            Settings.MakeReadOnly();
             SettingsHtmlUnsafe = new JsonSerializerOptions(Settings)
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             };
+            SettingsHtmlUnsafe.MakeReadOnly();
         }
     }
 }

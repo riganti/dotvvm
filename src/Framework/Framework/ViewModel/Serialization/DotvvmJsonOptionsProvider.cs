@@ -31,12 +31,14 @@ public class DotvvmJsonOptionsProvider : IDotvvmJsonOptionsProvider
     {
         var debug = configuration.Debug;
         _viewModelConverter = new Lazy<ViewModelJsonConverter>(() => configuration.ServiceProvider.GetRequiredService<ViewModelJsonConverter>());
-        _viewModelOptions = new Lazy<JsonSerializerOptions>(() => 
-            new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
+        _viewModelOptions = new Lazy<JsonSerializerOptions>(() => {
+            var options = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
                 Converters = { _viewModelConverter.Value },
                 WriteIndented = debug
-            }
-        );
+            };
+            options.MakeReadOnly();
+            return options;
+        });
         _plainJsonOptions = new Lazy<JsonSerializerOptions>(() =>
             !debug ? DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe
                    : new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) { WriteIndented = true }
