@@ -182,6 +182,7 @@ namespace DotVVM.Framework.Binding.Expressions
     }
 
     public class CommandBindingExpression<T> : CommandBindingExpression, ICommandBinding<T>
+        where T : Delegate
     {
         public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
         public CommandBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) : base(service, properties) { }

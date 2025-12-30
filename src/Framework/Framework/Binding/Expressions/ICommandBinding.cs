@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Runtime.Filters;
 
@@ -12,6 +13,7 @@ namespace DotVVM.Framework.Binding.Expressions
     }
 
     public interface ICommandBinding<out T>: ICommandBinding
+        where T : Delegate
     {
         new BindingDelegate<T> BindingDelegate { get; }
     }
@@ -22,6 +24,7 @@ namespace DotVVM.Framework.Binding.Expressions
         ParametrizedCode OptionsLambdaJavascript { get; }
     }
     public interface IStaticCommandBinding<out T> : ICommandBinding<T>, IStaticCommandBinding
+        where T : System.Delegate
     {
     }
 }

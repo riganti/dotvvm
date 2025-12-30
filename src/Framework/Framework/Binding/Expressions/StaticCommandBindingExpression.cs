@@ -71,6 +71,7 @@ namespace DotVVM.Framework.Binding.Expressions
     }
 
     public class StaticCommandBindingExpression<T>: StaticCommandBindingExpression, IStaticCommandBinding<T>
+        where T : Delegate
     {
         public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) : base(service, properties) { }
         public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
