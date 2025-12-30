@@ -14,7 +14,7 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public class LocalResourceUrlManager : ILocalResourceUrlManager
     {
-        private readonly ILogger logger;
+        private readonly ILogger? logger;
         private readonly IResourceHashService hasher;
         private readonly RouteBase resourceRoute;
         private readonly DotvvmResourceRepository resources;
@@ -22,7 +22,7 @@ namespace DotVVM.Framework.ResourceManagement
         private readonly bool requireResourceVersionHash;
         private readonly bool allowResourceVersionHash;
 
-        public LocalResourceUrlManager(DotvvmConfiguration configuration, IResourceHashService hasher, ILogger<LocalResourceUrlManager> logger)
+        public LocalResourceUrlManager(DotvvmConfiguration configuration, IResourceHashService hasher, ILogger<LocalResourceUrlManager>? logger = null)
         {
             this.resourceRoute = new DotvvmRoute(
                 url: HostingConstants.ResourceRouteName + "-{name}/{fileName}",
@@ -89,7 +89,7 @@ namespace DotVVM.Framework.ResourceManagement
                 {
                     if (requireResourceVersionHash && GetVersionHash(location, context, name) != hash)
                     {   // check if the resource matches so that nobody can guess the url by chance
-                        logger.LogInformation("Requested resource {name} with hash '{hash}' does not match the expected hash '{expectedHash}' and the request was rejected.", name, hash, GetVersionHash(location, context, name));
+                        logger?.LogInformation("Requested resource {name} with hash '{hash}' does not match the expected hash '{expectedHash}' and the request was rejected.", name, hash, GetVersionHash(location, context, name));
                         return null;
                     }
 
@@ -99,7 +99,7 @@ namespace DotVVM.Framework.ResourceManagement
                     return TryLoadAlternativeFile(name, fileName, resource, context);
             }
 
-            logger.LogInformation("Requested resource '{name}' not found.", name);
+            logger?.LogInformation("Requested resource '{name}' not found.", name);
             return null;
 
         }
@@ -120,7 +120,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             if (!IsAllowedFileName(fileName))
             {
-                logger.LogWarning("Requested additional file '{fileName}' for resource {resourceName} is not allowed.", fileName, name);
+                logger?.LogWarning("Requested additional file '{fileName}' for resource {resourceName} is not allowed.", fileName, name);
                 return null;
             }
 
