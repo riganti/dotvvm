@@ -163,7 +163,7 @@ namespace DotVVM.Framework.Compilation.Binding
             // if (left.Type.IsNullable() || right.Type.IsNullable())
             //     return GetBinaryOperator(expressionFactory, left.UnwrapNullable(), right.UnwrapNullable(), operation);
 
-            throw new InvalidOperationException($"Cannot apply {operation} operator to types {left.Type.Name} and {right.Type.Name}.");
+            throw new InvalidOperationException($"Cannot apply {operation} operator to types {left.Type.ToCode(stripNamespace: true)} and {right.Type.ToCode(stripNamespace: true)}.");
         }
 
         static Expression ReferenceEquality(Expression left, Expression right, bool not)
