@@ -15,6 +15,7 @@ using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Hosting.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting;
 #if NET9_0_OR_GREATER
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting.AspNetCore.StaticAssets;
 #endif
 
@@ -81,11 +82,24 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddDataProtection();
             services.AddMemoryCache();
 #if NET9_0_OR_GREATER
-            services.AddSingleton<IDotvvmVirtualPathTranslator, StaticAssetVirtualPathTranslator>();
             services.TryAddSingleton<StaticAssetsProvider>();
-            services.ConfigureWithServices<DotvvmConfiguration, StaticAssetsProvider, IWebHostEnvironment>((config, provider, env) =>
+            services.ConfigureWithServices<DotvvmConfiguration>(static (config, services) =>
             {
+                var provider = services.GetRequiredService<StaticAssetsProvider>();
+                var env = services.GetRequiredService<IWebHostEnvironment>();
+                
                 config.Resources.RegisterNamedParent("asset", new StaticAssetResourceRepository(config, provider, env));
+                
+                // Replace default virtual path transformers with static asset transformer
+                var lazyTransformer = new Lazy<IHtmlAttributeTransformer>(() => new StaticAssetHtmlAttributeTransformer(provider));
+                var staticAssetTransform = new HtmlAttributeTransformConfiguration();
+                staticAssetTransform.SetInstance(lazyTransformer, typeof(StaticAssetHtmlAttributeTransformer));
+                config.Markup.HtmlAttributeTransforms[new("a", "href")] = staticAssetTransform;
+                config.Markup.HtmlAttributeTransforms[new("link", "href")] = staticAssetTransform;
+                config.Markup.HtmlAttributeTransforms[new("img", "src")] = staticAssetTransform;
+                config.Markup.HtmlAttributeTransforms[new("iframe", "src")] = staticAssetTransform;
+                config.Markup.HtmlAttributeTransforms[new("script", "src")] = staticAssetTransform;
+                config.Markup.HtmlAttributeTransforms[new("meta", "content")] = staticAssetTransform;
             });
 #endif
             DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services);

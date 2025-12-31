@@ -123,8 +123,6 @@ namespace DotVVM.Framework.Hosting
         IServiceProvider Services { get; }
 
         CustomResponsePropertiesManager CustomResponseProperties { get; }
-
-        IDotvvmVirtualPathTranslator VirtualPathTranslator { get; }
     }
 
     public enum DotvvmRequestType

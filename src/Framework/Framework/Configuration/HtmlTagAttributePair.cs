@@ -13,6 +13,12 @@ namespace DotVVM.Framework.Configuration
 
         public string AttributeName { get; set; }
 
+        public HtmlTagAttributePair(string tagName, string attributeName)
+        {
+            TagName = tagName;
+            AttributeName = attributeName;
+        }
+
         public override string ToString()
         {
             return TagName + "[" + AttributeName + "]";

@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.StaticAssets;
@@ -18,16 +19,27 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting.AspNetCore.StaticAssets;
 
-public sealed class StaticAssetVirtualPathTranslator : IDotvvmVirtualPathTranslator
+/// <summary> translates virtual paths to ASP.NET Core static asset URLs. </summary>
+public sealed class StaticAssetHtmlAttributeTransformer : IHtmlAttributeTransformer
 {
     private readonly FrozenDictionary<string, string> assetPathMap;
-    public StaticAssetVirtualPathTranslator(StaticAssetsProvider provider)
+
+    public StaticAssetHtmlAttributeTransformer(StaticAssetsProvider provider)
     {
         assetPathMap = provider.GetAssetLabelMap()
             .ToDictionary(kv => "~/" + kv.Key, kv => "~/" + kv.Value.Route)
             .ToFrozenDictionary();
     }
-    public string TranslateVirtualPath(string virtualUrl, IHttpContext httpContext)
+
+    public void RenderHtmlAttribute(IHtmlWriter writer, IDotvvmRequestContext requestContext, string attributeName, object? attributeValue)
+    {
+        if (attributeValue is string stringValue)
+            writer.WriteHtmlAttribute(attributeName, TranslateVirtualPath(stringValue, requestContext));
+        else
+            writer.WriteHtmlAttribute(attributeName, attributeValue?.ToString());
+    }
+
+    private string TranslateVirtualPath(string virtualUrl, IDotvvmRequestContext context)
     {
         if (!virtualUrl.StartsWith("~/", StringComparison.Ordinal))
             return virtualUrl;
@@ -37,7 +49,7 @@ public sealed class StaticAssetVirtualPathTranslator : IDotvvmVirtualPathTransla
             virtualUrl = mappedPath;
         }
 
-        return DotvvmVirtualPathTranslator.TranslateVirtualPath(virtualUrl, httpContext);
+        return DotvvmRequestContextExtensions.TranslateVirtualPath(virtualUrl, context.HttpContext);
     }
 }
 
