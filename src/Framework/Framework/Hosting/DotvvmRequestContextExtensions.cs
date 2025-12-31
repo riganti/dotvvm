@@ -202,7 +202,28 @@ public static class DotvvmRequestContextExtensions
     /// </summary>
     public static string TranslateVirtualPath(this IDotvvmRequestContext context, string virtualUrl)
     {
-        return context.VirtualPathTranslator.TranslateVirtualPath(virtualUrl, context.HttpContext);
+        return TranslateVirtualPath(virtualUrl, context.HttpContext);
+    }
+
+    /// <summary>
+    /// Translates the virtual path (~/something) to the domain relative path (/virtualDirectory/something). 
+    /// For example, when the app is configured to run in a virtual directory '/virtDir', the URL '~/myPage.dothtml' will be translated to '/virtDir/myPage.dothtml'.
+    /// </summary>
+    public static string TranslateVirtualPath(string virtualUrl, IHttpContext httpContext)
+    {
+
+        if (virtualUrl.StartsWith("~/", StringComparison.Ordinal))
+        {
+            var pathRelative = virtualUrl.Substring(1);
+            var pathBase = httpContext.Request.PathBase.Value;
+            if (string.IsNullOrEmpty(pathBase))
+                return pathRelative;
+            else if (pathBase[0] == '/')
+                return pathBase + pathRelative;
+            else
+                return "/" + pathBase + pathRelative;
+        }
+        return virtualUrl;
     }
 
     /// <summary>

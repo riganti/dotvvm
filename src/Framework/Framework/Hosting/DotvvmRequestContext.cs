@@ -112,8 +112,6 @@ namespace DotVVM.Framework.Hosting
 
         public IServiceProvider Services { get; }
 
-        public IDotvvmVirtualPathTranslator VirtualPathTranslator { get; }
-
         public IHttpContext HttpContext { get; set; }
 
         public CancellationToken RequestAborted { get; set; }
@@ -134,7 +132,6 @@ namespace DotVVM.Framework.Hosting
             RequestType = requestType ?? DetermineRequestType(httpContext);
             Configuration = configuration;
             Services = services;
-            VirtualPathTranslator = services.GetRequiredService<IDotvvmVirtualPathTranslator>();
         }
 
         public static DotvvmRequestType DetermineRequestType(IHttpContext context)
