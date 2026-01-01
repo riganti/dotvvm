@@ -4547,7 +4547,10 @@ ko.bindingHandlers['checked'] = {
                     // When we're responding to the checkedValue changing, and the element is
                     // currently checked, replace the old elem value with the new elem value
                     // in the model array.
-                    if (isChecked) {
+                    if (isChecked
+                        // we want to suppress this behavior in DotVVM - it will applies only to non-DotVVM checkboxes
+                        && !allBindings['has']('checkedArrayContainsObservables')
+                    ) {
                         ko.utils.addOrRemoveItem(writableValue, elemValue, true, checkedArrayContainsObservables, checkedValueComparer);
                         ko.utils.addOrRemoveItem(writableValue, saveOldValue, false, checkedArrayContainsObservables, checkedValueComparer);
                     }
@@ -5117,7 +5120,7 @@ ko.bindingHandlers['selectedOptions'] = {
                 previousScrollTop = element.scrollTop;
 
             if (newValue && typeof newValue.length == "number") {
-                // touch all array elements, because the ko.utils.arrayIndexOf bellow unwraps everything with ko.dependencyDetection.ignore
+                // touch all array elements
                 ko.utils.arrayForEach(newValue, ko.utils.unwrapObservable);
 
                 ko.utils.arrayForEach(element.getElementsByTagName("option"), function(node) {
