@@ -49,6 +49,8 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Button_InputTypeButton_HtmlContentInside = "ControlSamples/Button/InputTypeButton_HtmlContentInside";
         public const string ControlSamples_Button_InputTypeButton_TextContentInside = "ControlSamples/Button/InputTypeButton_TextContentInside";
         public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
+        public const string ControlSamples_CheckBox_CheckBoxCheckedValueUpdates = "ControlSamples/CheckBox/CheckBoxCheckedValueUpdates";
+        public const string ControlSamples_CheckBox_CheckBoxCollectionUpdates = "ControlSamples/CheckBox/CheckBoxCollectionUpdates";
         public const string ControlSamples_CheckBox_CheckBox_Objects = "ControlSamples/CheckBox/CheckBox_Objects";
         public const string ControlSamples_CheckBox_CheckedItemsNull = "ControlSamples/CheckBox/CheckedItemsNull";
         public const string ControlSamples_CheckBox_CheckedItemsRepeater = "ControlSamples/CheckBox/CheckedItemsRepeater";
