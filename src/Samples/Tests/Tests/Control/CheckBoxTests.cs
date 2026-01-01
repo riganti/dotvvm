@@ -1,8 +1,10 @@
-﻿using DotVVM.Samples.Tests.Base;
+﻿using System.Linq;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Newtonsoft.Json;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
+using Riganti.Selenium.Validators.Checkers.ElementWrapperCheckers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -209,6 +211,103 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [Fact]
+        public void Control_CheckBox_CheckBoxCheckedValueUpdates()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckBoxCheckedValueUpdates);
+
+                var checkbox = browser.Single("input[type=checkbox]");
+                var buttons = browser.FindElements("input[type=button]");
+                var selected = browser.Single("ul");
+
+                ValidateCheckBoxState(checkedValue: 1, selectedValues: [2], isChecked: false);
+
+                buttons[1].Click();
+                ValidateCheckBoxState(checkedValue: 2, selectedValues: [2], isChecked: true);
+                buttons[0].Click();
+                ValidateCheckBoxState(checkedValue: 1, selectedValues: [2], isChecked: false);
+
+                checkbox.Click();
+                ValidateCheckBoxState(checkedValue: 1, selectedValues: [2, 1], isChecked: true);
+                buttons[1].Click();
+                ValidateCheckBoxState(checkedValue: 2, selectedValues: [2, 1], isChecked: true);
+                checkbox.Click();
+                ValidateCheckBoxState(checkedValue: 2, selectedValues: [1], isChecked: false);
+
+                buttons[0].Click();
+                ValidateCheckBoxState(checkedValue: 1, selectedValues: [1], isChecked: true);
+                checkbox.Click();
+                ValidateCheckBoxState(checkedValue: 1, selectedValues: [], isChecked: false);
+
+                buttons[1].Click();
+                ValidateCheckBoxState(checkedValue: 2, selectedValues: [], isChecked: false);
+
+
+                void ValidateCheckBoxState(int checkedValue, int[] selectedValues, bool isChecked)
+                {
+                    var selectedValuesInPage = selected.FindElements("li").Select(i => int.Parse(i.GetInnerText()));
+                    Assert.Equal(selectedValues.Order(), selectedValuesInPage.Order());
+                    Assert.Equal(checkbox.GetAttribute("value"), checkedValue.ToString());
+                    Assert.Equal(isChecked, checkbox.IsSelected());
+                }
+            });
+        }
+
+        [Fact]
+        public void Control_CheckBox_CheckBoxCollectionUpdates()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckBoxCollectionUpdates);
+
+                var links = browser.FindElements("a");
+                var selected = browser.Single("ul");
+
+                ValidateState([], []);
+
+                links[0].Click();
+                ValidateState([], [false, false]);
+
+                browser.ElementAt("input[type=checkbox]", 0).Click();
+                ValidateState([11], [true, false]);
+
+                links[1].Click();
+                ValidateState([11], [false, false, false]);
+
+                browser.ElementAt("input[type=checkbox]", 1).Click();
+                ValidateState([11, 22], [false, true, false]);
+
+                browser.ElementAt("input[type=checkbox]", 2).Click();
+                ValidateState([11, 22, 23], [false, true, true]);
+
+                links[0].Click();
+                ValidateState([11, 22, 23], [true, false]);
+
+                links[1].Click();
+                ValidateState([11, 22, 23], [false, true, true]);
+
+                browser.ElementAt("input[type=checkbox]", 1).Click();
+                ValidateState([11, 23], [false, false, true]);
+
+                links[0].Click();
+                ValidateState([11, 23], [true, false]);
+
+                browser.ElementAt("input[type=checkbox]", 0).Click();
+                ValidateState([23], [false, false]);
+
+                links[1].Click();
+                ValidateState([23], [false, false, true]);
+
+                void ValidateState(int[] selectedValues, bool[] checkboxStates)
+                {
+                    var selectedValuesInPage = selected.FindElements("li").Select(i => int.Parse(i.GetInnerText()));
+                    Assert.Equal(selectedValues.Order(), selectedValuesInPage.Order());
+
+                    var checkboxStatesInPage = browser.FindElements("input[type=checkbox]").Select(c => c.IsSelected());
+                    Assert.Equal(checkboxStates, checkboxStatesInPage);
+                }
+            });
+        }
         public CheckBoxTests(ITestOutputHelper output) : base(output)
         {
         }
