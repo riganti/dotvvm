@@ -133,7 +133,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Adapters.WebForms", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sitemap", "Sitemap", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Sitemap", "Tools\Sitemap\DotVVM.Sitemap\DotVVM.Sitemap.csproj", "{7B5E73F6-6547-4340-A035-9E68312E488B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Sitemap", "Tools\Sitemap\DotVVM.Sitemap.csproj", "{7B5E73F6-6547-4340-A035-9E68312E488B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -113,5 +113,10 @@ return @(
         Name = "DotVVM.Adapters.WebForms";
         Path = "src/Adapters/WebForms";
         Type = "standard"
+    },
+    [PSCustomObject]@{
+        Name = "DotVVM.Sitemap";
+        Path = "src/Tools/Sitemap";
+        Type = "standard"
     }
 )
