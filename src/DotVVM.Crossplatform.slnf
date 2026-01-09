@@ -34,6 +34,7 @@
       "Tools\\Compiler\\DotVVM.Compiler.csproj",
       "Tools\\HotReload\\AspNetCore\\DotVVM.HotReload.AspNetCore.csproj",
       "Tools\\HotReload\\Common\\DotVVM.HotReload.csproj",
+      "Tools\\Sitemap\\DotVVM.Sitemap.csproj",
       "Tools\\StartupPerfTester\\DotVVM.Tools.StartupPerfTester.csproj",
       "Tracing\\ApplicationInsights.AspNetCore\\DotVVM.Tracing.ApplicationInsights.AspNetCore.csproj",
       "Tracing\\ApplicationInsights\\DotVVM.Tracing.ApplicationInsights.csproj",
