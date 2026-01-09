@@ -117,20 +117,9 @@ namespace Microsoft.AspNetCore.Builder
         private static void SetupStaticAssets(IApplicationBuilder app)
         {
             var provider = app.ApplicationServices.GetRequiredService<StaticAssetsProvider>();
-            // app.UseEndpoints(endpoints =>
-            // {
-            //     var assets = StaticAssetsEndpointDataSourceHelper.ResolveStaticAssetDescriptors(
-            //         endpoints,
-            //         manifestPath: null // TODO: how is this supposed to be used?
-            //     );
-            //     endpoints.MapStaticAssets();
-            //     var assets2 = StaticAssetsEndpointDataSourceHelper.ResolveStaticAssetDescriptors(
-            //         endpoints,
-            //         manifestPath: null // TODO: how is this supposed to be used?
-            //     );
-            //     provider.SetStaticAssets(assets);
-            // });
+
             provider.SetStaticAssets(() => {
+                // this needs to be lazy-loaded, since static assets might be mapped after UseDotVVM is called
                 if (app.Properties.TryGetValue("__EndpointRouteBuilder", out var endpointRoutesObj) &&
                     endpointRoutesObj is IEndpointRouteBuilder endpointRoutes)
                 {
