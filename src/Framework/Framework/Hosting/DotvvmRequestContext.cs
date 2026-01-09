@@ -110,16 +110,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public bool IsInPartialRenderingMode => RequestType is DotvvmRequestType.Command or DotvvmRequestType.SpaNavigate;
 
-        [Obsolete("Get the IViewModelSerializer from IServiceProvider")]
-        public IViewModelSerializer ViewModelSerializer => Services.GetRequiredService<IViewModelSerializer>();
-
-        private IServiceProvider? _services;
-
-        public IServiceProvider Services
-        {
-            get => _services ?? (_services = Configuration.ServiceProvider ?? throw new NotSupportedException());
-            set => _services = value;
-        }
+        public IServiceProvider Services { get; }
 
         public IHttpContext HttpContext { get; set; }
 
@@ -128,18 +119,19 @@ namespace DotVVM.Framework.Hosting
         public DotvvmRequestContext(
             IHttpContext httpContext,
             DotvvmConfiguration configuration,
-            IServiceProvider? services,
+            IServiceProvider services,
             DotvvmRequestType? requestType,
             CancellationToken requestAborted)
         {
             if (httpContext is null) throw new ArgumentNullException(nameof(httpContext));
             if (configuration is null) throw new ArgumentNullException(nameof(configuration));
+            if (services is null) throw new ArgumentNullException(nameof(services));
 
             HttpContext = httpContext;
             RequestAborted = requestAborted;
             RequestType = requestType ?? DetermineRequestType(httpContext);
             Configuration = configuration;
-            _services = services;
+            Services = services;
         }
 
         public static DotvvmRequestType DetermineRequestType(IHttpContext context)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Routing;
@@ -111,7 +112,9 @@ namespace DotVVM.Samples.BasicSamples
             });
             app.UseStaticFiles();
 
+
             app.UseEndpoints(endpoints => {
+                endpoints.MapStaticAssets();
                 endpoints.MapDotvvmHotReload();
                 endpoints.MapMetrics(); // prometheus metrics on /metrics
             });
