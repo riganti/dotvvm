@@ -77,7 +77,7 @@ public sealed class StaticAssetResourceRepository: IDotvvmResourceRepository
 
                 if (label.EndsWith(".js", StringComparison.OrdinalIgnoreCase))
                 {
-                    dict[label] = new ScriptModuleResource(location);
+                    dict[label] = new ScriptModuleResource(location) { Dependencies = [ ResourceConstants.DotvvmResourceName ] };
                 }
                 else if (label.EndsWith(".css", StringComparison.OrdinalIgnoreCase))
                 {
