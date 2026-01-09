@@ -14,8 +14,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.StaticAssets.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Prometheus;
@@ -114,30 +112,11 @@ namespace DotVVM.Samples.BasicSamples
             });
             app.UseStaticFiles();
 
-            IReadOnlyList<Microsoft.AspNetCore.StaticAssets.StaticAssetDescriptor> hack2 = null;
-
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapStaticAssets();
-                hack2 = StaticAssetsEndpointDataSourceHelper.ResolveStaticAssetDescriptors(endpoints, null);
-
                 endpoints.MapDotvvmHotReload();
                 endpoints.MapMetrics(); // prometheus metrics on /metrics
-            });
-
-            app.Use(next => async context => {
-                if (context.Request.Path.StartsWithSegments("/dbg"))
-                {
-                    // var test = StaticAssetsEndpointDataSourceHelper.ResolveStaticAssetDescriptors(endpointHack, null);
-                    context.Response.ContentType = "text/plain";
-                    await context.Response.WriteAsync("Registered static assets:\n");
-                    foreach (var t in hack2)
-                    {
-                        await context.Response.WriteAsync($"- {t.AssetPath}, route {t.Route} | {string.Join(", ", t.Selectors.Select(s => $"{s.Name}={s.Value} q={s.Quality}"))} | {string.Join(", ", t.Properties.Select(p => $"{p.Name}={p.Value}"))}\n");
-                    }
-                    return;
-                }
-                await next(context);
             });
         }
 
