@@ -14,23 +14,26 @@ if (-not ([string]::IsNullOrWhiteSpace("$targetDirectory"))) {
         throw "Target directory '$targetDirectory' does not exist."
     }
     Set-Location $targetDirectory
+    $location = "project"
+} else {
+    $location = "user"
 }
 
 try {
     $feed = "$registry".Trim("https:");
-    npm config set --location project "registry=$registry"
+    npm config set --location $location "registry=$registry"
     if ($username) {
-        npm config set --location project "${feed}:username=$username"
+        npm config set --location $location "${feed}:username=$username"
     }
     if ($email) {
-        npm config set --location project "${feed}:email=$email"
+        npm config set --location $location "${feed}:email=$email"
     }
     if ($pat) {
         $password = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$pat"));
-        npm config set --location project "${feed}:_password=$password"
+        npm config set --location $location "${feed}:_password=$password"
     }
     if ($authToken) {
-        npm config set --location project "${feed}:_authToken=$authToken"
+        npm config set --location $location "${feed}:_authToken=$authToken"
     }
 }
 finally {
