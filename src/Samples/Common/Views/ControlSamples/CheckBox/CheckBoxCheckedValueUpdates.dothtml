@@ -1,0 +1,28 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.CheckBox.CheckBoxCheckedValueUpdatesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <dot:CheckBox CheckedItems="{value: SelectedValues}"
+                  CheckedValue="{value: FirstValue}"
+                  Text="{value: $"checkedValue = {FirstValue}"}"/>
+
+    <dot:Button Text="Change checkedValue = 1"
+                Click="{staticCommand: FirstValue = 1}" />
+    <dot:Button Text="Change checkedValue = 2"
+                Click="{staticCommand: FirstValue = 2}" />
+
+    <dot:Repeater DataSource="{value: SelectedValues}" WrapperTagName="ul">
+        <li>{{value: _this}}</li>
+    </dot:Repeater>
+
+</body>
+</html>
+
+

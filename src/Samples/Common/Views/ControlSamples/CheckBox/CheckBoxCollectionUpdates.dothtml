@@ -1,0 +1,29 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.CheckBox.CheckBoxCollectionUpdatesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <dot:Repeater DataSource="{value: Items}">
+        <p>
+            <dot:LinkButton Text="{value: Name}" Click="{command: _root.OnItemClick(_this)}" />
+        </p>
+    </dot:Repeater>
+
+    <dot:Repeater DataSource="{value: ChildItems}">
+        <dot:CheckBox CheckedItems="{value: _root.SelectedChildItems}" CheckedValue="{value: Id}" Text="{value: Name}" />
+    </dot:Repeater>
+
+    <dot:Repeater DataSource="{value: SelectedChildItems}" WrapperTagName="ul">
+        <li>{{value: _this}}</li>
+    </dot:Repeater>
+
+</body>
+</html>
+
+
