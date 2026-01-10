@@ -388,11 +388,11 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
             // otherwise, we want to skip the big update whenever possible - Knockout tends to update everything in the DOM when
             // we update the observableArray
             const elementKeyProperties = getCollectionElementKeyProperties();
-            const skipUpdate = !observableWasSetFromOutside && oldContents instanceof Array && oldContents.length == newVal.length && !elementKeyProperties;
+            const skipUpdate = !observableWasSetFromOutside && oldContents instanceof Array && oldContents.length == newVal.length && elementKeyProperties.length;
 
             if (!skipUpdate) {
                 const t: KnockoutObservableArray<any> = obs as any
-                if (elementKeyProperties && oldContents instanceof Array) {
+                if (elementKeyProperties.length && oldContents instanceof Array) {
                     // synchronize based on key properties
                     const calculateKey = (item: any) => JSON.stringify(elementKeyProperties.map(p => ko.unwrap(ko.unwrap(item)?.[p])));
                     const map = Object.fromEntries(oldContents.filter(i => ko.unwrap(i) !== null).map((item: any) => [calculateKey(item), item]));
@@ -453,12 +453,13 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         return { newContents };
     }
 
-    function getCollectionElementKeyProperties(): string[] | undefined {
+    function getCollectionElementKeyProperties(): string[] {
         if (typeHint instanceof Array && typeof typeHint[0] === "string" && !(typeHint[0] in primitiveTypes)) {
             const props = getTypeProperties(typeHint[0]);
             // TODO: validate that property type is primitive or nullable
             return Object.entries(props).filter(e => e[1].isKey).map(e => e[0]);
         }
+        return [];
     }
 
     obs[notifySymbol] = notify
