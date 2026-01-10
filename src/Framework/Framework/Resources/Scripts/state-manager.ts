@@ -10,6 +10,8 @@ import { hackInvokeNotifySubscribers } from "./utils/knockout";
 import { logWarning } from "./utils/logging";
 import {ValidationError} from "./validation/error";
 import { errorsSymbol } from "./validation/common";
+import { getTypeProperties } from "./metadata/typeMap";
+import { primitiveTypes } from "./metadata/primitiveTypes";
 
 
 export const currentStateSymbol = Symbol("currentState")
@@ -385,12 +387,21 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
             // notifiable observables
             // otherwise, we want to skip the big update whenever possible - Knockout tends to update everything in the DOM when
             // we update the observableArray
-            const skipUpdate = !observableWasSetFromOutside && oldContents instanceof Array && oldContents.length == newVal.length
+            const elementKeyProperties = getCollectionElementKeyProperties();
+            const skipUpdate = !observableWasSetFromOutside && oldContents instanceof Array && oldContents.length == newVal.length && !elementKeyProperties;
 
             if (!skipUpdate) {
                 const t: KnockoutObservableArray<any> = obs as any
-                // take at most newVal.length from the old value
-                newContents = oldContents instanceof Array ? oldContents.slice(0, newVal.length) : []
+                if (elementKeyProperties && oldContents instanceof Array) {
+                    // synchronize based on key properties
+                    const calculateKey = (item: any) => JSON.stringify(elementKeyProperties.map(p => ko.unwrap(ko.unwrap(item)?.[p])));
+                    const map = Object.fromEntries(oldContents.filter(i => ko.unwrap(i) !== null).map((item: any) => [calculateKey(item), item]));
+                    newContents = newVal.map(i => map[calculateKey(i)]);
+                }
+                else {
+                    // take at most newVal.length from the old value
+                    newContents = oldContents instanceof Array ? oldContents.slice(0, newVal.length) : []
+                }
                 // then append (potential) new values into the array
                 for (let index = 0; index < newVal.length; index++) {
                     if (isDotvvmObservable(newContents[index])) {
@@ -440,6 +451,14 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
 
         // return a result indicating that the observable needs to be set
         return { newContents };
+    }
+
+    function getCollectionElementKeyProperties(): string[] | undefined {
+        if (typeHint instanceof Array && typeof typeHint[0] === "string" && !(typeHint[0] in primitiveTypes)) {
+            const props = getTypeProperties(typeHint[0]);
+            // TODO: validate that property type is primitive or nullable
+            return Object.entries(props).filter(e => e[1].isKey).map(e => e[0]);
+        }
     }
 
     obs[notifySymbol] = notify
