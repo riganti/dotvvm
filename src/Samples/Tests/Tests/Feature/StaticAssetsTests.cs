@@ -11,6 +11,7 @@ using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
+    [Trait("Category", "aspnetcore-latest-only")]
     public class StaticAssetsTests : AppSeleniumTest
     {
         public StaticAssetsTests(ITestOutputHelper output) : base(output)
