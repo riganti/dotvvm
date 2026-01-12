@@ -1,4 +1,5 @@
 import { keys } from "../utils/objects";
+import { primitiveTypes } from "./primitiveTypes";
 
 
 let types: TypeMap = {};
@@ -91,4 +92,26 @@ export function formatTypeName(type: TypeDefinition, prefix = "", suffix = ""): 
     }
     const typeCheck: never = type
     return undefined as any
+}
+
+type KeyFunction = (item: any) => string;
+const keyFunctions: { [name: string]: KeyFunction | undefined } = {};
+export function tryGetKeyFunction(type: string): KeyFunction | undefined {
+    if (type in keyFunctions) {
+        return keyFunctions[type];
+    }
+    return keyFunctions[type] = buildKeyFunction(type);
+}
+function buildKeyFunction(type: string): KeyFunction | undefined {
+    if (!(type in primitiveTypes)) {
+        const typeInfo = getTypeInfo(type);
+        if (typeInfo.type === "object") {
+            const props = getTypeProperties(type);
+            // NB: validation that property type is primitive or nullable is done on the server
+            const keyProperties = Object.entries(props).filter(e => e[1].isKey).map(e => e[0]);
+            if (keyProperties.length) {
+                return (item: any) => JSON.stringify(keyProperties.map(p => ko.unwrap(ko.unwrap(item)?.[p])));
+            }
+        }
+    }
 }
