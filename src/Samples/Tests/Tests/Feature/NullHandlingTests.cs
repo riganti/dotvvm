@@ -28,7 +28,8 @@ public class NullHandlingTests(ITestOutputHelper output) : AppSeleniumTest(outpu
             AssertUI.IsDisplayed(errorPage);
             
             var scope = browser.GetFrameScope("#debugWindow iframe");
-            AssertUI.Text(scope.Single(".summary"), t => t.Contains("Execution of '{command: Value = Value + 1}' was disallowed by '<dot:Button "));
+            AssertUI.Text(scope.Single(".summary"), t => t.Contains("Execution of '{command: Value = Value + 1}' was disallowed by '<dot:Button ")
+                || /* DotVVM 4.3 */ t.Contains("DotVVM.Framework.Runtime.Commands.InvalidCommandInvocationException: Invalid command invocation "));
         });
     }
 }
