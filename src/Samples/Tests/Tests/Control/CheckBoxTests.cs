@@ -247,7 +247,7 @@ namespace DotVVM.Samples.Tests.Control
                 void ValidateCheckBoxState(int checkedValue, int[] selectedValues, bool isChecked)
                 {
                     var selectedValuesInPage = selected.FindElements("li").Select(i => int.Parse(i.GetInnerText()));
-                    Assert.Equal(selectedValues.Order(), selectedValuesInPage.Order());
+                    Assert.Equal(selectedValues.OrderBy(i => i), selectedValuesInPage.OrderBy(i => i));
                     Assert.Equal(checkbox.GetAttribute("value"), checkedValue.ToString());
                     Assert.Equal(isChecked, checkbox.IsSelected());
                 }
@@ -301,7 +301,7 @@ namespace DotVVM.Samples.Tests.Control
                 void ValidateState(int[] selectedValues, bool[] checkboxStates)
                 {
                     var selectedValuesInPage = selected.FindElements("li").Select(i => int.Parse(i.GetInnerText()));
-                    Assert.Equal(selectedValues.Order(), selectedValuesInPage.Order());
+                    Assert.Equal(selectedValues.OrderBy(i => i), selectedValuesInPage.OrderBy(i => i));
 
                     var checkboxStatesInPage = browser.FindElements("input[type=checkbox]").Select(c => c.IsSelected());
                     Assert.Equal(checkboxStates, checkboxStatesInPage);
