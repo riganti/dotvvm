@@ -63,7 +63,7 @@ namespace DotVVM.Framework.Hosting
 
         /// <summary> Labeled by command="method invoked", result=Ok/Exception/UnhandledException </summary>
         public static readonly Histogram<double> StaticCommandInvocationDuration =
-            Meter.CreateHistogram<double>("!", unit: "seconds", description: "Time it took to invoke the staticCommand method. Note that serialization overhead is not included, look at dotvvm_request_duration_seconds{request_type=\"StaticCommand\"}.");
+            Meter.CreateHistogram<double>("staticcommand_invocation_seconds", unit: "seconds", description: "Time it took to invoke the staticCommand method. Note that serialization overhead is not included, look at dotvvm_request_duration_seconds{request_type=\"StaticCommand\"}.");
 
         /// <summary> Labeled by command={command: TheBinding()}, result=Ok/Exception/UnhandledException </summary>
         public static readonly Histogram<double> CommandInvocationDuration =
