@@ -136,7 +136,7 @@ export function init() {
 
     // ValidationErrorsCount
     ko.bindingHandlers["dotvvm-validationErrorsCount"] = {
-        init: (element: HTMLElement, valueAccessor: () => ValidationErrorsCountBinding) => {
+        init: (element: HTMLElement, valueAccessor: () => ValidationErrorsCountBinding, allBindingsAccessor?: KnockoutAllBindingsAccessor) => {
             const binding = valueAccessor();
 
             const updateErrorCount = () => {
@@ -147,12 +147,9 @@ export function init() {
                 );
                 element.innerText = errors.length.toString();
 
-                if (binding.invalidCssClass) {
-                    if (errors.length > 0) {
-                        element.classList.add(binding.invalidCssClass);
-                    } else {
-                        element.classList.remove(binding.invalidCssClass);
-                    }
+                const validationOptions = allBindingsAccessor!.get("dotvvm-validationOptions");
+                if (validationOptions) {
+                    applyValidatorActionsCore(element, errors, validationOptions);
                 }
             };
 
@@ -160,8 +157,10 @@ export function init() {
             updateErrorCount();
 
             // Subscribe to validation errors changes
-            validationErrorsChanged.subscribe(_ => {
-                updateErrorCount();
+            validationErrorsChanged.subscribe(updateErrorCount);
+
+            ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
+                validationErrorsChanged.unsubscribe(updateErrorCount);
             });
         }
     }
@@ -413,6 +412,14 @@ function applyValidatorActions(
     validatorOptions: any): void {
 
     const errors = getErrors(observable);
+    applyValidatorActionsCore(validator, errors, validatorOptions)
+}
+
+function applyValidatorActionsCore(
+    validator: HTMLElement,
+    errors: ValidationError[],
+    validatorOptions: any): void {
+
     const errorMessages = errors.map(v => v.errorMessage);
     for (const option of keys(validatorOptions)) {
         elementActions[option](

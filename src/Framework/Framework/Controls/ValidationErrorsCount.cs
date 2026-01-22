@@ -47,17 +47,6 @@ namespace DotVVM.Framework.Controls
             = DotvvmProperty.Register<bool, ValidationErrorsCount>(c => c.IncludeErrorsFromTarget, true);
 
         /// <summary>
-        /// Gets or sets the CSS class that will be applied to the element when there is at least one validation error.
-        /// </summary>
-        public string? InvalidCssClass
-        {
-            get { return (string?)GetValue(InvalidCssClassProperty); }
-            set { SetValue(InvalidCssClassProperty, value); }
-        }
-        public static readonly DotvvmProperty InvalidCssClassProperty
-            = DotvvmProperty.Register<string?, ValidationErrorsCount>(c => c.InvalidCssClass, null);
-
-        /// <summary>
         /// Gets or sets the name of the tag that wraps the control.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
@@ -94,12 +83,10 @@ namespace DotVVM.Framework.Controls
                 group.Add("target", expression);
                 group.Add("includeErrorsFromChildren", IncludeErrorsFromChildren.ToString().ToLowerInvariant());
                 group.Add("includeErrorsFromTarget", IncludeErrorsFromTarget.ToString().ToLowerInvariant());
-                if (!string.IsNullOrEmpty(InvalidCssClass))
-                {
-                    group.Add("invalidCssClass", KnockoutHelper.MakeStringLiteral(InvalidCssClass));
-                }
             }
             writer.AddKnockoutDataBind("dotvvm-validationErrorsCount", group);
+
+            Validator.AddValidationOptionsBinding(writer, this);
         }
     }
 }

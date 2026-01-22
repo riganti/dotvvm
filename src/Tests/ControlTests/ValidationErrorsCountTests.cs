@@ -27,8 +27,6 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:ValidationErrorsCount />
                 <!-- with validation target -->
                 <dot:ValidationErrorsCount Validation.Target={value: Person} />
-                <!-- with InvalidCssClass -->
-                <dot:ValidationErrorsCount InvalidCssClass='has-errors' />
                 <!-- with custom wrapper tag -->
                 <dot:ValidationErrorsCount WrapperTagName='div' />
                 <!-- not including errors from children -->
