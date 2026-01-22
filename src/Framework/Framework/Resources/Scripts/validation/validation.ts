@@ -22,6 +22,13 @@ type ValidationSummaryBinding = {
     hideWhenValid: boolean
 }
 
+type ValidationErrorsCountBinding = {
+    target: KnockoutObservable<any>,
+    includeErrorsFromChildren: boolean,
+    includeErrorsFromTarget: boolean,
+    invalidCssClass?: string
+}
+
 type DotvvmValidationErrorsChangedEventArgs = Partial<PostbackOptions> & {
     readonly allErrors: ValidationError[]
 }
@@ -123,6 +130,37 @@ export function init() {
                 if (binding.hideWhenValid) {
                     element.style.display = errors.length > 0 ? "" : "none";
                 }
+            });
+        }
+    }
+
+    // ValidationErrorsCount
+    ko.bindingHandlers["dotvvm-validationErrorsCount"] = {
+        init: (element: HTMLElement, valueAccessor: () => ValidationErrorsCountBinding, allBindingsAccessor?: KnockoutAllBindingsAccessor) => {
+            const binding = valueAccessor();
+
+            const updateErrorCount = () => {
+                const errors = getValidationErrors(
+                    binding.target,
+                    binding.includeErrorsFromChildren,
+                    binding.includeErrorsFromTarget
+                );
+                element.innerText = errors.length.toString();
+
+                const validationOptions = allBindingsAccessor!.get("dotvvm-validationOptions");
+                if (validationOptions) {
+                    applyValidatorActionsCore(element, errors, validationOptions);
+                }
+            };
+
+            // Update initially to show current count
+            updateErrorCount();
+
+            // Subscribe to validation errors changes
+            validationErrorsChanged.subscribe(updateErrorCount);
+
+            ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
+                validationErrorsChanged.unsubscribe(updateErrorCount);
             });
         }
     }
@@ -374,6 +412,14 @@ function applyValidatorActions(
     validatorOptions: any): void {
 
     const errors = getErrors(observable);
+    applyValidatorActionsCore(validator, errors, validatorOptions)
+}
+
+function applyValidatorActionsCore(
+    validator: HTMLElement,
+    errors: ValidationError[],
+    validatorOptions: any): void {
+
     const errorMessages = errors.map(v => v.errorMessage);
     for (const option of keys(validatorOptions)) {
         elementActions[option](

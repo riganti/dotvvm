@@ -110,6 +110,11 @@ namespace DotVVM.Framework.Controls
             }
 
             // render options
+            AddValidationOptionsBinding(writer, control);
+        }
+
+        public static void AddValidationOptionsBinding(IHtmlWriter writer, DotvvmControl control)
+        {
             var bindingGroup = new KnockoutBindingGroup();
             foreach (var property in ValidationOptionProperties)
             {
