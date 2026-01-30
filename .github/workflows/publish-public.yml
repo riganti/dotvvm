@@ -99,14 +99,23 @@ jobs:
           ls
         working-directory: ./artifacts
 
-      - name: Set public npm registry
-        if: steps.include-check.outputs.match == 'true'
-        run: >
-          ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
-            -targetDirectory "." `
-            -registry "https://registry.npmjs.org/"
+      # - name: Set public npm registry
+      #   if: steps.include-check.outputs.match == 'true'
+      #   run: >
+      #     ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
+      #       -targetDirectory "." `
+      #       -registry "https://registry.npmjs.org/"
+      #   shell: pwsh
+      #   working-directory: ./artifacts/node_modules/dotvvm-types
+
+      - name: Remove .npmrc
+        run: rm ./artifacts/node_modules/dotvvm-types/.npmrc
         shell: pwsh
-        working-directory: ./artifacts/node_modules/dotvvm-types
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Publish dotvvm-types to registry.npmjs.org
         if: steps.include-check.outputs.match == 'true'
