@@ -62,16 +62,7 @@ namespace DotVVM.Framework.Controls
             var filtered = filteringOptions.ApplyToQueryable(queryable);
             var sorted = sortingOptions.ApplyToQueryable(filtered);
             var paged = pagingOptions.ApplyToQueryable(sorted);
-            if (paged is not IAsyncEnumerable<T> asyncPaged)
-            {
-                throw new ArgumentException($"The specified IQueryable ({queryable.GetType().FullName}), does not support async enumeration. Please use the LoadFromQueryable method.", nameof(queryable));
-            }
-
-            var result = new List<T>();
-            await foreach (var item in asyncPaged.WithCancellation(cancellationToken))
-            {
-                result.Add(item);
-            }
+            var result = (await AsyncQueryableImplementation.QueryableToListAsync(paged, cancellationToken)).ToList();
             dataSet.Items = result;
 
             if (pagingOptions is IPagingOptionsLoadingPostProcessor pagingOptionsLoadingPostProcessor)
