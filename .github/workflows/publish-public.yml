@@ -54,7 +54,7 @@ jobs:
             -nuGetOrgApiKey "${{ secrets.NUGET_ORG_API_KEY }}" `
             -include '${{ inputs.include }}' `
             -exclude '${{ inputs.exclude }}' `
-            -version "${{ inputs.version }}"
+            -version '${{ inputs.version }}' `
             -dryRun ${{ inputs.dry-run && '$true' || '$false' }}
         shell: pwsh
 
