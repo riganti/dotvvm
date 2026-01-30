@@ -99,14 +99,10 @@ jobs:
           ls
         working-directory: ./artifacts
 
-      - name: Set public npm registry
-        if: steps.include-check.outputs.match == 'true'
-        run: >
-          ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
-            -targetDirectory "." `
-            -registry "https://registry.npmjs.org/"
-        shell: pwsh
-        working-directory: ./artifacts/node_modules/dotvvm-types
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Upgrade npm
         run: npm install -g npm@latest
