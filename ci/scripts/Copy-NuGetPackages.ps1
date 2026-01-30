@@ -4,7 +4,8 @@ param(
     [string]$internalNuGetFeedName = "riganti",
     [string]$include = "*",
     [string]$exclude = "",
-    [string]$version = ""
+    [string]$version = "",
+    [bool]$dryRun = $false
 )
 
 if (-not (Test-Path "$root")) {
@@ -73,10 +74,14 @@ try {
 Write-Host "::group::Pushing packages to NuGet.org"
 try {
     foreach ($package in (Get-ChildItem "$packagesDir/**/*.nupkg")) {
-        nuget push "$($package.FullName)" `
-            -Source "nuget.org" `
-            -ApiKey "$nuGetOrgApiKey" `
-            -NonInteractive
+        if (!($dryRun)) {
+            nuget push "$($package.FullName)" `
+                -Source "nuget.org" `
+                -ApiKey "$nuGetOrgApiKey" `
+                -NonInteractive
+        } else {
+            Write-Host "Skipping 'nuget push' because dry run is active."
+        }
     }
 } finally {
     Write-Host "::endgroup::"
