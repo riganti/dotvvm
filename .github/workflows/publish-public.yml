@@ -18,6 +18,14 @@ on:
         default: ""
         description: The version of the packages to publish publicly
         required: false
+      dry-run:
+        type: boolean
+        default: false
+        description: Run the pipeline but don't actually publish anything.
+
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
 
 jobs:
   copy-nuget-packages:
@@ -47,6 +55,7 @@ jobs:
             -include '${{ inputs.include }}' `
             -exclude '${{ inputs.exclude }}' `
             -version "${{ inputs.version }}"
+            -dryRun ${{ inputs.dry-run == 'true' && '$true' || '$false' }}
         shell: pwsh
 
   copy-npm-packages:
@@ -95,12 +104,11 @@ jobs:
         run: >
           ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
             -targetDirectory "." `
-            -registry "https://registry.npmjs.org/" `
-            -authToken "${{ secrets.PUBLIC_NPM_PAT }}"
+            -registry "https://registry.npmjs.org/"
         shell: pwsh
         working-directory: ./artifacts/node_modules/dotvvm-types
 
       - name: Publish dotvvm-types to registry.npmjs.org
         if: steps.include-check.outputs.match == 'true'
-        run: npm publish --verbose
+        run: npm publish --verbose ${{ inputs.dry-run == 'true' && '--dry-run' || '' }}
         working-directory: ./artifacts/node_modules/dotvvm-types
