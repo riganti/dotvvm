@@ -118,5 +118,5 @@ jobs:
 
       - name: Publish dotvvm-types to registry.npmjs.org
         if: steps.include-check.outputs.match == 'true'
-        run: NODE_AUTH_TOKEN="" npm publish --verbose ${{ inputs.dry-run && '--dry-run' || '' }}
+        run: NODE_AUTH_TOKEN="" npm publish --verbose ${{ inputs.dry-run && '--dry-run' || '' }} --tag latest
         working-directory: ./artifacts/node_modules/dotvvm-types
