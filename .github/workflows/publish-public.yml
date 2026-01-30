@@ -55,7 +55,7 @@ jobs:
             -include '${{ inputs.include }}' `
             -exclude '${{ inputs.exclude }}' `
             -version "${{ inputs.version }}"
-            -dryRun ${{ inputs.dry-run == 'true' && '$true' || '$false' }}
+            -dryRun ${{ inputs.dry-run && '$true' || '$false' }}
         shell: pwsh
 
   copy-npm-packages:
@@ -110,5 +110,5 @@ jobs:
 
       - name: Publish dotvvm-types to registry.npmjs.org
         if: steps.include-check.outputs.match == 'true'
-        run: npm publish --verbose ${{ inputs.dry-run == 'true' && '--dry-run' || '' }}
+        run: npm publish --verbose ${{ inputs.dry-run && '--dry-run' || '' }}
         working-directory: ./artifacts/node_modules/dotvvm-types
