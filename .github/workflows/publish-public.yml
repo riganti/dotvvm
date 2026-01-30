@@ -99,21 +99,21 @@ jobs:
           ls
         working-directory: ./artifacts
 
-      # - name: Set public npm registry
-      #   if: steps.include-check.outputs.match == 'true'
-      #   run: >
-      #     ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
-      #       -targetDirectory "." `
-      #       -registry "https://registry.npmjs.org/"
-      #   shell: pwsh
-      #   working-directory: ./artifacts/node_modules/dotvvm-types
+      - name: Set public npm registry
+        if: steps.include-check.outputs.match == 'true'
+        run: >
+          ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
+            -targetDirectory "." `
+            -registry "https://registry.npmjs.org/"
+        shell: pwsh
+        working-directory: ./artifacts/node_modules/dotvvm-types
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20'
+      #     registry-url: 'https://registry.npmjs.org'
 
       - name: Publish dotvvm-types to registry.npmjs.org
         if: steps.include-check.outputs.match == 'true'
-        run: npm publish --verbose ${{ inputs.dry-run && '--dry-run' || '' }}
+        run: NODE_AUTH_TOKEN="" npm publish --verbose ${{ inputs.dry-run && '--dry-run' || '' }}
         working-directory: ./artifacts/node_modules/dotvvm-types
