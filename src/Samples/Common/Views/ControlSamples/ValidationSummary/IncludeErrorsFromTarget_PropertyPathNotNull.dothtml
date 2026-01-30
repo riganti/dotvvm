@@ -9,12 +9,12 @@
             <label Validator.Value="{value: Login.Nick}">
                 Nick:
                 <dot:TextBox Text="{value: Login.Nick}"
-                             data-ui="nick-textbox"/>
+                             data-ui="nick-textbox" />
             </label>
             <label Validator.Value="{value: Login.Password}">
                 Password:
                 <dot:TextBox Text="{value: Login.Password}"
-                             data-ui="password-textbox"/>
+                             data-ui="password-textbox" />
             </label>
             <div Visible="{value: !Login.IsLoggedIn}">
                 <dot:Button Text="Log In"
@@ -24,7 +24,12 @@
             </div>
             <dot:ValidationSummary IncludeErrorsFromTarget="true"
                                    IncludeErrorsFromChildren="true"
-                                   data-ui="validationSummary"/>
+                                   data-ui="validationSummary" />
+            <dot:ValidationErrorsCount IncludeErrorsFromTarget="true"
+                                   IncludeErrorsFromChildren="true"
+                                   data-ui="validationSummary"
+                                   Validator.InvalidCssClass="has-error"
+                                   Validator.HideWhenValid="true"/>
         </form>
         <div Visible="{value: Login.IsLoggedIn}">
             <dot:Button Text="Log Out"
