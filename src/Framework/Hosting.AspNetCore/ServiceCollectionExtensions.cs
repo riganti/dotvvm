@@ -10,7 +10,6 @@ using System.Reflection;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting.AspNetCore;
-using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Hosting.AspNetCore.Hosting;
 
@@ -18,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        private static readonly DiagnosticsStartupTracer startupTracer = new DiagnosticsStartupTracer();
+        private static readonly NullStartupTracer startupTracer = new NullStartupTracer();
 
         /// <summary>
         /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.

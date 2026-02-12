@@ -9,7 +9,6 @@ using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Compilation.ControlTree;
 
 #if NET5_0_OR_GREATER
@@ -94,10 +93,7 @@ namespace Microsoft.AspNetCore.Builder
             var compilationConfiguration = config.Markup.ViewCompilation;
             compilationConfiguration.HandleViewCompilation(config, startupTracer);
 
-            if (config.ServiceProvider.GetService<IDiagnosticsInformationSender>() is IDiagnosticsInformationSender sender)
-            {
-                startupTracer.NotifyStartupCompleted(sender);
-            }
+            startupTracer.NotifyStartupCompleted();
 
             return config;
         }

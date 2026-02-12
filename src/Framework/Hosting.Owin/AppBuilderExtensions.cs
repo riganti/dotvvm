@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Runtime.Caching;
@@ -98,7 +97,7 @@ namespace Owin
 
         private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator, IDotvvmStartup startup, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
         {
-            var startupTracer = new DiagnosticsStartupTracer();
+            var startupTracer = new NullStartupTracer();
             startupTracer.TraceEvent(StartupTracingConstants.AddDotvvmStarted);
 
             var config = DotvvmConfiguration.CreateDefault(s => {
@@ -144,10 +143,7 @@ namespace Owin
             var compilationConfiguration = config.Markup.ViewCompilation;
             compilationConfiguration.HandleViewCompilation(config, startupTracer);
 
-            if (config.ServiceProvider.GetService<IDiagnosticsInformationSender>() is IDiagnosticsInformationSender sender)
-            {
-                startupTracer.NotifyStartupCompleted(sender);
-            }
+            startupTracer.NotifyStartupCompleted();
 
             return config;
         }
