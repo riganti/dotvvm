@@ -40,6 +40,15 @@ namespace DotVVM.Framework.IntegrationTests
             }
 
             public DbSet<TestEntity> Entities { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+                
+                modelBuilder.Entity<TestEntity>()
+                    .Property(e => e.Id)
+                    .ValueGeneratedNever();
+            }
         }
 
         public record TestEntity(int Id, string Name, int Category);
