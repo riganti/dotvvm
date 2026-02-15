@@ -179,13 +179,7 @@ namespace DotVVM.Analyzers.ApiUsage
             if (operation is IThrowOperation throwOp && throwOp.Exception == null)
                 return true;
 
-            foreach (var child in operation.Children)
-            {
-                if (ContainsRethrowRecursive(child))
-                    return true;
-            }
-
-            return false;
+            return operation.Children.Any(ContainsRethrowRecursive);
         }
     }
 }
