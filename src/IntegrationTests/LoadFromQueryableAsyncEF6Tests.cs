@@ -10,7 +10,7 @@ using DotVVM.Framework.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Testcontainers.MsSql;
 
-namespace DotVVM.Framework.Tests.ViewModel
+namespace DotVVM.Framework.IntegrationTests
 {
     [TestClass]
     public class LoadFromQueryableAsyncEF6Tests

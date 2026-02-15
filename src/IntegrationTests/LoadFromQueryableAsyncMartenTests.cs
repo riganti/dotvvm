@@ -8,7 +8,7 @@ using Marten;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Testcontainers.PostgreSql;
 
-namespace DotVVM.Framework.Tests.ViewModel
+namespace DotVVM.Framework.IntegrationTests
 {
     [TestClass]
     public class LoadFromQueryableAsyncMartenTests
