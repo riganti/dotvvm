@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     public class ValidationErrorsCountTests
     {
         static readonly ControlTestHelper cth = new ControlTestHelper();
-        OutputChecker check = new OutputChecker("testoutputs");
+        readonly OutputChecker check = new OutputChecker("testoutputs");
 
         [TestMethod]
         public async Task ValidationErrorsCount_BasicRendering()
