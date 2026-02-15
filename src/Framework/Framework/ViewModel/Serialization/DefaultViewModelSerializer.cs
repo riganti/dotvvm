@@ -64,21 +64,25 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.logger = logger;
         }
 
+        private JsonWriterOptions JsonWriterOptions =>
+            new JsonWriterOptions {
+                Indented = jsonOptions.ViewModelJsonOptions.WriteIndented,
+                Encoder = jsonOptions.ViewModelJsonOptions.Encoder,
+            };
+
         /// <summary>
         /// Serializes the view model.
         /// </summary>
         public string SerializeViewModel(IDotvvmRequestContext context, object? commandResult = null, IEnumerable<(string name, string html)>? postbackUpdatedControls = null, bool serializeNewResources = false)
         {
             var timer = ValueStopwatch.StartNew();
-            var utf8json = BuildViewModel(context, commandResult, postbackUpdatedControls, serializeNewResources);
 
-            // context.ViewModelJson ??= new JObject();
-            // if (SendDiff && context.ReceivedViewModelJson?["viewModel"] is JObject receivedVM && context.ViewModelJson["viewModel"] is JObject responseVM)
-            // {
-            //     TODO: revive diffs
-            //     context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff(receivedVM, responseVM, false, i => ShouldIncludeProperty(i.TypeId, i.Property));
-            //     context.ViewModelJson.Remove("viewModel");
-            // }
+            JsonElement? diffSource = null;
+            if (SendDiff)
+                diffSource = context.ReceivedViewModelJson?.RootElement.GetPropertyOrNull("viewModel"u8);
+
+            var utf8json = BuildViewModel(context, commandResult, postbackUpdatedControls, serializeNewResources, diffSource);
+
             var requestTracers = context.Services.GetService<IEnumerable<IRequestTracer>>();
             requestTracers?.TracingSerialized(context, (int)utf8json.Length, utf8json);
             var result = StringUtils.Utf8Decode(utf8json.ToSpan());
@@ -91,52 +95,42 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return result; // TODO: write Utf-8 directly
         }
 
-        private bool? ShouldIncludeProperty(string typeId, string property)
-        {
-            var options = viewModelMapper.GetMapByTypeId(typeId).PropertyByClientName(property);
-
-            // IfInPostbackPath and ServerToClient items should be sent every time because we might not have received them from the client and we still remember their value so they look unchanged
-            if (!options.TransferToServer || options.TransferToServerOnlyInPath)
-            {
-                return true;
-            }
-
-            // ServerToClientFirstRequest should be ignored
-            if (!options.TransferAfterPostback)
-            {
-                return false;
-            }
-
-            return null;
-        }
-
         bool IsPostBack(IDotvvmRequestContext c) => c.RequestType is DotvvmRequestType.Command or DotvvmRequestType.StaticCommand;
 
-        (int vmStart, int vmEnd) WriteViewModelJson(Utf8JsonWriter writer, IDotvvmRequestContext context, DotvvmSerializationState state)
+        (int vmStart, int vmEnd) WriteViewModelJson(Utf8JsonWriter writer, IDotvvmRequestContext context, DotvvmSerializationState state, MemoryStream writerStream)
         {
-            var converter = jsonOptions.GetRootViewModelConverter(context.ViewModel!.GetType());
+            try
+            {
+                var converter = jsonOptions.GetRootViewModelConverter(context.ViewModel!.GetType());
 
-            writer.WriteStartObject();
-            writer.Flush();
-            var vmStart = (int)writer.BytesCommitted; // needed for server side VM cache - we only store the object body, without $csrfToken and $encryptedValues
+                writer.WriteStartObject();
+                writer.Flush();
+                var vmStart = (int)writer.BytesCommitted; // needed for server side VM cache - we only store the object body, without $csrfToken and $encryptedValues
 
-            converter.WriteUntyped(writer, context.ViewModel, jsonOptions.ViewModelJsonOptions, state, wrapObject: false);
+                converter.WriteUntyped(writer, context.ViewModel, jsonOptions.ViewModelJsonOptions, state, wrapObject: false);
 
-            writer.Flush();
-            var vmEnd = (int)writer.BytesCommitted;
+                writer.Flush();
+                var vmEnd = (int)writer.BytesCommitted;
 
-            // persist CSRF token
-            if (context.CsrfToken is object)
-                writer.WriteString("$csrfToken"u8, context.CsrfToken);
+                // persist CSRF token
+                if (context.CsrfToken is object)
+                    writer.WriteString("$csrfToken"u8, context.CsrfToken);
 
-            // persist encrypted values
-            if (state.WriteEncryptedValues is not null &&
-                state.WriteEncryptedValues.ToSpan() is not [] and not [(byte)'{', (byte)'}'])
-                writer.WriteBase64String("$encryptedValues"u8, viewModelProtector.Protect(state.WriteEncryptedValues.ToArray(), context));
+                // persist encrypted values
+                if (state.WriteEncryptedValues is not null &&
+                    state.WriteEncryptedValues.ToSpan() is not [] and not [(byte)'{', (byte)'}'])
+                    writer.WriteBase64String("$encryptedValues"u8, viewModelProtector.Protect(state.WriteEncryptedValues.ToArray(), context));
 
-            writer.WriteEndObject();
+                writer.WriteEndObject();
 
-            return (vmStart, vmEnd);
+                return (vmStart, vmEnd);
+            }
+            catch (Exception ex)
+            {
+                writer.Flush();
+                var failurePath = SystemTextJsonUtils.GetFailurePath(writerStream.ToSpan());
+                throw new SerializationException(true, context.ViewModel!.GetType(), string.Join("/", failurePath), ex);
+            }
         }
 
         private string? StoreViewModelCache(IDotvvmRequestContext context, MemoryStream buffer, (int, int) viewModelBodyPosition)
@@ -152,36 +146,45 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public MemoryStream BuildViewModel(IDotvvmRequestContext context, object? commandResult, IEnumerable<(string name, string html)>? postbackUpdatedControls = null, bool serializeNewResources = false)
+        public MemoryStream BuildViewModel(
+                IDotvvmRequestContext context,
+                object? commandResult,
+                IEnumerable<(string name, string html)>? postbackUpdatedControls,
+                bool serializeNewResources,
+                JsonElement? viewModelDiffSource)
         {
             (int, int) viewModelBodyPosition;
 
             var buffer = new MemoryStream();
-            using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions {
-                Indented = jsonOptions.ViewModelJsonOptions.WriteIndented,
-                Encoder = jsonOptions.ViewModelJsonOptions.Encoder,
-                //SkipValidation = true, // for the hack with WriteRawValue
-            }))
+            using (var writer = new Utf8JsonWriter(buffer, JsonWriterOptions))
             {
                 using var state = DotvvmSerializationState.Create(context.IsPostBack, context.Services);
                 writer.WriteStartObject();
 
-                writer.WritePropertyName("viewModel"u8);
-                try
+
+                if (viewModelDiffSource.HasValue)
                 {
-                    viewModelBodyPosition = WriteViewModelJson(writer, context, state);
+                    var tempBuffer = new MemoryStream();
+                    using (var beforeDiffWriter = new Utf8JsonWriter(tempBuffer))
+                    {
+                        viewModelBodyPosition = WriteViewModelJson(beforeDiffWriter, context, state, tempBuffer);
+                    }
+
+                    if (StoreViewModelCache(context, tempBuffer, viewModelBodyPosition) is {} viewModelCacheId)
+                        writer.WriteString("viewModelCacheId"u8, viewModelCacheId);
+
+                    writer.WritePropertyName("viewModelDiff"u8);
+                    JsonDiffWriter.ComputeDiff(writer, viewModelDiffSource.Value, tempBuffer.ToSpan());
                 }
-                catch (Exception ex)
+                else
                 {
-                    writer.Flush();
-                    var failurePath = SystemTextJsonUtils.GetFailurePath(buffer.ToSpan());
-                    throw new SerializationException(true, context.ViewModel!.GetType(), string.Join("/", failurePath), ex);
+                    writer.WritePropertyName("viewModel"u8);
+                    viewModelBodyPosition = WriteViewModelJson(writer, context, state, buffer);
+
+                    if (StoreViewModelCache(context, buffer, viewModelBodyPosition) is {} viewModelCacheId)
+                        writer.WriteString("viewModelCacheId"u8, viewModelCacheId);
                 }
 
-                if (StoreViewModelCache(context, buffer, viewModelBodyPosition) is {} viewModelCacheId)
-                {
-                    writer.WriteString("viewModelCacheId"u8, viewModelCacheId);
-                }
                 writer.WriteString("url"u8, context.HttpContext?.Request?.Url?.PathAndQuery);
                 writer.WriteString("virtualDirectory"u8, context.HttpContext?.Request?.PathBase?.Value?.Trim('/') ?? "");
                 if (context.ResultIdFragment != null)
@@ -273,7 +276,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             using var state = DotvvmSerializationState.Create(isPostback: true, context.Services);
             var outputBuffer = new MemoryStream();
-            using (var writer = new Utf8JsonWriter(outputBuffer, new JsonWriterOptions { Indented = jsonOptions.ViewModelJsonOptions.WriteIndented, Encoder = jsonOptions.ViewModelJsonOptions.Encoder }))
+            using (var writer = new Utf8JsonWriter(outputBuffer, JsonWriterOptions))
             {
                 writer.WriteStartObject();
                 writer.WritePropertyName("result"u8);
