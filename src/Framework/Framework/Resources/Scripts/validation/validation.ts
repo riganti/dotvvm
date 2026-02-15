@@ -28,7 +28,7 @@ type ValidationErrorsCountBinding = {
     includeErrorsFromTarget: boolean,
     invalidCssClass?: string,
     hideWhenValid?: boolean,
-    formatErrorCount?: (count: number) => string
+    formatErrorsCount?: (count: number) => string
 }
 
 type DotvvmValidationErrorsChangedEventArgs = Partial<PostbackOptions> & {
@@ -147,7 +147,7 @@ export function init() {
                     binding.includeErrorsFromChildren,
                     binding.includeErrorsFromTarget
                 );
-                element.innerText = binding.formatErrorCount ? binding.formatErrorCount.call(element, errors.length) : errors.length.toString();
+                element.innerText = binding.formatErrorsCount ? binding.formatErrorsCount.call(element, errors.length) : errors.length.toString();
 
                 if (binding.invalidCssClass) {
                     elementActions["invalidCssClass"](element, errors.length ? ["error"] : [], binding.invalidCssClass);
@@ -416,14 +416,6 @@ function applyValidatorActions(
     validatorOptions: any): void {
 
     const errors = getErrors(observable);
-    applyValidatorActionsCore(validator, errors, validatorOptions)
-}
-
-function applyValidatorActionsCore(
-    validator: HTMLElement,
-    errors: ValidationError[],
-    validatorOptions: any): void {
-
     const errorMessages = errors.map(v => v.errorMessage);
     for (const option of keys(validatorOptions)) {
         elementActions[option](

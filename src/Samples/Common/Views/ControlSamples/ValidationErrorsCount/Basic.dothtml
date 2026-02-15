@@ -20,7 +20,7 @@
         <dot:ValidationErrorsCount IncludeErrorsFromChildren="true" />
         <dot:ValidationErrorsCount IncludeErrorsFromChildren="true" InvalidCssClass="has-error" />
         <dot:ValidationErrorsCount IncludeErrorsFromChildren="true" HideWhenValid="true" />
-        <dot:ValidationErrorsCount IncludeErrorsFromChildren="true" FormatErrorCount="{value: i => i == 0 ? "OK" : i == 1 ? "1 error" : $"{i} errors"}" />
+        <dot:ValidationErrorsCount IncludeErrorsFromChildren="true" FormatErrorsCount="{value: i => i == 0 ? "OK" : i == 1 ? "1 error" : $"{i} errors"}" />
     </div>
 
     <div DataContext="{value: Basic}" Validation.Target="{value: _this}" data-ui="basic">
@@ -29,7 +29,7 @@
             <dot:ValidationErrorsCount />
             <dot:ValidationErrorsCount InvalidCssClass="has-error" />
             <dot:ValidationErrorsCount HideWhenValid="true" />
-            <dot:ValidationErrorsCount FormatErrorCount="{value: i => i == 0 ? "OK" : i == 1 ? "1 error" : $"{i} errors"}" />
+            <dot:ValidationErrorsCount FormatErrorsCount="{value: i => i == 0 ? "OK" : i == 1 ? "1 error" : $"{i} errors"}" />
         </div>
         <div>
             <p>
@@ -49,7 +49,7 @@
             <dot:ValidationErrorsCount />
             <dot:ValidationErrorsCount InvalidCssClass="has-error" />
             <dot:ValidationErrorsCount HideWhenValid="true" />
-            <dot:ValidationErrorsCount FormatErrorCount="{value: i => i == 0 ? "OK" : i == 1 ? "1 error" : $"{i} errors"}" />
+            <dot:ValidationErrorsCount FormatErrorsCount="{value: i => i == 0 ? "OK" : i == 1 ? "1 error" : $"{i} errors"}" />
         </div>
         <div>
             <p>

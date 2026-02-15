@@ -1700,7 +1700,7 @@
       }
     },
     "DotVVM.Framework.Controls.ValidationErrorsCount": {
-      "FormatErrorCount": {
+      "FormatErrorsCount": {
         "type": "DotVVM.Framework.Binding.Expressions.IValueBinding`1[[System.Func`2[[System.Int32, CoreLibrary],[System.String, CoreLibrary]], CoreLibrary]], DotVVM.Framework",
         "onlyBindings": true
       },

@@ -14,9 +14,6 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false)]
     public class ValidationErrorsCount : HtmlGenericControl
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ValidationErrorsCount"/> class.
-        /// </summary>
         public ValidationErrorsCount()
             : base("span", false)
         {
@@ -87,13 +84,13 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets a function that formats the error count. The function receives the error count as a parameter and should return the string to be displayed. If not set, the error count will be displayed as a string.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
-        public IValueBinding<Func<int, string>>? FormatErrorCount
+        public IValueBinding<Func<int, string>>? FormatErrorsCount
         {
-            get { return (IValueBinding<Func<int, string>>?)GetValue(FormatErrorCountProperty); }
-            set { SetValue(FormatErrorCountProperty, value); }
+            get { return (IValueBinding<Func<int, string>>?)GetValue(FormatErrorsCountProperty); }
+            set { SetValue(FormatErrorsCountProperty, value); }
         }
-        public static readonly DotvvmProperty FormatErrorCountProperty
-            = DotvvmProperty.Register<IValueBinding<Func<int, string>>?, ValidationErrorsCount>(c => c.FormatErrorCount, null);
+        public static readonly DotvvmProperty FormatErrorsCountProperty
+            = DotvvmProperty.Register<IValueBinding<Func<int, string>>?, ValidationErrorsCount>(c => c.FormatErrorsCount, null);
 
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
@@ -102,9 +99,6 @@ namespace DotVVM.Framework.Controls
             base.OnPreRender(context);
         }
 
-        /// <summary>
-        /// Adds all attributes that should be added to the control begin tag.
-        /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             base.AddAttributesToRender(writer, context);
@@ -129,9 +123,9 @@ namespace DotVVM.Framework.Controls
                 {
                     group.Add("hideWhenValid", this, HideWhenValidProperty);
                 }
-                if (HasBinding(FormatErrorCountProperty))
+                if (HasBinding(FormatErrorsCountProperty))
                 {
-                    group.Add("formatErrorCount", this, FormatErrorCountProperty);
+                    group.Add("formatErrorsCount", this, FormatErrorsCountProperty);
                 }
             }
             writer.AddKnockoutDataBind("dotvvm-validationErrorsCount", group);
