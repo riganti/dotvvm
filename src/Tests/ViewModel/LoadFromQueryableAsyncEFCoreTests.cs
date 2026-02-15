@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             }
         }
 
-        class TestDbContext : DbContext
+        public class TestDbContext : DbContext
         {
             public TestDbContext(DbContextOptions options) : base(options)
             {
@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             public DbSet<TestEntity> Entities { get; set; }
         }
 
-        record TestEntity(int Id, string Name, int Category);
+        public record TestEntity(int Id, string Name, int Category);
 
         private async Task<TestDbContext> InitializeDbContext()
         {

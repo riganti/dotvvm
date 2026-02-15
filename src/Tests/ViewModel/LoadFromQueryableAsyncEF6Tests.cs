@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             }
         }
 
-        class TestDbContext : DbContext
+        public class TestDbContext : DbContext
         {
             public TestDbContext(string connectionString) : base(connectionString)
             {
@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [Table("TestEntities")]
-        class TestEntity
+        public class TestEntity
         {
             [Key]
             public int Id { get; set; }

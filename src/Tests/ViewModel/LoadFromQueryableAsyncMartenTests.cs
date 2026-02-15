@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             }
         }
 
-        class TestEntity
+        public class TestEntity
         {
             public int Id { get; set; }
             public string Name { get; set; } = "";
@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         [TestMethod]
         public async Task LoadFromQueryableAsync_Sorting_Ascending()
         {
-            var store = await InitializeDocumentStore();
+            using var store = await InitializeDocumentStore();
             using var session = store.QuerySession();
 
             var dataSet = new GridViewDataSet<TestEntity>()
@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         [TestMethod]
         public async Task LoadFromQueryableAsync_Sorting_Descending()
         {
-            var store = await InitializeDocumentStore();
+            using var store = await InitializeDocumentStore();
             using var session = store.QuerySession();
 
             var dataSet = new GridViewDataSet<TestEntity>()
@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         [TestMethod]
         public async Task LoadFromQueryableAsync_Paging_FirstPage()
         {
-            var store = await InitializeDocumentStore();
+            using var store = await InitializeDocumentStore();
             using var session = store.QuerySession();
 
             var dataSet = new GridViewDataSet<TestEntity>()
@@ -136,7 +136,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         [TestMethod]
         public async Task LoadFromQueryableAsync_Paging_SecondPage()
         {
-            var store = await InitializeDocumentStore();
+            using var store = await InitializeDocumentStore();
             using var session = store.QuerySession();
 
             var dataSet = new GridViewDataSet<TestEntity>()
@@ -157,7 +157,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         [TestMethod]
         public async Task LoadFromQueryableAsync_Paging_WithPreFilter()
         {
-            var store = await InitializeDocumentStore();
+            using var store = await InitializeDocumentStore();
             using var session = store.QuerySession();
 
             var dataSet = new GridViewDataSet<TestEntity>()
