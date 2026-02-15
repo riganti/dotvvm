@@ -1699,6 +1699,36 @@
         "isAttached": true
       }
     },
+    "DotVVM.Framework.Controls.ValidationErrorsCount": {
+      "FormatErrorCount": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding`1[[System.Func`2[[System.Int32, CoreLibrary],[System.String, CoreLibrary]], CoreLibrary]], DotVVM.Framework",
+        "onlyBindings": true
+      },
+      "HideWhenValid": {
+        "type": "System.Boolean",
+        "defaultValue": false,
+        "onlyHardcoded": true
+      },
+      "IncludeErrorsFromChildren": {
+        "type": "System.Boolean",
+        "defaultValue": true,
+        "onlyHardcoded": true
+      },
+      "IncludeErrorsFromTarget": {
+        "type": "System.Boolean",
+        "defaultValue": true,
+        "onlyHardcoded": true
+      },
+      "InvalidCssClass": {
+        "type": "System.String",
+        "onlyHardcoded": true
+      },
+      "WrapperTagName": {
+        "type": "System.String",
+        "defaultValue": "span",
+        "onlyHardcoded": true
+      }
+    },
     "DotVVM.Framework.Controls.ValidationSummary": {
       "HideWhenValid": {
         "type": "System.Boolean",
@@ -2358,6 +2388,10 @@
     },
     "DotVVM.Framework.Controls.UpdateProgress": {
       "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework"
+    },
+    "DotVVM.Framework.Controls.ValidationErrorsCount": {
+      "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
+      "withoutContent": true
     },
     "DotVVM.Framework.Controls.ValidationSummary": {
       "baseType": "DotVVM.Framework.Controls.HtmlGenericControl, DotVVM.Framework",
