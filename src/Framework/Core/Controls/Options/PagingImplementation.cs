@@ -75,10 +75,8 @@ namespace DotVVM.Framework.Controls
         static MethodInfo? ef6CountMethodCache;
         static Task<int>? Ef6AsyncCountHack<T>(IQueryable<T> queryable, Type queryableType, CancellationToken ct)
         {
-            if (queryable.Provider is null)
-                 return null;
             var providerType = queryable.Provider.GetType();
-            if (!providerType.Namespace.StartsWith("System.Data.Entity"))
+            if (providerType.Namespace?.StartsWith("System.Data.Entity") != true)
                  return null;
 
             var countMethod = ef6CountMethodCache ?? providerType.Assembly.GetType("System.Data.Entity.QueryableExtensions")?.GetMethods().SingleOrDefault(m => 
