@@ -50,17 +50,22 @@ namespace DotVVM.Framework.Tests.ViewModel
             });
 
             // Add test data
+            var entities = new[]
+            {
+                new TestEntity { Id = 1, Name = "Zebra", Category = 1 },
+                new TestEntity { Id = 2, Name = "Yak", Category = 1 },
+                new TestEntity { Id = 3, Name = "Xylophone", Category = 2 },
+                new TestEntity { Id = 4, Name = "Whale", Category = 2 },
+                new TestEntity { Id = 5, Name = "Violin", Category = 3 },
+                new TestEntity { Id = 6, Name = "Umbrella", Category = 3 },
+                new TestEntity { Id = 7, Name = "Tiger", Category = 1 },
+                new TestEntity { Id = 8, Name = "Snake", Category = 2 },
+                new TestEntity { Id = 9, Name = "Rabbit", Category = 3 },
+                new TestEntity { Id = 10, Name = "Quail", Category = 1 }
+            };
+
             using var session = store.LightweightSession();
-            session.Store(new TestEntity { Id = 1, Name = "Zebra", Category = 1 });
-            session.Store(new TestEntity { Id = 2, Name = "Yak", Category = 1 });
-            session.Store(new TestEntity { Id = 3, Name = "Xylophone", Category = 2 });
-            session.Store(new TestEntity { Id = 4, Name = "Whale", Category = 2 });
-            session.Store(new TestEntity { Id = 5, Name = "Violin", Category = 3 });
-            session.Store(new TestEntity { Id = 6, Name = "Umbrella", Category = 3 });
-            session.Store(new TestEntity { Id = 7, Name = "Tiger", Category = 1 });
-            session.Store(new TestEntity { Id = 8, Name = "Snake", Category = 2 });
-            session.Store(new TestEntity { Id = 9, Name = "Rabbit", Category = 3 });
-            session.Store(new TestEntity { Id = 10, Name = "Quail", Category = 1 });
+            session.StoreObjects(entities);
             await session.SaveChangesAsync();
 
             return store;
