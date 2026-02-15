@@ -123,7 +123,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var buffer = new MemoryStream();
             using (var writer = new Utf8JsonWriter(buffer))
                 JsonDiffWriter.ComputeDiff(writer, sourceDoc.RootElement, targetJson);
-            Console.WriteLine(StringUtils.Utf8.GetString(buffer.ToSpan()));
+            Console.WriteLine(StringUtils.Utf8.GetString(buffer.ToArray()));
             return (JsonObject)JsonNode.Parse(buffer.ToSpan());
         }
 
