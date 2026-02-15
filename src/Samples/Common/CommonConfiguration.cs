@@ -4,7 +4,6 @@ using DotVVM.AutoUI.Annotations;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Samples.BasicSamples;
@@ -64,7 +63,6 @@ namespace DotVVM.Samples.Common
 
             services.AddSingleton<DenyPostbacksOnSpaNavigationService>();
 
-            services.AddSingleton<IDiagnosticsInformationSender, TextFileDiagnosticsInformationSender>();
             services.AddTransient<VariablesStaticCommand>();
 
             services.AddSingleton<ViewModels.ControlSamples.NamedCommand.TestService>();

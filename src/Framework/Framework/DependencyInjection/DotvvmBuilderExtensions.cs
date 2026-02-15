@@ -2,9 +2,6 @@
 using System.IO;
 using DotVVM.Core.Storage;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Diagnostics;
-using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Storage;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -80,27 +77,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 var fullPath = Path.Combine(s.GetRequiredService<DotvvmConfiguration>().ApplicationPhysicalPath, tempPath);
                 return new FileSystemReturnedFileStorage(fullPath, autoDeleteInterval);
             });
-            return services;
-        }
-
-        /// <summary>
-        /// Adds diagnostic services required for DotVVM Diagnostic Window to work.
-        /// DotVVM Diagnostic Window helps with debugging postbacks and highlighting requests with potential issues during development time. 
-        /// </summary>
-        /// <param name="services">The <see cref="IDotvvmServiceCollection" /> instance.</param>
-        public static IDotvvmServiceCollection AddDiagnosticServices(this IDotvvmServiceCollection services)
-        {
-            services.Services.TryAddSingleton<DiagnosticsServerConfiguration>();
-            services.Services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
-
-            services.Services.TryAddSingleton<IOutputRenderer, DiagnosticsRenderer>();
-
-            services.Services.AddScoped<DiagnosticsRequestTracer>();
-            services.Services.AddScoped<IRequestTracer>(s => {
-                var config = s.GetRequiredService<DotvvmConfiguration>();
-                return (config.Debug ? (IRequestTracer?)s.GetService<DiagnosticsRequestTracer>() : null) ?? NullRequestTracer.Instance;
-            });
-
             return services;
         }
     }
