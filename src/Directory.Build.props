@@ -27,7 +27,7 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <OldFrameworkTargetVersion>net472</OldFrameworkTargetVersion>
     <DotnetCoreTargetVersion>net8.0</DotnetCoreTargetVersion>
-    <DotnetCoreLatestTargetVersion>net9.0</DotnetCoreLatestTargetVersion>
+    <DotnetCoreLatestTargetVersion>net10.0</DotnetCoreLatestTargetVersion>
     <!-- we keep netstandard2.1 target, because it quite reliably disallows using new .NET Core APIs which would other only fail on Windows -->
     <DefaultTargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.1;$(DotnetCoreTargetVersion);$(OldFrameworkTargetVersion)</DefaultTargetFrameworks>
     <DefaultTargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.1;$(DotnetCoreTargetVersion);</DefaultTargetFrameworks>
