@@ -30,6 +30,7 @@
       "Samples\\Tests\\CompletenessChecker\\DotVVM.Samples.Tests.CompletenessChecker.csproj",
       "Samples\\Tests\\Tests\\DotVVM.Samples.Tests.csproj",
       "Tests\\DotVVM.Framework.Tests.csproj",
+      "IntegrationTests\\DotVVM.Framework.IntegrationTests.csproj",
       "Tools\\CommandLine\\DotVVM.CommandLine.csproj",
       "Tools\\Compiler\\DotVVM.Compiler.csproj",
       "Tools\\HotReload\\AspNetCore\\DotVVM.HotReload.AspNetCore.csproj",
