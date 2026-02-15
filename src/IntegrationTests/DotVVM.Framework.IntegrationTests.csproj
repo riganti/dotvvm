@@ -32,7 +32,7 @@
     <!-- Entity Framework 6 -->
     <PackageReference Include="EntityFramework" Version="6.5.1" />
     <!-- Marten -->
-    <PackageReference Include="Marten" Version="7.35.0" />
+    <PackageReference Include="Marten" Version="*" />
     <!-- TestContainers for database tests -->
     <PackageReference Include="Testcontainers" Version="3.10.0" />
     <PackageReference Include="Testcontainers.MsSql" Version="3.10.0" />

@@ -75,27 +75,11 @@ namespace DotVVM.Framework.Controls
         static MethodInfo? ef6CountMethodCache;
         static Task<int>? EF6AsyncCountHack<T>(IQueryable<T> queryable, Type queryableType, CancellationToken ct)
         {
-            // Check if this is EF6 DbQuery
-            var isEF6DbQuery = queryableType.Namespace == "System.Data.Entity.Infrastructure" && queryableType.Name == "DbQuery`1";
-            
-            // Also check if the provider is EF6 ObjectQuery provider (in case of wrapped queries)
-            if (!isEF6DbQuery && queryable.Provider != null)
-            {
-                var providerType = queryable.Provider.GetType();
-                isEF6DbQuery = providerType.Namespace == "System.Data.Entity.Internal.Linq" ||
-                               providerType.FullName?.StartsWith("System.Data.Entity") == true;
-            }
-            
-            if (!isEF6DbQuery)
-                return null;
-
-            // Try to get the assembly from the queryable type first, then from the provider
-            var assembly = queryableType.Assembly.GetName().Name == "EntityFramework" 
-                ? queryableType.Assembly 
-                : queryable.Provider?.GetType().Assembly;
-                
-            if (assembly == null)
-                return null;
+            if (queryable.Provider is null)
+                 return null;
+            var providerType = queryable.Provider.GetType();
+            if (!providerType.Namespace.StartsWith("System.Data.Entity"))
+                 return null;
 
             var countMethod = ef6CountMethodCache ?? assembly.GetType("System.Data.Entity.QueryableExtensions")?.GetMethods().SingleOrDefault(m => 
                 m.Name == "CountAsync" && 
