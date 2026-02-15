@@ -114,14 +114,14 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         private DotvvmConfiguration ApplyPatches(params JsonObject[] patches) => ApplyPatches(DotvvmTestHelper.CreateConfiguration(), patches);
 
-        public static JsonObject Utf8JsonDiff(JsonObject source, JsonObject target, JsonDiffWriter.IncludePropertyDelegate? includePropertyOverride = null)
+        public static JsonObject Utf8JsonDiff(JsonObject source, JsonObject target)
         {
             var sourceDoc = JsonDocument.Parse(source.ToJsonString());
             var targetJson = StringUtils.Utf8.GetBytes(target.ToJsonString());
 
             var buffer = new ArrayBufferWriter<byte>();
             using (var writer = new Utf8JsonWriter(buffer))
-                JsonDiffWriter.ComputeDiff(writer, sourceDoc.RootElement, targetJson, includePropertyOverride);
+                JsonDiffWriter.ComputeDiff(writer, sourceDoc.RootElement, targetJson);
             Console.WriteLine(StringUtils.Utf8.GetString(buffer.WrittenSpan));
             return (JsonObject)JsonNode.Parse(buffer.WrittenSpan);
         }
@@ -494,28 +494,6 @@ namespace DotVVM.Framework.Tests.ViewModel
             var a = JsonNode.Parse($"{{\"arr\": [{sourceArray}]}}")!.AsObject();
             var b = JsonNode.Parse($"{{\"arr\": [{targetArray}]}}")!.AsObject();
             ValidateDiff(a, b);
-        }
-
-        [TestMethod]
-        public void JsonDiffWriter_IncludePropertyDelegate_Exclude()
-        {
-            var a = JsonNode.Parse("""{"$type":"MTIzNDU2Nzg5MDEK","a":1,"b":2,"c":3}""")!.AsObject();
-            var b = JsonNode.Parse("""{"$type":"MTIzNDU2Nzg5MDEK","a":1,"b":99,"c":4}""")!.AsObject();
-            JsonDiffWriter.IncludePropertyDelegate? excludeB = (typeId, propertyName) =>
-                propertyName.SequenceEqual("b"u8) ? false : null;
-            var diff = Utf8JsonDiff(a, b, excludeB);
-            Assert.AreEqual("""{"c":4}""", diff.ToJsonString());
-        }
-
-        [TestMethod]
-        public void JsonDiffWriter_IncludePropertyDelegate_Include()
-        {
-            var a = JsonNode.Parse("""{"$type":"MTIzNDU2Nzg5MDEK","a":1,"b":2}""")!.AsObject();
-            var b = JsonNode.Parse("""{"$type":"MTIzNDU2Nzg5MDEK","a":1,"b":2}""")!.AsObject();
-            JsonDiffWriter.IncludePropertyDelegate? includeB = (typeId, propertyName) =>
-                propertyName.SequenceEqual("b"u8) ? true : null;
-            var diff = Utf8JsonDiff(a, b, includeB);
-            Assert.AreEqual("""{"b":2}""", diff.ToJsonString());
         }
 
         [TestMethod]
