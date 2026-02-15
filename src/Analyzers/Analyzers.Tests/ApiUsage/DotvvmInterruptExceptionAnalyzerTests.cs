@@ -26,7 +26,6 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             }
         }
     }";
-
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
@@ -60,14 +59,13 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             }
         }
     }";
-
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [Fact]
         public async Task Test_Warning_CatchAllException_ReturnFileAsync()
         {
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
     using System;
     using System.Threading.Tasks;
     using DotVVM.Framework.Hosting;
@@ -89,16 +87,16 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("ReturnFileAsync"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test, 
+                VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                    .WithLocation(0).WithArguments("ReturnFileAsync"));
         }
 
         [Fact]
         public async Task Test_Warning_CatchAllException_RedirectToUrl()
         {
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
     using System;
     using DotVVM.Framework.Hosting;
 
@@ -118,16 +116,16 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("RedirectToUrl"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test, 
+                VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                    .WithLocation(0).WithArguments("RedirectToUrl"));
         }
 
         [Fact]
         public async Task Test_Warning_CatchAllException_RedirectToRoute()
         {
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
     using System;
     using DotVVM.Framework.Hosting;
 
@@ -147,16 +145,16 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("RedirectToRoute"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                    .WithLocation(0).WithArguments("RedirectToRoute"));
         }
 
         [Fact]
         public async Task Test_Warning_CatchAllException_RedirectToLocalUrl()
         {
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
     using System;
     using DotVVM.Framework.Hosting;
 
@@ -176,16 +174,16 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("RedirectToLocalUrl"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test, 
+                VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                    .WithLocation(0).WithArguments("RedirectToLocalUrl"));
         }
 
         [Fact]
         public async Task Test_Warning_CatchAllException_RedirectToUrlPermanent()
         {
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
     using System;
     using DotVVM.Framework.Hosting;
 
@@ -205,16 +203,16 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("RedirectToUrlPermanent"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                    .WithLocation(0).WithArguments("RedirectToUrlPermanent"));
         }
 
         [Fact]
         public async Task Test_Warning_CatchAllException_RedirectToRoutePermanent()
         {
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
     using System;
     using DotVVM.Framework.Hosting;
 
@@ -234,16 +232,16 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("RedirectToRoutePermanent"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test, 
+                VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                    .WithLocation(0).WithArguments("RedirectToRoutePermanent"));
         }
 
         [Fact]
         public async Task Test_Warning_CatchAllException_ReturnFile_Obsolete()
         {
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
     using System;
     using DotVVM.Framework.Hosting;
 
@@ -266,10 +264,10 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("ReturnFile"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                    .WithLocation(0).WithArguments("ReturnFile"));
         }
 
         [Fact]
@@ -299,14 +297,13 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             }
         }
     }";
-
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [Fact]
         public async Task Test_Warning_NestedTryCatch()
         {
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
     using System;
     using System.Threading.Tasks;
     using DotVVM.Framework.Hosting;
@@ -335,10 +332,10 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("ReturnFileAsync"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test, 
+                VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                    .WithLocation(0).WithArguments("ReturnFileAsync"));
         }
 
         [Fact]
@@ -371,7 +368,6 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             }
         }
     }";
-
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
@@ -408,7 +404,6 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             }
         }
     }";
-
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
@@ -438,7 +433,6 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             }
         }
     }";
-
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
@@ -483,14 +477,13 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             }
         }
     }";
-
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [Fact]
         public async Task Test_Warning_NestedTryBlocks_OuterNotProperlyHandled()
         {
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
     using System;
     using System.Threading.Tasks;
     using DotVVM.Framework.Hosting;
@@ -519,16 +512,16 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("ReturnFileAsync"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                    .WithLocation(0).WithArguments("ReturnFileAsync"));
         }
 
         [Fact]
         public async Task Test_Warning_NestedTryBlocks_InnerNotProperlyHandled()
         {
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
     using System;
     using System.Threading.Tasks;
     using DotVVM.Framework.Hosting;
@@ -557,16 +550,16 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("ReturnFileAsync"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                    .WithLocation(0).WithArguments("ReturnFileAsync"));
         }
 
         [Fact]
         public async Task Test_Warning_BareCatchBlock_NoRethrow()
         {
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
     using System.Threading.Tasks;
     using DotVVM.Framework.Hosting;
 
@@ -587,18 +580,17 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("ReturnFileAsync"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
+                    .WithLocation(0).WithArguments("ReturnFileAsync"));
         }
 
         [Fact]
-        public async Task Test_Warning_BareCatchBlock_WithRethrow()
+        public async Task Test_NoDiagnostics_CatchAllExceptions_Rethrow()
         {
-            // Bare catch blocks are always flagged because we cannot reliably detect rethrows in them
-            // Users should use catch (DotvvmInterruptRequestExecutionException) { throw; } instead
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            var test = @"
+    using System;
     using System.Threading.Tasks;
     using DotVVM.Framework.Hosting;
 
@@ -613,23 +605,50 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                     var bytes = new byte[] { 1, 2, 3 };
                     await {|#0:context.ReturnFileAsync(bytes, ""file.csv"", ""application/octet-stream"")|};
                 }
+                catch (Exception)
+                {
+                    throw;      // rethrow is fine
+                }
+            }
+        }
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
+        public async Task Test_Warning_BareCatchBlock_WithRethrow()
+        {
+            // Bare catch blocks with rethrow are now allowed
+            var test = @"
+    using System.Threading.Tasks;
+    using DotVVM.Framework.Hosting;
+
+    namespace ConsoleApplication1
+    {
+        public class TestClass
+        {
+            public async Task OnDownloadFile(IDotvvmRequestContext context)
+            {
+                try
+                {
+                    var bytes = new byte[] { 1, 2, 3 };
+                    await context.ReturnFileAsync(bytes, ""file.csv"", ""application/octet-stream"");
+                }
                 catch
                 {
                     throw;
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("ReturnFileAsync"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [Fact]
         public async Task Test_Warning_BareCatchBlock_WithRethrow_NonAsync()
         {
-            // Bare catch blocks are always flagged because we cannot reliably detect rethrows in them
-            await VerifyCS.VerifyAnalyzerAsync(@"
+            // Bare catch blocks with rethrow are now allowed
+            var test = @"
     using DotVVM.Framework.Hosting;
 
     namespace ConsoleApplication1
@@ -640,7 +659,7 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
             {
                 try
                 {
-                    {|#0:context.RedirectToUrl(""/home"")|};
+                    context.RedirectToUrl(""/home"");
                 }
                 catch
                 {
@@ -648,10 +667,8 @@ namespace DotVVM.Analyzers.Tests.ApiUsage
                 }
             }
         }
-    }",
-
-            VerifyCS.Diagnostic(DotvvmInterruptExceptionAnalyzer.DoNotCatchDotvvmInterruptException)
-                .WithLocation(0).WithArguments("RedirectToUrl"));
+    }";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }

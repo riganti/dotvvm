@@ -94,50 +94,48 @@ namespace DotVVM.Analyzers.ApiUsage
             {
                 if (current is ITryOperation tryOperation)
                 {
-                    // Check if this try block has proper handling for the interrupt exception
                     if (!HasProperRethrow(tryOperation, dotvvmInterruptException))
                         return false;
                 }
                 current = current.Parent;
             }
             
-            // All try blocks (if any) handle the exception properly
             return true;
         }
 
         private static bool HasProperRethrow(ITryOperation tryOperation, INamedTypeSymbol dotvvmInterruptException)
         {
-            // Iterate through catch clauses in order (as they are evaluated in order at runtime)
             foreach (var catchClause in tryOperation.Catches)
             {
                 var caughtType = catchClause.ExceptionType;
-                
-                // A bare catch { } (no exception type) catches all exceptions
-                // We cannot reliably detect rethrows in bare catch blocks due to Roslyn limitations
-                // So we conservatively report this as a problem
-                // Users should use catch (DotvvmInterruptRequestExecutionException) { throw; } instead
-                if (caughtType == null)
+
+                // Check if the "when" clause contains the interrupt exception
+                // We cannot evaluate the condition, but if it mentions the interrupt exception type, we assume it's being excluded (e.g., "when (ex is not DotvvmInterruptRequestExecutionException)")
+                if (HasWhenClauseExcludingInterruptException(catchClause, dotvvmInterruptException))
                 {
-                    return false;  // Bare catch always fails the check
+                    return true;
                 }
 
-                // Check if the when clause excludes the interrupt exception
-                if (HasWhenClauseExcludingInterruptException(catchClause, dotvvmInterruptException))
-                    continue;
+                // A bare catch { } (no exception type) or catch (Exception) { } catches all exceptions
+                // If it contains a rethrow anywhere, we consider it safe
+                if (caughtType.Name == "Object" || caughtType.Name == "Exception")
+                {
+                    if (ContainsRethrow(catchClause.Handler))
+                    {
+                        return true;
+                    }
 
-                // Check if this catch could catch the interrupt exception
+                    return false;
+                }
+
+                // Catch of the interrupt exception
                 if (IsCatchingInterruptException(caughtType, dotvvmInterruptException))
                 {
-                    // If this catch specifically catches DotvvmInterruptRequestExecutionException and rethrows, that's OK
-                    if (SymbolEqualityComparer.Default.Equals(caughtType, dotvvmInterruptException) &&
-                        ContainsRethrow(catchClause.Handler))
+                    if (ContainsRethrow(catchClause.Handler))
                     {
-                        // This catch handles the interrupt exception properly by rethrowing it
-                        // The exception won't reach subsequent catch blocks, so we're safe
                         return true;
                     }
                     
-                    // This catch could catch the interrupt exception but doesn't handle it properly
                     return false;
                 }
             }
@@ -146,16 +144,11 @@ namespace DotVVM.Analyzers.ApiUsage
             return true;
         }
 
-        /// <summary>
-        /// Check if the when clause mentions the interrupt exception type (assumes it's being excluded)
-        /// </summary>
         private static bool HasWhenClauseExcludingInterruptException(ICatchClauseOperation catchClause, INamedTypeSymbol dotvvmInterruptException)
         {
             if (catchClause.Filter == null)
                 return false;
 
-            // We don't want to fully evaluate the when condition, so we'll just check if the exception type is mentioned
-            // If it's mentioned, we assume it's being excluded (e.g., "when (ex is not DotvvmInterruptRequestExecutionException)")
             var filterSyntax = catchClause.Filter.Syntax.ToString();
             return filterSyntax.Contains(dotvvmInterruptException.Name);
         }
@@ -173,9 +166,6 @@ namespace DotVVM.Analyzers.ApiUsage
             return false;
         }
 
-        /// <summary>
-        /// Check if the block contains a rethrow (throw;) anywhere, including nested operations
-        /// </summary>
         private static bool ContainsRethrow(IOperation? handler)
         {
             if (handler == null)
@@ -186,11 +176,9 @@ namespace DotVVM.Analyzers.ApiUsage
 
         private static bool ContainsRethrowRecursive(IOperation operation)
         {
-            // Check if this operation is a rethrow
             if (operation is IThrowOperation throwOp && throwOp.Exception == null)
                 return true;
 
-            // Recursively check children
             foreach (var child in operation.Children)
             {
                 if (ContainsRethrowRecursive(child))
