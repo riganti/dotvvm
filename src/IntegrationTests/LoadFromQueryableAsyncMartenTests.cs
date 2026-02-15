@@ -1,9 +1,9 @@
-#if NET8_0_OR_GREATER
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
+using JasperFx;
 using Marten;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Testcontainers.PostgreSql;
@@ -19,7 +19,7 @@ namespace DotVVM.Framework.IntegrationTests
         public async Task TestInitialize()
         {
             postgreSqlContainer = new PostgreSqlBuilder()
-                .WithImage("postgres:16-alpine")
+                .WithImage("postgres:latest")
                 .Build();
             await postgreSqlContainer.StartAsync();
         }
@@ -46,7 +46,7 @@ namespace DotVVM.Framework.IntegrationTests
             var store = DocumentStore.For(options =>
             {
                 options.Connection(connectionString);
-                options.AutoCreateSchemaObjects = Weasel.Core.AutoCreate.All;
+                options.AutoCreateSchemaObjects = AutoCreate.All;
             });
 
             // Add test data
@@ -180,4 +180,3 @@ namespace DotVVM.Framework.IntegrationTests
         }
     }
 }
-#endif

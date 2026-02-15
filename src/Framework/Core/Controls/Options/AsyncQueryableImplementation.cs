@@ -26,23 +26,15 @@ namespace DotVVM.Framework.Controls
             var queryableType = queryable.GetType();
             
             // EF6 DbQuery support
-            if (queryableType.Namespace == "System.Data.Entity.Infrastructure" && queryableType.Name == "DbQuery`1")
+            if (queryableType is { Namespace: "System.Data.Entity.Infrastructure", Name: "DbQuery`1" })
             {
-                var result = await EF6ToListAsync(queryable, queryableType, cancellationToken);
-                if (result is not null)
-                {
-                    return result;
-                }
+                return await Ef6ToListAsync(queryable, queryableType, cancellationToken);
             }
             
             // Marten support
             if (queryableType is { Namespace: "Marten.Linq", Name: "MartenLinqQueryable`1" })
             {
-                var result = await MartenToListAsync(queryable, queryableType, cancellationToken);
-                if (result is not null)
-                {
-                    return result;
-                }
+                return await MartenToListAsync(queryable, queryableType, cancellationToken);
             }
 
             throw new ArgumentException($"The specified IQueryable ({queryable.GetType().FullName}), does not support async enumeration. Please use the LoadFromQueryable method.", nameof(queryable));
@@ -50,46 +42,43 @@ namespace DotVVM.Framework.Controls
 
 
         static MethodInfo? ef6MethodCache;
-        private static async Task<IReadOnlyList<T>?> EF6ToListAsync<T>(IQueryable<T> queryable, Type queryableType, CancellationToken ct)
+        private static Task<List<T>> Ef6ToListAsync<T>(IQueryable<T> queryable, Type queryableType, CancellationToken ct)
         {
-            var toListAsyncMethod = ef6MethodCache ?? queryableType.Assembly.GetType("System.Data.Entity.QueryableExtensions")?.GetMethods().SingleOrDefault(m => 
-                m.Name == "ToListAsync" && 
-                m.IsGenericMethodDefinition && 
-                m.GetGenericArguments().Length == 1 &&
-                m.GetParameters() is { Length: 2 } parameters && 
-                parameters[0].ParameterType.IsGenericType &&
-                parameters[0].ParameterType.GetGenericTypeDefinition() == typeof(IQueryable<>) &&
-                parameters[1].ParameterType == typeof(CancellationToken));
-            if (toListAsyncMethod is null)
-            {
-                return null;
-            }
+            var toListAsyncMethod = ef6MethodCache
+                ?? queryableType.Assembly.GetType("System.Data.Entity.QueryableExtensions")?.GetMethods().SingleOrDefault(m => 
+                    m.Name == "ToListAsync" && 
+                    m.IsGenericMethodDefinition && 
+                    m.GetGenericArguments().Length == 1 &&
+                    m.GetParameters() is { Length: 2 } parameters && 
+                    parameters[0].ParameterType.IsGenericType &&
+                    parameters[0].ParameterType.GetGenericTypeDefinition() == typeof(IQueryable<>) &&
+                    parameters[1].ParameterType == typeof(CancellationToken))
+                ?? throw new InvalidOperationException("Entity Framework 6 ToListAsync method not found.");
 
             if (ef6MethodCache is null)
                 Interlocked.CompareExchange(ref ef6MethodCache, toListAsyncMethod, null);
 
             var toListMethodGeneric = toListAsyncMethod.MakeGenericMethod(typeof(T));
             var result = toListMethodGeneric.Invoke(null, [queryable, ct])!;
-            var listTask = (Task<List<T>>)result;
-            var list = await listTask;
-            return list;
+            return (Task<List<T>>)result;
         }
 
         static MethodInfo? martenMethodCache;
-        private static Task<IReadOnlyList<T>?> MartenToListAsync<T>(IQueryable<T> queryable, Type queryableType, CancellationToken ct)
+        private static Task<IReadOnlyList<T>> MartenToListAsync<T>(IQueryable<T> queryable, Type queryableType, CancellationToken ct)
         {
-            var toListAsyncMethod = martenMethodCache ?? queryableType.Assembly.GetType("Marten.QueryableExtensions")!.GetMethods().SingleOrDefault(m => m.Name == "ToListAsync" && m.GetParameters() is { Length: 2 } parameters && parameters[1].ParameterType == typeof(CancellationToken));
-            if (toListAsyncMethod is null)
-            {
-                return Task.FromResult<IReadOnlyList<T>?>(null);
-            }
+            var toListAsyncMethod = martenMethodCache
+                ?? queryableType.Assembly.GetType("Marten.QueryableExtensions")!.GetMethods()
+                    .SingleOrDefault(m => m.Name == "ToListAsync"
+                        && m.GetParameters() is { Length: 2 } parameters
+                        && parameters[1].ParameterType == typeof(CancellationToken))
+                ?? throw new InvalidOperationException("Marten's ToListAsync method not found.");
 
             if (martenMethodCache is null)
                 Interlocked.CompareExchange(ref martenMethodCache, toListAsyncMethod, null);
 
             var toListMethodGeneric = toListAsyncMethod.MakeGenericMethod(typeof(T));
             var result = toListMethodGeneric.Invoke(null, [queryable, ct])!;
-            return  (Task<IReadOnlyList<T>?>)result;
+            return (Task<IReadOnlyList<T>>)result;
         }
     }
 }

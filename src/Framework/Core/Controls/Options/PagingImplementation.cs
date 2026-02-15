@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Controls
             //   CustomAsyncQueryableCountDelegate, and we do accept PRs adding new heuristics ;) )
             return await (
                 EfCoreAsyncCountHack(queryable, queryableType, ct) ??
-                EF6AsyncCountHack(queryable, queryableType, ct) ??
+                Ef6AsyncCountHack(queryable, queryableType, ct) ??
                 MartenAsyncCountHack(queryable, queryableType, ct) ??
                 StandardAsyncCountHack(queryable, ct)
             );
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Controls
         }
 
         static MethodInfo? ef6CountMethodCache;
-        static Task<int>? EF6AsyncCountHack<T>(IQueryable<T> queryable, Type queryableType, CancellationToken ct)
+        static Task<int>? Ef6AsyncCountHack<T>(IQueryable<T> queryable, Type queryableType, CancellationToken ct)
         {
             if (queryable.Provider is null)
                  return null;
@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Controls
             if (!providerType.Namespace.StartsWith("System.Data.Entity"))
                  return null;
 
-            var countMethod = ef6CountMethodCache ?? assembly.GetType("System.Data.Entity.QueryableExtensions")?.GetMethods().SingleOrDefault(m => 
+            var countMethod = ef6CountMethodCache ?? providerType.Assembly.GetType("System.Data.Entity.QueryableExtensions")?.GetMethods().SingleOrDefault(m => 
                 m.Name == "CountAsync" && 
                 m.IsGenericMethodDefinition && 
                 m.GetGenericArguments().Length == 1 &&
