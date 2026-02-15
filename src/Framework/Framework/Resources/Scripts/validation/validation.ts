@@ -26,7 +26,9 @@ type ValidationErrorsCountBinding = {
     target: KnockoutObservable<any>,
     includeErrorsFromChildren: boolean,
     includeErrorsFromTarget: boolean,
-    invalidCssClass?: string
+    invalidCssClass?: string,
+    hideWhenValid?: boolean,
+    formatErrorCount?: (count: number) => string
 }
 
 type DotvvmValidationErrorsChangedEventArgs = Partial<PostbackOptions> & {
@@ -145,11 +147,13 @@ export function init() {
                     binding.includeErrorsFromChildren,
                     binding.includeErrorsFromTarget
                 );
-                element.innerText = errors.length.toString();
+                element.innerText = binding.formatErrorCount ? binding.formatErrorCount.call(element, errors.length) : errors.length.toString();
 
-                const validationOptions = allBindingsAccessor!.get("dotvvm-validationOptions");
-                if (validationOptions) {
-                    applyValidatorActionsCore(element, errors, validationOptions);
+                if (binding.invalidCssClass) {
+                    elementActions["invalidCssClass"](element, errors.length ? ["error"] : [], binding.invalidCssClass);
+                }
+                if (binding.hideWhenValid) {
+                    elementActions["hideWhenValid"](element, errors.length ? ["error"] : [], null);
                 }
             };
 

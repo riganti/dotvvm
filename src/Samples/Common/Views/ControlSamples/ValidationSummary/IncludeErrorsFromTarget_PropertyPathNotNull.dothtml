@@ -25,11 +25,6 @@
             <dot:ValidationSummary IncludeErrorsFromTarget="true"
                                    IncludeErrorsFromChildren="true"
                                    data-ui="validationSummary" />
-            <dot:ValidationErrorsCount IncludeErrorsFromTarget="true"
-                                   IncludeErrorsFromChildren="true"
-                                   data-ui="validationSummary"
-                                   Validator.InvalidCssClass="has-error"
-                                   Validator.HideWhenValid="true"/>
         </form>
         <div Visible="{value: Login.IsLoggedIn}">
             <dot:Button Text="Log Out"

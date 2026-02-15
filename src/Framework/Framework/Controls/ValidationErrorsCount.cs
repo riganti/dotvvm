@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting;
 
@@ -58,6 +59,43 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty WrapperTagNameProperty
             = DotvvmProperty.Register<string, ValidationErrorsCount>(c => c.WrapperTagName, "span");
 
+        /// <summary>
+        /// Gets or sets the CSS class that will be applied to the control when there are validation errors.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string? InvalidCssClass
+        {
+            get { return (string?)GetValue(InvalidCssClassProperty); }
+            set { SetValue(InvalidCssClassProperty, value); }
+        }
+        public static readonly DotvvmProperty InvalidCssClassProperty
+            = DotvvmProperty.Register<string?, ValidationErrorsCount>(c => c.InvalidCssClass, null);
+
+        /// <summary>
+        /// Gets or sets whether the control will be hidden when there are no validation errors. Default is <c>false</c>.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool HideWhenValid
+        {
+            get { return (bool)GetValue(HideWhenValidProperty)!; }
+            set { SetValue(HideWhenValidProperty, value); }
+        }
+        public static readonly DotvvmProperty HideWhenValidProperty
+            = DotvvmProperty.Register<bool, ValidationErrorsCount>(c => c.HideWhenValid, false);
+
+        /// <summary>
+        /// Gets or sets a function that formats the error count. The function receives the error count as a parameter and should return the string to be displayed. If not set, the error count will be displayed as a string.
+        /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        public IValueBinding<Func<int, string>>? FormatErrorCount
+        {
+            get { return (IValueBinding<Func<int, string>>?)GetValue(FormatErrorCountProperty); }
+            set { SetValue(FormatErrorCountProperty, value); }
+        }
+        public static readonly DotvvmProperty FormatErrorCountProperty
+            = DotvvmProperty.Register<IValueBinding<Func<int, string>>?, ValidationErrorsCount>(c => c.FormatErrorCount, null);
+
+
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             TagName = WrapperTagName;
@@ -83,10 +121,20 @@ namespace DotVVM.Framework.Controls
                 group.Add("target", expression);
                 group.Add("includeErrorsFromChildren", IncludeErrorsFromChildren.ToString().ToLowerInvariant());
                 group.Add("includeErrorsFromTarget", IncludeErrorsFromTarget.ToString().ToLowerInvariant());
+                if (!string.IsNullOrEmpty(InvalidCssClass))
+                {
+                    group.Add("invalidCssClass", this, InvalidCssClassProperty);
+                }
+                if (HideWhenValid)
+                {
+                    group.Add("hideWhenValid", this, HideWhenValidProperty);
+                }
+                if (HasBinding(FormatErrorCountProperty))
+                {
+                    group.Add("formatErrorCount", this, FormatErrorCountProperty);
+                }
             }
             writer.AddKnockoutDataBind("dotvvm-validationErrorsCount", group);
-
-            Validator.AddValidationOptionsBinding(writer, this);
         }
     }
 }
