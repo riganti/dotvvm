@@ -581,8 +581,6 @@ public ref struct JsonDiffWriter
         public void Pop()
         {
             count--;
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-                buffer[count] = default!;
         }
 
 
@@ -590,9 +588,6 @@ public ref struct JsonDiffWriter
         public void Truncate(int length)
         {
             count = length;
-
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-                buffer.Slice(length).Fill(default!);
         }
 
         public T? LastOrDefault() => count > 0 ? buffer[count - 1] : default;
@@ -623,7 +618,13 @@ public ref struct JsonDiffWriter
             if (this.rented is {} returnBuffer)
             {
                 this = default;
-                ArrayPool<T>.Shared.Return(returnBuffer);
+                ArrayPool<T>.Shared.Return(returnBuffer,
+#if DotNetCore          // make sure our JsonElements don't pin the document forever
+                        clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>()
+#else
+                        clearArray: true
+#endif
+                        );
             }
         }
     }
