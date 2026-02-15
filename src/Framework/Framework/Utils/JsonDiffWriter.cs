@@ -10,14 +10,14 @@ using System.Runtime.InteropServices;
 namespace DotVVM.Framework.Utils;
 public ref struct JsonDiffWriter
 {
-    public static void ComputeDiff(Utf8JsonWriter writer, JsonElement sourceElement, ReadOnlySpan<byte> targetJsonUtf8, JsonDiffWriter.IncludePropertyDelegate? includePropertyOverride = null)
+    public static void ComputeDiff(Utf8JsonWriter writer, JsonElement sourceElement, ReadOnlySpan<byte> targetJsonUtf8)
     {
         if (sourceElement.ValueKind != JsonValueKind.Object)
             throw new ArgumentException("Root value must be an object", nameof(sourceElement));
 
         Span<byte> nameBuffer = stackalloc byte[1024];
         Span<int> indexBuffer = stackalloc int[32];
-        var diffWriter = new JsonDiffWriter(includePropertyOverride, nameBuffer, indexBuffer, writer, sourceElement, targetJsonUtf8);
+        var diffWriter = new JsonDiffWriter(nameBuffer, indexBuffer, writer, sourceElement, targetJsonUtf8);
         try
         {
             diffWriter.target.AssertRead();
@@ -76,9 +76,6 @@ public ref struct JsonDiffWriter
         }
     }
 
-    public delegate bool? IncludePropertyDelegate(ClientTypeId typeId, ReadOnlySpan<byte> propertyName);
-    private readonly IncludePropertyDelegate? includePropertyOverride;
-
     private Utf8JsonReader target;
     private readonly ReadOnlySpan<byte> targetJsonUtf8;
 
@@ -93,7 +90,6 @@ public ref struct JsonDiffWriter
     private readonly Utf8JsonWriter writer;
 
     private JsonDiffWriter(
-        IncludePropertyDelegate? includePropertyOverride,
         Span<byte> nameBuffer,
         Span<int> indexBuffer,
         Utf8JsonWriter writer,
@@ -101,7 +97,6 @@ public ref struct JsonDiffWriter
         ReadOnlySpan<byte> targetJson
     )
     {
-        this.includePropertyOverride = includePropertyOverride;
         this.nameBuffer = new PropertyStack(nameBuffer, indexBuffer);
         this.writer = writer;
         this.elementStack = new RefList<JsonElement>(8);
@@ -257,7 +252,6 @@ public ref struct JsonDiffWriter
     {
         target.AssertToken(JsonTokenType.StartObject);
 
-        ClientTypeId typeId = default;
         target.AssertRead();
 
         var nestLevel = elementStack.Count;
@@ -299,28 +293,6 @@ public ref struct JsonDiffWriter
                 else
                 {
                     self.writer.WritePropertyName(propertyName);
-                }
-            }
-
-            if (includePropertyOverride is {})
-            {
-                if (propertyName.SequenceEqual("$type"u8))
-                {
-                    ClientTypeId.TryReadJson(ref target, out typeId);
-                }
-                else if (!typeId.IsDefault)
-                {
-                    var include = includePropertyOverride(typeId, propertyName);
-                    if (include == true)
-                    {
-                        initProperty(ref this, propertyName);
-                        CopyValue();
-                        goto Continue;
-                    }
-                    else if (include == false)
-                    {
-                        goto Continue;
-                    }
                 }
             }
 
