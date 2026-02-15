@@ -32,11 +32,11 @@ namespace Owin
         /// </param>
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
         /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
-        public static DotvvmConfiguration UseDotVVM<TStartup, TServiceConfigurator>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
+        public static DotvvmConfiguration UseDotVVM<TStartup, TServiceConfigurator>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null, IStartupTracer startupTracer = null)
             where TStartup : IDotvvmStartup, new()
             where TServiceConfigurator : IDotvvmServiceConfigurator, new()
         {
-            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, new TServiceConfigurator(), new TStartup(), serviceProviderFactoryMethod, modifyConfiguration);
+            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, new TServiceConfigurator(), new TStartup(), serviceProviderFactoryMethod, modifyConfiguration, startupTracer);
         }
 
         /// <summary>
@@ -53,9 +53,9 @@ namespace Owin
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
         /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
         /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
-        public static DotvvmConfiguration UseDotVVM(this IAppBuilder app, IDotvvmStartup startup, IDotvvmServiceConfigurator serviceConfigurator, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
+        public static DotvvmConfiguration UseDotVVM(this IAppBuilder app, IDotvvmStartup startup, IDotvvmServiceConfigurator serviceConfigurator, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null, IStartupTracer startupTracer = null)
         {
-            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, serviceConfigurator, startup, serviceProviderFactoryMethod, modifyConfiguration);
+            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, serviceConfigurator, startup, serviceProviderFactoryMethod, modifyConfiguration, startupTracer);
         }
 
         /// <summary>
@@ -70,11 +70,11 @@ namespace Owin
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
         /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
         /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
-        public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
+        public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null, IStartupTracer startupTracer = null)
             where TStartup : IDotvvmStartup, new()
         {
             var startup = new TStartup();
-            return app.UseDotVVM(startup, applicationRootPath, useErrorPages, debug, serviceProviderFactoryMethod, modifyConfiguration);
+            return app.UseDotVVM(startup, applicationRootPath, useErrorPages, debug, serviceProviderFactoryMethod, modifyConfiguration, startupTracer);
         }
 
         /// <summary>
@@ -90,14 +90,14 @@ namespace Owin
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
         /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
         /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
-        public static DotvvmConfiguration UseDotVVM(this IAppBuilder app, IDotvvmStartup startup, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
+        public static DotvvmConfiguration UseDotVVM(this IAppBuilder app, IDotvvmStartup startup, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null, IStartupTracer startupTracer = null)
         {
-            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, startup as IDotvvmServiceConfigurator, startup, serviceProviderFactoryMethod, modifyConfiguration);
+            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, startup as IDotvvmServiceConfigurator, startup, serviceProviderFactoryMethod, modifyConfiguration, startupTracer);
         }
 
-        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator, IDotvvmStartup startup, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
+        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator, IDotvvmStartup startup, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null, IStartupTracer startupTracer = null)
         {
-            var startupTracer = new NullStartupTracer();
+            startupTracer ??= new NullStartupTracer();
             startupTracer.TraceEvent(StartupTracingConstants.AddDotvvmStarted);
 
             var config = DotvvmConfiguration.CreateDefault(s => {

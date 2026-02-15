@@ -17,18 +17,16 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        private static readonly NullStartupTracer startupTracer = new NullStartupTracer();
-
         /// <summary>
         /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
         // ReSharper disable once InconsistentNaming
-        public static IServiceCollection AddDotVVM<TServiceConfigurator>(this IServiceCollection services)
+        public static IServiceCollection AddDotVVM<TServiceConfigurator>(this IServiceCollection services, IStartupTracer startupTracer = null)
             where TServiceConfigurator : IDotvvmServiceConfigurator, new()
         {
             var configurator = new TServiceConfigurator();
-            return services.AddDotVVM(configurator);
+            return services.AddDotVVM(configurator, startupTracer);
         }
 
         /// <summary>
@@ -36,9 +34,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="configurator">The <see cref="IDotvvmServiceConfigurator"/> instance.</param>
-        public static IServiceCollection AddDotVVM(this IServiceCollection services, IDotvvmServiceConfigurator configurator)
+        public static IServiceCollection AddDotVVM(this IServiceCollection services, IDotvvmServiceConfigurator configurator, IStartupTracer startupTracer = null)
         {
-            AddDotVVMServices(services);
+            startupTracer ??= new NullStartupTracer();
+            AddDotVVMServices(services, startupTracer);
 
             var dotvvmServices = new DotvvmServiceCollection(services);
 
@@ -54,14 +53,14 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
         // ReSharper disable once InconsistentNaming
-        public static IServiceCollection AddDotVVM(this IServiceCollection services)
+        public static IServiceCollection AddDotVVM(this IServiceCollection services, IStartupTracer startupTracer = null)
         {
-            AddDotVVMServices(services);
+            AddDotVVMServices(services, startupTracer);
             return services;
         }
 
         // ReSharper disable once InconsistentNaming
-        private static void AddDotVVMServices(IServiceCollection services)
+        private static void AddDotVVMServices(IServiceCollection services, IStartupTracer startupTracer)
         {
             startupTracer.TraceEvent(StartupTracingConstants.AddDotvvmStarted);
 
