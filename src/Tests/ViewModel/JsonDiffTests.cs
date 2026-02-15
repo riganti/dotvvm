@@ -5,6 +5,7 @@ using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -119,11 +120,11 @@ namespace DotVVM.Framework.Tests.ViewModel
             var sourceDoc = JsonDocument.Parse(source.ToJsonString());
             var targetJson = StringUtils.Utf8.GetBytes(target.ToJsonString());
 
-            var buffer = new ArrayBufferWriter<byte>();
+            var buffer = new MemoryStream();
             using (var writer = new Utf8JsonWriter(buffer))
                 JsonDiffWriter.ComputeDiff(writer, sourceDoc.RootElement, targetJson);
-            Console.WriteLine(StringUtils.Utf8.GetString(buffer.WrittenSpan));
-            return (JsonObject)JsonNode.Parse(buffer.WrittenSpan);
+            Console.WriteLine(StringUtils.Utf8.GetString(buffer.ToSpan()));
+            return (JsonObject)JsonNode.Parse(buffer.ToSpan());
         }
 
         public static void ValidateDiff(JsonObject source, JsonObject target)
