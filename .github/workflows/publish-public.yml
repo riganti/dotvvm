@@ -18,6 +18,14 @@ on:
         default: ""
         description: The version of the packages to publish publicly
         required: false
+      dry-run:
+        type: boolean
+        default: false
+        description: Run the pipeline but don't actually publish anything.
+
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
 
 jobs:
   copy-nuget-packages:
@@ -46,7 +54,8 @@ jobs:
             -nuGetOrgApiKey "${{ secrets.NUGET_ORG_API_KEY }}" `
             -include '${{ inputs.include }}' `
             -exclude '${{ inputs.exclude }}' `
-            -version "${{ inputs.version }}"
+            -version '${{ inputs.version }}' `
+            -dryRun ${{ inputs.dry-run && '$true' || '$false' }}
         shell: pwsh
 
   copy-npm-packages:
@@ -90,17 +99,15 @@ jobs:
           ls
         working-directory: ./artifacts
 
-      - name: Set public npm registry
-        if: steps.include-check.outputs.match == 'true'
-        run: >
-          ${{ github.workspace }}/ci/scripts/Set-NpmRegistry.ps1 `
-            -targetDirectory "." `
-            -registry "https://registry.npmjs.org/" `
-            -authToken "${{ secrets.PUBLIC_NPM_PAT }}"
-        shell: pwsh
-        working-directory: ./artifacts/node_modules/dotvvm-types
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm
+        run: npm install -g npm@latest
 
       - name: Publish dotvvm-types to registry.npmjs.org
         if: steps.include-check.outputs.match == 'true'
-        run: npm publish --verbose
+        run: NODE_AUTH_TOKEN="" npm publish --verbose ${{ inputs.dry-run && '--dry-run' || '' }} --tag latest
         working-directory: ./artifacts/node_modules/dotvvm-types
