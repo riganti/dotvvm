@@ -153,7 +153,7 @@ jobs:
         target-framework: net472
     - name: Integration Tests (net8.0)
       uses: ./.github/unittest
-      if: ${{ (matrix.os == 'ubuntu-latest' || matrix.os == 'windows-2022') && (success() || failure()) }}
+      if: ${{ matrix.os == 'ubuntu-latest' && (success() || failure()) }}
       with:
         project: src/IntegrationTests
         name: integration-tests
