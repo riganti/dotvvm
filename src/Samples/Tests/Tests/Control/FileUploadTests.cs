@@ -163,9 +163,53 @@ namespace DotVVM.Samples.Tests.Control
             return tempFile;
         }
 
-        //TODO: FileUpload with UploadCompleted command
+        [Fact]
+        public void Control_FileUpload_PasteDrop_InitialState()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_PasteDrop);
 
-        // TODO: RenderSettings.Mode="Server"
+                // Verify initial state
+                var textBox = browser.Single("textarea");
+                AssertUI.IsDisplayed(textBox);
+
+                // Verify files count is 0
+                var filesCountParagraph = browser.FindElements("p").Last();
+                AssertUI.TextEquals(filesCountParagraph, "Number of uploaded files: 0");
+
+                // Verify the repeater is empty initially
+                var items = browser.FindElements("ul li");
+                items.ThrowIfDifferentCountThan(0);
+
+                // Verify error is empty
+                var errorParagraph = browser.ElementAt("p", 0);
+                AssertUI.TextEquals(errorParagraph, "Error:");
+
+                // Verify busy is not visible
+                var busyElements = browser.FindElements("p").Where(p => p.GetText().Contains("busy"));
+                Assert.Empty(busyElements);
+            });
+        }
+
+        [Fact]
+        public void Control_FileUpload_PasteDrop_TextBoxHasBinding()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_PasteDrop);
+
+                var textBox = browser.Single("textarea");
+
+                // Verify the textarea has the dotvvm-FileUpload-UploadOnPasteOrDrop binding
+                var bindingAttribute = textBox.GetAttribute("data-bind");
+                Assert.Contains("dotvvm-FileUpload-UploadOnPasteOrDrop", bindingAttribute);
+
+                // Verify the textarea has upload completed handler
+                var uploadCompletedAttribute = textBox.GetAttribute("data-dotvvm-upload-completed");
+                Assert.NotNull(uploadCompletedAttribute);
+            });
+        }
 
     }
 }
