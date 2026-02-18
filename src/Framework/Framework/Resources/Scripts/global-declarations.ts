@@ -297,10 +297,10 @@ type CoerceErrorType = {
 type CoerceResult = CoerceErrorType | { value: any, wasCoerced?: boolean, isError?: false };
 
 type DotvvmFileUploadCollection = {
-    Files: KnockoutObservableArray<KnockoutObservable<DotvvmFileUploadData>>;
-    Progress: KnockoutObservable<number>;
-    Error: KnockoutObservable<string>;
-    IsBusy: KnockoutObservable<boolean>;
+    Files: DotvvmObservable<DotvvmObservable<DotvvmFileUploadData>[]>;
+    Progress: DotvvmObservable<number>;
+    Error: DotvvmObservable<string>;
+    IsBusy: DotvvmObservable<boolean>;
 }
 type DotvvmFileUploadData = {
     FileId: KnockoutObservable<string>;
