@@ -15,9 +15,9 @@ public ref struct JsonDiffWriter
         if (sourceElement.ValueKind != JsonValueKind.Object)
             throw new ArgumentException("Root value must be an object", nameof(sourceElement));
 
-        Span<byte> nameBuffer = stackalloc byte[1024];
+        Span<byte> lazyStack = stackalloc byte[1024];
         Span<int> indexBuffer = stackalloc int[32];
-        var diffWriter = new JsonDiffWriter(nameBuffer, indexBuffer, writer, sourceElement, targetJsonUtf8);
+        var diffWriter = new JsonDiffWriter(lazyStack, indexBuffer, writer, sourceElement, targetJsonUtf8);
         try
         {
             diffWriter.target.AssertRead();
@@ -80,12 +80,10 @@ public ref struct JsonDiffWriter
     private readonly ReadOnlySpan<byte> targetJsonUtf8;
 
     private byte[] tempBuffer = [];
-    private PropertyStack nameBuffer;
     // we need "lazy write" properties to remove empty object properties
-    private int writtenNestingLevel;
-
+    private PropertyStack lazyStack;
     // needed for "lazy writer" of arrays
-    private RefList<JsonElement> elementStack;
+    private RefList<JsonElement> arrayStack;
 
     private readonly Utf8JsonWriter writer;
 
@@ -97,15 +95,16 @@ public ref struct JsonDiffWriter
         ReadOnlySpan<byte> targetJson
     )
     {
-        this.nameBuffer = new PropertyStack(nameBuffer, indexBuffer);
+        this.lazyStack = new PropertyStack(nameBuffer, indexBuffer);
         this.writer = writer;
-        this.elementStack = new RefList<JsonElement>(8);
+        this.arrayStack = new RefList<JsonElement>(8);
         this.targetJsonUtf8 = targetJson;
         this.target = new Utf8JsonReader(targetJson);
     }
 
     ReadOnlySpan<byte> ReadName(in Utf8JsonReader reader, out bool addedToBuffer)
     {
+        Debug.Assert(!reader.HasValueSequence);
         if (!reader.HasValueSequence && !reader.ValueIsEscaped)
         {
             addedToBuffer = false;
@@ -114,7 +113,7 @@ public ref struct JsonDiffWriter
         else
         {
             addedToBuffer = true;
-            return nameBuffer.AddProperty(in reader);
+            return lazyStack.AddProperty(in reader);
         }
     }
 
@@ -147,6 +146,7 @@ public ref struct JsonDiffWriter
 
     static void WriteoutLazyArray(Utf8JsonWriter writer, int count, in JsonElement arrayJson)
     {
+        Debug.Assert(count <= arrayJson.GetArrayLength());
         writer.WriteStartArray();
         int i = 0;
         foreach (var element in arrayJson.EnumerateArray())
@@ -169,30 +169,31 @@ public ref struct JsonDiffWriter
 
     void WriteoutLazyStackCore()
     {
-        Debug.Assert(nameBuffer.Count >= writtenNestingLevel);
-
-        for (int i = writtenNestingLevel; i < nameBuffer.Count; i++)
+        int arrayIndex = 0;
+        for (int i = 0; i < lazyStack.Count; i++)
         {
-            int index = nameBuffer.Indexes[i];
+            int index = lazyStack.Indexes[i];
             if (index >= 0)
             { // object
-                if (i != writtenNestingLevel)
+                if (i != 0)
                     writer.WriteStartObject();
 
-                var name = nameBuffer.GetName(i);
+                var name = lazyStack.GetName(i);
                 writer.WritePropertyName(name);
             }
             else
             { // array
-                Debug.Assert(i != writtenNestingLevel, "lazy stack cannot start with an array index");
+                Debug.Assert(i != 0, "lazy stack cannot start with an array index");
                 var count = -1 - index;
-                WriteoutLazyArray(writer, count, elementStack[i]);
+                WriteoutLazyArray(writer, count, arrayStack[arrayIndex]);
+                arrayIndex += 1;
             }
         }
-        writtenNestingLevel = nameBuffer.Count;
+        lazyStack.Clear();
+        arrayStack.Clear();
     }
 
-    bool IsInLazyMode => nameBuffer.Count != writtenNestingLevel;
+    bool IsInLazyMode => lazyStack.Count > 0;
 
     bool ComparePrimitiveValues(in JsonElement source)
     {
@@ -241,25 +242,11 @@ public ref struct JsonDiffWriter
 
     }
 
-    void PopName()
-    {
-        if (!IsInLazyMode)
-            this.writtenNestingLevel--;
-        this.nameBuffer.Pop();
-    }
-
     bool DiffObject(in JsonElement source)
     {
         target.AssertToken(JsonTokenType.StartObject);
 
         target.AssertRead();
-
-        var nestLevel = elementStack.Count;
-        Debug.Assert((target.TokenType == JsonTokenType.EndObject ? nestLevel : nestLevel + 1) == target.CurrentDepth,
-                     $"nestLevel {nestLevel} != reader.CurrentDepth {target.CurrentDepth}, token type {target.TokenType}");
-        Debug.Assert(nestLevel == nameBuffer.Count, $"nestLevel {nestLevel} != nameBuffer.Count {nameBuffer.Count}");
-
-        elementStack.Add(source);
 
         bool objectStarted;
         if (IsInLazyMode)
@@ -283,12 +270,12 @@ public ref struct JsonDiffWriter
                 if (!objectStarted)
                 {
                     objectStarted = true;
+                    self.WriteoutLazyStackCore();
                     if (!addedToBuffer)
                     {
-                        self.nameBuffer.AddProperty(propertyName);
-                        addedToBuffer = true;
+                        self.writer.WriteStartObject();
+                        self.writer.WritePropertyName(propertyName);
                     }
-                    self.WriteoutLazyStackCore();
                 }
                 else
                 {
@@ -308,18 +295,18 @@ public ref struct JsonDiffWriter
             if (sourceKind == JsonValueKind.Object && targetToken == JsonTokenType.StartObject)
             {
                 if (!addedToBuffer)
-                    nameBuffer.AddProperty(propertyName);
+                    lazyStack.AddProperty(propertyName);
                 objectStarted |= DiffObject(sourceValue);
-                PopName();
+                lazyStack.TryPop();
                 target.AssertRead();
                 continue;
             }
             if (sourceKind == JsonValueKind.Array && targetToken == JsonTokenType.StartArray)
             {
                 if (!addedToBuffer)
-                    nameBuffer.AddProperty(propertyName);
+                    lazyStack.AddProperty(propertyName);
                 objectStarted |= DiffArray(sourceValue);
-                PopName();
+                lazyStack.TryPop();
                 target.AssertRead();
                 continue;
             }
@@ -334,7 +321,7 @@ public ref struct JsonDiffWriter
             Continue:
             if (addedToBuffer)
             {
-                PopName();
+
             }
             target.AssertRead();
         }
@@ -342,10 +329,6 @@ public ref struct JsonDiffWriter
         if (objectStarted)
             writer.WriteEndObject();
 
-        elementStack.Pop();
-        Debug.Assert(nestLevel == nameBuffer.Count);
-        Debug.Assert(nestLevel == target.CurrentDepth);
-        Debug.Assert(nestLevel == elementStack.Count);
         return objectStarted;
     }
 
@@ -353,16 +336,16 @@ public ref struct JsonDiffWriter
     {
         Debug.Assert(source.ValueKind == JsonValueKind.Array);
 
-        elementStack.Add(source);
 
+        bool arrayStarted = false;
         if (IsInLazyMode)
         {
-            nameBuffer.AddArray();
+            lazyStack.AddArray();
+            arrayStack.Add(source);
         }
         else
         {
-            nameBuffer.AddArray();
-            writtenNestingLevel++;
+            arrayStarted = true;
             writer.WriteStartArray();
         }
 
@@ -375,18 +358,19 @@ public ref struct JsonDiffWriter
             {
                 // array was shortened
                 WriteoutLazyStack();
+                arrayStarted = true;
                 break;
             }
             var sourceKind = sourceValue.ValueKind;
             if (sourceKind == JsonValueKind.Object && targetToken == JsonTokenType.StartObject)
             {
-                DiffObject(in sourceValue);
+                arrayStarted |= DiffObject(in sourceValue);
             }
             else if (sourceKind == JsonValueKind.Array && targetToken == JsonTokenType.StartArray)
             {
-                DiffArray(in sourceValue);
+                arrayStarted |= DiffArray(in sourceValue);
             }
-            else if (!IsInLazyMode)
+            else if (arrayStarted)
             {
                 // something was different, we now have to copy all primitive values regardless of them being equal or not
                 CopyValue();
@@ -398,14 +382,16 @@ public ref struct JsonDiffWriter
                 {
                     WriteoutLazyStackCore();
                     CopyValue();
+                    arrayStarted = true;
                 }
             }
 
-            nameBuffer.IncrementArray();
+            if (!arrayStarted)
+                lazyStack.IncrementArray();
+
             target.AssertRead();
         }
 
-        bool hasChanges;
         if (target.TokenType != JsonTokenType.EndArray)
         {
             // arrays were not of equal length
@@ -415,29 +401,25 @@ public ref struct JsonDiffWriter
                 CopyValue();
                 target.AssertRead();
             }
-            writer.WriteEndArray();
-            hasChanges = true;
+            arrayStarted = true;
         }
-        else if (!IsInLazyMode)
+
+        if (arrayStarted)
         {
             writer.WriteEndArray();
-            hasChanges = true;
         }
         else
         {
-            hasChanges = false;
+            lazyStack.Pop();
+            arrayStack.Pop();
         }
-
-
-        PopName();
-        elementStack.Pop();
-        return hasChanges;
+        return arrayStarted;
     }
 
     public void Dispose()
     {
-        nameBuffer.Dispose();
-        elementStack.Dispose();
+        lazyStack.Dispose();
+        arrayStack.Dispose();
         if (tempBuffer.Length > 0)
             ArrayPool<byte>.Shared.Return(tempBuffer);
     }
@@ -487,6 +469,14 @@ public ref struct JsonDiffWriter
             indexBuffer.Pop();
         }
 
+        public void TryPop()
+        {
+            if (indexBuffer.Count > 0)
+            {
+                Pop();
+            }
+        }
+
         public ReadOnlySpan<byte> AddProperty(in Utf8JsonReader reader)
         {
             Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
@@ -523,6 +513,12 @@ public ref struct JsonDiffWriter
         {
             nameBuffer.Dispose();
             indexBuffer.Dispose();
+        }
+
+        public void Clear()
+        {
+            nameBuffer.Clear();
+            indexBuffer.Clear();
         }
     }
 
@@ -580,13 +576,14 @@ public ref struct JsonDiffWriter
 
         public void Pop()
         {
+            Debug.Assert(count >= 1);
             count--;
         }
-
 
         public void Clear() => Truncate(0);
         public void Truncate(int length)
         {
+            Debug.Assert(length >= 0 && length <= count);
             count = length;
         }
 
