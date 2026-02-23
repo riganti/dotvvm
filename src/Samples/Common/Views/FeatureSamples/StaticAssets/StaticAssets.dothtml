@@ -1,0 +1,37 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticAssets.StaticAssetsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Static Assets Test</title>
+    <link rel="stylesheet" href="~/Content/staticAssetTest.css" />
+</head>
+<body>
+    <h1>Static Assets Integration Test</h1>
+
+    <div class="static-asset-test-element" data-ui="styled-element">
+        This text should be green and bold if the CSS static asset loaded correctly.
+    </div>
+
+    <p>
+        Image src attribute:
+        <img src="~/Content/staticAssetTestImage.svg" alt="Image didn't load?" width="64" height="64" data-ui="test-img" />
+    </p>
+
+    <p>
+        Link href test:
+        <a href="~/Content/staticAssetTest.css" data-ui="test-link">Link to CSS</a>
+    </p>
+
+    <p>
+        <script data-ui='script-test' src="~/Scripts/staticAssetTest.js" type="text/plain"></script>
+    </p>
+
+    <p>
+        <span data-ui="script-loaded-result" InnerText={value: ScriptLoaded} ></span>
+    </p>
+
+    <dot:RequiredResource Name="asset:Scripts/staticAssetTest.js"  />
+</body>
+</html>

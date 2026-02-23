@@ -36,6 +36,16 @@ namespace DotVVM.Framework.Configuration
             instance = new Lazy<IHtmlAttributeTransformer>(CreateInstance, true);
         }
 
+        /// <summary>
+        /// Sets a lazy instance of the transformer along with its type. The lazy will be used instead of creating an instance via reflection.
+        /// </summary>
+        public void SetInstance(Lazy<IHtmlAttributeTransformer> lazyInstance, Type type)
+        {
+            ThrowIfFrozen();
+            _type = type;
+            instance = lazyInstance;
+        }
+
         public IHtmlAttributeTransformer GetInstance()
         {
             if (isFrozen)
