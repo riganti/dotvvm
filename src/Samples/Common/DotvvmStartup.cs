@@ -305,6 +305,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("cc", "CommandAsProperty", "Views/FeatureSamples/MarkupControl/CommandAsProperty.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CommandAsPropertyWrapper", "Views/FeatureSamples/MarkupControl/CommandAsPropertyWrapper.dotcontrol");
 
+            config.Markup.AddMarkupControl("cc", "DataPagerInControl", "Views/ControlSamples/DataPager/DataPagerInControl.dotcontrol");
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
 
             if (config.Markup.Controls.FirstOrDefault(c => c.Src is not null && Path.IsPathRooted(c.Src)) is {} invalidControl)

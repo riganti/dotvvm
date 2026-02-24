@@ -1,0 +1,26 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.DataPager.DataPagerInControlViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>DataPager in control</h1>
+
+    <dot:GridView DataSource="{value: People}" WrapperTagName="tbody">
+        <dot:GridViewTextColumn ValueBinding="{value: Id}" />
+        <dot:GridViewTextColumn ValueBinding="{value: Name}" />
+        <dot:GridViewTextColumn ValueBinding="{value: Email}" />
+        <dot:GridViewTextColumn ValueBinding="{value: Age}" />
+    </dot:GridView>
+
+    <cc:DataPagerInControl DataContext="{value: People}" />
+
+</body>
+</html>
+
+
