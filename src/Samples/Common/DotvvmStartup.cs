@@ -284,6 +284,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
             config.Markup.AddMarkupControl("cc", "NodeControl", "Views/ControlSamples/HierarchyRepeater/NodeControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CommandInsideWhereControl", "Views/FeatureSamples/JavascriptTranslation/CommandInsideWhereControl.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "DataPagerInControl", "Views/ControlSamples/DataPager/DataPagerInControl.dotcontrol");
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
 
             if (config.Markup.Controls.FirstOrDefault(c => c.Src is not null && Path.IsPathRooted(c.Src)) is {} invalidControl)
