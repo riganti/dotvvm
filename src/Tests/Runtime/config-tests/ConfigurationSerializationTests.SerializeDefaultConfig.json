@@ -348,7 +348,7 @@
     },
     "DotVVM.Framework.Controls.AppendableDataPager": {
       "DataSet": {
-        "type": "DotVVM.Framework.Controls.IPageableGridViewDataSet, DotVVM.Core",
+        "type": "DotVVM.Framework.Controls.IBaseGridViewDataSet, DotVVM.Core",
         "required": true,
         "onlyBindings": true
       },

@@ -10,10 +10,5 @@
         /// when paging, sorting or other options change.
         /// </summary>
         bool IsRefreshRequired { get; set; }
-
-        /// <summary>
-        /// Sets the <see cref="IsRefreshRequired" /> flag to true.
-        /// </summary>
-        void RequestRefresh();
     }
 }

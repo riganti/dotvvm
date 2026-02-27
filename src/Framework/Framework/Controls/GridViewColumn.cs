@@ -230,7 +230,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        public virtual void CreateFilterControls(IDotvvmRequestContext context, GridView gridView, HtmlGenericControl cell, ISortableGridViewDataSet? sortableGridViewDataSet)
+        public virtual void CreateFilterControls(IDotvvmRequestContext context, GridView gridView, HtmlGenericControl cell, IBaseGridViewDataSet? sortableGridViewDataSet)
         {
             if (FilterTemplate != null)
             {
@@ -240,7 +240,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? gridViewDataSet, GridViewBindings gridViewCommands)
+        private void SetSortedCssClass(HtmlGenericControl cell, IBaseGridViewDataSet? gridViewDataSet, GridViewBindings gridViewCommands)
         {
             if (gridViewDataSet is ISortableGridViewDataSet<ISortingStateCapability> sortableGridViewDataSet &&
                 GetSortExpression() is {} sortExpression)
