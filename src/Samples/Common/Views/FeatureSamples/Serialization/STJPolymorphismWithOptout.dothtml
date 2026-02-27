@@ -1,0 +1,37 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization.STJPolymorphismWithOptoutViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <div>
+        <p>Base Property: {{value: BaseObject.BaseProperty}}</p>
+    </div>
+
+    <div data-ui="change-derived1">
+        <dot:Button Text="Set to Derived1" Click="{command: ChangeToDerived1()}" />
+    </div>
+
+    <div data-ui="change-derived2">
+        <dot:Button Text="Set to Derived2" Click="{command: ChangeToDerived2()}" />
+    </div>
+
+    <div data-ui="test-command">
+        <dot:Button Text="Test Command" Click="{command: TestCommand()}" />
+    </div>
+
+    <div data-ui="test-staticcommand">
+        <dot:Button Text="Test StaticCommand" Click="{staticCommand: Result = ViewModel.TestStaticCommand(BaseObject)}" />
+    </div>
+
+    <p class="result" data-ui="result">{{value: Result}}</p>
+
+    <code><pre data-ui="viewmodel-json" data-bind="text: JSON.stringify(dotvvm.serialization.serialize($data), null, '   ')"></pre></code>
+
+</body>
+</html>

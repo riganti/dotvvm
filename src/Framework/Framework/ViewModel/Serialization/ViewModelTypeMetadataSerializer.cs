@@ -162,7 +162,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         internal void WriteTypeIdentifier(Utf8JsonWriter json, Type type, HashSet<Type> dependentObjectTypes, HashSet<Type> dependentEnumTypes)
         {
-            if (type.IsEnum)
+            var attribute = type.GetCustomAttribute<DotvvmSerializationAttribute>();
+
+            if (type == typeof(object) || ReflectionUtils.IsJsonDom(type) || attribute?.DisableDotvvmConverter == true)
+            {
+                json.WriteStartObject();
+                json.WriteString("type"u8, "dynamic"u8);
+                json.WriteEndObject();
+            }
+            else if (type.IsEnum)
             {
                 dependentEnumTypes.Add(type);
                 json.WriteStringValue(GetEnumTypeName(type));
@@ -182,12 +190,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     json.WriteStringValue(GetPrimitiveTypeName(typeof(string)));
                 else
                     json.WriteStringValue(GetPrimitiveTypeName(type));
-            }
-            else if (type == typeof(object) || ReflectionUtils.IsJsonDom(type))
-            {
-                json.WriteStartObject();
-                json.WriteString("type"u8, "dynamic"u8);
-                json.WriteEndObject();
             }
             else if (type.IsGenericType && ReflectionUtils.ImplementsGenericDefinition(type, typeof(IDictionary<,>)))
             {
