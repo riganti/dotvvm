@@ -48,10 +48,18 @@ namespace DotVVM.Framework.Configuration
         public DotvvmFeatureFlag ContentTypeOptionsHeader { get; } = new("ContentTypeOptionsHeader", true);
 
         /// <summary>
-        /// Verifies Sec-Fetch headers on the GET request coming to dothtml pages. The request must have `Sec-Fetch-Dest: document` or `Sec-Fetch-Site: same-origin` if the request is for SPA. If the FrameOptionsSameOrigin is enabled, DotVVM will also allow `Sec-Fetch-Dest: document` and if FrameOptionsSameOrigin is enabled, DotVVM will also allow iframe from an cross-site request. This protects agains cross-site page scraping. Also prevents potential XSS bug to scrape the non-SPA pages.
+        /// Verifies Sec-Fetch headers on the GET request coming to dothtml pages. The request must have `Sec-Fetch-Dest: document` or `Sec-Fetch-Site: same-origin` if the request is for SPA. If the FrameOptionsSameOrigin is enabled, DotVVM will also allow `Sec-Fetch-Dest: frame` and if FrameOptionsCrossOrigin is enabled, DotVVM will also allow iframe from an cross-site request. This protects against cross-site page scraping.
         /// </summary>
         [JsonPropertyName("verifySecFetchForPages")]
         public DotvvmFeatureFlag VerifySecFetchForPages { get; } = new("VerifySecFetchForPages", true);
+
+        /// <summary>
+        /// Prevents requests with Sec-Fetch-Dest: empty from going through.
+        /// Together with enabled <see cref="FrameOptionsSameOrigin" />, this provides defense-in-depth protection against one compromised page requesting data from other pages.
+        /// Note that this option never applies to SPA pages.
+        /// </summary>
+        [JsonPropertyName("preventPageLoadByJavascript")]
+        public DotvvmFeatureFlag PreventPageLoadByJavascript { get; } = new("PreventPageLoadByJavascript", false);
 
         /// <summary>
         /// Verifies Sec-Fetch headers on the POST request executing staticCommands and commands. The request must have `Sec-Fetch-Site: same-origin`. This protects again cross-site malicious requests even if SameSite cookies and CSRF tokens would fail. It also prevents websites on a subdomain to perform postbacks.
