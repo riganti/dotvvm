@@ -7,5 +7,7 @@ namespace DotVVM.Framework.Controls
         public string? PrimaryKeyPropertyName => null;
 
         public object? EditRowId => null;
+
+        public static NoRowEditOptions Instance { get; } = new();
     }
 }
