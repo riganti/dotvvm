@@ -318,13 +318,35 @@ namespace DotVVM.Framework.Compilation.Javascript
                 ReplaceNullValue(result.Left, expression.Left, new JsLiteral(""));
                 ReplaceNullValue(result.Right, expression.Right, new JsLiteral(""));
             }
-            if (expression.NodeType == ExpressionType.ExclusiveOr && expression.Left.Type == typeof(bool) && expression.Right.Type == typeof(bool))
+            if ((expression.Left.Type == typeof(bool) || expression.Left.Type == typeof(bool?)) &&
+                (expression.Right.Type == typeof(bool) || expression.Right.Type == typeof(bool?)))
             {
-                // Whenever operator ^ is applied on two booleans in .NET, the result is also boolean
+                if (expression.NodeType == ExpressionType.ExclusiveOr)
+                {
+                    // Whenever operator ^ is applied on two booleans in .NET, the result is also boolean
+                    // we negate both operands to make sure both are booleans
 
-                return new JsBinaryExpression(left.Clone(), BinaryOperatorType.NotEqual, right.Clone());
+                    return new JsBinaryExpression(
+                            left.Detach().Unary(UnaryOperatorType.LogicalNot),
+                            BinaryOperatorType.NotEqual,
+                            right.Detach().Unary(UnaryOperatorType.LogicalNot));
+                }
+
+                if (expression.NodeType is ExpressionType.And or ExpressionType.Or)
+                {
+                    // C# `bool & bool` returns bool while JS returns int
+                    // We apply De Morgan law a & b -> !(!a | !b) to
+                    //   1. convert both argument to boolean (avoid case when 2 & true -> 0)
+                    //   2. convert result to boolean
+                    var opType = expression.NodeType is ExpressionType.And ? BinaryOperatorType.BitwiseOr : BinaryOperatorType.BitwiseAnd;
+                    return new JsBinaryExpression(
+                            left.Detach().Unary(UnaryOperatorType.LogicalNot),
+                            opType,
+                            right.Detach().Unary(UnaryOperatorType.LogicalNot)
+                        ).Unary(UnaryOperatorType.LogicalNot);
+                }
             }
-            
+
             return result;
         }
 
@@ -382,7 +404,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     break;
 
                 case ExpressionType.Not:
-                    if (expression.Operand.Type == typeof(bool))
+                    if (expression.Operand.Type == typeof(bool) || expression.Operand.Type == typeof(bool?))
                         op = UnaryOperatorType.LogicalNot;
                     else op = UnaryOperatorType.BitwiseNot;
                     break;

@@ -1455,6 +1455,7 @@ namespace DotVVM.Framework.Tests.Binding
     public class TestViewModel
     {
         public bool BoolProp { get; set; }
+        public bool? NullableBoolProp { get; set; }
         public string StringProp { get; set; }
         public int IntProp { get; set; }
         public int? NullableIntProp { get; set; }

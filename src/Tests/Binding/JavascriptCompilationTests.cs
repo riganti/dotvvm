@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_ExclusiveOr_ReturnsBooleanIfOperandsAreBooleans()
         {
             var js = CompileBinding("BoolProp = BoolProp ^ true", new[] { typeof(TestViewModel) });
-            Assert.AreEqual("BoolProp(BoolProp()!=true).BoolProp", js);
+            Assert.AreEqual("BoolProp(!BoolProp()!=!true).BoolProp", js);
         }
 
         [TestMethod]
@@ -1577,6 +1577,21 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(JavascriptTranslator.KnockoutViewModelParameter, symbolicParameters[5].Parameter);
 
             Assert.AreEqual("context.$parents[1].IntProp() + context.$parentContext.$index() + context.$parentContext.$index() + context.$parent.MyProperty() + context.$index() + vm.SomeString().length", formatted2);
+        }
+
+        [DataTestMethod]
+        [DataRow("!BoolProp", "!BoolProp()")]
+        [DataRow("!NullableBoolProp", "!NullableBoolProp()")]
+        [DataRow("BoolProp && NullableBoolProp", "BoolProp()&&NullableBoolProp")]
+        [DataRow("!(BoolProp && NullableBoolProp)", "!(BoolProp()&&NullableBoolProp())")]
+        [DataRow("BoolProp & NullableBoolProp", "!(!BoolProp()|!NullableBoolProp())")]
+        [DataRow("BoolProp ^ NullableBoolProp", "!BoolProp()!=!NullableBoolProp()")]
+        [DataRow("BoolProp || NullableBoolProp", "BoolProp()||NullableBoolProp")]
+        [DataRow("BoolProp | NullableBoolProp", "!(!BoolProp()&!NullableBoolProp())")]
+        public void JavascriptCompilation_BooleanOperators(string csharp, string js)
+        {
+            var result = CompileBinding(csharp, typeof(TestViewModel));
+            Assert.AreEqual(js, result);
         }
 
         public class TestMarkupControl: DotvvmMarkupControl
