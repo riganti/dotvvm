@@ -151,6 +151,15 @@ jobs:
         title: WebForms Adapter Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net472
+    - name: Integration Tests (net8.0)
+      uses: ./.github/unittest
+      if: ${{ matrix.os == 'ubuntu-latest' && (success() || failure()) }}
+      with:
+        project: src/IntegrationTests
+        name: integration-tests
+        title: Integration Tests
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        target-framework: net8.0
 
   js-tests:
     runs-on: ubuntu-latest
