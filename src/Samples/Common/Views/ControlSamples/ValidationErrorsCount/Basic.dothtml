@@ -1,0 +1,71 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationErrorsCount.BasicViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .has-error {
+            background-color: #aa0000;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>ValidationErrorsCount</h1>
+
+    <div data-ui="validation-all">
+        <dot:ValidationErrorsCount IncludeErrorsFromChildren="true" />
+        <dot:ValidationErrorsCount IncludeErrorsFromChildren="true" InvalidCssClass="has-error" />
+        <dot:ValidationErrorsCount IncludeErrorsFromChildren="true" HideWhenValid="true" />
+        <dot:ValidationErrorsCount IncludeErrorsFromChildren="true" FormatErrorsCount="{value: i => i == 0 ? "OK" : i == 1 ? "1 error" : $"{i} errors"}" />
+    </div>
+
+    <div DataContext="{value: Basic}" Validation.Target="{value: _this}" data-ui="basic">
+        <h2>Basic info</h2>
+        <div data-ui="validation-basic">
+            <dot:ValidationErrorsCount />
+            <dot:ValidationErrorsCount InvalidCssClass="has-error" />
+            <dot:ValidationErrorsCount HideWhenValid="true" />
+            <dot:ValidationErrorsCount FormatErrorsCount="{value: i => i == 0 ? "OK" : i == 1 ? "1 error" : $"{i} errors"}" />
+        </div>
+        <div>
+            <p>
+                First name
+                <dot:TextBox Text="{value: FirstName}" />
+            </p>
+            <p>
+                Last name
+                <dot:TextBox Text="{value: LastName}" />
+            </p>
+        </div>
+    </div>
+
+    <div DataContext="{value: Contact}" Validation.Target="{value: _this}" data-ui="contact">
+        <h2>Contact info</h2>
+        <div data-ui="validation-contact">
+            <dot:ValidationErrorsCount />
+            <dot:ValidationErrorsCount InvalidCssClass="has-error" />
+            <dot:ValidationErrorsCount HideWhenValid="true" />
+            <dot:ValidationErrorsCount FormatErrorsCount="{value: i => i == 0 ? "OK" : i == 1 ? "1 error" : $"{i} errors"}" />
+        </div>
+        <div>
+            <p>
+                Phone
+                <dot:TextBox Text="{value: Phone}" />
+            </p>
+            <p>
+                Email
+                <dot:TextBox Text="{value: Email}" />
+            </p>
+        </div>
+    </div>
+
+    <dot:Button Text="Test" Click="{command: null}" />
+
+</body>
+</html>
+
+
