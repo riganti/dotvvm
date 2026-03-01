@@ -233,6 +233,10 @@ else
     test_env_filter="Category!=dev-only"
 fi
 
+if [[ ${SAMPLES_PROFILE,,} != *"aspnetcorelatest"* ]]; then
+    test_env_filter="$test_env_filter&Category!=aspnetcore-latest-only"
+fi
+
 
 start_group "Run UI tests"
 {

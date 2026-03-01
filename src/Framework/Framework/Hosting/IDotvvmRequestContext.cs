@@ -121,6 +121,7 @@ namespace DotVVM.Framework.Hosting
         string? ResultIdFragment { get; set; }
 
         IServiceProvider Services { get; }
+
         CustomResponsePropertiesManager CustomResponseProperties { get; }
     }
 
