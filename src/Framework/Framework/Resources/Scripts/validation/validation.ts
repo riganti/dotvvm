@@ -22,6 +22,15 @@ type ValidationSummaryBinding = {
     hideWhenValid: boolean
 }
 
+type ValidationErrorsCountBinding = {
+    target: KnockoutObservable<any>,
+    includeErrorsFromChildren: boolean,
+    includeErrorsFromTarget: boolean,
+    invalidCssClass?: string,
+    hideWhenValid?: boolean,
+    formatErrorsCount?: (count: number) => string
+}
+
 type DotvvmValidationErrorsChangedEventArgs = Partial<PostbackOptions> & {
     readonly allErrors: ValidationError[]
 }
@@ -123,6 +132,39 @@ export function init() {
                 if (binding.hideWhenValid) {
                     element.style.display = errors.length > 0 ? "" : "none";
                 }
+            });
+        }
+    }
+
+    // ValidationErrorsCount
+    ko.bindingHandlers["dotvvm-validationErrorsCount"] = {
+        init: (element: HTMLElement, valueAccessor: () => ValidationErrorsCountBinding, allBindingsAccessor?: KnockoutAllBindingsAccessor) => {
+            const binding = valueAccessor();
+
+            const updateErrorCount = () => {
+                const errors = getValidationErrors(
+                    binding.target,
+                    binding.includeErrorsFromChildren,
+                    binding.includeErrorsFromTarget
+                );
+                element.innerText = binding.formatErrorsCount ? binding.formatErrorsCount.call(element, errors.length) : errors.length.toString();
+
+                if (binding.invalidCssClass) {
+                    elementActions["invalidCssClass"](element, errors.length ? ["error"] : [], binding.invalidCssClass);
+                }
+                if (binding.hideWhenValid) {
+                    elementActions["hideWhenValid"](element, errors.length ? ["error"] : [], null);
+                }
+            };
+
+            // Update initially to show current count
+            updateErrorCount();
+
+            // Subscribe to validation errors changes
+            validationErrorsChanged.subscribe(updateErrorCount);
+
+            ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
+                validationErrorsChanged.unsubscribe(updateErrorCount);
             });
         }
     }
