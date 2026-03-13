@@ -1610,6 +1610,16 @@ namespace DotVVM.Framework.Tests.ViewModel
             public string Property { get; set; }
         }
 
+        [TestMethod]
+        public void Error_UsageOfJsonPolymorphic()
+        {
+            var obj = new TestViewModelWithJsonPolymorphic { MyProperty = new JsonPolymorphicType.Case2 { CommonProperty = "A", Prop2 = 123 } };
+            var ex = XAssert.ThrowsAny<Exception>(() => SerializeAndDeserialize(obj));
+
+            Assert.AreEqual(
+                "Can not serialize DotVVM.Framework.Tests.ViewModel.JsonPolymorphicType as [JsonPolymorphic] attribute is currently not supported by DotVVM. You can use [DotvvmSerialization(DisableDotvvmConverter = true)] to fall back to System.Text.Json default behavior, please note the client-side bindings to such models may not work properly.",
+                ex.GetBaseException().Message);
+        }
     }
 
     public class DataNode
@@ -1987,5 +1997,28 @@ namespace DotVVM.Framework.Tests.ViewModel
     public class TestViewModelWithAbstractPolymorphicCollection
     {
         public List<AbstractBaseItem> Items { get; set; } = new List<AbstractBaseItem>();
+    }
+
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+    [JsonDerivedType(typeof(JsonPolymorphicType), 0)]
+    [JsonDerivedType(typeof(Case1), 1)]
+    [JsonDerivedType(typeof(Case2), 2)]
+    public class JsonPolymorphicType
+    {
+        public string CommonProperty { get; set; }
+        public sealed class Case1: JsonPolymorphicType
+        {
+            public string Prop1 { get; set; }
+        }
+
+        public sealed class Case2: JsonPolymorphicType
+        {
+            public int Prop2 { get; set; }
+        }
+    }
+
+    public class TestViewModelWithJsonPolymorphic
+    {
+        public JsonPolymorphicType MyProperty { get; set; }
     }
 }

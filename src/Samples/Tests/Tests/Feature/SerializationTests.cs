@@ -347,6 +347,48 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Serialization_STJPolymorphismWithOptout()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_STJPolymorphismWithOptout);
+
+                void changeDerived1() => browser.Single("change-derived1", SelectByDataUi).Single("input[type=button]").Click();
+                void changeDerived2() => browser.Single("change-derived2", SelectByDataUi).Single("input[type=button]").Click();
+                void testCommand() => browser.Single("test-command", SelectByDataUi).Single("input[type=button]").Click();
+                void testStaticCommand() => browser.Single("test-staticcommand", SelectByDataUi).Single("input[type=button]").Click();
+
+                var result = () => browser.Single("result", SelectByDataUi);
+                var json = () => browser.Single("viewmodel-json", SelectByDataUi);
+
+                AssertUI.InnerText(json(), s => s.Contains(" \"$t\": 1") && s.Contains(" \"Property1\": \"abc\""));
+
+                testCommand();
+                AssertUI.TextEquals(result(), "Command: Type=Derived1, DerivedProperty=abc");
+
+                testStaticCommand();
+                AssertUI.TextEquals(result(), "StaticCommand: Type=Derived1, DerivedProperty=abc");
+
+                changeDerived2();
+                AssertUI.InnerText(json(), s => s.Contains(" \"$t\": 2") && s.Contains(" \"Property2\": 42"));
+
+                testCommand();
+                AssertUI.TextEquals(result(), "Command: Type=Derived2, DerivedProperty=42");
+
+                testStaticCommand();
+                AssertUI.TextEquals(result(), "StaticCommand: Type=Derived2, DerivedProperty=42");
+
+                changeDerived1();
+                AssertUI.InnerText(json(), s => s.Contains(" \"$t\": 1") && s.Contains(" \"Property1\": \"derived1_value\""));
+
+                testCommand();
+                AssertUI.TextEquals(result(), "Command: Type=Derived1, DerivedProperty=derived1_value");
+
+                testStaticCommand();
+                AssertUI.TextEquals(result(), "StaticCommand: Type=Derived1, DerivedProperty=derived1_value");
+            });
+        }
+
         public SerializationTests(ITestOutputHelper output) : base(output)
         {
         }

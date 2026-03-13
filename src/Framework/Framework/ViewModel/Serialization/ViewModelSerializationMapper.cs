@@ -220,10 +220,20 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 propertyMap.JsonConverter = GetJsonConverter(property);
                 propertyMap.AllowDynamicDispatch = propertyMap.JsonConverter is null && (propertyType.IsAbstract || propertyType == typeof(object));
 
+                bool disableDotvvmConverter = false;
                 if (type.IsDefined(typeof(DotvvmSerializationAttribute), true))
                 {
                     var typeSerializationAttribute = type.GetCustomAttribute<DotvvmSerializationAttribute>()!;
+                    disableDotvvmConverter = typeSerializationAttribute.DisableDotvvmConverter;
                     propertyMap.AllowDynamicDispatch = typeSerializationAttribute.AllowsDynamicDispatch(propertyMap.AllowDynamicDispatch);
+                }
+
+                if (!disableDotvvmConverter)
+                {
+                    if (type.IsDefined(typeof(JsonPolymorphicAttribute)))
+                        throw new NotSupportedException(
+                            $"Can not serialize {type.ToCode()} as [JsonPolymorphic] attribute is currently not supported by DotVVM. " +
+                            "You can use [DotvvmSerialization(DisableDotvvmConverter = true)] to fall back to System.Text.Json default behavior, please note the client-side bindings to such models may not work properly.");
                 }
 
                 foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())
