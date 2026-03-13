@@ -54,7 +54,6 @@ const dotvvmExports = {
         wrapObservable: evaluator.wrapObservable
     },
     fileUpload: {
-        reportProgress: fileUpload.reportProgress,
         showUploadDialog: fileUpload.showUploadDialog
     },
     api: {
