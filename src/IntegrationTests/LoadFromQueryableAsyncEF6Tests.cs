@@ -1,4 +1,3 @@
-#if NET8_0_OR_GREATER
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -183,4 +182,3 @@ namespace DotVVM.Framework.IntegrationTests
         }
     }
 }
-#endif
