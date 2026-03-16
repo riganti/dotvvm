@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -148,6 +149,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 {
                     json.WritePropertyName("clientExtenders"u8);
                     JsonSerializer.Serialize(json, property.ClientExtenders, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+                }
+
+                if (property.PropertyInfo.GetCustomAttribute<KeyAttribute>() is { })
+                {
+                    if (!ReflectionUtils.IsPrimitiveType(property.Type))
+                    {
+                        throw new NotSupportedException($"Property {property.Name} on type {map.Type} defines the [Key] attribute, but is not of a primitive type.");
+                    }
+                    json.WriteBoolean("isKey"u8, true);
                 }
 
                 json.WriteEndObject();
