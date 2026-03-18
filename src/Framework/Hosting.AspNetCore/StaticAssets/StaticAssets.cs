@@ -53,6 +53,7 @@ public sealed class StaticAssetHtmlAttributeTransformer : IHtmlAttributeTransfor
     }
 }
 
+/// <summary> defines DotVVM resources for .js and .css files, normally registered as asset:{path} </summary>
 public sealed class StaticAssetResourceRepository: IDotvvmResourceRepository
 {
     private Lazy<FrozenDictionary<string, IResource>> resources;
@@ -104,11 +105,18 @@ public sealed class StaticAssetResourceRepository: IDotvvmResourceRepository
     }
 }
 
+/// <summary>
+/// Allows referencing Asp.Net Core 9+ static web assets as DotVVM resources.
+/// Example: <code>r.Register("test", new ScriptModuleResource(new StaticAssetResourceLocation("Scripts/myScript.js"))</code>
+/// Note that for scripts and styles, you can use pre-defined resources named <code>asset:{relativePath}</code>
+/// </summary>
 public sealed class StaticAssetResourceLocation: IResourceLocation, ILocalResourceLocation
 {
     private string? url;
     private string? physicalPath;
     private readonly string name;
+
+    /// <param name="name">Relative path to the asset, unless defined otherwise in the manifest</param>
     public StaticAssetResourceLocation(string name)
     {
         this.name = name;
@@ -122,7 +130,9 @@ public sealed class StaticAssetResourceLocation: IResourceLocation, ILocalResour
         var assetMap = provider.GetAssetLabelMap();
         if (!assetMap.TryGetValue(name, out var asset))
             throw new InvalidOperationException($"Static asset with label '{name}' not found.");
-        var filePath = env.WebRootFileProvider.GetFileInfo(asset.AssetPath).PhysicalPath;
+        var filePath = env.WebRootFileProvider.GetFileInfo(asset.AssetPath)?.PhysicalPath;
+        if (filePath is null)
+            throw new InvalidOperationException($"File not found for asset '{name}' with path '{asset.AssetPath}");
 
         // thread-safety: the above code should be deterministic -> it's OK if one thread writes the url and another writes the physicalPath
         Interlocked.CompareExchange(ref url, "~/" + asset.Route, null);
@@ -144,6 +154,7 @@ public sealed class StaticAssetResourceLocation: IResourceLocation, ILocalResour
     }
 }
 
+/// <summary> DotVVM helper for working with Asp.Net Core 9+ Static Web Assets. </summary>
 public sealed class StaticAssetsProvider
 {
     Lock initLock = new Lock();
@@ -177,7 +188,7 @@ public sealed class StaticAssetsProvider
     internal void InitializeStaticAssets()
     {
         if (assetsLazy is null) ThrowNotInitialized();
-        
+
         lock (initLock)
         {
 

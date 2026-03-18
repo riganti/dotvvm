@@ -65,7 +65,7 @@ namespace DotVVM.Samples.Tests.Feature
                 var color = styledElement.WebElement.GetCssValue("color");
                 var fontWeight = styledElement.WebElement.GetCssValue("font-weight");
 
-                Assert.True(color.Trim() is "green" or "rgb(0, 128, 0)", $"Expected green color, but got: {color}");
+                Assert.True(color.Trim() is "green" or "rgb(0, 128, 0)" or "rgba(0, 128, 0, 1)", $"Expected green color, but got: {color}");
 
                 Assert.True(fontWeight is "700" or "bold", $"Expected bold font weight, but got: {fontWeight}");
             });
