@@ -36,9 +36,9 @@ namespace DotVVM.Framework.Routing
             }
         }
         /// <summary>
-        /// Verify whether all provided virtual paths exist and required properties are set. 
+        /// Verify whether all provided virtual paths exist and required properties are set.
         /// </summary>
-        /// <exception cref="DotvvmConfigurationException">Throws exception when configuration has invalid registrations.</exception> 
+        /// <exception cref="DotvvmConfigurationException">Throws exception when configuration has invalid registrations.</exception>
         public static void AssertConfigurationIsValid(this DotvvmConfiguration config)
         {
             var invalidRoutes = new List<DotvvmConfigurationAssertResult<RouteBase>>();
@@ -116,6 +116,7 @@ namespace DotVVM.Framework.Routing
                 config.Security.ContentTypeOptionsHeader,
                 config.Security.VerifySecFetchForCommands,
                 config.Security.VerifySecFetchForPages,
+                config.Security.PreventPageLoadByJavascript,
                 config.Security.RequireSecFetchHeaders,
                 config.Security.ReferrerPolicy,
                 config.ExperimentalFeatures.LazyCsrfToken,
