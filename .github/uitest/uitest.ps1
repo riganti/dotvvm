@@ -95,7 +95,7 @@ function Publish-Sample {
                 "-p:SourceLinkCreate=true", `
                 "-p:EnvironmentName=Development"
         }
-        
+
         Wait-Process -InputObject $msBuildProcess
         if ($msBuildProcess.ExitCode -ne 0) {
             throw "MSBuild failed with exit code $($msBuildProcess.ExitCode)."
@@ -111,7 +111,7 @@ function Start-Sample {
     )
     Invoke-RequiredCmds "Start sample '$sampleName'" {
 		Reset-IISServerManager -Confirm:$false
-		
+
         Remove-IISSite -Confirm:$false -Name $sampleName -ErrorAction SilentlyContinue
 
         icacls "$root\artifacts\" /grant "IIS_IUSRS:(OI)(CI)F"
@@ -119,7 +119,7 @@ function Start-Sample {
         New-IISSite -Name "$sampleName" `
             -PhysicalPath "$path" `
             -BindingInformation "*:${port}:"
-		
+
         # ensure IIS created the site
         while ($true) {
             $state = (Get-IISSite -Name $sampleName).State
@@ -133,7 +133,7 @@ function Start-Sample {
                 throw "Site '${sampleName}' could not be started. State: '${state}'."
             }
         }
-		
+
 		# add or update environment variable to the application pool
 		$existingEnvVar = c:\windows\system32\inetsrv\appcmd.exe list config -section:system.applicationHost/applicationPools `
 		     | out-string `
@@ -175,7 +175,7 @@ function Test-Sample {
                 Sleep 5
             }
         }
-		
+
 		# print out all log files
 		Export-IISConfiguration -PhysicalPath c:\inetpub -DontExportKeys -Force
 		foreach ($log in dir c:\inetpub\*.config) {
@@ -250,6 +250,8 @@ try {
             "--logger", `
             "trx;LogFileName=$TrxName", `
             "-p:WarningLevel=0", `
+            "--filter", `
+            "Category!=prod-only&Category!=aspnetcore-latest-only", `
             "--results-directory", `
             "$testResultsDir"
         Wait-Process -InputObject $uiTestProcess

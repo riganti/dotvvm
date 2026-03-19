@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Routing;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
@@ -13,6 +9,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Prometheus;
@@ -84,8 +82,9 @@ namespace DotVVM.Samples.BasicSamples
             });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IConfiguration configuration)
         {
+            StaticWebAssetsLoader.UseStaticWebAssets(env, configuration);
             app.UseRequestLocalization();
 
             app.UseRouting();
@@ -111,7 +110,9 @@ namespace DotVVM.Samples.BasicSamples
             });
             app.UseStaticFiles();
 
+
             app.UseEndpoints(endpoints => {
+                endpoints.MapStaticAssets();
                 endpoints.MapDotvvmHotReload();
                 endpoints.MapMetrics(); // prometheus metrics on /metrics
             });
