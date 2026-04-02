@@ -1,25 +1,26 @@
-using DotVVM.Framework.Binding;
-using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Controls;
-using DotVVM.Framework.Runtime;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
-using DotVVM.Framework.Testing;
 using DotVVM.Framework.Configuration;
-using System.Linq.Expressions;
-using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Testing;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
-using System.Text.Json.Serialization;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static DotVVM.Framework.Configuration.FreezableUtils;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -1523,10 +1524,7 @@ namespace DotVVM.Framework.Tests.Binding
             var binding = bindingHelper.ValueBinding<IEnumerable<TestViewModel2>>(
                 expression,
                 new[] { typeof(TestViewModel) });
-            // Getting SimplePathExpressionBindingProperty should not throw
-            var simplePath = binding.GetProperty(typeof(SimplePathExpressionBindingProperty), ErrorHandlingMode.ReturnException);
-            Assert.IsNotInstanceOfType(simplePath, typeof(Exception),
-                $"Getting SimplePathExpressionBindingProperty threw an exception: {simplePath}");
+            var simplePath = binding.GetProperty(typeof(SimplePathExpressionBindingProperty), ErrorHandlingMode.ThrowException);
         }
 
         [TestMethod]
