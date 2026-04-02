@@ -1,4 +1,6 @@
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -1509,6 +1511,22 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(input, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, typeof(TestViewModel));
             Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        [DataRow("VmArray.Where(v => string.IsNullOrEmpty(v.SomeString)).ToList()")]
+        [DataRow("VmArray.Where(v => string.IsNullOrWhiteSpace(v.SomeString)).ToList()")]
+        // Regression test: FormatParametrizedScript was called on a frozen JsBinaryExpression (from string.IsNullOrEmpty/IsNullOrWhiteSpace
+        // translation) causing ObjectIsFrozenException when computing SimplePathExpressionBindingProperty.
+        public void JavascriptCompilation_IsNullOrEmpty_InWhereLambda_DoesNotThrowOnSimplePathExpression(string expression)
+        {
+            var binding = bindingHelper.ValueBinding<IEnumerable<TestViewModel2>>(
+                expression,
+                new[] { typeof(TestViewModel) });
+            // Getting SimplePathExpressionBindingProperty should not throw
+            var simplePath = binding.GetProperty(typeof(SimplePathExpressionBindingProperty), ErrorHandlingMode.ReturnException);
+            Assert.IsNotInstanceOfType(simplePath, typeof(Exception),
+                $"Getting SimplePathExpressionBindingProperty threw an exception: {simplePath}");
         }
 
         [TestMethod]
