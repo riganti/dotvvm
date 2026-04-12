@@ -43,7 +43,7 @@
         "svelte": "^5.0.0",
         "svelte-check": "^4.0.0",
         "typescript": "^5.0.0",
-        "vite": "^7.1.11"
+        "vite": "^7.3.2"
     },
     "keywords": [ "svelte", "dotvvm" ]
 }
