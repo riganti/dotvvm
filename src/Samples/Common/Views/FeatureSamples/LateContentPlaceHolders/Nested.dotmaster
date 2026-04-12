@@ -1,0 +1,7 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.LateContentPlaceHolders.LateContentPlaceHolderViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/LateContentPlaceHolders/Root.dotmaster
+
+<dot:Content ContentPlaceHolderID="RootContent">
+    <h2>Nested Master Page</h2>
+    <dot:ContentPlaceHolder ID="NestedContent" />
+</dot:Content>

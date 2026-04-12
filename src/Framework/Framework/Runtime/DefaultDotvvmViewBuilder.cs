@@ -43,6 +43,10 @@ namespace DotVVM.Framework.Runtime
 
             FillsDefaultDirectives(contentPage);
 
+            // shared list for Content controls that couldn't be matched during static composition
+            // (e.g. because their ContentPlaceHolder is inside a CompositeControl template)
+            var pendingCompositions = new List<PendingMasterPageComposition>();
+
             // check for master page and perform composition recursively
             while (pageDescriptor.MasterPage is object)
             {
@@ -51,11 +55,15 @@ namespace DotVVM.Framework.Runtime
                 var masterPage = (DotvvmView)pageBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
 
                 FillsDefaultDirectives(masterPage);
-                PerformMasterPageComposition(contentPage, masterPage);
+                PerformMasterPageComposition(contentPage, masterPage, pendingCompositions);
 
                 masterPage.ViewModelType = contentPage.ViewModelType;
                 contentPage = masterPage;
             }
+
+            // Store the pending compositions on the final page so ContentPlaceHolder controls
+            // can find them during their OnInit (which runs in Load phase for template-instantiated controls)
+            contentPage.SetValue(Internal.PendingMasterPageCompositionsProperty, pendingCompositions);
 
             // verifies the SPA request
             VerifySpaRequest(context, contentPage);
@@ -99,7 +107,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Performs the master page nesting.
         /// </summary>
-        private void PerformMasterPageComposition(DotvvmView childPage, DotvvmView masterPage)
+        private void PerformMasterPageComposition(DotvvmView childPage, DotvvmView masterPage, List<PendingMasterPageComposition> pendingCompositions)
         {
             if (!masterPage.ViewModelType.IsAssignableFrom(childPage.ViewModelType))
                 throw new DotvvmControlException(childPage, $"Master page requires viewModel of type '{masterPage.ViewModelType}' and it is not assignable from '{childPage.ViewModelType}'.");
@@ -117,7 +125,23 @@ namespace DotVVM.Framework.Runtime
                 var placeHolder = placeHolders.SingleOrDefault(p => p.ID == content.ContentPlaceHolderID);
                 if (placeHolder == null)
                 {
-                    throw new DotvvmControlException(content, $"The placeholder with ID '{content.ContentPlaceHolderID}' was not found in the master page '{masterPage.GetValue(Internal.MarkupFileNameProperty)}'!");
+                    // ContentPlaceHolder not found yet - it might be inside a CompositeControl template
+                    // that will be instantiated in the Load phase. Defer the composition.
+
+                    // Set up properties that we'll need during deferred composition
+                    content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
+                    content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
+                    content.SetValue(Internal.ReferencedViewModuleInfoProperty, childPage.GetValue(Internal.ReferencedViewModuleInfoProperty));
+
+                    // Capture the DataContextType before removing the content from its parent
+                    var dataContextType = content.Parent?.GetDataContextType();
+
+                    // Remove the content from the child page (which will be discarded)
+                    (content.Parent as DotvvmControl)?.Children.Remove(content);
+
+                    // Add to the shared pending list - will be resolved by ContentPlaceHolder.OnInit
+                    pendingCompositions.Add(new PendingMasterPageComposition(content, dataContextType, masterPage.GetValue(Internal.MarkupFileNameProperty)?.ToString()));
+                    continue;
                 }
 
                 // replace the contents

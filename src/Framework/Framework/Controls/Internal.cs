@@ -69,6 +69,13 @@ namespace DotVVM.Framework.Controls
         public static DotvvmProperty UsedPropertiesInfoProperty =
             DotvvmProperty.Register<ControlUsedPropertiesInfo, Internal>(() => UsedPropertiesInfoProperty);
 
+        /// <summary>
+        /// Stores a list of Content controls that have not yet been matched to their corresponding ContentPlaceHolder.
+        /// This is used to support ContentPlaceHolder controls inside CompositeControl templates (Load phase).
+        /// </summary>
+        public static readonly DotvvmProperty PendingMasterPageCompositionsProperty =
+            DotvvmProperty.Register<List<PendingMasterPageComposition>?, Internal>(() => PendingMasterPageCompositionsProperty, defaultValue: null, isValueInherited: false);
+
         public static bool IsViewCompilerProperty(DotvvmProperty property)
         {
             return property.DeclaringType == typeof(Internal);
@@ -103,6 +110,27 @@ namespace DotVVM.Framework.Controls
         {
             control.properties.Set(Internal.DataContextTypeProperty, stack);
             return control;
+        }
+    }
+
+    /// <summary>
+    /// Represents a Content control that has not yet been matched to a ContentPlaceHolder during master page composition.
+    /// The match is deferred until the ContentPlaceHolder is added to the control tree (e.g. when a CompositeControl builds its contents).
+    /// </summary>
+    internal sealed class PendingMasterPageComposition
+    {
+        /// <summary> The Content control waiting to be placed in a ContentPlaceHolder. </summary>
+        public readonly Content Content;
+        /// <summary> The DataContextStack of the Content's original parent (the child page). </summary>
+        public readonly DataContextStack? DataContextType;
+        /// <summary> The master page file name, used for error messages. </summary>
+        public readonly string? MasterPageFile;
+
+        public PendingMasterPageComposition(Content content, DataContextStack? dataContextType, string? masterPageFile)
+        {
+            Content = content;
+            DataContextType = dataContextType;
+            MasterPageFile = masterPageFile;
         }
     }
 }

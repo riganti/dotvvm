@@ -13,6 +13,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Security;
@@ -196,6 +197,9 @@ namespace DotVVM.Framework.Hosting
                     // run the load phase in the page
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
                     await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
+
+                    // After Load, ensure all Content controls have been matched to their ContentPlaceHolders
+                    ValidateMasterPageComposition(page);
                 }
                 else
                 {
@@ -232,6 +236,9 @@ namespace DotVVM.Framework.Hosting
                     // run the load phase in the page
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
                     await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
+
+                    // After Load, ensure all Content controls have been matched to their ContentPlaceHolders
+                    ValidateMasterPageComposition(page);
 
                     // invoke the postback command
                     var actionInfo = ViewModelSerializer.ResolveCommand(context, page);
@@ -597,6 +604,24 @@ namespace DotVVM.Framework.Hosting
         public static string? DetermineSpaContentPlaceHolderUniqueId(IHttpContext context)
         {
             return context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName];
+        }
+
+        /// <summary>
+        /// Validates that all Content controls have been matched to their corresponding ContentPlaceHolder controls
+        /// after the Load phase. If any Content controls remain unmatched (e.g. because the ContentPlaceHolder
+        /// with the specified ID does not exist in the master page), an exception is thrown.
+        /// </summary>
+        private static void ValidateMasterPageComposition(DotvvmView page)
+        {
+            var pendingList = page.GetValue(Internal.PendingMasterPageCompositionsProperty) as List<PendingMasterPageComposition>;
+            if (pendingList is { Count: > 0 })
+            {
+                var pending = pendingList[0];
+                var masterPageFile = pending.MasterPageFile is { } f ? $" '{f}'" : "";
+                throw new DotvvmControlException(pending.Content,
+                    $"The ContentPlaceHolder with ID '{pending.Content.ContentPlaceHolderID}' was not found in the master page{masterPageFile}. " +
+                    $"Make sure that each Content element has a corresponding ContentPlaceHolder in the master page.");
+            }
         }
     }
 }

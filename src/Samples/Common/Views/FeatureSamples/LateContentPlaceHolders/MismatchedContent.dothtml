@@ -1,0 +1,9 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.LateContentPlaceHolders.LateContentPlaceHolderViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/LateContentPlaceHolders/Nested.dotmaster
+
+<dot:Content ContentPlaceHolderID="NestedContent">
+    <h3>This content matches correctly</h3>
+</dot:Content>
+<dot:Content ContentPlaceHolderID="NonExistentPlaceHolder">
+    <p>This content does NOT have a matching ContentPlaceHolder - should throw!</p>
+</dot:Content>

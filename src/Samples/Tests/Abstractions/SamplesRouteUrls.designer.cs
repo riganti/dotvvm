@@ -316,6 +316,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_MarkupControl_StaticCommandInMarkupControlCallingRegularCommand = "FeatureSamples/MarkupControl/StaticCommandInMarkupControlCallingRegularCommand";
         public const string FeatureSamples_ModalDialog_ModalDialog = "FeatureSamples/ModalDialog/ModalDialog";
         public const string FeatureSamples_NestedMasterPages_Content = "FeatureSamples/NestedMasterPages/Content";
+        public const string FeatureSamples_LateContentPlaceHolders_Content = "FeatureSamples/LateContentPlaceHolders/Content";
+        public const string FeatureSamples_LateContentPlaceHolders_MismatchedContent = "FeatureSamples/LateContentPlaceHolders/MismatchedContent";
         public const string FeatureSamples_NoJsForm_NoJsForm = "FeatureSamples/NoJsForm/NoJsForm";
         public const string FeatureSamples_NullHandling_Button_Enabled = "FeatureSamples/NullHandling/Button_Enabled";
         public const string FeatureSamples_ParameterBinding_OptionalParameterBinding = "FeatureSamples/ParameterBinding/OptionalParameterBinding";
