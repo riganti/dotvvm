@@ -33,6 +33,7 @@ using DotVVM.Samples.Common.Views.ControlSamples.TemplateHost;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Samples.Common.Presenters;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomPrimitiveTypes;
+using DotVVM.Samples.Common.Views.FeatureSamples.LateContentPlaceHolders;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -269,6 +270,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddCodeControls("cc", typeof(Controls.TextRepeater));
             config.Markup.AddCodeControls("cc", typeof(DerivedControlUsageValidationTestControl));
             config.Markup.AddCodeControls("PropertyUpdate", typeof(Controls.ServerRenderedLabel));
+            config.Markup.AddCodeControls("sample", typeof(TemplateContainerControl));
             config.Markup.AddMarkupControl("IdGeneration", "Control", "Views/FeatureSamples/IdGeneration/IdGeneration_control.dotcontrol");
             config.Markup.AddMarkupControl("FileUploadInRepeater", "FileUploadWrapper", "Views/ComplexSamples/FileUploadInRepeater/FileUploadWrapper.dotcontrol");
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater", "Views/FeatureSamples/PostBack/RecursiveTextRepeater.dotcontrol");

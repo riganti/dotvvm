@@ -3,5 +3,9 @@
 
 <dot:Content ContentPlaceHolderID="RootContent">
     <h2>Nested Master Page</h2>
-    <dot:ContentPlaceHolder ID="NestedContent" />
+    <sample:TemplateContainerControl>
+        <ContentTemplate>
+            <dot:ContentPlaceHolder ID="NestedContent" />
+        </ContentTemplate>
+    </sample:TemplateContainerControl>
 </dot:Content>
