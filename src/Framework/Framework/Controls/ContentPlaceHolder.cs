@@ -39,28 +39,28 @@ namespace DotVVM.Framework.Controls
             if (ID == null) return;
 
             // Traverse ancestors to find the pending compositions list stored on the root page
-            foreach (var ancestor in this.GetAllAncestors())
+            var pendingList = this.GetAllAncestors()
+                .Select(ancestor => ancestor.GetValue(Internal.PendingMasterPageCompositionsProperty) as List<PendingMasterPageComposition>)
+                .Where(list => list != null)
+                .FirstOrDefault();
+
+            if (pendingList != null)
             {
-                if (ancestor.GetValue(Internal.PendingMasterPageCompositionsProperty) is List<PendingMasterPageComposition> pendingList)
+                var pendingIndex = pendingList.FindIndex(p => p.Content.ContentPlaceHolderID == ID);
+                if (pendingIndex >= 0)
                 {
-                    var pendingIndex = pendingList.FindIndex(p => p.Content.ContentPlaceHolderID == ID);
-                    if (pendingIndex >= 0)
-                    {
-                        var pending = pendingList[pendingIndex];
-                        pendingList.RemoveAt(pendingIndex);
+                    var pending = pendingList[pendingIndex];
+                    pendingList.RemoveAt(pendingIndex);
 
-                        // Perform the deferred composition: wrap Content in a PlaceHolder and add it as our child
-                        var wrapper = new PlaceHolder();
-                        wrapper.SetDataContextType(pending.DataContextType);
+                    // Perform the deferred composition: wrap Content in a PlaceHolder and add it as our child
+                    var wrapper = new PlaceHolder();
+                    wrapper.SetDataContextType(pending.DataContextType);
 
-                        this.Children.Clear();
-                        this.Children.Add(wrapper);
+                    this.Children.Clear();
+                    this.Children.Add(wrapper);
 
-                        wrapper.Children.Add(pending.Content);
-                        pending.Content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
-                    }
-                    // Found the list (even if no match) - no need to search further ancestors
-                    break;
+                    wrapper.Children.Add(pending.Content);
+                    pending.Content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
                 }
             }
         }
