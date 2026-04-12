@@ -617,9 +617,9 @@ namespace DotVVM.Framework.Hosting
             if (pendingList is { Count: > 0 })
             {
                 var pending = pendingList[0];
-                var masterPageFile = pending.MasterPageFile is { } f ? $" '{f}'" : "";
+                var masterPageInfo = pending.MasterPageFile is { } masterPageFile ? $" '{masterPageFile}'" : "";
                 throw new DotvvmControlException(pending.Content,
-                    $"The ContentPlaceHolder with ID '{pending.Content.ContentPlaceHolderID}' was not found in the master page{masterPageFile}. " +
+                    $"The ContentPlaceHolder with ID '{pending.Content.ContentPlaceHolderID}' was not found in the master page{masterPageInfo}. " +
                     $"Make sure that each Content element has a corresponding ContentPlaceHolder in the master page.");
             }
         }
