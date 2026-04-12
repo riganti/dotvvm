@@ -46,7 +46,12 @@ namespace DotVVM.Framework.Controls
 
             if (pendingList != null)
             {
-                var pendingIndex = pendingList.FindIndex(p => p.Content.ContentPlaceHolderID == ID);
+                // When the same ID is used at multiple master page levels, the pending list contains
+                // multiple entries with the same ID. Items are added from innermost to outermost (because
+                // BuildView processes master pages from inner to outer). We must match the LAST entry
+                // so that the outermost ContentPlaceHolder gets the outermost Content, and inner
+                // ContentPlaceHolders (nested inside that content) get the inner Content entries.
+                var pendingIndex = pendingList.FindLastIndex(p => p.Content.ContentPlaceHolderID == ID);
                 if (pendingIndex >= 0)
                 {
                     var pending = pendingList[pendingIndex];

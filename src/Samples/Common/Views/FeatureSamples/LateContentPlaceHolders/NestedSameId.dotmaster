@@ -2,11 +2,12 @@
 @masterPage Views/FeatureSamples/LateContentPlaceHolders/Root.dotmaster
 
 <dot:Content ContentPlaceHolderID="RootContent">
-    <h2>Nested Master Page</h2>
+    <h2>Nested Master Page (shared ID)</h2>
     <sample:TemplateContainerControl>
         <ContentTemplate>
-            <dot:ContentPlaceHolder ID="NestedContent">
-                <p data-ui="default-nested-content">Default nested content</p>
+            <%-- Same ID as the root ContentPlaceHolder to test same-ID nesting --%>
+            <dot:ContentPlaceHolder ID="RootContent">
+                <p data-ui="default-shared-content">Default shared-ID content</p>
             </dot:ContentPlaceHolder>
         </ContentTemplate>
     </sample:TemplateContainerControl>
