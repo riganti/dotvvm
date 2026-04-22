@@ -19,7 +19,6 @@ using System.Collections.Immutable;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Runtime;
-using FastExpressionCompiler;
 using System.Threading;
 
 namespace DotVVM.Framework.Compilation.Styles

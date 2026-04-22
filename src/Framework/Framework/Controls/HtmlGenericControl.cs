@@ -12,7 +12,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
 using DotVVM.Framework.Compilation.Javascript;
-using FastExpressionCompiler;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls

@@ -10,7 +10,6 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
-using FastExpressionCompiler;
 
 internal static class HtmlFormattingUtils
 {

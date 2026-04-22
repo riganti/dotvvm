@@ -10,7 +10,6 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Utils;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Binding.Expressions
 {

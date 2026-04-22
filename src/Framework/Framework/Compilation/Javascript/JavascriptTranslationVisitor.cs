@@ -14,7 +14,6 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {

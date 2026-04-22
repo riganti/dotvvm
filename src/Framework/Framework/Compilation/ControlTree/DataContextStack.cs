@@ -9,7 +9,6 @@ using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {

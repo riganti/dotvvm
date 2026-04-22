@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {

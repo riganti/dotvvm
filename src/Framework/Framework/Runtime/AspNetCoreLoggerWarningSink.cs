@@ -6,7 +6,6 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
-using FastExpressionCompiler;
 using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Framework.Runtime

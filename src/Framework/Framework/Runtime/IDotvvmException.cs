@@ -8,7 +8,6 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Utils;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Runtime
 {

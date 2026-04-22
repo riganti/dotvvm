@@ -6,7 +6,6 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using System.Linq.Expressions;
 using DotVVM.Framework.Controls;
-using FastExpressionCompiler;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding

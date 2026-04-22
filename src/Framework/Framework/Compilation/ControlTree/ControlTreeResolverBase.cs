@@ -15,7 +15,6 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Binding.Expressions;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {

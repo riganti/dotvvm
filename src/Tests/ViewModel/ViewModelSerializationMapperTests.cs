@@ -8,10 +8,10 @@ using DotVVM.Framework.Testing;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
-using FastExpressionCompiler;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NJ=Newtonsoft.Json;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {

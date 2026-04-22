@@ -11,7 +11,6 @@ using System.Threading;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {

@@ -18,7 +18,6 @@ using System.Text.Json.Serialization;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.Encodings.Web;
-using FastExpressionCompiler;
 using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Hosting.ErrorPages

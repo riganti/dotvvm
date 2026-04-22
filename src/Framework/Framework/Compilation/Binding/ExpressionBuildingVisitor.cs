@@ -13,7 +13,6 @@ using System.Reflection;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser.Annotations;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using FastExpressionCompiler;
 using System.Diagnostics;
 
 namespace DotVVM.Framework.Compilation.Binding

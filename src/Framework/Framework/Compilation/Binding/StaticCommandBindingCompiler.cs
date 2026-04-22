@@ -13,7 +13,6 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
-using FastExpressionCompiler;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 

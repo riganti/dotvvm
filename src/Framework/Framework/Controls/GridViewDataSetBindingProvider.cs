@@ -260,7 +260,7 @@ public class GridViewDataSetBindingProvider
             new object[]
             {
                 new ParsedExpressionBindingProperty(expression),
-                new OriginalStringBindingProperty($"DataPager({dataSet.Type.ToCode()}): {dataSet.ToCSharpString().TrimEnd(';')}.{methodName}({string.Join(", ", arguments.AsEnumerable())})"), // For ID generation
+                new OriginalStringBindingProperty($"DataPager({TypeCodeExtensions.ToCode(dataSet.Type)}): {dataSet.ToCSharpString().TrimEnd(';')}.{methodName}({string.Join(", ", arguments.AsEnumerable())})"), // For ID generation
                 dataContextStack
             });
     }
@@ -382,7 +382,7 @@ public class GridViewDataSetBindingProvider
         }
         else if (interfaces.Count > 1)
         {
-            throw new ArgumentException($"The {dataSetConcreteType} implements multiple interfaces where {genericInterface.Name}<TOptions> ({interfaces.Select(i => i.ToCode()).StringJoin(", ")}). Only one implementation is allowed.");
+            throw new ArgumentException($"The {dataSetConcreteType} implements multiple interfaces where {genericInterface.Name}<TOptions> ({interfaces.Select(i => TypeCodeExtensions.ToCode(i)).StringJoin(", ")}). Only one implementation is allowed.");
         }
 
         var pagingOptionsConcreteType = interfaces[0].GetGenericArguments()[0];

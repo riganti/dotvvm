@@ -549,7 +549,7 @@ namespace DotVVM.Framework.Utils
                         assemblyName = "System.Private.CoreLib";
                     }
 #endif
-                    var typeName = t.ToCode() + ", " + assemblyName;
+                    var typeName = TypeCodeExtensions.ToCode(t) + ", " + assemblyName;
                     var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(typeName));
 
                     return Convert.ToBase64String(hashBytes, 0, 12);
@@ -652,7 +652,7 @@ namespace DotVVM.Framework.Utils
         public static string FormatMethodInfo(MethodBase method, bool stripNamespace = false)
         {
             var sb = new StringBuilder();
-            sb.Append(method.DeclaringType?.ToCode(stripNamespace: stripNamespace) ?? "?");
+            sb.Append(method.DeclaringType is null ? "?" : TypeCodeExtensions.ToCode(method.DeclaringType, stripNamespace: stripNamespace));
             sb.Append(".");
             sb.Append(method.Name);
             sb.Append("(");
@@ -662,13 +662,13 @@ namespace DotVVM.Framework.Utils
                 if (!first)
                     sb.Append(", ");
                 first = false;
-                sb.Append(p.ParameterType.ToCode(stripNamespace: stripNamespace)).Append(" ").Append(p.Name);
+                sb.Append(TypeCodeExtensions.ToCode(p.ParameterType, stripNamespace: stripNamespace)).Append(" ").Append(p.Name);
             }
             sb.Append(")");
             if (method is MethodInfo methodInfo && methodInfo.ReturnType != typeof(void))
             {
                 sb.Append(" -> ");
-                sb.Append(methodInfo.ReturnType.ToCode(stripNamespace: stripNamespace));
+                sb.Append(TypeCodeExtensions.ToCode(methodInfo.ReturnType, stripNamespace: stripNamespace));
             }
             return sb.ToString();
         }

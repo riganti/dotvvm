@@ -10,7 +10,6 @@ using System.Text.Json;
 using System.IO;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {

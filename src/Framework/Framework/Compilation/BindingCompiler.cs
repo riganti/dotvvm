@@ -21,7 +21,6 @@ using System.Diagnostics;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Utils;
 using System.Diagnostics.CodeAnalysis;
-using FastExpressionCompiler;
 using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Compilation

@@ -11,7 +11,6 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.HelperNamespace;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.Binding
 {

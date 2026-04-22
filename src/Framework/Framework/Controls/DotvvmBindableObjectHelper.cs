@@ -12,7 +12,6 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Controls
 {

@@ -6,7 +6,6 @@ using System.Text.Json;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Diagnostics
 {

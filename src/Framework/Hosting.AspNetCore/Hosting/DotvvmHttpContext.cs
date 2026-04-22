@@ -4,7 +4,7 @@ using System.Security.Claims;
 using DotVVM.Framework.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
-using FastExpressionCompiler;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Hosting
 {

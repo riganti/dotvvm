@@ -6,7 +6,7 @@ using System.Linq;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
-using FastExpressionCompiler;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {

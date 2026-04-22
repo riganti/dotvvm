@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using FastExpressionCompiler;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Validation
 {

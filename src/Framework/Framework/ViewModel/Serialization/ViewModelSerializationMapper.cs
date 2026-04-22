@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using DotVVM.Framework.Compilation.Javascript;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {

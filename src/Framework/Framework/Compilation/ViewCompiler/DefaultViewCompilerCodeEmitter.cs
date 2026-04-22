@@ -7,7 +7,6 @@ using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
-using FastExpressionCompiler;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation.ViewCompiler

@@ -17,7 +17,6 @@ using System.Diagnostics;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
 using RecordExceptions;
-using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation
 {

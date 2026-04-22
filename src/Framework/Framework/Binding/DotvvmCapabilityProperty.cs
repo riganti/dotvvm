@@ -380,13 +380,15 @@ namespace DotVVM.Framework.Binding
             string error = "";
             // same type
             if (newPropertyType != existingProperty.PropertyType)
-                error += $" The properties have different types: '{newPropertyType.ToCode()}' vs '{existingProperty.PropertyType.ToCode()}'.";
+                error += $" The properties have different types: '{TypeCodeExtensions.ToCode(newPropertyType)}' vs '{TypeCodeExtensions.ToCode(existingProperty.PropertyType)}'.";
 
             // the existing property must be declared above this one
             if (existingProperty.OwningCapability is {} existingCapability && declaringCapability is object)
             {
                 var commonAncestor = existingCapability.ThisAndOwners().Intersect(declaringCapability.ThisAndOwners()).FirstOrDefault();
-                var commonAncestorStr = commonAncestor?.PropertyType.ToCode(stripNamespace: true) ?? declaringType.ToCode(stripNamespace: true);
+                var commonAncestorStr = commonAncestor is null
+                    ? TypeCodeExtensions.ToCode(declaringType, stripNamespace: true)
+                    : TypeCodeExtensions.ToCode(commonAncestor.PropertyType, stripNamespace: true);
                 if (!declaringCapability.IsOwnedByCapability(existingCapability))
                     error += $" The property is declared in capabilities {existingCapability.Name} and {declaringCapability.Name} - to resolve the conflict declare the property in {commonAncestorStr}.";
             }
@@ -401,14 +403,14 @@ namespace DotVVM.Framework.Binding
             var compositeHelp =
                 capabilityType is null && typeof(CompositeControl).IsAssignableFrom(declaringType) ?
                 $"The property is being defined because parameter of it's name is defined in the {declaringType}.GetContents method. " : "";
-            throw new Exception($"Cannot define property {declaringType.ToCode()}.{existingProperty.Name} as it already exists.{error} {capabilityHelp}");
+            throw new Exception($"Cannot define property {TypeCodeExtensions.ToCode(declaringType)}.{existingProperty.Name} as it already exists.{error} {capabilityHelp}");
         }
 
         public record InvalidCapabilityTypeException(DotvvmCapabilityProperty Capability, string Reason)
             : DotvvmExceptionBase(Reason, RelatedProperty: Capability)
         {
             public override string Message =>
-                $"Capability {Capability.PropertyType.ToCode(stripNamespace: true)} {Reason}. It was registered as capability property in {Capability.OwningCapability?.Name ?? Capability.DeclaringType.ToCode(stripNamespace: true)}.";
+                $"Capability {TypeCodeExtensions.ToCode(Capability.PropertyType, stripNamespace: true)} {Reason}. It was registered as capability property in {Capability.OwningCapability?.Name ?? TypeCodeExtensions.ToCode(Capability.DeclaringType, stripNamespace: true)}.";
         }
 
         public record CapabilityAlreadyExistsException(DotvvmCapabilityProperty OldCapability, bool CheckedAfterContentRegistration)
@@ -417,7 +419,7 @@ namespace DotVVM.Framework.Binding
             public override string Message { get {
                 var postContentHelp = CheckedAfterContentRegistration ? $"It seems that the capability contains a property of the same type, which leads to the conflict. " : "";
 
-                return $"Capability of type {OldCapability.PropertyType.ToCode(stripNamespace: true)} is already registered on control {OldCapability.DeclaringType.ToCode(stripNamespace: true)} with prefix '{OldCapability.Prefix}'. {postContentHelp}If you want to register the capability multiple times, consider giving it a different prefix.";
+                return $"Capability of type {TypeCodeExtensions.ToCode(OldCapability.PropertyType, stripNamespace: true)} is already registered on control {TypeCodeExtensions.ToCode(OldCapability.DeclaringType, stripNamespace: true)} with prefix '{OldCapability.Prefix}'. {postContentHelp}If you want to register the capability multiple times, consider giving it a different prefix.";
             } }
         }
     }
