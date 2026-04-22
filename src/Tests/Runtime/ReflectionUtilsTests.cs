@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [DataRow(typeof(Dictionary<string, List<int?>>), false, "System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<int?>>")]
         [DataRow(typeof(Dictionary<string, List<int?>>), true, "Dictionary<string, List<int?>>")]
         [DataRow(typeof(Outer<int>.Inner<string>[]), false, "DotVVM.Framework.Tests.Runtime.ReflectionUtilsTests.Outer<int>.Inner<string>[]")]
-        [DataRow(typeof(Outer<int>.Inner<string>[]), true, "Outer<int>.Inner<string>[]")]
+        [DataRow(typeof(Outer<int>.Inner<string>[]), true, "ReflectionUtilsTests.Outer<int>.Inner<string>[]")]
         public void ToCode_IsStable(Type type, bool stripNamespace, string expected)
         {
             Assert.AreEqual(expected, type.ToCode(stripNamespace));
