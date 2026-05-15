@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -78,6 +80,13 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         [JsonPropertyName("referrerPolicy")]
         public DotvvmFeatureFlag ReferrerPolicy { get; } = new("ReferrerPolicy", true);
+
+        /// <summary>
+        /// A delegate that is used to authorize file uploads.
+        /// If the delegate returns false, HTTP 403 is returned and no files is stored.
+        /// </summary>
+        [JsonIgnore]
+        public Func<IDotvvmRequestContext, Task<bool>>? AuthorizeFileUpload { get; set; }
 
         /// <summary> Value of the referrer-policy header. By default it's no-referrer, if you want referrers on your domain set this to `same-origin`. See for more info: <see href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy" /> </summary>
         [DefaultValue("no-referrer")]

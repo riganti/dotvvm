@@ -16,7 +16,8 @@ namespace DotVVM.Core.Storage
         /// <summary> If the file type matched one of type MIME types or extensions in <c>FileUpload.AllowedFileTypes</c>. Use with caution, the user may manipulate with this property. </summary>
         public bool IsFileTypeAllowed { get; set; } = true;
 
-        /// <summary> If the file size is larger that the limit specified in <c>FileUpload.MaxFileSize</c>. Use with caution, the user may manipulate with this property. </summary>
+        /// <summary> Always true </summary>
+        // [Obsolete("this is always true")]
         public bool IsMaxSizeExceeded { get; set; } = false;
 
         /// <summary> If the file satisfies both allowed file types and the size limit. Use with caution, the user may manipulate with this property. </summary>

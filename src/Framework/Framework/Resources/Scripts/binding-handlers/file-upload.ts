@@ -14,6 +14,9 @@ export default {
                 var xhr = XMLHttpRequest ? new XMLHttpRequest() : new ((window as any)["ActiveXObject"])("Microsoft.XMLHTTP");
                 xhr.open("POST", args.url, true);
                 xhr.setRequestHeader("X-DotVVM-AsyncUpload", "true");
+                xhr.setRequestHeader("X-DotVVM-UploadToken", args.token);
+                const csrfToken = dotvvm.state.$csrfToken;
+                xhr.setRequestHeader("X-DotVVM-CsrfToken", csrfToken);
                 xhr.upload.onprogress = function (e: ProgressEvent) {
                     if (e.lengthComputable) {
                         reportProgress(true, Math.round(e.loaded * 100 / e.total), '');

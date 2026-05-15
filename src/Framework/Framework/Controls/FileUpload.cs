@@ -7,6 +7,8 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Security;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
 {
@@ -258,34 +260,24 @@ namespace DotVVM.Framework.Controls
                 writer.AddAttribute("capture", Capture);
             }
 
-            writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonSerializer.Serialize(new { url = context.TranslateVirtualPath(GetFileUploadHandlerUrl()) }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
+            var url = context.TranslateVirtualPath(GetFileUploadHandlerUrl());
+
+            var tokenData = new FileUploadToken {
+                AllowedFileTypes = AllowedFileTypes,
+                MaxFileSize = (long?)MaxFileSize * 1024 * 1024
+            };
+            var tokenJson = JsonSerializer.SerializeToUtf8Bytes(tokenData, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+            var protector = context.Services.GetRequiredService<IViewModelProtector>();
+            var token = Convert.ToBase64String(protector.Protect(tokenJson, "FileUpload", ProtectionHelpers.GetUserIdentity(context)));
+
+            writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonSerializer.Serialize(new { url = url, token = token }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
             writer.RenderSelfClosingTag("input");
+
         }
 
         private string GetFileUploadHandlerUrl()
         {
-            var builder = new StringBuilder("~/");
-            builder.Append(HostingConstants.FileUploadHandlerMatchUrl);
-            var delimiter = "?";
-
-            if (AllowMultipleFiles)
-            {
-                builder.AppendFormat("{0}multiple=true", delimiter);
-                delimiter = "&";
-            }
-
-            if (!string.IsNullOrWhiteSpace(AllowedFileTypes))
-            {
-                builder.AppendFormat("{0}fileTypes={1}", delimiter, WebUtility.UrlEncode(AllowedFileTypes));
-                delimiter = "&";
-            }
-
-            if (MaxFileSize != null)
-            {
-                builder.AppendFormat("{0}maxSize={1}", delimiter, MaxFileSize);
-            }
-
-            return builder.ToString();
+            return "~/" + HostingConstants.FileUploadHandlerMatchUrl;
         }
     }
 }
