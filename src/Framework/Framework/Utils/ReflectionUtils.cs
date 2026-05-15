@@ -549,7 +549,7 @@ namespace DotVVM.Framework.Utils
                         assemblyName = "System.Private.CoreLib";
                     }
 #endif
-                    var fullName = t.IsEnum ? t.FullName.Replace('+', '.') : t.ToCode();
+                    var fullName = t.IsEnum ? t.FullName!.Replace('+', '.') : t.ToCode();
                     var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(fullName + ", " + assemblyName));
 
                     return Convert.ToBase64String(hashBytes, 0, 12);
