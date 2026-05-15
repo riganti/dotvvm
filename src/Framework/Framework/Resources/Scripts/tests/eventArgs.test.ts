@@ -1,6 +1,6 @@
 import { postBack, applyPostbackHandlers } from "../postback/postback";
 import { initDotvvmWithSpa, watchEvents, getEventHistory } from "./helper";
-import { getViewModel, updateViewModelCache, replaceViewModel } from "../dotvvm-base";
+import { getViewModel, getInitialUrl, updateViewModelCache, replaceViewModel } from "../dotvvm-base";
 import { DotvvmPostbackError } from "../shared-classes";
 import { keys } from "../utils/objects";
 import { WrappedResponse } from "../postback/http";
@@ -473,6 +473,42 @@ test("spaNavigation + success", async () => {
         updateTypeInfo(typeMetadata)
     }
 
+});
+
+test("spaNavigation updates initial url from server response", async () => {
+    fetchJson = async () => ({
+        viewModel: {
+            $type: "t2",
+            PropertyA: 1,
+            PropertyB: 2
+        },
+        typeMetadata: {
+            t2: {
+                type: "object",
+                properties: {
+                    PropertyA: {
+                        type: "Int32"
+                    },
+                    PropertyB: {
+                        type: "Int32"
+                    }
+                }
+            }
+        },
+        action: "successfulCommand",
+        url: "/subpath/test",
+        virtualDirectory: "",
+        resources: {},
+        updatedControls: {
+            "c01": "new html"
+        }
+    } as any);
+
+    const link = document.createElement("a");
+    link.href = "/test";
+    await spa.handleSpaNavigation(link, (u: string) => {});
+
+    expect(getInitialUrl()).toBe("/subpath/test");
 });
 
 test("spaNavigation + redirect", async () => {
