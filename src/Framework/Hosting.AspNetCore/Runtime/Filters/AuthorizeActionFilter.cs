@@ -75,12 +75,12 @@ namespace DotVVM.Framework.Runtime.Filters
         public Task OnPageExceptionAsync(IDotvvmRequestContext context, Exception exception) => Task.CompletedTask;
         public Task OnPageInitializedAsync(IDotvvmRequestContext context) => Task.CompletedTask;
         public Task OnPageRenderedAsync(IDotvvmRequestContext context) => Task.CompletedTask;
-        Task ICommandActionFilter.OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo) => Task.CompletedTask;
+        Task ICommandActionFilter.OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo) => OnCommandExecutingAsync(context, actionInfo);
         public Task OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception? exception) => Task.CompletedTask;
-        Task IViewModelActionFilter.OnViewModelCreatedAsync(IDotvvmRequestContext context) => Task.CompletedTask;
+        Task IViewModelActionFilter.OnViewModelCreatedAsync(IDotvvmRequestContext context) => OnViewModelCreatedAsync(context);
         public Task OnViewModelDeserializedAsync(IDotvvmRequestContext context) => Task.CompletedTask;
         public Task OnViewModelSerializingAsync(IDotvvmRequestContext context) => Task.CompletedTask;
-        Task IPresenterActionFilter.OnPresenterExecutingAsync(IDotvvmRequestContext context) => Task.CompletedTask;
+        Task IPresenterActionFilter.OnPresenterExecutingAsync(IDotvvmRequestContext context) => OnPresenterExecutingAsync(context);
         public Task OnPresenterExecutedAsync(IDotvvmRequestContext context) => Task.CompletedTask;
         public Task OnPresenterExceptionAsync(IDotvvmRequestContext context, Exception exception) => Task.CompletedTask;
 

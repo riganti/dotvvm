@@ -16,6 +16,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Tests.Binding;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -66,7 +67,7 @@ namespace DotVVM.Framework.Tests.Runtime
             httpContext.Request.Method = "POST";
             httpContext.Request.Body = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(new string('[', 1024 * 600)));
 
-            var ex = await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => presenter.ProcessRequest(context));
+            var ex = await Assert.ThrowsExceptionAsync<LimitLengthStream.LimitExceededException>(() => presenter.ProcessRequest(context));
             XAssert.Contains("The stream is limited to", ex.Message);
             XAssert.Contains("To increase the maximum request size, use the DotvvmConfiguration.Runtime.MaxPostbackSizeBytes", ex.Message);
         }
@@ -81,7 +82,7 @@ namespace DotVVM.Framework.Tests.Runtime
             httpContext.Request.Method = "POST";
             httpContext.Request.Body = Compress(new string('[', 1024 * 600));
 
-            var ex = await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => presenter.ProcessRequest(context));
+            var ex = await Assert.ThrowsExceptionAsync<LimitLengthStream.LimitExceededException>(() => presenter.ProcessRequest(context));
             XAssert.Contains("The stream is limited to", ex.Message);
             XAssert.Contains("To increase the maximum request size, use the DotvvmConfiguration.Runtime.MaxPostbackSizeBytes", ex.Message);
         }

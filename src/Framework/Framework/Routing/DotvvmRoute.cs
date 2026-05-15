@@ -92,7 +92,23 @@ namespace DotVVM.Framework.Routing
             if (!url.StartsWith("/"))
                 url = '/' + url;
 
-            var match = routeRegex.Match(url);
+
+            Match match;
+            try
+            {
+                match = routeRegex.Match(url);
+            }
+            catch (RegexMatchTimeoutException)
+#if NET7_0_OR_GREATER
+                when ((routeRegex.Options & RegexOptions.NonBacktracking) == 0)
+            {
+                routeRegex = new Regex(routeRegex.ToString(), routeRegex.Options | RegexOptions.NonBacktracking, DotvvmRouteParser.RouteRegexMatchTimeout);
+                return IsMatch(url, out values);
+            }
+#else
+            { throw; }
+#endif
+
             if (!match.Success)
             {
                 values = null!;
