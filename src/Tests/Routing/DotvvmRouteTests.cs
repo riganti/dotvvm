@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Globalization;
 using DotVVM.Framework.Tests.Binding;
+using DotVVM.Framework.Hosting.Middlewares;
 
 namespace DotVVM.Framework.Tests.Routing
 {
@@ -631,6 +632,160 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+        [Timeout(10000)]
+        public void DotvvmRoute_ReDoS_Demo_ManySlugSegmentsWithMissingSuffix()
+        {
+            var route = new DotvvmRoute(
+                "edit/{project_id:int}-{s1}-{s2}-{s3}-{s4}-{s5}-{s6}-{s7}-{s8}-{s9}-{s10}-{s11}-{s12}/done",
+                null,
+                "testpage",
+                null,
+                null,
+                configuration);
+
+            var adversarialInput = "edit/123-" + new string('-', 12000);
+            route.IsMatch(adversarialInput, out _);
+        }
+
+        [TestMethod]
+        [Timeout(10000)]
+        public void DotvvmRoute_ReDoS_Demo_ManyOptionalSlugSegmentsWithMissingSuffix()
+        {
+            var route = new DotvvmRoute(
+                "edit/{project_id:int}-{s1?}-{s2?}-{s3?}-{s4?}-{s5?}-{s6?}-{s7?}-{s8?}-{s9?}-{s10?}/done",
+                null,
+                "testpage",
+                null,
+                null,
+                configuration);
+
+            var adversarialInput = "edit/123-" + new string('-', 12000);
+            route.IsMatch(adversarialInput, out _);
+        }
+
+        [TestMethod]
+        [Timeout(10000)]
+        public void DotvvmRoute_ReDoS_Demo_MixedSimplePatternWithLongNearMatch()
+        {
+            var route = new DotvvmRoute(
+                "edit/{project_id:int}-{slug}-{subslug}-{tail}/final",
+                null,
+                "testpage",
+                null,
+                null,
+                configuration);
+
+            var adversarialInput = "edit/123-" + new string('a', 10000) + new string('-', 10000);
+            route.IsMatch(adversarialInput, out _);
+        }
+
+        [TestMethod]
+        [Timeout(10000)]
+        public void DotvvmRoute_ReDoS_Realistic3Params_MissingSuffix()
+        {
+            var route = new DotvvmRoute(
+                "edit/{project_id:int}-{slug}-{subslug}/done",
+                null,
+                "testpage",
+                null,
+                null,
+                configuration);
+
+            var adversarialInput = "edit/123-" + new string('-', 32000);
+            route.IsMatch(adversarialInput, out _);
+        }
+
+        [TestMethod]
+        [Timeout(10000)]
+        public void DotvvmRoute_ReDoS_Realistic4Params_MissingSuffix()
+        {
+            var route = new DotvvmRoute("edit/{slug}-{subslug:alpha}-{tail}/done", null, "testpage", null, null, configuration);
+
+            var adversarialInput = "edit/" + new string('-', 32000);
+            route.IsMatch(adversarialInput, out _);
+        }
+
+        [TestMethod]
+        [Timeout(10000)]
+        public void DotvvmRoute_ReDoS_Realistic3OptionalParams_MissingSuffix()
+        {
+            var route = new DotvvmRoute(
+                "edit/{project_id:int}-{slug?}-{subslug?}/done",
+                null,
+                "testpage",
+                null,
+                null,
+                configuration);
+
+            var adversarialInput = "edit/123-" + new string('-', 32000);
+            route.IsMatch(adversarialInput, out _);
+        }
+
+        [TestMethod]
+        [Timeout(10000)]
+        public void DotvvmRoute_ReDoS_Realistic3Params_SameSegmentSuffix()
+        {
+            var route = new DotvvmRoute(
+                "edit/{project_id:int}-{slug}-{subslug}-done",
+                null,
+                "testpage",
+                null,
+                null,
+                configuration);
+
+            var adversarialInput = "edit/123-" + new string('-', 32000);
+            route.IsMatch(adversarialInput, out _);
+        }
+
+        [TestMethod]
+        [Timeout(10000)]
+        public void DotvvmRoute_ReDoS_Realistic3Params_SameSegmentOptionalSuffix()
+        {
+            var route = new DotvvmRoute(
+                "edit/{project_id:int}-{slug?}-{subslug?}-done",
+                null,
+                "testpage",
+                null,
+                null,
+                configuration);
+
+            var adversarialInput = "edit/123-" + new string('-', 32000);
+            route.IsMatch(adversarialInput, out _);
+        }
+
+        [TestMethod]
+        [Timeout(10000)]
+        public void DotvvmRoute_ReDoS_Realistic3Params_AdjacentTail_MissingSuffix()
+        {
+            var route = new DotvvmRoute(
+                "edit/{project_id:int}-{slug}{subslug}/done",
+                null,
+                "testpage",
+                null,
+                null,
+                configuration);
+
+            var adversarialInput = "edit/123-" + new string('a', 32000);
+            route.IsMatch(adversarialInput, out _);
+        }
+
+        [TestMethod]
+        [Timeout(10000)]
+        public void DotvvmRoute_ReDoS_Realistic3Params_NearSuffixMismatch()
+        {
+            var route = new DotvvmRoute(
+                "edit/{project_id:int}-{slug}-{subslug}/done",
+                null,
+                "testpage",
+                null,
+                null,
+                configuration);
+
+            var adversarialInput = "edit/123-" + new string('a', 16000) + "-" + new string('a', 15996) + "/donx";
+            route.IsMatch(adversarialInput, out _);
+        }
+
+        [TestMethod]
         public void DotvvmRoute_PresenterFactoryMethod()
         {
             var configuration = DotvvmConfiguration.CreateDefault(services => {
@@ -679,6 +834,16 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual(parse("test/{Param:int}-{PaRAM2?:regex(.*)}"), "test/{param}-{param2}");
             Assert.AreEqual(parse("test/{Param:int}-{PaRAM2?:regex((.){4,10})}"), "test/{param}-{param2}");
         }
+
+        [TestMethod]
+        public void DotvvmRoute_TimeoutRetriesWithNonBacktrackingOnDotNetCore()
+        {
+            var route = new DotvvmRoute("edit/{project_id:int}-{slug}-{subslug}/done", null, "testpage", null, null, configuration);
+            var input = "edit/123-" + new string('-', 32000);
+
+            Assert.IsFalse(route.IsMatch(input, out _));
+        }
+
     }
 
     record struct DecimalNumber(decimal Value) : IFormattable

@@ -1,12 +1,15 @@
-﻿using DotVVM.Framework.Routing;
+using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.Net;
 using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
@@ -70,7 +73,19 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
             await requestTracer.TraceEvent(RequestTracingConstants.BeginRequest, context);
 
-            var route = FindMatchingRoute(context.Configuration.RouteTable, context, out var parameters);
+            RouteBase? route;
+            IDictionary<string, object?>? parameters;
+            try
+            {
+                route = FindMatchingRoute(context.Configuration.RouteTable, context, out parameters);
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                // .NET Core should catch this internally and switch to non-backtracking
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                throw new DotvvmInterruptRequestExecutionException();
+            }
+
 
             //check if route exists
             if (route == null) return false;

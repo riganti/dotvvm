@@ -9,6 +9,7 @@ namespace DotVVM.Framework.Routing
 {
     public class DotvvmRouteParser
     {
+        internal static readonly TimeSpan RouteRegexMatchTimeout = TimeSpan.FromMilliseconds(1000);
         private readonly IDictionary<string, IRouteParameterConstraint> routeConstraints;
 
         public DotvvmRouteParser(IDictionary<string, IRouteParameterConstraint> routeConstrains)
@@ -75,7 +76,7 @@ namespace DotVVM.Framework.Routing
 
             return new UrlParserResult
             {
-                RouteRegex = new Regex(regex.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant),
+                RouteRegex = new Regex(regex.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, RouteRegexMatchTimeout),
                 UrlBuilders = urlBuilders,
                 Parameters = parameters,
                 UrlWithoutTypes = string.Concat(urlBuilders.Skip(1).Select(b => b(fakeParameters))).TrimStart('/')
