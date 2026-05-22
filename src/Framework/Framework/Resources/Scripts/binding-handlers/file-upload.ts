@@ -26,6 +26,8 @@ export default {
                     if (xhr.status == 200) {
                         reportProgress(false, 100, JSON.parse(xhr.responseText));
                         element.value = "";
+                    } else if (xhr.status == 413) {
+                        reportProgress(false, 0, "Uploaded file is too large.")
                     } else {
                         reportProgress(false, 0, "Upload failed.");
                     }
