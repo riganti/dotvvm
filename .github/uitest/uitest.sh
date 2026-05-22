@@ -110,6 +110,7 @@ echo "SAMPLES_DIR=$SAMPLES_DIR"
 echo "SAMPLES_PROFILE=$SAMPLES_PROFILE"
 echo "SAMPLES_PORT=$SAMPLES_PORT"
 echo "SAMPLES_PORT_API=$SAMPLES_PORT_API"
+echo "DOTVVM_TEST_PATH_BASE=$DOTVVM_TEST_PATH_BASE"
 
 function start_group {
     echo "::group::$1"
@@ -151,7 +152,7 @@ function clean_uitest {
 function wait_sample {
     PORT=$1
     while [[ true ]]; do
-        HTTP_CODE=$(curl localhost:$PORT -s -o /dev/null -w "%{http_code}")
+        HTTP_CODE=$(curl -L "localhost:$PORT/" -s -o /dev/null -w "%{http_code}")
         if [ $HTTP_CODE -eq 200 ]; then
             return
         elif [ $HTTP_CODE -eq 000 ]; then
@@ -190,7 +191,7 @@ function start_samples {
         echo >&2 "The ${PROJECT} sample project failed to start."
         exit 1
     fi
-    echo >&2 "The ${PROJECT} sample project is starting with PID=${SAMPLES_API_PID}."
+    echo >&2 "The ${PROJECT} sample project is starting with PID=${PID}."
     wait_sample $PORT
 }
 
@@ -202,6 +203,11 @@ if [ ! -f "$PROFILE_PATH" ]; then
     exit 1
 fi
 cp -f "$PROFILE_PATH" "$SAMPLES_DIR/seleniumconfig.json"
+
+if [ -n "$DOTVVM_TEST_PATH_BASE" ]; then
+    # tiiiny hack
+    sed -i -E "s#http://localhost:([0-9]+)/#http://localhost:\1${DOTVVM_TEST_PATH_BASE}/#g" "$SAMPLES_DIR/seleniumconfig.json"
+fi
 
 clean_uitest
 
