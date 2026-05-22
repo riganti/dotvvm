@@ -65,6 +65,59 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_LateContentPlaceHolders_RepeaterOneItem))]
+        public void Feature_LateContentPlaceHolders_ContentPlaceHolderInRepeater_OneItem_Works()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_LateContentPlaceHolders_RepeaterOneItem);
+
+                browser.First("[data-ui='master-heading']"); // master page rendered
+                var items = browser.FindElements("[data-ui='repeater-item']");
+                Assert.Equal(1, items.Count);
+                AssertUI.InnerTextEquals(items[0], "Item 1");
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_LateContentPlaceHolders_RepeaterZeroItems))]
+        [Trait("Category", "dev-only")] // tests the error page behavior
+        public void Feature_LateContentPlaceHolders_ContentPlaceHolderInRepeater_ZeroItems_ThrowsError()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_LateContentPlaceHolders_RepeaterZeroItems);
+                // Should throw because ContentPlaceHolder is never instantiated (Repeater has no items)
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("RepeaterContent"));
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_LateContentPlaceHolders_RepeaterMultipleItems))]
+        [Trait("Category", "dev-only")] // tests the error page behavior
+        public void Feature_LateContentPlaceHolders_ContentPlaceHolderInRepeater_MultipleItems_ThrowsError()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_LateContentPlaceHolders_RepeaterMultipleItems);
+                // Should throw because ContentPlaceHolder is instantiated more than once (Repeater has 2+ items)
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("RepeaterContent") && s.Contains("already been resolved"));
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_LateContentPlaceHolders_AuthViewContent))]
+        public void Feature_LateContentPlaceHolders_SameContentPlaceHolderIdInAuthenticatedViewTemplates_Works()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_LateContentPlaceHolders_AuthViewContent);
+
+                browser.First("[data-ui='master-heading']"); // master page rendered
+                // In unauthenticated state, the NotAuthenticatedTemplate is instantiated
+                var section = browser.First("[data-ui='not-authenticated-section']");
+                var content = section.First("[data-ui='auth-content']");
+                AssertUI.InnerText(content, s => s.Contains("Content from ContentPlaceHolder inside AuthenticatedView template"));
+            });
+        }
+
         public LateContentPlaceHoldersTests(ITestOutputHelper output) : base(output)
         {
         }

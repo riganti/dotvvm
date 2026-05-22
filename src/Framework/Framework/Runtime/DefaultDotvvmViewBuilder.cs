@@ -129,7 +129,7 @@ namespace DotVVM.Framework.Runtime
                     // ContentPlaceHolder not found in the statically-built tree.
                     // Before deferring, verify the ID is at least declared somewhere in the master page
                     // (including inside CompositeControl templates that are instantiated in Load phase).
-                    if (!masterPageDescriptor.ContentPlaceHolderIds.Contains(content.ContentPlaceHolderID))
+                    if (!masterPageDescriptor.ContentPlaceHolderIds.Contains(content.ContentPlaceHolderID!))
                     {
                         var masterPageInfo = masterPageDescriptor.FileName is { } masterPageFile ? $" '{masterPageFile}'" : "";
                         throw new DotvvmControlException(content,

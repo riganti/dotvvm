@@ -197,9 +197,6 @@ namespace DotVVM.Framework.Hosting
                     // run the load phase in the page
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
                     await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
-
-                    // After Load, ensure all Content controls have been matched to their ContentPlaceHolders
-                    ValidateMasterPageComposition(page);
                 }
                 else
                 {
@@ -237,7 +234,8 @@ namespace DotVVM.Framework.Hosting
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
                     await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
 
-                    // After Load, ensure all Content controls have been matched to their ContentPlaceHolders
+                    // After Load, ensure all Content controls have been matched to their ContentPlaceHolders.
+                    // For postback requests, the Repeater creates children in Load (for Commands), so we check here.
                     ValidateMasterPageComposition(page);
 
                     // invoke the postback command
@@ -273,6 +271,11 @@ namespace DotVVM.Framework.Hosting
 
                 // run the prerender phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRender, context);
+
+                // After PreRender, ensure all Content controls have been matched to their ContentPlaceHolders.
+                // For GET requests, the Repeater creates children in PreRender, so this is the final check point.
+                // For postbacks, the check above after Load already caught most issues; this is a safety net.
+                ValidateMasterPageComposition(page);
 
                 // run the prerender complete phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete, context);
