@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -58,6 +59,8 @@ namespace DotVVM.Framework.Controls
         {
             return SortingImplementation.ApplySortingToQueryable(queryable, SortExpression, SortDescending);
         }
+
+        public IEnumerable<SortCriterion> Criteria => SortExpression == null ? Enumerable.Empty<SortCriterion>() : [new SortCriterion() { SortExpression = SortExpression, SortDescending = SortDescending }];
 
         /// <inheritdoc />
         public bool IsColumnSortedAscending(string? sortExpression) => SortExpression == sortExpression && !SortDescending;
