@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -55,7 +56,7 @@ namespace DotVVM.Framework.Runtime
                 var masterPage = (DotvvmView)pageBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
 
                 FillsDefaultDirectives(masterPage);
-                PerformMasterPageComposition(contentPage, masterPage, pendingCompositions);
+                PerformMasterPageComposition(contentPage, masterPage, pageDescriptor, pendingCompositions);
 
                 masterPage.ViewModelType = contentPage.ViewModelType;
                 contentPage = masterPage;
@@ -107,7 +108,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Performs the master page nesting.
         /// </summary>
-        private void PerformMasterPageComposition(DotvvmView childPage, DotvvmView masterPage, List<PendingMasterPageComposition> pendingCompositions)
+        private void PerformMasterPageComposition(DotvvmView childPage, DotvvmView masterPage, ControlBuilderDescriptor masterPageDescriptor, List<PendingMasterPageComposition> pendingCompositions)
         {
             if (!masterPage.ViewModelType.IsAssignableFrom(childPage.ViewModelType))
                 throw new DotvvmControlException(childPage, $"Master page requires viewModel of type '{masterPage.ViewModelType}' and it is not assignable from '{childPage.ViewModelType}'.");
@@ -125,8 +126,16 @@ namespace DotVVM.Framework.Runtime
                 var placeHolder = placeHolders.SingleOrDefault(p => p.ID == content.ContentPlaceHolderID);
                 if (placeHolder == null)
                 {
-                    // ContentPlaceHolder not found yet - it might be inside a CompositeControl template
-                    // that will be instantiated in the Load phase. Defer the composition.
+                    // ContentPlaceHolder not found in the statically-built tree.
+                    // Before deferring, verify the ID is at least declared somewhere in the master page
+                    // (including inside CompositeControl templates that are instantiated in Load phase).
+                    if (!masterPageDescriptor.ContentPlaceHolderIds.Contains(content.ContentPlaceHolderID))
+                    {
+                        var masterPageInfo = masterPageDescriptor.FileName is { } masterPageFile ? $" '{masterPageFile}'" : "";
+                        throw new DotvvmControlException(content,
+                            $"The ContentPlaceHolder with ID '{content.ContentPlaceHolderID}' was not found in the master page{masterPageInfo}. " +
+                            $"Make sure that each Content element has a corresponding ContentPlaceHolder in the master page.");
+                    }
 
                     // Set up properties that we'll need during deferred composition
                     content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);

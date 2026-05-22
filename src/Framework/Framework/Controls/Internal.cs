@@ -76,6 +76,14 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty PendingMasterPageCompositionsProperty =
             DotvvmProperty.Register<List<PendingMasterPageComposition>?, Internal>(() => PendingMasterPageCompositionsProperty, defaultValue: null, isValueInherited: false);
 
+        /// <summary>
+        /// Tracks ContentPlaceHolder IDs that have already been resolved via deferred master page composition.
+        /// Used to detect when a ContentPlaceHolder is instantiated more than once (e.g. inside a Repeater template),
+        /// which is not supported and would result in only the first instance being filled with Content.
+        /// </summary>
+        public static readonly DotvvmProperty ResolvedMasterPageCompositionIdsProperty =
+            DotvvmProperty.Register<HashSet<string>?, Internal>(() => ResolvedMasterPageCompositionIdsProperty, defaultValue: null, isValueInherited: false);
+
         public static bool IsViewCompilerProperty(DotvvmProperty property)
         {
             return property.DeclaringType == typeof(Internal);

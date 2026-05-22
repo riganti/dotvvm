@@ -608,8 +608,8 @@ namespace DotVVM.Framework.Hosting
 
         /// <summary>
         /// Validates that all Content controls have been matched to their corresponding ContentPlaceHolder controls
-        /// after the Load phase. If any Content controls remain unmatched (e.g. because the ContentPlaceHolder
-        /// with the specified ID does not exist in the master page), an exception is thrown.
+        /// after the Load phase. If any Content controls remain unmatched, it means the ContentPlaceHolder
+        /// was declared in the master page but never instantiated (e.g. a CompositeControl's GetContents was not called).
         /// </summary>
         private static void ValidateMasterPageComposition(DotvvmView page)
         {
@@ -619,8 +619,8 @@ namespace DotVVM.Framework.Hosting
                 var pending = pendingList[0];
                 var masterPageInfo = pending.MasterPageFile is { } masterPageFile ? $" '{masterPageFile}'" : "";
                 throw new DotvvmControlException(pending.Content,
-                    $"The ContentPlaceHolder with ID '{pending.Content.ContentPlaceHolderID}' was not found in the master page{masterPageInfo}. " +
-                    $"Make sure that each Content element has a corresponding ContentPlaceHolder in the master page.");
+                    $"The ContentPlaceHolder with ID '{pending.Content.ContentPlaceHolderID}' was declared in the master page{masterPageInfo} but was never instantiated. " +
+                    $"Make sure the ContentPlaceHolder is always added to the control tree (e.g. it is not inside a conditional template).");
             }
         }
     }

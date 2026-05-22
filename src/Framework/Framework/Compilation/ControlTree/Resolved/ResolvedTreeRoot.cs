@@ -30,7 +30,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 (from ds in Directives
                  from d in ds.Value
                  select (ds.Key, d.Value)).ToImmutableArray(),
-                GetViewModuleInfo() 
+                GetViewModuleInfo(),
+                CollectContentPlaceHolderIds()
             );
 
         private ViewModuleReferenceInfo? GetViewModuleInfo()
@@ -39,6 +40,35 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 return value.Value as ViewModuleReferenceInfo;
             else
                 return null;
+        }
+
+        /// <summary>
+        /// Traverses the entire resolved tree (including controls inside templates) to collect
+        /// all ContentPlaceHolder IDs declared in this page/master page file.
+        /// </summary>
+        private ImmutableArray<string> CollectContentPlaceHolderIds()
+        {
+            var collector = new ContentPlaceHolderIdCollector();
+            this.AcceptChildren(collector);
+            return collector.Ids.Count == 0
+                ? ImmutableArray<string>.Empty
+                : collector.Ids.ToImmutableArray();
+        }
+
+        private sealed class ContentPlaceHolderIdCollector : ResolvedControlTreeVisitor
+        {
+            public readonly List<string> Ids = new List<string>();
+
+            public override void VisitControl(ResolvedControl control)
+            {
+                if (control.Metadata.Type == typeof(ContentPlaceHolder)
+                    && control.Properties.TryGetValue(DotvvmControl.IDProperty, out var idSetter)
+                    && idSetter is ResolvedPropertyValue { Value: string id })
+                {
+                    Ids.Add(id);
+                }
+                DefaultVisit(control);
+            }
         }
 
         public ResolvedTreeRoot(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext, ImmutableDictionary<string, ImmutableList<IAbstractDirective>> directives, ControlBuilderDescriptor? masterPage)

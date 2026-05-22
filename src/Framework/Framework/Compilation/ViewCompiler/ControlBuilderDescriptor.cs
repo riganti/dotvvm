@@ -27,6 +27,12 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
         public ViewModuleReferenceInfo? ViewModuleReference { get; }
 
+        /// <summary>
+        /// All ContentPlaceHolder IDs declared in this page/master page, including those inside CompositeControl templates.
+        /// Used to validate Content controls when performing master page composition.
+        /// </summary>
+        public ImmutableArray<string> ContentPlaceHolderIds { get; }
+
         ITypeDescriptor IAbstractControlBuilderDescriptor.DataContextType => new ResolvedTypeDescriptor(this.DataContextType);
 
         ITypeDescriptor IAbstractControlBuilderDescriptor.ControlType => new ResolvedTypeDescriptor(this.ControlType);
@@ -39,7 +45,8 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             string? fileName,
             ControlBuilderDescriptor? masterPage,
             ImmutableArray<(string name, string value)> directives,
-            ViewModuleReferenceInfo? viewModuleReference
+            ViewModuleReferenceInfo? viewModuleReference,
+            ImmutableArray<string> contentPlaceHolderIds = default
         )
         {
             this.DataContextType = dataContextType;
@@ -48,6 +55,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             this.MasterPage = masterPage;
             this.Directives = directives;
             this.ViewModuleReference = viewModuleReference;
+            this.ContentPlaceHolderIds = contentPlaceHolderIds.IsDefault ? ImmutableArray<string>.Empty : contentPlaceHolderIds;
         }
     }
 }

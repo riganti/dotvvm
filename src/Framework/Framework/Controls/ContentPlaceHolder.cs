@@ -32,41 +32,61 @@ namespace DotVVM.Framework.Controls
 
         /// <summary>
         /// Looks for a pending master page composition matching this ContentPlaceHolder's ID
-        /// and performs the composition if found.
+        /// and performs the composition if found. Throws if the same ContentPlaceHolder ID
+        /// is being resolved for a second time (e.g. ContentPlaceHolder inside a Repeater template).
         /// </summary>
         internal void ResolvePendingComposition()
         {
             if (ID == null) return;
 
             // Traverse ancestors to find the pending compositions list stored on the root page
-            var pendingList = this.GetAllAncestors()
-                .Select(ancestor => ancestor.GetValue(Internal.PendingMasterPageCompositionsProperty) as List<PendingMasterPageComposition>)
-                .Where(list => list != null)
-                .FirstOrDefault();
+            var rootPage = this.GetAllAncestors()
+                .FirstOrDefault(ancestor => ancestor.GetValue(Internal.PendingMasterPageCompositionsProperty) != null);
 
-            if (pendingList != null)
+            if (rootPage == null) return;
+
+            var pendingList = rootPage.GetValue(Internal.PendingMasterPageCompositionsProperty) as List<PendingMasterPageComposition>;
+            if (pendingList == null) return;
+
+            // Check for duplicate: if this ID was already resolved via deferred composition, a second
+            // instantiation (e.g. ContentPlaceHolder inside a Repeater) would silently render with the
+            // wrong content. Throw instead to surface the problem early.
+            var resolvedIds = rootPage.GetValue(Internal.ResolvedMasterPageCompositionIdsProperty) as HashSet<string>;
+            if (resolvedIds != null && resolvedIds.Contains(ID))
             {
-                // When the same ID is used at multiple master page levels, the pending list contains
-                // multiple entries with the same ID. Items are added from innermost to outermost (because
-                // BuildView processes master pages from inner to outer). We must match the LAST entry
-                // so that the outermost ContentPlaceHolder gets the outermost Content, and inner
-                // ContentPlaceHolders (nested inside that content) get the inner Content entries.
-                var pendingIndex = pendingList.FindLastIndex(p => p.Content.ContentPlaceHolderID == ID);
-                if (pendingIndex >= 0)
+                throw new DotvvmControlException(this,
+                    $"The ContentPlaceHolder with ID '{ID}' has already been resolved. " +
+                    $"ContentPlaceHolder controls used for master page composition cannot be placed inside templates that are instantiated multiple times (e.g. Repeater, foreach).");
+            }
+
+            // When the same ID is used at multiple master page levels, the pending list contains
+            // multiple entries with the same ID. Items are added from innermost to outermost (because
+            // BuildView processes master pages from inner to outer). We must match the LAST entry
+            // so that the outermost ContentPlaceHolder gets the outermost Content, and inner
+            // ContentPlaceHolders (nested inside that content) get the inner Content entries.
+            var pendingIndex = pendingList.FindLastIndex(p => p.Content.ContentPlaceHolderID == ID);
+            if (pendingIndex >= 0)
+            {
+                var pending = pendingList[pendingIndex];
+                pendingList.RemoveAt(pendingIndex);
+
+                // Track that this ID has been resolved so a second instantiation can be detected.
+                if (resolvedIds == null)
                 {
-                    var pending = pendingList[pendingIndex];
-                    pendingList.RemoveAt(pendingIndex);
-
-                    // Perform the deferred composition: wrap Content in a PlaceHolder and add it as our child
-                    var wrapper = new PlaceHolder();
-                    wrapper.SetDataContextType(pending.DataContextType);
-
-                    this.Children.Clear();
-                    this.Children.Add(wrapper);
-
-                    wrapper.Children.Add(pending.Content);
-                    pending.Content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
+                    resolvedIds = new HashSet<string>(StringComparer.Ordinal);
+                    rootPage.SetValue(Internal.ResolvedMasterPageCompositionIdsProperty, resolvedIds);
                 }
+                resolvedIds.Add(ID);
+
+                // Perform the deferred composition: wrap Content in a PlaceHolder and add it as our child
+                var wrapper = new PlaceHolder();
+                wrapper.SetDataContextType(pending.DataContextType);
+
+                this.Children.Clear();
+                this.Children.Add(wrapper);
+
+                wrapper.Children.Add(pending.Content);
+                pending.Content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
             }
         }
 
