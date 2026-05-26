@@ -151,7 +151,7 @@ jobs:
         title: WebForms Adapter Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net472
-    - name: Integration Tests (net8.0)
+    - name: Integration Tests (net10.0)
       uses: ./.github/unittest
       if: ${{ matrix.os == 'ubuntu-latest' && (success() || failure()) }}
       with:
@@ -159,7 +159,7 @@ jobs:
         name: integration-tests
         title: Integration Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        target-framework: net8.0
+        target-framework: net10.0
 
   js-tests:
     runs-on: ubuntu-latest
