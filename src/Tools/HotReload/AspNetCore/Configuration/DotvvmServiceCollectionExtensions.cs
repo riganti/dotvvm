@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Configuration
                 config.Resources.Register("signalr", new ScriptResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.HotReload.AspNetCore.Scripts.signalr.min.js")));
             }
 
-            config.Resources.Register("dotvvm-hotreload", new ScriptResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.HotReload.AspNetCore.Scripts.dotvvm.hotreload.js"))
+            config.Resources.Register("dotvvm-hotreload", new ScriptModuleResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.HotReload.AspNetCore.Scripts.dotvvm.hotreload.js"))
             {
                 Dependencies = new[] { "signalr", "dotvvm" }
             });
