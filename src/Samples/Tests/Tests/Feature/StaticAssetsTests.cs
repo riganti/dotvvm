@@ -34,7 +34,7 @@ namespace DotVVM.Samples.Tests.Feature
                 var path = new Uri(url).PathAndQuery;
 
                 Assert.DoesNotContain("~/", url, StringComparison.Ordinal);
-                Assert.StartsWith(expectedDirectory + "/", path, StringComparison.Ordinal);
+                Assert.StartsWith(DotvvmPathBase + expectedDirectory + "/", path, StringComparison.Ordinal);
 
                 var regex = new Regex($@"/{Regex.Escape(expectedName)}\.[a-zA-Z0-9]+\.{Regex.Escape(extension)}$");
                 Assert.Matches(regex, url);

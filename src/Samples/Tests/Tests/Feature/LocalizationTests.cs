@@ -193,7 +193,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_Localization_LocalizableRoute_PartialMatchHandlers()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl("/cs/FeatureSamples/Localization/lokalizovana-routa?lang=de");
+                browser.NavigateToUrl("cs/FeatureSamples/Localization/lokalizovana-routa?lang=de");
 
                 var culture = browser.Single("span[data-ui=culture]");
                 AssertUI.TextEquals(culture, "de");

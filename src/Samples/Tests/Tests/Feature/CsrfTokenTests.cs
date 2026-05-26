@@ -24,19 +24,20 @@ public class CsrfTokenTests(ITestOutputHelper output) : AppSeleniumTest(output)
             var lazyCsrfToken = (bool)browser.GetJavaScriptExecutor().ExecuteScript("return (typeof dotvvm.state.$csrfToken === 'undefined')");
 
             testButton.Click();
+            var b = DotvvmPathBase;
             CheckRequests(
-                "POST 200 /FeatureSamples/CsrfToken/InvalidateToken"
+                $"POST 200 {b}/FeatureSamples/CsrfToken/InvalidateToken"
             );
             AssertUI.TextEquals(result, "1");
-            
+
             var changeButton = browser.Single("change-button", SelectByDataUi);
             changeButton.Click();
             testButton.Click();
             CheckRequests(
-                "POST 200 /FeatureSamples/CsrfToken/InvalidateToken",
-                "POST 400 /FeatureSamples/CsrfToken/InvalidateToken",
-                "GET 200 /_dotvvm/csrfToken",
-                "POST 200 /FeatureSamples/CsrfToken/InvalidateToken"
+                $"POST 200 {b}/FeatureSamples/CsrfToken/InvalidateToken",
+                $"POST 400 {b}/FeatureSamples/CsrfToken/InvalidateToken",
+                $"GET 200 {b}/_dotvvm/csrfToken",
+                $"POST 200 {b}/FeatureSamples/CsrfToken/InvalidateToken"
             );
             AssertUI.TextEquals(result, "2");
 
@@ -44,12 +45,12 @@ public class CsrfTokenTests(ITestOutputHelper output) : AppSeleniumTest(output)
             eraseButton.Click();
             testButton.Click();
             CheckRequests(
-                "POST 200 /FeatureSamples/CsrfToken/InvalidateToken",
-                "POST 400 /FeatureSamples/CsrfToken/InvalidateToken",
-                "GET 200 /_dotvvm/csrfToken",
-                "POST 200 /FeatureSamples/CsrfToken/InvalidateToken",
-                "GET 200 /_dotvvm/csrfToken",
-                "POST 200 /FeatureSamples/CsrfToken/InvalidateToken"
+                $"POST 200 {b}/FeatureSamples/CsrfToken/InvalidateToken",
+                $"POST 400 {b}/FeatureSamples/CsrfToken/InvalidateToken",
+                $"GET 200 {b}/_dotvvm/csrfToken",
+                $"POST 200 {b}/FeatureSamples/CsrfToken/InvalidateToken",
+                $"GET 200 {b}/_dotvvm/csrfToken",
+                $"POST 200 {b}/FeatureSamples/CsrfToken/InvalidateToken"
             );
             AssertUI.TextEquals(result, "3");
 
@@ -57,7 +58,7 @@ public class CsrfTokenTests(ITestOutputHelper output) : AppSeleniumTest(output)
             {
                 if (lazyCsrfToken)
                 {
-                    expected = new[] { "GET 200 /_dotvvm/csrfToken" }.Concat(expected).ToArray();
+                    expected = [ $"GET 200 {b}/_dotvvm/csrfToken", ..expected ];
                 }
 
                 var items = browser.FindElements("#request-log li");

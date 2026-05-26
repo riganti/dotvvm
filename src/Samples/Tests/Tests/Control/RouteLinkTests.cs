@@ -21,7 +21,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 browser.Single("body > div.container > p:nth-child(2) > label > input[type=\"checkbox\"]").Click();
                 browser.Single("body > div.container > p:nth-child(3) > a").Click();
-                AssertUI.Url(browser, "/ControlSamples/Repeater/RouteLink/0", UrlKind.Relative, UriComponents.PathAndQuery);
+                AssertUI.Url(browser, DotvvmPathBase + "/ControlSamples/Repeater/RouteLink/0", UrlKind.Relative, UriComponents.PathAndQuery);
                 browser.NavigateBack();
             });
         }
@@ -54,7 +54,7 @@ namespace DotVVM.Samples.Tests.Control
             {
                 var href = browser.Single(selector).GetAttribute("href");
 
-                Assert.Equal(relativeUrl, new Uri(href).AbsolutePath);
+                Assert.Equal(DotvvmPathBase + relativeUrl, new Uri(href).AbsolutePath);
             }
 
             checkNavigatedUrl("a[data-ui='optional-parameter-client']", "/ControlSamples/Repeater/RouteLink");
@@ -85,11 +85,11 @@ namespace DotVVM.Samples.Tests.Control
 
                 //this RouteLink does not contain a binding (<dot:RouteLink Enabled="false" ... ) and should not redirect
                 browser.First("a").Click();
-                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkEnabledFalse", UrlKind.Relative, UriComponents.PathAndQuery);
+                AssertUI.Url(browser, DotvvmPathBase + "/ControlSamples/RouteLink/RouteLinkEnabledFalse", UrlKind.Relative, UriComponents.PathAndQuery);
 
                 //this RouteLink contains a binding ( <dot:RouteLink Enabled={{value: "false" ... }} and should not redirect
                 browser.Last("a").Click();
-                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkEnabledFalse", UrlKind.Relative, UriComponents.PathAndQuery);
+                AssertUI.Url(browser, DotvvmPathBase + "/ControlSamples/RouteLink/RouteLinkEnabledFalse", UrlKind.Relative, UriComponents.PathAndQuery);
             });
         }
 
@@ -102,8 +102,8 @@ namespace DotVVM.Samples.Tests.Control
 
                 browser.First(".link").Click();
                 AssertUI.Url(browser,
-                    u => u.EndsWith("/ControlSamples/RouteLink/RouteLinkQueryParameters?int=5&string=default")
-                        || u.EndsWith("/ControlSamples/RouteLink/RouteLinkQueryParameters?string=default&int=5"));
+                    u => u.EndsWith(DotvvmPathBase + "/ControlSamples/RouteLink/RouteLinkQueryParameters?int=5&string=default")
+                        || u.EndsWith(DotvvmPathBase + "/ControlSamples/RouteLink/RouteLinkQueryParameters?string=default&int=5"));
             });
         }
 
