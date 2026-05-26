@@ -14,7 +14,10 @@ namespace DotVVM.Framework.Diagnostics
         public ImmutableArray<DotHtmlFileInfo> Routes => viewCompilationService.GetRoutes();
         public ImmutableArray<DotHtmlFileInfo> MasterPages => viewCompilationService.GetMasterPages();
         public ImmutableArray<DotHtmlFileInfo> Controls => viewCompilationService.GetControls();
+
+        [Bind(Direction.ServerToClientFirstRequest)] // allow client modification while command is running
         public int ActiveTab { get; set; } = 0;
+
         public string PathBase => Context.TranslateVirtualPath("~/");
 
         public bool ShowInlineDiagnostics { get; set; } = true;
