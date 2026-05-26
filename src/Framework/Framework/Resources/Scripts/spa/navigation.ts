@@ -58,7 +58,7 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
                 clearApiCachedValues();
             }
             updater.updateViewModelAndControls(response.result, replaceTypeInfo);
-            updateInitialUrl(url);
+            updateInitialUrl(displayUrl);
             isSpaReady(true);
         } else if (response.result.action === "redirect") {
             // always replace current page in history on navigation redirect, otherwise back button doesn't work (only navigates back to redirect)
