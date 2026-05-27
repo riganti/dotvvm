@@ -108,5 +108,31 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
 
         }
+
+        [TestMethod]
+        public void ResolvedTree_PropertyDirective_InvalidType_DoesNotDuplicateError()
+        {
+            var root = ParseSource(@"@viewModel object
+@property invalidType MyProperty
+");
+
+            var property = root.Directives["property"].Single() as IAbstractPropertyDeclarationDirective;
+
+            Assert.AreEqual(1, property.DothtmlNode.NodeErrors.Count());
+            Assert.AreEqual("Could not resolve type 'invalidType'.", property.DothtmlNode.NodeErrors.Single());
+        }
+
+        [TestMethod]
+        public void ResolvedTree_PropertyDirective_InvalidAttributeType_ErrorReported()
+        {
+            var root = ParseSource(@"@viewModel object
+@property string MyProperty, DotVVM.Framework.Controls.NonExistingAttribute.Required = true
+");
+
+            var property = root.Directives["property"].Single() as IAbstractPropertyDeclarationDirective;
+
+            Assert.AreEqual(1, property.DothtmlNode.NodeErrors.Count());
+            Assert.AreEqual("Could not resolve type 'DotVVM.Framework.Controls.NonExistingAttribute' when trying to resolve property attribute type.", property.DothtmlNode.NodeErrors.Single());
+        }
     }
 }

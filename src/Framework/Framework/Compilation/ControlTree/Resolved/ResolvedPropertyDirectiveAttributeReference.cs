@@ -30,12 +30,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             NameSyntax = attributePropertyNameReference;
             Initializer = initializer;
 
-            var typeDescriptor = directiveService.ResolveType(directiveNode, TypeSyntax, imports);
-
-            if (typeDescriptor == null)
-            {
-                directiveNode.AddError($"Could not resolve type {TypeSyntax.ToDisplayString()} when trying to resolve property attribute type.");
-            }
+            var typeDescriptor = directiveService.ResolveType(directiveNode, TypeSyntax, imports, " when trying to resolve property attribute type");
             Type = typeDescriptor;
 
         }
