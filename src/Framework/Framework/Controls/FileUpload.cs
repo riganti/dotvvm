@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(AllowMultipleFilesProperty)!; }
             set { SetValue(AllowMultipleFilesProperty, value); }
         }
-
+        [AttachedProperty(typeof(bool))]
         public static readonly DotvvmProperty AllowMultipleFilesProperty
             = DotvvmProperty.Register<bool, FileUpload>(p => p.AllowMultipleFiles, true);
 
@@ -58,6 +58,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(AllowedFileTypesProperty, value); }
         }
 
+        [AttachedProperty(typeof(string))]
         public static readonly DotvvmProperty AllowedFileTypesProperty
             = DotvvmProperty.Register<string?, FileUpload>(p => p.AllowedFileTypes);
 
@@ -86,6 +87,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(MaxFileSizeProperty, value); }
         }
 
+        [AttachedProperty(typeof(int?))]
         public static readonly DotvvmProperty MaxFileSizeProperty
             = DotvvmProperty.Register<int?, FileUpload>(c => c.MaxFileSize);
 
@@ -147,7 +149,7 @@ namespace DotVVM.Framework.Controls
             get { return (Command?)GetValue(UploadCompletedProperty); }
             set { SetValue(UploadCompletedProperty, value); }
         }
-
+        [AttachedProperty(typeof(Command))]
         public static readonly DotvvmProperty UploadCompletedProperty
             = DotvvmProperty.Register<Command?, FileUpload>(p => p.UploadCompleted);
 
@@ -171,13 +173,18 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind("with", uploadedFiles, this);
             writer.AddAttribute("class", "dotvvm-upload", true);
 
-            var uploadCompletedBinding = GetCommandBinding(UploadCompletedProperty);
-            if (uploadCompletedBinding != null)
-            {
-                writer.AddAttribute("data-dotvvm-upload-completed", KnockoutHelper.GenerateClientPostBackScript(nameof(UploadCompleted), uploadCompletedBinding, this, useWindowSetTimeout: true, returnValue: null));
-            }
+            RenderUploadCompletedBinding(this, writer);
 
             base.AddAttributesToRender(writer, context);
+        }
+
+        private static void RenderUploadCompletedBinding(DotvvmControl control, IHtmlWriter writer)
+        {
+            var uploadCompletedBinding = control.GetCommandBinding(UploadCompletedProperty);
+            if (uploadCompletedBinding != null)
+            {
+                writer.AddAttribute("data-dotvvm-upload-completed", KnockoutHelper.GenerateClientPostBackScript(nameof(UploadCompleted), uploadCompletedBinding, control, useWindowSetTimeout: true, returnValue: null));
+            }
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -258,34 +265,58 @@ namespace DotVVM.Framework.Controls
                 writer.AddAttribute("capture", Capture);
             }
 
-            writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonSerializer.Serialize(new { url = context.TranslateVirtualPath(GetFileUploadHandlerUrl()) }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
+            writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonSerializer.Serialize(new { url = context.TranslateVirtualPath(GetFileUploadHandlerUrl(this)) }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
             writer.RenderSelfClosingTag("input");
         }
 
-        private string GetFileUploadHandlerUrl()
+        private static string GetFileUploadHandlerUrl(DotvvmControl control)
         {
             var builder = new StringBuilder("~/");
             builder.Append(HostingConstants.FileUploadHandlerMatchUrl);
             var delimiter = "?";
 
-            if (AllowMultipleFiles)
+            if (control.GetValue(AllowMultipleFilesProperty) as bool? == true)
             {
                 builder.AppendFormat("{0}multiple=true", delimiter);
                 delimiter = "&";
             }
 
-            if (!string.IsNullOrWhiteSpace(AllowedFileTypes))
+            var allowedFileTypes = control.GetValue(AllowedFileTypesProperty) as string;
+            if (!string.IsNullOrWhiteSpace(allowedFileTypes))
             {
-                builder.AppendFormat("{0}fileTypes={1}", delimiter, WebUtility.UrlEncode(AllowedFileTypes));
+                builder.AppendFormat("{0}fileTypes={1}", delimiter, WebUtility.UrlEncode(allowedFileTypes));
                 delimiter = "&";
             }
 
-            if (MaxFileSize != null)
+            var maxFileSize = control.GetValue(MaxFileSizeProperty) as int?;
+            if (maxFileSize != null)
             {
-                builder.AppendFormat("{0}maxSize={1}", delimiter, MaxFileSize);
+                builder.AppendFormat("{0}maxSize={1}", delimiter, maxFileSize);
             }
 
             return builder.ToString();
+        }
+
+        /// <summary>
+        /// Gets or sets the UploadedFilesCollection to which files will be uploaded when pasted or dropped on a control (typically TextBox).
+        /// This is an attached property.
+        /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        [AttachedProperty(typeof(UploadedFilesCollection))]
+        public static readonly DotvvmProperty UploadOnPasteOrDropProperty
+            = DelegateActionProperty<UploadedFilesCollection>.Register<FileUpload>("UploadOnPasteOrDrop", RenderUploadOnPasteOrDropProperty);
+
+        private static void RenderUploadOnPasteOrDropProperty(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmProperty property, DotvvmControl control)
+        {
+            RenderUploadCompletedBinding(control, writer);
+
+            var group = new KnockoutBindingGroup()
+            {
+                { "url", KnockoutHelper.MakeStringLiteral(context.TranslateVirtualPath(GetFileUploadHandlerUrl(control))) },
+                { "collection", control, property },
+                { "multiple", control, AllowMultipleFilesProperty }
+            };
+            writer.AddKnockoutDataBind("dotvvm-FileUpload-UploadOnPasteOrDrop", group);
         }
     }
 }

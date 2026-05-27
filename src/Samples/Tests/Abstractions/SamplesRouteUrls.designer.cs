@@ -81,6 +81,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_FileUpload_FileSize = "ControlSamples/FileUpload/FileSize";
         public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
         public const string ControlSamples_FileUpload_IsAllowedOrNot = "ControlSamples/FileUpload/IsAllowedOrNot";
+        public const string ControlSamples_FileUpload_PasteDrop = "ControlSamples/FileUpload/PasteDrop";
         public const string ControlSamples_GridView_ColumnVisible = "ControlSamples/GridView/ColumnVisible";
         public const string ControlSamples_GridView_GridViewCellDecorators = "ControlSamples/GridView/GridViewCellDecorators";
         public const string ControlSamples_GridView_GridViewInlineEditing = "ControlSamples/GridView/GridViewInlineEditing";

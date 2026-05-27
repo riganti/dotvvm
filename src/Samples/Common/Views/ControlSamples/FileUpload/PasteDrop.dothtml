@@ -1,0 +1,31 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.FileUpload.PasteDropViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Past file &amp; Drop file</h1>
+
+    <dot:TextBox Type="MultiLine" Text="{value: Text}"
+                 FileUpload.UploadOnPasteOrDrop="{value: Files}"
+                 FileUpload.UploadCompleted="{command: OnUploadCompleted()}"/>
+
+    <dot:Repeater DataSource="{value: Files.Files}" WrapperTagName="ul">
+        <li>{{value: FileId}}: {{value: FileName}}</li>
+    </dot:Repeater>
+
+    <p>Error: {{value: Files.Error}}</p>
+    <p Visible="{value: Files.IsBusy}">busy</p>
+    <p>Progress: {{value: Files.Progress}}</p>
+
+    <p>Number of uploaded files: {{value: FilesCount}}</p>
+
+</body>
+</html>
+
+
