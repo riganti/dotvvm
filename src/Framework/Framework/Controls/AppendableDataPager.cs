@@ -57,13 +57,13 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> The data source GridViewDataSet (AppendableDataPager does not support plain collections) </summary>
         [MarkupOptions(Required = true, AllowHardCodedValue = false)]
-        public IBaseGridViewDataSet DataSet
+        public IGridViewDataSet DataSet
         {
-            get { return (IBaseGridViewDataSet)GetValue(DataSetProperty)!; }
+            get { return (IGridViewDataSet)GetValue(DataSetProperty)!; }
             set { SetValue(DataSetProperty, value); }
         }
         public static readonly DotvvmProperty DataSetProperty
-            = DotvvmProperty.Register<IBaseGridViewDataSet, AppendableDataPager>(c => c.DataSet, null);
+            = DotvvmProperty.Register<IGridViewDataSet, AppendableDataPager>(c => c.DataSet, null);
 
         /// <summary>
         /// Gets or sets the (static) command that will be used to load the next page.

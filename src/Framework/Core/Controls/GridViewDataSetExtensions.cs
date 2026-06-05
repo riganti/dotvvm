@@ -75,44 +75,44 @@ namespace DotVVM.Framework.Controls
         }
 #endif
 
-        /// <summary> Sets <see cref="IPagingOptions"/> to the first page, and sets the <see cref="IRefreshableGridViewDataSet.IsRefreshRequired"/> property to true. </summary>
+        /// <summary> Sets <see cref="IPagingOptions"/> to the first page, and sets the <see cref="IGridViewDataSet.IsRefreshRequired"/> property to true. </summary>
         /// <remarks> To reload the dataset, you must then call <see cref="LoadFromQueryable{T}(IGridViewDataSet{T}, IQueryable{T})"/> or a similar method. </remarks>
         public static void GoToFirstPageAndRefresh(this IPageableGridViewDataSet<IPagingFirstPageCapability> dataSet)
         {
             dataSet.PagingOptions.GoToFirstPage();
-            (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
+            dataSet.RequestRefresh();
         }
 
-        /// <summary> Sets <see cref="IPagingOptions"/> to the last page, and sets the <see cref="IRefreshableGridViewDataSet.IsRefreshRequired"/> property to true. </summary>
+        /// <summary> Sets <see cref="IPagingOptions"/> to the last page, and sets the <see cref="IGridViewDataSet.IsRefreshRequired"/> property to true. </summary>
         /// <remarks> To reload the dataset, you must then call <see cref="LoadFromQueryable{T}(IGridViewDataSet{T}, IQueryable{T})"/> or a similar method. </remarks>
         public static void GoToLastPageAndRefresh(this IPageableGridViewDataSet<IPagingLastPageCapability> dataSet)
         {
             dataSet.PagingOptions.GoToLastPage();
-            (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
+            dataSet.RequestRefresh();
         }
 
-        /// <summary> Sets <see cref="IPagingOptions"/> to the previous page, and sets the <see cref="IRefreshableGridViewDataSet.IsRefreshRequired"/> property to true. </summary>
+        /// <summary> Sets <see cref="IPagingOptions"/> to the previous page, and sets the <see cref="IGridViewDataSet.IsRefreshRequired"/> property to true. </summary>
         /// <remarks> To reload the dataset, you must then call <see cref="LoadFromQueryable{T}(IGridViewDataSet{T}, IQueryable{T})"/> or a similar method. </remarks>
         public static void GoToPreviousPageAndRefresh(this IPageableGridViewDataSet<IPagingPreviousPageCapability> dataSet)
         {
             dataSet.PagingOptions.GoToPreviousPage();
-            (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
+            dataSet.RequestRefresh();
         }
 
-        /// <summary> Sets <see cref="IPagingOptions"/> to the next page, and sets the <see cref="IRefreshableGridViewDataSet.IsRefreshRequired"/> property to true. </summary>
+        /// <summary> Sets <see cref="IPagingOptions"/> to the next page, and sets the <see cref="IGridViewDataSet.IsRefreshRequired"/> property to true. </summary>
         /// <remarks> To reload the dataset, you must then call <see cref="LoadFromQueryable{T}(IGridViewDataSet{T}, IQueryable{T})"/> or a similar method. </remarks>
         public static void GoToNextPageAndRefresh(this IPageableGridViewDataSet<IPagingNextPageCapability> dataSet)
         {
             dataSet.PagingOptions.GoToNextPage();
-            (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
+            dataSet.RequestRefresh();
         }
 
-        /// <summary> Sets <see cref="IPagingOptions"/> to the page number <paramref name="pageIndex"/> (indexed from 0), and sets the <see cref="IRefreshableGridViewDataSet.IsRefreshRequired"/> property to true. </summary>
+        /// <summary> Sets <see cref="IPagingOptions"/> to the page number <paramref name="pageIndex"/> (indexed from 0), and sets the <see cref="IGridViewDataSet.IsRefreshRequired"/> property to true. </summary>
         /// <remarks> To reload the dataset, you must then call <see cref="LoadFromQueryable{T}(IGridViewDataSet{T}, IQueryable{T})"/> or a similar method. </remarks>
         public static void GoToPageAndRefresh(this IPageableGridViewDataSet<IPagingPageIndexCapability> dataSet, int pageIndex)
         {
             dataSet.PagingOptions.GoToPage(pageIndex);
-            (dataSet as IRefreshableGridViewDataSet)?.RequestRefresh();
+            dataSet.RequestRefresh();
         }
 
 

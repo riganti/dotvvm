@@ -1,6 +1,9 @@
 namespace DotVVM.Framework.Controls
 {
-    public interface IRowEditGridViewDataSet<out TRowEditOptions> : IBaseGridViewDataSet
+    /// <summary>
+    /// Extends the <see cref="IGridViewDataSet" /> with specific implementation of row edit functionality.
+    /// </summary>
+    public interface IRowEditGridViewDataSet<out TRowEditOptions> : IGridViewDataSet
         where TRowEditOptions : IRowEditOptions
     {
         /// <summary>

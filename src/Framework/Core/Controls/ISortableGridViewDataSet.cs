@@ -1,9 +1,9 @@
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Extends the base GridViewDataSet with sorting functionality.
+    /// Extends the <see cref="IGridViewDataSet" /> with specific implementation of sorting functionality.
     /// </summary>
-    public interface ISortableGridViewDataSet<out TSortingOptions> : IBaseGridViewDataSet
+    public interface ISortableGridViewDataSet<out TSortingOptions> : IGridViewDataSet
         where TSortingOptions : ISortingOptions
     {
         /// <summary>

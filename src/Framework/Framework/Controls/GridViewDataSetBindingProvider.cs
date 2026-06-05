@@ -242,7 +242,7 @@ public class GridViewDataSetBindingProvider
         // we are on a server, call the dataSet.RequestRefresh
         var callRequestRefresh = Expression.Call(
             dataSet,
-            nameof(IBaseGridViewDataSet.RequestRefresh),
+            nameof(IGridViewDataSet.RequestRefresh),
             []
         );
         body.Add(callRequestRefresh);
@@ -271,7 +271,7 @@ public class GridViewDataSetBindingProvider
         GetOptionsConcreteType(typeof(IFilterableGridViewDataSet<>), dataSet.Type, out var filteringOptionsProperty);
         GetOptionsConcreteType(typeof(ISortableGridViewDataSet<>), dataSet.Type, out var sortingOptionsProperty);
         GetOptionsConcreteType(typeof(IPageableGridViewDataSet<>), dataSet.Type, out var pagingOptionsProperty);
-        GetOptionsConcreteType(typeof(IBaseGridViewDataSet<>), dataSet.Type, out var itemProperty);
+        GetOptionsConcreteType(typeof(IGridViewDataSet<>), dataSet.Type, out var itemProperty);
         var itemType = itemProperty.PropertyType.GetEnumerableType()!;
 
         var optionsType = typeof(GridViewDataSetOptions<,,>).MakeGenericType(filteringOptionsProperty.PropertyType, sortingOptionsProperty.PropertyType, pagingOptionsProperty.PropertyType);
@@ -325,7 +325,7 @@ public class GridViewDataSetBindingProvider
     /// Do not call this method on the server.
     /// </summary>
     public static Task DataSetClientSideLoad<TGridViewDataSet, TItem, TFilteringOptions, TSortingOptions, TPagingOptions>(
-        IBaseGridViewDataSet dataSet,
+        IGridViewDataSet dataSet,
         Action<GridViewDataSetOptions<TFilteringOptions, TSortingOptions, TPagingOptions>> optionsTransformer,
         Func<GridViewDataSetOptions<TFilteringOptions, TSortingOptions, TPagingOptions>, Task<GridViewDataSetResult<TItem, TFilteringOptions, TSortingOptions, TPagingOptions>>> loadDataDelegate,
         Action<TGridViewDataSet, GridViewDataSetResult<TItem, TFilteringOptions, TSortingOptions, TPagingOptions>> postProcessor)
@@ -373,9 +373,9 @@ public class GridViewDataSetBindingProvider
         {
             optionsProperty = interfaces[0].GetProperty("PagingOptions")!;
         }
-        else if (genericInterface == typeof(IBaseGridViewDataSet<>))
+        else if (genericInterface == typeof(IGridViewDataSet<>))
         {
-            optionsProperty = interfaces[0].GetProperty(nameof(IBaseGridViewDataSet.Items))!;
+            optionsProperty = interfaces[0].GetProperty(nameof(IGridViewDataSet.Items))!;
         }
         else
         {
