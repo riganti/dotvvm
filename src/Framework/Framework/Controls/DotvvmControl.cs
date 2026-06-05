@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using DotVVM.Framework.Compilation.Javascript;
 using System.Runtime.CompilerServices;
 using DotVVM.Framework.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Controls
 {
@@ -357,14 +358,14 @@ namespace DotVVM.Framework.Controls
         }
 
         [Obsolete("Use FindControlInContainer instead. Or FindControlByClientId if you want to be limited only to this container.")]
-        public DotvvmControl? FindControl(string id, bool throwIfNotFound = false) => FindControlInContainer(id, throwIfNotFound);
+        public DotvvmControl? FindControl(string id, [DoesNotReturnIf(true)] bool throwIfNotFound = false) => FindControlInContainer(id, throwIfNotFound);
         [Obsolete("Use FindControlInContainer instead. Or FindControlByClientId if you want to be limited only to this container.")]
-        public T FindControl<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl => FindControlInContainer<T>(id, throwIfNotFound);
+        public T? FindControl<T>(string id, [DoesNotReturnIf(true)] bool throwIfNotFound = false) where T : DotvvmControl => FindControlInContainer<T>(id, throwIfNotFound);
 
         /// <summary>
         /// Finds a control by its ID coded in markup. Does not recurse into naming containers. Returns null if the <paramref name="throwIfNotFound" /> is false and the control is not found.
         /// </summary>
-        public DotvvmControl? FindControlInContainer(string id, bool throwIfNotFound = false)
+        public DotvvmControl? FindControlInContainer(string id, [DoesNotReturnIf(true)] bool throwIfNotFound = false)
         {
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
 
@@ -379,20 +380,20 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Finds a control by its ID coded in markup. Does not recurse into naming containers.
         /// </summary>
-        public T FindControlInContainer<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl
+        public T? FindControlInContainer<T>(string id, [DoesNotReturnIf(true)] bool throwIfNotFound = false) where T : DotvvmControl
         {
             var control = FindControlInContainer(id, throwIfNotFound);
-            if (!(control is T)) // TODO: this does not work
+            if (control is not T and not null)
             {
                 throw new DotvvmControlException(this, $"The control with ID '{id}' was found, however it is not an instance of the desired type '{typeof(T)}'.");
             }
-            return (T)control;
+            return (T?)control;
         }
 
         /// <summary>
         /// Finds a control by its ClientId - the id rendered to output html.
         /// </summary>
-        public DotvvmControl? FindControlByClientId(string id, bool throwIfNotFound = false)
+        public DotvvmControl? FindControlByClientId(string id, [DoesNotReturnIf(true)] bool throwIfNotFound = false)
         {
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
 
@@ -407,14 +408,14 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Finds a control by its ClientId - the id rendered to output html.
         /// </summary>
-        public T FindControlByClientId<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl
+        public T? FindControlByClientId<T>(string id, [DoesNotReturnIf(true)] bool throwIfNotFound = false) where T : DotvvmControl
         {
             var control = FindControlByClientId(id, throwIfNotFound);
-            if (!(control is T))
+            if (control is not T and not null)
             {
                 throw new DotvvmControlException(this, $"The control with ID '{id}' was found, however it is not an instance of the desired type '{typeof(T)}'.");
             }
-            return (T)control;
+            return (T?)control;
         }
 
         /// <summary>
