@@ -773,5 +773,76 @@ namespace DotVVM.Framework.Tests.Runtime
             XAssert.InRange(after - before, 0, 100);
         }
 #endif
+
+        [TestMethod]
+        public void CloneInto_LargeDictionary_NestedControl_SourceNotMutated()
+        {
+            var source = new HtmlGenericControl("div");
+
+            // Push into Dictionary mode (>16 entries)
+            for (int i = 0; i < 20; i++)
+                source.Attributes.Set($"clone-attr-{i}", $"value{i}");
+
+            // Add a nested control as a property value — this triggers CloneValue
+            var nestedOriginal = new HtmlGenericControl("span") { InnerText = "original" };
+            source.Properties.Add(Styles.ReplaceWithProperty, nestedOriginal);
+
+            Assert.AreEqual(20, source.Attributes.Count, "Should have 20 attributes");
+            Assert.AreSame(nestedOriginal, ((HtmlGenericControl)source.Properties[Styles.ReplaceWithProperty]!));
+            Assert.AreEqual("original", nestedOriginal.InnerText);
+
+            var clone = (HtmlGenericControl)source.CloneControl();
+
+            Assert.AreSame(nestedOriginal, (HtmlGenericControl)source.Properties[Styles.ReplaceWithProperty]!, "Source control's nested object was replaced after cloning");
+
+            var nestedInClone = (HtmlGenericControl)clone.Properties[Styles.ReplaceWithProperty]!;
+            Assert.AreNotSame(nestedOriginal, nestedInClone, "Clone should have a separate copy of the nested control");
+            Assert.AreEqual("original", nestedInClone.InnerText);
+
+            nestedInClone.InnerText = "modified";
+            Assert.AreEqual("original", ((HtmlGenericControl)source.Properties[Styles.ReplaceWithProperty]!).InnerText);
+
+            // Clone attributes should match
+            for (int i = 0; i < 20; i++)
+                Assert.AreEqual($"value{i}", clone.Attributes[$"clone-attr-{i}"]);
+
+            clone.SetAttribute("clone-attr-2", "test-replace");
+            Assert.AreEqual("test-replace", (string)clone.Attributes["clone-attr-2"]);
+            for (int i = 3; i < 20; i++)
+                Assert.AreEqual($"value{i}", clone.Attributes[$"clone-attr-{i}"]);
+
+            // Source attributes should be unchanged
+            for (int i = 0; i < 20; i++)
+                Assert.AreEqual($"value{i}", source.Attributes[$"clone-attr-{i}"]);
+        }
+
+        [TestMethod]
+        public void AssignBulk_DictionaryOverArray_MissingStateUpdate()
+        {
+            // Create a control with a few properties (Array8 or Array16 state)
+            var control = new HtmlGenericControl("div");
+            control.InnerText = "existing-text";
+
+            // Build a large dictionary to assign via AssignBulk(Dictionary, owns=true)
+            var dict = new Dictionary<DotvvmPropertyId, object?>();
+            for (int i = 0; i < 10; i++)
+            {
+                var prop = HtmlGenericControl.AttributesGroupDescriptor.GetDotvvmProperty($"bulk-attr-{i}");
+                dict[prop.Id] = $"bulk-{i}";
+            }
+
+            // This should transition from Array state to Dictionary state
+            control.properties.AssignBulk(dict, true);
+
+            // If state field is not updated, subsequent access will NRE or return wrong results
+            Assert.AreEqual(10, control.Attributes.Count, "Attributes count wrong after AssignBulk");
+            for (int i = 0; i < 10; i++)
+                Assert.AreEqual($"bulk-{i}", control.Attributes[$"bulk-attr-{i}"],
+                    $"Attribute bulk-attr-{i} incorrect after AssignBulk");
+
+            // Also verify TryGet still works (would crash if state is stale)
+            Assert.IsTrue(control.properties.TryGet(HtmlGenericControl.InnerTextProperty.Id, out var innerText));
+            Assert.AreEqual("existing-text", innerText);
+        }
     }
 }

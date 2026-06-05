@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Controls
 
         private readonly bool IsArrayState => ((byte)state | 1) == 3; // state == TableState.Array8 || state == TableState.Array16;
 
-        
+
         private object?[] valuesAsArray
         {
             [MethodImpl(Inline)]
@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Controls
                     break;
                 case TableState.Array8:
                 case TableState.Array16:
-                    Debug.Assert(keys is {});
+                    Debug.Assert(keys is {} && values is object[], $"state={state} keys={keys} values={values}");
                     Debug.Assert(values is object[]);
                     Debug.Assert(keys.Length == valuesAsArray.Length, $"keys.Length={keys.Length} != values.Length={valuesAsArray.Length}");
                     Debug.Assert(keys.Length == (state == TableState.Array8 ? 8 : 16));
@@ -201,13 +201,14 @@ namespace DotVVM.Framework.Controls
                     this.values = values;
                     this.keys = null;
                     this.ownsValues = true;
+                    this.state = TableState.Dictionary;
                 }
                 else
                 {
+                    SwitchToDictionary();
+                    var target = this.valuesAsDictionaryUnsafe;
                     foreach (var (k, v) in values)
-                    {
-                        this.Set(k, v);
-                    }
+                        target[k] = v;
                 }
             }
         }
@@ -668,7 +669,8 @@ namespace DotVVM.Framework.Controls
                 }
 #else
                 OwnValues();
-                return valuesAsDictionary.TryAdd(p, value) || Object.ReferenceEquals(valuesAsDictionary[p], value);
+                var dict = this.valuesAsDictionary;
+                return dict.TryAdd(p, value) || Object.ReferenceEquals(dict[p], value);
 #endif
             }
         }
@@ -758,7 +760,7 @@ namespace DotVVM.Framework.Controls
             if (this.values == null) return 0;
             if (this.keys == null)
                 return this.valuesAsDictionary.Count;
-            
+
             return Impl.Count(this.keys);
         }
 
@@ -784,7 +786,7 @@ namespace DotVVM.Framework.Controls
                             if (newValues is null)
                                 // ok, we have to copy it
                                 newValues = new Dictionary<DotvvmPropertyId, object?>(dictionary);
-                            newDict.valuesAsDictionary[key] = newValue;
+                            newValues[key] = newValue;
                         }
 
                     if (newValues is null)
@@ -879,7 +881,7 @@ namespace DotVVM.Framework.Controls
             }
             CheckInvariant();
         }
-        
+
         /// <summary> Switch Empty -> Array8, Array8 -> Array16, or Array16 -> Dictionary </summary>
         void IncreaseSize()
         {
