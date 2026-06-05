@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Compilation
                         exclusiveMode = true;
                         filesToCompile = GetFilesToBeCompiled();
                         if (!filesToCompile.Any())
-                            return GetFilesWithFailedCompilation().Any();
+                            return !GetFilesWithFailedCompilation().Any();
                     }
                 }
                 var discoveredMasterPages = new ConcurrentDictionary<string, DotHtmlFileInfo>();
