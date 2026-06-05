@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
@@ -114,6 +117,33 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(CompilationState.NonCompilable, route.Status);
             Assert.IsNull(route.Exception);
         }
+
+        [TestMethod]
+        public async Task CompileAll_ReturnsTrue_WhenConcurrentCompilationAlreadyCompiledAllViews()
+        {
+            var fileLoader = new BlockingMarkupFileLoader(new() {
+                ["BlockingCompilation.dothtml"] = """
+                    @viewModel object
+                    <span>test</span>
+                    """
+            });
+            var config = DotvvmTestHelper.CreateConfiguration(s => s.AddSingleton<IMarkupFileLoader>(fileLoader));
+
+            config.RouteTable.Add("BlockingCompilation", "BlockingCompilation", "BlockingCompilation.dothtml", null);
+
+            config.Freeze();
+            var service = config.ServiceProvider.GetRequiredService<IDotvvmViewCompilationService>();
+
+            var firstCompilation = Task.Run(() => service.CompileAll());
+            var secondCompilation = Task.Run(() => service.CompileAll());
+
+            fileLoader.Continue.Set();
+
+            var results = await Task.WhenAll(firstCompilation, secondCompilation);
+
+            Assert.IsTrue(results[0]);
+            Assert.IsTrue(results[1]);
+        }
     }
 
     public class ControlWithContextInjection: DotvvmControl
@@ -135,6 +165,30 @@ namespace DotVVM.Framework.Tests.Runtime
 
         public class ThisServiceIsntRegistered
         {
+        }
+    }
+
+    public class BlockingMarkupFileLoader: IMarkupFileLoader
+    {
+        private readonly Dictionary<string, string> markupFiles;
+        public readonly ManualResetEventSlim Continue = new ManualResetEventSlim();
+
+        public BlockingMarkupFileLoader(Dictionary<string, string> markupFiles)
+        {
+            this.markupFiles = markupFiles;
+        }
+
+        public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
+        {
+            if (!Continue.Wait(TimeSpan.FromSeconds(5)))
+                throw new TimeoutException("The test did not release the blocking markup loader.");
+
+            return new MarkupFile(virtualPath, virtualPath, markupFiles[virtualPath]);
+        }
+
+        public string GetMarkupFileVirtualPath(IDotvvmRequestContext context)
+        {
+            return context.Route!.VirtualPath!;
         }
     }
 }

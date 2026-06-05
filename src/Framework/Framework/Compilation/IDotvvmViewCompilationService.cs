@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         /// <param name="file">File to compile</param>
         /// <param name="masterPage">Master page associated with given file.</param>
-        /// <returns></returns>
+        /// <returns>Returns whether compilation was successful.</returns>
         bool BuildView(DotHtmlFileInfo file, out DotHtmlFileInfo? masterPage);
 
         /// <summary>
