@@ -207,7 +207,7 @@ namespace DotVVM.Framework.Controls
 
                 return -1;
             }
-#endif      
+#endif
             exists = true;
             if (Unsafe.Add(ref keys, 0).Id == p.Id) return 0;
             if (Unsafe.Add(ref keys, 1).Id == p.Id) return 1;
@@ -538,7 +538,7 @@ namespace DotVVM.Framework.Controls
             if (properties.Length > 16)
                 throw new ArgumentException("Properties and values must have at most 16 elements, otherwise create a dictionary.", nameof(properties));
 
-            
+
 
             var (hashSeed, keys) = BuildTable(properties);
             var valueTable = new T[keys.Length];
@@ -552,7 +552,7 @@ namespace DotVVM.Framework.Controls
         public static Action<DotvvmBindableObject> CreateBulkSetter(DotvvmProperty[] properties, object?[] values)
         {
             var ids = properties.Select(p => p.Id).ToArray();
-            Array.Sort(ids);
+            Array.Sort(ids, values);
             return CreateBulkSetter(ids, values);
         }
         public static Action<DotvvmBindableObject> CreateBulkSetter(DotvvmPropertyId[] properties, object?[] values)

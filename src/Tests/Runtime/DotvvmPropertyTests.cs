@@ -675,5 +675,103 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             XAssert.Distinct(DotvvmPropertyGroup.AllGroups.Select(g => g.Id));
         }
+
+        [TestMethod]
+        [DataRow(2)]
+        [DataRow(3)]
+        [DataRow(7)]
+        [DataRow(20)]
+        public void CreateBulkSetter_Basic(int count)
+        {
+            var properties = new List<DotvvmProperty>();
+            var values = new List<object?>();
+
+            for (int i = 0; i < count; i++)
+            {
+                properties.Add(HtmlGenericControl.AttributesGroupDescriptor.GetDotvvmProperty($"cbl-attr-{i}"));
+                values.Add($"attr-{i}");
+
+                properties.Add(HtmlGenericControl.CssClassesGroupDescriptor.GetDotvvmProperty($"cbl-class-{i}"));
+                values.Add(true);
+
+                properties.Add(HtmlGenericControl.CssStylesGroupDescriptor.GetDotvvmProperty($"cbl-style-{i}"));
+                values.Add($"style-{i}");
+            }
+
+            var setter = PropertyDictionaryImpl.CreateBulkSetter(properties.ToArray(), values.ToArray());
+            var control = new HtmlGenericControl("div");
+            setter(control);
+
+            for (int i = 0; i < count; i++)
+            {
+                Assert.AreEqual($"attr-{i}", control.Attributes[$"cbl-attr-{i}"],
+                    $"Attribute {i} mapped to wrong value after bulk set");
+                Assert.IsTrue((bool)control.CssClasses[$"cbl-class-{i}"],
+                    $"CssClass {i} mapped to wrong value after bulk set");
+                Assert.AreEqual($"style-{i}", control.CssStyles[$"cbl-style-{i}"],
+                    $"CssStyle {i} mapped to wrong value after bulk set");
+            }
+        }
+
+        [TestMethod]
+        public void PropertyGroupEnumerator_AllEntriesReturned()
+        {
+            var control = new HtmlGenericControl("div");
+
+            var a = ToArray(control.properties.EnumeratePropertyGroup(HtmlGenericControl.AttributesGroupDescriptor.Id));
+            XAssert.Equal([], a);
+
+            control.Attributes.Set("enum-test-1", "v1");
+            a = ToArray(control.properties.EnumeratePropertyGroup(HtmlGenericControl.AttributesGroupDescriptor.Id));
+            XAssert.Equal(["v1"], a.Select(x => x.Value));
+
+            control.Attributes.Set("enum-test-2", "v2");
+            control.Attributes.Set("enum-test-3", "v3");
+            control.CssStyles.Set("enum-style-1", "s1");
+
+            var attrResults = ToArray(control.properties.EnumeratePropertyGroup(HtmlGenericControl.AttributesGroupDescriptor.Id))
+                    .ToDictionary(x => DotvvmPropertyIdAssignment.GetGroupMemberName(x.Key.MemberId), x => x.Value);
+            Assert.AreEqual(3, attrResults.Count);
+            Assert.AreEqual("v1", attrResults["enum-test-1"]);
+            Assert.AreEqual("v2", attrResults["enum-test-2"]);
+            Assert.AreEqual("v3", attrResults["enum-test-3"]);
+
+            var styleResults = ToArray(control.properties.EnumeratePropertyGroup(HtmlGenericControl.CssStylesGroupDescriptor.Id))
+                    .ToDictionary(x => DotvvmPropertyIdAssignment.GetGroupMemberName(x.Key.MemberId), x => x.Value);
+            Assert.AreEqual(1, styleResults.Count);
+            Assert.AreEqual("s1", styleResults["enum-style-1"]);
+        }
+
+        static T[] ToArray<T>(IEnumerator<T> e)
+        {
+            var list = new List<T>();
+            while (e.MoveNext())
+                list.Add(e.Current);
+            return list.ToArray();
+        }
+
+#if NET6_0_OR_GREATER
+        [TestMethod]
+        public void PropertyInstance_GroupedProperty_NoAllocationAfterCacheWarmup()
+        {
+            var control = new HtmlGenericControl("div");
+            control.Attributes.Set("alloc-test-attr", "value");
+
+            var memberId = DotvvmPropertyIdAssignment.GetGroupMemberId("alloc-test-attr", registerIfNotFound: false);
+            Assert.AreNotEqual((ushort)0, memberId);
+            var propId = DotvvmPropertyId.CreatePropertyGroupId(HtmlGenericControl.AttributesGroupDescriptor.Id, memberId);
+
+            // populate the generatedProperties cache
+            for (int i = 0; i < 10; i++)
+                _ = propId.PropertyInstance;
+
+            var before = GC.GetAllocatedBytesForCurrentThread();
+            for (int i = 0; i < 100; i++)
+                _ = propId.PropertyInstance;
+            var after = GC.GetAllocatedBytesForCurrentThread();
+
+            XAssert.InRange(after - before, 0, 100);
+        }
+#endif
     }
 }
