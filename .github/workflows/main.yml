@@ -197,6 +197,7 @@ jobs:
         os: [ubuntu-latest]
         environment: [Production]
         samples-config: [Default]
+        path-base: [""]
         include:
           - browser: chrome
             os: windows-2022
@@ -206,6 +207,7 @@ jobs:
             os: ubuntu-latest
             environment: Development
             samples-config: Default
+            path-base: /test-basepath
           - browser: firefox
             os: ubuntu-latest
             environment: Production
@@ -235,3 +237,4 @@ jobs:
         build-configuration: "${{ matrix.environment == 'Production' && 'Release' || 'Debug' }}"
         runtime-environment: "${{ matrix.environment }}"
         samples-config: "${{ matrix.samples-config }}"
+        path-base: "${{ matrix.path-base }}"

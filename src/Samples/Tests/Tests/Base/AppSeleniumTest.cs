@@ -37,5 +37,7 @@ namespace DotVVM.Samples.Tests.Base
         {
             AssertApiSeleniumTestExecutorExtensions.RunInAllBrowsers(this, testBody, callerMemberName, callerFilePath, callerLineNumber);
         }
+
+        public static string DotvvmPathBase { get; } = Environment.GetEnvironmentVariable("DOTVVM_TEST_PATH_BASE") ?? "";
     }
 }

@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Configuration
                 });
             }
 
-            config.Resources.Register("dotvvm-hotreload", new ScriptResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.HotReload.Owin.Scripts.dotvvm.hotreload.js"))
+            config.Resources.Register("dotvvm-hotreload", new ScriptModuleResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.HotReload.Owin.Scripts.dotvvm.hotreload.js"))
             {
                 Dependencies = new[] { "signalr-hubs", "dotvvm" }
             });

@@ -18,6 +18,10 @@ inputs:
     default: Default
     description: Determines which DotvvmConfiguration will be used in samples. See src/Samples/Common/sampleConfig.json for available options
     required: false
+  path-base:
+    default: ""
+    description: Optional path base for ASP.NET Core sample apps
+    required: false
   github-token:
     description: GitHub token so that test results can be uploaded
     required: true
@@ -37,6 +41,7 @@ runs:
     shell: bash
     env:
       DOTVVM_SAMPLES_CONFIG_PROFILE: ${{ inputs.samples-config }}
+      DOTVVM_TEST_PATH_BASE: ${{ inputs.path-base }}
       GITHUB_TOKEN: ${{ inputs.github-token }}
 
   - if: ${{ runner.os == 'Windows' }}
@@ -54,6 +59,7 @@ runs:
     shell: pwsh
     env:
       DOTVVM_SAMPLES_CONFIG_PROFILE: ${{ inputs.samples-config }}
+      DOTVVM_TEST_PATH_BASE: ${{ inputs.path-base }}
       GITHUB_TOKEN: ${{ inputs.github-token }}
 
   # publish the result to github

@@ -18,7 +18,8 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_CompilationPage_SmokeTest()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl("/_dotvvm/diagnostics/compilation");
+                browser.NavigateToUrl("_dotvvm/diagnostics/compilation");
+                browser.WaitUntilDotvvmInited();
                 browser.WaitFor(() => { browser.Single("compile-all-button", By.Id).Click(); }, timeout: 15_000);
                 browser.Single("Routes", SelectByButtonText).Click();
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Routing;
@@ -83,6 +84,33 @@ namespace DotVVM.Samples.BasicSamples
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseRequestLocalization();
+
+            var mandatoryPathBase = Environment.GetEnvironmentVariable("DOTVVM_TEST_PATH_BASE");
+            if (!string.IsNullOrEmpty(mandatoryPathBase))
+            {
+                app.UsePathBase(mandatoryPathBase);
+                app.Use(async (context, next) => {
+                    if (context.Request.PathBase == mandatoryPathBase)
+                    {
+                        await next();
+                        return;
+                    }
+
+                    if ((string)context.Request.Path is "" or "/")
+                    {
+                        context.Response.Redirect(mandatoryPathBase);
+                        return;
+                    }
+
+                    context.Response.StatusCode = 400;
+                    context.Response.ContentType = "text/plain; charset=utf-8";
+                    await context.Response.WriteAsync($"""
+                        Request with basepath = "{context.Request.PathBase}" is not allowed, "{mandatoryPathBase}" prefix must be used.
+
+                        Correct url: "{mandatoryPathBase + context.Request.Path}"
+                    """);
+                });
+            }
 
             app.UseRouting();
             app.UseAuthentication();

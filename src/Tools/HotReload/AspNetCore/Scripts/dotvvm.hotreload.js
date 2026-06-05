@@ -1,8 +1,10 @@
 ﻿(function () {
     function connect() {
+        // this is resource at BASE_PATH/_dotvvm/resource-dotvvm-hotreload/dotvvm-hotreload
+        const url = import.meta.resolve("../../_dotvvm/hotReloadHub")
         // listen for markup file changes
         var connection = new signalR.HubConnectionBuilder()
-            .withUrl("/_dotvvm/hotReloadHub")
+            .withUrl(url)
             .withAutomaticReconnect()
             .build();
         connection.on("fileChanged", function (paths) {

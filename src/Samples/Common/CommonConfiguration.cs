@@ -72,7 +72,7 @@ namespace DotVVM.Samples.Common
                 config.PropertyMetadataRules
                     .For("IsCompany", r => r.SetDisplayName("Hello"))
                     .For("ProductId", r => r.SetSelection<ProductSelection>());
-                
+
             });
             services.AddTransient<ISelectionProvider<ProductSelection>, ProductSelectionProvider>();
             services.AddTransient<ISelectionProvider<CountrySelection>, CountrySelectionProvider>();
@@ -93,7 +93,7 @@ namespace DotVVM.Samples.Common
             });
 
             resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource {
-                Location = new UrlResourceLocation("/Scripts/testResource.js"),
+                Location = new UrlResourceLocation("~/Scripts/testResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
 
