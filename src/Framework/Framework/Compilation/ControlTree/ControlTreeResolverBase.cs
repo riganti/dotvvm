@@ -529,7 +529,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 from controlName in Enumerable.Concat([ c.tagName ?? c.type.PrimaryName ], c.type.AlternativeNames)
                 let nameScore = StringSimilarity.DamerauLevenshteinDistance(elementName.ToLowerInvariant(), controlName.ToLowerInvariant())
                 where prefixScore + nameScore <= threshold
-                orderby (prefixScore + nameScore, controlName, c.tagPrefix) descending
+                orderby (prefixScore + nameScore), controlName, c.tagPrefix
                 select (c.tagPrefix, controlName, c.type)
             ).Take(limit).ToArray();
         }
@@ -636,7 +636,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         {
                             if (controlResolver.FindProperty(control.Metadata, element.TagName, MappingMode.InnerElement) is {} property)
                             {
-                                element.TagNameNode.AddWarning($"This element looks like an inner element property {property.FullName}, but it isn't, because it is prefixed by other content ('{content.FirstOrDefault(c => c.IsNotEmpty())}')).");
+                                element.TagNameNode.AddWarning($"This element looks like an inner element property {property.FullName}, but it isn't, because it is prefixed by other content ('{content.FirstOrDefault(c => c.IsNotEmpty())}').");
                             }
                             else
                             {

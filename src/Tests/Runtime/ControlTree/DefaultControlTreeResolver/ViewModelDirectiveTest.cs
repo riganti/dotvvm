@@ -32,6 +32,17 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
+        public void ResolvedTree_InvalidViewModelType_DoesNotDuplicateError()
+        {
+            var root = ParseSource(@"@viewModel invalid
+");
+
+            var directiveNode = ((DothtmlRootNode)root.DothtmlNode).Directives.First();
+            Assert.AreEqual(1, directiveNode.NodeErrors.Count());
+            Assert.AreEqual("Could not resolve type 'invalid'.", directiveNode.NodeErrors.Single());
+        }
+
+        [TestMethod]
         public void ResolvedTree_EmptyViewModelType()
         {
             var root = ParseSource(@"@viewModel

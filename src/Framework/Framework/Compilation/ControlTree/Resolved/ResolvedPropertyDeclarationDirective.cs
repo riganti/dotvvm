@@ -40,11 +40,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
             var propertyTypeDescriptor = service.ResolveType(dothtmlDirective, typeSyntax, imports);
 
-            if (propertyTypeDescriptor == null)
-            {
-                dothtmlDirective.AddError($"Could not resolve type {typeSyntax.ToDisplayString()}.");
-            }
-
             PropertyType = propertyTypeDescriptor;
 
             //Chack that I am not asigning incompatible types 

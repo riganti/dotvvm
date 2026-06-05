@@ -20,6 +20,7 @@ using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -202,7 +203,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(1, control.ConstructorParameters.Length);
             Assert.AreEqual("dot:xxxButton", control.ConstructorParameters[0]);
             var node = (control.DothtmlNode as DothtmlElementNode).TagNameNode;
-            Assert.AreEqual("The control <dot:xxxButton> could not be resolved! Did you mean dot:LinkButton, dot:Button, or other DotVVM control?", XAssert.Single(node.NodeErrors));
+            Assert.AreEqual("The control <dot:xxxButton> could not be resolved! Did you mean dot:Button, dot:LinkButton, or other DotVVM control?", XAssert.Single(node.NodeErrors));
 
             Assert.AreEqual(root, control.Parent);
         }

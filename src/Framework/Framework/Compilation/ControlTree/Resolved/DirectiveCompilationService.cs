@@ -26,12 +26,12 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             this.configuration = configuration;
         }
 
-        public ResolvedTypeDescriptor? ResolveType(DothtmlDirectiveNode directive, BindingParserNode nameSyntax, ImmutableList<NamespaceImport> imports)
+        public ResolvedTypeDescriptor? ResolveType(DothtmlDirectiveNode directive, BindingParserNode nameSyntax, ImmutableList<NamespaceImport> imports, string? errorContext = null)
         {
             if (CompileDirectiveExpression(directive, nameSyntax, imports) is not StaticClassIdentifierExpression expression)
             {
                 var help = GetMissingTypeHelp(nameSyntax, imports);
-                directive.AddError($"Could not resolve type '{nameSyntax.ToDisplayString()}'.{(help is null ? "" : " " + help)}");
+                directive.AddError($"Could not resolve type '{nameSyntax.ToDisplayString()}'{errorContext}.{(help is null ? "" : " " + help)}");
                 return null;
             }
             else return new ResolvedTypeDescriptor(expression.Type);

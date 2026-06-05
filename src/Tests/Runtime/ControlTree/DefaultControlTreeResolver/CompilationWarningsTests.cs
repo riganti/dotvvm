@@ -141,8 +141,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             XAssert.Empty(correctTemplateElement.TagNameNode.NodeWarnings);
             Assert.AreEqual("HTML element name 'SepratrorTemplate' should not contain uppercase letters. Did you mean SeparatorTemplate, or another DotVVM property?", XAssert.Single(mistakeTemplateElement.TagNameNode.NodeWarnings));
-            Assert.AreEqual("HTML element name 'TextBox' should not contain uppercase letters. Did you mean dot:CheckBox, dot:ListBox, dot:TextBox, or another DotVVM control?", XAssert.Single(mistakeTextBoxElement.TagNameNode.NodeWarnings));
-            Assert.AreEqual("This element looks like an inner element property Repeater.SeparatorTemplate, but it isn't, because it is prefixed by other content ('<SepratrorTemplate>')).", XAssert.Single(lateTemplate.TagNameNode.NodeWarnings));
+            Assert.AreEqual("HTML element name 'TextBox' should not contain uppercase letters. Did you mean dot:TextBox, dot:ListBox, dot:CheckBox, or another DotVVM control?", XAssert.Single(mistakeTextBoxElement.TagNameNode.NodeWarnings));
+            Assert.AreEqual("This element looks like an inner element property Repeater.SeparatorTemplate, but it isn't, because it is prefixed by other content ('<SepratrorTemplate>').", XAssert.Single(lateTemplate.TagNameNode.NodeWarnings));
         }
 
         [TestMethod]
