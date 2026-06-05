@@ -56,6 +56,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var map = queue.Dequeue();
                 var typeId = map.ClientTypeId;
 
+                if (ignoredTypes is {} && ignoredTypes.Contains(typeId))
+                    continue;
+
                 json.WritePropertyName(typeId);
                 var metadata = GetObjectTypeMetadataCached(map);
                 json.WriteRawValue(metadata.MetadataJson, skipInputValidation: true);
@@ -64,11 +67,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 foreach (var dependentType in metadata.DependentObjectTypes)
                 {
-                    if (!visitedTypes.Contains(dependentType))
+                    if (visitedTypes.Add(dependentType))
                     {
-                        visitedTypes.Add(dependentType);
-                        if (ignoredTypes?.Contains(map.ClientTypeId) != true)
-                            queue.Enqueue(viewModelSerializationMapper.GetMap(dependentType));
+                        queue.Enqueue(viewModelSerializationMapper.GetMap(dependentType));
                     }
                 }
             }

@@ -64,11 +64,11 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 #endif
 
-        JsonObject SerializeMetadata(ViewModelTypeMetadataSerializer serializer, params Type[] types)
+        JsonObject SerializeMetadata(ViewModelTypeMetadataSerializer serializer, Type[] types, ISet<string>? ignoredTypes = null)
         {
             var json = GetSerializedString(writer => {
                 writer.WriteStartObject();
-                serializer.SerializeTypeMetadata(types.Select(mapper.GetMap), writer, "typeMetadata"u8);
+                serializer.SerializeTypeMetadata(types.Select(mapper.GetMap), writer, "typeMetadata"u8, ignoredTypes);
                 writer.WriteEndObject();
             });
             return JsonNode.Parse(json).AsObject()["typeMetadata"].AsObject();
@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             {
                 var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
 
-                var result = SerializeMetadata(typeMetadataSerializer, typeof(TestViewModel));
+                var result = SerializeMetadata(typeMetadataSerializer, [typeof(TestViewModel)]);
 
                 var checker = new OutputChecker("testoutputs");
                 checker.CheckJsonObject(result);
@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             CultureUtils.RunWithCulture("en-US", () => {
                 var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
-                var result = SerializeMetadata(typeMetadataSerializer, typeof(TestViewModel));
+                var result = SerializeMetadata(typeMetadataSerializer, [typeof(TestViewModel)]);
 
                 var rules = XAssert.IsType<JsonArray>(result[typeof(TestViewModel).GetTypeHash()]["properties"]["ServerToClient"]["validationRules"]);
                 XAssert.Single(rules);
@@ -110,9 +110,24 @@ namespace DotVVM.Framework.Tests.ViewModel
                 config.ClientSideValidation = false;
 
                 var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper, config);
-                var result = SerializeMetadata(typeMetadataSerializer, typeof(TestViewModel));
+                var result = SerializeMetadata(typeMetadataSerializer, [typeof(TestViewModel)]);
 
                 XAssert.Null(result[typeof(TestViewModel).GetTypeHash()]["properties"]["ServerToClient"]["validationRules"]);
+            });
+        }
+
+        [TestMethod]
+        public void ViewModelTypeMetadata_IgnoreNestedTypeMetadata()
+        {
+            CultureUtils.RunWithCulture("en-US", () =>
+            {
+                var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
+                var result = SerializeMetadata(typeMetadataSerializer, [typeof(TestViewModel)],
+                    ignoredTypes: new HashSet<string> { typeof(NestedTestViewModel).GetTypeHash() }
+                );
+
+                Assert.IsNotNull(result[typeof(TestViewModel).GetTypeHash()]);
+                Assert.IsNull(result[typeof(NestedTestViewModel).GetTypeHash()]);
             });
         }
 
