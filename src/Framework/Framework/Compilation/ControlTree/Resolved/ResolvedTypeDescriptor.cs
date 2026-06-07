@@ -116,8 +116,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 }
                 else
                 {
+                    // handle shadowing - when the same property is declared on multiple inherited interfaces, prefer the
+                    // most specific declaration, i.e. the one that is not a base interface of another candidate.
                     var candidates = new[] { Type }.Concat(Type.GetInterfaces()).Where(s => s.GetProperty(propertyName) != null).ToList();
-                    // this is not nice and I don't like it but the problem is shadowing of props in interfaces.
                     var propertyType = candidates
                         .First(s => candidates.Where(c => c != s).All(b => b.GetInterfaces().All(n => n != s)))
                         .GetProperty(propertyName)?.PropertyType;
