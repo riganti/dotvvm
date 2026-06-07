@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 }
                 else
                 {
-                    var candidates = Type.GetInterfaces().Where(s => s.GetProperty(propertyName) != null).ToList();
+                    var candidates = new[] { Type }.Concat(Type.GetInterfaces()).Where(s => s.GetProperty(propertyName) != null).ToList();
                     // this is not nice and I don't like it but the problem is shadowing of props in interfaces.
                     var propertyType = candidates
                         .First(s => candidates.Where(c => c != s).All(b => b.GetInterfaces().All(n => n != s)))
