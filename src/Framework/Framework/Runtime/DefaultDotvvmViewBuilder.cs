@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Runtime
                 if (spaContentPlaceHolders.Count == 0 || !spaContentPlaceHolderIds.Contains(spaContentPlaceHolders[0].GetSpaContentPlaceHolderUniqueId()))
                 {
                     // the client has loaded different page which does not contain current SpaContentPlaceHolder - he needs to be redirected
-                    context.RedirectToUrl(context.HttpContext.Request.Url.AbsoluteUri.Replace("/" + HostingConstants.SpaUrlIdentifier, ""));
+                    context.RedirectToUrl(context.HttpContext.Request.Url.AbsoluteUri);
                 }
             }
         }

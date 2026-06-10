@@ -51,14 +51,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             {
                 url = requestPath;
             }
-            url = url?.Trim('/') ?? "";
-
-            // remove SPA identifier from the URL
-            if (url.StartsWith(HostingConstants.SpaUrlIdentifier, StringComparison.Ordinal))
-            {
-                url = url.Substring(HostingConstants.SpaUrlIdentifier.Length).Trim('/');
-            }
-            return url;
+            return url?.Trim('/') ?? "";
         }
 
         internal static RouteBase? FindExactMatchRoute(IEnumerable<RouteBase> routes, string matchUrl, out IDictionary<string, object?>? parameters)

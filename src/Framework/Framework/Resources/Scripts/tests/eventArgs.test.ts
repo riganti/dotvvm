@@ -208,7 +208,7 @@ const fetchDefinitions = {
         } as any;
     },
     spaNavigateRedirect: async <T>(url: string, init: RequestInit) => {
-        if (url == "/_dotvvm/spa/newUrl") {
+        if (url == "/newUrl") {
             return await fetchDefinitions.spaNavigateSuccess(url, init);
         }
         return {
