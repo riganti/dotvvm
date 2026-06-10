@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Security
     {
         public static string GetRequestIdentity(IDotvvmRequestContext context)
         {
-            return context.HttpContext.Request.Url.ToString();
+            return context.HttpContext.Request.Url.ToString().Replace("/" + HostingConstants.SpaUrlIdentifier, "");
         }
 
         public static string GetUserIdentity(IDotvvmRequestContext context)
