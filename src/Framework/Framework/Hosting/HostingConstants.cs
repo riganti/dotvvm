@@ -18,7 +18,6 @@ namespace DotVVM.Framework.Hosting
         [Obsolete("Use PostBackHeaderName instead")]
         public const string SpaPostBackHeaderName = PostBackHeaderName;
         public const string SpaContentPlaceHolderID = "__dot_SpaContentPlaceHolder";
-        public const string SpaUrlIdentifier = "_dotvvm/spa";
 
         public const string SpaContentPlaceHolderDataAttributeName = "data-dotvvm-spacontentplaceholder";
 
