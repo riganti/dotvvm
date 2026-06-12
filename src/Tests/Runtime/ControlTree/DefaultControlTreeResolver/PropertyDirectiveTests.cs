@@ -12,7 +12,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             var root = ParseSource(@$"
 @viewModel object
-@property string MyProperty, , DotVVM., DotVVM.Fra = , DotVVM.Framework.Controls.MarkupOptionsAttribute.Required = t");
+@property string MyProperty, , DotVVM., DotVVM.Fra = , DotVVM.Framework.Controls.MarkupOptionsAttribute.Required = t",
+                fileName: "x.dotcontrol");
 
             var property = root.Directives["property"].SingleOrDefault() as IAbstractPropertyDeclarationDirective;
 
@@ -32,7 +33,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             var root = ParseSource(@$"
 @viewModel object
-@property string MyProperty, DotVVM.Framework.Controls.MarkupOptionsAttribute.Required = 1");
+@property string MyProperty, DotVVM.Framework.Controls.MarkupOptionsAttribute.Required = 1",
+                fileName: "x.dotcontrol");
 
             var property = root.Directives["property"].SingleOrDefault() as IAbstractPropertyDeclarationDirective;
 
@@ -52,7 +54,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             var root = ParseSource(@$"
 @viewModel object
-@property string a=[, MarkupOptionsAttribute.Required = true");
+@property string a=[, MarkupOptionsAttribute.Required = true",
+                fileName: "x.dotcontrol");
 
             var property = root.Directives["property"].SingleOrDefault() as IAbstractPropertyDeclarationDirective;
 
@@ -69,7 +72,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var root = ParseSource("""
 @viewModel object
 @property string[] MyProperty=["",""], MarkupOptionsAttribute.Required = true, MarkupOptionsAttribute.AllowBinding = false
-""");
+""", fileName: "x.dotcontrol");
 
             var property = root.Directives["property"].SingleOrDefault() as IAbstractPropertyDeclarationDirective;
 
@@ -114,7 +117,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             var root = ParseSource(@"@viewModel object
 @property invalidType MyProperty
-");
+", fileName: "x.dotcontrol");
 
             var property = root.Directives["property"].Single() as IAbstractPropertyDeclarationDirective;
 
@@ -127,7 +130,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             var root = ParseSource(@"@viewModel object
 @property string MyProperty, DotVVM.Framework.Controls.NonExistingAttribute.Required = true
-");
+", fileName: "x.dotcontrol");
 
             var property = root.Directives["property"].Single() as IAbstractPropertyDeclarationDirective;
 

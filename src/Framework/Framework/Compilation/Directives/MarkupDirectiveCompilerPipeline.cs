@@ -4,7 +4,9 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
 using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Configuration;
 using System;
+using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
@@ -14,18 +16,20 @@ namespace DotVVM.Framework.Compilation.Directives
     {
         private readonly IAbstractTreeBuilder treeBuilder;
         private readonly DotvvmResourceRepository resourceRepository;
+        private readonly DotvvmConfiguration configuration;
 
-        public MarkupDirectiveCompilerPipeline(IAbstractTreeBuilder treeBuilder, DotvvmResourceRepository resourceRepository) : base()
+        public MarkupDirectiveCompilerPipeline(IAbstractTreeBuilder treeBuilder, DotvvmConfiguration configuration) : base()
         {
             this.treeBuilder = treeBuilder;
-            this.resourceRepository = resourceRepository;
+            this.resourceRepository = configuration.Resources;
+            this.configuration = configuration;
         }
 
         protected override bool IsMarkupControl(string fileName)
         {
             if (fileName.EndsWith(".dotcontrol", StringComparison.OrdinalIgnoreCase))
                 return true;
-            return false;
+            return configuration.Markup.Controls.Any(c => c.Src == fileName);
         }
 
         protected override DefaultDirectiveResolver CreateDefaultResolver(DirectiveDictionary directivesByName)

@@ -188,30 +188,6 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(1, literal.DothtmlNode.NodeWarnings.Count());
             Assert.AreEqual("Evaluation of method \"ToBrowserLocalTime\" on server-side may yield unexpected results.", literal.DothtmlNode.NodeWarnings.First());
         }
-
-        [TestMethod]
-        public void DefaultViewCompiler_DotvvmView_Used_As_Control_Warning()
-        {
-            var files = new FakeMarkupFileLoader();
-            files.MarkupFiles["TestControl.dothtml"] = """
-                @viewModel object
-                test
-            """;
-            var config = DotvvmTestHelper.CreateConfiguration(s => {
-                s.AddSingleton<IMarkupFileLoader>(files);
-            });
-            config.Markup.AddMarkupControl("cc", "TestControl", "TestControl.dothtml");
-
-            var markup = DotvvmTestHelper.ParseResolvedTree("""
-                @viewModel object
-                <cc:TestControl Styles.Tag=this />
-            """, configuration: config);
-            var control = markup.Content.SelectRecursively(c => c.Content).Single(c => c.Properties.ContainsKey(Styles.TagProperty));
-            Assert.AreEqual(typeof(DotvvmView), control.Metadata.Type);
-            var element = (DothtmlElementNode)control.DothtmlNode;
-            XAssert.Contains("The markup control <cc:TestControl> has a baseType DotvvmView", element.TagNameNode.NodeWarnings.First());
-            Assert.AreEqual(1, element.TagNameNode.NodeWarnings.Count());
-        }
     }
 
 }
