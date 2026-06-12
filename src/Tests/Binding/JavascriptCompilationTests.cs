@@ -68,11 +68,11 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("'Local' == _this", "\"Local\"==$data")]
         [DataRow("_this == 2", "$data==\"Local\"")]
         [DataRow("2 == _this", "\"Local\"==$data")]
-        [DataRow("_this & 'Local'", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"bmCpvOUHn4NxUNdc\")&2,\"bmCpvOUHn4NxUNdc\")")]
-        [DataRow("'Local' & _this", "dotvvm.translations.enums.fromInt(2&dotvvm.translations.enums.toInt($data,\"bmCpvOUHn4NxUNdc\"),\"bmCpvOUHn4NxUNdc\")")]
-        [DataRow("_this | 'Local'", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"bmCpvOUHn4NxUNdc\")|2,\"bmCpvOUHn4NxUNdc\")")]
-        [DataRow("_this & 1", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"bmCpvOUHn4NxUNdc\")&1,\"bmCpvOUHn4NxUNdc\")")]
-        [DataRow("1 & _this", "dotvvm.translations.enums.fromInt(1&dotvvm.translations.enums.toInt($data,\"bmCpvOUHn4NxUNdc\"),\"bmCpvOUHn4NxUNdc\")")]
+        [DataRow("_this & 'Local'", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"y3HfwiYJvrxjWyBY\")&2,\"y3HfwiYJvrxjWyBY\")")]
+        [DataRow("'Local' & _this", "dotvvm.translations.enums.fromInt(2&dotvvm.translations.enums.toInt($data,\"y3HfwiYJvrxjWyBY\"),\"y3HfwiYJvrxjWyBY\")")]
+        [DataRow("_this | 'Local'", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"y3HfwiYJvrxjWyBY\")|2,\"y3HfwiYJvrxjWyBY\")")]
+        [DataRow("_this & 1", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt($data,\"y3HfwiYJvrxjWyBY\")&1,\"y3HfwiYJvrxjWyBY\")")]
+        [DataRow("1 & _this", "dotvvm.translations.enums.fromInt(1&dotvvm.translations.enums.toInt($data,\"y3HfwiYJvrxjWyBY\"),\"y3HfwiYJvrxjWyBY\")")]
         public void JavascriptCompilation_EnumOperators(string expr, string expectedJs)
         {
             var js = CompileBinding(expr, typeof(OurDateTimeKind));
@@ -194,7 +194,7 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("NullableDateOnly == null", "NullableDateOnly()==null", DisplayName = "NullableDateOnly == null")]
         [DataRow("NullableDateOnly == NullableDateOnly", "NullableDateOnly()==NullableDateOnly()", DisplayName = "NullableDateOnly == NullableDateOnly")]
         [DataRow("null != StringProp", "null!=StringProp()", DisplayName = "null != StringProp")]
-        [DataRow("(EnumProperty & 2) == 0", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"nEayAzHQ5xyCfSP6\")&2,\"nEayAzHQ5xyCfSP6\")==\"A\"", DisplayName = "(EnumProperty & 2) == 0")]
+        [DataRow("(EnumProperty & 2) == 0", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"Wdol7lgepes6yHI7\")&2,\"Wdol7lgepes6yHI7\")==\"A\"", DisplayName = "(EnumProperty & 2) == 0")]
         [DataRow("EnumProperty == 'B'", "EnumProperty()==\"B\"", DisplayName = "EnumProperty & 2 == 0")]
         public void JavascriptCompilation_BinaryExpressions(string expr, string expectedJs)
         {
@@ -442,9 +442,9 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [DataTestMethod]
-        [DataRow("EnumProperty = IntProp", "EnumProperty(dotvvm.translations.enums.fromInt(IntProp(),\"nEayAzHQ5xyCfSP6\")).EnumProperty", DisplayName = "EnumProperty = IntProp")]
-        [DataRow("EnumProperty & TestEnum.B", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"nEayAzHQ5xyCfSP6\")&1,\"nEayAzHQ5xyCfSP6\")", DisplayName = "EnumProperty & TestEnum.B")]
-        [DataRow("EnumProperty + 1", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"nEayAzHQ5xyCfSP6\")+1,\"nEayAzHQ5xyCfSP6\")", DisplayName = "EnumProperty + 1")]
+        [DataRow("EnumProperty = IntProp", "EnumProperty(dotvvm.translations.enums.fromInt(IntProp(),\"Wdol7lgepes6yHI7\")).EnumProperty", DisplayName = "EnumProperty = IntProp")]
+        [DataRow("EnumProperty & TestEnum.B", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"Wdol7lgepes6yHI7\")&1,\"Wdol7lgepes6yHI7\")", DisplayName = "EnumProperty & TestEnum.B")]
+        [DataRow("EnumProperty + 1", "dotvvm.translations.enums.fromInt(dotvvm.translations.enums.toInt(EnumProperty(),\"Wdol7lgepes6yHI7\")+1,\"Wdol7lgepes6yHI7\")", DisplayName = "EnumProperty + 1")]
         public void JavascriptCompilation_EnumOperations(string expr, string expectedJs)
         {
             var js = CompileBinding(expr, new [] { typeof(TestViewModel) });
@@ -803,7 +803,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var withoutUnwraps = CompileBinding("TestJsTransations.GetTestPlainObject().ObjectArray.OrderBy(a => a.Enum).LastOrDefault().Int == 12", new[] { new NamespaceImport("System.Linq"), new NamespaceImport(typeof(TestJsTransations).Namespace) }, new[] { typeof(TestViewModel) });
 
-            Assert.AreEqual("dotvvm.translations.array.orderBy(testPlainObject.ObjectArray,(a)=>ko.unwrap(a).Enum(),\"ObApbFFA2mUjzIJF\").at(-1).Int==12", withoutUnwraps);
+            Assert.AreEqual("dotvvm.translations.array.orderBy(testPlainObject.ObjectArray,(a)=>ko.unwrap(a).Enum(),\"OtpJZLo88uwaSnRS\").at(-1).Int==12", withoutUnwraps);
         }
 
         [TestMethod]
