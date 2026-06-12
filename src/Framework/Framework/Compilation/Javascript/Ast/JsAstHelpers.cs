@@ -73,8 +73,6 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             if (node is null)
                 throw new ArgumentNullException(nameof(node));
-            // FixParenthesis modifies the tree in-place; if the node is frozen we must clone it first
-            if (node.IsFrozen) node = node.Clone();
             node = node.FixParenthesis();
             var visitor = new JsFormattingVisitor(niceMode, indent);
             node.AcceptVisitor(visitor);
