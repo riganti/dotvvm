@@ -71,10 +71,11 @@ function Publish-ToCheckRun {
     $ref = $ctx.Sha
     if ($ctx.EventName -eq 'pull_request') {
         Write-ActionInfo "Resolving PR REF"
-        $ref = $ctx.Payload.pull_request.head.sha
+        $eventPayload = Get-Content $env:GITHUB_EVENT_PATH | ConvertFrom-Json
+        $ref = $eventPayload.pull_request.head.sha
         if (-not $ref) {
             Write-ActionInfo "Resolving PR REF as AFTER"
-            $ref = $ctx.Payload.after
+            $ref = $eventPayload.after
         }
     }
     if (-not $ref) {
