@@ -45,13 +45,13 @@ namespace DotVVM.Framework.Controls
 
             if (rootPage == null) return;
 
-            var pendingList = rootPage.GetValue(Internal.PendingMasterPageCompositionsProperty) as List<PendingMasterPageComposition>;
+            var pendingList = (List<PendingMasterPageComposition>?)rootPage.GetValue(Internal.PendingMasterPageCompositionsProperty);
             if (pendingList == null) return;
 
             // Check for duplicate: if this ID was already resolved via deferred composition, a second
             // instantiation (e.g. ContentPlaceHolder inside a Repeater) would silently render with the
             // wrong content. Throw instead to surface the problem early.
-            var resolvedIds = rootPage.GetValue(Internal.ResolvedMasterPageCompositionIdsProperty) as HashSet<string>;
+            var resolvedIds = (HashSet<string>?)rootPage.GetValue(Internal.ResolvedMasterPageCompositionIdsProperty);
             if (resolvedIds != null && resolvedIds.Contains(ID))
             {
                 throw new DotvvmControlException(this,

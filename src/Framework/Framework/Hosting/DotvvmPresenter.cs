@@ -616,7 +616,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         private static void ValidateMasterPageComposition(DotvvmView page)
         {
-            var pendingList = page.GetValue(Internal.PendingMasterPageCompositionsProperty) as List<PendingMasterPageComposition>;
+            var pendingList = (List<PendingMasterPageComposition>?)page.GetValue(Internal.PendingMasterPageCompositionsProperty);
             if (pendingList is { Count: > 0 })
             {
                 var pending = pendingList[0];
