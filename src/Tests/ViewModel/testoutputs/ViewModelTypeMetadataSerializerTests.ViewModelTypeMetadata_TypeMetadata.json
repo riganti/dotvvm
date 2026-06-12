@@ -1,9 +1,9 @@
 {
-	"zyiwtciFfjs2370j": {
+	"r25g-eiQMdpG2G3H": {
 		"type": "object",
 		"properties": {
 			"ChildFirstRequest": {
-				"type": "eyIKEC0oWfJQeAVV",
+				"type": "uVKobg2xrWnTRyXi",
 				"post": "no",
 				"update": "no"
 			},
@@ -13,7 +13,7 @@
 			},
 			"NestedList": {
 				"type": [
-					"eyIKEC0oWfJQeAVV"
+					"uVKobg2xrWnTRyXi"
 				]
 			},
 			"ObjectProperty": {
@@ -28,7 +28,7 @@
 				"type": [
 					{
 						"type": "nullable",
-						"inner": "tpU8HGbU+2oMuuUB"
+						"inner": "0jMN2ViAfFz5m-2S"
 					}
 				]
 			},
@@ -45,7 +45,7 @@
 			}
 		}
 	},
-	"eyIKEC0oWfJQeAVV": {
+	"uVKobg2xrWnTRyXi": {
 		"type": "object",
 		"properties": {
 			"InPathOnly": {
@@ -69,7 +69,7 @@
 			}
 		}
 	},
-	"tpU8HGbU+2oMuuUB": {
+	"0jMN2ViAfFz5m-2S": {
 		"type": "enum",
 		"isFlags": true,
 		"values": {

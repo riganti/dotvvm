@@ -38,7 +38,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateBack();
 
                 // check the SPA loaded correctly - typeid must be from Page2
-                AssertUI.Text(browser.Single("#viewmodel"), t => t.Contains("\"JlGkqjB61pYLbneg\": {"));
+                AssertUI.Text(browser.Single("#viewmodel"), t => t.Contains("\"oYoS1emxPLZvMhVE\": {"));
 
                 // bindings must work
                 AssertUI.TextEquals(browser.Single("test-binding", SelectByDataUi), "Bindings work!");

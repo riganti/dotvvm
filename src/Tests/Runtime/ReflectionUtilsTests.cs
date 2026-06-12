@@ -23,6 +23,43 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(actualType, type);
         }
 
+        [TestMethod]
+        public void GetTypeHash_ReturnsStableBase64Hash()
+        {
+            var firstHash = typeof(Dictionary<string, List<int[]>>).GetTypeHash();
+            var secondHash = typeof(Dictionary<string, List<int[]>>).GetTypeHash();
+
+            Assert.AreEqual(firstHash, secondHash);
+            Assert.AreEqual(12, Convert.FromBase64String(firstHash.Replace('-', '+').Replace('_', '/')).Length);
+        }
+
+        [TestMethod]
+        public void GetTypeHash_GenericArgumentsAffectHash()
+        {
+            XAssert.Distinct([
+                typeof(List<>).GetTypeHash(),
+                typeof(List<int>).GetTypeHash(),
+                typeof(List<string>).GetTypeHash(),
+                typeof(Dictionary<string, int>).GetTypeHash(),
+                typeof(Dictionary<int, string>).GetTypeHash(),
+                typeof(NestedGenericType<string>.Nested<int>).GetTypeHash(),
+                typeof(NestedGenericType<int>.Nested<string>).GetTypeHash()
+            ]);
+        }
+
+        [TestMethod]
+        public void GetTypeHash_SpecialTypeShapesAffectHash()
+        {
+            XAssert.Distinct([
+                typeof(int).GetTypeHash(),
+                typeof(int[]).GetTypeHash(),
+                typeof(int[,]).GetTypeHash(),
+                typeof(int).MakeArrayType(1).GetTypeHash(),
+                typeof(int).MakeByRefType().GetTypeHash(),
+                typeof(int).MakePointerType().GetTypeHash()
+            ]);
+        }
+
 
         [DataTestMethod]
         [UnificationDataSource]
@@ -69,6 +106,13 @@ namespace DotVVM.Framework.Tests.Runtime
             public void TestPartial1<T, U>(Func<string, T> a, Func<U, T> b, T expected, string expected2) { }
             public void TestPartial2<T, U>(Tuple<T, string> a, U b, T expected, Tuple<T, string> expected2) { }
 
+        }
+
+        class NestedGenericType<T>
+        {
+            public class Nested<U>
+            {
+            }
         }
     }
 }

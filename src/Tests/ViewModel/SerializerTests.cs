@@ -275,9 +275,9 @@ namespace DotVVM.Framework.Tests.ViewModel
             };
             var (obj2, json) = SerializeAndDeserialize(obj, isPostback: true);
 
-            Assert.AreEqual("""{"$type":"pUM6BN1XpGhNArrP","Item1":9,"Item2":8,"Item3":7,"Item4":6}""", json["P1"].ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
-            Assert.AreEqual("""{"$type":"VnTd1CsMIOOD62hn","Key":3,"Value":4}""", json["P3"][0].ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
-            Assert.AreEqual("""{"$type":"wAhAjOT9J9ARTgbN","Item1":5,"Item2":6,"Item3":7,"Item4":8}""", json["P2"].ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
+            Assert.AreEqual("""{"$type":"WF6Lm8EObj66csSd","Item1":9,"Item2":8,"Item3":7,"Item4":6}""", json["P1"].ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
+            Assert.AreEqual("""{"$type":"ARub2Kd-bMbK-pc-","Key":3,"Value":4}""", json["P3"][0].ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
+            Assert.AreEqual("""{"$type":"88FC04n-ZI8jZDhs","Item1":5,"Item2":6,"Item3":7,"Item4":8}""", json["P2"].ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
 
             Assert.AreEqual(obj.P1, obj2.P1);
             Assert.AreEqual(obj.P2, obj2.P2);
