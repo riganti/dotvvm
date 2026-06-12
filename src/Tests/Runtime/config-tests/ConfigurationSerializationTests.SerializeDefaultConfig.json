@@ -550,10 +550,20 @@
       }
     },
     "DotVVM.Framework.Controls.DataPager": {
+      "ActiveItemCssClass": {
+        "type": "System.String",
+        "defaultValue": "active",
+        "onlyHardcoded": true
+      },
       "DataSet": {
         "type": "DotVVM.Framework.Controls.IPageableGridViewDataSet`1[[DotVVM.Framework.Controls.IPagingOptions, DotVVM.Core, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]], DotVVM.Core",
         "required": true,
         "onlyBindings": true
+      },
+      "DisabledItemCssClass": {
+        "type": "System.String",
+        "defaultValue": "disabled",
+        "onlyHardcoded": true
       },
       "Enabled": {
         "type": "System.Boolean",
@@ -574,12 +584,51 @@
         "mappingMode": "InnerElement",
         "onlyHardcoded": true
       },
+      "LinkID": {
+        "type": "System.String",
+        "fromCapability": "LinkHtmlCapability"
+      },
+      "LinkVisible": {
+        "type": "System.Boolean",
+        "defaultValue": true,
+        "fromCapability": "LinkHtmlCapability"
+      },
+      "ListItemID": {
+        "type": "System.String",
+        "fromCapability": "ListItemHtmlCapability"
+      },
+      "ListItemVisible": {
+        "type": "System.Boolean",
+        "defaultValue": true,
+        "fromCapability": "ListItemHtmlCapability"
+      },
       "LoadData": {
         "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
         "onlyBindings": true
       },
       "NextPageTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement",
+        "onlyHardcoded": true
+      },
+      "PageNumberTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ConstantDataContextChangeAttribute",
+            "Type": "System.Int32[]",
+            "Order": 0,
+            "ServerSideOnly": null,
+            "NestDataContext": true,
+            "PropertyDependsOn": []
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
+            "Order": 1,
+            "NestDataContext": true,
+            "PropertyDependsOn": []
+          }
+        ],
         "mappingMode": "InnerElement",
         "onlyHardcoded": true
       },
@@ -1823,6 +1872,16 @@
         "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
       }
     },
+    "DotVVM.Framework.Controls.DataPager": {
+      "LinkHtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
+        "capabilityPrefix": "Link"
+      },
+      "ListItemHtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
+        "capabilityPrefix": "ListItem"
+      }
+    },
     "DotVVM.Framework.Controls.HierarchyRepeater": {
       "ItemHtmlCapability": {
         "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
@@ -1955,6 +2014,44 @@
         "prefix": "Property-",
         "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
         "fromCapability": "FieldSelectorProps"
+      }
+    },
+    "DotVVM.Framework.Controls.DataPager": {
+      "LinkAttributes": {
+        "prefixes": [
+          "Link",
+          "Linkhtml:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "LinkHtmlCapability"
+      },
+      "LinkCssClasses": {
+        "prefix": "LinkClass-",
+        "type": "System.Boolean",
+        "fromCapability": "LinkHtmlCapability"
+      },
+      "LinkCssStyles": {
+        "prefix": "LinkStyle-",
+        "type": "System.Object",
+        "fromCapability": "LinkHtmlCapability"
+      },
+      "ListItemAttributes": {
+        "prefixes": [
+          "ListItem",
+          "ListItemhtml:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "ListItemHtmlCapability"
+      },
+      "ListItemCssClasses": {
+        "prefix": "ListItemClass-",
+        "type": "System.Boolean",
+        "fromCapability": "ListItemHtmlCapability"
+      },
+      "ListItemCssStyles": {
+        "prefix": "ListItemStyle-",
+        "type": "System.Object",
+        "fromCapability": "ListItemHtmlCapability"
       }
     },
     "DotVVM.Framework.Controls.HierarchyRepeater": {

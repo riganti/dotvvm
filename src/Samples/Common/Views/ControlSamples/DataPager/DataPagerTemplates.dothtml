@@ -37,7 +37,7 @@
 
     <dot:DataPager DataSet="{value: DataSet}"
                    class="pagination"
-                   ListItemClass="page-item"
+                   ListItemclass="page-item"
                    Linkclass="page-link">
         <FirstPageTemplate>◀️◀️</FirstPageTemplate>
         <PreviousPageTemplate>◀️</PreviousPageTemplate>
