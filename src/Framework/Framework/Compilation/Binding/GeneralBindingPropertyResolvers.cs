@@ -129,10 +129,11 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         public KnockoutJsExpressionBindingProperty CompileToJavascript(CastedExpressionBindingProperty expression,
-            DataContextStack dataContext)
+            DataContextStack dataContext,
+            IBinding binding)
         {
             return new KnockoutJsExpressionBindingProperty(
-                   javascriptTranslator.CompileToJavascript(expression.Expression, dataContext).ApplyAction(a => a.Freeze()));
+                   javascriptTranslator.CompileToJavascript(expression.Expression, dataContext, debugBinding: binding).ApplyAction(a => a.Freeze()));
         }
 
         public SimplePathExpressionBindingProperty FormatSimplePath(IBinding binding)

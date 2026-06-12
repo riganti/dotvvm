@@ -13,6 +13,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
@@ -110,6 +111,30 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
+        public sealed class ResourceSymbolicParameter: CodeSymbolicParameter
+        {
+            public Func<DotvvmBindableObject?, CodeParameterAssignment> Binding { get; }
+            public bool RequiresControl { get; }
+            public ResourceSymbolicParameter(Func<DotvvmBindableObject?, CodeParameterAssignment> binding, bool requiresControl)
+            {
+                this.Binding = binding;
+                this.RequiresControl = requiresControl;
+            }
+
+            public CodeParameterAssignment Evaluate(DotvvmBindableObject? targetControl, ParametrizedCode? debugCode, IBinding? debugBinding)
+            {
+                if (targetControl is {} || !RequiresControl)
+                    return Binding(targetControl);
+                throw new Error(debugCode, debugBinding);
+            }
+
+            sealed record Error(ParametrizedCode? RelatedCode, IBinding? RelatedBinding)
+                : DotvvmExceptionBase(RelatedBinding: RelatedBinding)
+            {
+                public override string Message => $"Cannot evaluate resource symbolic parameter without knowing the target control of '{RelatedBinding?.ToString() ?? RelatedCode?.ToDebugString() ?? "<unknown binding>"}'";
+            }
+        }
+
 
         private readonly IViewModelSerializationMapper mapper;
 
@@ -135,9 +160,9 @@ namespace DotVVM.Framework.Compilation.Javascript
             return new JsViewModelPropertyAdjuster(mapper, preferUsingState);
         }
 
-        public JsExpression CompileToJavascript(Expression binding, DataContextStack dataContext, bool preferUsingState = false, bool isRootAsync = false)
+        public JsExpression CompileToJavascript(Expression binding, DataContextStack dataContext, bool preferUsingState = false, bool isRootAsync = false, IBinding? debugBinding = null)
         {
-            var translator = new JavascriptTranslationVisitor(dataContext, DefaultMethodTranslator);
+            var translator = new JavascriptTranslationVisitor(dataContext, DefaultMethodTranslator, debugBinding);
             var script = new JsParenthesizedExpression(translator.Translate(binding));
             script.AcceptVisitor(AdjustingVisitor(preferUsingState));
             script.AcceptVisitor(new PromiseAwaitingVisitor(isRootAsync));
@@ -162,27 +187,31 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// Get's Javascript code that can be executed inside knockout data-bind attribute.
         /// </summary>
         public static string FormatKnockoutScript(JsExpression expression, bool allowDataGlobal = true, int dataContextLevel = 0) =>
-            FormatKnockoutScript(expression.FormatParametrizedScript(), allowDataGlobal, dataContextLevel);
+            FormatKnockoutScript(expression.FormatParametrizedScript(), allowDataGlobal, dataContextLevel); // TODO
         /// <summary>
         /// Get's Javascript code that can be executed inside knockout data-bind attribute.
         /// </summary>
-        public static string FormatKnockoutScript(ParametrizedCode expression, bool allowDataGlobal = true, int dataContextLevel = 0)
+        public static string FormatKnockoutScript(ParametrizedCode expression, bool allowDataGlobal = true, int dataContextLevel = 0, DotvvmBindableObject? targetControl = null)
         {
             if (dataContextLevel == 0)
             {
-                if (allowDataGlobal)
-                    return expression.ToDefaultString();
+                if (expression.TryToDefaultString() is {} defaultString)
+                {
+                    if (allowDataGlobal)
+                        return defaultString;
+                    else
+                        return expression.ToString(static o =>
+                                    o == KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$data") :
+                                    default);
+                }
                 else
-                    return expression.ToString(static o =>
-                                o == KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$data") :
-                                default);
-
+                    return resourceOnlyToString(expression, targetControl);
             }
 
             // separate method to avoid closure allocation if dataContextLevel == 0
-            return shiftToString(expression, dataContextLevel);
+            return shiftToString(expression, dataContextLevel, targetControl);
 
-            static string shiftToString(ParametrizedCode expression, int dataContextLevel) =>
+            static string shiftToString(ParametrizedCode expression, int dataContextLevel, DotvvmBindableObject? targetControl) =>
                 expression.ToString(o => {
                     if (o is ViewModelSymbolicParameter vm)
                     {
@@ -198,6 +227,21 @@ namespace DotVVM.Framework.Compilation.Javascript
                     {
                         var p = GetKnockoutContextParameter(dataContextLevel).DefaultAssignment;
                         return new(p.Code!.ToDefaultString(), p.Code.OperatorPrecedence);
+                    }
+                    else if (o is ResourceSymbolicParameter resource)
+                    {
+                        return resource.Evaluate(targetControl, expression, null);
+                    }
+                    else
+                    {
+                        return default;
+                    }
+                });
+            static string resourceOnlyToString(ParametrizedCode expression, DotvvmBindableObject? targetControl) =>
+                expression.ToString(o => {
+                    if (o is ResourceSymbolicParameter resource)
+                    {
+                        return resource.Evaluate(targetControl, expression, null);
                     }
                     else
                     {

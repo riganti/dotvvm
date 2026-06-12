@@ -22,7 +22,7 @@
   <PropertyGroup Label="Building">
     <LangVersion>13.0</LangVersion>
     <!-- Disable warning for missing XML doc comments. -->
-    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;CS1573;NU1900</NoWarn>
     <Deterministic>true</Deterministic>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <OldFrameworkTargetVersion>net472</OldFrameworkTargetVersion>

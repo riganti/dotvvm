@@ -112,6 +112,15 @@ namespace DotVVM.Framework.Compilation.Javascript
             return this.evaluatedDefault = ToString(_ => default);
         }
 
+        internal string? TryToDefaultString()
+        {
+            // warning: this has weird semantics
+            // * in some cases, it will return null, even when default value could be initialized
+            // * then, after ToString is called, the ParametrizedCode notices all parameters are constants and sets the cache
+            // * subsequent calls will return the initialized default
+            return this.evaluatedDefault;
+        }
+
         public string ToDebugString()
         {
             if (stringParts is null)
