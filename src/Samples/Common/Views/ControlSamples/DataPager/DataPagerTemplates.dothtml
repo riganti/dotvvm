@@ -14,6 +14,8 @@
         }
         .page-item {
             margin: 0 1em;
+            padding: 1em;
+            border: solid 1px black;
         }
         .page-link {
             text-decoration: none;
@@ -35,7 +37,7 @@
 
     <dot:DataPager DataSet="{value: DataSet}"
                    class="pagination"
-                   ListItemclass="page-item"
+                   ListItemClass="page-item"
                    Linkclass="page-link">
         <FirstPageTemplate>◀️◀️</FirstPageTemplate>
         <PreviousPageTemplate>◀️</PreviousPageTemplate>

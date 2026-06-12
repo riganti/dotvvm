@@ -21,7 +21,6 @@ namespace DotVVM.Framework.Controls
     public class DataPager : HtmlGenericControl
     {
         private readonly GridViewDataSetBindingProvider gridViewDataSetBindingProvider;
-        private readonly BindingCompilationService bindingCompilationService;
 
         private DataPagerBindings? pagerBindings;
 
@@ -30,7 +29,6 @@ namespace DotVVM.Framework.Controls
             : base("ul", false)
         {
             this.gridViewDataSetBindingProvider = gridViewDataSetBindingProvider;
-            this.bindingCompilationService = bindingCompilationService;
         }
 
         /// <summary>
@@ -179,7 +177,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public string ActiveItemCssClass
         {
-            get { return (string)GetValue(ActiveItemCssClassProperty); }
+            get { return (string)GetValue(ActiveItemCssClassProperty)!; }
             set { SetValue(ActiveItemCssClassProperty, value); }
         }
         public static readonly DotvvmProperty ActiveItemCssClassProperty
@@ -191,7 +189,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public string DisabledItemCssClass
         {
-            get { return (string)GetValue(DisabledItemCssClassProperty); }
+            get { return (string)GetValue(DisabledItemCssClassProperty)!; }
             set { SetValue(DisabledItemCssClassProperty, value); }
         }
         public static readonly DotvvmProperty DisabledItemCssClassProperty
@@ -363,7 +361,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                span.SetBinding(Literal.TextProperty, pagerBindings.PageNumberText.NotNull());
+                span.SetBinding(HtmlGenericControl.InnerTextProperty, pagerBindings.PageNumberText.NotNull());
             }
         }
 
