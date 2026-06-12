@@ -122,13 +122,14 @@ namespace DotVVM.Framework.Runtime
             // perform the composition
             foreach (var content in contents)
             {
+                content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
+                content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
+                content.SetValue(Internal.ReferencedViewModuleInfoProperty, childPage.GetValue(Internal.ReferencedViewModuleInfoProperty));
+
                 // find the corresponding placeholder
                 var placeHolder = placeHolders.SingleOrDefault(p => p.ID == content.ContentPlaceHolderID);
                 if (placeHolder == null)
                 {
-                    // ContentPlaceHolder not found in the statically-built tree.
-                    // Before deferring, verify the ID is at least declared somewhere in the master page
-                    // (including inside CompositeControl templates that are instantiated in Load phase).
                     if (!masterPageDescriptor.ContentPlaceHolderIds.Contains(content.ContentPlaceHolderID!))
                     {
                         var masterPageInfo = masterPageDescriptor.FileName is { } masterPageFile ? $" '{masterPageFile}'" : "";
@@ -137,18 +138,8 @@ namespace DotVVM.Framework.Runtime
                             $"Make sure that each Content element has a corresponding ContentPlaceHolder in the master page.");
                     }
 
-                    // Set up properties that we'll need during deferred composition
-                    content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
-                    content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
-                    content.SetValue(Internal.ReferencedViewModuleInfoProperty, childPage.GetValue(Internal.ReferencedViewModuleInfoProperty));
-
-                    // Capture the DataContextType before removing the content from its parent
-                    var dataContextType = content.Parent?.GetDataContextType();
-
-                    // Remove the content from the child page (which will be discarded)
-                    (content.Parent as DotvvmControl)?.Children.Remove(content);
-
-                    // Add to the shared pending list - will be resolved by ContentPlaceHolder.OnInit
+                    var dataContextType = content.Parent!.GetDataContextType();
+                    ((DotvvmControl)content.Parent!).Children.Remove(content);
                     pendingCompositions.Add(new PendingMasterPageComposition(content, dataContextType, masterPage.GetValue(Internal.MarkupFileNameProperty)?.ToString()));
                     continue;
                 }
@@ -156,16 +147,13 @@ namespace DotVVM.Framework.Runtime
                 // replace the contents
                 var contentPlaceHolder = new PlaceHolder();
                 contentPlaceHolder.SetDataContextType(content.Parent!.GetDataContextType());
-                (content.Parent as DotvvmControl)?.Children.Remove(content);
+                ((DotvvmControl)content.Parent!).Children.Remove(content);
 
                 placeHolder.Children.Clear();
                 placeHolder.Children.Add(contentPlaceHolder);
 
                 contentPlaceHolder.Children.Add(content);
                 content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
-                content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
-                content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
-                content.SetValue(Internal.ReferencedViewModuleInfoProperty, childPage.GetValue(Internal.ReferencedViewModuleInfoProperty));
             }
 
             foreach (var control in auxControls)
