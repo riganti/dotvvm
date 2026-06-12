@@ -265,7 +265,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             writer.WriteStartObject("resources"u8);
             foreach (var resource in newResources)
             {
-                writer.WriteString(resource.Name, resource.GetRenderedTextCached(context));
+                writer.WriteString(resource.Name, resource.RenderToStringUtf8(context).Span);
             }
             writer.WriteEndObject();
         }

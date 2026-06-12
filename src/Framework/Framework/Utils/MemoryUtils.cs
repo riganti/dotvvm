@@ -7,9 +7,9 @@ namespace DotVVM.Framework.Utils
     static class MemoryUtils
     {
         public static Span<byte> ToSpan(this MemoryStream stream) =>
-            stream.TryGetBuffer(out var buffer) ? buffer.AsSpan().Slice(0, (int)stream.Length) : stream.ToArray();
+            stream.TryGetBuffer(out ArraySegment<byte> buffer) ? buffer.AsSpan() : stream.ToArray();
         public static Memory<byte> ToMemory(this MemoryStream stream) =>
-            stream.TryGetBuffer(out var buffer) ? buffer.AsMemory().Slice(0, (int)stream.Length) : stream.ToArray();
+            stream.TryGetBuffer(out ArraySegment<byte> buffer) ? buffer.AsMemory() : stream.ToArray();
 
         public static MemoryStream CloneReadOnly(this MemoryStream stream)
         {

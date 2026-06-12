@@ -21,7 +21,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         public string GetUrl(IDotvvmRequestContext context, string name)
         {
-            return context.TranslateVirtualPath(context.Configuration.Debug ? DebugUrl : Url);
+            return context.Configuration.Debug ? DebugUrl : Url;
         }
     }
 }

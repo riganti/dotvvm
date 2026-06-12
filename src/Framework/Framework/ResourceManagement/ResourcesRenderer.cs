@@ -1,20 +1,18 @@
 ﻿using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.ResourceManagement
 {
     public static class ResourcesRenderer
     {
-        private static ConditionalWeakTable<IResource, string> renderedCache = new ConditionalWeakTable<IResource, string>();
-
-        public static void RenderResourceCached(this NamedResource resource, IHtmlWriter writer, IDotvvmRequestContext context)
+        public static void RenderResource(this NamedResource resource, IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.WriteUnencodedText(resource.GetRenderedTextCached(context));
+            resource.Resource.Render(writer, context, resource.Name);
         }
 
         static void WriteResourceInfo(NamedResource resource, IHtmlWriter writer, bool preload)
@@ -62,7 +60,7 @@ namespace DotVVM.Framework.ResourceManagement
                     if (writeDebugInfo) WriteResourceInfo(resource, writer, preload: false);
                     // TODO: warning for missing dependencies
                     resourceManager.MarkRendered(resource);
-                    resource.RenderResourceCached(writer, context);
+                    resource.RenderResource(writer, context);
                 }
                 else if (position == ResourceRenderPosition.Head && resourcePosition == ResourceRenderPosition.Body && resource.Resource is IPreloadResource preloadResource)
                 {
@@ -77,19 +75,27 @@ namespace DotVVM.Framework.ResourceManagement
                 writer.WriteUnencodedText("\n");
         }
 
+        [Obsolete("Use .RenderToString (cache is no longer available)")]
         public static string GetRenderedTextCached(this NamedResource resource, IDotvvmRequestContext context) =>
-            // don't use cache when debug, so the resource can be refreshed when file is changed
-            context.Configuration.Debug ?
-            RenderToString(resource, context) :
-            renderedCache.GetValue(resource.Resource, _ => RenderToString(resource, context));
+            RenderToString(resource, context);
 
-        private static string RenderToString(NamedResource resource, IDotvvmRequestContext context)
+        public static string RenderToString(this NamedResource resource, IDotvvmRequestContext context)
         {
             using (var text = new StringWriter())
             {
                 resource.Resource.Render(new HtmlWriter(text, context), context, resource.Name);
                 return text.ToString();
             }
+        }
+
+        public static Memory<byte> RenderToStringUtf8(this NamedResource resource, IDotvvmRequestContext context)
+        {
+            var ms = new MemoryStream();
+            using (var text = new StreamWriter(ms, encoding: StringUtils.Utf8))
+            {
+                resource.Resource.Render(new HtmlWriter(text, context), context, resource.Name);
+            }
+            return ms.ToMemory();
         }
     }
 }
