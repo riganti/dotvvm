@@ -163,7 +163,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                             
                             
                             </body>
-                            """, r.OutputString);
+                            """.Replace("\r\n", "\n"), r.OutputString.Replace("\r\n", "\n"));
         }
 
         [TestMethod]
@@ -182,7 +182,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                             
                             
                             </body>
-                            """, r.OutputString);
+                            """.Replace("\r\n", "\n"), r.OutputString.Replace("\r\n", "\n"));
         }
 
         [TestMethod]
@@ -201,7 +201,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                             
                             
                             </body>
-                            """, r.OutputString);
+                            """.Replace("\r\n", "\n"), r.OutputString.Replace("\r\n", "\n"));
         }
 
         public class BasicTestViewModel: DotvvmViewModelBase
