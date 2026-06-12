@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -63,17 +63,27 @@ namespace DotVVM.Framework.Controls
         public TRowEditOptions RowEditOptions { get; set; }
 
 
-        IList IBaseGridViewDataSet.Items => Items is IList list ? list : new ReadOnlyCollection<T>(Items);
+        IList IGridViewDataSet.Items => Items is IList list ? list : new ReadOnlyCollection<T>(Items);
 
-        IFilteringOptions IFilterableGridViewDataSet.FilteringOptions => this.FilteringOptions;
+        IFilteringOptions IGridViewDataSet.FilteringOptions => this.FilteringOptions;
 
-        ISortingOptions ISortableGridViewDataSet.SortingOptions => this.SortingOptions;
+        ISortingOptions IGridViewDataSet.SortingOptions => this.SortingOptions;
 
-        IPagingOptions IPageableGridViewDataSet.PagingOptions => this.PagingOptions;
+        IPagingOptions IGridViewDataSet.PagingOptions => this.PagingOptions;
 
-        IRowInsertOptions IRowInsertGridViewDataSet.RowInsertOptions => this.RowInsertOptions;
+        IRowInsertOptions IGridViewDataSet.RowInsertOptions => this.RowInsertOptions;
 
-        IRowEditOptions IRowEditGridViewDataSet.RowEditOptions => this.RowEditOptions;
+        IRowEditOptions IGridViewDataSet.RowEditOptions => this.RowEditOptions;
+
+        TFilteringOptions IFilterableGridViewDataSet<TFilteringOptions>.FilteringOptions => this.FilteringOptions;
+
+        TSortingOptions ISortableGridViewDataSet<TSortingOptions>.SortingOptions => this.SortingOptions;
+
+        TPagingOptions IPageableGridViewDataSet<TPagingOptions>.PagingOptions => this.PagingOptions;
+
+        TRowInsertOptions IRowInsertGridViewDataSet<TRowInsertOptions>.RowInsertOptions => this.RowInsertOptions;
+
+        TRowEditOptions IRowEditGridViewDataSet<TRowEditOptions>.RowEditOptions => this.RowEditOptions;
 
 
 

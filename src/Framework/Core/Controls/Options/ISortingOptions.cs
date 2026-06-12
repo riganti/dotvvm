@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
@@ -31,6 +33,11 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public interface ISortingStateCapability : ISortingOptions
     {
+        /// <summary>
+        /// Gets a list of sorting criteria ordered by their priority (from the most important to the least important).
+        /// </summary>
+        IEnumerable<SortCriterion> Criteria { get; }
+
         /// <summary>
         /// Determines whether the column with specified sort expression is sorted in ascending order.
         /// </summary>

@@ -6,5 +6,7 @@ namespace DotVVM.Framework.Controls
     public sealed class NoSortingOptions : ISortingOptions, IApplyToQueryable
     {
         public IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable) => queryable;
+
+        public static NoSortingOptions Instance { get; } = new();
     }
 }

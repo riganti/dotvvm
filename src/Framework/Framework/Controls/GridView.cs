@@ -317,7 +317,7 @@ namespace DotVVM.Framework.Controls
                             SortChanged!(sortExpression);
 
                             (dataSource as IPageableGridViewDataSet<IPagingFirstPageCapability>)?.PagingOptions.GoToFirstPage();
-                            (dataSource as IRefreshableGridViewDataSet)?.RequestRefresh();
+                            (dataSource as IGridViewDataSet)?.RequestRefresh();
                         }),
                     new IdBindingProperty($"{this.GetDotvvmUniqueId().GetValue()}_sortBinding")
                 });

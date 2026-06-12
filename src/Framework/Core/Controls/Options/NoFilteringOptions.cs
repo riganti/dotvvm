@@ -6,5 +6,7 @@ namespace DotVVM.Framework.Controls
     public sealed class NoFilteringOptions : IFilteringOptions, IApplyToQueryable
     {
         public IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable) => queryable;
+
+        public static NoFilteringOptions Instance { get; } = new();
     }
 }

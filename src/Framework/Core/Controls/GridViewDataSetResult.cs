@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Controls
             PagingOptions = options.PagingOptions;
         }
 
-        /// <summary> New items to replace the old <see cref="IBaseGridViewDataSet{T}.Items"/> </summary>
+        /// <summary> New items to replace the old <see cref="IGridViewDataSet{T}.Items"/> </summary>
         public IReadOnlyList<TItem> Items { get; }
 
         /// <summary> New filtering options to replace the old <see cref="IFilterableGridViewDataSet{T}.FilteringOptions"/>, if null the old options are left unchanged. </summary>

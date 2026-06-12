@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls.Options;
@@ -13,14 +14,19 @@ namespace DotVVM.Framework.Controls;
 /// </summary>
 public class MultiCriteriaSortingOptions : ISortingOptions, ISortingStateCapability, ISortingSetSortExpressionCapability, IApplyToQueryable
 {
-    public IList<SortCriterion> Criteria { get; set; } = new List<SortCriterion>();
+    /// <summary>
+    /// Gets a list of sorting criteria ordered by their priority (from the most important to the least important).
+    /// </summary>
+    public List<SortCriterion> Criteria { get; set; } = new List<SortCriterion>();
+
+    IEnumerable<SortCriterion> ISortingStateCapability.Criteria => Criteria;
 
     /// <summary> Maximum length of the <see cref="Criteria" /> list. When exceeded, the overhanging tail is discarded. </summary>
     public int MaxSortCriteriaCount { get; set; } = 3;
 
     public virtual IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
     {
-        foreach (var criterion in Criteria.Reverse())
+        foreach (var criterion in (Criteria as IEnumerable<SortCriterion>).Reverse())
         {
             queryable = SortingImplementation.ApplySortingToQueryable(queryable, criterion.SortExpression, criterion.SortDescending);
         }

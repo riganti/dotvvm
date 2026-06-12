@@ -226,7 +226,7 @@ namespace DotVVM.Framework.Binding.Properties
     }
 
     /// <summary>
-    /// Contains a binding that unwraps <see cref="DotVVM.Framework.Controls.IBaseGridViewDataSet.Items"/>
+    /// Contains a binding that unwraps <see cref="DotVVM.Framework.Controls.IGridViewDataSet.Items"/>
     /// </summary>
     public sealed record DataSourceAccessBinding(IBinding Binding);
 

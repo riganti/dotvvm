@@ -188,7 +188,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DotvvmProperty_GetDataContextType_ItemTemplate_Grid()
         {
-            DotvvmProperty_GetDataContextType_ItemTemplate_Helper<IPageableGridViewDataSet, object>();
+            DotvvmProperty_GetDataContextType_ItemTemplate_Helper<IPageableGridViewDataSet<PagingOptions>, object>();
         }
         [TestMethod]
         public void DotvvmProperty_GetDataContextType_ItemTemplate_GenericGrid()

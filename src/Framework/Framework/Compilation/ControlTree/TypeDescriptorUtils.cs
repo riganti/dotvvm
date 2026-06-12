@@ -26,13 +26,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
 
             // handle GridViewDataSet
-            if (type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IBaseGridViewDataSet))))
+            if (type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IGridViewDataSet))))
             {
-                var itemsType = type.TryGetPropertyType(nameof(IBaseGridViewDataSet.Items)).NotNull();
-                return itemsType.TryGetArrayElementOrIEnumerableType() ?? throw new Exception("This is strange and should not happen. IBaseGridViewDataSet.Items is not IEnumerable.");
+                var itemsType = type.TryGetPropertyType(nameof(IGridViewDataSet.Items)).NotNull();
+                return itemsType.TryGetArrayElementOrIEnumerableType() ?? throw new Exception("This is strange and should not happen. IGridViewDataSet.Items is not IEnumerable.");
             }
 
-            throw new NotSupportedException($"The type '{type}' is not a collection or a IBaseGridViewDataSet!");
+            throw new NotSupportedException($"The type '{type}' is not a collection or an IGridViewDataSet!");
         }
     }
 }

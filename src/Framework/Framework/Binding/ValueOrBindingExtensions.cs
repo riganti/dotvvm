@@ -60,7 +60,7 @@ public static class ValueOrBindingExtensions
             return new(v.ValueOrDefault > 0);
     }
     /// <summary> Returns ValueOrBinding with the value of `a.Items` where a is grid view dataset. The resulting binding is cached, so it's safe to use this method at runtime. </summary>
-    public static ValueOrBinding<IList<T>> GetItems<T>(this ValueOrBinding<IBaseGridViewDataSet<T>> v)
+    public static ValueOrBinding<IList<T>> GetItems<T>(this ValueOrBinding<IGridViewDataSet<T>> v)
     {
         if (v.BindingOrDefault is IBinding binding)
             return new ValueOrBinding<IList<T>>(
