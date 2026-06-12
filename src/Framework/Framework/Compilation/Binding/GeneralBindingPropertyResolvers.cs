@@ -142,7 +142,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 // if contains api parameter, can't use this as a path
                 if (js.Expression.DescendantNodes().Any(n => n.TryGetAnnotation(out ViewModelInfoAnnotation? vmInfo) && vmInfo.ExtensionParameter is RestApiRegistrationHelpers.ApiExtensionParameter apiParameter))
                     throw new Exception($"Can't get a path expression for command binding from binding that is using rest api.");
-                return new(js.Expression.FormatParametrizedScript());
+                var expr = js.Expression.Clone(); // need to Clone, because js.Expression is frozen and not parethesized
+                return new(expr.FormatParametrizedScript());
             }
             else if (binding.GetProperty<KnockoutExpressionBindingProperty>(ErrorHandlingMode.ReturnNull) is { } expr)
             {
