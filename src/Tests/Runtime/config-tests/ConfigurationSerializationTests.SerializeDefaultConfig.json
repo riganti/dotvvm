@@ -1195,12 +1195,18 @@
       "PathFragment": {
         "type": "System.String"
       },
+      "PendingMasterPageCompositions": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.PendingMasterPageComposition, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]"
+      },
       "ReferencedViewModuleInfo": {
         "type": "DotVVM.Framework.Binding.ViewModuleReferenceInfo, DotVVM.Framework"
       },
       "RequestContext": {
         "type": "DotVVM.Framework.Hosting.IDotvvmRequestContext, DotVVM.Framework",
         "isValueInherited": true
+      },
+      "ResolvedMasterPageCompositionIds": {
+        "type": "System.Collections.Generic.HashSet`1[[System.String, CoreLibrary]]"
       },
       "UniqueID": {
         "type": "System.String"
