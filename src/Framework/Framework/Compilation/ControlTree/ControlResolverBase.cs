@@ -177,6 +177,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
 					group.PropertyGroup.MarkupOptions.MappingMode.HasFlag(requiredMode))
                 {
                     var concreteName = name.Substring(group.Prefix.Length);
+
+                    // this handles cases when someone sets Class=valueOrBinding & class=valueOrBinding on the same control
+                    if (group.PropertyGroup.MarkupOptions.AttributeValueMerger == typeof(HtmlAttributeValueMerger)
+                        && (string.Equals(concreteName, "style", StringComparison.OrdinalIgnoreCase) 
+                            || string.Equals(concreteName, "class", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        concreteName = concreteName.ToLowerInvariant();
+                    }
+
                     return group.PropertyGroup.GetDotvvmProperty(concreteName);
                 }
             }

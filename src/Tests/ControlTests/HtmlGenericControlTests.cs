@@ -147,6 +147,63 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.AreEqual("""<div style=width:123 data-bind="style: { width: Integer }"></div>""", str);
         }
 
+        [TestMethod]
+        public async Task ClassAttribute_HtmlCapabilityAndAttributesCollection_StaticValues()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <div Class=from-capability class=from-attributes />
+                """);
+
+            Assert.AreEqual("""
+                            
+                            
+                            <head></head>
+                            <body>
+                            <div class="from-capability from-attributes"></div>
+                            
+                            
+                            </body>
+                            """.Replace("\r\n", "\n"), r.OutputString.Replace("\r\n", "\n"));
+        }
+
+        [TestMethod]
+        public async Task ClassAttribute_HtmlCapabilityAndAttributesCollection_ValueBinding()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <div Class=static-class class={value: String} />
+                """);
+
+            Assert.AreEqual("""
+                            
+                            
+                            <head></head>
+                            <body>
+                            <div class="static-class some-string" data-bind='class: "static-class " + (String() ?? "")'></div>
+                            
+                            
+                            </body>
+                            """.Replace("\r\n", "\n"), r.OutputString.Replace("\r\n", "\n"));
+        }
+
+        [TestMethod]
+        public async Task ClassAttribute_HtmlCapabilityAndAttributesCollection_BothValueBindings()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                <div Class={value: String} class={value: String} />
+                """);
+
+            Assert.AreEqual("""
+                            
+                            
+                            <head></head>
+                            <body>
+                            <div class="some-string some-string" data-bind='class: (String() ?? "") + " " + (String() ?? "")'></div>
+                            
+                            
+                            </body>
+                            """.Replace("\r\n", "\n"), r.OutputString.Replace("\r\n", "\n"));
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             public int Integer { get; set; } = 123;

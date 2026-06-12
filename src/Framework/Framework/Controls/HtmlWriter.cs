@@ -77,11 +77,11 @@ namespace DotVVM.Framework.Controls
 
         public static string GetSeparatorForAttribute(string attributeName)
         {
-            return attributeName switch {
-                "class" => " ",
-                "data-bind" => ",",
-                _ => ";"
-            };
+            if (string.Equals(attributeName, "class", StringComparison.OrdinalIgnoreCase))
+                return " ";
+            if (string.Equals(attributeName, "data-bind", StringComparison.OrdinalIgnoreCase))
+                return ",";
+            return ";";
         }
 
         public static string? JoinAttributeValues(string attributeName, string? valueA, string? valueB, string? separator = null)
@@ -230,7 +230,7 @@ namespace DotVVM.Framework.Controls
                 Warn($"Element {name} is not self-closing but is rendered as so. It may be interpreted as a start tag without an end tag by the browsers.");
         }
 
-        private Dictionary<string, string?> attributeMergeTable = new Dictionary<string, string?>(23);
+        private Dictionary<string, string?> attributeMergeTable = new Dictionary<string, string?>(23, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Renders the begin tag without end char.
@@ -260,7 +260,7 @@ namespace DotVVM.Framework.Controls
                 // there can't be any name collisions of arguments
                 WriteAttrWithTransformers(name, aname, aval);
             }
-            else if (attributes.Count == 2 && attributes[0].name != attributes[1].name)
+            else if (attributes.Count == 2 && !string.Equals(attributes[0].name, attributes[1].name, StringComparison.OrdinalIgnoreCase))
             {
                 // there can't be any name collisions
 
