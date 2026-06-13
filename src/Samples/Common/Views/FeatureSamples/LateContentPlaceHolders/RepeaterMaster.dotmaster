@@ -10,7 +10,7 @@
     <h1 data-ui="master-heading">Repeater Master Page</h1>
 
     <dot:Repeater DataSource="{value: Items}" RenderSettings.Mode="Server" RenderWrapperTag="false">
-        <dot:ContentPlaceHolder ID="RepeaterContent" />
+        <dot:ContentPlaceHolder ID="RepeaterContent" DataContext="{value: _root}" />
     </dot:Repeater>
 
 </body>

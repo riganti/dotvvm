@@ -614,16 +614,22 @@ namespace DotVVM.Framework.Hosting
         /// after the Load phase. If any Content controls remain unmatched, it means the ContentPlaceHolder
         /// was declared in the master page but never instantiated (e.g. a CompositeControl's GetContents was not called).
         /// </summary>
-        private static void ValidateMasterPageComposition(DotvvmView page)
+        private static void ValidateMasterPageComposition(DotvvmControl page)
         {
-            var pendingList = (List<PendingMasterPageComposition>?)page.GetValue(Internal.PendingMasterPageCompositionsProperty);
-            if (pendingList is { Count: > 0 })
+            var childPage = (DotvvmControl?)page.GetValue(Internal.MasterPageChildPageProperty);
+            while (childPage != null)
             {
-                var pending = pendingList[0];
-                var masterPageInfo = pending.MasterPageFile is { } masterPageFile ? $" '{masterPageFile}'" : "";
-                throw new DotvvmControlException(pending.Content,
-                    $"The ContentPlaceHolder with ID '{pending.Content.ContentPlaceHolderID}' was declared in the master page{masterPageInfo} but was never instantiated. " +
-                    $"Make sure the ContentPlaceHolder is always added to the control tree (e.g. it is not inside a conditional template).");
+                var pendingList = (List<PendingMasterPageComposition>)childPage.GetValue(Internal.PendingMasterPageCompositionsProperty)!;
+                if (pendingList is { Count: > 0 })
+                {
+                    var pending = pendingList[0];
+                    var masterPageInfo = pending.MasterPageFile is { } masterPageFile ? $" '{masterPageFile}'" : "";
+                    throw new DotvvmControlException(pending.Content,
+                        $"The ContentPlaceHolder with ID '{pending.Content.ContentPlaceHolderID}' was declared in the master page{masterPageInfo} but was never instantiated. " +
+                        $"Make sure the ContentPlaceHolder is always added to the control tree (e.g. it is not inside a conditional template).");
+                }
+
+                childPage = (DotvvmControl?)childPage.GetValue(Internal.MasterPageChildPageProperty);
             }
         }
     }

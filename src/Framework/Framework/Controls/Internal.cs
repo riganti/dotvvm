@@ -7,6 +7,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
@@ -70,19 +71,14 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<ControlUsedPropertiesInfo, Internal>(() => UsedPropertiesInfoProperty);
 
         /// <summary>
-        /// Stores a list of Content controls that have not yet been matched to their corresponding ContentPlaceHolder.
-        /// This is used to support ContentPlaceHolder controls inside CompositeControl templates (Load phase).
+        /// This property is set on the master page root element and points to the root element of the child page. 
         /// </summary>
+        public static readonly DotvvmProperty MasterPageChildPageProperty =
+            DotvvmProperty.Register<DotvvmControl?, Internal>(() => MasterPageChildPageProperty, defaultValue: null, isValueInherited: true);
         public static readonly DotvvmProperty PendingMasterPageCompositionsProperty =
-            DotvvmProperty.Register<List<PendingMasterPageComposition>?, Internal>(() => PendingMasterPageCompositionsProperty, defaultValue: null, isValueInherited: false);
-
-        /// <summary>
-        /// Tracks ContentPlaceHolder IDs that have already been resolved via deferred master page composition.
-        /// Used to detect when a ContentPlaceHolder is instantiated more than once (e.g. inside a Repeater template),
-        /// which is not supported and would result in only the first instance being filled with Content.
-        /// </summary>
+            DotvvmProperty.Register<List<PendingMasterPageComposition>?, Internal>(() => PendingMasterPageCompositionsProperty, defaultValue: null, isValueInherited: true);
         public static readonly DotvvmProperty ResolvedMasterPageCompositionIdsProperty =
-            DotvvmProperty.Register<HashSet<string>?, Internal>(() => ResolvedMasterPageCompositionIdsProperty, defaultValue: null, isValueInherited: false);
+            DotvvmProperty.Register<HashSet<string>?, Internal>(() => ResolvedMasterPageCompositionIdsProperty, defaultValue: null, isValueInherited: true);
 
         public static bool IsViewCompilerProperty(DotvvmProperty property)
         {
@@ -127,18 +123,16 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     internal sealed class PendingMasterPageComposition
     {
-        /// <summary> The Content control waiting to be placed in a ContentPlaceHolder. </summary>
         public readonly Content Content;
-        /// <summary> The DataContextStack of the Content's original parent (the child page). </summary>
+        public readonly DotvvmView MasterPage;
         public readonly DataContextStack? DataContextType;
-        /// <summary> The master page file name, used for error messages. </summary>
-        public readonly string? MasterPageFile;
+        public string? MasterPageFile => MasterPage.GetValue(Internal.MarkupFileNameProperty)?.ToString();
 
-        public PendingMasterPageComposition(Content content, DataContextStack? dataContextType, string? masterPageFile)
+        public PendingMasterPageComposition(Content content, DotvvmView masterPage, DataContextStack? dataContextType)
         {
             Content = content;
+            MasterPage = masterPage;
             DataContextType = dataContextType;
-            MasterPageFile = masterPageFile;
         }
     }
 }

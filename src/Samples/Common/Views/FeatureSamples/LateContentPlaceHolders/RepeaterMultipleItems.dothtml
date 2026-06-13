@@ -2,5 +2,5 @@
 @masterPage Views/FeatureSamples/LateContentPlaceHolders/RepeaterMaster.dotmaster
 
 <dot:Content ContentPlaceHolderID="RepeaterContent">
-    <p data-ui="repeater-item">{{value: _this}}</p>
+    <p data-ui="repeater-item">{{value: Items.Count}}</p>
 </dot:Content>
