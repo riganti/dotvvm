@@ -50,9 +50,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             var collector = new ContentPlaceHolderIdCollector();
             this.AcceptChildren(collector);
-            return collector.Ids.Count == 0
-                ? ImmutableArray<string>.Empty
-                : collector.Ids.ToImmutableArray();
+            return collector.Ids.ToImmutableArray();
         }
 
         private sealed class ContentPlaceHolderIdCollector : ResolvedControlTreeVisitor

@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             ControlBuilderDescriptor? masterPage,
             ImmutableArray<(string name, string value)> directives,
             ViewModuleReferenceInfo? viewModuleReference,
-            ImmutableArray<string> contentPlaceHolderIds = default
+            ImmutableArray<string> contentPlaceHolderIds
         )
         {
             this.DataContextType = dataContextType;
@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             this.MasterPage = masterPage;
             this.Directives = directives;
             this.ViewModuleReference = viewModuleReference;
-            this.ContentPlaceHolderIds = contentPlaceHolderIds.IsDefault ? ImmutableArray<string>.Empty : contentPlaceHolderIds;
+            this.ContentPlaceHolderIds = contentPlaceHolderIds;
         }
     }
 }
