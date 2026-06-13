@@ -6,6 +6,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
@@ -31,19 +32,13 @@ namespace DotVVM.Framework.Controls
         {
             if (ID == null) return;
 
-            // find the nearest master page and pending compositions
-            var childPage = (DotvvmControl)GetValue(Internal.MasterPageChildPageProperty)!;
-            var pendingList = (List<PendingMasterPageComposition>)childPage.GetValue(Internal.PendingMasterPageCompositionsProperty)!;
-            if (pendingList.Count == 0)
-            {
-                return;
-            }
-
-            var masterPage = pendingList[0].MasterPage;
-
+            // find the nearest master page 
+            var masterPage = GetAllAncestors()
+                .First(a => a.IsPropertySet(Internal.PendingMasterPageCompositionsProperty, inherit: false));
+            
             // check there are not multiple content placeholders with the same ID in the same master page (e.g. due to being inside a template that is instantiated multiple times)
-            var resolvedIds = (HashSet<string>?)masterPage.GetValue(Internal.ResolvedMasterPageCompositionIdsProperty);
-            if (resolvedIds != null && resolvedIds.Contains(ID))
+            var resolvedIds = (HashSet<string>)masterPage.GetValue(Internal.ResolvedMasterPageCompositionIdsProperty)!;
+            if (resolvedIds.Contains(ID))
             {
                 throw new DotvvmControlException(this,
                     $"The ContentPlaceHolder with ID '{ID}' has already been resolved. " +
@@ -51,28 +46,16 @@ namespace DotVVM.Framework.Controls
             }
 
             // find the pending composition
+            var pendingList = (List<PendingMasterPageComposition>)masterPage.GetValue(Internal.PendingMasterPageCompositionsProperty)!;
             var pending = pendingList.SingleOrDefault(p => p.Content.ContentPlaceHolderID == ID);
             if (pending != null)
             {
                 // remove it from the master page and from the root
                 pendingList.Remove(pending);
-
-                if (resolvedIds == null)
-                {
-                    resolvedIds = new HashSet<string>(StringComparer.Ordinal);
-                    masterPage.SetValue(Internal.ResolvedMasterPageCompositionIdsProperty, resolvedIds);
-                }
                 resolvedIds.Add(ID);
 
                 // perform the deferred composition: wrap Content in a PlaceHolder and add it as our child
-                var wrapper = new PlaceHolder();
-                wrapper.SetDataContextType(pending.DataContextType);
-
-                this.Children.Clear();
-                this.Children.Add(wrapper);
-
-                wrapper.Children.Add(pending.Content);
-                pending.Content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
+                DefaultDotvvmViewBuilder.PlaceContentInContentPlaceHolder(pending.DataContextType, this, pending.Content);
             }
         }
 

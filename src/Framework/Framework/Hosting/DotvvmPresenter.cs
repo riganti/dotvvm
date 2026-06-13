@@ -616,7 +616,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         private static void ValidateMasterPageComposition(DotvvmControl page)
         {
-            var childPage = (DotvvmControl?)page.GetValue(Internal.MasterPageChildPageProperty);
+            var childPage = (DotvvmControl?)page;
             while (childPage != null)
             {
                 var pendingList = (List<PendingMasterPageComposition>)childPage.GetValue(Internal.PendingMasterPageCompositionsProperty)!;

@@ -120,19 +120,10 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Represents a Content control that has not yet been matched to a ContentPlaceHolder during master page composition.
     /// The match is deferred until the ContentPlaceHolder is added to the control tree (e.g. when a CompositeControl builds its contents).
+    /// The list of <see cref="PendingMasterPageComposition"/> instances is maintained on the root of the master page, and must be copied down to all Content controls because the root is discarded during composition.
     /// </summary>
-    internal sealed class PendingMasterPageComposition
+    internal sealed record PendingMasterPageComposition(Content Content, DotvvmView ContentPage, DotvvmView MasterPage, DataContextStack? DataContextType)
     {
-        public readonly Content Content;
-        public readonly DotvvmView MasterPage;
-        public readonly DataContextStack? DataContextType;
         public string? MasterPageFile => MasterPage.GetValue(Internal.MarkupFileNameProperty)?.ToString();
-
-        public PendingMasterPageComposition(Content content, DotvvmView masterPage, DataContextStack? dataContextType)
-        {
-            Content = content;
-            MasterPage = masterPage;
-            DataContextType = dataContextType;
-        }
     }
 }

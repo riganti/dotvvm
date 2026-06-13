@@ -34,7 +34,7 @@ namespace DotVVM.Samples.Tests.Feature
                 var pageContent = browser.First("[data-ui='shared-id-page-content']");
                 AssertUI.InnerTextEquals(pageContent, "Shared ID Page Content");
                 // Default content from the shared ID placeholder should NOT be shown
-                AssertUI.IsNotDisplayed(browser.Single("[data-ui='default-shared-content']"));
+                browser.FindElements("[data-ui='default-shared-content']").ThrowIfDifferentCountThan(0);
             });
         }
 

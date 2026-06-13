@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
@@ -110,23 +111,34 @@ namespace DotVVM.Framework.Runtime
 
             // find contents
             var (contents, auxControls) = GetChildPageContents(childPage, placeHolders);
-
-            // set the reference to the child page
-            masterPage.SetValue(Internal.MasterPageChildPageProperty, childPage);
-
+            
             // prepare the pending compositions list
+            // NB: this list is stored in the master page, so ContentPlaceHolders can access it easily thanks to DotVVM property inheritance - it will look up
             var pendingCompositions = new List<PendingMasterPageComposition>();
-            childPage.SetValue(Internal.PendingMasterPageCompositionsProperty, pendingCompositions);
+            masterPage.SetValue(Internal.PendingMasterPageCompositionsProperty, pendingCompositions);
+            masterPage.SetValue(Internal.ResolvedMasterPageCompositionIdsProperty, new HashSet<string>(StringComparer.Ordinal));
+
+            // save the reference to the child page
+            // NB: after the Load phase, we need to check the root master page and all nested master pages that all contents are resolved.
+            // This allows to jump from the root master page to the next nested one.
+            masterPage.SetValue(Internal.MasterPageChildPageProperty, childPage);
 
             // perform the composition
             foreach (var content in contents)
             {
+                // NB: when Contents are placed inside ContentPlaceHolders, the childPage is not part of the control tree anymore - it gets abandoned.
+                // Therefore, we need to copy all the important properties from the child page to the content control, so they are not lost during the composition.
+                // This will let potential ContentPlaceHolders inside the Content finding the list of pending compositions and the reference to the child page.
                 content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
                 content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
                 content.SetValue(Internal.ReferencedViewModuleInfoProperty, childPage.GetValue(Internal.ReferencedViewModuleInfoProperty));
-                content.SetValue(Internal.PendingMasterPageCompositionsProperty, pendingCompositions);
+                content.SetValue(Internal.MasterPageChildPageProperty, childPage.GetValue(Internal.MasterPageChildPageProperty));
+                content.SetValue(Internal.PendingMasterPageCompositionsProperty, childPage.GetValue(Internal.PendingMasterPageCompositionsProperty));
+                content.SetValue(Internal.ResolvedMasterPageCompositionIdsProperty, childPage.GetValue(Internal.ResolvedMasterPageCompositionIdsProperty));
 
                 // find the corresponding placeholder
+                var dataContextType = content.Parent!.GetDataContextType();
+
                 var placeHolder = placeHolders.SingleOrDefault(p => p.ID == content.ContentPlaceHolderID);
                 if (placeHolder == null)
                 {
@@ -138,22 +150,12 @@ namespace DotVVM.Framework.Runtime
                             $"Make sure that each Content element has a corresponding ContentPlaceHolder in the master page.");
                     }
 
-                    var dataContextType = content.Parent!.GetDataContextType();
-                    ((DotvvmControl)content.Parent!).Children.Remove(content);
-                    pendingCompositions.Add(new PendingMasterPageComposition(content, masterPage, dataContextType));
+                    pendingCompositions.Add(new PendingMasterPageComposition(content, childPage, masterPage, dataContextType));
                     continue;
                 }
 
                 // replace the contents
-                var contentPlaceHolder = new PlaceHolder();
-                contentPlaceHolder.SetDataContextType(content.Parent!.GetDataContextType());
-                ((DotvvmControl)content.Parent!).Children.Remove(content);
-
-                placeHolder.Children.Clear();
-                placeHolder.Children.Add(contentPlaceHolder);
-
-                contentPlaceHolder.Children.Add(content);
-                content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
+                PlaceContentInContentPlaceHolder(dataContextType, placeHolder, content);
             }
 
             foreach (var control in auxControls)
@@ -161,6 +163,21 @@ namespace DotVVM.Framework.Runtime
 
             // copy the directives from content page to the master page (except the @masterpage)
             masterPage.ViewModelType = childPage.ViewModelType;
+        }
+
+        internal static void PlaceContentInContentPlaceHolder(DataContextStack? dataContextType, ContentPlaceHolder placeHolder, Content content)
+        {
+            var contentPlaceHolder = new PlaceHolder();
+            contentPlaceHolder.SetDataContextType(dataContextType);
+
+            ((DotvvmControl)content.Parent!).Children.Remove(content);
+
+            placeHolder.Children.Clear();
+            placeHolder.Children.Add(contentPlaceHolder);
+
+            contentPlaceHolder.Children.Add(content);
+
+            content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
         }
 
         /// <summary>

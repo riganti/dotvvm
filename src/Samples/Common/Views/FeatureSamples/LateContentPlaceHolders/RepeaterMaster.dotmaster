@@ -1,17 +1,11 @@
 @viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.LateContentPlaceHolders.RepeaterContentPlaceHolderViewModel, DotVVM.Samples.Common
-<!DOCTYPE html>
+@masterPage Views/FeatureSamples/LateContentPlaceHolders/Root.dotmaster
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title>Late ContentPlaceHolder - Repeater Master</title>
-</head>
-<body>
-    <h1 data-ui="master-heading">Repeater Master Page</h1>
+<dot:Content ContentPlaceHolderID="RootContent">
+    <h2 data-ui="master-heading">Repeater Master Page</h2>
 
     <dot:Repeater DataSource="{value: Items}" RenderSettings.Mode="Server" RenderWrapperTag="false">
         <dot:ContentPlaceHolder ID="RepeaterContent" DataContext="{value: _root}" />
     </dot:Repeater>
 
-</body>
-</html>
+</dot:Content>

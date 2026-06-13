@@ -8,7 +8,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.LateContentPlaceHolder
     }
 
     /// <summary>Viewmodel for Repeater tests - items list is set per subclass.</summary>
-    public abstract class RepeaterContentPlaceHolderViewModel : DotvvmViewModelBase
+    public abstract class RepeaterContentPlaceHolderViewModel : LateContentPlaceHolderViewModel
     {
         public List<string> Items { get; set; } = new List<string>();
     }
