@@ -1192,11 +1192,16 @@
         "type": "System.Int32",
         "defaultValue": -1
       },
+      "MasterPageChildPage": {
+        "type": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework",
+        "isValueInherited": true
+      },
       "PathFragment": {
         "type": "System.String"
       },
       "PendingMasterPageCompositions": {
-        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.PendingMasterPageComposition, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]"
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.PendingMasterPageComposition, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "isValueInherited": true
       },
       "ReferencedViewModuleInfo": {
         "type": "DotVVM.Framework.Binding.ViewModuleReferenceInfo, DotVVM.Framework"
@@ -1206,7 +1211,8 @@
         "isValueInherited": true
       },
       "ResolvedMasterPageCompositionIds": {
-        "type": "System.Collections.Generic.HashSet`1[[System.String, CoreLibrary]]"
+        "type": "System.Collections.Generic.HashSet`1[[System.String, CoreLibrary]]",
+        "isValueInherited": true
       },
       "UniqueID": {
         "type": "System.String"

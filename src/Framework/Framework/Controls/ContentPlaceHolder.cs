@@ -34,7 +34,11 @@ namespace DotVVM.Framework.Controls
 
             // find the nearest master page 
             var masterPage = GetAllAncestors()
-                .First(a => a.IsPropertySet(Internal.PendingMasterPageCompositionsProperty, inherit: false));
+                .FirstOrDefault(a => a.IsPropertySet(Internal.PendingMasterPageCompositionsProperty, inherit: false));
+            if (masterPage == null)
+            {
+                throw new DotvvmControlException(this, "The ContentPlaceHolder or SpaContentPlaceHolder control can be used only in a master page. The current page doesn't have the @masterPage directive.");
+            }
             
             // check there are not multiple content placeholders with the same ID in the same master page (e.g. due to being inside a template that is instantiated multiple times)
             var resolvedIds = (HashSet<string>)masterPage.GetValue(Internal.ResolvedMasterPageCompositionIdsProperty)!;
