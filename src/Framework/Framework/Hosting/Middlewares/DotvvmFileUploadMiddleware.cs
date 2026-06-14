@@ -104,7 +104,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 var authorizeFileUpload = request.Configuration.Security.AuthorizeFileUpload;
                 if (authorizeFileUpload is {} && !await authorizeFileUpload(request))
                 {
-                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     return;
                 }
 
