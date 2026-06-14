@@ -13,6 +13,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNet.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -189,16 +190,22 @@ namespace DotVVM.Framework.Hosting.Middlewares
             var fileNameGroup = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Groups["fileName"];
             var fileName = fileNameGroup.Success ? fileNameGroup.Value : string.Empty;
             var mimeType = section.ContentType ?? string.Empty;
-            var fileSize = section.Body.Length;
 
-            DotvvmMetrics.UploadedFileSize.Record(fileSize);
-
-            if (token.MaxFileSize is {} maxSize && fileSize > maxSize)
+            Guid fileId;
+            try
+            {
+                var fileStream = token.MaxFileSize is {} maxSize
+                    ? LimitLengthStream.LimitLength(section.Body, maxSize, "File size limit")
+                    : section.Body;
+                fileId = await fileStore.StoreFileAsync(fileStream);
+            }
+            catch (LimitLengthStream.LimitExceededException)
             {
                 await context.RejectRequest("Max file size exceeded", statusCode: 413);
+                throw;
             }
-
-            var fileId = await fileStore.StoreFileAsync(section.Body);
+            var fileSize = section.Body.Length;
+            DotvvmMetrics.UploadedFileSize.Record(fileSize);
 
             return new UploadedFile {
                 FileId = fileId,
