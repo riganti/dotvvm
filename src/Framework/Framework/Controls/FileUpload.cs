@@ -80,6 +80,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary>
         /// Gets or sets the maximum size of files in megabytes (MB). The size is not limited by default.
+        /// When file exceeding the limit is uploaded, the <see cref="UploadedFilesCollection.Error" /> property is set to "Uploaded file is too large."
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public int? MaxFileSize
