@@ -193,13 +193,16 @@ namespace DotVVM.Framework.Controls
         public static TControl AddAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue>? value)
             where TControl : IControlWithHtmlAttributes
         {
-            return AddAttribute(control, attribute, value?.UnwrapToObject());
+            if (value is { } v)
+                control.Attributes.Add(attribute, v.UnwrapToObject());
+            return control;
         }
         /// <summary> Appends a value into the specified html attribute. If the attribute already exists, the old and new values are merged. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl AddAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue> value)
             where TControl : IControlWithHtmlAttributes
         {
-            return AddAttribute(control, attribute, value.UnwrapToObject());
+            control.Attributes.Add(attribute, value.UnwrapToObject());
+            return control;
         }
 
         /// <summary> Appends a list of css attributes to the control. If the attributes already exist, the old and new values are merged. Returns <paramref name="control"/> for fluent API usage. </summary>
@@ -215,8 +218,7 @@ namespace DotVVM.Framework.Controls
         public static TControl AddAttributes<TControl, TValue>(this TControl control, VirtualPropertyGroupDictionary<TValue> attributes)
             where TControl : IControlWithHtmlAttributes
         {
-            foreach (var a in attributes.RawValues)
-                AddAttribute(control, a.Key, a.Value);
+            control.Attributes.CopyFrom(attributes);
             return control;
         }
 
@@ -224,9 +226,9 @@ namespace DotVVM.Framework.Controls
         public static TControl AddCssClass<TControl>(this TControl control, ValueOrBinding<string?> className)
             where TControl : IControlWithHtmlAttributes
         {
-            var classNameObj = className.UnwrapToObject();
-            if (classNameObj is null or "") return control;
-            return AddAttribute(control, "class", classNameObj);
+            if (className.ValueOrDefault is null or "") return control;
+            control.Attributes.AddInternal(DotvvmPropertyIdAssignment.GroupMembers.@class, className.UnwrapToObject());
+            return control;
         }
 
         /// <summary> Appends a css class to this control. Note that it is currently not supported if multiple bindings would have to be joined together. Returns <paramref name="control"/> for fluent API usage. </summary>
@@ -235,7 +237,8 @@ namespace DotVVM.Framework.Controls
         {
             if (className is null or "") return control;
 
-            return AddAttribute(control, "class", className);
+            control.Attributes.AddInternal(DotvvmPropertyIdAssignment.GroupMembers.@class, className);
+            return control;
         }
 
         /// <summary> Appends a list of css classes to this control. Returns <paramref name="control"/> for fluent API usage. </summary>

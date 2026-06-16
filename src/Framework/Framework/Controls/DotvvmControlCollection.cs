@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
@@ -219,9 +220,8 @@ namespace DotVVM.Framework.Controls
             item.Parent = parent;
 
 
-            if (!item.properties.Contains(Internal.UniqueIDProperty) &&
-                parent.properties.TryGet(Internal.UniqueIDProperty, out var parentId) &&
-                parentId is not null)
+            if (!item.properties.Contains(DotvvmPropertyIdAssignment.PropertyIds.Internal_UniqueID) &&
+                parent.properties.GetOrNull(DotvvmPropertyIdAssignment.PropertyIds.Internal_UniqueID) is {} parentId)
             {
                 AssignUniqueIds(item, parentId);
             }
@@ -276,17 +276,17 @@ namespace DotVVM.Framework.Controls
             // if the parent is a naming container, we don't need to duplicate it's unique id into the control
             // when we don't do this Repeater generates different ids in server-side and client-side mode, because the
             // UniqueIDProperty of the parent DataItemContainer is different, but the ClientIdFragment is the same
-            if (item.Parent!.properties.Contains(Internal.IsNamingContainerProperty))
+            if (item.Parent!.properties.Contains(DotvvmPropertyIdAssignment.PropertyIds.Internal_IsNamingContainer))
             {
                 parentId = "";
             }
             
             var id = parentId.ToString() + "a" + uniqueIdCounter.ToString();
             uniqueIdCounter++;
-            item.properties.Set(Internal.UniqueIDProperty, id);
+            item.properties.Set(DotvvmPropertyIdAssignment.PropertyIds.Internal_UniqueID, id);
             foreach (var c in item.Children.controls)
             {
-                if (!c.properties.Contains(Internal.UniqueIDProperty))
+                if (!c.properties.Contains(DotvvmPropertyIdAssignment.PropertyIds.Internal_UniqueID))
                     item.Children.AssignUniqueIds(c, id);
             }
         }
@@ -304,7 +304,7 @@ namespace DotVVM.Framework.Controls
             DotvvmBindableObject? c = parent;
             while (c != null)
             {
-                if (c.properties.TryGet(Internal.RequestContextProperty, out var context))
+                if (c.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.Internal_RequestContext, out var context))
                     return (IDotvvmRequestContext?)context;
                 c = c.Parent;
             }
