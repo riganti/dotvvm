@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Utils
         {
             position += offset;
             if (position > maxLength)
-                throw new InvalidOperationException($"The stream is limited to {maxLength} bytes: {comment}");
+                throw new LimitExceededException(maxLength, comment);
         }
 
         public long RemainingAllowedLength => maxLength - position;
@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Utils
             if (s.CanSeek)
             {
                 if (s.Length > maxLength)
-                    throw new InvalidOperationException($"The stream is limited to {maxLength} bytes: {errorComment}");
+                    throw new LimitExceededException(maxLength, errorComment);
                 return s;
             }
             else
@@ -92,5 +92,8 @@ namespace DotVVM.Framework.Utils
                 return new LimitLengthStream(s, maxLength, errorComment);
             }
         }
+
+        public sealed class LimitExceededException(long MaxLength, string Comment)
+            : InvalidOperationException($"The stream is limited to {MaxLength} bytes: {Comment}");
     }
 }
