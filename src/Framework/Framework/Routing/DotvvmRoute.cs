@@ -79,13 +79,13 @@ namespace DotVVM.Framework.Routing
             catch (RegexMatchTimeoutException)
 #if NET7_0_OR_GREATER
                 when ((routeRegex.Options & RegexOptions.NonBacktracking) == 0)
-#else
-                when (false)
-#endif
             {
                 routeRegex = new Regex(routeRegex.ToString(), routeRegex.Options | RegexOptions.NonBacktracking, DotvvmRouteParser.RouteRegexMatchTimeout);
                 return IsMatch(url, out values);
             }
+#else
+            { throw; }
+#endif
 
             if (!match.Success)
             {
