@@ -89,7 +89,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     }
     public sealed class ViewModelSerializationMap<T> : ViewModelSerializationMap
     {
-        public ViewModelSerializationMap(IEnumerable<ViewModelPropertyMap> properties, MethodBase? constructor, JsonSerializerOptions jsonOptions, DotvvmConfiguration configuration): 
+        public ViewModelSerializationMap(IEnumerable<ViewModelPropertyMap> properties, MethodBase? constructor, JsonSerializerOptions jsonOptions, DotvvmConfiguration configuration):
             base(typeof(T), properties, constructor, jsonOptions, configuration)
         {
         }
@@ -446,7 +446,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     {
                         // encryptedValuesWriter.WriteValue({propertyIndex}, (object)value.{property.PropertyInfo.Name});
                         block.Add(
-                            Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes, Constant(propertyIndex), Convert(prop, typeof(object))));
+                            Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes, Constant(propertyIndex), Convert(prop, typeof(object)), jsonOptions));
                     }
 
 

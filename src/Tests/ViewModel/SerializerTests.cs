@@ -215,6 +215,21 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void Support_EncryptedDataWithBindName()
+        {
+            var obj = new TestViewModelWithEncryptedRenamedProperty {
+                Secret = new RenamedProtectedData {
+                    Value = "secret"
+                }
+            };
+
+            var serialized = Serialize(obj, out var encryptedValues, false);
+            var deserialized = Deserialize<TestViewModelWithEncryptedRenamedProperty>(serialized, encryptedValues);
+
+            Assert.AreEqual("secret", deserialized.Secret.Value);
+        }
+
+        [TestMethod]
         [DataRow(null)]
         [DataRow(new byte[] { })]
         [DataRow(new byte[] { 1 })]
@@ -1651,6 +1666,18 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         [Protect(ProtectMode.SignData)]
         public List<List<DataNode>> Matrix { get; set; }
+    }
+
+    public class TestViewModelWithEncryptedRenamedProperty
+    {
+        [Protect(ProtectMode.EncryptData)]
+        public RenamedProtectedData Secret { get; set; }
+    }
+
+    public class RenamedProtectedData
+    {
+        [Bind(Name = "renamed")]
+        public string Value { get; set; }
     }
 
     public class TestViewModelWithDataset
