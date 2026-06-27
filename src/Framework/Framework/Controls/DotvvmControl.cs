@@ -245,10 +245,19 @@ namespace DotVVM.Framework.Controls
             else return false;
             return true;
         }
-        /// <returns>true means that rendering of the rest of this control should be skipped</returns>
+
+        /// <summary>
+        /// Renders the knockout comments corresponding to the <see cref="DotvvmBindableObject.DataContext"/>
+        /// and <see cref="IncludeInPage"/> properties.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> means that IncludeInPageProperty returned false.
+        /// If it contains a value binding, body should be rendered as conditional template;
+        /// otherwise the rest of this control should be skipped
+        /// </returns>
         protected bool RenderBeforeControl(in RenderState r, IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (r.IncludeInPage != null && !(r.IncludeInPage is IValueBinding) && false.Equals(this.GetValue(IncludeInPageProperty)))
+            if (r.IncludeInPage != null && KnockoutHelper.TryEvaluateValueBinding(this, r.IncludeInPage) is false)
                 return true;
 
             if (r.DataContext != null)
@@ -262,6 +271,14 @@ namespace DotVVM.Framework.Controls
                 writer.WriteKnockoutDataBindComment("if", binding.GetKnockoutBindingExpression(this));
             }
 
+            if (r.HasActives | r.HasActiveGroups)
+                RenderActiveProperties(in r, writer, context);
+
+            return false;
+        }
+
+        private void RenderActiveProperties(in RenderState r, IHtmlWriter writer, IDotvvmRequestContext context)
+        {
             if (r.HasActives) foreach (var item in properties)
             {
                 if (item.Key is ActiveDotvvmProperty activeProp)
@@ -280,8 +297,61 @@ namespace DotVVM.Framework.Controls
                     ((ActiveDotvvmPropertyGroup)item.Key).AddAttributesToRender(writer, context, this, item.Select(i => i.Key));
                 }
             }
+        }
 
-            return false;
+        protected delegate void RenderBodyCallback<T>(DotvvmControl self, T state, IHtmlWriter writer, IDotvvmRequestContext context);
+
+        /// <summary> Renders this controls as a knockout virtual element referencing a template. Note that <see cref="IncludeInPage"/> is assumed to be a value binding or not set, you must check that it is not a constant or resource binding before calling this method. </summary>
+        protected void RenderAsTemplate<T>(in RenderState r, IHtmlWriter writer, IDotvvmRequestContext context, in T renderContext = default, RenderBodyCallback<T>? renderBody = null)
+            where T: struct
+        {
+            string templateId;
+            using (var text = new System.IO.StringWriter())
+            {
+                var templateWriter = new HtmlWriter(text, context);
+
+                RenderActiveProperties(in r, templateWriter, context);
+
+                if (renderBody is null)
+                {
+                    AddAttributesToRender(templateWriter, context);
+                    RenderBeginTag(templateWriter, context);
+                    RenderContents(templateWriter, context);
+                    RenderEndTag(templateWriter, context);
+                }
+                else
+                {
+                    renderBody(this, renderContext, templateWriter, context);
+                }
+
+                var templateText = text.ToString();
+                if (templateText.Length == 0)
+                {
+                    // some controls insert dummy placeholders with IncludeInPage if some template is left empty
+                    return;
+                }
+                templateId = context.ResourceManager.AddTemplateResource(templateText);
+            }
+
+            if (r.DataContext is {})
+            {
+                var parent = Parent ?? throw new DotvvmControlException(this, "Cannot set DataContext binding on the root control");
+                writer.WriteKnockoutWithComment(r.DataContext.GetKnockoutBindingExpression(parent));
+            }
+
+            var binding = new KnockoutBindingGroup();
+            binding.AddValue("name", templateId);
+            if (r.IncludeInPage is IValueBinding includeInPageBinding)
+            {
+                binding.Add("if", includeInPageBinding.GetKnockoutBindingExpression(this));
+            }
+            writer.WriteKnockoutDataBindComment("template", binding.ToString());
+            writer.WriteKnockoutDataBindEndComment();
+
+            if (r.DataContext is {})
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
         }
 
         protected void RenderAfterControl(in RenderState r, IHtmlWriter writer)
@@ -297,7 +367,6 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
@@ -307,14 +376,20 @@ namespace DotVVM.Framework.Controls
             foreach (var (prop, value) in properties)
                 TouchProperty(prop, value, ref r);
             if (RenderBeforeControl(in r, writer, context))
-                return;
+            {
+                if (r.IncludeInPage is not IValueBinding)
+                    return;
 
-            AddAttributesToRender(writer, context);
-            RenderBeginTag(writer, context);
-            RenderContents(writer, context);
-            RenderEndTag(writer, context);
-
-            RenderAfterControl(in r, writer);
+                RenderAsTemplate<ValueTuple>(in r, writer, context);
+            }
+            else
+            {
+                AddAttributesToRender(writer, context);
+                RenderBeginTag(writer, context);
+                RenderContents(writer, context);
+                RenderEndTag(writer, context);
+                RenderAfterControl(in r, writer);
+            }
         }
 
         /// <summary>

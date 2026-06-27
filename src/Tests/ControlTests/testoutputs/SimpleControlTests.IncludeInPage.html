@@ -11,11 +11,19 @@ included
 returns null -> included
 <div></div>
 
-value binding
-<!-- ko if: int() < 0 --><div></div><!-- /ko -->
+value binding (included)
+<!-- ko if: int() > 0 --><div></div><!-- /ko -->
 
-value binding + DataContext
+value binding (excluded)
+<!-- ko template: { name: "wOgbLUWWke10nyBSC7lDKX99kCVA95nu0Lms2dr2ENQ=", if: int() < 0 } --><!-- /ko -->
+
+value binding + DataContext (included)
 <!-- ko with: int --><!-- ko if: $data > 0 --><div></div><!-- /ko --><!-- /ko -->
 
+value binding + DataContext (excluded)
+<!-- ko with: int --><!-- ko template: { name: "wOgbLUWWke10nyBSC7lDKX99kCVA95nu0Lms2dr2ENQ=", if: $data < 0 } --><!-- /ko --><!-- /ko -->
+
+    <!-- Resource wOgbLUWWke10nyBSC7lDKX99kCVA95nu0Lms2dr2ENQ= of type TemplateResource. -->
+    <template id="wOgbLUWWke10nyBSC7lDKX99kCVA95nu0Lms2dr2ENQ="><div></div></template>
 
 </body>
