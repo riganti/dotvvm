@@ -186,8 +186,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// <summary>
         /// Get's Javascript code that can be executed inside knockout data-bind attribute.
         /// </summary>
-        public static string FormatKnockoutScript(JsExpression expression, bool allowDataGlobal = true, int dataContextLevel = 0) =>
-            FormatKnockoutScript(expression.FormatParametrizedScript(), allowDataGlobal, dataContextLevel); // TODO
+        public static string FormatKnockoutScript(JsExpression expression, bool allowDataGlobal = true, int dataContextLevel = 0, DotvvmBindableObject? targetControl = null) =>
+            FormatKnockoutScript(expression.FormatParametrizedScript(), allowDataGlobal, dataContextLevel, targetControl);
         /// <summary>
         /// Get's Javascript code that can be executed inside knockout data-bind attribute.
         /// </summary>
