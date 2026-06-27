@@ -95,10 +95,15 @@ namespace DotVVM.Framework.Tests.Runtime
 
         static Stream MakeNonSeekable(byte[] data)
         {
+#if DotNetCore
             var pipe = new System.IO.Pipelines.Pipe();
             _ = pipe.Writer.WriteAsync(data);
             pipe.Writer.Complete();
             return pipe.Reader.AsStream();
+#else
+            // IO.Pipelines not supported, we won't test the non-seekable part
+            return new MemoryStream(data);
+#endif
         }
 
         private sealed class TestUploadedFileStorage : IUploadedFileStorage

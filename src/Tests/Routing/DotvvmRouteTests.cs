@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Threading;
 using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.Hosting.Middlewares;
@@ -711,6 +712,9 @@ namespace DotVVM.Framework.Tests.Routing
 
         [TestMethod]
         [Timeout(10000)]
+#if NETFRAMEWORK
+        [ExpectedException(typeof(RegexMatchTimeoutException))]
+#endif
         public void DotvvmRoute_ReDoS_Demo_ManySlugSegmentsWithMissingSuffix()
         {
             var route = new DotvvmRoute(
@@ -727,6 +731,9 @@ namespace DotVVM.Framework.Tests.Routing
 
         [TestMethod]
         [Timeout(10000)]
+#if NETFRAMEWORK
+        [ExpectedException(typeof(RegexMatchTimeoutException))]
+#endif
         public void DotvvmRoute_ReDoS_Demo_ManyOptionalSlugSegmentsWithMissingSuffix()
         {
             var route = new DotvvmRoute(
@@ -743,6 +750,9 @@ namespace DotVVM.Framework.Tests.Routing
 
         [TestMethod]
         [Timeout(10000)]
+#if NETFRAMEWORK
+        [ExpectedException(typeof(RegexMatchTimeoutException))]
+#endif
         public void DotvvmRoute_ReDoS_Demo_MixedSimplePatternWithLongNearMatch()
         {
             var route = new DotvvmRoute(
@@ -759,6 +769,9 @@ namespace DotVVM.Framework.Tests.Routing
 
         [TestMethod]
         [Timeout(10000)]
+#if NETFRAMEWORK
+        [ExpectedException(typeof(RegexMatchTimeoutException))]
+#endif
         public void DotvvmRoute_ReDoS_Realistic3Params_MissingSuffix()
         {
             var route = new DotvvmRoute(
@@ -785,6 +798,9 @@ namespace DotVVM.Framework.Tests.Routing
 
         [TestMethod]
         [Timeout(10000)]
+#if NETFRAMEWORK
+        [ExpectedException(typeof(RegexMatchTimeoutException))]
+#endif
         public void DotvvmRoute_ReDoS_Realistic3OptionalParams_MissingSuffix()
         {
             var route = new DotvvmRoute(
@@ -801,6 +817,9 @@ namespace DotVVM.Framework.Tests.Routing
 
         [TestMethod]
         [Timeout(10000)]
+#if NETFRAMEWORK
+        [ExpectedException(typeof(RegexMatchTimeoutException))]
+#endif
         public void DotvvmRoute_ReDoS_Realistic3Params_SameSegmentSuffix()
         {
             var route = new DotvvmRoute(
@@ -817,6 +836,9 @@ namespace DotVVM.Framework.Tests.Routing
 
         [TestMethod]
         [Timeout(10000)]
+#if NETFRAMEWORK
+        [ExpectedException(typeof(RegexMatchTimeoutException))]
+#endif
         public void DotvvmRoute_ReDoS_Realistic3Params_SameSegmentOptionalSuffix()
         {
             var route = new DotvvmRoute(
@@ -833,6 +855,10 @@ namespace DotVVM.Framework.Tests.Routing
 
         [TestMethod]
         [Timeout(10000)]
+#if NETFRAMEWORK
+        [ExpectedException(typeof(RegexMatchTimeoutException))]
+#endif
+
         public void DotvvmRoute_ReDoS_Realistic3Params_AdjacentTail_MissingSuffix()
         {
             var route = new DotvvmRoute(
@@ -914,6 +940,9 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+#if NETFRAMEWORK
+        [ExpectedException(typeof(RegexMatchTimeoutException))]
+#endif
         public void DotvvmRoute_TimeoutRetriesWithNonBacktrackingOnDotNetCore()
         {
             var route = new DotvvmRoute("edit/{project_id:int}-{slug}-{subslug}/done", null, "testpage", null, null, configuration);
