@@ -48,11 +48,11 @@ namespace DotVVM.Framework.ResourceManagement
             if (allowResourceVersionHash)
             {
                 var versionHash = GetVersionHash(resource, context, name);
-                return context.TranslateVirtualPath($"~/{HostingConstants.ResourceRouteName}-{encodedName}/{encodedName}?v={versionHash}");
+                return $"~/{HostingConstants.ResourceRouteName}-{encodedName}/{encodedName}?v={versionHash}";
             }
             else
             {
-                return context.TranslateVirtualPath($"~/{HostingConstants.ResourceRouteName}-{encodedName}/{encodedName}");
+                return $"~/{HostingConstants.ResourceRouteName}-{encodedName}/{encodedName}";
             }
         }
 
