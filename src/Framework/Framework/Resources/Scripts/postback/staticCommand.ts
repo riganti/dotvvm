@@ -37,7 +37,7 @@ export async function staticCommandPostback(command: string, args: any[], option
         const absolutePaths = resolveRelativeValidationPaths(paths, options.knockoutContext)
 
         await http.retryOnInvalidCsrfToken(async () => {
-            const csrfToken = await http.fetchCsrfToken(options.abortSignal);
+            const csrfToken = await http.getCsrfToken(options.abortSignal);
             data = { 
                 args: args.map(a => serialize(a)), 
                 command, 

@@ -53,7 +53,9 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<Wrap
 
 let csrfTokenFactory: Promise<string> | undefined;
 
-export async function fetchCsrfToken(signal: AbortSignal | undefined): Promise<string> {
+/** Returns the DotVVM CSRF token.
+  * If LazyCsrfToken is enabled, this function will fetch it from the server, otherwise returns immediately */
+export async function getCsrfToken(signal: AbortSignal | undefined): Promise<string> {
     let token = getState().$csrfToken
     if (token == null) {
         csrfTokenFactory ??= (async () => {
