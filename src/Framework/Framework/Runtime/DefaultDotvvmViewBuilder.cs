@@ -106,9 +106,9 @@ namespace DotVVM.Framework.Runtime
             if (!masterPage.ViewModelType.IsAssignableFrom(childPage.ViewModelType))
                 throw new DotvvmControlException(childPage, $"Master page requires viewModel of type '{masterPage.ViewModelType}' and it is not assignable from '{childPage.ViewModelType}'.");
             
-            // find content place holders
+            // find content placeholders
             var placeHolders = GetMasterPageContentPlaceHolders(masterPage);
-            var declaredContentPlaceHolderIds = masterPage.GetValue<HashSet<string>>(Internal.DeclaredContentPlaceHolderIdsProperty)!;
+            var declaredContentPlaceHolderIds = masterPage.GetValue<ImmutableHashSet<string>>(Internal.DeclaredContentPlaceHolderIdsProperty)!;
 
             // find contents
             var (contents, auxControls) = GetChildPageContents(childPage, placeHolders);

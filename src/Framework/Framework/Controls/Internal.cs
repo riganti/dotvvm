@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ResolvedMasterPageCompositionIdsProperty =
             DotvvmProperty.Register<HashSet<string>?, Internal>(() => ResolvedMasterPageCompositionIdsProperty, defaultValue: null, isValueInherited: true);
         public static readonly DotvvmProperty DeclaredContentPlaceHolderIdsProperty =
-            DotvvmProperty.Register<HashSet<string>?, Internal>(() => DeclaredContentPlaceHolderIdsProperty, defaultValue: null, isValueInherited: false);
+            DotvvmProperty.Register<ImmutableHashSet<string>?, Internal>(() => DeclaredContentPlaceHolderIdsProperty, defaultValue: null, isValueInherited: false);
 
         public static bool IsViewCompilerProperty(DotvvmProperty property)
         {

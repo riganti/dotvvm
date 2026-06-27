@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public override void VisitView(ResolvedTreeRoot view)
         {
             base.VisitView(view);
-            view.SetProperty(new ResolvedPropertyValue(Internal.DeclaredContentPlaceHolderIdsProperty, Ids), replace: true);
+            view.SetProperty(new ResolvedPropertyValue(Internal.DeclaredContentPlaceHolderIdsProperty, Ids.ToImmutableHashSet()), replace: true);
         }
     }
 }

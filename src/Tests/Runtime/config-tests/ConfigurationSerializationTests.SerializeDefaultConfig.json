@@ -1164,7 +1164,7 @@
         "isValueInherited": true
       },
       "DeclaredContentPlaceHolderIds": {
-        "type": "System.Collections.Generic.HashSet`1[[System.String, CoreLibrary]]"
+        "type": "System.Collections.Immutable.ImmutableHashSet`1[[System.String, CoreLibrary]], System.Collections.Immutable"
       },
       "IsControlBindingTarget": {
         "type": "System.Boolean",
