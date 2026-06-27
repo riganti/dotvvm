@@ -1163,6 +1163,9 @@
         "type": "DotVVM.Framework.Compilation.ControlTree.DataContextStack, DotVVM.Framework",
         "isValueInherited": true
       },
+      "DeclaredContentPlaceHolderIds": {
+        "type": "System.Collections.Generic.HashSet`1[[System.String, CoreLibrary]]"
+      },
       "IsControlBindingTarget": {
         "type": "System.Boolean",
         "defaultValue": false
