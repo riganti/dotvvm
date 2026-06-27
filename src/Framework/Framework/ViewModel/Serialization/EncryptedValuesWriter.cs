@@ -9,7 +9,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
     public class EncryptedValuesWriter
     {
         Utf8JsonWriter writer;
-        JsonSerializerOptions options;
         Stack<int> propertyIndices = new Stack<int>();
         int virtualNests = 0;
         int lastPropertyIndex = -1;
@@ -19,7 +18,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public EncryptedValuesWriter(Utf8JsonWriter jsonWriter)
         {
             this.writer = jsonWriter;
-            this.options = DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe;
         }
 
         public void Nest() => Nest(lastPropertyIndex + 1);
@@ -118,7 +116,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             EnsureObjectStarted();
             WritePropertyName(propertyIndex);
             lastPropertyIndex = propertyIndex;
-            JsonSerializer.Serialize(writer, value, options);
+            JsonSerializer.Serialize(writer, value, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
         }
     }
 }
