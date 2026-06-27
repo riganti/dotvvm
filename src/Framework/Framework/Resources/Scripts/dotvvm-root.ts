@@ -27,6 +27,7 @@ import * as metadataHelper from './metadata/metadataHelper'
 import { StateManager } from "./state-manager"
 import { DotvvmEvent } from "./events"
 import translations from './translations/translations'
+import { fetchCsrfToken } from "./postback/http"
 
 if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')
@@ -73,6 +74,7 @@ const dotvvmExports = {
     applyPostbackHandlers,
     validation: validation.globalValidationObject,
     postBack,
+    getCsrfToken: fetchCsrfToken,
     init,
     registerGlobalComponent: viewModuleManager.registerGlobalComponent,
     isPostbackRunning,
