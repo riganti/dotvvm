@@ -40,10 +40,11 @@ namespace DotVVM.Samples.Tests.Control
 
                 // restart the timer
                 browser.Single("[data-ui=enabled1]").Click();
+                var restartValue = int.Parse(value.GetInnerText());
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(9, int.Parse(value.GetInnerText()), 1));
+                Assert.True(EqualsWithTolerance(restartValue + 3, int.Parse(value.GetInnerText()), 1));
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(12, int.Parse(value.GetInnerText()), 1));
+                Assert.True(EqualsWithTolerance(restartValue + 6, int.Parse(value.GetInnerText()), 1));
             });
         }
 
