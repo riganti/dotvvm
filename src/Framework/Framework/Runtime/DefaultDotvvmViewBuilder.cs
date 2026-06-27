@@ -108,6 +108,7 @@ namespace DotVVM.Framework.Runtime
             
             // find content place holders
             var placeHolders = GetMasterPageContentPlaceHolders(masterPage);
+            var declaredContentPlaceHolderIds = masterPage.GetValue<HashSet<string>>(Internal.DeclaredContentPlaceHolderIdsProperty)!;
 
             // find contents
             var (contents, auxControls) = GetChildPageContents(childPage, placeHolders);
@@ -142,7 +143,7 @@ namespace DotVVM.Framework.Runtime
                 var placeHolder = placeHolders.SingleOrDefault(p => p.ID == content.ContentPlaceHolderID);
                 if (placeHolder == null)
                 {
-                    if (!masterPageDescriptor.ContentPlaceHolderIds.Contains(content.ContentPlaceHolderID!))
+                    if (!declaredContentPlaceHolderIds.Contains(content.ContentPlaceHolderID!))
                     {
                         var masterPageInfo = masterPageDescriptor.FileName is { } masterPageFile ? $" '{masterPageFile}'" : "";
                         throw new DotvvmControlException(content,

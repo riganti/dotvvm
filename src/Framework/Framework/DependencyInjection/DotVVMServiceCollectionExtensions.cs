@@ -130,6 +130,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.TreeVisitors.Add(() => new UsedPropertiesFindingVisitor());
                 o.TreeVisitors.Add(() => new LifecycleRequirementsAssigningVisitor());
                 o.TreeVisitors.Add(() => new UnsupportedCallSiteCheckingVisitor());
+                o.TreeVisitors.Add(() => new ContentPlaceHolderIdCollector());
             });
 
             services.TryAddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
