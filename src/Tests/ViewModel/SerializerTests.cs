@@ -219,14 +219,19 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var obj = new TestViewModelWithEncryptedRenamedProperty {
                 Secret = new RenamedProtectedData {
-                    Value = "secret"
+                    Value = "secret",
+                    NestedSigned = "another_secret",
+                    NestedEncrypted = "secret_secret",
                 }
             };
 
             var serialized = Serialize(obj, out var encryptedValues, false);
+            Console.WriteLine($"EV: {encryptedValues}");
             var deserialized = Deserialize<TestViewModelWithEncryptedRenamedProperty>(serialized, encryptedValues);
 
             Assert.AreEqual("secret", deserialized.Secret.Value);
+            Assert.AreEqual("another_secret", deserialized.Secret.NestedSigned);
+            Assert.AreEqual("secret_secret", deserialized.Secret.NestedEncrypted);
         }
 
         [TestMethod]
@@ -679,7 +684,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("Item3", objPopulated.KeyValuePairs[2].Value.P1);
         }
 
-        [TestMethod] 
+        [TestMethod]
         public void SupportDictionaryCollection()
         {
             var obj = new TestViewModelWithAdvancedCollections()
@@ -1678,6 +1683,14 @@ namespace DotVVM.Framework.Tests.ViewModel
     {
         [Bind(Name = "renamed")]
         public string Value { get; set; }
+
+        [Protect(ProtectMode.EncryptData)]
+        [Bind(Name = "renamed_encrypted")]
+        public string NestedEncrypted { get; set; }
+
+        [Protect(ProtectMode.SignData)]
+        [Bind(Name = "renamed_signed")]
+        public string NestedSigned { get; set; }
     }
 
     public class TestViewModelWithDataset

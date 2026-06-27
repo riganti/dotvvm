@@ -109,22 +109,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Write a value to the object.
         /// </summary>
-        public void WriteValue(int propertyIndex, object value, JsonSerializerOptions options)
+        public void WriteValue(int propertyIndex, object value)
         {
             if (suppress > 0) return;
 
             EnsureObjectStarted();
             WritePropertyName(propertyIndex);
             lastPropertyIndex = propertyIndex;
-            Suppress();
-            try
-            {
-                JsonSerializer.Serialize(writer, value, options);
-            }
-            finally
-            {
-                EndSuppress();
-            }
+            JsonSerializer.Serialize(writer, value, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
         }
     }
 }

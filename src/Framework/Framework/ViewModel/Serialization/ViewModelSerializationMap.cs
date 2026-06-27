@@ -280,7 +280,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                         Assign(
                             propertyVar,
-                            DeserializePropertyValue(property, readerTmp, propertyVar, jsonOptions, state))
+                            Call(
+                                JsonSerializationCodegenFragments.DeserializeValueStaticMethod.MakeGenericMethod(property.Type),
+                                readerTmp,
+                                Constant(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe)
+                            )
+                        )
                     );
 
                     readEncryptedValue = TryFinally(
@@ -446,7 +451,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     {
                         // encryptedValuesWriter.WriteValue({propertyIndex}, (object)value.{property.PropertyInfo.Name});
                         block.Add(
-                            Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes, Constant(propertyIndex), Convert(prop, typeof(object)), jsonOptions));
+                            Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes, Constant(propertyIndex), Convert(prop, typeof(object))));
                     }
 
 
