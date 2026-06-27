@@ -300,10 +300,10 @@ namespace DotVVM.Samples.Tests.Control
 
                 void ValidateState(int[] selectedValues, bool[] checkboxStates)
                 {
-                    var selectedValuesInPage = selected.FindElements("li").Select(i => int.Parse(i.GetInnerText()));
+                    var selectedValuesInPage = selected.FindElements("li").Select(i => int.Parse(i.GetInnerText())).ToArray();
                     Assert.Equal(selectedValues.Order(), selectedValuesInPage.Order());
 
-                    var checkboxStatesInPage = browser.FindElements("input[type=checkbox]").Select(c => c.IsSelected());
+                    var checkboxStatesInPage = browser.FindElements("input[type=checkbox]").Select(c => c.IsSelected()).ToArray();
                     Assert.Equal(checkboxStates, checkboxStatesInPage);
                 }
             });
