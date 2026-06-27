@@ -160,9 +160,9 @@ namespace DotVVM.Framework.Compilation.Javascript
             return new JsViewModelPropertyAdjuster(mapper, preferUsingState);
         }
 
-        public JsExpression CompileToJavascript(Expression binding, DataContextStack dataContext, bool preferUsingState = false, bool isRootAsync = false, IBinding? debugBinding = null)
+        public JsExpression CompileToJavascript(Expression binding, DataContextStack dataContext, bool preferUsingState = false, bool isRootAsync = false, IBinding? wrapperBinding = null)
         {
-            var translator = new JavascriptTranslationVisitor(dataContext, DefaultMethodTranslator, debugBinding);
+            var translator = new JavascriptTranslationVisitor(dataContext, DefaultMethodTranslator, wrapperBinding);
             var script = new JsParenthesizedExpression(translator.Translate(binding));
             script.AcceptVisitor(AdjustingVisitor(preferUsingState));
             script.AcceptVisitor(new PromiseAwaitingVisitor(isRootAsync));
@@ -205,7 +205,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                                     default);
                 }
                 else
-                    return resourceOnlyToString(expression, targetControl);
+                    return resourceOnlyToString(expression, targetControl, allowDataGlobal);
             }
 
             // separate method to avoid closure allocation if dataContextLevel == 0
@@ -237,11 +237,15 @@ namespace DotVVM.Framework.Compilation.Javascript
                         return default;
                     }
                 });
-            static string resourceOnlyToString(ParametrizedCode expression, DotvvmBindableObject? targetControl) =>
+            static string resourceOnlyToString(ParametrizedCode expression, DotvvmBindableObject? targetControl, bool allowDataGlobal) =>
                 expression.ToString(o => {
                     if (o is ResourceSymbolicParameter resource)
                     {
                         return resource.Evaluate(targetControl, expression, null);
+                    }
+                    else if (o == KnockoutViewModelParameter && !allowDataGlobal)
+                    {
+                        return CodeParameterAssignment.FromIdentifier("$data");
                     }
                     else
                     {

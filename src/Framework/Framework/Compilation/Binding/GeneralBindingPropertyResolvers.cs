@@ -133,7 +133,7 @@ namespace DotVVM.Framework.Compilation.Binding
             IBinding binding)
         {
             return new KnockoutJsExpressionBindingProperty(
-                   javascriptTranslator.CompileToJavascript(expression.Expression, dataContext, debugBinding: binding).ApplyAction(a => a.Freeze()));
+                   javascriptTranslator.CompileToJavascript(expression.Expression, dataContext, wrapperBinding: binding).ApplyAction(a => a.Freeze()));
         }
 
         public SimplePathExpressionBindingProperty FormatSimplePath(IBinding binding)
@@ -371,7 +371,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     Expression.ArrayIndex(expr, indexParameter()) :
                 expression.Expression.Type.Implements(typeof(IEnumerable<>), out var ienumerable) ?
                     (Expression)Expression.Call(
-                        typeof(Enumerable), 
+                        typeof(Enumerable),
                         "ElementAt",
                         ienumerable.GetGenericArguments(),
                         expression.Expression,
@@ -389,8 +389,8 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
 
-        public StaticCommandJsAstProperty CompileStaticCommand(DataContextStack dataContext, CastedExpressionBindingProperty expression) =>
-            new StaticCommandJsAstProperty(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression));
+        public StaticCommandJsAstProperty CompileStaticCommand(DataContextStack dataContext, CastedExpressionBindingProperty expression, IBinding binding) =>
+            new StaticCommandJsAstProperty(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression, binding));
 
         [Obsolete("Deprecated in favor of StaticCommandOptionsLambdaJavascriptProperty.")]
         public StaticCommandJavascriptProperty FormatStaticCommand(StaticCommandJsAstProperty code) =>

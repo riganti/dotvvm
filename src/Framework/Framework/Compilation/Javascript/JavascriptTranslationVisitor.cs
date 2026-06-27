@@ -23,13 +23,13 @@ namespace DotVVM.Framework.Compilation.Javascript
     public class JavascriptTranslationVisitor
     {
         private readonly IJavascriptMethodTranslator Translator;
-        private readonly IBinding? DebugBinding;
+        private readonly IBinding? WrapperBinding;
 
         public DataContextStack DataContext { get; }
 
         private readonly Dictionary<DataContextStack, int> ContextMap;
         public bool WriteUnknownParameters { get; set; } = true;
-        public JavascriptTranslationVisitor(DataContextStack dataContext, IJavascriptMethodTranslator translator, IBinding? debugBinding = null)
+        public JavascriptTranslationVisitor(DataContextStack dataContext, IJavascriptMethodTranslator translator, IBinding? wrapperBinding = null)
         {
             this.ContextMap =
                 dataContext
@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 .ToDictionary(a => a.a, a => a.i);
             this.DataContext = dataContext;
             this.Translator = translator;
-            this.DebugBinding = debugBinding;
+            this.WrapperBinding = wrapperBinding;
         }
         public JsExpression Translate(Expression expression)
         {
@@ -483,7 +483,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             var expr = replacementVisitor.Visit(expression);
             expr = ExpressionNullPropagationVisitor.PropagateNulls(expr, _ => true);
             expr = ExpressionUtils.ConvertToObject(expr);
-            expr = replacementVisitor.WrapExpression(expr, DebugBinding!);
+            expr = replacementVisitor.WrapExpression(expr, WrapperBinding);
 
             var resultLambda = Expression.Lambda<BindingDelegate>(expr, BindingCompiler.CurrentControlParameter);
             var resultDelegate = resultLambda.Compile();

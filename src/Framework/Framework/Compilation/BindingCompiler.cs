@@ -153,7 +153,7 @@ namespace DotVVM.Framework.Compilation
 
 
             /// <summary> Wraps the expression in a block which declared and initializes all the <see cref="IntroducedVariables" /> </summary>
-            public Expression WrapExpression(Expression expression, IBinding contextObject)
+            public Expression WrapExpression(Expression expression, IBinding? contextObject)
             {
                 var variables = IntroducedVariables.ToArray();
                 if (variables.Length == 0)
@@ -176,7 +176,7 @@ namespace DotVVM.Framework.Compilation
             static readonly PropertyInfo BindableObject_Parent = typeof(DotvvmBindableObject).GetProperty(nameof(DotvvmBindableObject.Parent))!;
 
             /// <summary> Generates block which initializes the needed data context parameters (<see cref="IntroducedVariables" />) </summary>
-            public BlockExpression GenerateInitializer(IBinding contextObject, Expression returnNull)
+            public BlockExpression GenerateInitializer(IBinding? contextObject, Expression returnNull)
             {
                 var result = new List<Expression>();
                 var tempVariables = new List<ParameterExpression>();
@@ -243,7 +243,7 @@ namespace DotVVM.Framework.Compilation
                     if (controlVariable is {})
                     {
                         if (skip > 0)
-                        { // skip N-1 levels + control.Parent to get to the desired control, 
+                        { // skip N-1 levels + control.Parent to get to the desired control,
                             var control = getContextControl(skip - 1, lastContextControl, cx);
                             control = Expression.Property(control, BindableObject_Parent);
                             result.Add(Expression.Assign(controlVariable, control));
@@ -348,22 +348,22 @@ namespace DotVVM.Framework.Compilation
             }
 
             sealed record ErrorInfo(
-                IBinding Binding,
+                IBinding? Binding,
                 DataContextStack DataContext,
                 int? Index
             )
             { }
 
-            sealed record NotEnoughDataContextsException(DataContextStack MissingDataContext, int DataContextIndex, IBinding RelatedBinding, DotvvmBindableObject RelatedControl): DotvvmExceptionBase(RelatedBinding: RelatedBinding, RelatedControl: RelatedControl)
+            sealed record NotEnoughDataContextsException(DataContextStack MissingDataContext, int DataContextIndex, IBinding? RelatedBinding, DotvvmBindableObject RelatedControl): DotvvmExceptionBase(RelatedBinding: RelatedBinding, RelatedControl: RelatedControl)
             {
-                public override string Message => $"Could not evaluate binding {RelatedBinding!.ToString()}, " + 
+                public override string Message => $"Could not evaluate binding {RelatedBinding?.ToString() ?? "?"}, " +
                     $"data context {DataContextIndex switch { 0 => "_this", 1 => "_parent", var n => "_parent"+n }}: {MissingDataContext.DataContextType.ToCode(stripNamespace: true)} does not exist. " +
                     $"Control has the following contexts: {string.Join(", ", RelatedControl!.GetDataContexts().Select(c => c?.GetType().ToCode(stripNamespace: true) ?? "?"))}";
             }
 
-            sealed record WrongDataContextTypeException(DataContextStack ExpectedDataContext, Type? ReceivedType, int? DataContextIndex, IBinding RelatedBinding, DotvvmBindableObject RelatedControl): DotvvmExceptionBase(RelatedBinding: RelatedBinding, RelatedControl: RelatedControl)
+            sealed record WrongDataContextTypeException(DataContextStack ExpectedDataContext, Type? ReceivedType, int? DataContextIndex, IBinding? RelatedBinding, DotvvmBindableObject RelatedControl): DotvvmExceptionBase(RelatedBinding: RelatedBinding, RelatedControl: RelatedControl)
             {
-                public override string Message => $"Could not evaluate binding {RelatedBinding!.ToString()}, " + 
+                public override string Message => $"Could not evaluate binding {RelatedBinding?.ToString() ?? "?"}, " +
                     $"data context {DataContextIndex switch { null => "?", 0 => "_this", 1 => "_parent", var n => "_parent"+n }}: " +
                     $"{ExpectedDataContext.DataContextType.ToCode()} was expected, but got {ReceivedType?.ToCode() ?? "null"}. " +
                     $"Control has the following contexts: {string.Join(", ", RelatedControl!.GetDataContexts().Select(c => c?.GetType().ToCode(stripNamespace: true) ?? "?"))}";
