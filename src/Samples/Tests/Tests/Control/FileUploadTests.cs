@@ -65,7 +65,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot);
-                
+
 
                 var isFileTypeAllowed = browser.Single("span.isFileTypeAllowed");
                 var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
@@ -114,16 +114,12 @@ namespace DotVVM.Samples.Tests.Control
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot);
 
-                var isFileTypeAllowed = browser.Single("span.isFileTypeAllowed");
-                var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
+                var error = browser.Single("span.upload-error");
 
                 var largeFile = CreateTempFile("txt", 2);
                 DotVVMAssertModified.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), largeFile);
 
-                AssertUI.TextEquals(browser.First(".dotvvm-upload-files"), "1 files", failureMessage: "File was not uploaded in 1 min interval.");
-
-                AssertUI.TextEquals(isFileTypeAllowed, "true");
-                AssertUI.TextEquals(isMaxSizeExceeded, "true");
+                AssertUI.TextEquals(error, "Uploaded file is too large.");
 
                 File.Delete(largeFile);
             });

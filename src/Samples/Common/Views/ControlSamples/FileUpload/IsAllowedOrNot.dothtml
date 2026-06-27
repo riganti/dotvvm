@@ -14,5 +14,8 @@
     <div>
         Max size exceeded: <span class="isMaxSizeExceeded">{{value: IsMaxSizeExceeded}}</span>
     </div>
+    <div>
+        Error: <span class="upload-error">{{value: Files.Error}}</span>
+    </div>
 </body>
 </html>
