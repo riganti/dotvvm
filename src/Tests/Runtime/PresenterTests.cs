@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Tests.Runtime
             configuration.Runtime.MaxPostbackSizeBytes = 1024 * 512;
 
             configuration.Freeze();
-            presenter = (DotvvmPresenter)configuration.ServiceProvider.GetRequiredService<IDotvvmPresenter>();
+            presenter = configuration.ServiceProvider.GetRequiredService<DotvvmPresenter>();
 
 
             var controlBuilderFactory = configuration.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
@@ -56,6 +56,16 @@ namespace DotVVM.Framework.Tests.Runtime
 
             var command = view.GetAllDescendants().OfType<Button>().Select(b => b.GetValueRaw(Button.ClickProperty) as CommandBindingExpression).First(x => x is not null);
             commandId = command.BindingId;
+        }
+
+        [TestMethod]
+        public void DotvvmPresenter_IsNotRegisteredAsIDotvvmPresenter()
+        {
+            var services = new ServiceCollection();
+            DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services);
+
+            Assert.IsFalse(services.Any(s => s.ServiceType == typeof(IDotvvmPresenter)));
+            Assert.IsTrue(services.Any(s => s.ServiceType == typeof(DotvvmPresenter)));
         }
 
         [TestMethod]

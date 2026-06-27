@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Testing
             this.Configuration.Debug = debug;
             this.Configuration.Runtime.AllowResourceVersionHash.Disable(); // reduce noise in tests
             config?.Invoke(this.Configuration);
-            presenter = (DotvvmPresenter)this.Configuration.ServiceProvider.GetRequiredService<IDotvvmPresenter>();
+            presenter = this.Configuration.ServiceProvider.GetRequiredService<DotvvmPresenter>();
         }
 
         public T GetService<T>() where T: notnull => Configuration.ServiceProvider.GetRequiredService<T>();
