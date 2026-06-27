@@ -49,7 +49,7 @@ namespace Microsoft.AspNet.WebUtilities
 
         public override bool CanSeek
         {
-            get { return _innerStream.CanSeek; }
+            get { return false; }
         }
 
         public override bool CanWrite
@@ -65,39 +65,12 @@ namespace Microsoft.AspNet.WebUtilities
         public override long Position
         {
             get { return _position; }
-            set
-            {
-                if (value < 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value), value, "The Position must be positive.");
-                }
-                if (value > _observedLength)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value), value, "The Position must be less than length.");
-                }
-                _position = value;
-                if (_position < _observedLength)
-                {
-                    _finished = false;
-                }
-            }
+            set { throw new NotSupportedException(); }
         }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            if (origin == SeekOrigin.Begin)
-            {
-                Position = offset;
-            }
-            else if (origin == SeekOrigin.Current)
-            {
-                Position = Position + offset;
-            }
-            else // if (origin == SeekOrigin.End)
-            {
-                Position = Length + offset;
-            }
-            return Position;
+            throw new NotSupportedException();
         }
 
         public override void SetLength(long value)
@@ -109,17 +82,7 @@ namespace Microsoft.AspNet.WebUtilities
         {
             throw new NotSupportedException();
         }
-#if DNX451
-        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int size, AsyncCallback callback, object state)
-        {
-            throw new NotSupportedException();
-        }
 
-        public override void EndWrite(IAsyncResult asyncResult)
-        {
-            throw new NotSupportedException();
-        }
-#endif
         public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             throw new NotSupportedException();
@@ -128,14 +91,6 @@ namespace Microsoft.AspNet.WebUtilities
         public override void Flush()
         {
             throw new NotSupportedException();
-        }
-
-        private void PositionInnerStream()
-        {
-            if (_innerStream.CanSeek && _innerStream.Position != (_innerOffset + _position))
-            {
-                _innerStream.Position = _innerOffset + _position;
-            }
         }
 
         private int UpdatePosition(int read)
@@ -147,45 +102,7 @@ namespace Microsoft.AspNet.WebUtilities
             }
             return read;
         }
-#if DNX451
-        public override IAsyncResult BeginRead(byte[] buffer, int offset, int size, AsyncCallback callback, object state)
-        {
-            var tcs = new TaskCompletionSource<int>(state);
-            InternalReadAsync(buffer, offset, size, callback, tcs);
-            return tcs.Task;
-        }
 
-        private async void InternalReadAsync(byte[] buffer, int offset, int size, AsyncCallback callback, TaskCompletionSource<int> tcs)
-        {
-            try
-            {
-                int read = await ReadAsync(buffer, offset, size);
-                tcs.TrySetResult(read);
-            }
-            catch (Exception ex)
-            {
-                tcs.TrySetException(ex);
-            }
-
-            if (callback != null)
-            {
-                try
-                {
-                    callback(tcs.Task);
-                }
-                catch (Exception)
-                {
-                    // Suppress exceptions on background threads.
-                }
-            }
-        }
-
-        public override int EndRead(IAsyncResult asyncResult)
-        {
-            var task = (Task<int>)asyncResult;
-            return task.GetAwaiter().GetResult();
-        }
-#endif
         public override int Read(byte[] buffer, int offset, int count)
         {
             if (_finished)
@@ -193,7 +110,6 @@ namespace Microsoft.AspNet.WebUtilities
                 return 0;
             }
 
-            PositionInnerStream();
             if (!_innerStream.EnsureBuffered(_finalBoundaryLength))
             {
                 throw new IOException("Unexpected end of stream.");
@@ -244,7 +160,6 @@ namespace Microsoft.AspNet.WebUtilities
                 return 0;
             }
 
-            PositionInnerStream();
             if (!await _innerStream.EnsureBufferedAsync(_finalBoundaryLength, cancellationToken))
             {
                 throw new IOException("Unexpected end of stream.");
