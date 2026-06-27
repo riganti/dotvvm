@@ -316,6 +316,46 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_MemberAccessUsesPlainObjectInClientExpression()
+        {
+            var viewModel = new TestViewModel {
+                TestViewModel2 = new TestViewModel2 {
+                    MyProperty = 7,
+                    SomeString = "nested",
+                    Collection = new List<Something>()
+                }
+            };
+            var control = CreateControlWithDataContext(viewModel, out var dataContext);
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(TestViewModel2).MyProperty + 1", dataContext);
+
+            var js = binding.GetKnockoutBindingExpression(control);
+
+            StringAssert.Contains(js, $".{nameof(TestViewModel2.MyProperty)}");
+            Assert.IsFalse(js.Contains($".{nameof(TestViewModel2.MyProperty)}()"), js);
+            StringAssert.EndsWith(js, $".{nameof(TestViewModel2.MyProperty)}+1");
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_UnwrappedBindingUsesPlainObject()
+        {
+            var viewModel = new TestViewModel {
+                TestViewModel2 = new TestViewModel2 {
+                    MyProperty = 7,
+                    SomeString = "nested",
+                    Collection = new List<Something>()
+                }
+            };
+            var control = CreateControlWithDataContext(viewModel, out var dataContext);
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(TestViewModel2)", dataContext);
+
+            var js = binding.GetKnockoutBindingExpression(control, unwrapped: true);
+
+            using var json = JsonDocument.Parse(js);
+            Assert.AreEqual(7, json.RootElement.GetProperty(nameof(TestViewModel2.MyProperty)).GetInt32());
+            Assert.AreEqual("nested", json.RootElement.GetProperty(nameof(TestViewModel2.SomeString)).GetString());
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_BindingPageInfo_Resource_WithParentAndCurrentDataContext()
         {
             var viewModel = new TestViewModel { StringProp = "root" };
@@ -388,6 +428,8 @@ namespace DotVVM.Framework.Tests.Binding
             }
             catch (Exception ex)
             {
+                StringAssert.Contains(ex.ToString(), "Could not evaluate binding {value: _page.Resource(_parent.StringProp)}");
+                StringAssert.Contains(ex.ToString(), "data context _parent: DotVVM.Framework.Tests.Binding.TestViewModel was expected, but got object");
                 StringAssert.Contains(ex.ToString(), "_page.Resource(_parent.StringProp)");
             }
         }

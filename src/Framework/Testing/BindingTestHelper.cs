@@ -258,11 +258,16 @@ namespace DotVVM.Framework.Testing
         /// <summary> Returns the "body" of the JavaScript code produced by the staticCommand.
         /// The method is intended for asserting that the generated code is equal to the correct thing, if you intend to execute the code, please use <see cref="KnockoutHelper.GenerateClientPostBackExpression" /> directly. </summary>
         public static string GetStaticCommandJavascriptBody(StaticCommandBindingExpression binding, bool stripBoilerplate = true)
+            => GetStaticCommandJavascriptBody(binding, new Literal(), stripBoilerplate);
+
+        /// <summary> Returns the "body" of the JavaScript code produced by the staticCommand.
+        /// The method is intended for asserting that the generated code is equal to the correct thing, if you intend to execute the code, please use <see cref="KnockoutHelper.GenerateClientPostBackExpression" /> directly. </summary>
+        public static string GetStaticCommandJavascriptBody(StaticCommandBindingExpression binding, DotvvmBindableObject control, bool stripBoilerplate = true)
         {
             var expr = KnockoutHelper.GenerateClientPostBackExpression(
                 "NonExistentProperty",
                 binding,
-                new Literal(),
+                control,
                 new PostbackScriptOptions(
                     allowPostbackHandlers: false,
                     returnValue: null,

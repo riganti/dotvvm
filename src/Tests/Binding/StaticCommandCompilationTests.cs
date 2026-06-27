@@ -97,6 +97,22 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void StaticCommandCompilation_BindingPageInfo_Resource()
+        {
+            var viewModel = new TestViewModel { StringProp = "root" };
+            var context = releaseHelper.CreateDataContext(new [] { typeof(TestViewModel) });
+            var control = new PlaceHolder {
+                DataContext = viewModel
+            };
+            control.SetDataContextType(context);
+            var binding = releaseHelper.StaticCommand("StringProp = _page.Resource(StringProp + ' server')", context);
+
+            var result = BindingTestHelper.GetStaticCommandJavascriptBody(binding, control);
+
+            Assert.AreEqual("{options.viewModel.StringProp(\"root server\");}", result);
+        }
+
+        [TestMethod]
         public void StaticCommandCompilation_JsOnlyCommand()
         {
             var result = CompileBinding("StringProp = StringProp.Length.ToString()", niceMode: false, typeof(TestViewModel));

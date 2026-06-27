@@ -488,6 +488,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             var resultLambda = Expression.Lambda<BindingDelegate>(expr, BindingCompiler.CurrentControlParameter);
             var resultDelegate = resultLambda.Compile();
 
+            var annotation = new ViewModelInfoAnnotation(expression.Type, containsObservables: false);
+
             return new JsSymbolicParameter(new JavascriptTranslator.ResourceSymbolicParameter(
                 control => new CodeParameterAssignment(
                     new ParametrizedCode(
@@ -496,7 +498,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     )
                 ),
                 requiresControl: replacementVisitor.IntroducedVariables.Any()
-            ));
+            )).WithAnnotation(annotation);
         }
 
         public JsExpression TranslateMemberAccess(MemberExpression expression)
