@@ -204,9 +204,10 @@ namespace DotVVM.Framework.Controls
                     IStaticCommandBinding { OptionsLambdaJavascript: var optionsLambdaExpression } => (true, optionsLambdaExpression),
                     _ => (false, expression.CommandJavascript)
                 };
+            var dataContextTarget = expression.FindDataContextTarget(control);
             var adjustedExpression =
                 JavascriptTranslator.AdjustKnockoutScriptContext(jsExpression,
-                    dataContextLevel: expression.FindDataContextTarget(control).stepsUp);
+                    dataContextLevel: dataContextTarget.stepsUp);
             if (options.ParameterAssignment is {})
             {
                 adjustedExpression = adjustedExpression.AssignParameters(options.ParameterAssignment);
@@ -280,6 +281,7 @@ namespace DotVVM.Framework.Controls
                     p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
                     p == CommandBindingExpression.PostbackHandlersParameter ? CodeParameterAssignment.FromIdentifier(getHandlerScript()) :
                     p == CommandBindingExpression.AbortSignalParameter ? abortSignal :
+                    p is JavascriptTranslator.ResourceSymbolicParameter resource ? resource.Evaluate(dataContextTarget.target, parametrizedCode, expression) :
                     default
                 );
             }
@@ -432,7 +434,7 @@ namespace DotVVM.Framework.Controls
                 return $"[{handlerNameJson},{{q:{MakeStringLiteral(queueName!)}}}]";
             }
         }
-        
+
         /// <summary> Returns a lambda function taking the knockout context as its single argument, returning the result of the IValueBinding. </summary>
         public static string GetValueBindingContextLambda(this IValueBinding binding, DotvvmBindableObject contextControl, bool unwrapped = false)
         {

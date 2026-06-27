@@ -6,7 +6,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.HelperNamespace;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript.Ast;
@@ -21,12 +23,13 @@ namespace DotVVM.Framework.Compilation.Javascript
     public class JavascriptTranslationVisitor
     {
         private readonly IJavascriptMethodTranslator Translator;
+        private readonly IBinding? WrapperBinding;
 
         public DataContextStack DataContext { get; }
 
         private readonly Dictionary<DataContextStack, int> ContextMap;
         public bool WriteUnknownParameters { get; set; } = true;
-        public JavascriptTranslationVisitor(DataContextStack dataContext, IJavascriptMethodTranslator translator)
+        public JavascriptTranslationVisitor(DataContextStack dataContext, IJavascriptMethodTranslator translator, IBinding? wrapperBinding = null)
         {
             this.ContextMap =
                 dataContext
@@ -36,6 +39,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 .ToDictionary(a => a.a, a => a.i);
             this.DataContext = dataContext;
             this.Translator = translator;
+            this.WrapperBinding = wrapperBinding;
         }
         public JsExpression Translate(Expression expression)
         {
@@ -244,11 +248,19 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static JsLiteral TranslateConstant(ConstantExpression expression) =>
             new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
+
+        static readonly MethodInfo PageResourceMethod =
+            (MethodInfo)MethodFindingHelper.GetMethodFromExpression(() => default(BindingPageInfo)!.Resource(default(MethodFindingHelper.Generic.T)));
+
         public JsExpression TranslateMethodCall(MethodCallExpression expression)
         {
-            var result = TryTranslateMethodCall(expression.Method, expression.Object, expression.Arguments.ToArray());
+            var method = expression.Method;
+            if (method.IsGenericMethod && method.GetGenericMethodDefinition() == PageResourceMethod)
+                return TranslateResourceSubexpression(expression.Arguments.Single());
+
+            var result = TryTranslateMethodCall(method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
-                throw new NotSupportedException($"Method {ReflectionUtils.FormatMethodInfo(expression.Method)} cannot be translated to Javascript");
+                throw new NotSupportedException($"Method {ReflectionUtils.FormatMethodInfo(method)} cannot be translated to Javascript");
             return result;
         }
 
@@ -463,15 +475,44 @@ namespace DotVVM.Framework.Compilation.Javascript
             return operand;
         }
 
+        public JsExpression TranslateResourceSubexpression(Expression expression)
+        {
+            InitOnlyPropertyCheckingVisitor.Instance.Visit(expression);
+
+            var replacementVisitor = new BindingCompiler.ParameterReplacementVisitor(DataContext);
+            var expr = replacementVisitor.Visit(expression);
+            expr = ExpressionNullPropagationVisitor.PropagateNulls(expr, _ => true);
+            expr = ExpressionUtils.ConvertToObject(expr);
+            expr = replacementVisitor.WrapExpression(expr, WrapperBinding);
+
+            var resultLambda = Expression.Lambda<BindingDelegate>(expr, BindingCompiler.CurrentControlParameter);
+            var resultDelegate = resultLambda.Compile();
+
+            var annotation = new ViewModelInfoAnnotation(expression.Type, containsObservables: false);
+
+            return new JsSymbolicParameter(new JavascriptTranslator.ResourceSymbolicParameter(
+                control => new CodeParameterAssignment(
+                    new ParametrizedCode(
+                        JavascriptCompilationHelper.CompileConstant(resultDelegate(control!), htmlSafe: true),
+                        OperatorPrecedence.Max
+                    )
+                ),
+                requiresControl: replacementVisitor.IntroducedVariables.Any()
+            )).WithAnnotation(annotation);
+        }
+
         public JsExpression TranslateMemberAccess(MemberExpression expression)
         {
             var getter = (expression.Member as PropertyInfo)?.GetMethod;
-            if (expression.Expression == null)
+            if (expression.Expression is null)
             {
                 // static
-                return TryTranslateMethodCall(getter, null, new Expression[0]) ??
-                    new JsLiteral((
-                        ((expression.Member as FieldInfo)?.GetValue(null) ?? (expression.Member as PropertyInfo)?.GetValue(null))));
+                if (TryTranslateMethodCall(getter, null, []) is {} translated)
+                    return translated;
+                if (expression.Member is PropertyInfo)
+                    return TranslateResourceSubexpression(expression);
+
+                return new JsLiteral(((FieldInfo)expression.Member).GetValue(null));
             }
             else
             {

@@ -18,6 +18,12 @@ namespace DotVVM.Framework.Binding
         /// <summary> Returns false on server and true in JavaScript. </summary>
         public bool EvaluatingOnClient => false;
 
+        /// <summary>
+        /// Evaluates the argument server-side when page is initially rendered.
+        /// Content is not updated reactively and not re-evaluated on static command execution.
+        /// </summary>
+        public T Resource<T>(T value) => value;
+
         internal static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)
         {
             methods.AddPropertyTranslator(() => new BindingPageInfo().EvaluatingOnServer,

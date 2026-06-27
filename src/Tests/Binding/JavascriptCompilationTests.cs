@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json.Serialization;
@@ -21,6 +22,9 @@ using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static DotVVM.Framework.Configuration.FreezableUtils;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using DotVVM.Framework.Tests.Resources;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -37,6 +41,7 @@ namespace DotVVM.Framework.Tests.Binding
             var methods = configuration.Markup.JavascriptTranslator.MethodCollection;
             methods.AddMethodTranslator(() => TestJsTransations.GetTestPlainObject(), new GenericMethodCompiler(args => new JsIdentifierExpression("testPlainObject").WithAnnotation(new ViewModelInfoAnnotation(typeof(TestArraysViewModel), containsObservables: false))));
             methods.AddMethodTranslator(() => TestJsTransations.GetTestObjectWithObservables(), new GenericMethodCompiler(args => new JsIdentifierExpression("testPlainObject").WithAnnotation(new ViewModelInfoAnnotation(typeof(TestArraysViewModel), containsObservables: true))));
+            methods.AddPropertyTranslator(() => StaticPropertyResourceTest.TranslatedProperty, new GenericMethodCompiler(args => new JsLiteral("translated")));
             configuration.Freeze();
             bindingHelper = new BindingTestHelper(configuration);
         }
@@ -238,6 +243,285 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var js = CompileBinding("_page.EvaluatingOnServer");
             Assert.AreEqual("false", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource()
+        {
+            Assert.AreEqual("server value", new BindingPageInfo().Resource("server value"));
+
+            var js = CompileBinding("_page.Resource(\"client \" + \"value\")");
+            Assert.AreEqual("\"client value\"", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_AccessesViewModel()
+        {
+            var viewModel = new TestViewModel { StringProp = "root", IntProp = 7 };
+            var control = CreateControlWithDataContext(viewModel, out _);
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(StringProp + ':' + IntProp)", new [] { typeof(TestViewModel) });
+
+            var js = binding.GetKnockoutBindingExpression(control);
+
+            Assert.AreEqual("\"root:7\"", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_EvaluatesAtBindingDataContextWhenUsedInNestedDataContext()
+        {
+            var viewModel = new TestViewModel { StringProp = "root" };
+            var rootControl = CreateControlWithDataContext(viewModel, out var rootDataContext);
+            var childDataContext = DataContextStack.Create(typeof(string), rootDataContext);
+            var childControl = CreateChildControl(rootControl, childDataContext, "child");
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(StringProp)", rootDataContext);
+
+            var js = binding.GetKnockoutBindingExpression(childControl);
+
+            Assert.AreEqual("\"root\"", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_PreservesClientDataContextShift()
+        {
+            var viewModel = new TestViewModel { StringProp = "root" };
+            var rootControl = CreateControlWithDataContext(viewModel, out var rootDataContext);
+            var childDataContext = DataContextStack.Create(typeof(string), rootDataContext);
+            var childControl = CreateChildControl(rootControl, childDataContext, "child");
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(StringProp) + StringProp", rootDataContext);
+
+            var js = binding.GetKnockoutBindingExpression(childControl);
+
+            Assert.AreEqual("(\"root\"??\"\")+($parent.StringProp()??\"\")", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_SerializesComplexJson()
+        {
+            var viewModel = new TestViewModel {
+                TestViewModel2 = new TestViewModel2 {
+                    MyProperty = 7,
+                    SomeString = "nested",
+                    Collection = new List<Something> { new Something { Value = true } }
+                }
+            };
+            var control = CreateControlWithDataContext(viewModel, out var dataContext);
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(TestViewModel2)", dataContext);
+
+            var js = binding.GetKnockoutBindingExpression(control);
+
+            using var json = JsonDocument.Parse(js);
+            Assert.AreEqual(7, json.RootElement.GetProperty(nameof(TestViewModel2.MyProperty)).GetInt32());
+            Assert.AreEqual("nested", json.RootElement.GetProperty(nameof(TestViewModel2.SomeString)).GetString());
+            Assert.IsTrue(json.RootElement.GetProperty(nameof(TestViewModel2.Collection))[0].GetProperty(nameof(Something.Value)).GetBoolean());
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_MemberAccessUsesPlainObjectInClientExpression()
+        {
+            var viewModel = new TestViewModel {
+                TestViewModel2 = new TestViewModel2 {
+                    MyProperty = 7,
+                    SomeString = "nested",
+                    Collection = new List<Something>()
+                }
+            };
+            var control = CreateControlWithDataContext(viewModel, out var dataContext);
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(TestViewModel2).MyProperty + 1", dataContext);
+
+            var js = binding.GetKnockoutBindingExpression(control);
+
+            StringAssert.Contains(js, $".{nameof(TestViewModel2.MyProperty)}");
+            Assert.IsFalse(js.Contains($".{nameof(TestViewModel2.MyProperty)}()"), js);
+            StringAssert.EndsWith(js, $".{nameof(TestViewModel2.MyProperty)}+1");
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_UnwrappedBindingUsesPlainObject()
+        {
+            var viewModel = new TestViewModel {
+                TestViewModel2 = new TestViewModel2 {
+                    MyProperty = 7,
+                    SomeString = "nested",
+                    Collection = new List<Something>()
+                }
+            };
+            var control = CreateControlWithDataContext(viewModel, out var dataContext);
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(TestViewModel2)", dataContext);
+
+            var js = binding.GetKnockoutBindingExpression(control, unwrapped: true);
+
+            using var json = JsonDocument.Parse(js);
+            Assert.AreEqual(7, json.RootElement.GetProperty(nameof(TestViewModel2.MyProperty)).GetInt32());
+            Assert.AreEqual("nested", json.RootElement.GetProperty(nameof(TestViewModel2.SomeString)).GetString());
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_WithParentAndCurrentDataContext()
+        {
+            var viewModel = new TestViewModel { StringProp = "root" };
+            var rootControl = CreateControlWithDataContext(viewModel, out var rootDataContext);
+            var childDataContext = DataContextStack.Create(typeof(string), rootDataContext);
+            var childControl = CreateChildControl(rootControl, childDataContext, "child");
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(_parent.StringProp + ':' + _this)", childDataContext);
+
+            var js = binding.GetKnockoutBindingExpression(childControl);
+
+            Assert.AreEqual("\"root:child\"", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_SerializesPrimitiveAndNullValues()
+        {
+            var viewModel = new TestViewModel { BoolProp = true, IntProp = 7, StringProp = null };
+            var control = CreateControlWithDataContext(viewModel, out var dataContext);
+
+            Assert.AreEqual("true", bindingHelper.ValueBinding<object>("_page.Resource(BoolProp)", dataContext).GetKnockoutBindingExpression(control));
+            Assert.AreEqual("7", bindingHelper.ValueBinding<object>("_page.Resource(IntProp)", dataContext).GetKnockoutBindingExpression(control));
+            Assert.AreEqual("null", bindingHelper.ValueBinding<object>("_page.Resource(StringProp)", dataContext).GetKnockoutBindingExpression(control));
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_RequiresTargetControlForViewModelAccess()
+        {
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(StringProp)", new [] { typeof(TestViewModel) });
+
+            try
+            {
+                JavascriptTranslator.FormatKnockoutScript(binding.KnockoutExpression);
+                Assert.Fail("Formatting a resource expression that needs a view model should require a target control.");
+            }
+            catch (DotvvmExceptionBase ex)
+            {
+                StringAssert.Contains(ex.Message, "Cannot evaluate resource symbolic parameter without knowing the target control");
+            }
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_WorksWithAdditionalDataContextShift()
+        {
+            var viewModel = new TestViewModel { StringProp = "root" };
+            var rootControl = CreateControlWithDataContext(viewModel, out var rootDataContext);
+            var childDataContext = DataContextStack.Create(typeof(string), rootDataContext);
+            var childControl = CreateChildControl(rootControl, childDataContext, "child");
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(StringProp) + StringProp", rootDataContext);
+
+            var js = binding.KnockoutExpression.FormatKnockoutScript(childControl, binding, additionalDataContextSteps: 1);
+
+            Assert.AreEqual("(\"root\"??\"\")+($parents[1].StringProp()??\"\")", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_Resource_UsesParentBindingInRuntimeDataContextErrors()
+        {
+            var rootDataContext = bindingHelper.CreateDataContext(new [] { typeof(TestViewModel) });
+            var childDataContext = DataContextStack.Create(typeof(string), rootDataContext);
+            var rootControl = new PlaceHolder();
+            rootControl.SetDataContextType(rootDataContext);
+            rootControl.DataContext = new object();
+            var childControl = CreateChildControl(rootControl, childDataContext, "child");
+            var binding = bindingHelper.ValueBinding<object>("_page.Resource(_parent.StringProp)", childDataContext);
+
+            try
+            {
+                binding.GetKnockoutBindingExpression(childControl);
+                Assert.Fail("Expected resource evaluation to fail on the wrong runtime data context type.");
+            }
+            catch (Exception ex)
+            {
+                StringAssert.Contains(ex.ToString(), "Could not evaluate binding {value: _page.Resource(_parent.StringProp)}");
+                StringAssert.Contains(ex.ToString(), "data context _parent: DotVVM.Framework.Tests.Binding.TestViewModel was expected, but got object");
+                StringAssert.Contains(ex.ToString(), "_page.Resource(_parent.StringProp)");
+            }
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_ResxResourceProperty_IsEvaluatedWhenKnockoutScriptIsFormatted()
+        {
+            try
+            {
+                AutoUIPropertyNames.Culture = CultureInfo.InvariantCulture;
+                var binding = bindingHelper.ValueBinding<object>("DotVVM.Framework.Tests.Resources.AutoUIPropertyNames.FirstName", Type.EmptyTypes);
+                var expression = binding.KnockoutExpression;
+
+                AutoUIPropertyNames.Culture = CultureInfo.GetCultureInfo("cs");
+                var js = JavascriptTranslator.FormatKnockoutScript(expression);
+
+                Assert.AreEqual(AutoUIPropertyNames.FirstName, JsonSerializer.Deserialize<string>(js));
+            }
+            finally
+            {
+                AutoUIPropertyNames.Culture = null;
+            }
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_ResxResourceProperty_PreservesClientDataContextShift()
+        {
+            try
+            {
+                AutoUIPropertyNames.Culture = CultureInfo.InvariantCulture;
+                var viewModel = new TestViewModel { StringProp = "root" };
+                var rootControl = CreateControlWithDataContext(viewModel, out var rootDataContext);
+                var childDataContext = DataContextStack.Create(typeof(string), rootDataContext);
+                var childControl = CreateChildControl(rootControl, childDataContext, "child");
+                var binding = bindingHelper.ValueBinding<object>("DotVVM.Framework.Tests.Resources.AutoUIPropertyNames.FirstName + StringProp", rootDataContext);
+                var expression = binding.KnockoutExpression;
+
+                AutoUIPropertyNames.Culture = CultureInfo.GetCultureInfo("cs");
+                var js = expression.FormatKnockoutScript(childControl, binding);
+
+                Assert.AreEqual("(\"Křestní jméno osoby\"??\"\")+($parent.StringProp()??\"\")", js);
+            }
+            finally
+            {
+                AutoUIPropertyNames.Culture = null;
+            }
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_StaticPropertyWithoutTranslator_IsEvaluatedWhenKnockoutScriptIsFormatted()
+        {
+            try
+            {
+                StaticPropertyResourceTest.UntranslatedProperty = "compiled";
+                var binding = bindingHelper.ValueBinding<object>("DotVVM.Framework.Tests.Binding.StaticPropertyResourceTest.UntranslatedProperty", Type.EmptyTypes);
+                var expression = binding.KnockoutExpression;
+
+                StaticPropertyResourceTest.UntranslatedProperty = "formatted";
+                var js = JavascriptTranslator.FormatKnockoutScript(expression);
+
+                Assert.AreEqual("\"formatted\"", js);
+            }
+            finally
+            {
+                StaticPropertyResourceTest.UntranslatedProperty = "";
+            }
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_StaticPropertyWithTranslator_UsesTranslator()
+        {
+            var js = CompileBinding("DotVVM.Framework.Tests.Binding.StaticPropertyResourceTest.TranslatedProperty");
+
+            Assert.AreEqual("\"translated\"", js);
+        }
+
+        static DotvvmControl CreateControlWithDataContext(object viewModel, out DataContextStack dataContext)
+        {
+            dataContext = bindingHelper.CreateDataContext(new [] { viewModel.GetType() });
+            var control = new PlaceHolder();
+            control.SetDataContextType(dataContext);
+            control.DataContext = viewModel;
+            return control;
+        }
+
+        static DotvvmControl CreateChildControl(DotvvmControl parent, DataContextStack dataContext, object viewModel)
+        {
+            var child = new PlaceHolder();
+            child.SetDataContextType(dataContext);
+            child.DataContext = viewModel;
+            parent.Children.Add(child);
+            return child;
         }
 
         [TestMethod]
@@ -1654,6 +1938,12 @@ namespace DotVVM.Framework.Tests.Binding
         public string GetString() => "";
         public string PostDateToString(DateTime date) => date.ToShortDateString();
         public DateTime GetCurrentTime(string name) => DateTime.UtcNow;
+    }
+
+    public static class StaticPropertyResourceTest
+    {
+        public static string UntranslatedProperty { get; set; } = "";
+        public static string TranslatedProperty => "server";
     }
 
     public class TestArraysViewModel

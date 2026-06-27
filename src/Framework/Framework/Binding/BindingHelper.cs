@@ -52,14 +52,20 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Adjusts the knockout expression to `currentControl`s DataContext like it was translated in `currentBinding`s context
         /// </summary>
-        public static string FormatKnockoutScript(this ParametrizedCode code, DotvvmBindableObject currentControl, IBinding currentBinding) =>
-            JavascriptTranslator.FormatKnockoutScript(code, dataContextLevel: FindDataContextTarget(currentBinding, currentControl).stepsUp);
+        public static string FormatKnockoutScript(this ParametrizedCode code, DotvvmBindableObject currentControl, IBinding currentBinding)
+        {
+            var (stepsUp, targetControl) = FindDataContextTarget(currentBinding, currentControl);
+            return JavascriptTranslator.FormatKnockoutScript(code, dataContextLevel: stepsUp, targetControl: targetControl);
+        }
 
         /// <summary>
         /// Adjusts the knockout expression to `currentControl`s DataContext like it was translated in `currentBinding`s context
         /// </summary>
-        public static string FormatKnockoutScript(this ParametrizedCode code, DotvvmBindableObject currentControl, IBinding currentBinding, int additionalDataContextSteps) =>
-            JavascriptTranslator.FormatKnockoutScript(code, dataContextLevel: FindDataContextTarget(currentBinding, currentControl).stepsUp + additionalDataContextSteps);
+        public static string FormatKnockoutScript(this ParametrizedCode code, DotvvmBindableObject currentControl, IBinding currentBinding, int additionalDataContextSteps)
+        {
+            var (stepsUp, targetControl) = FindDataContextTarget(currentBinding, currentControl);
+            return JavascriptTranslator.FormatKnockoutScript(code, dataContextLevel: stepsUp + additionalDataContextSteps, targetControl: targetControl);
+        }
 
         /// <summary>
         /// Gets Internal.PathFragmentProperty or DataContext.KnockoutExpression. Returns null if none of these is set.

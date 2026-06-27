@@ -45,10 +45,10 @@ namespace DotVVM.Framework.Compilation.Binding
             return new JavascriptTranslator(configForStaticCommands, serializationMapper);
         }
 
-        public JsExpression CompileToJavascript(DataContextStack dataContext, Expression expression)
+        public JsExpression CompileToJavascript(DataContextStack dataContext, Expression expression, IBinding wrapperBinding)
         {
             var expressionWithVariableResolved = TranslateVariableDeclaration(expression);
-            var jsExpression = CreateCommandExpression(dataContext, expressionWithVariableResolved);
+            var jsExpression = CreateCommandExpression(dataContext, expressionWithVariableResolved, wrapperBinding);
 
             if (jsExpression is JsArrowFunctionExpression wrapperFunction)
             {
@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        private JsExpression CreateCommandExpression(DataContextStack dataContext, Expression expression)
+        private JsExpression CreateCommandExpression(DataContextStack dataContext, Expression expression, IBinding wrapperBinding)
         {
             var knockoutContext =
                 new JsSymbolicParameter(
@@ -111,7 +111,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             var javascriptTranslator = this.CreateTranslator(dataContext);
 
-            var jsExpression = javascriptTranslator.CompileToJavascript(expression, dataContext, preferUsingState: true, isRootAsync: true);
+            var jsExpression = javascriptTranslator.CompileToJavascript(expression, dataContext, wrapperBinding: wrapperBinding, preferUsingState: true, isRootAsync: true);
             return (JsExpression)jsExpression.AssignParameters(symbol =>
                 symbol == JavascriptTranslator.KnockoutContextParameter ? currentContextVariable.ToExpression() :
                 symbol == JavascriptTranslator.KnockoutViewModelParameter ? currentViewModelVariable.ToExpression() :
