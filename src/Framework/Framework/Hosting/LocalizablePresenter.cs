@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Hosting
                 context.Parameters!.TryGetValue(name, out var value) && !string.IsNullOrEmpty(value as string) ? CultureInfo.GetCultureInfo((string)value!) : null;
             var presenter = new LocalizablePresenter(
                 redirectWhenNotFound ? WithRedirectOnFailure(redirect, getCulture) : getCulture,
-                context => context.Services.GetRequiredService<IDotvvmPresenter>().ProcessRequest(context)
+                context => context.Services.GetRequiredService<DotvvmPresenter>().ProcessRequest(context)
             );
             return _ => presenter;
         }
@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Hosting
                 context.Query.TryGetValue(name, out var value) && !string.IsNullOrEmpty(value) ? CultureInfo.GetCultureInfo(value) : null;
             var presenter = new LocalizablePresenter(
                 redirectWhenNotFound ? WithRedirectOnFailure(redirect, getCulture) : getCulture,
-                context => context.Services.GetRequiredService<IDotvvmPresenter>().ProcessRequest(context)
+                context => context.Services.GetRequiredService<DotvvmPresenter>().ProcessRequest(context)
             );
             return _ => presenter;
         }

@@ -120,7 +120,7 @@ namespace DotVVM.Framework.Routing
                 }
                 return presenter;
             }
-            return provider.GetRequiredService<IDotvvmPresenter>();
+            return provider.GetRequiredService<DotvvmPresenter>();
         }
 
         /// <summary>
