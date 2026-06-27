@@ -38,7 +38,7 @@ function appendAdditionalHeaders(headers: Headers, additionalHeaders?: { [key: s
 }
 
 jest.mock("../postback/http", () => ({
-    async fetchCsrfToken() {
+    async getCsrfToken() {
         getStateManager().update(vm => ({ ...vm, $csrfToken: "test token" }))
     },
 

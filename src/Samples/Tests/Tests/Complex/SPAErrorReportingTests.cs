@@ -50,7 +50,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                     SetOfflineMode(true);
 
-                    // try to submit command in offline mode (we don't have CSRF token in Lazy CSRF mode yet, so we should fail in fetchCsrfToken)
+                    // try to submit command in offline mode (we don't have CSRF token in Lazy CSRF mode yet, so we should fail in getCsrfToken)
                     browser.Single("input[type=text]").SendKeys("aaa");
                     browser.ElementAt("input[type=button]", 0).Click().Wait(250);
                     browser.Single("#debugWindow button").Click();

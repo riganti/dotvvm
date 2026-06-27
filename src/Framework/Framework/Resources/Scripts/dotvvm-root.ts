@@ -29,6 +29,7 @@ import { DotvvmEvent } from "./events"
 import translations from './translations/translations'
 import { loadDataSet, postProcessors as loaderPostProcessors } from './dataset/loader'
 import * as dataSetTranslations from './dataset/translations'
+import { getCsrfToken } from "./postback/http"
 
 if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')
@@ -75,6 +76,7 @@ const dotvvmExports = {
     applyPostbackHandlers,
     validation: validation.globalValidationObject,
     postBack,
+    getCsrfToken: getCsrfToken,
     init,
     registerGlobalComponent: viewModuleManager.registerGlobalComponent,
     isPostbackRunning,

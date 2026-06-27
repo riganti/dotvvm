@@ -50,7 +50,7 @@ export async function postbackCore(
     }
 
     return await http.retryOnInvalidCsrfToken(async () => {
-        await http.fetchCsrfToken(options.abortSignal);
+        await http.getCsrfToken(options.abortSignal);
 
         updateDynamicPathFragments(context, path);
 

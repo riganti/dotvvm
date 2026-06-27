@@ -1,4 +1,4 @@
-import { fetchCsrfToken } from "../postback/http";
+import { getCsrfToken } from "../postback/http";
 
 export default {
     "dotvvm-FileUpload": {
@@ -18,7 +18,7 @@ export default {
                     xhr.open("POST", args.url, true);
                     xhr.setRequestHeader("X-DotVVM-AsyncUpload", "true");
                     xhr.setRequestHeader("X-DotVVM-UploadToken", args.token);
-                    xhr.setRequestHeader("X-DotVVM-CsrfToken", await fetchCsrfToken(undefined));
+                    xhr.setRequestHeader("X-DotVVM-CsrfToken", await getCsrfToken(undefined));
                     xhr.upload.onprogress = function (e: ProgressEvent) {
                         if (e.lengthComputable) {
                             reportProgress(true, Math.round(e.loaded * 100 / e.total), '');
