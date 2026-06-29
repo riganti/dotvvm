@@ -122,6 +122,27 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task Literal_IncludeInPage()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), """
+                wrapped literal (false)
+                <dot:Literal Text={value: Label} IncludeInPage={value: Integer < 0} />
+
+                wrapped literal (true)
+                <dot:Literal Text={value: Label} IncludeInPage={value: Integer >= 0} />
+
+                unwrapped literal (false)
+                <dot:Literal Text={value: Label} IncludeInPage={value: Integer < 0} RenderSpanElement=false />
+
+                unwrapped literal (true)
+                <dot:Literal Text={value: Label} IncludeInPage={value: Integer >= 0} RenderSpanElement=false />
+                """
+            );
+
+            check.CheckString(r.OutputString, fileExtension: "html");
+        }
+
+        [TestMethod]
         public async Task HtmlControl()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
@@ -161,11 +182,17 @@ namespace DotVVM.Framework.Tests.ControlTests
                 returns null -> included
                 <div IncludeInPage={resource: NullBoolean} />
 
-                value binding
+                value binding (included)
+                <div IncludeInPage={value: Integer > 0} />
+
+                value binding (excluded)
                 <div IncludeInPage={value: Integer < 0} />
 
-                value binding + DataContext
+                value binding + DataContext (included)
                 <div IncludeInPage={value: _this > 0} DataContext={value: Integer} />
+
+                value binding + DataContext (excluded)
+                <div IncludeInPage={value: _this < 0} DataContext={value: Integer} />
                 """
             );
 

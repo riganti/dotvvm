@@ -10,11 +10,11 @@ namespace DotVVM.Samples.Tests.Control
 {
     public class IncludeInPagePropertyTests : AppSeleniumTest
     {
-        [Fact]
+        [Theory, InlineData(true), InlineData(false)]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
-        public void Control_IncludeInPageProperty_IncludeInPage_GridView()
+        public void Control_IncludeInPageProperty_IncludeInPage_GridView(bool defaultValue)
         {
-            CheckIncludeInPage(browser => {
+            CheckIncludeInPage(defaultValue, browser => {
                 var gridView = browser.Single("gridView", this.SelectByDataUi);
                 AssertUI.IsDisplayed(gridView);
                 AssertUI.ContainsElement(gridView, "thead");
@@ -24,14 +24,14 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [Fact]
+        [Theory, InlineData(true), InlineData(false)]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
-        public void Control_IncludeInPageProperty_IncludeInPage_GridViewEmptyDataTemplate()
+        public void Control_IncludeInPageProperty_IncludeInPage_GridViewEmptyDataTemplate(bool defaultValue)
         {
             const string gridViewDataUi = "gridView-emptyDataTemplate";
             const string messageDataUi = "emptyDataTemplate";
 
-            CheckIncludeInPage(browser => {
+            CheckIncludeInPage(defaultValue, browser => {
                 AssertUI.IsNotDisplayed(browser, gridViewDataUi, this.SelectByDataUi);
                 var message = browser.Single(messageDataUi, this.SelectByDataUi);
                 AssertUI.IsDisplayed(message);
@@ -42,11 +42,11 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [Fact]
+        [Theory, InlineData(true), InlineData(false)]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
-        public void Control_IncludeInPageProperty_IncludeInPage_Literal()
+        public void Control_IncludeInPageProperty_IncludeInPage_Literal(bool defaultValue)
         {
-            CheckIncludeInPage(browser => {
+            CheckIncludeInPage(defaultValue, browser => {
                 var literal = browser.Single("literal", this.SelectByDataUi);
                 AssertUI.IsDisplayed(literal);
                 AssertUI.TextEquals(literal, "Test 1");
@@ -55,11 +55,11 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [Fact]
+        [Theory, InlineData(true), InlineData(false)]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
-        public void Control_IncludeInPageProperty_IncludeInPage_LiteralsInRepeater()
+        public void Control_IncludeInPageProperty_IncludeInPage_LiteralsInRepeater(bool defaultValue)
         {
-            CheckIncludeInPage(browser => {
+            CheckIncludeInPage(defaultValue, browser => {
                 var literals = browser.FindElements("literal-repeater", this.SelectByDataUi);
                 Assert.Equal(3, literals.Count);
                 foreach (var literal in literals)
@@ -71,39 +71,14 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [Fact]
-        public void Control_IncludeInPageProperty_IncludeInPage_RepeaterFirst() => CheckRepeater("repeater-first", 2);
-
-        [Fact]
-        public void Control_IncludeInPageProperty_IncludeInPage_RepeaterSecond() => CheckRepeater("repeater-second", 3);
-
-        [Fact]
-        public void Control_IncludeInPageProperty_IncludeInPage_TextBox() => CheckTextBox("textbox", "Default text");
-
-        [Fact]
-        public void Control_IncludeInPageProperty_IncludeInPage_TextBoxWithDataContext() => CheckTextBox("textbox-dataContext", "John Smith");
-
-        [Fact]
-        public void Control_IncludeInPageProperty_IncludeInPage_TextBoxWithVisible() => CheckTextBox("textbox-visible", "Default text", true);
-
-        [Fact]
-        public void Control_IncludeInPageProperty_IncludeInPage_TextBoxWithVisibleAndDataContext() => CheckTextBox("textbox-visible-dataContext", "John Smith", true);
-
-        private void CheckIncludeInPage(Action<IBrowserWrapper> beforeSwitch, Action<IBrowserWrapper> afterSwitch)
+        [Theory]
+        [InlineData(true, "repeater-first", 2)]
+        [InlineData(false, "repeater-first", 2)]
+        [InlineData(true, "repeater-second", 3)]
+        [InlineData(false, "repeater-second", 3)]
+        public void Control_IncludeInPage_Repeater(bool defaultValue, string dataUi, int childrenCount)
         {
-            RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage);
-                beforeSwitch(browser);
-                browser.Single("switch-includeInPage", this.SelectByDataUi).Click();
-                browser.WaitFor(() => {
-                    afterSwitch(browser);
-                }, 2000);
-            });
-        }
-
-        private void CheckRepeater(string dataUi, int childrenCount)
-        {
-            CheckIncludeInPage(browser => {
+            CheckIncludeInPage(defaultValue, browser => {
                 var repeater = browser.First(dataUi, this.SelectByDataUi);
                 AssertUI.IsDisplayed(repeater);
                 repeater.Children.ThrowIfDifferentCountThan(childrenCount);
@@ -112,9 +87,18 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        private void CheckTextBox(string dataUi, string text, bool checkVisible = false)
+        [Theory]
+        [InlineData(true, "textbox", "Default text")]
+        [InlineData(false, "textbox", "Default text")]
+        [InlineData(true, "textbox-dataContext", "John Smith", false)]
+        [InlineData(false, "textbox-dataContext", "John Smith", false)]
+        [InlineData(true, "textbox-visible", "Default text", true)]
+        [InlineData(false, "textbox-visible", "Default text", true)]
+        [InlineData(true, "textbox-visible-dataContext", "John Smith", true)]
+        [InlineData(false, "textbox-visible-dataContext", "John Smith", true)]
+        public void Control_IncludeInPage_TextBox(bool defaultValue, string dataUi, string text, bool checkVisible = false)
         {
-            CheckIncludeInPage(browser => {
+            CheckIncludeInPage(defaultValue, browser => {
                 var textBox = browser.Single(dataUi, this.SelectByDataUi);
                 AssertUI.TextEquals(textBox, text);
                 AssertUI.IsDisplayed(textBox);
@@ -128,6 +112,22 @@ namespace DotVVM.Samples.Tests.Control
                 }
             }, browser => {
                 browser.FindElements(dataUi, this.SelectByDataUi).ThrowIfDifferentCountThan(0);
+            });
+        }
+
+        private void CheckIncludeInPage(bool defaultValue, Action<IBrowserWrapper> whenIncluded, Action<IBrowserWrapper> whenExcluded)
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage + $"?default={defaultValue}");
+
+                var (first, second) = defaultValue ? (whenIncluded, whenExcluded) : (whenExcluded, whenIncluded);
+                first(browser);
+
+                browser.Single("switch-includeInPage", this.SelectByDataUi).Click();
+                browser.WaitFor(() => { second(browser); }, 2000);
+
+                browser.Single("switch-includeInPage", this.SelectByDataUi).Click();
+                browser.WaitFor(() => { first(browser); }, 2000);
             });
         }
 

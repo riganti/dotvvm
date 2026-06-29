@@ -142,8 +142,23 @@ namespace DotVVM.Framework.Controls
             r.HtmlState.RendersHtmlTag = r.RenderSpanElement;
 
             if (base.RenderBeforeControl(in r.BaseState, writer, context))
+            {
+                if (r.BaseState.IncludeInPage is IValueBinding)
+                {
+                    this.RenderAsTemplate<RenderState>(in r.BaseState, writer, context, in r, static (self, r, writer, context) => {
+                        ((Literal)self).RenderBody(writer, context, ref r);
+                    });
+                }
                 return;
+            }
 
+            RenderBody(writer, context, ref r);
+
+            base.RenderAfterControl(in r.BaseState, writer);
+        }
+
+        private void RenderBody(IHtmlWriter writer, IDotvvmRequestContext context, ref RenderState r)
+        {
             base.AddAttributesCore(writer, ref r.HtmlState);
 
             var textBinding = r.Text as IValueBinding;
@@ -212,8 +227,6 @@ namespace DotVVM.Framework.Controls
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
-
-            base.RenderAfterControl(in r.BaseState, writer);
         }
     }
 }
