@@ -1,8 +1,6 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
-using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.DotVVM;
@@ -41,11 +39,83 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitUntilDotvvmInited();
 
                 browser.First("textarea").SendKeys("hello world");
-                browser.Last("input[type=button]").Click();
+                browser.First("get-file-inline", SelectByDataUi).Click();
 
                 browser.WaitFor(() => {
                     AssertUI.TextEquals(browser.First("pre"), "hello world");
                 },5000);
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample))]
+        public void Feature_ReturnedFile_ReturnedFileSample_IncludeCommand()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
+                browser.WaitUntilDotvvmInited();
+
+                InitIncludedFileResponseCapture(browser);
+                browser.First("textarea").SendKeys("included command");
+                browser.First("include-file", SelectByDataUi).Click();
+                browser.WaitForPostback();
+
+                AssertUI.InnerTextEquals(browser.First("included-command-count", SelectByDataUi), "1");
+                var downloadURL = WaitForIncludedDownloadUrl(browser);
+                AssertReturnedFile(browser.GetAbsoluteUrl(downloadURL), "included command");
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample))]
+        public void Feature_ReturnedFile_ReturnedFileSample_IncludeStaticCommand()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
+                browser.WaitUntilDotvvmInited();
+
+                InitIncludedFileResponseCapture(browser);
+                browser.First("textarea").SendKeys("included static command");
+                browser.First("include-static-file", SelectByDataUi).Click();
+
+                AssertUI.InnerTextEquals(browser.First("included-static-command-count", SelectByDataUi), "1");
+                var downloadURL = WaitForIncludedDownloadUrl(browser);
+                AssertReturnedFile(browser.GetAbsoluteUrl(downloadURL), "included static command");
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample))]
+        public void Feature_ReturnedFile_ReturnedFileSample_IncludeCommandInline()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
+                browser.WaitUntilDotvvmInited();
+
+                InitIncludedFileResponseCapture(browser);
+                browser.First("textarea").SendKeys("included inline command");
+                browser.First("include-inline-file", SelectByDataUi).Click();
+                browser.WaitForPostback();
+
+                var downloadURL = WaitForIncludedDownloadUrl(browser);
+                Assert.Null(browser.GetJavaScriptExecutor().ExecuteScript("return window.includedReturnedFileDownload;"));
+                AssertReturnedFile(browser.GetAbsoluteUrl(downloadURL), "included inline command");
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample))]
+        public void Feature_ReturnedFile_ReturnedFileSample_IncludeInit()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample + "?includeOnInit=1");
+                browser.WaitUntilDotvvmInited();
+
+                var downloadURL = (string)browser.GetJavaScriptExecutor().ExecuteScript(@"
+                    var viewModel = JSON.parse(document.getElementById('__dot_viewmodel_root').value);
+                    return viewModel.customProperties._dotvvm_IncludedReturnedFiles[0].url;
+                ");
+                AssertReturnedFile(browser.GetAbsoluteUrl(downloadURL), "included init");
             });
         }
 
@@ -59,17 +129,53 @@ namespace DotVVM.Samples.Tests.Feature
             jsexec.ExecuteScript("dotvvm.events.redirect.subscribe(function (args) { window.downloadURL = args.url; });");
 
             browser.First("textarea").SendKeys(fileContent);
-            browser.First("input").SendKeys(Keys.Enter);
+            browser.First("get-file", SelectByDataUi).Click();
             browser.WaitForPostback();
             var downloadURL = (string)jsexec.ExecuteScript("return window.downloadURL;");
             Assert.NotEmpty(downloadURL);
 
+            AssertReturnedFile(browser.GetAbsoluteUrl(downloadURL), fileContent);
+        }
+
+        private void InitIncludedFileResponseCapture(IBrowserWrapper browser)
+        {
+            browser.GetJavaScriptExecutor().ExecuteScript(@"
+                window.includedReturnedFileUrl = '';
+                window.includedReturnedFileDownload = '';
+                window.captureIncludedReturnedFile = function(response) {
+                    var files = response && response.customProperties && response.customProperties._dotvvm_IncludedReturnedFiles;
+                    if (files && files.length) {
+                        window.includedReturnedFileUrl = files[0].url;
+                        window.includedReturnedFileDownload = files[0].download || null;
+                    }
+                };
+                dotvvm.events.postbackResponseReceived.subscribe(function(e) {
+                    window.captureIncludedReturnedFile(e.serverResponseObject);
+                });
+                dotvvm.events.staticCommandMethodInvoked.subscribe(function(e) {
+                    window.captureIncludedReturnedFile(e.serverResponseObject);
+                });
+            ");
+        }
+
+        private string WaitForIncludedDownloadUrl(IBrowserWrapper browser)
+        {
+            var jsexec = browser.GetJavaScriptExecutor();
+            browser.WaitFor(() => {
+                Assert.NotEmpty((string)jsexec.ExecuteScript("return window.includedReturnedFileUrl;"));
+            }, 5000);
+
+            return (string)jsexec.ExecuteScript("return window.includedReturnedFileUrl;");
+        }
+
+        private void AssertReturnedFile(string downloadURL, string fileContent)
+        {
             string returnedFile;
 #pragma warning disable SYSLIB0014 // obsolete
             using (var client = new WebClient())
 #pragma warning restore SYSLIB0014
             {
-                returnedFile = client.DownloadString(browser.GetAbsoluteUrl(downloadURL));
+                returnedFile = client.DownloadString(downloadURL);
             }
             Assert.Equal(fileContent, returnedFile);
         }

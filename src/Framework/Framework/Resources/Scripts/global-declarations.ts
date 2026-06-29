@@ -150,7 +150,7 @@ interface DotvvmPostbackHandlerCollection {
 
 type DotvvmStaticCommandResponse<T = any> = {
     result: any;
-    customData: { [key: string]: any };
+    customProperties?: { [key: string]: any };
     typeMetadata?: TypeMap;
 } | {
     action: "redirect",
