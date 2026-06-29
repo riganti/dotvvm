@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,8 @@ using DotVVM.Framework.ViewModel.Validation;
 
 public static class DotvvmRequestContextExtensions
 {
+    private const string IncludedReturnedFilesPropertyName = "_dotvvm_IncludedReturnedFiles";
+
     /// <summary>
     /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
     /// </summary>
@@ -229,6 +232,7 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
+    /// <remarks> Note that this function terminates the postback with <see cref="DotvvmInterruptRequestExecutionException" />. See the IncludeFileAsync variant if you also want to update the viewmodel. </remarks>
     [Obsolete("Use ReturnFileAsync() instead")]
     [DoesNotReturn]
     public static void ReturnFile(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
@@ -237,6 +241,7 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
+    /// <remarks> Note that this function terminates the postback with <see cref="DotvvmInterruptRequestExecutionException" />. See the IncludeFileAsync variant if you also want to update the viewmodel. </remarks>
     [Obsolete("Use ReturnFileAsync() instead")]
     [DoesNotReturn]
     public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
@@ -245,6 +250,7 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
+    /// <remarks> Note that this function terminates the postback with <see cref="DotvvmInterruptRequestExecutionException" />. See the IncludeFileAsync variant if you also want to update the viewmodel. </remarks>
     [DoesNotReturn]
     public static Task ReturnFileAsync(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
         context.ReturnFileAsync(new MemoryStream(bytes), fileName, mimeType, additionalHeaders, attachmentDispositionType);
@@ -252,8 +258,31 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
+    /// <remarks> Note that this function terminates the postback with <see cref="DotvvmInterruptRequestExecutionException" />. See the IncludeFileAsync variant if you also want to update the viewmodel. </remarks>
     [DoesNotReturn]
     public static async Task ReturnFileAsync(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null)
+    {
+        var file = await StoreReturnedFileAsync(context, stream, fileName, mimeType, additionalHeaders, attachmentDispositionType).ConfigureAwait(false);
+        context.SetRedirectResponse(file.Url, downloadName: file.Download);
+        throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
+    }
+
+    /// <summary>
+    /// Starts a client-side download of the specified file without interrupting request execution.
+    /// </summary>
+    public static Task IncludeReturnedFileAsync(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
+        context.IncludeReturnedFileAsync(new MemoryStream(bytes), fileName, mimeType, additionalHeaders, attachmentDispositionType);
+
+    /// <summary>
+    /// Starts a client-side download of the specified file without interrupting request execution.
+    /// </summary>
+    public static async Task IncludeReturnedFileAsync(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null)
+    {
+        var file = await StoreReturnedFileAsync(context, stream, fileName, mimeType, additionalHeaders, attachmentDispositionType).ConfigureAwait(false);
+        GetIncludedReturnedFiles(context).Add(file);
+    }
+
+    private static async Task<IncludedReturnedFile> StoreReturnedFileAsync(IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders, string? attachmentDispositionType)
     {
         var returnedFileStorage = context.Services.GetService<IReturnedFileStorage>();
 
@@ -274,9 +303,23 @@ public static class DotvvmRequestContextExtensions
         var downloadAttribute = attachmentDispositionType == "inline" ? null : fileName;
 
         var generatedFileId = await returnedFileStorage.StoreFileAsync(stream, metadata).ConfigureAwait(false);
-        context.SetRedirectResponse(context.TranslateVirtualPath($"~/{HostingConstants.ReturnedFileMatchUrl}?id=" + generatedFileId), downloadName: downloadAttribute);
-        throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
+        return new IncludedReturnedFile(context.TranslateVirtualPath($"~/{HostingConstants.ReturnedFileMatchUrl}?id=" + generatedFileId), downloadAttribute);
     }
+
+    private static List<IncludedReturnedFile> GetIncludedReturnedFiles(IDotvvmRequestContext context)
+    {
+        if (context.CustomResponseProperties.Properties.TryGetValue(IncludedReturnedFilesPropertyName, out var value))
+            return (List<IncludedReturnedFile>)value;
+
+        var files = new List<IncludedReturnedFile>();
+        context.CustomResponseProperties.Add(IncludedReturnedFilesPropertyName, files);
+        return files;
+    }
+
+    private record IncludedReturnedFile(
+        [property: JsonPropertyName("url")]      string  Url,
+        [property: JsonPropertyName("download")] string? Download
+    );
 
     [DoesNotReturn]
     internal static async Task RejectRequest(this IDotvvmRequestContext context, string message, int statusCode = 403)

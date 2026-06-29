@@ -1,4 +1,5 @@
 ﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ReturnedFile.ReturnedFileSampleViewModel
+@service dotvvmContext = DotVVM.Framework.Hosting.IDotvvmRequestContext
 
 <!DOCTYPE html>
 
@@ -10,9 +11,12 @@
 <body>
     <%-- TODO: UI Test --%>
     <dot:TextBox Text="{value: Text}" Type="Multiline"></dot:TextBox>
-    <dot:Button Text="Get File" Click="{command: GetFile()}" />
-    <dot:Button Text="Get File Inline" Click="{command: GetFileInline()}" />
+    <dot:Button Text="Get File" Click="{command: GetFile()}" data-ui="get-file" />
+    <dot:Button Text="Get File Inline" Click="{command: GetFileInline()}" data-ui="get-file-inline" />
+    <dot:Button Text="Include File" Click="{command: IncludeFile()}" data-ui="include-file" />
+    <dot:Button Text="Include Inline File" Click="{command: IncludeFileInline()}" data-ui="include-inline-file" />
+    <dot:Button Text="Include Static File" Click="{staticCommand: IncludedStaticCommandCount = ViewModel.IncludeFileStatic(dotvvmContext, Text, IncludedStaticCommandCount).Result}" data-ui="include-static-file" />
+    <span data-ui="included-command-count">{{value: IncludedCommandCount}}</span>
+    <span data-ui="included-static-command-count">{{value: IncludedStaticCommandCount}}</span>
 </body>
 </html>
-
-

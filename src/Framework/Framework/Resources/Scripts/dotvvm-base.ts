@@ -10,6 +10,7 @@ import { getKnownTypes, replaceTypeInfo, getCurrentTypeMap } from './metadata/ty
 
 import { StateManager } from './state-manager'
 import { getTypeMetadata } from './metadata/metadataHelper'
+import { handleIncludedReturnedFiles } from './postback/includedFiles'
 
 export const options = {
     compressPOST: true
@@ -108,6 +109,7 @@ export function initCore(culture: string): void {
     }
 
     events.init.trigger({ viewModel: manager.state });
+    handleIncludedReturnedFiles(thisViewModel);
 
     // persist the viewmodel in the hidden field so the Back button will work correctly
     window.addEventListener("beforeunload", e => {
