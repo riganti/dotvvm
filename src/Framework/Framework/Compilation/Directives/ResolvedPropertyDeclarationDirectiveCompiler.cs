@@ -16,9 +16,9 @@ namespace DotVVM.Framework.Compilation.Directives
 
         public ResolvedPropertyDeclarationDirectiveCompiler(
             ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>> directiveNodesByName,
-            IAbstractTreeBuilder treeBuilder, ITypeDescriptor controlWrapperType,
+            IAbstractTreeBuilder treeBuilder, bool isMarkupControl, ITypeDescriptor controlWrapperType,
             ImmutableList<NamespaceImport> imports)
-            : base(directiveNodesByName, treeBuilder, controlWrapperType, imports)
+            : base(directiveNodesByName, treeBuilder, isMarkupControl, controlWrapperType, imports)
         {
         }
 
