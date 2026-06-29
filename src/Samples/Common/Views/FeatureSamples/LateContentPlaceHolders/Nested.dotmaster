@@ -1,0 +1,13 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.LateContentPlaceHolders.LateContentPlaceHolderViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/LateContentPlaceHolders/Root.dotmaster
+
+<dot:Content ContentPlaceHolderID="RootContent">
+    <h2>Nested Master Page</h2>
+    <sample:TemplateContainerControl>
+        <ContentTemplate>
+            <dot:ContentPlaceHolder ID="NestedContent">
+                <p data-ui="default-nested-content">Default nested content</p>
+            </dot:ContentPlaceHolder>
+        </ContentTemplate>
+    </sample:TemplateContainerControl>
+</dot:Content>

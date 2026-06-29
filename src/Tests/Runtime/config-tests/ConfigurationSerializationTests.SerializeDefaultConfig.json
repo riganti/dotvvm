@@ -1163,6 +1163,9 @@
         "type": "DotVVM.Framework.Compilation.ControlTree.DataContextStack, DotVVM.Framework",
         "isValueInherited": true
       },
+      "DeclaredContentPlaceHolderIds": {
+        "type": "System.Collections.Immutable.ImmutableHashSet`1[[System.String, CoreLibrary]], System.Collections.Immutable"
+      },
       "IsControlBindingTarget": {
         "type": "System.Boolean",
         "defaultValue": false
@@ -1192,14 +1195,26 @@
         "type": "System.Int32",
         "defaultValue": -1
       },
+      "MasterPageChildPage": {
+        "type": "DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework",
+        "isValueInherited": true
+      },
       "PathFragment": {
         "type": "System.String"
+      },
+      "PendingMasterPageCompositions": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.PendingMasterPageComposition, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "isValueInherited": true
       },
       "ReferencedViewModuleInfo": {
         "type": "DotVVM.Framework.Binding.ViewModuleReferenceInfo, DotVVM.Framework"
       },
       "RequestContext": {
         "type": "DotVVM.Framework.Hosting.IDotvvmRequestContext, DotVVM.Framework",
+        "isValueInherited": true
+      },
+      "ResolvedMasterPageCompositionIds": {
+        "type": "System.Collections.Generic.HashSet`1[[System.String, CoreLibrary]]",
         "isValueInherited": true
       },
       "UniqueID": {

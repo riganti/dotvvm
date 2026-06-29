@@ -13,6 +13,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Security;
@@ -233,6 +234,10 @@ namespace DotVVM.Framework.Hosting
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
                     await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
 
+                    // After Load, ensure all Content controls have been matched to their ContentPlaceHolders.
+                    // For postback requests, the Repeater creates children in Load (for Commands), so we check here.
+                    ValidateMasterPageComposition(page);
+
                     // invoke the postback command
                     var actionInfo = ViewModelSerializer.ResolveCommand(context, page);
 
@@ -266,6 +271,11 @@ namespace DotVVM.Framework.Hosting
 
                 // run the prerender phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRender, context);
+
+                // After PreRender, ensure all Content controls have been matched to their ContentPlaceHolders.
+                // For GET requests, the Repeater creates children in PreRender, so this is the final check point.
+                // For postbacks, the check above after Load already caught most issues; this is a safety net.
+                ValidateMasterPageComposition(page);
 
                 // run the prerender complete phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete, context);
@@ -597,6 +607,30 @@ namespace DotVVM.Framework.Hosting
         public static string? DetermineSpaContentPlaceHolderUniqueId(IHttpContext context)
         {
             return context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName];
+        }
+
+        /// <summary>
+        /// Validates that all Content controls have been matched to their corresponding ContentPlaceHolder controls
+        /// after the Load phase. If any Content controls remain unmatched, it means the ContentPlaceHolder
+        /// was declared in the master page but never instantiated (e.g. a CompositeControl's GetContents was not called).
+        /// </summary>
+        private static void ValidateMasterPageComposition(DotvvmControl page)
+        {
+            var childPage = (DotvvmControl?)page;
+            while (childPage != null)
+            {
+                var pendingList = (List<PendingMasterPageComposition>)childPage.GetValue(Internal.PendingMasterPageCompositionsProperty)!;
+                if (pendingList is { Count: > 0 })
+                {
+                    var pending = pendingList[0];
+                    var masterPageInfo = pending.MasterPageFile is { } masterPageFile ? $" '{masterPageFile}'" : "";
+                    throw new DotvvmControlException(pending.Content,
+                        $"The ContentPlaceHolder with ID '{pending.Content.ContentPlaceHolderID}' was declared in the master page{masterPageInfo} but was never instantiated. " +
+                        $"Make sure the ContentPlaceHolder is always added to the control tree (e.g. it is not inside a conditional template).");
+                }
+
+                childPage = (DotvvmControl?)childPage.GetValue(Internal.MasterPageChildPageProperty);
+            }
         }
     }
 }

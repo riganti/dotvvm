@@ -7,7 +7,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -51,7 +53,7 @@ namespace DotVVM.Framework.Runtime
                 var masterPage = (DotvvmView)pageBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
 
                 FillsDefaultDirectives(masterPage);
-                PerformMasterPageComposition(contentPage, masterPage);
+                PerformMasterPageComposition(contentPage, masterPage, pageDescriptor);
 
                 masterPage.ViewModelType = contentPage.ViewModelType;
                 contentPage = masterPage;
@@ -99,40 +101,62 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Performs the master page nesting.
         /// </summary>
-        private void PerformMasterPageComposition(DotvvmView childPage, DotvvmView masterPage)
+        private void PerformMasterPageComposition(DotvvmView childPage, DotvvmView masterPage, ControlBuilderDescriptor masterPageDescriptor)
         {
             if (!masterPage.ViewModelType.IsAssignableFrom(childPage.ViewModelType))
                 throw new DotvvmControlException(childPage, $"Master page requires viewModel of type '{masterPage.ViewModelType}' and it is not assignable from '{childPage.ViewModelType}'.");
-
-            // find content place holders
+            
+            // find content placeholders
             var placeHolders = GetMasterPageContentPlaceHolders(masterPage);
+            var declaredContentPlaceHolderIds = masterPage.GetValue<ImmutableHashSet<string>>(Internal.DeclaredContentPlaceHolderIdsProperty)!;
 
             // find contents
             var (contents, auxControls) = GetChildPageContents(childPage, placeHolders);
+            
+            // prepare the pending compositions list
+            // NB: this list is stored in the master page, so ContentPlaceHolders can access it easily thanks to DotVVM property inheritance - it will look up
+            var pendingCompositions = new List<PendingMasterPageComposition>();
+            masterPage.SetValue(Internal.PendingMasterPageCompositionsProperty, pendingCompositions);
+            masterPage.SetValue(Internal.ResolvedMasterPageCompositionIdsProperty, new HashSet<string>(StringComparer.Ordinal));
+
+            // save the reference to the child page
+            // NB: after the Load phase, we need to check the root master page and all nested master pages that all contents are resolved.
+            // This allows to jump from the root master page to the next nested one.
+            masterPage.SetValue(Internal.MasterPageChildPageProperty, childPage);
 
             // perform the composition
             foreach (var content in contents)
             {
-                // find the corresponding placeholder
-                var placeHolder = placeHolders.SingleOrDefault(p => p.ID == content.ContentPlaceHolderID);
-                if (placeHolder == null)
-                {
-                    throw new DotvvmControlException(content, $"The placeholder with ID '{content.ContentPlaceHolderID}' was not found in the master page '{masterPage.GetValue(Internal.MarkupFileNameProperty)}'!");
-                }
-
-                // replace the contents
-                var contentPlaceHolder = new PlaceHolder();
-                contentPlaceHolder.SetDataContextType(content.Parent!.GetDataContextType());
-                (content.Parent as DotvvmControl)?.Children.Remove(content);
-
-                placeHolder.Children.Clear();
-                placeHolder.Children.Add(contentPlaceHolder);
-
-                contentPlaceHolder.Children.Add(content);
-                content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
+                // NB: when Contents are placed inside ContentPlaceHolders, the childPage is not part of the control tree anymore - it gets abandoned.
+                // Therefore, we need to copy all the important properties from the child page to the content control, so they are not lost during the composition.
+                // This will let potential ContentPlaceHolders inside the Content finding the list of pending compositions and the reference to the child page.
                 content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
                 content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
                 content.SetValue(Internal.ReferencedViewModuleInfoProperty, childPage.GetValue(Internal.ReferencedViewModuleInfoProperty));
+                content.SetValue(Internal.MasterPageChildPageProperty, childPage.GetValue(Internal.MasterPageChildPageProperty));
+                content.SetValue(Internal.PendingMasterPageCompositionsProperty, childPage.GetValue(Internal.PendingMasterPageCompositionsProperty));
+                content.SetValue(Internal.ResolvedMasterPageCompositionIdsProperty, childPage.GetValue(Internal.ResolvedMasterPageCompositionIdsProperty));
+
+                // find the corresponding placeholder
+                var dataContextType = content.Parent!.GetDataContextType();
+
+                var placeHolder = placeHolders.SingleOrDefault(p => p.ID == content.ContentPlaceHolderID);
+                if (placeHolder == null)
+                {
+                    if (!declaredContentPlaceHolderIds.Contains(content.ContentPlaceHolderID!))
+                    {
+                        var masterPageInfo = masterPageDescriptor.FileName is { } masterPageFile ? $" '{masterPageFile}'" : "";
+                        throw new DotvvmControlException(content,
+                            $"The ContentPlaceHolder with ID '{content.ContentPlaceHolderID}' was not found in the master page{masterPageInfo}. " +
+                            $"Make sure that each Content element has a corresponding ContentPlaceHolder in the master page.");
+                    }
+
+                    pendingCompositions.Add(new PendingMasterPageComposition(content, childPage, masterPage, dataContextType));
+                    continue;
+                }
+
+                // replace the contents
+                PlaceContentInContentPlaceHolder(dataContextType, placeHolder, content);
             }
 
             foreach (var control in auxControls)
@@ -140,6 +164,21 @@ namespace DotVVM.Framework.Runtime
 
             // copy the directives from content page to the master page (except the @masterpage)
             masterPage.ViewModelType = childPage.ViewModelType;
+        }
+
+        internal static void PlaceContentInContentPlaceHolder(DataContextStack? dataContextType, ContentPlaceHolder placeHolder, Content content)
+        {
+            var contentPlaceHolder = new PlaceHolder();
+            contentPlaceHolder.SetDataContextType(dataContextType);
+
+            ((DotvvmControl)content.Parent!).Children.Remove(content);
+
+            placeHolder.Children.Clear();
+            placeHolder.Children.Add(contentPlaceHolder);
+
+            contentPlaceHolder.Children.Add(content);
+
+            content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
         }
 
         /// <summary>

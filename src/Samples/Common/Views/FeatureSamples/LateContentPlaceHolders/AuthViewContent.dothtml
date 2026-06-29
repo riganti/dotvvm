@@ -1,0 +1,6 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.LateContentPlaceHolders.LateContentPlaceHolderViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/LateContentPlaceHolders/AuthViewMaster.dotmaster
+
+<dot:Content ContentPlaceHolderID="AuthContent">
+    <p data-ui="auth-content">Content from ContentPlaceHolder inside AuthenticatedView template</p>
+</dot:Content>

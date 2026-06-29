@@ -1,0 +1,6 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.LateContentPlaceHolders.LateContentPlaceHolderViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/LateContentPlaceHolders/Nested.dotmaster
+
+<dot:Content ContentPlaceHolderID="NestedContent">
+    <h3 data-ui="page-content">Page Content - Late ContentPlaceHolder works!</h3>
+</dot:Content>

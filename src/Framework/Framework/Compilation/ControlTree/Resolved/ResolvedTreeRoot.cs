@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 (from ds in Directives
                  from d in ds.Value
                  select (ds.Key, d.Value)).ToImmutableArray(),
-                GetViewModuleInfo() 
+                GetViewModuleInfo()
             );
 
         private ViewModuleReferenceInfo? GetViewModuleInfo()
@@ -63,6 +63,29 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public override void Accept(IResolvedControlTreeVisitor visitor)
         {
             visitor.VisitView(this);
+        }
+    }
+
+
+    internal sealed class ContentPlaceHolderIdCollector : ResolvedControlTreeVisitor
+    {
+        public readonly HashSet<string> Ids = new HashSet<string>();
+
+        public override void VisitControl(ResolvedControl control)
+        {
+            if (control.Metadata.Type == typeof(ContentPlaceHolder)
+                && control.Properties.TryGetValue(DotvvmControl.IDProperty, out var idSetter)
+                && idSetter is ResolvedPropertyValue { Value: string id })
+            {
+                Ids.Add(id);
+            }
+            DefaultVisit(control);
+        }
+
+        public override void VisitView(ResolvedTreeRoot view)
+        {
+            base.VisitView(view);
+            view.SetProperty(new ResolvedPropertyValue(Internal.DeclaredContentPlaceHolderIdsProperty, Ids.ToImmutableHashSet()), replace: true);
         }
     }
 }
