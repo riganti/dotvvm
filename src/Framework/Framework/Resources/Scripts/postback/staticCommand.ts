@@ -6,6 +6,7 @@ import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { DotvvmPostbackError } from '../shared-classes';
 import * as evaluator from '../utils/evaluator'
 import { removeErrors } from '../validation/validation';
+import { handleIncludedReturnedFiles } from './includedFiles';
 
 export function resolveRelativeValidationPaths(paths: string[] | null | undefined, context: KnockoutBindingContext | undefined) {
     return paths?.map(p => {
@@ -94,6 +95,7 @@ export async function staticCommandPostback(command: string, args: any[], option
             result: (response as any).result.result, 
             response: (response as any).response
         });
+        handleIncludedReturnedFiles(response.result);
 
         return response.result.result;
         
