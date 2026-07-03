@@ -1,7 +1,5 @@
-﻿using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
-using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Diagnostics
@@ -25,16 +23,15 @@ namespace DotVVM.Framework.Diagnostics
                 return;
             }
 
-            var result = await compilationService.CompileAll(buildInParallel: true);
-            if (result)
+            var result = await DotvvmCompilationStatusApi.GetStatusResponse(compilationService);
+            response.StatusCode = result.StatusCode;
+            if (result.ResponseBody is null)
             {
-                response.StatusCode = 200;
                 return;
             }
 
-            response.StatusCode = 500;
             response.ContentType = "application/json; charset=utf-8";
-            await response.WriteAsync(JsonSerializer.Serialize(compilationService.GetFilesWithFailedCompilation(), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
+            await response.WriteAsync(result.ResponseBody);
         }
     }
 }

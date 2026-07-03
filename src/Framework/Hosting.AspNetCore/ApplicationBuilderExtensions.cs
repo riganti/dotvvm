@@ -1,9 +1,12 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Runtime.Tracing;
@@ -104,9 +107,48 @@ namespace Microsoft.AspNetCore.Builder
             var compilationConfiguration = config.Markup.ViewCompilation;
             compilationConfiguration.HandleViewCompilation(config, startupTracer);
 
+            if (IsCompilationStatusModeEnabled())
+            {
+                RunCompilationStatusMode(config, app.ApplicationServices.GetService<IHostApplicationLifetime>());
+            }
+
             startupTracer.NotifyStartupCompleted();
 
             return config;
+        }
+
+        private static bool IsCompilationStatusModeEnabled() =>
+            string.Equals(Environment.GetEnvironmentVariable("DOTVVM_COMPILATION_STATUS"), "1", StringComparison.Ordinal);
+
+        private static void RunCompilationStatusMode(DotvvmConfiguration config, IHostApplicationLifetime appLifetime)
+        {
+            var standardOut = Console.Out;
+            var standardError = Console.Error;
+            try
+            {
+                Console.SetOut(TextWriter.Null);
+                Console.SetError(TextWriter.Null);
+
+                var compilationService = config.ServiceProvider.GetRequiredService<IDotvvmViewCompilationService>();
+                var statusResponse = DotvvmCompilationStatusApi.GetStatusResponse(compilationService).GetAwaiter().GetResult();
+
+                Console.SetOut(standardOut);
+                Console.SetError(standardError);
+
+                standardOut.WriteLine(statusResponse.StatusCode.ToString(CultureInfo.InvariantCulture));
+                if (statusResponse.ResponseBody is {} responseBody)
+                {
+                    standardOut.WriteLine(responseBody);
+                }
+
+                Environment.ExitCode = statusResponse.StatusCode == 200 ? 0 : 1;
+            }
+            finally
+            {
+                Console.SetOut(standardOut);
+                Console.SetError(standardError);
+                appLifetime?.StopApplication();
+            }
         }
 
 #if NET9_0_OR_GREATER
