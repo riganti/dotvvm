@@ -67,73 +67,95 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
         public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, IDotvvmStartup startup, string applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
         {
-#if NET9_0_OR_GREATER
-            SetupStaticAssets(app);
-#endif
-
-            var env = app.ApplicationServices.GetRequiredService<HostingEnv>();
-
-            var tokenMiddleware = Task.Run(() => ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(app.ApplicationServices));
-            var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
-            // warm up the translator
-            _ = Task.Run(() => config.Markup.JavascriptTranslator);
-            config.Debug = env.IsDevelopment();
-            config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
-
-            var startupTracer = app.ApplicationServices.GetRequiredService<IStartupTracer>();
-            startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureStarted);
-            config.Markup.AddAssembly(startup.GetType().Assembly);
-            startup.Configure(config, config.ApplicationPhysicalPath);
-            startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
-
-            modifyConfiguration?.Invoke(config);
-            config.Diagnostics.Apply(config);
-            config.Freeze();
-            // warm up the resolver in the background
-            Task.Run(() => app.ApplicationServices.GetService(typeof(IControlResolver)));
-            Task.Run(() => VisualStudioHelper.DumpConfiguration(config, config.ApplicationPhysicalPath));
-
-            startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmStarted);
-            app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware> {
-                tokenMiddleware.Result,
-                ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(app.ApplicationServices),
-                DotvvmFileUploadMiddleware.TryCreate(app.ApplicationServices),
-                new DotvvmReturnedFileMiddleware(),
-                new DotvvmRoutingMiddleware()
-            }.Where(t => t != null).ToArray(), useErrorPages ?? config.Debug);
-
-            startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmFinished);
-
-            var compilationConfiguration = config.Markup.ViewCompilation;
-            compilationConfiguration.HandleViewCompilation(config, startupTracer);
-
-            if (IsCompilationStatusModeEnabled())
+            var isCompilationStatusMode = IsCompilationStatusModeEnabled();
+            var standardOut = Console.Out;
+            var standardError = Console.Error;
+            if (isCompilationStatusMode)
             {
-                RunCompilationStatusMode(config, app.ApplicationServices.GetService<IHostApplicationLifetime>());
+                Console.SetOut(TextWriter.Null);
+                Console.SetError(TextWriter.Null);
             }
 
-            startupTracer.NotifyStartupCompleted();
+            try
+            {
+#if NET9_0_OR_GREATER
+                SetupStaticAssets(app);
+#endif
 
-            return config;
+                var env = app.ApplicationServices.GetRequiredService<HostingEnv>();
+
+                var tokenMiddleware = Task.Run(() => ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(app.ApplicationServices));
+                var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
+                // warm up the translator
+                _ = Task.Run(() => config.Markup.JavascriptTranslator);
+                config.Debug = env.IsDevelopment();
+                config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
+
+                var startupTracer = app.ApplicationServices.GetRequiredService<IStartupTracer>();
+                startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureStarted);
+                config.Markup.AddAssembly(startup.GetType().Assembly);
+                startup.Configure(config, config.ApplicationPhysicalPath);
+                startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
+
+                modifyConfiguration?.Invoke(config);
+                config.Diagnostics.Apply(config);
+                config.Freeze();
+                // warm up the resolver in the background
+                Task.Run(() => app.ApplicationServices.GetService(typeof(IControlResolver)));
+                Task.Run(() => VisualStudioHelper.DumpConfiguration(config, config.ApplicationPhysicalPath));
+
+                startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmStarted);
+                app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware> {
+                    tokenMiddleware.Result,
+                    ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(app.ApplicationServices),
+                    DotvvmFileUploadMiddleware.TryCreate(app.ApplicationServices),
+                    new DotvvmReturnedFileMiddleware(),
+                    new DotvvmRoutingMiddleware()
+                }.Where(t => t != null).ToArray(), useErrorPages ?? config.Debug);
+
+                startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmFinished);
+
+                var compilationConfiguration = config.Markup.ViewCompilation;
+                compilationConfiguration.HandleViewCompilation(config, startupTracer);
+
+                if (isCompilationStatusMode)
+                {
+                    RunCompilationStatusMode(
+                        config,
+                        app.ApplicationServices.GetService<IHostApplicationLifetime>(),
+                        standardOut,
+                        standardError
+                    );
+                }
+
+                startupTracer.NotifyStartupCompleted();
+
+                return config;
+            }
+            finally
+            {
+                if (isCompilationStatusMode)
+                {
+                    Console.SetOut(standardOut);
+                    Console.SetError(standardError);
+                }
+            }
         }
 
         private static bool IsCompilationStatusModeEnabled() =>
             string.Equals(Environment.GetEnvironmentVariable("DOTVVM_COMPILATION_STATUS"), "1", StringComparison.Ordinal);
 
-        private static void RunCompilationStatusMode(DotvvmConfiguration config, IHostApplicationLifetime appLifetime)
+        private static void RunCompilationStatusMode(
+            DotvvmConfiguration config,
+            IHostApplicationLifetime appLifetime,
+            TextWriter standardOut,
+            TextWriter standardError
+        )
         {
-            var standardOut = Console.Out;
-            var standardError = Console.Error;
             try
             {
-                Console.SetOut(TextWriter.Null);
-                Console.SetError(TextWriter.Null);
-
                 var compilationService = config.ServiceProvider.GetRequiredService<IDotvvmViewCompilationService>();
                 var statusResponse = DotvvmCompilationStatusApi.GetStatusResponse(compilationService).GetAwaiter().GetResult();
-
-                Console.SetOut(standardOut);
-                Console.SetError(standardError);
 
                 standardOut.WriteLine(statusResponse.StatusCode.ToString(CultureInfo.InvariantCulture));
                 if (statusResponse.ResponseBody is {} responseBody)
