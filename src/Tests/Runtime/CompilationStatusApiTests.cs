@@ -15,6 +15,9 @@ namespace DotVVM.Framework.Tests.Runtime
     [TestClass]
     public class CompilationStatusApiTests
     {
+        private const int TestTimeoutMilliseconds = 10 * 60 * 1000;
+        private static readonly TimeSpan ProcessTimeout = TimeSpan.FromMinutes(5);
+
         [TestMethod]
         public async Task GetStatusResponse_Success_Returns200WithoutBody()
         {
@@ -40,7 +43,7 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
-        [Timeout(600000)]
+        [Timeout(TestTimeoutMilliseconds)]
         public void CompilationStatusMode_AspNetCoreSample_WritesStatusToStdout()
         {
             var repositoryRoot = FindRepositoryRoot();
@@ -73,7 +76,9 @@ namespace DotVVM.Framework.Tests.Runtime
             if (statusCode == 500)
             {
                 Assert.IsTrue(statusLineIndex + 1 < outputLines.Length, "Expected a JSON payload with failed files when status code is 500.");
-                using var _ = JsonDocument.Parse(outputLines[statusLineIndex + 1]);
+                using var payload = JsonDocument.Parse(outputLines[statusLineIndex + 1]);
+                Assert.AreEqual(JsonValueKind.Array, payload.RootElement.ValueKind, "Expected the error payload to be a JSON array.");
+                Assert.IsTrue(payload.RootElement.GetArrayLength() > 0, "Expected at least one failed file in the error payload.");
             }
         }
 
@@ -118,7 +123,7 @@ namespace DotVVM.Framework.Tests.Runtime
             process.Start();
             var standardOutputTask = Task.Run(() => process.StandardOutput.ReadToEnd());
             var standardErrorTask = Task.Run(() => process.StandardError.ReadToEnd());
-            if (!process.WaitForExit((int)TimeSpan.FromMinutes(5).TotalMilliseconds))
+            if (!process.WaitForExit((int)ProcessTimeout.TotalMilliseconds))
             {
                 try
                 {
@@ -129,6 +134,8 @@ namespace DotVVM.Framework.Tests.Runtime
                 }
                 Assert.Fail($"Process timed out. Command: dotnet {command} {arguments}");
             }
+
+            process.WaitForExit();
             Task.WaitAll(standardOutputTask, standardErrorTask);
 
             return new ProcessResult(standardOutputTask.Result, standardErrorTask.Result, process.ExitCode);
