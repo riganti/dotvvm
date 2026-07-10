@@ -55,7 +55,12 @@ namespace DotVVM.Framework.Controls
 
         private bool CheckChildrenDataContextStackEquality(DataContextStack desiredDataContext, DotvvmControlCollection children)
         {
-            return children.Select(c => c.GetDataContextType())
+            return children.Select(c => {
+                var dataContext = c.GetDataContextType();
+                return dataContext is not null && c.IsPropertySet(DotvvmBindableObject.DataContextProperty, inherit: false)
+                    ? dataContext.Parent
+                    : dataContext;
+            })
                 .Where(t => t != null)
                 .All(t => Equals(t, desiredDataContext));
         }
