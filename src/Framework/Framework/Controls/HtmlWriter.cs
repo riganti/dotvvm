@@ -172,7 +172,7 @@ namespace DotVVM.Framework.Controls
 
         public void WriteKnockoutDataBindComment(string name, string expression)
         {
-            if (name.Contains("-->") || expression.Contains("-->"))
+            if (name.Contains("-->") || name.Contains("--!>") || expression.Contains("-->") || expression.Contains("--!>"))
                 throw new Exception("Knockout data bind comment can't contain substring '-->'. If you have discovered this exception in your log, you probably have a XSS vulnerability in you website.");
 
             EnsureTagFullyOpen();
