@@ -7,6 +7,7 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Tests.Binding;
 using System;
 using DotVVM.Framework.Runtime.Commands;
+using DotVVM.Framework.ViewModel.Validation;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -61,6 +62,21 @@ namespace DotVVM.Framework.Tests.ControlTests
                 var exception = await Assert.ThrowsExceptionAsync<InvalidCommandInvocationException>(() => r.RunCommand("IntProp = IntProp + 1"));
                 StringAssert.Contains(exception.Message, "Execution of '{command: IntProp = IntProp + 1}' was disallowed by '<dot:Button Click={command: IntProp = IntProp + 1} Enabled={value: StringProp == \"test\"} Text=Click Visible={value: BoolProp} />");
             }
+        }
+
+        [TestMethod]
+        public async Task Command_ModelStateErrorAddedManually_ReturnsSuccessfulCommandWithValidationErrors()
+        {
+            var r = await cth.RunPage(typeof(ManualModelStateErrorViewModel), """
+                <dot:Button Text=Validate Click={command: AddManualError()} />
+                """);
+
+            var validationResult = await r.RunCommand("AddManualError()", applyChanges: false);
+
+            Assert.AreEqual("successfulCommand", (string)validationResult.ResultJson!["action"]!);
+            var modelState = validationResult.ResultJson["modelState"]!.AsArray();
+            Assert.AreEqual(1, modelState.Count);
+            Assert.AreEqual("Manual command error.", (string)modelState[0]!["errorMessage"]!);
         }
 
         
@@ -134,6 +150,14 @@ namespace DotVVM.Framework.Tests.ControlTests
             public OmgViewModelWhichCannotBeCreatedByConstructorButIsInstantiatedManually(int b)
             {
                 this.b = b;
+            }
+        }
+
+        public class ManualModelStateErrorViewModel : DotvvmViewModelBase
+        {
+            public void AddManualError()
+            {
+                this.AddModelError("Manual command error.");
             }
         }
     }

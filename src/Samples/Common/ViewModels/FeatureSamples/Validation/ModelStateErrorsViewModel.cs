@@ -27,23 +27,34 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation
 
         public string Property456 { get; set; }
 
+        public int Counter { get; set; }
+
         public void Command1()
         {
+            Counter++;
             this.AddModelError(v => v.Property456, "Property456 contains error");
             Context.FailOnInvalidModelState();
         }
 
         public void Command2()
         {
+            Counter++;
             this.AddModelError(v => v.Nested1.MyProperty, "MyProperty contains error");
             Context.FailOnInvalidModelState();
         }
 
         public void Command3()
         {
+            Counter++;
             this.AddModelError(v => v.Nested2[2].Property123, "Property123 contains error");
             this.AddModelError(v => v.Nested2[0].Property123, "Property123 contains error");
             Context.FailOnInvalidModelState();
+        }
+
+        public void Command4()
+        {
+            Counter++;
+            this.AddModelError(v => v.Property456, "Property456 contains error without FailOnInvalidModelState");
         }
 
         public class NestedVM1 : DotvvmViewModelBase

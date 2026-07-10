@@ -9,7 +9,7 @@ import { handleRedirect } from './redirect';
 import { handleIncludedReturnedFiles } from './includedFiles';
 import * as evaluator from '../utils/evaluator'
 import * as gate from './gate'
-import { showValidationErrorsFromServer } from '../validation/validation';
+import { showValidationErrorsFromServer, ValidationErrorDescriptor } from '../validation/validation';
 import { DotvvmPostbackError } from '../shared-classes';
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { isPrimitive } from '../utils/objects';
@@ -142,6 +142,9 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
     if (result.action == "successfulCommand") {
         result.viewModel = updater.patchViewModel(getState(), result.viewModel)
         updater.updateViewModelAndControls(result, updateTypeInfo);
+        if (result.modelState) {
+            showValidationErrorsFromServer(result, options)
+        }
         events.postbackViewModelUpdated.trigger({
             ...options,
             response,
@@ -217,5 +220,6 @@ type PostbackResponse =
         action: string
         resultIdFragment?: string,
         typeMetadata?: TypeMap
+        modelState?: ValidationErrorDescriptor[]
         customProperties?: { [key: string]: any }
     }
