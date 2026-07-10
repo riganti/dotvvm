@@ -166,17 +166,17 @@ namespace DotVVM.Framework.Runtime
             masterPage.ViewModelType = childPage.ViewModelType;
         }
 
-        internal static void PlaceContentInContentPlaceHolder(DataContextStack? dataContextType, ContentPlaceHolder placeHolder, Content content)
+        internal static void PlaceContentInContentPlaceHolder(DataContextStack? dataContextType, ContentPlaceHolder contentPlaceHolder, Content content)
         {
-            var contentPlaceHolder = new PlaceHolder();
-            contentPlaceHolder.SetDataContextType(dataContextType);
+            var placeHolder = new PlaceHolder();
+            placeHolder.SetDataContextType(dataContextType);
 
             ((DotvvmControl)content.Parent!).Children.Remove(content);
 
-            placeHolder.Children.Clear();
-            placeHolder.Children.Add(contentPlaceHolder);
+            contentPlaceHolder.Children.Clear();
+            contentPlaceHolder.Children.Add(placeHolder);
 
-            contentPlaceHolder.Children.Add(content);
+            placeHolder.Children.Add(content);
 
             content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
         }
