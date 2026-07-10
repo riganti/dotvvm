@@ -1,12 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +12,7 @@ namespace DotVVM.Framework.Security
     /// <summary>
     /// Implements synchronizer token pattern for CSRF protection.
     /// <para>The token is generated based on Session ID (random 256-bit value persisted in cookie). 
-    /// In contrast to ViewModelProtector, the request identity (full URI) and User identity (user name, if authenticated) cannot be used here, because of Back button which doesn't refresh the token in the cookie.</para>
+    /// The token is bound to the current User identity (user name, if authenticated) so authentication changes invalidate old tokens.</para>
     /// <para>Value of stored Session ID and the token itself is encrypted and signed.</para>
     /// </summary>
     public class DefaultCsrfProtector : ICsrfProtector
@@ -45,7 +41,7 @@ namespace DotVVM.Framework.Security
             var protector = this.protectionProvider.CreateProtector(PURPOSE_TOKEN);
 
             // Get token
-            var tokenData = protector.Protect(sid);
+            var tokenData = protector.Protect([ ..sid, ..StringUtils.Utf8.GetBytes(ProtectionHelpers.GetUserIdentity(context)) ]);
 
             // Return encoded token
             return Convert.ToBase64String(tokenData);
@@ -60,11 +56,11 @@ namespace DotVVM.Framework.Security
             var protector = this.protectionProvider.CreateProtector(PURPOSE_TOKEN);
 
             // Get token
-            byte[] tokenSid;
+            byte[] tokenData;
             try
             {
-                var tokenData = Convert.FromBase64String(token);
-                tokenSid = protector.Unprotect(tokenData);
+                var protectedTokenData = Convert.FromBase64String(token);
+                tokenData = protector.Unprotect(protectedTokenData);
             }
             catch (Exception ex)
             {
@@ -74,7 +70,11 @@ namespace DotVVM.Framework.Security
 
             // Get SID from cookie and compare with token one
             var cookieSid = this.GetOrCreateSessionId(context, canGenerate: false); // should not generate new token
-            if (!cookieSid.SequenceEqual(tokenSid)) throw new SecurityException("CSRF protection token is invalid.");
+            byte[] expectedTokenData = [ ..cookieSid, ..StringUtils.Utf8.GetBytes(ProtectionHelpers.GetUserIdentity(context)) ];
+            if (!CryptographicOperations.FixedTimeEquals(expectedTokenData, tokenData))
+            {
+                throw new CorruptedCsrfTokenException("CSRF protection token is invalid (SID or user does not match).");
+            }
         }
 
         private byte[] GetOrCreateSessionId(IDotvvmRequestContext context, bool canGenerate = true)
@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Security
             if (string.IsNullOrWhiteSpace(sessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
             if (context.HttpContext.Request.IsHttps)
                 sessionIdCookieName = "__Host-" + sessionIdCookieName;
-            
+
             // Construct protector with purposes
             var protector = this.protectionProvider.CreateProtector(PURPOSE_SID);
 

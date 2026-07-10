@@ -91,8 +91,15 @@ namespace DotVVM.Framework.Hosting
                 // TODO this should be done by IOutputRender or something like that. IOutputRenderer does not support that, so should we make another IJsonErrorOutputWriter?
                 context.HttpContext.Response.StatusCode = 400;
                 context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
+                // try to generate new token to avoid roundtrip to _dotvvm/csrfToken
+                string? csrfToken = null;
+                try
+                {
+                    csrfToken = CsrfProtector.GenerateToken(context);
+                }
+                catch { }
                 var settings = DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe;
-                await context.HttpContext.Response.WriteAsync(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new { action = "invalidCsrfToken", message = ex.Message }, settings));
+                await context.HttpContext.Response.WriteAsync(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new { action = "invalidCsrfToken", message = ex.Message, csrfToken }, settings));
             }
             catch (DotvvmExceptionBase ex)
             {
@@ -271,8 +278,8 @@ namespace DotVVM.Framework.Hosting
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete, context);
                 await requestTracer.TraceEvent(RequestTracingConstants.PreRenderCompleted, context);
 
-                // generate CSRF token if required
-                if (string.IsNullOrEmpty(context.CsrfToken) && !context.Configuration.ExperimentalFeatures.LazyCsrfToken.IsEnabledForRoute(context.Route?.RouteName))
+                // (re-)generate CSRF token (user identity may have changed)
+                if (!string.IsNullOrEmpty(context.CsrfToken) || !context.Configuration.ExperimentalFeatures.LazyCsrfToken.IsEnabledForRoute(context.Route?.RouteName))
                 {
                     context.CsrfToken = CsrfProtector.GenerateToken(context);
                 }

@@ -99,7 +99,8 @@ export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => P
             if (err.reason.type === "serverError") {
                 if (err.reason.responseObject?.action === "invalidCsrfToken") {
                     logInfoVerbose("postback", "Resending postback due to invalid CSRF token.");
-                    getStateManager().updateState(u => ({ ...u, $csrfToken: undefined }))
+                    const csrfToken = err.reason.responseObject.csrfToken
+                    getStateManager().updateState(u => ({ ...u, $csrfToken: csrfToken }))
 
                     if (iteration < 3) {
                         return await retryOnInvalidCsrfToken(postbackFunction, iteration + 1);

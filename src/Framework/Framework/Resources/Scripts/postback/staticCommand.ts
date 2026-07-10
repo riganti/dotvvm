@@ -30,22 +30,8 @@ export function resolveRelativeValidationPaths(paths: string[] | null | undefine
 
 export async function staticCommandPostback(command: string, args: any[], options: PostbackOptions, paths: string[] | null | undefined): Promise<any> {
 
-    let data: any;
-    let response: http.WrappedResponse<DotvvmStaticCommandResponse>;
-
     try {
         const absolutePaths = resolveRelativeValidationPaths(paths, options.knockoutContext)
-
-        await http.retryOnInvalidCsrfToken(async () => {
-            const csrfToken = await http.getCsrfToken(options.abortSignal);
-            data = { 
-                args: args.map(a => serialize(a)), 
-                command, 
-                argumentPaths: absolutePaths,
-                $csrfToken: csrfToken,
-                knownTypeMetadata: getKnownTypes()
-            };
-        });
 
         // If validation mode is not None, we should obtain argument paths
         if (paths != null) {
@@ -58,12 +44,23 @@ export async function staticCommandPostback(command: string, args: any[], option
             methodArgs: args
         });
 
-        response = await http.postJSON<DotvvmStaticCommandResponse>(
-            getInitialUrl(),
-            jsonStringify(data),
-            options.abortSignal,
-            { "X-PostbackType": "StaticCommand" }
-        );
+        const response = await http.retryOnInvalidCsrfToken(async () => {
+            const csrfToken = await http.getCsrfToken(options.abortSignal);
+            const data = { 
+                args: args.map(a => serialize(a)), 
+                command, 
+                argumentPaths: absolutePaths,
+                $csrfToken: csrfToken,
+                knownTypeMetadata: getKnownTypes()
+            };
+
+            return await http.postJSON<DotvvmStaticCommandResponse>(
+                getInitialUrl(),
+                jsonStringify(data),
+                options.abortSignal,
+                { "X-PostbackType": "StaticCommand" }
+            );
+        });
 
         if ("action" in response.result) {
             const action = response.result.action
