@@ -196,9 +196,9 @@ test <dot:Literal><a /></dot:Literal>";
             });
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
-            Assert.IsInstanceOfType(page.Children[0], typeof(DotvvmView));
+            Assert.IsInstanceOfType(page.Children[0], typeof(DotvvmMarkupControl));
 
-            var literal = page.Children[0].Children[0];
+            var literal = page.Children[0].Children[0].Children[0];
             Assert.IsInstanceOfType(literal, typeof(Literal));
             Assert.AreEqual("aaa", ((Literal)literal).Text);
         }
@@ -267,9 +267,10 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal1).EncodedText));
 
             var markupControl = container.Children[1];
-            Assert.IsInstanceOfType(markupControl, typeof(DotvvmView));
-            Assert.IsInstanceOfType(markupControl.Children[0], typeof(Literal));
-            Assert.AreEqual("aaa", ((Literal)markupControl.Children[0]).Text);
+            Assert.IsInstanceOfType(markupControl, typeof(DotvvmMarkupControl));
+            Assert.IsInstanceOfType(markupControl.Children[0], typeof(PlaceHolder));
+            Assert.IsInstanceOfType(markupControl.Children[0].Children[0], typeof(Literal));
+            Assert.AreEqual("aaa", ((Literal)markupControl.Children[0].Children[0]).Text);
 
             var literal2 = container.Children[2];
             Assert.IsInstanceOfType(literal2, typeof(RawLiteral));
@@ -301,9 +302,10 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal1).EncodedText));
 
             var markupControl = container.Children[1];
-            Assert.IsInstanceOfType(markupControl, typeof(DotvvmView));
-            Assert.IsInstanceOfType(markupControl.Children[0], typeof(Literal));
-            Assert.AreEqual("aaa", ((Literal)markupControl.Children[0]).Text);
+            Assert.IsInstanceOfType(markupControl, typeof(DotvvmMarkupControl));
+            Assert.IsInstanceOfType(markupControl.Children[0], typeof(PlaceHolder));
+            Assert.IsInstanceOfType(markupControl.Children[0].Children[0], typeof(Literal));
+            Assert.AreEqual("aaa", ((Literal)markupControl.Children[0].Children[0]).Text);
 
             var literal2 = container.Children[2];
             Assert.IsInstanceOfType(literal2, typeof(RawLiteral));

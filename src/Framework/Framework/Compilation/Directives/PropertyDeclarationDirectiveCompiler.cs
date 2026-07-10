@@ -21,20 +21,27 @@ namespace DotVVM.Framework.Compilation.Directives
     {
         private readonly ITypeDescriptor controlWrapperType;
         private readonly ImmutableList<NamespaceImport> imports;
+        private readonly bool isMarkupControl;
 
         protected virtual ITypeDescriptor DotvvmMarkupControlType => new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl));
 
         public override string DirectiveName => ParserConstants.PropertyDeclarationDirective;
 
-        public PropertyDeclarationDirectiveCompiler(ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, ITypeDescriptor controlWrapperType, ImmutableList<NamespaceImport> imports)
+        public PropertyDeclarationDirectiveCompiler(ImmutableDictionary<string, ImmutableList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, bool isMarkupControl, ITypeDescriptor controlWrapperType, ImmutableList<NamespaceImport> imports)
             : base(directiveNodesByName, treeBuilder)
         {
+            this.isMarkupControl = isMarkupControl;
             this.controlWrapperType = controlWrapperType;
             this.imports = imports;
         }
 
         protected override IAbstractPropertyDeclarationDirective Resolve(DothtmlDirectiveNode directiveNode)
         {
+            if (!isMarkupControl)
+            {
+                directiveNode.AddError("Can not use the @property directive outside of a markup control");
+            }
+
             var valueSyntaxRoot = ParseDirective(directiveNode, p => p.ReadPropertyDirectiveValue());
 
             var declaration = valueSyntaxRoot as PropertyDeclarationBindingParserNode;
@@ -87,7 +94,7 @@ namespace DotVVM.Framework.Compilation.Directives
             }
 
             var attributePropertyReference = assignment.FirstExpression as MemberAccessBindingParserNode;
-            var initializer = assignment.SecondExpression; 
+            var initializer = assignment.SecondExpression;
             var attributeTypeReference = attributePropertyReference?.TargetExpression;
             var attributePropertyNameReference = attributePropertyReference?.MemberNameExpression;
 
@@ -111,7 +118,7 @@ namespace DotVVM.Framework.Compilation.Directives
 
         protected override PropertyDirectiveCompilerResult CreateArtefact(ImmutableList<IAbstractPropertyDeclarationDirective> directives)
         {
-            var generatedWrapperType = directives.Any()
+            var generatedWrapperType = directives.Any() && isMarkupControl
                     ? (CreateDynamicDeclaringType(controlWrapperType, directives) ?? controlWrapperType)
                     : controlWrapperType;
 

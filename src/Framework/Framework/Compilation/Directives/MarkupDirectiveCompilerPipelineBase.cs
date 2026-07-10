@@ -17,6 +17,8 @@ namespace DotVVM.Framework.Compilation.Directives
                 .GroupBy(d => d.Name, StringComparer.OrdinalIgnoreCase)
                 .ToImmutableDictionary(d => d.Key, d => d.ToImmutableList(), StringComparer.OrdinalIgnoreCase);
 
+            var isMarkupControl = IsMarkupControl(fileName);
+
             var resolvedDirectives = new Dictionary<string, ImmutableList<IAbstractDirective>>();
 
             var importCompiler = CreateImportCompiler(directivesByName);
@@ -39,19 +41,19 @@ namespace DotVVM.Framework.Compilation.Directives
             var injectedServicesResult = serviceCompiler.Compile();
             resolvedDirectives.AddIfAny(serviceCompiler.DirectiveName, injectedServicesResult.Directives);
 
-            var baseTypeCompiler = CreateBaseTypeCompiler(fileName, directivesByName, imports);
+            var baseTypeCompiler = CreateBaseTypeCompiler(isMarkupControl, directivesByName, imports);
             var baseTypeResult = baseTypeCompiler.Compile();
             var baseType = baseTypeResult.Artefact;
             resolvedDirectives.AddIfAny(baseTypeCompiler.DirectiveName, baseTypeResult.Directives);
 
-            var propertyDirectiveCompiler = CreatePropertyDirectiveCompiler(directivesByName, imports, baseType);
+            var propertyDirectiveCompiler = CreatePropertyDirectiveCompiler(directivesByName, isMarkupControl, imports, baseType);
             var propertyResult = propertyDirectiveCompiler.Compile();
             resolvedDirectives.AddIfAny(propertyDirectiveCompiler.DirectiveName, propertyResult.Directives);
 
             var viewModuleDirectiveCompiler = CreateViewModuleDirectiveCompiler(directivesByName, propertyResult.Artefact.ModifiedMarkupControlType);
             var viewModuleResult = viewModuleDirectiveCompiler.Compile();
             resolvedDirectives.AddIfAny(viewModuleDirectiveCompiler.DirectiveName, viewModuleResult.Directives);
-           
+
             var defaultResolver = CreateDefaultResolver(directivesByName);
 
             foreach (var directiveGroup in directivesByName)
@@ -73,12 +75,13 @@ namespace DotVVM.Framework.Compilation.Directives
                 propertyResult.Artefact.Properties);
         }
 
+        protected abstract bool IsMarkupControl(string fileName);
         protected abstract DefaultDirectiveResolver CreateDefaultResolver(DirectiveDictionary directivesByName);
-        protected abstract PropertyDeclarationDirectiveCompiler CreatePropertyDirectiveCompiler(DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports, ITypeDescriptor baseType);
+        protected abstract PropertyDeclarationDirectiveCompiler CreatePropertyDirectiveCompiler(DirectiveDictionary directivesByName, bool isMarkupControl, ImmutableList<NamespaceImport> imports, ITypeDescriptor baseType);
         protected abstract ViewModuleDirectiveCompiler CreateViewModuleDirectiveCompiler(DirectiveDictionary directivesByName, ITypeDescriptor baseType);
         protected abstract MasterPageDirectiveCompiler CreateMasterPageDirectiveCompiler(DirectiveDictionary directivesByName);
         protected abstract ServiceDirectiveCompiler CreateServiceCompiler(DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports);
-        protected abstract BaseTypeDirectiveCompiler CreateBaseTypeCompiler(string fileName, DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports);
+        protected abstract BaseTypeDirectiveCompiler CreateBaseTypeCompiler(bool isMarkupControl, DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports);
         protected abstract ImportDirectiveCompiler CreateImportCompiler(DirectiveDictionary directivesByName);
         protected abstract ViewModelDirectiveCompiler CreateViewModelDirectiveCompiler(string fileName, DirectiveDictionary directivesByName, ImmutableList<NamespaceImport> imports);
     }

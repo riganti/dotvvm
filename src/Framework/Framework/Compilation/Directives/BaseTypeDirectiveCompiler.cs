@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Compilation.Directives
 
     public class BaseTypeDirectiveCompiler : DirectiveCompiler<IAbstractBaseTypeDirective, ITypeDescriptor>
     {
-        private readonly string fileName;
+        private readonly bool isMarkupControl;
         private readonly ImmutableList<NamespaceImport> imports;
 
         public override string DirectiveName => ParserConstants.BaseTypeDirective;
@@ -23,10 +23,10 @@ namespace DotVVM.Framework.Compilation.Directives
         protected virtual ITypeDescriptor DotvvmMarkupControlType => new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl));
 
         public BaseTypeDirectiveCompiler(
-            DirectiveDictionary directiveNodesByName, IAbstractTreeBuilder treeBuilder, string fileName, ImmutableList<NamespaceImport> imports)
+            DirectiveDictionary directiveNodesByName, IAbstractTreeBuilder treeBuilder, bool isMarkupControl, ImmutableList<NamespaceImport> imports)
             : base(directiveNodesByName, treeBuilder)
         {
-            this.fileName = fileName;
+            this.isMarkupControl = isMarkupControl;
             this.imports = imports;
         }
 
@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Compilation.Directives
 
         protected override ITypeDescriptor CreateArtefact(ImmutableList<IAbstractBaseTypeDirective> resolvedDirectives)
         {
-            var wrapperType = GetDefaultWrapperType();
+            var wrapperType = GetDefaultWrapperType(isMarkupControl);
 
             var baseControlDirective = resolvedDirectives.SingleOrDefault();
 
@@ -70,15 +70,8 @@ namespace DotVVM.Framework.Compilation.Directives
         /// <summary>
         /// Gets the default type of the wrapper for the view.
         /// </summary>
-        private ITypeDescriptor GetDefaultWrapperType()
-        {
-            if (fileName.EndsWith(".dotcontrol", StringComparison.Ordinal))
-            {
-                return DotvvmMarkupControlType;
-            }
-
-            return DotvvmViewType;
-        }
+        private ITypeDescriptor GetDefaultWrapperType(bool isMarkupControl) =>
+            isMarkupControl ? DotvvmMarkupControlType : DotvvmViewType;
     }
 
 }
