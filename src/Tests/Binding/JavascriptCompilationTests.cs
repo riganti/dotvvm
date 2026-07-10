@@ -617,6 +617,21 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JavascriptCompilation_ValueOrBindingAsString_ValueBinding()
+        {
+            var viewModel = new TestViewModel { DoubleProp = 123d };
+            var control = CreateControlWithDataContext(viewModel, out var dataContext);
+            var valueBinding = bindingHelper.ValueBinding<double>("DoubleProp", dataContext);
+            var value = new ValueOrBinding<double>(valueBinding);
+
+            var stringValue = value.AsString();
+            var stringBinding = (IValueBinding<string>)stringValue.BindingOrDefault!;
+
+            Assert.AreEqual("dotvvm.globalize.bindingNumberToString(DoubleProp)", stringBinding.GetKnockoutBindingExpression(control));
+            Assert.AreEqual("123", stringValue.Evaluate(control));
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_ParentReference()
         {
             var result = bindingHelper.ValueBinding<object>("_parent", new [] {typeof(TestViewModel), typeof(string) });
