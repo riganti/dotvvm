@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
 
@@ -46,6 +47,14 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.IncludeInPageProperty
         };
 
         public GridViewDataSet<Customer> EmptyCustomers { get; set; }
+
+        public override Task Init()
+        {
+            IncludeInPage = Context.HttpContext.Request.Query.TryGetValue("default", out var value)
+                ? bool.Parse(value)
+                : true;
+            return base.Init();
+        }
 
         public class Customer
         {
