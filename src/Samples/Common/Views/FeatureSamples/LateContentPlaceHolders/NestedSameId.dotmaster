@@ -1,0 +1,14 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.LateContentPlaceHolders.LateContentPlaceHolderViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/LateContentPlaceHolders/Root.dotmaster
+
+<dot:Content ContentPlaceHolderID="RootContent">
+    <h2>Nested Master Page (shared ID)</h2>
+    <sample:TemplateContainerControl>
+        <ContentTemplate>
+            <%-- Same ID as the root ContentPlaceHolder to test same-ID nesting --%>
+            <dot:ContentPlaceHolder ID="RootContent">
+                <p data-ui="default-shared-content">Default shared-ID content</p>
+            </dot:ContentPlaceHolder>
+        </ContentTemplate>
+    </sample:TemplateContainerControl>
+</dot:Content>

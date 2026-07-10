@@ -1,0 +1,17 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RouteLink.RouteLinkUrlGenViewModel
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <dot:SpaContentPlaceHolder ID="ContentPlaceHolder" />
+</body>
+</html>

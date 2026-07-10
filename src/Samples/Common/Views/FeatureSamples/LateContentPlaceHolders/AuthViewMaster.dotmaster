@@ -1,0 +1,27 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.LateContentPlaceHolders.LateContentPlaceHolderViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Late ContentPlaceHolder - AuthenticatedView Master</title>
+</head>
+<body>
+    <h1 data-ui="master-heading">AuthenticatedView Master Page</h1>
+
+    <%-- Same ContentPlaceHolder ID in both templates - only one will be instantiated --%>
+    <dot:AuthenticatedView>
+        <AuthenticatedTemplate>
+            <div data-ui="authenticated-section">
+                <dot:ContentPlaceHolder ID="AuthContent" />
+            </div>
+        </AuthenticatedTemplate>
+        <NotAuthenticatedTemplate>
+            <div data-ui="not-authenticated-section">
+                <dot:ContentPlaceHolder ID="AuthContent" />
+            </div>
+        </NotAuthenticatedTemplate>
+    </dot:AuthenticatedView>
+
+</body>
+</html>

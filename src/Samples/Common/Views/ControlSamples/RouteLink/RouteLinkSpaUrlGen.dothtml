@@ -1,17 +1,6 @@
 ﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RouteLink.RouteLinkUrlGenViewModel
-
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Hello from DotVVM!</title>
-    <style>
-        .invalid {
-            color: red;
-        }
-    </style>
-    <dot:RequiredResource Name="globalize:cs-CZ" />
-</head>
-<body>
+@masterPage Views/ControlSamples/RouteLink/RouteLinkSpaUrlGen.dotmaster
+<dot:Content ContentPlaceHolderID="ContentPlaceHolder">
     <div class="container">
         <h1>RouteLink SPA url generation demo</h1>
         <p>
@@ -61,7 +50,4 @@
                            Text="Server rendered: Optional prefixed parameter (at start)" data-ui="optional-prefix-parameter-at-start-server" />
         </p>
     </div>
-
-    <dot:SpaContentPlaceHolder ID="ContentPlaceHolder" />
-</body>
-</html>
+</dot:Content>

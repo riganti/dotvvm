@@ -1,0 +1,6 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.LateContentPlaceHolders.RepeaterMultipleItemsViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/LateContentPlaceHolders/RepeaterMaster.dotmaster
+
+<dot:Content ContentPlaceHolderID="RepeaterContent">
+    <p data-ui="repeater-item">{{value: Items.Count}}</p>
+</dot:Content>
