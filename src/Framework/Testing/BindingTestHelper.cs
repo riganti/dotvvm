@@ -218,7 +218,7 @@ namespace DotVVM.Framework.Testing
                 dataContextType ??= CreateDataContext(viewModelStack.Select(v => v!.GetType()).ToArray(), markupControl: markupControl?.GetType());
             }
             if (imports is {})
-                dataContextType = DataContextStack.Create(dataContextType.DataContextType, dataContextType.Parent, Enumerable.Concat(imports, dataContextType.NamespaceImports).ToArray(), dataContextType.ExtensionParameters, dataContextType.BindingPropertyResolvers);
+                dataContextType = DataContextStack.Create(dataContextType.DataContextType, dataContextType.Parent, Enumerable.Concat(imports, dataContextType.NamespaceImports).ToArray(), dataContextType.ExtensionParameters, dataContextType.BindingPropertyResolvers, serverSideOnly: dataContextType.ServerSideOnly);
             var binding = CreateBinding(bindingType, expression, dataContextType, expectedType: expectedType ?? typeof(T));
             var rootControl = new PlaceHolder();
             if (markupControl is {})

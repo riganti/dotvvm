@@ -148,6 +148,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return ReferenceEquals(this, stack) || stack is not null
                 && hashCode == stack.hashCode
                 && DataContextType == stack.DataContextType
+                && ServerSideOnly == stack.ServerSideOnly
                 && NamespaceImports.SequenceEqual(stack.NamespaceImports)
                 && ExtensionParameters.SequenceEqual(stack.ExtensionParameters)
                 && Equals(Parent, stack.Parent);

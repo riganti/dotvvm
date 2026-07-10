@@ -1451,6 +1451,19 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(r.Message);
             XAssert.Contains("Lambda parameter of type 'System.String' is missing a name.", r.Message);
         }
+
+        [TestMethod]
+        public void DataContextStack_HashCodeDiffers()
+        {
+            var clientSide = DataContextStack.Create(typeof(string), serverSideOnly: false);
+            var clientSide2 = DataContextStack.Create(typeof(string), serverSideOnly: false);
+            var serverSide = DataContextStack.Create(typeof(string), serverSideOnly: true);
+
+            Assert.AreEqual(clientSide.GetHashCode(), clientSide2.GetHashCode());
+            Assert.AreNotEqual(clientSide.GetHashCode(), serverSide.GetHashCode());
+            Assert.AreNotEqual(clientSide, serverSide);
+        }
+
     }
     public class TestViewModel
     {
