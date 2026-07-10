@@ -437,7 +437,7 @@ namespace DotVVM.Framework.Binding
             if (!addLayer)
             {
                 Debug.Assert(childType == dataContextType.DataContextType);
-                return DataContextStack.Create(dataContextType.DataContextType, dataContextType.Parent, dataContextType.NamespaceImports, extensionParameters.Concat(dataContextType.ExtensionParameters).ToArray(), dataContextType.BindingPropertyResolvers);
+                return DataContextStack.Create(dataContextType.DataContextType, dataContextType.Parent, dataContextType.NamespaceImports, extensionParameters.Concat(dataContextType.ExtensionParameters).ToArray(), dataContextType.BindingPropertyResolvers, serverSideOnly: serverOnly);
             }
 
             if (childType is null) return null; // childType is null in case there is some error in processing (e.g. enumerable was expected).
@@ -466,7 +466,7 @@ namespace DotVVM.Framework.Binding
             if (!addLayer)
             {
                 Debug.Assert(childType == dataContextType.DataContextType);
-                return DataContextStack.Create(dataContextType.DataContextType, dataContextType.Parent, dataContextType.NamespaceImports, extensionParameters.Concat(dataContextType.ExtensionParameters).ToArray(), dataContextType.BindingPropertyResolvers);
+                return DataContextStack.Create(dataContextType.DataContextType, dataContextType.Parent, dataContextType.NamespaceImports, extensionParameters.Concat(dataContextType.ExtensionParameters).ToArray(), dataContextType.BindingPropertyResolvers, serverSideOnly: serverOnly);
             }
 
             if (childType is null)
