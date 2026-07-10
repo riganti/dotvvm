@@ -324,6 +324,22 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task TemplateHost_AllowsRootDataContextChange()
+        {
+            var r = await cth.RunPage(typeof(TemplateHostTestViewModel), """
+                <cc:TemplateHostControl DataContext={value: Customers[0]} RenderSettings.Mode=Server>
+                    <ContentTemplate>
+                        <div DataContext={value: Address}>
+                            {{value: Name}}
+                        </div>
+                    </ContentTemplate>
+                </cc:TemplateHostControl>
+                """);
+
+            StringAssert.Contains(r.FormattedHtml, "Main Street");
+        }
+
+        [TestMethod]
         public async Task CompositeControlInheritance()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), """
@@ -367,6 +383,17 @@ namespace DotVVM.Framework.Tests.ControlTests
             }
 
             public record HierarchyVM(string Label, List<HierarchyVM> Children);
+        }
+
+        public class TemplateHostTestViewModel : DotvvmViewModelBase
+        {
+            public List<TemplateHostCustomer> Customers { get; set; } = new() {
+                new() {
+                    Address = new TemplateHostAddress {
+                        Name = "Main Street"
+                    }
+                }
+            };
         }
     }
 
@@ -653,6 +680,24 @@ namespace DotVVM.Framework.Tests.ControlTests
             };
         }
 
+    }
+
+    public class TemplateHostControl : CompositeControl
+    {
+        public DotvvmControl GetContents(ITemplate contentTemplate)
+        {
+            return new TemplateHost(contentTemplate);
+        }
+    }
+
+    public class TemplateHostCustomer
+    {
+        public TemplateHostAddress Address { get; set; } = new();
+    }
+
+    public class TemplateHostAddress
+    {
+        public string Name { get; set; } = "";
     }
 
 
