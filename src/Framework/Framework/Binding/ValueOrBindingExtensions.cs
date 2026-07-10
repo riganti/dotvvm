@@ -72,9 +72,9 @@ public static class ValueOrBindingExtensions
     /// <summary> Returns ValueOrBinding with the value of `a?.ToString() ?? ""`. The resulting binding is cached, so it's safe to use this method at runtime. </summary>
     public static ValueOrBinding<string> AsString<T>(this ValueOrBinding<T> v)
     {
-        if (v.BindingOrDefault is IBinding binding)
+        if (v.BindingOrDefault is IStaticValueBinding binding)
             return new(
-                binding.GetProperty<ExpectedAsStringBindingExpression>().Binding
+                (IStaticValueBinding<string>)binding.GetProperty<ExpectedAsStringBindingExpression>().Binding
             );
         else if (v.ValueOrDefault is null)
         {
