@@ -263,6 +263,26 @@ namespace DotVVM.Framework.Binding
         }
 
         [TestMethod]
+        public void GetItems_InterfaceTypedBindingReturnsItems()
+        {
+            var expected = new List<int> { 1, 2 };
+            var control = CreateControl(new TestViewModel { InterfaceDataSet = new GridViewDataSet<int> { Items = expected } });
+            var binding = Binding<IGridViewDataSet<int>>(nameof(TestViewModel.InterfaceDataSet));
+            var dataSet = new ValueOrBinding<IGridViewDataSet<int>>(binding);
+
+            Assert.AreSame(expected, dataSet.GetItems().Evaluate(control));
+        }
+
+        [TestMethod]
+        public void GetItems_InterfaceTypedBindingFails()
+        {
+            var binding = Binding<IPageableGridViewDataSet<PagingOptions>>(nameof(TestViewModel.InterfacePageableDataSet));
+            // binding.GetProperty<DataSourceAccessBinding>();
+            var exception = XAssert.ThrowsAny<Exception>(() => binding.GetProperty<DataSourceAccessBinding>());
+            StringAssert.Contains(exception.Message, "untyped IGridViewDataSet");
+        }
+
+        [TestMethod]
         public void AndOr_ApplyBooleanIdentitiesAndCombineBindings()
         {
             var leftBinding = Binding<bool>(nameof(TestViewModel.Flag));

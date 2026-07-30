@@ -330,13 +330,20 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public DataSourceAccessBinding GetDataSourceAccess(ParsedExpressionBindingProperty expression, IBinding binding)
         {
-            if (typeof(IGridViewDataSet).IsAssignableFrom(expression.Expression.Type) && !expression.Expression.Type.IsInterface)
-                return new DataSourceAccessBinding(binding.DeriveBinding(new ParsedExpressionBindingProperty(
-                    Expression.Property(expression.Expression, nameof(IGridViewDataSet.Items))
-                )));
-            else if (typeof(IEnumerable).IsAssignableFrom(expression.Expression.Type))
+            var type = expression.Expression.Type;
+            if (type.Implements(typeof(IGridViewDataSet<>), out var dataSetInterface))
+            {
+                var itemsProperty = dataSetInterface.GetProperty(nameof(IGridViewDataSet.Items))!;
+                var property = Expression.Property(expression.Expression, itemsProperty);
+                return new DataSourceAccessBinding(binding.DeriveBinding(new ParsedExpressionBindingProperty(property)));
+            }
+            else if (typeof(IEnumerable).IsAssignableFrom(type))
                 return new DataSourceAccessBinding(binding);
-            else throw new NotSupportedException($"Cannot make datasource from binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
+            else
+            {
+                var help = typeof(IGridViewDataSet).IsAssignableFrom(type) ? " It only implements the untyped IGridViewDataSet, make sure to supply typed IGridViewDataSet<T>" : "";
+                throw new NotSupportedException($"Cannot make datasource from binding '{expression.Expression}' of type '{type.ToCode()}'." + help);
+            }
         }
 
         public DataSourceLengthBinding GetDataSourceLength(ParsedExpressionBindingProperty expression, IBinding binding)
