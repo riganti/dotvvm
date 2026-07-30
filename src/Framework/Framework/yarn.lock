@@ -1494,12 +1494,12 @@ __metadata:
   linkType: hard
 
 "brace-expansion@npm:^1.1.7":
-  version: 1.1.14
-  resolution: "brace-expansion@npm:1.1.14"
+  version: 1.1.17
+  resolution: "brace-expansion@npm:1.1.17"
   dependencies:
     balanced-match: ^1.0.0
     concat-map: 0.0.1
-  checksum: 2de747a5891ea0d3a1946ea1ae26e056a47f7ea8d42a3009e1736ec3a31a5aa69a3c5da59d998426773553afe4c258e5b12d7953b534fa7f2cf12ce92eed4931
+  checksum: a65bec5566bd8f644a76b15fa10dc572c20c6f00784869f24682e8d84983e38cb1979861eb642596ee72cccdc8b567ca513a17f5c8748670bd665226f5f84d9e
   languageName: node
   linkType: hard
 
