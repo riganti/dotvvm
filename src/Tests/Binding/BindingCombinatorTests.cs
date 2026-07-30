@@ -138,6 +138,17 @@ namespace DotVVM.Framework.Binding
             Assert.AreEqual(false, control.GetValueRaw(HtmlGenericControl.VisibleProperty));
         }
 
+        [TestMethod]
+        public void AndAssignProperty_UnexpectedNewOperandReportsItsType()
+        {
+            var control = CreateControl(new BooleanViewModel { Left = true });
+            control.SetValue(HtmlGenericControl.VisibleProperty, BoolBinding(nameof(BooleanViewModel.Left)));
+            var exception = Assert.ThrowsException<NotSupportedException>(() =>
+                control.AndAssignProperty(HtmlGenericControl.VisibleProperty, "not a bool or binding"));
+
+            StringAssert.Contains(exception.Message, "got string.");
+            StringAssert.Contains(exception.Message, "IBinding instance or bool was expected");
+        }
 
         private ValueBindingExpression<bool> BoolBinding(string property) => bindings.ValueBinding<bool>(property, context);
 
