@@ -60,7 +60,10 @@ namespace DotVVM.Framework.Binding
         public static ValueOrBinding<T> FromBoxedValue(object? value) =>
             value is IStaticValueBinding<T> bindingS ? new ValueOrBinding<T>(bindingS) :
             value is IBinding binding ? new ValueOrBinding<T>(binding) :
-            value is ValueOrBinding vob ? new ValueOrBinding<T>(vob.BindingOrDefault, (T)vob.BoxedValue!) :
+            value is ValueOrBinding vob ? vob.BindingOrDefault switch {
+                null => new ValueOrBinding<T>(null, (T)vob.BoxedValue!),
+                {} b => new ValueOrBinding<T>(b, default)
+            } :
             new ValueOrBinding<T>((T)value!);
 
         /// <summary> If the binding <see cref="HasValue" />, returns it. If it <see cref="HasBinding" />, evaluates it on the <paramref name="control"/> and returns the result. </summary>

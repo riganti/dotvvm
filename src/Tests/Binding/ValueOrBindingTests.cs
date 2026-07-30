@@ -184,6 +184,18 @@ namespace DotVVM.Framework.Binding
         }
 
         [TestMethod]
+        public void FromBoxedValue_ValueContainerWithBindingPreservesBinding()
+        {
+            var binding = Binding<int>(nameof(TestViewModel.Number));
+            ValueOrBinding boxed = new ValueOrBinding<int>(binding);
+
+            var result = ValueOrBinding<int>.FromBoxedValue(boxed);
+
+            Assert.AreSame(binding, result.GetBinding());
+        }
+
+
+        [TestMethod]
         public void ValueAndNullPredicates_DistinguishValuesFromBindings()
         {
             var binding = Bound<string?>(nameof(TestViewModel.NullableText));
