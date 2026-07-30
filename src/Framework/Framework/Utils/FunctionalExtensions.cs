@@ -82,11 +82,13 @@ namespace DotVVM.Framework.Utils
         public static string StringJoin(this IEnumerable<string?> enumerable, string separator) =>
             string.Join(separator, enumerable);
 
+#if !DotNetCore
         public static void Deconstruct<K, V>(this KeyValuePair<K, V> pair, out K key, out V value)
         {
             key = pair.Key;
             value = pair.Value;
         }
+#endif
         public static IEnumerable<(int, T)> Indexed<T>(this IEnumerable<T> enumerable) =>
             enumerable.Select((a, b) => (b, a));
 

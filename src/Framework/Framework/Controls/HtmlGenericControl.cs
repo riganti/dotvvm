@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> A dictionary of html attributes that are rendered on this control's html tag. </summary>
         [PropertyGroup(new[] { "", "html:" })]
-        public VirtualPropertyGroupDictionary<object?> Attributes => new(this, AttributesGroupDescriptor);
+        public VirtualPropertyGroupDictionary<object?> Attributes => new(this, DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_Attributes, false);
 
         /// <summary> A dictionary of html attributes that are rendered on this control's html tag. </summary>
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> A dictionary of css classes. All classes whose value is `true` will be placed in the `class` attribute. </summary>
         [PropertyGroup("Class-", ValueType = typeof(bool))]
-        public VirtualPropertyGroupDictionary<bool> CssClasses => new(this, CssClassesGroupDescriptor);
+        public VirtualPropertyGroupDictionary<bool> CssClasses => new(this, DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_CssClasses, false);
 
         /// <summary> A dictionary of css classes. All classes whose value is `true` will be placed in the `class` attribute. </summary>
         public static DotvvmPropertyGroup CssClassesGroupDescriptor =
@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> A dictionary of css styles which will be placed in the `style` attribute. </summary>
         [PropertyGroup("Style-")]
-        public VirtualPropertyGroupDictionary<object> CssStyles => new(this, CssStylesGroupDescriptor);
+        public VirtualPropertyGroupDictionary<object> CssStyles => new(this, DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_CssStyles, false);
 
         /// <summary> A dictionary of css styles which will be placed in the `style` attribute. </summary>
         public static DotvvmPropertyGroup CssStylesGroupDescriptor =
@@ -181,25 +181,25 @@ namespace DotVVM.Framework.Controls
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool TouchProperty(DotvvmProperty prop, object? value, ref RenderState r)
+        protected bool TouchProperty(DotvvmPropertyId prop, object? value, ref RenderState r)
         {
-            if (prop == VisibleProperty)
+            if (prop == DotvvmPropertyIdAssignment.PropertyIds.HtmlGenericControl_Visible)
                 r.Visible = value;
-            else if (prop == ClientIDProperty)
+            else if (prop == DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_ClientID)
                 r.ClientId = value;
-            else if (prop == IDProperty && value != null)
+            else if (prop == DotvvmPropertyIdAssignment.PropertyIds.DotvvmControl_ID && value != null)
                 r.HasId = true;
-            else if (prop == InnerTextProperty)
+            else if (prop == DotvvmPropertyIdAssignment.PropertyIds.HtmlGenericControl_InnerText)
                 r.InnerText = value;
-            else if (prop == PostBack.UpdateProperty)
+            else if (prop == DotvvmPropertyIdAssignment.PropertyIds.PostBack_Update)
                 r.HasPostbackUpdate = (bool)this.EvalPropertyValue(prop, value)!;
-            else if (prop is GroupedDotvvmProperty gp)
+            else if (prop.IsPropertyGroup)
             {
-                if (gp.PropertyGroup == CssClassesGroupDescriptor)
+                if (prop.IsInPropertyGroup(DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_CssClasses))
                     r.HasClass = true;
-                else if (gp.PropertyGroup == CssStylesGroupDescriptor)
+                else if (prop.IsInPropertyGroup(DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_CssStyles))
                     r.HasStyle = true;
-                else if (gp.PropertyGroup == AttributesGroupDescriptor)
+                else if (prop.IsInPropertyGroup(DotvvmPropertyIdAssignment.PropertyGroupIds.HtmlGenericControl_Attributes))
                     r.HasAttributes = true;
                 else return false;
             }
@@ -409,14 +409,10 @@ namespace DotVVM.Framework.Controls
         {
             KnockoutBindingGroup? attributeBindingGroup = null;
 
-            if (r.HasAttributes) foreach (var (prop, valueRaw) in this.properties)
+            if (r.HasAttributes) foreach (var (attributeName, valueRaw) in this.Attributes.RawValues)
             {
-                if (prop is not GroupedDotvvmProperty gprop || gprop.PropertyGroup != AttributesGroupDescriptor)
-                    continue;
-
-                var attributeName = gprop.GroupMemberName;
                 var knockoutExpression = valueRaw switch {
-                    AttributeList list => list.GetKnockoutBindingExpression(this, HtmlWriter.GetSeparatorForAttribute(gprop.GroupMemberName)),
+                    AttributeList list => list.GetKnockoutBindingExpression(this, HtmlWriter.GetSeparatorForAttribute(attributeName)),
                     IValueBinding binding => binding.GetKnockoutBindingExpression(this),
                     _ => null
                 };

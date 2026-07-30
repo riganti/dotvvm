@@ -297,7 +297,7 @@ namespace DotVVM.Framework.Compilation
                 {
                     while (control != null)
                     {
-                        if (control.properties.Contains(DotvvmBindableObject.DataContextProperty))
+                        if (control.properties.Contains(DotvvmPropertyIdAssignment.PropertyIds.DotvvmBindableObject_DataContext))
                         {
                             if (skip == 0)
                                 return control;
@@ -315,7 +315,7 @@ namespace DotVVM.Framework.Compilation
                 {
                     while (control != null)
                     {
-                        if (control.properties.TryGet(DotvvmBindableObject.DataContextProperty, out var contextRaw))
+                        if (control.properties.TryGet(DotvvmPropertyIdAssignment.PropertyIds.DotvvmBindableObject_DataContext, out var contextRaw))
                         {
                             if (skip == 0)
                             {

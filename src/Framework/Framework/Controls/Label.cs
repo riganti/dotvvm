@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Controls
             else if (id is {})
             {
                 // let the html generic control evaluate the binding
-                this.Attributes.Add("for", id.UnwrapToObject());
+                this.Attributes.Add("for", id.Value.BindingOrDefault);
             }
 
             base.AddAttributesToRender(writer, context);

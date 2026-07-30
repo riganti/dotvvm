@@ -4,4 +4,4 @@ Binding _this   : type=       DotVVM.Framework.Tests.Binding       .TestViewMode
 Control _parent :  type=string 
 Binding _this   :   (missing)  
 Both    _parent2: type=TestViewModel3, ext=[_control]
-    at object DotVVM.Framework.Controls.DotvvmBindableObject.EvalPropertyValue(DotvvmProperty property, object value)
+    at object DotVVM.Framework.Controls.DotvvmBindableObject.EvalBinding(IBinding binding, bool isDataContext)

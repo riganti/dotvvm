@@ -15,9 +15,6 @@ using DotVVM.Framework.Utils;
 
 public static class ValueOrBindingExtensions
 {
-    /// <summary> Returns the value or the binding from the ValueOrBinding container. Equivalent to calling <code>vob.BindingOrDefault ?? vob.BoxedValue</code> </summary>
-    public static object? UnwrapToObject(this ValueOrBinding vob) =>
-        vob.BindingOrDefault ?? vob.BoxedValue;
 
     /// <summary> If the obj is ValueOrBinding, returns the binding or the value from the container. Equivalent to <code>obj is ValueOrBinding vob ? vob.UnwrapToObject() : obj</code> </summary>
     public static object? UnwrapToObject(object? obj) =>

@@ -2,4 +2,4 @@ InvalidDataContextTypeException occurred: Could not find DataContext space of '{
 Control _this   :  type=int, ext=[_index: int, _collection: BindingCollectionInfo] 
 Binding ?       :                             (missing)                            
 Both    _parent : type=TestViewModel
-    at object DotVVM.Framework.Controls.DotvvmBindableObject.EvalPropertyValue(DotvvmProperty property, object value)
+    at object DotVVM.Framework.Controls.DotvvmBindableObject.EvalBinding(IBinding binding, bool isDataContext)
