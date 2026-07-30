@@ -178,6 +178,12 @@ namespace DotVVM.Framework.Binding
         }
 
         [TestMethod]
+        public void UnwrapToObject_UntypedNullReturnsNull()
+        {
+            Assert.IsNull(ValueOrBindingExtensions.UnwrapToObject(null));
+        }
+
+        [TestMethod]
         public void ValueAndNullPredicates_DistinguishValuesFromBindings()
         {
             var binding = Bound<string?>(nameof(TestViewModel.NullableText));
