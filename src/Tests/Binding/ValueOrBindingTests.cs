@@ -322,6 +322,16 @@ namespace DotVVM.Framework.Binding
             Assert.AreEqual(8, first.Evaluate(control));
         }
 
+        [TestMethod]
+        public void Select_ConstantMappingCreatesEvaluatableBinding()
+        {
+            var sourceBinding = Binding<int>(nameof(TestViewModel.Number));
+            var constant = sourceBinding.Select(_ => "constant");
+            var control = CreateControl(new TestViewModel { Number = 4 });
+
+            Assert.AreEqual("constant", constant.Evaluate(control));
+        }
+
         private ValueBindingExpression<T> Binding<T>(string property) => bindings.ValueBinding<T>(property, context);
         private ResourceBindingExpression<T> ResourceBinding<T>(string property) => bindings.ResourceBinding<T>(property, context);
         private ValueOrBinding<T> Bound<T>(string property) => new(Binding<T>(property));
