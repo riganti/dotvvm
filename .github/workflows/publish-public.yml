@@ -104,8 +104,8 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Use npm 11
-        run: npm install -g npm@11
+      - name: Upgrade npm
+        run: npm install -g npm@latest
 
       - name: Publish dotvvm-types to registry.npmjs.org
         if: steps.include-check.outputs.match == 'true'
