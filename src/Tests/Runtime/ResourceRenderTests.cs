@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using CheckTestOutput;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
@@ -150,6 +151,25 @@ namespace DotVVM.Framework.Tests.Runtime
             StringAssert.StartsWith(secondUrl, "~/_dotvvm/resource-knockout/knockout?v=");
             StringAssert.StartsWith(virtualUrl, "~/_dotvvm/resource-knockout/knockout?v=");
             StringAssert.Contains(renderedScript, "src=\"/app/_dotvvm/resource-knockout/knockout?v=");
+        }
+
+        [TestMethod]
+        public void DebugResources_CanBeEnabledInProduction()
+        {
+            var configuration = DotvvmTestHelper.CreateConfiguration();
+            configuration.Runtime.DebugResources.Enable();
+            configuration.Freeze();
+
+            var context = DotvvmTestHelper.CreateContext(configuration);
+            var remoteResource = new UrlResourceLocation("app.min.js", "app.js");
+            var embeddedResource = (EmbeddedResourceLocation)
+                ((ILinkResource)configuration.Resources.FindResource(ResourceConstants.KnockoutJSResourceName)!)
+                .GetLocations().Single();
+
+            Assert.AreEqual("app.js", remoteResource.GetUrl(context, "remote"));
+            using var debugStream = embeddedResource.Assembly.GetManifestResourceStream(embeddedResource.DebugName)!;
+            using var debugReader = new StreamReader(debugStream);
+            Assert.AreEqual(debugReader.ReadToEnd(), embeddedResource.ReadToString(context));
         }
     }
 }
