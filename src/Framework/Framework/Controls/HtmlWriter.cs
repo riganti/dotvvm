@@ -139,6 +139,7 @@ namespace DotVVM.Framework.Controls
         /// <param name="expression">The binding expression.</param>
         public void AddKnockoutDataBind(string name, string expression)
         {
+            ThrowHelpers.ArgumentNull(expression);
             if (dataBindAttributes.Contains(name) && dataBindAttributes[name] is KnockoutBindingGroup)
             {
                 throw new InvalidOperationException($"The binding handler '{name}' already contains a KnockoutBindingGroup. The expression could not be added. Please call AddKnockoutDataBind(string, KnockoutBindingGroup) overload!");
@@ -154,6 +155,7 @@ namespace DotVVM.Framework.Controls
         /// <param name="bindingGroup">A group of name-value pairs.</param>
         public void AddKnockoutDataBind(string name, KnockoutBindingGroup bindingGroup)
         {
+            ThrowHelpers.ArgumentNull(bindingGroup);
             if (dataBindAttributes.Contains(name) && !(dataBindAttributes[name] is KnockoutBindingGroup))
             {
                 throw new InvalidOperationException($"The value of binding handler '{name}' cannot be combined with a KnockoutBindingGroup!");

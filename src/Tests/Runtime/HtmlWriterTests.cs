@@ -32,6 +32,20 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
+        public void KnockoutBindings_RejectDeferredNullArguments()
+        {
+            void Throws(string parameterName, Action action) =>
+                Assert.AreEqual(parameterName, Assert.ThrowsException<ArgumentNullException>(action).ParamName);
+
+            var group = new KnockoutBindingGroup();
+            Throws("name", () => group.Add(null!, "value"));
+            Throws("expression", () => group.Add("name", (string)null!));
+            Throws("name", () => new KnockoutBindingGroup.KnockoutBindingInfo(null!, "value"));
+            Throws("expression", () => WriteHtml(a => a.AddKnockoutDataBind("name", (string)null!)));
+            Throws("bindingGroup", () => WriteHtml(a => a.AddKnockoutDataBind("name", (KnockoutBindingGroup)null!)));
+        }
+
+        [TestMethod]
         public void ImgTagWithChildren()
         {
             var text = WriteHtml(a => {
