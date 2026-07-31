@@ -9,10 +9,11 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Binding.Expressions;
 using FastExpressionCompiler;
 using System.Net;
+using System.Collections;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class BindingParserOptions : IDebugHtmlFormattableObject
+    public class BindingParserOptions : IDebugHtmlFormattableObject, IEquatable<BindingParserOptions>
     {
         public Type BindingType { get; }
         public string ScopeParameter { get; }
@@ -77,6 +78,24 @@ namespace DotVVM.Framework.Compilation
 
         public BindingParserOptions WithScopeParameter(string scopeParameter)
             => new BindingParserOptions(BindingType, scopeParameter, ImportNamespaces, ExtensionParameters);
+
+        public override int GetHashCode() =>
+            (
+                this.ScopeParameter.GetHashCode(),
+                this.BindingType.GetHashCode(),
+                StructuralComparisons.StructuralEqualityComparer.GetHashCode(this.ExtensionParameters),
+                StructuralComparisons.StructuralEqualityComparer.GetHashCode(this.ImportNamespaces)
+            ).GetHashCode();
+
+        public override bool Equals(object? other) =>
+            other is BindingParserOptions otherT && this.Equals(otherT);
+
+        public bool Equals(BindingParserOptions? other) =>
+            other is {} &&
+            other.BindingType == this.BindingType &&
+            other.ScopeParameter == this.ScopeParameter &&
+            other.ImportNamespaces.SequenceEqual(this.ImportNamespaces) &&
+            other.ExtensionParameters.SequenceEqual(this.ExtensionParameters);
 
         public override string ToString()
         {

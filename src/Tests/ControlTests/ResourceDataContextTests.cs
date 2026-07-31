@@ -123,6 +123,20 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task RepeaterWithPageResourceInValueBinding()
+        {
+            var r = await cth.RunPage(typeof(TestViewModel), @"
+                    <dot:Repeater DataSource={resource: Customers.Items}>
+                        {{value: _parent.StringPrefix + _page.Resource(Name)}}
+                    </dot:Repeater>
+               "
+            );
+
+            StringAssert.Contains(r.FormattedHtml, "(StringPrefix() ?? \"\") + (\"One\" ?? \"\")");
+            StringAssert.Contains(r.FormattedHtml, "(StringPrefix() ?? \"\") + (\"Two\" ?? \"\")");
+        }
+
+        [TestMethod]
         public async Task DataContextRevert()
         {
             // revert client-side data context by DataContext={value: _root...}

@@ -43,7 +43,8 @@ namespace DotVVM.Framework.Binding
         public static readonly BindingCombinatorDescriptor AndAlsoCombination = new BindingCombinatorDescriptor(CreateAndAlsoCombination);
         public static void AndAssignProperty(this DotvvmBindableObject obj, DotvvmProperty property, object value)
         {
-            if (property.PropertyType != typeof(bool)) throw new NotSupportedException($"Can only AND boolean properties, {property} is of type {property.PropertyType}");
+            if (property.PropertyType != typeof(bool) && property.PropertyType != typeof(bool?))
+                throw new NotSupportedException($"Can only AND boolean properties, {property} is of type {property.PropertyType}");
             if (!obj.IsPropertySet(property))
             {
                 obj.SetValue(property, value);
@@ -62,9 +63,9 @@ namespace DotVVM.Framework.Binding
                 else
                 {
                     var currentBinding = currentValue as IBinding ??
-                        throw new NotSupportedException($"A IBinding instance or bool was expected in property {property}, got {obj.GetValue(property)?.GetType().ToCode() ?? "null"}");
+                        throw new NotSupportedException($"An IBinding instance or bool was expected in property {property}, got {obj.GetValue(property)?.GetType().ToCode() ?? "null"}.");
                     var binding = value as IBinding ??
-                        throw new NotSupportedException($"A IBinding instance or bool was expected to AndAssign to property {property}, got {obj.GetValue(property)?.GetType().ToCode() ?? "null"}");
+                        throw new NotSupportedException($"An IBinding instance or bool was expected to AndAssign to property {property}, got {value?.GetType().ToCode() ?? "null"}.");
                     // resource + value binding can't be combined - evaluate the resource binding
                     if (currentBinding is IValueBinding != binding is IValueBinding)
                     {
