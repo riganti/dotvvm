@@ -38,7 +38,7 @@
     <ProjectReference Include="../Framework/Hosting.Owin/DotVVM.Framework.Hosting.Owin.csproj" />
     <PackageReference Include="CheckTestOutput" Version="0.6.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <Compile Remove="AspCore/CachingTests.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != '$(OldFrameworkTargetVersion)'">
@@ -48,7 +48,7 @@
     <PackageReference Include="CheckTestOutput" Version="0.6.3" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.17.0" />
+    <PackageReference Include="AngleSharp" Version="1.5.0" />
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
