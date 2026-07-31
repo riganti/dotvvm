@@ -6,6 +6,7 @@ import * as updater from './updater';
 import * as http from './http';
 import { setIdFragment } from '../utils/dom';
 import { handleRedirect } from './redirect';
+import { handleIncludedReturnedFiles } from './includedFiles';
 import * as evaluator from '../utils/evaluator'
 import * as gate from './gate'
 import { showValidationErrorsFromServer } from '../validation/validation';
@@ -175,6 +176,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
             responseObject: result
         });
     } else {
+        handleIncludedReturnedFiles(result);
         return {
             ...options,
             response,
@@ -215,5 +217,5 @@ type PostbackResponse =
         action: string
         resultIdFragment?: string,
         typeMetadata?: TypeMap
-        customData?: { [key: string]: any }
+        customProperties?: { [key: string]: any }
     }
