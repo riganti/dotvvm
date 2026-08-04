@@ -272,7 +272,8 @@ type PropertyMetadata = {
     post?: "always" | "pathOnly" | "no";
     update?: "always" | "no";
     validationRules?: PropertyValidationRuleInfo[];
-    clientExtenders?: ClientExtenderInfo[]
+    clientExtenders?: ClientExtenderInfo[];
+    isKey?: boolean;
 }
 
 type TypeDefinition = string |
