@@ -32,8 +32,8 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "install": "npm ci --prefix node_modules/dotvvm-jscomponent-react && npm run prepack --prefix node_modules/dotvvm-jscomponent-react && npm ci --prefix node_modules/dotvvm-jscomponent-svelte && npm run prepack --prefix node_modules/dotvvm-jscomponent-svelte",
-    "install-update-deps": "npm i --prefix node_modules/dotvvm-jscomponent-react && npm run prepack --prefix node_modules/dotvvm-jscomponent-react && npm i --prefix node_modules/dotvvm-jscomponent-svelte && npm run prepack --prefix node_modules/dotvvm-jscomponent-svelte"
+    "install": "npm ci --prefix ../../Framework/JsComponent.React && npm run prepack --prefix ../../Framework/JsComponent.React && npm ci --prefix ../../Framework/JsComponent.Svelte && npm run prepack --prefix ../../Framework/JsComponent.Svelte",
+    "install-update-deps": "npm i --prefix ../../Framework/JsComponent.React && npm run prepack --prefix ../../Framework/JsComponent.React && npm i --prefix ../../Framework/JsComponent.Svelte && npm run prepack --prefix ../../Framework/JsComponent.Svelte"
   },
   "author": "RIGANTI s.r.o.",
   "license": "Apache-2.0"
