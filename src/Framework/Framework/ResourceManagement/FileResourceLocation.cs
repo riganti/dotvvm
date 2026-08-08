@@ -26,8 +26,8 @@ namespace DotVVM.Framework.ResourceManagement
             }
         }
 
-        public override Stream LoadResource(IDotvvmRequestContext context) => 
-            File.OpenRead(Path.Combine(context.Configuration.ApplicationPhysicalPath, context.Configuration.Debug ? DebugFilePath : FilePath));
+        public override Stream LoadResource(IDotvvmRequestContext context) =>
+            File.OpenRead(Path.Combine(context.Configuration.ApplicationPhysicalPath, ResourceUtils.UseDebugResources(context.Configuration) ? DebugFilePath : FilePath));
 
         public string GetFilePath(IDotvvmRequestContext context) => FilePath;
         ILocalResourceLocation? IDebugFileLocalLocation.TryGetSourceMap(string fileName) => null;

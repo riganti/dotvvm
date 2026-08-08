@@ -53,10 +53,11 @@ namespace DotVVM.Framework.ResourceManagement
 
         public override Stream LoadResource(IDotvvmRequestContext context)
         {
-            var debugPath = DebugFilePath == null ? null : Path.Combine(context.Configuration.ApplicationPhysicalPath, DebugFilePath);
-            return context.Configuration.Debug && debugPath != null && File.Exists(debugPath) ?
+            var useDebugResources = ResourceUtils.UseDebugResources(context.Configuration);
+            var debugPath = DebugFilePath == null || useDebugResources ? null : Path.Combine(context.Configuration.ApplicationPhysicalPath, DebugFilePath);
+            return debugPath != null && File.Exists(debugPath) ?
                 File.OpenRead(debugPath) :
-                Assembly.GetManifestResourceStream(context.Configuration.Debug ? DebugName : Name).NotNull();
+                Assembly.GetManifestResourceStream(useDebugResources ? DebugName : Name).NotNull();
         }
 
         public string? GetFilePath(IDotvvmRequestContext context) => DebugFilePath;

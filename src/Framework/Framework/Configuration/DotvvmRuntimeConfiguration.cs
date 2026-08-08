@@ -52,6 +52,13 @@ namespace DotVVM.Framework.Configuration
         public DotvvmGlobal3StateFeatureFlag AllowResourceVersionHash { get; } = new("AllowResourceVersionHash") { Enabled = null };
 
         /// <summary>
+        /// When enabled, resource locations with a debug variant use that variant even in Production mode.
+        /// By default, debug resources are used when <see cref="DotvvmConfiguration.Debug"/> is enabled.
+        /// </summary>
+        [JsonPropertyName("debugResources")]
+        public DotvvmGlobal3StateFeatureFlag DebugResources { get; } = new("DebugResources");
+
+        /// <summary>
         /// When enabled, the DotVVM runtime only automatically load assemblies listed in <see cref="DotvvmMarkupConfiguration.Assemblies"/>. This may prevent failures during startup and reduce startup time.
         /// See <see href="https://www.dotvvm.com/docs/4.0/pages/concepts/configuration/explicit-assembly-loading"> documentation page </see> for more information
         /// </summary>
@@ -82,6 +89,7 @@ namespace DotVVM.Framework.Configuration
             this.isFrozen = true;
             FreezableList.Freeze(ref _globalFilters);
             ReloadMarkupFiles.Freeze();
+            DebugResources.Freeze();
             ExplicitAssemblyLoading.Freeze();
         }
     }

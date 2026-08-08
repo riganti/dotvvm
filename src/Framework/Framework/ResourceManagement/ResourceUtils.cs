@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Controls;
+﻿using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
@@ -10,6 +11,11 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public static class ResourceUtils
     {
+        internal static bool UseDebugResources(DotvvmConfiguration config)
+        {
+            return config.Runtime.DebugResources.Enabled ?? config.Debug;
+        }
+
         public static string AddTemplateResource(this ResourceManager manager, IDotvvmRequestContext context, DotvvmControl control)
         {
             using (var text = new StringWriter())

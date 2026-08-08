@@ -21,7 +21,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         public string GetUrl(IDotvvmRequestContext context, string name)
         {
-            return context.Configuration.Debug ? DebugUrl : Url;
+            return ResourceUtils.UseDebugResources(context.Configuration) ? DebugUrl : Url;
         }
     }
 }
