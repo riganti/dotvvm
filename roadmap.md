@@ -1,8 +1,8 @@
 ## DotVVM Roadmap
 
-Current stable version: **4.3**
+Current stable version: **5.0**
 
-Next planned version:   **5.0**
+Next planned version:   **5.1**
 
 <br />
 

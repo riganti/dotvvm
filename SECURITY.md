@@ -8,12 +8,12 @@ Any vulnerabilities that affect unsupported versions will be considered on a cas
 
 | Version     | Supported          | Expires         |
 | ----------- | ------------------ | --------------- |
-| 5.0 preview | :white_check_mark: |                 |
-| 4.3         | :white_check_mark: |                 |
-| 4.2         | :white_check_mark: | September 2025  |
-| ≤ 4.1       | :x:                | November 2024   |
+| 5.1 preview | :white_check_mark: |                 |
+| 5.0         | :white_check_mark: |                 |
+| 4.3         | :white_check_mark: | July 2028       |
+| ≤ 4.2       | :x:                | September 2025  |
 
 ## Reporting a Vulnerability
 
-Please report (suspected) security vulnerabilities to security@riganti.cz.
+Please report (suspected) security vulnerabilities to security@riganti.cz, or via GitHub "Report a vulnerability" feature: https://github.com/riganti/dotvvm/security.
 Once confirmed, we will release a patch as soon as possible, depending on complexity.
