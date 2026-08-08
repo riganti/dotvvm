@@ -136,17 +136,17 @@ namespace DotVVM.CommandLine
             }
 
             var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;
-            var outputDir = Path.Combine(projectDir, project.OutputPath, configuration, framework);
-            while (!Directory.Exists(outputDir))
-            {
-                outputDir = Directory.GetParent(outputDir).NotNull().FullName;
-            }
+            var outputRoot = Path.Combine(projectDir, project.OutputPath);
+            var assemblyName = $"{project.AssemblyName}.dll";
+            var assemblyPath = targetFramework.IsDesktop()
+                ? Path.Combine(outputRoot, assemblyName)
+                : Path.Combine(outputRoot, configuration, framework, assemblyName);
 
             if (noColor)
             {
                 compilerArgs.Add("--no-color");
             }
-            compilerArgs.Add(Path.Combine(outputDir, $"{project.AssemblyName}.dll"));
+            compilerArgs.Add(assemblyPath);
             compilerArgs.Add(projectDir);
 
             var pinfo = new ProcessStartInfo {
