@@ -209,6 +209,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     writer.WritePropertyName("commandResult"u8);
                     WriteCommandData(commandResult, writer, buffer);
                 }
+                WriteModelStateIfInvalid(context, writer);
                 AddCustomPropertiesIfAny(context, writer, buffer);
 
                 if (postbackUpdatedControls is not null)
@@ -290,6 +291,18 @@ namespace DotVVM.Framework.ViewModel.Serialization
             DotvvmMetrics.ViewModelSize.Record(outputBuffer.Length, context.RouteLabel(), context.RequestTypeLabel());
             DotvvmMetrics.ViewModelSerializationTime.Record(timer.ElapsedSeconds, context.RouteLabel(), context.RequestTypeLabel());
             return outputBuffer.ToMemory();
+        }
+
+        private void WriteModelStateIfInvalid(IDotvvmRequestContext context, Utf8JsonWriter writer)
+        {
+            if (context.RequestType != DotvvmRequestType.Command || context.ModelState.IsValid)
+                return;
+
+            context.PreprocessModelState();
+            writer.WritePropertyName("modelState"u8);
+            JsonSerializer.Serialize(writer, context.ModelState.Errors, jsonOptions.PlainJsonOptions);
+
+            DotvvmMetrics.ValidationErrorsReturned.Record(context.ModelState.Errors.Count, context.RouteLabel(), context.RequestTypeLabel());
         }
 
         private void AddCustomPropertiesIfAny(IDotvvmRequestContext context, Utf8JsonWriter writer, MemoryStream outputBuffer)

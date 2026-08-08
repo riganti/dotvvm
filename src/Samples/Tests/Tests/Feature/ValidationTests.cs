@@ -316,6 +316,26 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
         [Fact]
+        public void Feature_Validation_ModelStateErrors_ManualErrorsWithoutFailCompletePostback()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ModelStateErrors);
+
+                var button = browser.ElementAt("input[type=button]", 3);
+                AssertUI.InnerTextEquals(browser.Single("[data-ui=successful-command-count]"), "0");
+                AssertUI.IsNotDisplayed(browser.Single("[data-ui=property456-error]"));
+
+                button.Click();
+                browser.WaitForPostback();
+
+                AssertUI.InnerTextEquals(browser.Single("[data-ui=successful-command-count]"), "1");
+                browser.FindElements(".vmErrors li").ThrowIfDifferentCountThan(1);
+                AssertUI.IsDisplayed(browser.Single("[data-ui=property456-error]"));
+                AssertUI.InnerTextEquals(browser.Single("[data-ui=property456-error]"), "Property456 contains error without FailOnInvalidModelState");
+            });
+        }
+
+        [Fact]
         public void Feature_Validation_ModelStateErrors()
         {
             RunInAllBrowsers(browser => {

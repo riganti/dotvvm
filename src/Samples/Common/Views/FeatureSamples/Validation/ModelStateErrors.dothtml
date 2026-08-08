@@ -12,6 +12,10 @@
         <dot:ValidationSummary class="vmErrors" IncludeErrorsFromChildren="true" />
     </p>
     <p>
+        Root property:
+        <dot:Validator class="property456Error" data-ui="property456-error" ShowErrorMessageText Value="{value: Property456}" />
+    </p>
+    <p>
         Nested VM:
         <dot:Validator class="vm1Error" ShowErrorMessageText Value="{value:  Nested1.MyProperty}" />
     </p>
@@ -28,6 +32,12 @@
     <dot:Button Click="{command: Command1()}">Command 1</dot:Button>
     <dot:Button Click="{command: Command2()}">Command 2</dot:Button>
     <dot:Button Click="{command: Command3()}">Command 3</dot:Button>
+    <dot:Button Click="{command: Command4()}">Command 4</dot:Button>
+
+    <p>
+        Successful command count:
+        <span data-ui="successful-command-count">{{value: Counter}}</span>
+    </p>
 </body>
 </html>
 

@@ -182,7 +182,7 @@ public static class DotvvmRequestContextExtensions
         }
     }
 
-    private static void PreprocessModelState(this IDotvvmRequestContext context)
+    internal static void PreprocessModelState(this IDotvvmRequestContext context)
     {
         if (!context.ModelState.IsValid)
         {

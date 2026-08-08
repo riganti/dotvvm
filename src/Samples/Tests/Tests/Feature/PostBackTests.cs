@@ -267,7 +267,7 @@ namespace DotVVM.Samples.Tests.Feature
                 button.Click();
                 AssertUI.HasClass(button, "pending");
                 browser.WaitFor(() => {
-                    AssertUI.HasClass(button, "success"); // TODO: we should change the behavior so server-side validation will reject the promise
+                    AssertUI.HasClass(button, "success");
                     AssertUI.InnerTextEquals(counter, "1");
                 }, 5000);
 
