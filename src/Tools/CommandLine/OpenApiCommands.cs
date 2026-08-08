@@ -19,48 +19,79 @@ namespace DotVVM.CommandLine
 
         public static void AddOpenApiCommands(this Command command)
         {
-            var createDefinitionArg = new Argument<Uri>(
-                name: "definition",
-                description: "Path or a URL to an OpenAPI definition");
-            var namespaceOpt = new Option<string>(
-                alias: "--namespace",
-                description: "The namespace of the generated C# API client");
-            var csPathOpt = new Option<FileInfo>(
-                alias: "--cs-path",
-                description: "Path to the generated C# client");
-            var tsPathOpt = new Option<FileInfo>(
-                alias: "--ts-path",
-                description: "Path to the generated TypeScript client");
-            var configOpt = new Option<FileInfo>(
-                alias: "--config",
-                description: "Path to the DotVVM API configuration JSON");
-            var noConfigOpt = new Option<bool>(
-                alias: "--no-config",
-                description: "Disable the DotVVM API configuration JSON");
+            var createDefinitionArg = new Argument<Uri>("definition")
+            {
+                Description = "Path or a URL to an OpenAPI definition"
+            };
+            var namespaceOpt = new Option<string>("--namespace")
+            {
+                Description = "The namespace of the generated C# API client"
+            };
+            var csPathOpt = new Option<FileInfo>("--cs-path")
+            {
+                Description = "Path to the generated C# client"
+            };
+            var tsPathOpt = new Option<FileInfo>("--ts-path")
+            {
+                Description = "Path to the generated TypeScript client"
+            };
+            var configOpt = new Option<FileInfo>("--config")
+            {
+                Description = "Path to the DotVVM API configuration JSON"
+            };
+            var noConfigOpt = new Option<bool>("--no-config")
+            {
+                Description = "Disable the DotVVM API configuration JSON"
+            };
 
             var createCmd = new Command("create", "Create a REST API client")
             {
                 createDefinitionArg, namespaceOpt, csPathOpt, tsPathOpt
             };
-            createCmd.Handler = CommandHandler.Create(typeof(OpenApiCommands).GetMethod(nameof(HandleCreate))!);
+            createCmd.SetAction(async parseResult =>
+            {
+                if (!CommandLineExtensions.TryGetProject(parseResult, out var project, out var logger))
+                    return 1;
+
+                return await HandleCreate(
+                    project,
+                    parseResult.GetRequiredValue(createDefinitionArg),
+                    parseResult.GetValue(namespaceOpt),
+                    parseResult.GetValue(csPathOpt),
+                    parseResult.GetValue(tsPathOpt),
+                    parseResult.GetValue(configOpt),
+                    parseResult.GetValue(noConfigOpt),
+                    logger);
+            });
 
 
-            var regenDefinitionArg = new Argument<Uri>(
-                name: "definition",
-                description: "Path or a URL to an OpenAPI file");
+            var regenDefinitionArg = new Argument<Uri>("definition")
+            {
+                Description = "Path or a URL to an OpenAPI file"
+            };
             regenDefinitionArg.Arity = ArgumentArity.ZeroOrOne;
 
             var regenCmd = new Command("regen", "Regenerate a specific API client or all of them")
             {
                 regenDefinitionArg, configOpt
             };
-            regenCmd.Handler = CommandHandler.Create(typeof(OpenApiCommands).GetMethod(nameof(HandleRegen))!);
+            regenCmd.SetAction(async parseResult =>
+            {
+                if (!CommandLineExtensions.TryGetProject(parseResult, out var project, out var logger))
+                    return 1;
+
+                return await HandleRegen(
+                    project,
+                    parseResult.GetValue(regenDefinitionArg),
+                    parseResult.GetValue(configOpt),
+                    logger);
+            });
 
             var apiCmd = new Command("api", "Manage REST API clients");
             apiCmd.AddTargetArgument();
             apiCmd.Add(createCmd);
             apiCmd.Add(regenCmd);
-            command.AddCommand(apiCmd);
+            command.Subcommands.Add(apiCmd);
         }
 
         public static async Task<int> HandleCreate(

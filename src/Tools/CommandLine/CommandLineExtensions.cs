@@ -1,9 +1,5 @@
 using System.Collections.Generic;
-using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using DotVVM.CommandLine;
@@ -21,18 +17,19 @@ namespace System.CommandLine
 
         public static ILoggerFactory Factory = new NullLoggerFactory();
 
-        private static readonly Option<bool> verboseOption = new Option<bool>(
-            aliases: new[] { "-v", VerboseAlias },
-            description: "Print more verbose output");
-
-        private static readonly Option<bool> debuggerBreakOption = new Option<bool>(
-            alias: DebuggerBreakAlias,
-            description: "Breaks to let a debugger attach to the process");
-
-        private static readonly Argument<FileSystemInfo> targetArgument = new Argument<FileSystemInfo>(
-            name: TargetArg,
-            description: "Path to a DotVVM project")
+        private static readonly Option<bool> verboseOption = new Option<bool>(VerboseAlias, "-v")
         {
+            Description = "Print more verbose output"
+        };
+
+        private static readonly Option<bool> debuggerBreakOption = new Option<bool>(DebuggerBreakAlias)
+        {
+            Description = "Breaks to let a debugger attach to the process"
+        };
+
+        private static readonly Argument<FileSystemInfo> targetArgument = new Argument<FileSystemInfo>(TargetArg)
+        {
+            Description = "Path to a DotVVM project",
             Arity = ArgumentArity.ZeroOrOne
         };
 
@@ -40,83 +37,61 @@ namespace System.CommandLine
         {
             foreach (var symbol in symbols)
             {
-                command.Add(symbol);
+                switch (symbol)
+                {
+                    case Argument argument:
+                        command.Arguments.Add(argument);
+                        break;
+                    case Option option:
+                        command.Options.Add(option);
+                        break;
+                    case Command subcommand:
+                        command.Subcommands.Add(subcommand);
+                        break;
+                }
             }
         }
 
         public static void AddVerboseOption(this Command command)
         {
-            command.AddGlobalOption(verboseOption);
+            command.Options.Add(verboseOption);
         }
 
         public static void AddDebuggerBreakOption(this Command command)
         {
-            command.AddGlobalOption(debuggerBreakOption);
+            command.Options.Add(debuggerBreakOption);
         }
 
         public static void AddTargetArgument(this Command command)
         {
-            command.AddArgument(targetArgument);
+            command.Arguments.Add(targetArgument);
         }
 
-        public static CommandLineBuilder UseLogging(this CommandLineBuilder builder)
+        public static bool TryGetProject(ParseResult result, out DotvvmProject project, out ILogger logger)
         {
-            return builder.UseMiddleware(async (c, next) =>
+            var logLevel = result.GetValue(verboseOption)
+                ? LogLevel.Debug
+                : LogLevel.Information;
+            Factory = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(logLevel));
+            logger = Factory.CreateLogger(GetCommandPath(result.CommandResult));
+
+            var target = FindTarget(result);
+            if (target is null)
             {
-                var logLevel = c.ParseResult.ValueForOption(verboseOption)
-                    ? LogLevel.Debug
-                    : LogLevel.Information;
-                Factory = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(logLevel));
-                var loggerName = GetCommandPath(c.ParseResult.CommandResult);
-                c.BindingContext.AddService(_ => Factory.CreateLogger(loggerName));
-                await next(c);
-                Factory.Dispose();
-            });
-        }
+                project = null!;
+                return false;
+            }
 
-        public static CommandLineBuilder UseDotvvmMetadata(this CommandLineBuilder builder)
-        {
-            return builder.UseMiddleware(async (c, next) =>
+            var csproj = DotvvmProject.FindProjectFile(target.FullName);
+            if (csproj is null)
             {
-                var target = FindTarget(c.ParseResult);
-                if (target is object)
-                {
-                    var logger = Factory.CreateLogger("Project Metadata");
-                    var csproj = DotvvmProject.FindProjectFile(target.FullName);
-                    if (csproj is null)
-                    {
-                        logger.LogError($"No project could be found in '{target}'.");
-                        c.ResultCode = 1;
-                        return;
-                    }
+                logger.LogError($"No project could be found in '{target}'.");
+                project = null!;
+                return false;
+            }
 
-                    var project = DotvvmProject.FromCsproj(csproj.FullName, logger);
-                    if (project is null)
-                    {
-                        c.ResultCode = 1;
-                        return;
-                    }
-
-                    c.BindingContext.AddService(_ => project);
-                }
-                await next(c);
-            });
-        }
-
-        public static CommandLineBuilder UseDebuggerBreak(this CommandLineBuilder builder)
-        {
-            return builder.UseMiddleware(async (c, next) =>
-            {
-                var shouldBreak = c.ParseResult.ValueForOption<bool>(DebuggerBreakAlias);
-                if (shouldBreak)
-                {
-                    var logger = Factory.CreateLogger("debugging");
-                    var pid = Diagnostics.Process.GetCurrentProcess().Id;
-                    logger.LogInformation($"Started with PID '{pid}'. Waiting for debugger to attach.");
-                    Debugger.Break();
-                }
-                await next(c);
-            });
+            project = DotvvmProject.FromCsproj(csproj.FullName, logger)!;
+            return project is not null;
         }
 
         private static FileSystemInfo? FindTarget(ParseResult result)
@@ -127,7 +102,7 @@ namespace System.CommandLine
                 var target = current.Command.Arguments.FirstOrDefault(c => c.Name == TargetArg);
                 if (target is object)
                 {
-                    var fsInfo = result.ValueForArgument((Argument<FileSystemInfo>)target);
+                    var fsInfo = result.GetValue((Argument<FileSystemInfo>)target);
                     fsInfo ??= new DirectoryInfo(Environment.CurrentDirectory);
                     return fsInfo;
                 }
@@ -142,7 +117,7 @@ namespace System.CommandLine
             CommandResult? current = result;
             while (current is object)
             {
-                names.Add(current.Symbol.Name);
+                names.Add(current.Command.Name);
                 current = current.Parent as CommandResult;
             }
             names.Reverse();

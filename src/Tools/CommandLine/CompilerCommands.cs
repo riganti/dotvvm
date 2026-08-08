@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -16,16 +15,43 @@ namespace DotVVM.CommandLine
         {
             var lintCmd = new Command("lint", "Look for compiler errors in Views and Markup Controls");
             lintCmd.AddTargetArgument();
-            lintCmd.AddOption(new Option<bool>("--no-build", "Don't build the MSBuild project."));
-            lintCmd.AddOption(new Option<bool>("--no-color", "Disable ANSI colors in diagnostic output."));
-            lintCmd.AddOption(new Option<bool>("--verbose-build-output", "Show MSBuild output for restore and build."));
-            lintCmd.AddOption(new Option<string>(
-                "--configuration",
-                () => "Debug",
-                "The configuration used to build the project."));
-            lintCmd.AddOption(new Option<string>("--framework", "The target framework used to build the project."));
-            lintCmd.Handler = CommandHandler.Create(typeof(CompilerCommands).GetMethod(nameof(HandleLint))!);
-            command.AddCommand(lintCmd);
+            var noBuildOption = new Option<bool>("--no-build")
+            {
+                Description = "Don't build the MSBuild project."
+            };
+            var noColorOption = new Option<bool>("--no-color")
+            {
+                Description = "Disable ANSI colors in diagnostic output."
+            };
+            var verboseBuildOutputOption = new Option<bool>("--verbose-build-output")
+            {
+                Description = "Show MSBuild output for restore and build."
+            };
+            var configurationOption = new Option<string>("--configuration")
+            {
+                DefaultValueFactory = _ => "Debug",
+                Description = "The configuration used to build the project."
+            };
+            var frameworkOption = new Option<string>("--framework")
+            {
+                Description = "The target framework used to build the project."
+            };
+            lintCmd.AddRange(noBuildOption, noColorOption, verboseBuildOutputOption, configurationOption, frameworkOption);
+            lintCmd.SetAction(parseResult =>
+            {
+                if (!CommandLineExtensions.TryGetProject(parseResult, out var project, out var logger))
+                    return 1;
+
+                return HandleLint(
+                    project,
+                    parseResult.GetValue(noBuildOption),
+                    parseResult.GetValue(noColorOption),
+                    parseResult.GetValue(verboseBuildOutputOption),
+                    parseResult.GetValue(configurationOption) ?? "Debug",
+                    parseResult.GetValue(frameworkOption),
+                    logger);
+            });
+            command.Subcommands.Add(lintCmd);
         }
 
         public static int HandleLint(
