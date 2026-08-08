@@ -1,22 +1,15 @@
-let fakeAnchor: HTMLAnchorElement | undefined;
 export function navigate(url: string, downloadName: string | null | undefined = null, target: string | null | undefined = null) {
-    if (!fakeAnchor) {
-        fakeAnchor = <HTMLAnchorElement> document.createElement("a");
-        fakeAnchor.style.display = "none";
-        document.body.appendChild(fakeAnchor);
-    }
-    if (downloadName == null) {
-        fakeAnchor.removeAttribute("download");
-    } else {
+    const fakeAnchor = <HTMLAnchorElement> document.createElement("a");
+    fakeAnchor.style.display = "none";
+    document.body.appendChild(fakeAnchor);
+    if (downloadName != null) {
         fakeAnchor.download = downloadName
     }
-    if (target == null) {
-        fakeAnchor.removeAttribute("target");
-        fakeAnchor.removeAttribute("rel");
-    } else {
+    if (target != null) {
         fakeAnchor.target = target;
-        fakeAnchor.rel = "noopener";
     }
+    fakeAnchor.rel = "noopener noreferrer";
     fakeAnchor.href = url;
     fakeAnchor.click();
+    fakeAnchor.remove();
 }
