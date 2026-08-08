@@ -106,6 +106,10 @@ namespace DotVVM.CommandLine
                 {
                     // When running the CLI from source, use the locally built .NET Framework compiler.
                     executable = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net472/DotVVM.Compiler.exe");
+                    if (!File.Exists(executable))
+                    {
+                        executable = Path.Combine(cliDirectory, "../../../../Tools/Compiler/bin/Debug/net472/DotVVM.Compiler.exe");
+                    }
                 }
 #endif
             }
@@ -117,13 +121,19 @@ namespace DotVVM.CommandLine
                     compilerArgs.Add("exec");
                     compilerArgs.Add(Path.Combine(compilerDir, "DotVVM.Compiler.dll"));
                 }
+#if DEBUG
                 else
                 {
                     // when running from source, the compiler is in a different location
                     compilerDir = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net8.0");
+                    if (!Directory.Exists(compilerDir))
+                    {
+                        compilerDir = Path.Combine(cliDirectory, "../../../../Tools/Compiler/bin/Debug/net8.0");
+                    }
                     compilerArgs.Add("exec");
                     compilerArgs.Add(Path.Combine(compilerDir, "DotVVM.Compiler.dll"));
                 }
+#endif
             }
 
             var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;
