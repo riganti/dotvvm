@@ -3,10 +3,11 @@
 Component-based MVVM framework for ASP.NET
 ==================
 
-[![License](https://img.shields.io/github/license/riganti/dotvvm)](https://github.com/riganti/dotvvm/blob/main/LICENSE)
-[![Gitter](https://badges.gitter.im/riganti/dotvvm.svg)](https://gitter.im/riganti/dotvvm)
+[![License: Apache 2.0](https://img.shields.io/github/license/riganti/dotvvm)](https://github.com/riganti/dotvvm/blob/main/LICENSE)
+[![Discourse forum](https://img.shields.io/discourse/posts?server=https%3A%2F%2Fforum.dotvvm.com)](https://forum.dotvvm.com/)
 [![GitHub Actions](https://github.com/riganti/dotvvm/actions/workflows/main.yml/badge.svg)](https://github.com/riganti/dotvvm/actions/)
 [![NuGet](https://img.shields.io/nuget/v/DotVVM?logo=nuget)](https://www.nuget.org/packages/DotVVM/)
+[![NuGet Preview](https://img.shields.io/nuget/vpre/DotVVM?label=preview&logo=nuget)](https://www.nuget.org/packages/DotVVM/)
 
 [DotVVM](https://www.dotvvm.com) lets you build interactive web UIs with **just C# and HTML** using the **MVVM** approach.
 
@@ -88,9 +89,9 @@ There is also [dotnet new template](https://www.dotvvm.com/docs/tutorials/how-to
 
 |                         | ASP.NET Core                | OWIN                  |
 |-------------------------|-----------------------------|-----------------------|
-| Current stable version  | `DotVVM.AspNetCore 4.2.*`   | `DotVVM.Owin 4.2.*`   |
-| Minimum runtime version | `.NET 6.0`                  | `.NET 4.7.2`          |
-| Minimum ASP.NET version | `ASP.NET Core 6.0`          | `OWIN 4.2.2`          |
+| Current stable version  | `DotVVM.AspNetCore 5.0.*`   | `DotVVM.Owin 5.0.*`   |
+| Minimum runtime version | `.NET 8.0`                  | `.NET 4.7.2`          |
+| Minimum ASP.NET version | `ASP.NET Core 8.0`          | `OWIN 4.2.2`          |
 
 You can find the plans for next releases in the [roadmap](roadmap.md).
 
@@ -114,7 +115,7 @@ You can find more info in [Contribution Guidelines](contributing.md). We kindly 
 
 ## Feedback
 
-Feedback is crucial to make DotVVM better. You can reach us at any time on our [Gitter Chat](https://gitter.im/riganti/dotvvm).
+Feedback is crucial to make DotVVM better. You can reach us at any time on our [forum](https://forum.dotvvm.com).
 
 ## .NET Foundation
 
@@ -126,6 +127,6 @@ This project is supported by the [.NET Foundation](https://dotnetfoundation.org)
 * [DotVVM Blog](https://www.dotvvm.com/blog)
 * [Documentation](https://www.dotvvm.com/docs)
 * [Twitter @dotvvm](https://twitter.com/dotvvm)
-* [Gitter Chat](https://gitter.im/riganti/dotvvm)
+* [Discourse Forum](https://forum.dotvvm.com)
 * [Samples](https://github.com/search?q=topic%3Adotvvm-sample+org%3Ariganti&type=Repositories)
 * [Roadmap](https://github.com/riganti/dotvvm/blob/master/roadmap.md)
