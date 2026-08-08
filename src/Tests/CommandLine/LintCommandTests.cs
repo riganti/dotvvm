@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Tests.CommandLine
             }
 
             var repositoryRoot = FindRepositoryRoot();
-            var cliAssembly = Path.Combine(repositoryRoot, "Tools", "CommandLine", "bin", "Debug", "net8.0", "dotnet-dotvvm.dll");
+            var cliAssembly = FindCliAssembly(repositoryRoot);
             var sampleDirectory = Path.Combine(repositoryRoot, "Samples", sampleName);
 
             var startInfo = new ProcessStartInfo("dotnet")
@@ -62,6 +62,19 @@ namespace DotVVM.Framework.Tests.CommandLine
         private static bool IsSourceDirectory(string directory) =>
             File.Exists(Path.Combine(directory, "Tools", "CommandLine", "DotVVM.CommandLine.csproj")) &&
             Directory.Exists(Path.Combine(directory, "Samples"));
+
+        private static string FindCliAssembly(string sourceDirectory)
+        {
+            var dotvvmRoot = Environment.GetEnvironmentVariable("DOTVVM_ROOT");
+            if (dotvvmRoot is not null)
+            {
+                var artifactAssembly = Path.Combine(dotvvmRoot, "artifacts", "bin", "DotVVM.CommandLine", "Debug", "net8.0", "dotnet-dotvvm.dll");
+                if (File.Exists(artifactAssembly))
+                    return artifactAssembly;
+            }
+
+            return Path.Combine(sourceDirectory, "Tools", "CommandLine", "bin", "Debug", "net8.0", "dotnet-dotvvm.dll");
+        }
     }
 }
 #endif
