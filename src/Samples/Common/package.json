@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "react-app.js",
+  "type": "module",
   "dependencies": {
     "@rollup/plugin-commonjs": "28.0.6",
     "@rollup/plugin-node-resolve": "16.0.1",
