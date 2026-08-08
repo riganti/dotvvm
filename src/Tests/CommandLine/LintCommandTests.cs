@@ -10,6 +10,8 @@ namespace DotVVM.Framework.Tests.CommandLine
     [TestClass]
     public class LintCommandTests
     {
+        public TestContext TestContext { get; set; } = null!;
+
         [DataTestMethod]
 #if NET
         [DataRow("AspNetCoreLatest")]
@@ -29,8 +31,9 @@ namespace DotVVM.Framework.Tests.CommandLine
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 WorkingDirectory = sampleDirectory,
-                Arguments = $"exec {QuoteArgument(cliAssembly)} lint --no-color --no-build"
+                Arguments = $"exec {QuoteArgument(cliAssembly)} lint --no-color --verbose-build-output"
             };
+            startInfo.EnvironmentVariables.Remove("DOTVVM_ROOT");
 
             using var process = Process.Start(startInfo)!;
             var standardOutput = process.StandardOutput.ReadToEndAsync();
@@ -39,8 +42,18 @@ namespace DotVVM.Framework.Tests.CommandLine
             await Task.WhenAll(standardOutput, standardError, processExit);
             var output = await standardOutput + await standardError;
 
-            Assert.AreNotEqual(0, process.ExitCode);
-            StringAssert.Contains(output, ": error:");
+            try
+            {
+                Assert.AreNotEqual(0, process.ExitCode);
+                StringAssert.Contains(
+                    output,
+                    "Views/Errors/MissingViewModel.dothtml(1,0): error: The @viewModel directive is missing in the page 'Views/Errors/MissingViewModel.dothtml'!");
+            }
+            catch
+            {
+                TestContext.WriteLine(output);
+                throw;
+            }
         }
 
         private static string FindRepositoryRoot([CallerFilePath] string testFilePath = "")
