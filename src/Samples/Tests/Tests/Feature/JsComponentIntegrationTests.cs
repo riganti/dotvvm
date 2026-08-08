@@ -30,16 +30,16 @@ namespace DotVVM.Samples.Tests.Feature
                 var rechart = browser.First("rechart-control");
                 List<string> pathsList = null;
                 WaitForExecutor.WaitFor(() => {
-                    var paths = browser.FindElements(".recharts-line > path", By.CssSelector);
+                    var paths = browser.FindElements(".recharts-line path", By.CssSelector);
                     paths.ThrowIfSequenceEmpty();
                     pathsList = paths.Select(s => s.GetAttribute("d")).Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s=> s).ToList();
                 });
 
                 browser.First("command-removeDOM").Click();
-                browser.FindElements(".recharts-line > path", By.CssSelector).ThrowIfDifferentCountThan(0);
+                browser.FindElements(".recharts-line path", By.CssSelector).ThrowIfDifferentCountThan(0);
 
                 browser.First("command-addDOM").Click();
-                browser.FindElements(".recharts-line > path", By.CssSelector).ThrowIfSequenceEmpty();
+                browser.FindElements(".recharts-line path", By.CssSelector).ThrowIfSequenceEmpty();
 
                 List<string> pathsList2 = null;
                 WaitForExecutor.WaitFor(() => {
@@ -50,10 +50,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First("command-regenerate").Click().Wait(500);
 
                 WaitForExecutor.WaitFor(() => {
-                    var paths = browser.FindElements(".recharts-line > path", By.CssSelector);
+                    var paths = browser.FindElements(".recharts-line path", By.CssSelector);
                     paths.ThrowIfSequenceEmpty(WaitForOptions.Disabled);
                     var pathsList3 = paths.Select(s => s.GetAttribute("d")).Where(s=> !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList();
-                    Assert.NotEqual(pathsList, pathsList2);
+                    Assert.NotEqual(pathsList, pathsList3);
                 });
 
             });
@@ -71,21 +71,21 @@ namespace DotVVM.Samples.Tests.Feature
 
                 var getResult = new Func<IElementWrapper>(() => browser.First("result"));
 
-                // T1 - OK, T2 - NOK 
+                // T1 - OK, T2 - NOK
                 var template1 = browser.WaitFor(s => s.First("template1", SelectByDataUi));
                 AssertUI.IsDisplayed(template1);
                 browser.FindElements("template2", SelectByDataUi).ThrowIfDifferentCountThan(0);
                 browser.FindElements("template-selector", SelectByDataUi).FindElements("p.template1", SelectBy.CssSelector).ThrowIfDifferentCountThan(1);
 
 
-                // T1 - NOK, T2 - OK 
+                // T1 - NOK, T2 - OK
                 browser.First("template-condition").Click();
                 browser.FindElements("template1", SelectByDataUi).ThrowIfDifferentCountThan(0);
                 var template2 = browser.WaitFor(s => s.First("template2", SelectByDataUi));
                 AssertUI.IsDisplayed(template2);
                 browser.FindElements("template-selector", SelectByDataUi).FindElements("p.template2", SelectBy.CssSelector).ThrowIfDifferentCountThan(1);
 
-                // T1 - OK, T2 - NOK 
+                // T1 - OK, T2 - NOK
                 browser.First("template-condition").Click();
                 browser.WaitFor(() => {
                     template1 = browser.First("template1", SelectByDataUi);
@@ -93,7 +93,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.FindElements("template2").ThrowIfDifferentCountThan(0);
                 AssertUI.IsDisplayed(template1);
 
-                // T1 - NOK, T2 - OK 
+                // T1 - NOK, T2 - OK
                 browser.First("template-condition").Click();
                 browser.FindElements("template1").ThrowIfDifferentCountThan(0);
                 template2 = browser.WaitFor(s => s.First("template2"));

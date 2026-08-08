@@ -170,7 +170,7 @@ jobs:
     # Node.js
     - uses: actions/setup-node@v2
       with:
-        node-version: 22
+        node-version: 24
     - run: |
         corepack enable
         yarn set version stable

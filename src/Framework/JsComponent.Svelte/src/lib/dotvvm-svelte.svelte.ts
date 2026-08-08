@@ -1,5 +1,4 @@
-import { type Component, mount, unmount, type ComponentConstructorOptions, type SvelteComponent } from 'svelte';
-import { get, writable } from 'svelte/store'
+import { type Component, mount, unmount } from 'svelte';
 
 export type KnockoutTemplateSvelteComponent_Props = {
     /** HTML element name which will contain the knockout template. By default a `<div>` wrapper tag is used. */
@@ -20,16 +19,6 @@ export type KnockoutTemplateSvelteComponent_Props = {
     viewModel?: any
 }
 
-// We don't let knockout initialize the Svelte elements, so we need to get the context from the parent element
-function getKnockoutContext(element: HTMLElement): KnockoutBindingContext {
-    while (element) {
-        const cx = ko.contextFor(element)
-        if (cx) return cx
-        element = element.parentElement!
-    }
-    throw new Error("Could not find knockout context")
-}
-
 /**
  * Converts Svelte 5 component to DotVVM component usable through `<js:MyComponent />` syntax (or the JsComponent class).
  * See [the complete guide](https://www.dotvvm.com/docs/4.0/pages/concepts/client-side-development/integrate-third-party-controls/svelte).
@@ -47,9 +36,6 @@ export const registerSvelteControl = <T extends Record<string, any>>(
     defaultProps: Partial<T> = {}
 ) => ({
     create: (elm: HTMLElement, props: any, commands: any, templates: any, setProps: (props: any) => void) => {
-        const initialProps = { ...defaultProps, ...commands, ...templates }
-        let currentProps = { ...initialProps, ...props }
-
         const events: Record<string, any> = {}
         for (const cmd of Object.keys(commands)) {
             if (cmd.startsWith('on')) {
@@ -64,26 +50,22 @@ export const registerSvelteControl = <T extends Record<string, any>>(
         }
 
         // Create Svelte 5 component instance
-        let propsStore = $state(currentProps)
-        const propState: any = {}
-        for (const [ name, value ] of Object.entries(currentProps)) {
-            if (name in props) {
-                Object.defineProperty(propState, name, {
-                    get: () => propsStore[name],
-                    set: (newValue) => {
-                        propsStore = currentProps = { ...currentProps, [name]: newValue }
-                        setProps({ [name]: newValue })
-                    }
-                })
-            } else {
-                propState[name] = value
+        const propsState = $state({ setProps, ...defaultProps, ...commands, ...templates, ...props })
+        const componentProps = new Proxy(propsState, {
+            set(target, name, newValue) {
+                const success = Reflect.set(target, name, newValue)
+                if (success && name in props) {
+                    setProps({ [name]: newValue })
+                }
+                return success
             }
-        }
-        const componentExports = mount(SvelteControl, { target: elm, props: propState, events })
+        })
+        const componentExports = mount(SvelteControl, { target: elm, props: componentProps, events })
 
         return {
             updateProps(updatedProps: any) {
-                propsStore = currentProps = { ...currentProps, ...updatedProps }
+                // Bypass componentProps so DotVVM-originated updates are not written back to DotVVM.
+                Object.assign(propsState, updatedProps)
             },
             dispose() {
                 unmount(componentExports, { outro: true })

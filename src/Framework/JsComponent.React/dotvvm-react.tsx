@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import type { StateManager } from 'state-manager';
 
 export type KnockoutTemplateReactComponent_Props = {
@@ -93,6 +93,7 @@ export class KnockoutTemplateReactComponent extends React.Component<KnockoutTemp
  */
 export const registerReactControl = (ReactControl, defaultProps = {}) => ({
     create: (elm, props, commands, templates, setPropsRaw) => {
+        const root = createRoot(elm)
         const initialProps = { setProps, ...defaultProps, ...commands, ...templates }
         let currentProps = { ...initialProps, ...props }
         rerender()
@@ -102,12 +103,12 @@ export const registerReactControl = (ReactControl, defaultProps = {}) => ({
                 rerender()
             },
             dispose() {
-                ReactDOM.unmountComponentAtNode(elm)
+                root.unmount()
             }
         }
 
         function rerender() {
-            ReactDOM.render(<ReactControl {...currentProps} />, elm);
+            root.render(<ReactControl {...currentProps} />);
         }
 
         function setProps(updatedProps) {
@@ -117,4 +118,3 @@ export const registerReactControl = (ReactControl, defaultProps = {}) => ({
         }
     }
 });
-

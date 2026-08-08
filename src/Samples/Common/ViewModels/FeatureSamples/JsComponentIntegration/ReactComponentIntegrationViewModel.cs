@@ -21,6 +21,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.JsComponentIntegration
             Data = Enumerable.Range(0, 15).Select(s =>
                  new LinearRechartDataDTO()
                  {
+                     Name = $"Point {s + 1}",
                      Line1 = random.Next(0, 1000),
                      Line2 = random.Next(0, 800),
                      Line3 = random.Next(0, 900)

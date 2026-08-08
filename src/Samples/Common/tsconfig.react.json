@@ -5,11 +5,13 @@
     "removeComments": false,
     "sourceMap": true,
     "jsx": "react",
-    "target": "ES6",
-    "moduleResolution": "node",
+    "target": "ESNext",
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "verbatimModuleSyntax": true,
     "lib": [
       "dom",
-      "ES6"
+      "ESNext"
     ]
   },
   "include": [
@@ -18,6 +20,6 @@
   
   "exclude": [
     "node_modules",
-    "wwwroot",
+    "wwwroot"
   ]
 }

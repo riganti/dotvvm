@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "react-app.js",
+  "type": "module",
   "dependencies": {
     "@rollup/plugin-commonjs": "28.0.6",
     "@rollup/plugin-node-resolve": "16.0.1",
@@ -15,9 +16,10 @@
     "dotvvm-jscomponent-react": "portal:../../Framework/JsComponent.React",
     "dotvvm-jscomponent-svelte": "portal:../../Framework/JsComponent.Svelte",
     "layercake": "^8.0.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "recharts": "^2.1.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-is": "^19.2.8",
+    "recharts": "^3.10.1",
     "rollup": "^4.46.2",
     "rollup-plugin-svelte": "^7.2.2",
     "svelte": "^5.37.2",
@@ -27,12 +29,13 @@
   },
   "devDependencies": {
     "@types/knockout": "^3.4.71",
-    "@types/react": "^17.0.25",
-    "@types/react-dom": "^17.0.9"
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4"
   },
   "scripts": {
     "build": "rollup -c",
-    "install": "npm ci --prefix node_modules/dotvvm-jscomponent-react && npm run prepack --prefix node_modules/dotvvm-jscomponent-react && npm ci --prefix node_modules/dotvvm-jscomponent-svelte install && npm run prepack --prefix node_modules/dotvvm-jscomponent-svelte"
+    "install": "npm ci --prefix ../../Framework/JsComponent.React && npm run prepack --prefix ../../Framework/JsComponent.React && npm ci --prefix ../../Framework/JsComponent.Svelte && npm run prepack --prefix ../../Framework/JsComponent.Svelte",
+    "install-update-deps": "npm i --prefix ../../Framework/JsComponent.React && npm run prepack --prefix ../../Framework/JsComponent.React && npm i --prefix ../../Framework/JsComponent.Svelte && npm run prepack --prefix ../../Framework/JsComponent.Svelte"
   },
   "author": "RIGANTI s.r.o.",
   "license": "Apache-2.0"

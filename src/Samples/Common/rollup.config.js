@@ -21,7 +21,7 @@ export default [{
             tsconfig: "tsconfig.react.json",
             typescript: ts
         }),
-        resolve({ browser: true }),
+        resolve({ browser: true, dedupe: ['react', 'react-dom'] }),
         commonjs(),
         replace({
             'process.env.NODE_ENV': JSON.stringify('production'),
@@ -44,7 +44,11 @@ export default [{
                 css: "injected",
             },
             emitCss: false,
-            preprocess: sveltePreprocess(),
+            preprocess: sveltePreprocess({
+                typescript: {
+                    tsconfigFile: "tsconfig.svelte.json"
+                }
+            }),
         }),
         resolve({ 
             browser: true, 
@@ -65,4 +69,3 @@ export default [{
         })
     ]
 }]
-
