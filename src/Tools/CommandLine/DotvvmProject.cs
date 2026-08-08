@@ -127,7 +127,7 @@ namespace DotVVM.CommandLine
 
             return new DotvvmProject(
                 raw!.AssemblyName,
-                raw!.OutputPath,
+                raw!.OutputPath!.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar),
                 raw!.RootNamespace,
                 raw!.TargetFrameworks.Select(t => NuGetFramework.Parse(t)).ToImmutableArray(),
                 raw!.PackageVersion,
