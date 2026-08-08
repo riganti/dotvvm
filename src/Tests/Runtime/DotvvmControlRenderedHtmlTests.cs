@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CheckTestOutput;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
@@ -106,6 +107,25 @@ namespace DotVVM.Framework.Tests.Runtime
             });
             html.RenderSelfClosingTag("span");
             Assert.AreEqual("<spandata-bind='tt:{test:\"Date\"}'/>", writer.ToString().Replace(" ", ""));
+        }
+
+        [TestMethod]
+        public void BindingGroup_ValueOrBinding()
+        {
+            var control = new HtmlGenericControl();
+            var binding = ValueBindingExpression.CreateBinding(
+                bindingHelper.BindingService,
+                _ => "server value",
+                new JsIdentifierExpression("bindingExpression")
+            );
+            var resourceBinding = bindingHelper.ResourceBinding<int>("123", contexts: [typeof(int)]);
+            var group = new KnockoutBindingGroup {
+                { "constant", control, new ValueOrBinding<string>("constant value") },
+                { "resource", control, new ValueOrBinding<int>(resourceBinding) },
+                { "binding", control, new ValueOrBinding<string>(binding) }
+            };
+
+            Assert.AreEqual("{ constant: \"constant value\", resource: 123, binding: bindingExpression }", group.ToString());
         }
 
         [TestMethod]

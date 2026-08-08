@@ -52,6 +52,15 @@ namespace DotVVM.Framework.Controls
             Add(name, expression);
         }
 
+        /// <summary> Adds the specified value or knockout binding expression to the group. </summary>
+        public void Add<T>(string name, DotvvmBindableObject contextControl, ValueOrBinding<T> value)
+        {
+            if (value.BindingOrDefault is IValueBinding valueBinding)
+                Add(name, contextControl, valueBinding);
+            else
+                AddValue(name, value.Evaluate(contextControl));
+        }
+
         [Obsolete("Use Add or AddValue instead")]
         public virtual void Add(string name, string expression, bool surroundWithDoubleQuotes)
         {
