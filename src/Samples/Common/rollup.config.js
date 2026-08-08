@@ -44,7 +44,11 @@ export default [{
                 css: "injected",
             },
             emitCss: false,
-            preprocess: sveltePreprocess(),
+            preprocess: sveltePreprocess({
+                typescript: {
+                    tsconfigFile: "tsconfig.svelte.json"
+                }
+            }),
         }),
         resolve({ 
             browser: true, 
