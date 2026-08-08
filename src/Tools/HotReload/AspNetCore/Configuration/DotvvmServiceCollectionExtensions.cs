@@ -17,6 +17,11 @@ namespace DotVVM.Framework.Configuration
 
         public static void AddHotReload(this IDotvvmServiceCollection services)
         {
+            if (services.IsDotvvmCompiler)
+            {
+                return;
+            }
+
             services.Services.AddSignalR();
 
             services.Services.AddSingleton<IMarkupFileChangeNotifier, AspNetCoreMarkupFileChangeNotifier>();

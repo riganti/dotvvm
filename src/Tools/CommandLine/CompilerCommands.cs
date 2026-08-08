@@ -73,9 +73,19 @@ namespace DotVVM.CommandLine
             }
             else
             {
-                var compilerDir = Path.Combine(cliDirectory, "tools/netcoreapp3.1/any");
-                compilerArgs.Add("exec");
-                compilerArgs.Add(Path.Combine(compilerDir, "DotVVM.Compiler.dll"));
+                var compilerDir = Path.Combine(cliDirectory, "tools/net8.0/any");
+                if (Directory.Exists(compilerDir))
+                {
+                    compilerArgs.Add("exec");
+                    compilerArgs.Add(Path.Combine(compilerDir, "DotVVM.Compiler.dll"));
+                }
+                else
+                {
+                    // when running from source, the compiler is in a different location
+                    compilerDir = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net8.0");
+                    compilerArgs.Add("exec");
+                    compilerArgs.Add(Path.Combine(compilerDir, "DotVVM.Compiler.dll"));
+                }
             }
 
             var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;

@@ -57,8 +57,24 @@ namespace DotVVM.Samples.BasicSamples
             }
         }
 
+        private string GetApplicationPath(string applicationPath)
+        {
+            if (File.Exists(Path.Combine(applicationPath, "Views/Default.dothtml")))
+            {
+                return applicationPath;
+            }
+            var common = Path.Combine(Path.GetDirectoryName(applicationPath), "Common");
+            if (File.Exists(Path.Combine(common, "Views/Default.dothtml")))
+            {
+                return common;
+            }
+            throw new DirectoryNotFoundException("Cannot find the 'Common' directory nor the 'Views' directory in the application root.");
+        }
+
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
+            config.ApplicationPhysicalPath = applicationPath = GetApplicationPath(applicationPath);
+
             if (!IsInInvariantCultureMode())
             {
                 config.DefaultCulture = "en-US";

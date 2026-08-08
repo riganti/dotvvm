@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -111,7 +112,22 @@ namespace DotVVM.CommandLine
         {
             logger ??= NullLogger.Instance;
 
-            var startInfo = GetProcessStartInfo(project, properties, targets, restore, verbosity);
+            var buildProperties = properties?.ToArray();
+            if (restore)
+            {
+                var restoreProperties = buildProperties?
+                    .Where(p => !string.Equals(p.Key, "TargetFramework", StringComparison.OrdinalIgnoreCase));
+                if (!TryInvoke(GetProcessStartInfo(project, restoreProperties, new[] { "Restore" }, verbosity), showOutput, logger))
+                {
+                    return false;
+                }
+            }
+
+            return TryInvoke(GetProcessStartInfo(project, buildProperties, targets ?? new[] { "Build" }, verbosity), showOutput, logger);
+        }
+
+        private static bool TryInvoke(ProcessStartInfo startInfo, bool showOutput, ILogger logger)
+        {
             if (!showOutput)
             {
                 startInfo.RedirectStandardOutput = true;
@@ -126,29 +142,6 @@ namespace DotVVM.CommandLine
             }
             process.WaitForExit();
             return process.ExitCode == 0;
-        }
-
-        public (bool, string, string) TryInvokeWithOutput(
-            FileInfo project,
-            IEnumerable<KeyValuePair<string, string>>? properties = null,
-            IEnumerable<string>? targets = null,
-            bool restore = false,
-            string verbosity = "minimal",
-            ILogger? logger = null)
-        {
-            logger ??= NullLogger.Instance;
-
-            var startInfo = GetProcessStartInfo(project, properties, targets, restore, verbosity);
-            startInfo.RedirectStandardOutput = true;
-            startInfo.RedirectStandardError = true;
-            logger.LogDebug($"Invoking MSBuild with args: '{startInfo.ArgumentList.StringJoin(" ")}'.");
-        
-            var process = Process.Start(startInfo).NotNull();
-            var stderrTask = Task.Run(() => process.StandardError.ReadToEnd());
-            var stdout = process.StandardOutput.ReadToEnd();
-            var stderr = stderrTask.GetAwaiter().GetResult();
-            process.WaitForExit();
-            return (process.ExitCode == 0, stdout, stderr);
         }
 
         public override string ToString()
@@ -169,7 +162,6 @@ namespace DotVVM.CommandLine
             FileInfo project,
             IEnumerable<KeyValuePair<string, string>>? properties = null,
             IEnumerable<string>? targets = null,
-            bool restore = false,
             string verbosity = "minimal")
         {
             var p = new ProcessStartInfo
@@ -179,10 +171,6 @@ namespace DotVVM.CommandLine
             foreach (var a in PrefixedArgs)
             {
                 p.ArgumentList.Add(a);
-            }
-            if (restore)
-            {
-                p.ArgumentList.Add("-restore");
             }
             p.ArgumentList.Add($"-verbosity:{verbosity}");
             if (properties is object)
