@@ -114,6 +114,8 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(DOTVVM_ROOT)' != ''">
+    <None Include="$(DOTVVM_ROOT)/artifacts/package-assets/DotVVM.Compiler/net/*" Pack="true" PackagePath="tools/net" />
+    <None Include="$(DOTVVM_ROOT)/artifacts/package-assets/DotVVM.Compiler/netfw/*" Pack="true" PackagePath="tools/netfw" />
     <None Include="$(DOTVVM_ROOT)/artifacts/bin/DotVVM.Analyzers.Package/$(Configuration)/netstandard2.0/DotVVM.Analyzers.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
     <None Include="$(DOTVVM_ROOT)/artifacts/bin/DotVVM.Analyzers.Package/$(Configuration)/netstandard2.0/DotVVM.Analyzers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
     <None Include="../../Analyzers/Analyzers.Package/tools/*.ps1" PackagePath="tools" Pack="true" />
