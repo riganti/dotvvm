@@ -35,6 +35,11 @@ namespace DotVVM.CommandLine
 
         public static MSBuild? CreateFromVS()
         {
+            if (!OperatingSystem.IsWindows())
+            {
+                return null;
+            }
+
             var dir = Path.GetDirectoryName(typeof(MSBuild).Assembly.Location)!;
             var vswhere = new FileInfo(Path.Combine(dir, "vswhere.exe"));
             if (!vswhere.Exists)
