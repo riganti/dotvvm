@@ -50,6 +50,7 @@ runs:
     if: ${{ inputs.project == 'src/Tests' && inputs.target-framework == 'net8.0' }}
   - run: msbuild
       src/Samples/Owin/DotVVM.Samples.BasicSamples.Owin.csproj
+      -restore
       -p:Configuration=Debug
       -p:WarningLevel=0
     shell: pwsh
