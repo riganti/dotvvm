@@ -63,7 +63,7 @@ namespace DotVVM.Samples.BasicSamples
             {
                 return applicationPath;
             }
-            var common = Path.Combine(Path.GetDirectoryName(applicationPath), "Common");
+            var common = Path.Combine(applicationPath, "../Common");
             if (File.Exists(Path.Combine(common, "Views/Default.dothtml")))
             {
                 return common;

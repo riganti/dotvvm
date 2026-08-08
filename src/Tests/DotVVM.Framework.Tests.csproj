@@ -40,7 +40,6 @@
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <Compile Remove="AspCore/CachingTests.cs" />
-    <Compile Remove="CommandLine/LintCommandTests.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != '$(OldFrameworkTargetVersion)'">
     <ProjectReference Include="../Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />

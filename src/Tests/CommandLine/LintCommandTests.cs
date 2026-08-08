@@ -1,4 +1,3 @@
-#if NET
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -12,17 +11,14 @@ namespace DotVVM.Framework.Tests.CommandLine
     public class LintCommandTests
     {
         [DataTestMethod]
+#if NET
         [DataRow("AspNetCoreLatest")]
         [DataRow("AspNetCore")]
+#else
         [DataRow("Owin")]
+#endif
         public async Task LintCommand_ReportsDiagnosticsAndReturnsFailure(string sampleName)
         {
-            if (sampleName == "Owin" && Environment.OSVersion.Platform != PlatformID.Win32NT)
-            {
-                // Owin sample is not supported on non-Windows platforms, so we skip this test case.
-                return;
-            }
-
             var repositoryRoot = FindRepositoryRoot();
             var cliAssembly = FindCliAssembly(repositoryRoot);
             var sampleDirectory = Path.Combine(repositoryRoot, "Samples", sampleName);
@@ -32,18 +28,15 @@ namespace DotVVM.Framework.Tests.CommandLine
                 UseShellExecute = false,
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
-                WorkingDirectory = sampleDirectory
+                WorkingDirectory = sampleDirectory,
+                Arguments = $"exec {QuoteArgument(cliAssembly)} lint --no-color --no-build"
             };
-            startInfo.ArgumentList.Add("exec");
-            startInfo.ArgumentList.Add(cliAssembly);
-            startInfo.ArgumentList.Add("lint");
-            startInfo.ArgumentList.Add("--no-color");
-            startInfo.ArgumentList.Add("--no-build");
 
             using var process = Process.Start(startInfo)!;
             var standardOutput = process.StandardOutput.ReadToEndAsync();
             var standardError = process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
+            var processExit = Task.Run(process.WaitForExit);
+            await Task.WhenAll(standardOutput, standardError, processExit);
             var output = await standardOutput + await standardError;
 
             Assert.AreNotEqual(0, process.ExitCode);
@@ -63,6 +56,8 @@ namespace DotVVM.Framework.Tests.CommandLine
             File.Exists(Path.Combine(directory, "Tools", "CommandLine", "DotVVM.CommandLine.csproj")) &&
             Directory.Exists(Path.Combine(directory, "Samples"));
 
+        private static string QuoteArgument(string argument) => $"\"{argument.Replace("\"", "\\\"")}\"";
+
         private static string FindCliAssembly(string sourceDirectory)
         {
             var dotvvmRoot = Environment.GetEnvironmentVariable("DOTVVM_ROOT");
@@ -77,4 +72,3 @@ namespace DotVVM.Framework.Tests.CommandLine
         }
     }
 }
-#endif
