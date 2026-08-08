@@ -52,7 +52,7 @@ runs:
       src/Samples/Owin/DotVVM.Samples.BasicSamples.Owin.csproj
       -p:Configuration=Debug
       -p:WarningLevel=0
-    shell: bash
+    shell: pwsh
     if: ${{ runner.os == 'Windows' && inputs.project == 'src/Tests' && inputs.target-framework == 'net472' }}
   # build the project separately first to get compilation errors as `dotnet test` fails silently for some reason
   - run: dotnet build
