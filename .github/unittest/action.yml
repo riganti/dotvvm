@@ -39,6 +39,7 @@ runs:
     if: ${{ runner.os != 'Windows' }}
   - run: msbuild
       src/Tools/CommandLine/DotVVM.CommandLine.csproj
+      -restore
       -p:TargetFramework=net8.0
       -p:Configuration=Debug
       -p:WarningLevel=0
