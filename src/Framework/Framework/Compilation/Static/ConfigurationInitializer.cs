@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Framework.Compilation.Static
 {
@@ -27,10 +30,20 @@ namespace DotVVM.Framework.Compilation.Static
                 {
                     configureServicesMethod.Invoke(configurator, new[] { new DotvvmServiceCollection(collection, isDotvvmCompiler: true) });
                 }
+
+                collection.Configure<LoggerFilterOptions>(options => options.Rules.Add(
+                    new LoggerFilterRule(
+                        providerName: null,
+                        categoryName: typeof(DefaultViewCompiler).FullName,
+                        logLevel: LogLevel.None,
+                        filter: null)));
             });
 
             config.ApplicationPhysicalPath = webSitePath;
             dotvvmStartup?.Configure(config, webSitePath);
+            // The standalone compiler explicitly compiles every view below. Prevent the application's
+            // startup compilation configuration from scheduling the same work in the background.
+            config.Markup.ViewCompilation.Mode = ViewCompilationMode.Lazy;
             return config;
         }
 

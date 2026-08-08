@@ -101,6 +101,13 @@ namespace DotVVM.CommandLine
             if (targetFramework.IsDesktop())
             {
                 executable = Path.Combine(cliDirectory, "tools/net472/any/DotVVM.Compiler.exe");
+#if DEBUG
+                if (!File.Exists(executable))
+                {
+                    // When running the CLI from source, use the locally built .NET Framework compiler.
+                    executable = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net472/DotVVM.Compiler.exe");
+                }
+#endif
             }
             else
             {

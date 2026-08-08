@@ -40,9 +40,11 @@
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <Compile Remove="AspCore/CachingTests.cs" />
+    <Compile Remove="CommandLine/LintCommandTests.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != '$(OldFrameworkTargetVersion)'">
     <ProjectReference Include="../Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="../Tools/CommandLine/DotVVM.CommandLine.csproj" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.8" />
     <PackageReference Include="CheckTestOutput" Version="0.6.3" />
