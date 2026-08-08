@@ -41,6 +41,52 @@ function Get-TemplateProjects {
     return . "$PSScriptRoot/Get-PublicProjects.ps1" | Where-Object { $_.Type -eq "template" }
 }
 
+function Prepare-DotVVMCompilerPackage {
+    $compilerProject = Join-Path $root "src/Tools/Compiler/DotVVM.Compiler.csproj"
+    $compilerOutput = Join-Path $root "artifacts/bin/DotVVM.Compiler/Release"
+    $stagingDirectory = Join-Path $root "artifacts/package-assets/DotVVM.Compiler"
+
+    if (Test-Path $compilerOutput) {
+        Remove-Item -Recurse -Force $compilerOutput
+    }
+    if (Test-Path $stagingDirectory) {
+        Remove-Item -Recurse -Force $stagingDirectory
+    }
+
+    dotnet build $compilerProject `
+        --configuration Release `
+        --no-restore `
+        -p:DOTVVM_ROOT="$root" `
+        -p:DOTVVM_VERSION="$version"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Building DotVVM.Compiler failed with exit code $LASTEXITCODE."
+    }
+
+    function Copy-CompilerFiles([string]$source, [string]$packageDirectory, [string[]]$files) {
+        $destination = Join-Path $stagingDirectory $packageDirectory
+        New-Item -ItemType Directory -Path $destination -Force | Out-Null
+        foreach ($file in $files) {
+            Copy-Item (Join-Path $source $file) $destination -ErrorAction Stop
+        }
+    }
+
+    foreach ($output in Get-ChildItem $compilerOutput -Directory) {
+        if (Test-Path (Join-Path $output.FullName "DotVVM.Compiler.runtimeconfig.json")) {
+            Copy-CompilerFiles $output.FullName "net" @(
+                "DotVVM.Compiler.dll",
+                "DotVVM.Compiler.deps.json",
+                "DotVVM.Compiler.runtimeconfig.json"
+            )
+        }
+        elseif (Test-Path (Join-Path $output.FullName "DotVVM.Compiler.exe")) {
+            Copy-CompilerFiles $output.FullName "netfw" @(
+                "DotVVM.Compiler.exe",
+                "DotVVM.Compiler.exe.config"
+            )
+        }
+    }
+}
+
 function Build-PublicProjectPackages {
     $packages = . "$PSScriptRoot/Get-PublicProjects.ps1" | Where-Object { $_.Type -ne "template" }
     foreach ($package in $packages) {
@@ -48,6 +94,9 @@ function Build-PublicProjectPackages {
         $dir = Join-Path "$root" "$($package.Path)"
         try {
             dotnet build --nologo -c Release --no-restore --no-incremental -p:DOTVVM_ROOT="$root" -p:DOTVVM_VERSION="$version" "$dir"
+            if ($package.Name -eq "DotVVM") {
+                Prepare-DotVVMCompilerPackage
+            }
             dotnet pack -c Release --no-build -p:DOTVVM_ROOT="$root" -p:DOTVVM_VERSION="$version" "$dir"
         }
         finally {
