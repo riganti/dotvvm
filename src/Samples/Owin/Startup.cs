@@ -85,7 +85,7 @@ namespace DotVVM.Samples.BasicSamples
                 }
             );
 
-            var config = app.UseDotVVM<DotvvmStartup, DotvvmServiceConfigurator>(GetApplicationPath(), modifyConfiguration: c  => {
+            var config = app.UseDotVVM<DotvvmStartup, DotvvmServiceConfigurator>(HostingEnvironment.ApplicationPhysicalPath, modifyConfiguration: c  => {
                 c.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
 
                 if (c.Runtime.ExplicitAssemblyLoading.Enabled)
@@ -102,8 +102,5 @@ namespace DotVVM.Samples.BasicSamples
 #endif
             app.UseStaticFiles();
         }
-
-        private string GetApplicationPath()
-            => Path.Combine(Path.GetDirectoryName(HostingEnvironment.ApplicationPhysicalPath.TrimEnd('\\', '/')), "Common");
     }
 }

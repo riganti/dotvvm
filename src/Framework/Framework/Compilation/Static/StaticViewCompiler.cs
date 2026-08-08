@@ -68,7 +68,11 @@ namespace DotVVM.Framework.Compilation.Static
             }
             catch(DotvvmCompilationException e)
             {
-                return e.AllDiagnostics.ToImmutableArray();
+                return e.AllDiagnostics
+                    .Select(d => d.Location.FileName is null
+                        ? d with { Location = d.Location with { FileName = viewPath } }
+                        : d)
+                    .ToImmutableArray();
             }
         }
     }

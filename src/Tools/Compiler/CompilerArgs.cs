@@ -11,23 +11,27 @@ namespace DotVVM.Compiler
             "--help", "-h", "-?", "/help", "/h", "/?"
         };
         private const string ListPropertiesOption = "--list-props";
+        private const string NoColorOption = "--no-color";
 
         public CompilerArgs(
             FileInfo assemblyFile,
             DirectoryInfo projectDir,
             bool isHelp = false,
-            bool isListProperties = false)
+            bool isListProperties = false,
+            bool noColor = false)
         {
             AssemblyFile = assemblyFile;
             ProjectDir = projectDir;
             IsHelp = isHelp;
             IsListProperties = isListProperties;
+            NoColor = noColor;
         }
 
         public FileInfo AssemblyFile { get; init; }
         public DirectoryInfo ProjectDir { get; init; }
         public bool IsHelp { get; init; }
         public bool IsListProperties { get; init;}
+        public bool NoColor { get; init; }
 
         public static bool TryParse(string[] args, out CompilerArgs parsed)
         {
@@ -43,6 +47,10 @@ namespace DotVVM.Compiler
                 else if (args[i] == ListPropertiesOption)
                 {
                     parsed = parsed with { IsListProperties = true };
+                }
+                else if (args[i] == NoColorOption)
+                {
+                    parsed = parsed with { NoColor = true };
                 }
                 else
                 {

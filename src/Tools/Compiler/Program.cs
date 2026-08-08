@@ -20,6 +20,7 @@ Arguments:
 Options:
   -h|-?|--help   Print this help text.
   --list-props   Print a list of DotVVM properties inside the assembly.
+  --no-color     Disable ANSI colors in diagnostic output.
 ");
         }
 

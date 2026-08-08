@@ -18,6 +18,11 @@ namespace DotVVM.Framework.Configuration
 
         public static void AddHotReload(this IDotvvmServiceCollection services, DotvvmHotReloadOptions? options = null)
         {
+            if (services.IsDotvvmCompiler)
+            {
+                return;
+            }
+
             services.Services.AddSingleton<IMarkupFileChangeNotifier, OwinMarkupFileChangeNotifier>();
             services.Services.AddSingleton<IMarkupFileLoader, HotReloadAggregateMarkupFileLoader>();
 

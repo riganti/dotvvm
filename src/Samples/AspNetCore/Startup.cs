@@ -115,7 +115,7 @@ namespace DotVVM.Samples.BasicSamples
             app.UseRouting();
             app.UseAuthentication();
 
-            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env), modifyConfiguration: c => {
+            var config = app.UseDotVVM<DotvvmStartup>(env.ContentRootPath, modifyConfiguration: c => {
                 c.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
 
                 if (c.Runtime.ExplicitAssemblyLoading.Enabled)
@@ -131,20 +131,6 @@ namespace DotVVM.Samples.BasicSamples
             app.UseEndpoints(endpoints => {
                 endpoints.MapDotvvmHotReload();
             });
-        }
-
-        private string GetApplicationPath(IWebHostEnvironment env)
-        {
-            var common = Path.Combine(Path.GetDirectoryName(env.ContentRootPath), "Common");
-            if (Directory.Exists(common))
-            {
-                return common;
-            }
-            if (File.Exists(Path.Combine(env.ContentRootPath, "Views/Default.dothtml")))
-            {
-                return env.ContentRootPath;
-            }
-            throw new DirectoryNotFoundException("Cannot find the 'Common' directory nor the 'Views' directory in the application root.");
         }
     }
 }

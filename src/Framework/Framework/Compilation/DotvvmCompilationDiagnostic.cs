@@ -160,10 +160,12 @@ namespace DotVVM.Framework.Compilation
         {
             if (IsUnknown)
                 return "Unknown location";
-            else if (FileName is {} && LineNumber is {})
+            else if (FileName is {} fileName)
             {
                 // MSBuild-style file location
-                return $"{FileName}({LineNumber}{(ColumnNumber is {} ? "," + ColumnNumber : "")})";
+                return LineNumber is {}
+                    ? $"{fileName}({LineNumber}{(ColumnNumber is {} ? "," + ColumnNumber : "")})"
+                    : fileName;
             }
             else
             {

@@ -14,13 +14,18 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <inheritdoc />
         public IServiceCollection Services { get; }
 
+        /// <inheritdoc/>
+        public bool IsDotvvmCompiler { get; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmServiceCollection" /> class.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        public DotvvmServiceCollection(IServiceCollection services)
+        /// <param name="isDotvvmCompiler">Indicates whether the service collection is for the DotVVM compiler.</param>
+        public DotvvmServiceCollection(IServiceCollection services, bool isDotvvmCompiler = false)
         {
             Services = services ?? throw new ArgumentNullException(nameof(services));
+            IsDotvvmCompiler = isDotvvmCompiler;
         }
 
         public IEnumerator<ServiceDescriptor> GetEnumerator() => Services.GetEnumerator();
