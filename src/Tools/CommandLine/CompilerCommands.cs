@@ -17,6 +17,8 @@ namespace DotVVM.CommandLine
             var lintCmd = new Command("lint", "Look for compiler errors in Views and Markup Controls");
             lintCmd.AddTargetArgument();
             lintCmd.AddOption(new Option<bool>("--no-build", "Don't build the MSBuild project."));
+            lintCmd.AddOption(new Option<bool>("--no-color", "Disable ANSI colors in diagnostic output."));
+            lintCmd.AddOption(new Option<bool>("--verbose-build-output", "Show MSBuild output for restore and build."));
             lintCmd.AddOption(new Option<string>(
                 "--configuration",
                 () => "Debug",
@@ -29,6 +31,8 @@ namespace DotVVM.CommandLine
         public static int HandleLint(
             DotvvmProject project,
             bool noBuild,
+            bool noColor,
+            bool verboseBuildOutput,
             string configuration,
             string? framework,
             ILogger logger)
@@ -54,6 +58,7 @@ namespace DotVVM.CommandLine
                     project: new FileInfo(project.ProjectFilePath),
                     configuration: configuration,
                     targetFramework: framework,
+                    showOutput: verboseBuildOutput,
                     logger: logger);
                 if (!buildSuccess)
                 {
@@ -95,6 +100,10 @@ namespace DotVVM.CommandLine
                 outputDir = Directory.GetParent(outputDir).NotNull().FullName;
             }
 
+            if (noColor)
+            {
+                compilerArgs.Add("--no-color");
+            }
             compilerArgs.Add(Path.Combine(outputDir, $"{project.AssemblyName}.dll"));
             compilerArgs.Add(projectDir);
 

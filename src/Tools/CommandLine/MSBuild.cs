@@ -117,13 +117,25 @@ namespace DotVVM.CommandLine
             {
                 var restoreProperties = buildProperties?
                     .Where(p => !string.Equals(p.Key, "TargetFramework", StringComparison.OrdinalIgnoreCase));
+                WriteStepHeading("Restoring packages", showOutput);
                 if (!TryInvoke(GetProcessStartInfo(project, restoreProperties, new[] { "Restore" }, verbosity), showOutput, logger))
                 {
                     return false;
                 }
             }
 
+            WriteStepHeading("Building project", showOutput);
             return TryInvoke(GetProcessStartInfo(project, buildProperties, targets ?? new[] { "Build" }, verbosity), showOutput, logger);
+        }
+
+        private static void WriteStepHeading(string step, bool showOutput)
+        {
+            if (!showOutput)
+                return;
+
+            Console.Out.WriteLine();
+            Console.Out.WriteLine($"=== {step} ===");
+            Console.Out.WriteLine();
         }
 
         private static bool TryInvoke(ProcessStartInfo startInfo, bool showOutput, ILogger logger)

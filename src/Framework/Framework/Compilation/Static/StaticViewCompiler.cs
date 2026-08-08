@@ -68,7 +68,13 @@ namespace DotVVM.Framework.Compilation.Static
             }
             catch(DotvvmCompilationException e)
             {
-                return e.AllDiagnostics.ToImmutableArray();
+                return e.AllDiagnostics
+                    // The compilation status page keeps diagnostics grouped by their view. Static compilation
+                    // flattens them, so preserve that view context for diagnostics without a file location.
+                    .Select(d => d.Location.FileName is null
+                        ? d with { Location = d.Location with { FileName = viewPath } }
+                        : d)
+                    .ToImmutableArray();
             }
         }
     }
