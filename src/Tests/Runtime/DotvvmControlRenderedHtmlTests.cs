@@ -9,6 +9,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
@@ -126,6 +127,50 @@ namespace DotVVM.Framework.Tests.Runtime
             };
 
             Assert.AreEqual("{ constant: \"constant value\", resource: 123, binding: bindingExpression }", group.ToString());
+        }
+
+        [TestMethod]
+        public void BindingGroup_QuotesSpecialNames()
+        {
+            var group = new KnockoutBindingGroup {
+                { "__proto__", "prototypeValue" },
+                { "a'b", "quotedValue" }
+            };
+
+            Assert.AreEqual("{ [\"__proto__\"]: prototypeValue, \"a\\u0027b\": quotedValue }", group.ToString());
+        }
+
+        [TestMethod]
+        public void BindingGroup_EscapesKnockoutCommentEnd()
+        {
+            var group = new KnockoutBindingGroup();
+            group.AddValue("-->", "-->");
+            var expression = group.ToString();
+            var writer = new StringWriter();
+            var html = new HtmlWriter(writer, CreateContext(new object()));
+
+            Assert.IsFalse(expression.Contains("-->"));
+            html.WriteKnockoutDataBindComment("test", expression);
+            Assert.AreEqual("<!-- ko test: { \"--\\u003E\": \"--\\u003E\" } -->", writer.ToString());
+        }
+
+        [TestMethod]
+        public void KnockoutHelper_QuotesGeneratedStrings()
+        {
+            var control = new HtmlGenericControl();
+            var binding = ValueBindingExpression.CreateBinding(
+                bindingHelper.BindingService,
+                _ => "server value",
+                new JsIdentifierExpression("bindingExpression")
+            );
+            var writer = new StringWriter();
+            var html = new HtmlWriter(writer, CreateContext(new object()));
+
+            html.AddKnockoutDataBind("group", new[] { new KeyValuePair<string, IValueBinding>("a'b", binding) }, control);
+            html.AddKnockoutDataBind("value", control, binding, valueUpdate: "in'put");
+            html.RenderSelfClosingTag("span");
+
+            Assert.AreEqual("<span data-bind='group: { \"a\\u0027b\": bindingExpression }, value: bindingExpression, valueUpdate: \"in\\u0027put\"' />", writer.ToString());
         }
 
         [TestMethod]
@@ -259,7 +304,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 writer.AddKnockoutDataBind("first", "true");
 
                 base.AddAttributesToRender(writer, context);
-                
+
                 writer.AddKnockoutDataBind("second", "true");
             }
         }

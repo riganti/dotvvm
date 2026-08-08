@@ -63,7 +63,7 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
             if (valueUpdate != null)
             {
-                writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
+                writer.AddKnockoutDataBind("valueUpdate", MakeStringLiteral(valueUpdate));
             }
         }
 
@@ -86,7 +86,10 @@ namespace DotVVM.Framework.Controls
         /// <param name="property">This parameter is here for historical reasons, it's not useful for anything</param>
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableObject control, DotvvmProperty? property = null)
         {
-            writer.AddKnockoutDataBind(name, $"{{{String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression(control)))}}}");
+            var group = new KnockoutBindingGroup();
+            foreach (var expression in expressions)
+                group.Add(expression.Key, control, expression.Value);
+            writer.AddKnockoutDataBind(name, group.ToString());
         }
 
         public static void WriteKnockoutForeachComment(this IHtmlWriter writer, string binding)

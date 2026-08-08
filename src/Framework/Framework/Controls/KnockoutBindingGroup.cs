@@ -5,6 +5,7 @@ using System.Text.Json;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Controls
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                entries.Add(new KnockoutBindingInfo(name, GetKnockoutBindingExpression(control, binding)));
+                Add(name, GetKnockoutBindingExpression(control, binding));
             }
         }
 
@@ -38,7 +39,7 @@ namespace DotVVM.Framework.Controls
             entries.Add(new KnockoutBindingInfo(name, expression));
         }
 
-        /// <summary> Adds another nested group. If the nested group is empty, nothing is added (undefined will be in the field). </summary>
+        /// <summary> Adds another nested group. If the nested group is empty, the field is omitted. </summary>
         public void Add(string name, KnockoutBindingGroup nestedGroup)
         {
             if (!nestedGroup.IsEmpty)
@@ -120,6 +121,8 @@ namespace DotVVM.Framework.Controls
         {
             public KnockoutBindingInfo(string name, string expression)
             {
+                ThrowHelpers.ArgumentNull(name);
+                ThrowHelpers.ArgumentNull(expression);
                 Name = name;
                 Expression = expression;
             }
@@ -131,7 +134,9 @@ namespace DotVVM.Framework.Controls
 
             public override string ToString()
             {
-                if (MayBeUnquoted(Name))
+                if (Name == "__proto__")
+                    return "[\"__proto__\"]: " + Expression;
+                else if (MayBeUnquoted(Name))
                     return Name + ": " + Expression;
                 else
                     return KnockoutHelper.MakeStringLiteral(Name) + ": " + Expression;
