@@ -36,6 +36,24 @@ runs:
       --configuration Debug
       -p:WarningLevel=0
     shell: bash
+  - run: dotnet build
+      src/Samples/AspNetCoreLatest/DotVVM.Samples.BasicSamples.AspNetCoreLatest.csproj
+      --configuration Debug
+      -p:WarningLevel=0
+    shell: bash
+    if: ${{ inputs.project == 'src/Tests' && inputs.target-framework == 'net8.0' }}
+  - run: dotnet build
+      src/Samples/AspNetCore/DotVVM.Samples.BasicSamples.AspNetCore.csproj
+      --configuration Debug
+      -p:WarningLevel=0
+    shell: bash
+    if: ${{ inputs.project == 'src/Tests' && inputs.target-framework == 'net8.0' }}
+  - run: dotnet build
+      src/Samples/Owin/DotVVM.Samples.BasicSamples.Owin.csproj
+      --configuration Debug
+      -p:WarningLevel=0
+    shell: bash
+    if: ${{ runner.os == 'Windows' && inputs.project == 'src/Tests' && inputs.target-framework == 'net8.0' }}
   # build the project separately first to get compilation errors as `dotnet test` fails silently for some reason
   - run: dotnet build
       "${{ inputs.project }}"

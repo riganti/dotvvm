@@ -54,6 +54,7 @@ namespace DotVVM.CommandLine
             logger ??= NullLogger.Instance;
 
             var targetsPath = Path.Combine(Path.GetDirectoryName(csprojPath)!, ScratchDirectory, TargetsFilename);
+            Directory.CreateDirectory(Path.GetDirectoryName(targetsPath)!);
             using var embeddedTargets = typeof(DotvvmProject).Assembly
                 .GetManifestResourceStream($"DotVVM.CommandLine.Resources.{TargetsFilename}")!;
             using var reader = new StreamReader(embeddedTargets);
