@@ -15,9 +15,10 @@
     "dotvvm-jscomponent-react": "portal:../../Framework/JsComponent.React",
     "dotvvm-jscomponent-svelte": "portal:../../Framework/JsComponent.Svelte",
     "layercake": "^8.0.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "recharts": "^2.1.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-is": "^19.2.8",
+    "recharts": "^3.10.1",
     "rollup": "^4.46.2",
     "rollup-plugin-svelte": "^7.2.2",
     "svelte": "^5.37.2",
@@ -27,8 +28,8 @@
   },
   "devDependencies": {
     "@types/knockout": "^3.4.71",
-    "@types/react": "^17.0.25",
-    "@types/react-dom": "^17.0.9"
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4"
   },
   "scripts": {
     "build": "rollup -c",
