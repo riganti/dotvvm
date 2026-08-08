@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Tests.CommandLine
             }
 
             var repositoryRoot = FindRepositoryRoot();
-            var cliAssembly = typeof(DotVVM.CommandLine.Program).Assembly.Location;
+            var cliAssembly = Path.Combine(repositoryRoot, "Tools", "CommandLine", "bin", "Debug", "net8.0", "dotnet-dotvvm.dll");
             var sampleDirectory = Path.Combine(repositoryRoot, "Samples", sampleName);
 
             var startInfo = new ProcessStartInfo("dotnet")

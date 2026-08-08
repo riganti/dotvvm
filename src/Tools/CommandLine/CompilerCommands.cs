@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.Diagnostics;
@@ -106,34 +107,32 @@ namespace DotVVM.CommandLine
                 {
                     // When running the CLI from source, use the locally built .NET Framework compiler.
                     executable = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net472/DotVVM.Compiler.exe");
-                    if (!File.Exists(executable))
-                    {
-                        executable = Path.Combine(cliDirectory, "../../../../Tools/Compiler/bin/Debug/net472/DotVVM.Compiler.exe");
-                    }
                 }
 #endif
+                if (!File.Exists(executable))
+                {
+                    throw new Exception($"DotVVM Compiler wasn't found at '{executable}'. Please note that DotVVM compiler is not supported in versions prior to DotVVM 5.0.");
+                }
             }
             else
             {
                 var compilerDir = Path.Combine(cliDirectory, "tools/net8.0/any");
-                if (Directory.Exists(compilerDir))
-                {
-                    compilerArgs.Add("exec");
-                    compilerArgs.Add(Path.Combine(compilerDir, "DotVVM.Compiler.dll"));
-                }
+                var compilerDll = Path.Combine(compilerDir, "DotVVM.Compiler.dll");
 #if DEBUG
-                else
+                if (!File.Exists(compilerDll))
                 {
-                    // when running from source, the compiler is in a different location
+                    // When running the CLI from source, use the locally built .NET compiler.
                     compilerDir = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net8.0");
-                    if (!Directory.Exists(compilerDir))
-                    {
-                        compilerDir = Path.Combine(cliDirectory, "../../../../Tools/Compiler/bin/Debug/net8.0");
-                    }
-                    compilerArgs.Add("exec");
-                    compilerArgs.Add(Path.Combine(compilerDir, "DotVVM.Compiler.dll"));
+                    compilerDll = Path.Combine(compilerDir, "DotVVM.Compiler.dll");
                 }
 #endif
+                if (!File.Exists(compilerDll))
+                {
+                    throw new Exception($"DotVVM Compiler wasn't found at '{compilerDll}'. Please note that DotVVM compiler is not supported in versions prior to DotVVM 5.0.");
+                }
+
+                compilerArgs.Add("exec");
+                compilerArgs.Add(compilerDll);
             }
 
             var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;

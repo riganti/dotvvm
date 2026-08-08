@@ -14,7 +14,7 @@ inputs:
     description: Human-friendly name of the test project
   target-framework:
     required: false
-    default: net6.0
+    default: net8.0
     description: The target framework moniker used to build and run the test project
   github-token:
     description: GitHub token so that test results can be uploaded
@@ -23,6 +23,19 @@ inputs:
 runs:
   using: composite
   steps:
+  # Build the CLI and its compiler first, matching the local source execution layout used by CLI E2E tests.
+  - run: dotnet build
+      src/Tools/Compiler/DotVVM.Compiler.csproj
+      --framework net8.0
+      --configuration Debug
+      -p:WarningLevel=0
+    shell: bash
+  - run: dotnet build
+      src/Tools/CommandLine/DotVVM.CommandLine.csproj
+      --framework net8.0
+      --configuration Debug
+      -p:WarningLevel=0
+    shell: bash
   # build the project separately first to get compilation errors as `dotnet test` fails silently for some reason
   - run: dotnet build
       "${{ inputs.project }}"
