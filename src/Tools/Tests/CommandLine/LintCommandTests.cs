@@ -79,9 +79,19 @@ namespace DotVVM.CommandLine.Tests
             var dotvvmRoot = Environment.GetEnvironmentVariable("DOTVVM_ROOT");
             if (dotvvmRoot is not null)
             {
-                var artifactAssembly = Path.Combine(dotvvmRoot, "artifacts", "bin", "DotVVM.CommandLine", "Debug", "net8.0", "dotnet-dotvvm.dll");
-                if (File.Exists(artifactAssembly))
-                    return artifactAssembly;
+                foreach (var configuration in new[] { "Debug", "Release" })
+                {
+                    var artifactAssembly = Path.Combine(dotvvmRoot, "artifacts", "bin", "DotVVM.CommandLine", configuration, "net8.0", "dotnet-dotvvm.dll");
+                    if (File.Exists(artifactAssembly))
+                        return artifactAssembly;
+                }
+            }
+
+            foreach (var configuration in new[] { "Debug", "Release" })
+            {
+                var localAssembly = Path.Combine(sourceDirectory, "Tools", "CommandLine", "bin", configuration, "net8.0", "dotnet-dotvvm.dll");
+                if (File.Exists(localAssembly))
+                    return localAssembly;
             }
 
             return Path.Combine(sourceDirectory, "Tools", "CommandLine", "bin", "Debug", "net8.0", "dotnet-dotvvm.dll");

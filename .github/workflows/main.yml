@@ -196,6 +196,14 @@ jobs:
         --configuration Debug
         -p:WarningLevel=0
       shell: bash
+    - name: Build CommandLine (Release)
+      run: dotnet build
+        src/Tools/CommandLine/DotVVM.CommandLine.csproj
+        --framework net8.0
+        --no-restore
+        --configuration Release
+        -p:WarningLevel=0
+      shell: bash
     - name: Build CommandLine.Tests
       run: dotnet build
         src/Tools/Tests/CommandLine/DotVVM.CommandLine.Tests.csproj
