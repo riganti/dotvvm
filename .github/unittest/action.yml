@@ -87,6 +87,16 @@ runs:
   # TFMs. The LintCommandLine tests invoke the CLI which runs MSBuild internally, regenerating
   # the NuGet Core targets for net8.0 only. Without this restore, subsequent steps that build
   # net472 projects (e.g. Analyzers.Tests) fail with CS0518 (missing reference assemblies).
+  #
+  # We must delete the *.nuget.g.props / *.nuget.g.targets files first: NuGet skips rewriting
+  # them when project.assets.json has not changed, so a plain restore would silently leave the
+  # corrupted single-TFM files in place.
+  - run: Get-ChildItem src -Recurse -Include "*.nuget.g.props","*.nuget.g.targets" | Remove-Item -Force
+    shell: pwsh
+    if: ${{ inputs.target-framework == 'net8.0' && runner.os == 'Windows' }}
+  - run: find src -name "*.nuget.g.props" -o -name "*.nuget.g.targets" | xargs rm -f
+    shell: bash
+    if: ${{ inputs.target-framework == 'net8.0' && runner.os != 'Windows' }}
   - run: msbuild ${{ inputs.sln }} -t:Restore
     shell: pwsh
     if: ${{ inputs.target-framework == 'net8.0' && runner.os == 'Windows' }}
