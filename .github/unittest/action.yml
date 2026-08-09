@@ -60,15 +60,6 @@ runs:
       -p:WarningLevel=0
     shell: bash
     if: ${{ inputs.target-framework == 'net8.0' }}
-  # Re-restore the solution after the --no-restore builds above to repair the NuGet targets
-  # files for all TFMs. Without this, subsequent steps that build net472 projects (e.g.
-  # Analyzers.Tests) would fail because the targets were regenerated for net8.0 only.
-  - run: msbuild ${{ inputs.sln }} -t:Restore
-    shell: pwsh
-    if: ${{ inputs.target-framework == 'net8.0' && runner.os == 'Windows' }}
-  - run: dotnet restore ${{ inputs.sln }}
-    shell: bash
-    if: ${{ inputs.target-framework == 'net8.0' && runner.os != 'Windows' }}
     
   # build the project separately first to get compilation errors as `dotnet test` fails silently for some reason
   - run: dotnet build
@@ -101,6 +92,16 @@ runs:
       --configuration Release
       -p:WarningLevel=0
     shell: bash
+  # Re-restore the solution after the net8.0 tests to repair the NuGet targets files for all
+  # TFMs. The LintCommandLine tests invoke the CLI which runs MSBuild internally, regenerating
+  # the NuGet Core targets for net8.0 only. Without this restore, subsequent steps that build
+  # net472 projects (e.g. Analyzers.Tests) fail with CS0518 (missing reference assemblies).
+  - run: msbuild ${{ inputs.sln }} -t:Restore
+    shell: pwsh
+    if: ${{ inputs.target-framework == 'net8.0' && runner.os == 'Windows' }}
+  - run: dotnet restore ${{ inputs.sln }}
+    shell: bash
+    if: ${{ inputs.target-framework == 'net8.0' && runner.os != 'Windows' }}
   - uses: ./.github/test-report
     with:
       trx-path: artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.target-framework }}-Debug.trx
