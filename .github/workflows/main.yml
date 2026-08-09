@@ -118,9 +118,6 @@ jobs:
         title: WebForms Adapter Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net472
-    # IMPORTANT: net8.0 tests must run AFTER all net472 tests on Windows.
-    # Building net472 projects requires the NuGet Core targets files to reference all TFMs.
-    # Running net472 steps first avoids potential state corruption.
     - name: Tests (net8.0)
       uses: ./.github/unittest
       if: ${{ success() || failure() }}
@@ -179,57 +176,8 @@ jobs:
       uses: ./.github/setup
       with:
         sln: src/DotVVM.Crossplatform.slnf
-    - name: Build Compiler
-      run: dotnet build
-        src/Tools/Compiler/DotVVM.Compiler.csproj
-        --no-restore
-        --configuration Debug
-        -p:WarningLevel=0
-      shell: bash
-    - name: Build CommandLine
-      run: dotnet build
-        src/Tools/CommandLine/DotVVM.CommandLine.csproj
-        --framework net8.0
-        --no-restore
-        --configuration Debug
-        -p:WarningLevel=0
-      shell: bash
-    - name: Build CommandLine (Release)
-      run: dotnet build
-        src/Tools/CommandLine/DotVVM.CommandLine.csproj
-        --framework net8.0
-        --no-restore
-        --configuration Release
-        -p:WarningLevel=0
-      shell: bash
-    - name: Build CommandLine.Tests
-      run: dotnet build
-        src/Tools/Tests/CommandLine/DotVVM.CommandLine.Tests.csproj
-        --framework net8.0
-        --no-restore
-        --configuration Debug
-        -p:WarningLevel=0
-      shell: bash
-    - name: Run CommandLine.Tests (Debug)
-      run: dotnet test
-        src/Tools/Tests/CommandLine/DotVVM.CommandLine.Tests.csproj
-        --framework net8.0
-        --no-restore
-        --logger "GitHubActions;report-warnings=true"
-        --logger "trx;LogFileName=${{ github.workspace }}/artifacts/test/unit-test-results-commandline-tests-net8.0-Debug.trx"
-        --configuration Debug
-        -p:WarningLevel=0
-      shell: bash
-    - name: Run CommandLine.Tests (Release)
-      run: dotnet test
-        src/Tools/Tests/CommandLine/DotVVM.CommandLine.Tests.csproj
-        --framework net8.0
-        --no-restore
-        --logger "GitHubActions;report-warnings=true"
-        --logger "trx;LogFileName=${{ github.workspace }}/artifacts/test/unit-test-results-commandline-tests-net8.0-Release.trx"
-        --configuration Release
-        -p:WarningLevel=0
-      shell: bash
+    - name: CommandLine tests
+      uses: ./.github/clitests
 
   js-tests:
     runs-on: ubuntu-latest
