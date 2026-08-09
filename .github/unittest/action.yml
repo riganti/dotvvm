@@ -32,26 +32,14 @@ runs:
     shell: bash
     if: ${{ inputs.target-framework == 'net8.0' }}
     
-  # DotVVM CLI on Windows must be compiled through msbuild
+  # build the DotVVM CLI
   - run: dotnet build
       src/Tools/CommandLine/DotVVM.CommandLine.csproj
       --framework net8.0
       --configuration Debug
       -p:WarningLevel=0
     shell: bash
-    if: ${{ runner.os != 'Windows' && inputs.target-framework == 'net8.0' }}
-  - run: msbuild
-      src/Tools/CommandLine/DotVVM.CommandLine.csproj
-      -t:Restore
-    shell: pwsh
-    if: ${{ runner.os == 'Windows' && inputs.target-framework == 'net8.0'}}
-  - run: msbuild
-      src/Tools/CommandLine/DotVVM.CommandLine.csproj
-      -p:TargetFramework=net8.0
-      -p:Configuration=Debug
-      -p:WarningLevel=0
-    shell: pwsh
-    if: ${{ runner.os == 'Windows' && inputs.target-framework == 'net8.0'}}
+    if: ${{ inputs.target-framework == 'net8.0' }}
     
   # build the project separately first to get compilation errors as `dotnet test` fails silently for some reason
   - run: dotnet build
