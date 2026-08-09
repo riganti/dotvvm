@@ -60,12 +60,40 @@ namespace DotVVM.CommandLine.Tests
 
         private static string FindSourceDirectory([CallerFilePath] string testFilePath = "")
         {
-            // Navigate up from src/Tools/Tests/CommandLine/ to src/
-            var sourceDirectory = Directory.GetParent(Path.GetDirectoryName(testFilePath)!)?.Parent?.Parent?.FullName;
-            if (sourceDirectory is not null && IsSourceDirectory(sourceDirectory))
+            var sourceDirectory =
+                TryGetSourceDirectory(Environment.GetEnvironmentVariable("DOTVVM_ROOT")) ??
+                FindSourceDirectoryFromParentChain(Path.GetDirectoryName(testFilePath)) ??
+                FindSourceDirectoryFromParentChain(AppContext.BaseDirectory) ??
+                FindSourceDirectoryFromParentChain(Directory.GetCurrentDirectory());
+
+            if (sourceDirectory is not null)
                 return sourceDirectory;
 
             throw new DirectoryNotFoundException("The source directory could not be found.");
+        }
+
+        private static string? FindSourceDirectoryFromParentChain(string? startDirectory)
+        {
+            for (var directory = startDirectory; directory is not null; directory = Directory.GetParent(directory)?.FullName)
+            {
+                var sourceDirectory = TryGetSourceDirectory(directory);
+                if (sourceDirectory is not null)
+                    return sourceDirectory;
+            }
+
+            return null;
+        }
+
+        private static string? TryGetSourceDirectory(string? directory)
+        {
+            if (string.IsNullOrWhiteSpace(directory))
+                return null;
+
+            if (IsSourceDirectory(directory))
+                return directory;
+
+            var sourceDirectory = Path.Combine(directory, "src");
+            return IsSourceDirectory(sourceDirectory) ? sourceDirectory : null;
         }
 
         private static bool IsSourceDirectory(string directory) =>
