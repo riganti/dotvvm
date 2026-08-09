@@ -157,7 +157,8 @@ namespace DotVVM.CommandLine
             }
 #if DEBUG
             // When running the CLI from source, use the locally built .NET Framework compiler.
-            var debugExe = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net472/DotVVM.Compiler.exe");
+            // cliDirectory = .../artifacts/bin/DotVVM.CommandLine/Debug/net8.0/
+            var debugExe = Path.Combine(cliDirectory, "../../../DotVVM.Compiler/Debug/net472/DotVVM.Compiler.exe");
             if (File.Exists(debugExe))
                 return debugExe;
 #endif
@@ -176,7 +177,8 @@ namespace DotVVM.CommandLine
             }
 #if DEBUG
             // When running the CLI from source, use the locally built .NET compiler.
-            var debugDll = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net8.0/DotVVM.Compiler.dll");
+            // cliDirectory = .../artifacts/bin/DotVVM.CommandLine/Debug/net8.0/
+            var debugDll = Path.Combine(cliDirectory, "../../../DotVVM.Compiler/Debug/net8.0/DotVVM.Compiler.dll");
             if (File.Exists(debugDll))
                 return debugDll;
 #endif
