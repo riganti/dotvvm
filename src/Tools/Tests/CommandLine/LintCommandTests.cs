@@ -40,8 +40,8 @@ namespace DotVVM.CommandLine.Tests
             using var process = Process.Start(startInfo)!;
             var standardOutput = process.StandardOutput.ReadToEndAsync();
             var standardError = process.StandardError.ReadToEndAsync();
-            var processExit = Task.Run(process.WaitForExit);
-            await Task.WhenAll(standardOutput, standardError, processExit);
+            await Task.WhenAll(standardOutput, standardError);
+            await process.WaitForExitAsync();
             var output = await standardOutput + await standardError;
 
             try
