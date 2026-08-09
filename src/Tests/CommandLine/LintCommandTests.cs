@@ -1,3 +1,4 @@
+#if NET
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -13,14 +14,16 @@ namespace DotVVM.Framework.Tests.CommandLine
         public TestContext TestContext { get; set; } = null!;
 
         [DataTestMethod]
-#if NET
         [DataRow("AspNetCoreLatest")]
         [DataRow("AspNetCore")]
-#else
         [DataRow("Owin")]
-#endif
         public async Task LintCommand_ReportsDiagnosticsAndReturnsFailure(string sampleName)
         {
+            if (sampleName == "Owin" && !OperatingSystem.IsWindows())
+            {
+                Assert.Inconclusive("OWIN sample is only supported on Windows.");
+            }
+
             var repositoryRoot = FindRepositoryRoot();
             var cliAssembly = FindCliAssembly(repositoryRoot);
             var sampleDirectory = Path.Combine(repositoryRoot, "Samples", sampleName);
@@ -85,3 +88,4 @@ namespace DotVVM.Framework.Tests.CommandLine
         }
     }
 }
+#endif
