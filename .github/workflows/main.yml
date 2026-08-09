@@ -118,8 +118,11 @@ jobs:
         title: WebForms Adapter Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net472
-    # net8.0 tests run last because the unittest action builds the DotVVM Compiler and CLI
-    # for net8.0, which can corrupt the NuGet restore state for net472 builds.
+    # IMPORTANT: net8.0 tests must run AFTER all net472 tests.
+    # The unittest action builds DotVVM.Compiler and DotVVM.CommandLine for net8.0 before running
+    # net8.0 tests. Building with --no-restore for only one TFM regenerates Core's NuGet targets
+    # files for net8.0 only, which corrupts the restore state and causes net472 builds to fail
+    # with CS0518 (missing reference assemblies). Running net472 steps first avoids this.
     - name: Tests (net8.0)
       uses: ./.github/unittest
       if: ${{ success() || failure() }}
