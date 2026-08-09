@@ -16,10 +16,6 @@ inputs:
     required: false
     default: net8.0
     description: The target framework moniker used to build and run the test project
-  sln:
-    required: false
-    default: src/DotVVM.Crossplatform.slnf
-    description: Path to the solution file used to restore NuGet packages after the Compiler/CLI builds
   github-token:
     description: GitHub token so that test results can be uploaded
     required: true
@@ -27,31 +23,6 @@ inputs:
 runs:
   using: composite
   steps:
-  # build the DotVVM Compiler and CLI only when running net8.0 tests.
-  # IMPORTANT: These steps must NOT run before net472 test steps (see main.yml for details).
-  # --no-restore: the setup action already restored all packages for all TFMs.
-  # Build all target frameworks in a single invocation (no --framework flag) so the NuGet
-  # Core targets files are written for all TFMs at once; building a single TFM at a time
-  # would overwrite them for that TFM only, corrupting the state for subsequent net472 builds
-  # (CS0518 missing reference assemblies).
-  - run: dotnet build
-      src/Tools/Compiler/DotVVM.Compiler.csproj
-      --no-restore
-      --configuration Debug
-      -p:WarningLevel=0
-    shell: bash
-    if: ${{ inputs.target-framework == 'net8.0' }}
-
-  # build the DotVVM CLI (--no-restore for the same reason as above)
-  - run: dotnet build
-      src/Tools/CommandLine/DotVVM.CommandLine.csproj
-      --framework net8.0
-      --no-restore
-      --configuration Debug
-      -p:WarningLevel=0
-    shell: bash
-    if: ${{ inputs.target-framework == 'net8.0' }}
-    
   # build the project separately first to get compilation errors as `dotnet test` fails silently for some reason
   - run: dotnet build
       "${{ inputs.project }}"
@@ -83,26 +54,6 @@ runs:
       --configuration Release
       -p:WarningLevel=0
     shell: bash
-  # Re-restore the solution after the net8.0 tests to repair the NuGet targets files for all
-  # TFMs. The LintCommandLine tests invoke the CLI which runs MSBuild internally, regenerating
-  # the NuGet Core targets for net8.0 only. Without this restore, subsequent steps that build
-  # net472 projects (e.g. Analyzers.Tests) fail with CS0518 (missing reference assemblies).
-  #
-  # We must delete the *.nuget.g.props / *.nuget.g.targets files first: NuGet skips rewriting
-  # them when project.assets.json has not changed, so a plain restore would silently leave the
-  # corrupted single-TFM files in place.
-  - run: Get-ChildItem src -Recurse -Include "*.nuget.g.props","*.nuget.g.targets" | Remove-Item -Force
-    shell: pwsh
-    if: ${{ inputs.target-framework == 'net8.0' && runner.os == 'Windows' }}
-  - run: find src -name "*.nuget.g.props" -o -name "*.nuget.g.targets" | xargs rm -f
-    shell: bash
-    if: ${{ inputs.target-framework == 'net8.0' && runner.os != 'Windows' }}
-  - run: msbuild ${{ inputs.sln }} -t:Restore
-    shell: pwsh
-    if: ${{ inputs.target-framework == 'net8.0' && runner.os == 'Windows' }}
-  - run: dotnet restore ${{ inputs.sln }}
-    shell: bash
-    if: ${{ inputs.target-framework == 'net8.0' && runner.os != 'Windows' }}
   - uses: ./.github/test-report
     with:
       trx-path: artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.target-framework }}-Debug.trx
