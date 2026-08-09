@@ -157,10 +157,14 @@ namespace DotVVM.CommandLine
             }
 #if DEBUG
             // When running the CLI from source, use the locally built .NET Framework compiler.
-            // cliDirectory = .../artifacts/bin/DotVVM.CommandLine/Debug/net8.0/
+            // With DOTVVM_ROOT/BaseOutputPath: cliDirectory = .../artifacts/bin/DotVVM.CommandLine/Debug/net8.0/
             var debugExe = Path.Combine(cliDirectory, "../../../DotVVM.Compiler/Debug/net472/DotVVM.Compiler.exe");
             if (File.Exists(debugExe))
                 return debugExe;
+            // Local development without BaseOutputPath: cliDirectory = .../src/Tools/CommandLine/bin/Debug/net8.0/
+            var localDebugExe = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net472/DotVVM.Compiler.exe");
+            if (File.Exists(localDebugExe))
+                return localDebugExe;
 #endif
             return null;
         }
@@ -177,10 +181,14 @@ namespace DotVVM.CommandLine
             }
 #if DEBUG
             // When running the CLI from source, use the locally built .NET compiler.
-            // cliDirectory = .../artifacts/bin/DotVVM.CommandLine/Debug/net8.0/
+            // With DOTVVM_ROOT/BaseOutputPath: cliDirectory = .../artifacts/bin/DotVVM.CommandLine/Debug/net8.0/
             var debugDll = Path.Combine(cliDirectory, "../../../DotVVM.Compiler/Debug/net8.0/DotVVM.Compiler.dll");
             if (File.Exists(debugDll))
                 return debugDll;
+            // Local development without BaseOutputPath: cliDirectory = .../src/Tools/CommandLine/bin/Debug/net8.0/
+            var localDebugDll = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net8.0/DotVVM.Compiler.dll");
+            if (File.Exists(localDebugDll))
+                return localDebugDll;
 #endif
             return null;
         }
