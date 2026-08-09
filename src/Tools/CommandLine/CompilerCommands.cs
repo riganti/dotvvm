@@ -103,13 +103,13 @@ namespace DotVVM.CommandLine
             {
                 executable = FindNetFwCompilerExecutable(project, cliDirectory)
                     ?? throw new Exception($"DotVVM Compiler (for .NET Framework) could not be found in the NuGet package cache. "
-                        + "Please ensure the DotVVM NuGet package is properly installed.");
+                        + "Please note this feature is supported in DotVVM 5.0.0 and above.");
             }
             else
             {
                 var compilerDll = FindNetCompilerDll(project, cliDirectory)
                     ?? throw new Exception($"DotVVM Compiler could not be found in the NuGet package cache. "
-                        + "Please ensure the DotVVM NuGet package is properly installed.");
+                        + "Please note this feature is supported in DotVVM 5.0.0 and above.");
 
                 compilerArgs.Add("exec");
                 compilerArgs.Add(compilerDll);
