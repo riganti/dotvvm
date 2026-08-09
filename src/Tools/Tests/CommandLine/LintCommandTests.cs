@@ -1,4 +1,3 @@
-#if NET
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -6,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DotVVM.Framework.Tests.CommandLine
+namespace DotVVM.CommandLine.Tests
 {
     [TestClass]
     public class LintCommandTests
@@ -24,9 +23,9 @@ namespace DotVVM.Framework.Tests.CommandLine
                 Assert.Inconclusive("OWIN sample is only supported on Windows.");
             }
 
-            var repositoryRoot = FindRepositoryRoot();
-            var cliAssembly = FindCliAssembly(repositoryRoot);
-            var sampleDirectory = Path.Combine(repositoryRoot, "Samples", sampleName);
+            var sourceDirectory = FindSourceDirectory();
+            var cliAssembly = FindCliAssembly(sourceDirectory);
+            var sampleDirectory = Path.Combine(sourceDirectory, "Samples", sampleName);
 
             var startInfo = new ProcessStartInfo("dotnet")
             {
@@ -59,13 +58,14 @@ namespace DotVVM.Framework.Tests.CommandLine
             }
         }
 
-        private static string FindRepositoryRoot([CallerFilePath] string testFilePath = "")
+        private static string FindSourceDirectory([CallerFilePath] string testFilePath = "")
         {
-            var sourceDirectory = Directory.GetParent(Path.GetDirectoryName(testFilePath)!)?.Parent?.FullName;
+            // Navigate up from src/Tools/Tests/CommandLine/ to src/
+            var sourceDirectory = Directory.GetParent(Path.GetDirectoryName(testFilePath)!)?.Parent?.Parent?.FullName;
             if (sourceDirectory is not null && IsSourceDirectory(sourceDirectory))
                 return sourceDirectory;
 
-            throw new DirectoryNotFoundException("The repository root could not be found.");
+            throw new DirectoryNotFoundException("The source directory could not be found.");
         }
 
         private static bool IsSourceDirectory(string directory) =>
@@ -88,4 +88,3 @@ namespace DotVVM.Framework.Tests.CommandLine
         }
     }
 }
-#endif
