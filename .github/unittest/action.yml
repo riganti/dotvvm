@@ -29,28 +29,19 @@ runs:
   steps:
   # build the DotVVM Compiler and CLI only when running net8.0 tests.
   # IMPORTANT: These steps must NOT run before net472 test steps (see main.yml for details).
-  # --no-restore: the setup action already restored all packages for all TFMs;
-  # implicit restore here would regenerate Core's NuGet targets files for net8.0 only,
-  # causing the net472 build of Tests to fail with CS0518 (missing reference assemblies)
+  # --no-restore: the setup action already restored all packages for all TFMs.
+  # Build all target frameworks in a single invocation (no --framework flag) so the NuGet
+  # Core targets files are written for all TFMs at once; building a single TFM at a time
+  # would overwrite them for that TFM only, corrupting the state for subsequent net472 builds
+  # (CS0518 missing reference assemblies).
   - run: dotnet build
       src/Tools/Compiler/DotVVM.Compiler.csproj
-      --framework net8.0
       --no-restore
       --configuration Debug
       -p:WarningLevel=0
     shell: bash
     if: ${{ inputs.target-framework == 'net8.0' }}
-  # Also build the net472 compiler on Windows so the LintCommandLine Owin test can find
-  # DotVVM.Compiler.exe via the DEBUG fallback path in CompilerCommands.cs.
-  - run: dotnet build
-      src/Tools/Compiler/DotVVM.Compiler.csproj
-      --framework net472
-      --no-restore
-      --configuration Debug
-      -p:WarningLevel=0
-    shell: bash
-    if: ${{ inputs.target-framework == 'net8.0' && runner.os == 'Windows' }}
-    
+
   # build the DotVVM CLI (--no-restore for the same reason as above)
   - run: dotnet build
       src/Tools/CommandLine/DotVVM.CommandLine.csproj
