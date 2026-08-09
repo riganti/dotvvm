@@ -24,18 +24,23 @@ runs:
   using: composite
   steps:
   # build the DotVVM Compiler
+  # --no-restore: the setup action already restored all packages for all TFMs;
+  # implicit restore here would regenerate Core's NuGet targets files for net8.0 only,
+  # causing the net472 build of Tests to fail with CS0518 (missing reference assemblies)
   - run: dotnet build
       src/Tools/Compiler/DotVVM.Compiler.csproj
       --framework net8.0
+      --no-restore
       --configuration Debug
       -p:WarningLevel=0
     shell: bash
     if: ${{ inputs.target-framework == 'net8.0' }}
     
-  # build the DotVVM CLI
+  # build the DotVVM CLI (--no-restore for the same reason as above)
   - run: dotnet build
       src/Tools/CommandLine/DotVVM.CommandLine.csproj
       --framework net8.0
+      --no-restore
       --configuration Debug
       -p:WarningLevel=0
     shell: bash
