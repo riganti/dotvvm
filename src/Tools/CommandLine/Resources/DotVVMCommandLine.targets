@@ -19,6 +19,8 @@
         Required="true" />
       <PackageReferences ParameterType="Microsoft.Build.Framework.ITaskItem[]"
         Required="true" />
+      <NuGetPackageFolders ParameterType="System.String"
+        Required="false" />
     </ParameterGroup>
     <Task>
       <Using Namespace="System.Collections.Generic" />
@@ -51,6 +53,7 @@ if (package is object)
 var outputPath = OutputPath.Replace("\\", "\\\\");
 var projectFilePath = ProjectFilePath.Replace("\\", "\\\\");
 var metadataFilePath = MetadataFilePath.Replace("\\", "\\\\");
+var nuGetPackageFolders = (NuGetPackageFolders ?? string.Empty).Replace("\\", "\\\\");
 
 var sb = new StringBuilder();
 sb.AppendLine("{");
@@ -60,6 +63,7 @@ sb.AppendLine($"  \"RootNamespace\": \"{RootNamespace}\",");
 sb.AppendLine($"  \"TargetFrameworks\": [{targetFrameworks}],");
 sb.AppendLine($"  \"PackageVersion\": \"{version}\",");
 sb.AppendLine($"  \"ProjectFilePath\": \"{projectFilePath}\",");
+sb.AppendLine($"  \"NuGetPackageFolders\": \"{nuGetPackageFolders}\",");
 sb.AppendLine($"  \"MetadataFilePath\": \"{metadataFilePath}\"");
 sb.AppendLine("}");
 File.WriteAllText(MetadataFilePath, sb.ToString());
@@ -86,6 +90,7 @@ File.WriteAllText(MetadataFilePath, sb.ToString());
       ProjectFilePath="$(MSBuildProjectFullPath)"
       MetadataFilePath="$(MSBuildThisFileDirectory)dotvvm-cli.json"
       References="@(Reference)"
-      PackageReferences="@(PackageReference)" />
+      PackageReferences="@(PackageReference)"
+      NuGetPackageFolders="$(NuGetPackageFolders)" />
   </Target>
 </Project>

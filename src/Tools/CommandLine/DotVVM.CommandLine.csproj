@@ -49,29 +49,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Compiler\DotVVM.Compiler.csproj">
-        <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-        <SetTargetFramework>TargetFramework=$(DotnetCoreTargetVersion)</SetTargetFramework>
-        <AdditionalProperties>PublishDir=$(OutputPath)tools\$(DotnetCoreTargetVersion)\any</AdditionalProperties>
-        <Targets>Publish</Targets>
-    </ProjectReference>
-    <ProjectReference Include="..\Compiler\DotVVM.Compiler.csproj" Condition=" '$(OS)' == 'Windows_NT' ">
-        <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-        <SetTargetFramework>TargetFramework=$(OldFrameworkTargetVersion)</SetTargetFramework>
-        <AdditionalProperties>PublishDir=$(OutputPath)tools\$(OldFrameworkTargetVersion)\any</AdditionalProperties>
-        <Targets>Publish</Targets>
-    </ProjectReference>
-  </ItemGroup>
-
-  <Target Name="AddCompilerToPublish" BeforeTargets="Publish;Pack">
-    <ItemGroup>
-      <ToolsFile Include="$(OutputPath)\tools\**" />
-    </ItemGroup>
-    <Warning Text="CommandLine should be packaged on Windows because of its dependency on Compiler!" Condition=" '$(OS)' != 'Windows_NT' "/>
-    <Copy SourceFiles="@(ToolsFile)" DestinationFolder="$(PublishDir)\tools\%(RecursiveDir)" />
-  </Target>
-
-  <ItemGroup>
     <EmbeddedResource Include="**/*.liquid" />
   </ItemGroup>
 

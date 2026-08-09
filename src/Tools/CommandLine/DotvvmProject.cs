@@ -27,7 +27,8 @@ namespace DotVVM.CommandLine
             string rootNamespace,
             ImmutableArray<NuGetFramework> targetFrameworks,
             string packageVersion,
-            string projectFilePath)
+            string projectFilePath,
+            string nuGetPackageFolders)
         {
             AssemblyName = assemblyName;
             OutputPath = outputPath;
@@ -35,6 +36,7 @@ namespace DotVVM.CommandLine
             TargetFrameworks = targetFrameworks;
             PackageVersion = packageVersion;
             ProjectFilePath = projectFilePath;
+            NuGetPackageFolders = nuGetPackageFolders;
         }
 
         public string AssemblyName { get; }
@@ -48,6 +50,8 @@ namespace DotVVM.CommandLine
         public string PackageVersion { get; }
 
         public string ProjectFilePath { get; }
+
+        public string NuGetPackageFolders { get; }
 
         public static DotvvmProject? FromCsproj(string csprojPath, ILogger? logger = null)
         {
@@ -131,7 +135,8 @@ namespace DotVVM.CommandLine
                 raw!.RootNamespace,
                 raw!.TargetFrameworks.Select(t => NuGetFramework.Parse(t)).ToImmutableArray(),
                 raw!.PackageVersion,
-                raw!.ProjectFilePath);
+                raw!.ProjectFilePath,
+                raw!.NuGetPackageFolders ?? string.Empty);
         }
 
         public const string ProjectFileExtension = ".csproj";
@@ -171,6 +176,8 @@ namespace DotVVM.CommandLine
             public string? PackageVersion { get; set; }
 
             public string? ProjectFilePath { get; set; }
+
+            public string? NuGetPackageFolders { get; set; }
         }
     }
 }
