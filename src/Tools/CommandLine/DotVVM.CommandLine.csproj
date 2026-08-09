@@ -14,9 +14,7 @@
   <!--Related to packaging-->
   <PropertyGroup>
     <PackAsTool>true</PackAsTool>
-    <!-- <PackageType>DotnetTool</PackageType> -->
     <ToolCommandName>dotvvm</ToolCommandName>
-    <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.CommandLine</PackageId>
     <Description>Command-line tools for DotVVM.</Description>
@@ -56,34 +54,4 @@
     <EmbeddedResource Include="Resources\DotVVMCommandLine.targets" />
   </ItemGroup>
 
-  <!-- This target is heavily based on the project file of dotnet-ef and a workaround from dotnet/arcade -->
-  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="BuiltProjectOutputGroup;DebugSymbolsProjectOutputGroup">
-    <PropertyGroup>
-      <_CommonMetadataElements>
-        <id>$(PackageId)</id>
-        <description>$(PackageDescription)</description>
-        <version>$(PackageVersion)</version>
-        <authors>$(Authors)</authors>
-        <requireLicenseAcceptance>$(PackageRequireLicenseAcceptance)</requireLicenseAcceptance>
-        $(_TagsElement)
-        $(_LicenseElement)
-        $(_IconElement)
-        $(_IconUrlElement)
-        $(_ReleaseNotesElement)
-      </_CommonMetadataElements>
-    </PropertyGroup>
-    <ItemGroup>
-      <NuspecProperty Include="PackageType=$(PackageType)" />
-      <NuspecProperty Include="TargetFramework=$(TargetFramework)" />
-      <NuspecProperty Include="CommonMetadataElements=$(_CommonMetadataElements)" />
-      <NuspecProperty Include="PackageId=$(PackageId)" />
-      <NuspecProperty Include="Version=$(PackageVersion)" />
-      <NuspecProperty Include="ProjectDirectory=$(MSBuildProjectDirectory)" />
-      <NuspecProperty Include="SettingsFile=$(_ToolsSettingsFilePath)" />
-      <NuspecProperty Include="Output=$(PublishDir)" />
-    </ItemGroup>
-    <PropertyGroup Condition="'$(NuspecFile)' != '' and '$(NuspecProperties)' == ''">
-      <NuspecProperties>@(NuspecProperty, ';')</NuspecProperties>
-    </PropertyGroup>
-  </Target>
 </Project>
