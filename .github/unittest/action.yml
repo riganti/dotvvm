@@ -16,6 +16,10 @@ inputs:
     required: false
     default: net8.0
     description: The target framework moniker used to build and run the test project
+  sln:
+    required: false
+    default: src/DotVVM.Crossplatform.slnf
+    description: Path to the solution file used to restore NuGet packages after the Compiler/CLI builds
   github-token:
     description: GitHub token so that test results can be uploaded
     required: true
@@ -56,6 +60,15 @@ runs:
       -p:WarningLevel=0
     shell: bash
     if: ${{ inputs.target-framework == 'net8.0' }}
+  # Re-restore the solution after the --no-restore builds above to repair the NuGet targets
+  # files for all TFMs. Without this, subsequent steps that build net472 projects (e.g.
+  # Analyzers.Tests) would fail because the targets were regenerated for net8.0 only.
+  - run: msbuild ${{ inputs.sln }} -t:Restore
+    shell: pwsh
+    if: ${{ inputs.target-framework == 'net8.0' && runner.os == 'Windows' }}
+  - run: dotnet restore ${{ inputs.sln }}
+    shell: bash
+    if: ${{ inputs.target-framework == 'net8.0' && runner.os != 'Windows' }}
     
   # build the project separately first to get compilation errors as `dotnet test` fails silently for some reason
   - run: dotnet build
