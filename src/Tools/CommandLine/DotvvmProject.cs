@@ -85,7 +85,6 @@ namespace DotVVM.CommandLine
 
             var metadataPath = Path.Combine(Path.GetDirectoryName(csprojPath)!, ScratchDirectory, MetadataFilename);
             var metadataText = File.ReadAllText(metadataPath);
-            var rawMetadata = JsonSerializer.Deserialize<DotvvmProjectMetadata>(metadataText);
             return FromJson(metadataText);
         }
 
