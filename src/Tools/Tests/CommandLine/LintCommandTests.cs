@@ -72,8 +72,7 @@ namespace DotVVM.CommandLine.Tests
         {
             for (var directory = startDirectory; directory is not null; directory = Directory.GetParent(directory)?.FullName)
             {
-                var sourceDirectory = TryGetSourceDirectory(directory);
-                if (sourceDirectory is not null)
+                if (IsSourceDirectory(sourceDirectory))
                     return sourceDirectory;
             }
 
