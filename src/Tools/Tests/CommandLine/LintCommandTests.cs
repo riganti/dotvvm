@@ -79,18 +79,6 @@ namespace DotVVM.CommandLine.Tests
             return null;
         }
 
-        private static string? TryGetSourceDirectory(string? directory)
-        {
-            if (string.IsNullOrWhiteSpace(directory))
-                return null;
-
-            if (IsSourceDirectory(directory))
-                return directory;
-
-            var sourceDirectory = Path.Combine(directory, "src");
-            return IsSourceDirectory(sourceDirectory) ? sourceDirectory : null;
-        }
-
         private static bool IsSourceDirectory(string directory) =>
             File.Exists(Path.Combine(directory, "Tools", "CommandLine", "DotVVM.CommandLine.csproj")) &&
             Directory.Exists(Path.Combine(directory, "Samples"));
