@@ -60,11 +60,7 @@ namespace DotVVM.CommandLine.Tests
 
         private static string FindSourceDirectory([CallerFilePath] string testFilePath = "")
         {
-            var sourceDirectory =
-                TryGetSourceDirectory(Environment.GetEnvironmentVariable("DOTVVM_ROOT")) ??
-                FindSourceDirectoryFromParentChain(Path.GetDirectoryName(testFilePath)) ??
-                FindSourceDirectoryFromParentChain(AppContext.BaseDirectory) ??
-                FindSourceDirectoryFromParentChain(Directory.GetCurrentDirectory());
+            var sourceDirectory = FindSourceDirectoryFromParentChain(Path.GetDirectoryName(testFilePath));
 
             if (sourceDirectory is not null)
                 return sourceDirectory;
