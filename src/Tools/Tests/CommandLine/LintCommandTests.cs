@@ -33,7 +33,7 @@ namespace DotVVM.CommandLine.Tests
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 WorkingDirectory = sampleDirectory,
-                Arguments = $"exec {QuoteArgument(cliAssembly)} lint --no-color --verbose-build-output"
+                ArgumentList = { "exec", cliAssembly, "lint", "--no-color", "--verbose-build-output" }
             };
             startInfo.EnvironmentVariables.Remove("DOTVVM_ROOT");
 
