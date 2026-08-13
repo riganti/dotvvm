@@ -387,7 +387,16 @@ namespace DotVVM.Framework.Compilation.Javascript
             ifStatement.Condition.AcceptVisitor(this);
             Emit(')');
             OptionalSpace();
-            ifStatement.TrueBranch.AcceptVisitor(this);
+            if (ifStatement.FalseBranch is object && ifStatement.TrueBranch is JsIfStatement)
+            {
+                Emit('{');
+                ifStatement.TrueBranch.AcceptVisitor(this);
+                Emit('}');
+            }
+            else
+            {
+                ifStatement.TrueBranch.AcceptVisitor(this);
+            }
             CommitLine();
             if (ifStatement.FalseBranch != null)
             {

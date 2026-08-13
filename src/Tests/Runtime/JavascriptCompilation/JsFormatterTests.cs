@@ -124,6 +124,14 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
             AssertFormatting("{a:{c:2},baa:null}", expr);
             AssertFormatting("{\n\ta: {c: 2},\n\tbaa: null\n}", expr, niceMode: true);
         }
+
+        [TestMethod]
+        public void JsFormatter_DanglingElse()
+        {
+            var inner = new JsIfStatement(new JsIdentifierExpression("b"), new JsIdentifierExpression("x").AsStatement());
+            var outer = new JsIfStatement(new JsIdentifierExpression("a"), inner, new JsIdentifierExpression("y").AsStatement());
+            AssertFormatting("if(a){if(b)x;}else y;", outer);
+        }
         [TestMethod]
         public void JsFormatter_Await()
         {
