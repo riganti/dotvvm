@@ -165,7 +165,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var polymorphic = this.polymorphic && !typeof(TElement).IsValueType;
 
                 if (existingValue is null ||
-                    existingValue is ICollection { Count: 0 } ||
                     !polymorphic && GetDefaultConverter(options) is not IDotvvmJsonConverter)
                     return Read(ref reader, typeToConvert, options, state);
 
