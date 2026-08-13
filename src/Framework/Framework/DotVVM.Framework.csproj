@@ -136,7 +136,14 @@
   </ItemGroup>
 
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
-  <Target Name="CompileJS" Inputs="@(TypescriptFile);package.json;yarn.lock" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+  <!-- The Condition prevents a second parallel inner build (multi-TFM) from running yarn concurrently, -->
+  <!-- which causes EPERM on Windows when both try to write the same yarn cache entry at the same time. -->
+  <!-- The lock file is created at the start and deleted at the end; any inner build that sees it already -->
+  <!-- present simply skips CompileJS (the outputs will already exist from the first run). -->
+  <Target Name="CompileJS" Inputs="@(TypescriptFile);package.json;yarn.lock" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild" Condition="!Exists('obj/javascript/.compileJS.lock')">
+
+    <MakeDir Directories="obj/javascript" />
+    <Touch Files="obj/javascript/.compileJS.lock" AlwaysCreate="true" />
 
     <PropertyGroup>
       <EnvOverrides>NO_COLOR=1;FORCE_COLOR=0;TERM=dumb</EnvOverrides>
@@ -154,6 +161,8 @@
     <Exec Command="yarnpkg build-stats" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
 
     <Exec Command="npm run build-stats" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+
+    <Delete Files="obj/javascript/.compileJS.lock" />
   </Target>
 
 </Project>
