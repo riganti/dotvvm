@@ -139,6 +139,10 @@
   <!-- The Condition prevents a second parallel inner build (multi-TFM) from running yarn concurrently, -->
   <!-- which causes EPERM on Windows when both try to write the same yarn cache entry at the same time. -->
   <!-- The lock file is created at the start and deleted at the end. -->
+  <Target Name="CleanupStaleCompileJSLock" BeforeTargets="CompileJS" Condition="Exists('obj/javascript/.compileJS.lock')">
+    <Exec Command="node -e &quot;const fs=require('fs');const lock='obj/javascript/.compileJS.lock';const staleAfterMs=10*60*1000;try{const age=Date.now()-fs.statSync(lock).mtimeMs;if(age&gt;staleAfterMs){fs.unlinkSync(lock);console.log('Removed stale CompileJS lock file.');}}catch{}&quot;" />
+  </Target>
+
   <Target Name="CompileJS" Inputs="@(TypescriptFile);package.json;yarn.lock" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild" Condition="!Exists('obj/javascript/.compileJS.lock')">
 
     <MakeDir Directories="obj/javascript" />
