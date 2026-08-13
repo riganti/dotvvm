@@ -138,8 +138,7 @@
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
   <!-- The Condition prevents a second parallel inner build (multi-TFM) from running yarn concurrently, -->
   <!-- which causes EPERM on Windows when both try to write the same yarn cache entry at the same time. -->
-  <!-- The lock file is created at the start and deleted at the end; any inner build that sees it already -->
-  <!-- present simply skips CompileJS (the outputs will already exist from the first run). -->
+  <!-- The lock file is created at the start and deleted at the end. -->
   <Target Name="CompileJS" Inputs="@(TypescriptFile);package.json;yarn.lock" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild" Condition="!Exists('obj/javascript/.compileJS.lock')">
 
     <MakeDir Directories="obj/javascript" />
@@ -163,6 +162,12 @@
     <Exec Command="npm run build-stats" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
 
     <Delete Files="obj/javascript/.compileJS.lock" />
+  </Target>
+
+  <!-- If another inner build is already compiling JS bundles, wait until it finishes -->
+  <!-- so embedded resources are present before this target framework reaches CoreCompile. -->
+  <Target Name="WaitForCompileJS" BeforeTargets="CoreCompile" Condition="Exists('obj/javascript/.compileJS.lock')">
+    <Exec Command="node -e &quot;const fs=require('fs');const lock='obj/javascript/.compileJS.lock';let retries=300;const sleep=ms=>Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,ms);while(fs.existsSync(lock)&amp;&amp;retries--&gt;0){sleep(100);}if(fs.existsSync(lock)){console.error('Timed out waiting for CompileJS lock to be released.');process.exit(1);}&quot;" />
   </Target>
 
 </Project>
