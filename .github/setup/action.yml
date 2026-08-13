@@ -26,10 +26,13 @@ runs:
   - uses: actions/setup-node@v3
     with:
       node-version: 24
-  - run: |
-      corepack enable
-      yarn set version stable
+  - run: corepack enable
     shell: bash
+  # Pre-install yarn dependencies to avoid concurrent yarn install race conditions
+  # on Windows (EPERM when multiple MSBuild inner-builds run yarn simultaneously).
+  - run: yarn install --immutable
+    shell: bash
+    working-directory: src/Framework/Framework
 
   # .NET
   - uses: actions/setup-dotnet@v4

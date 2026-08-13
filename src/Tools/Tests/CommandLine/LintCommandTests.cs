@@ -89,8 +89,6 @@ namespace DotVVM.CommandLine.Tests
             File.Exists(Path.Combine(directory, "Tools", "CommandLine", "DotVVM.CommandLine.csproj")) &&
             Directory.Exists(Path.Combine(directory, "Samples"));
 
-        private static string QuoteArgument(string argument) => $"\"{argument.Replace("\"", "\\\"")}\"";
-
         private static string FindCliAssembly(string sourceDirectory)
         {
             var dotvvmRoot = Environment.GetEnvironmentVariable("DOTVVM_ROOT");
