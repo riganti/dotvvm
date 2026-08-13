@@ -34,5 +34,16 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
 
             Assert.AreEqual("(a)=>{let b;return b,b;}", resolved.FormatScript());
         }
+
+        [TestMethod]
+        public void AssignParameters_ReplacesRootParameter()
+        {
+            var parameter = new CodeSymbolicParameter("root");
+            JsNode expression = parameter.ToExpression();
+
+            expression = expression.AssignParameters(p => p == parameter ? new JsIdentifierExpression("x") : null);
+
+            Assert.AreEqual("x", expression.FormatScript());
+        }
     }
 }
