@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
@@ -61,7 +64,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 }
                 else
                 {
-                    // immutable dict
+                    // preserve comparers, and type
+                    if (value is IImmutableDictionary<K, V> immutableDict)
+                        return (TDictionary)(object)immutableDict.Clear().AddRange(newDict);
+
                     return CreateDictionary(newDict, typeToConvert);
                 }
             }
@@ -69,7 +75,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             private Dictionary<K, V> ReadDictionaryItems(ref Utf8JsonReader reader, IReadOnlyDictionary<K, V>? existingDict, JsonSerializerOptions options, DotvvmSerializationState state)
             {
                 reader.AssertRead(JsonTokenType.StartArray);
-                var newDict = new Dictionary<K, V>();
+                var newDict = new Dictionary<K, V>(GetKeyComparer(existingDict));
 
                 while (reader.TokenType != JsonTokenType.EndArray)
                 {
@@ -80,6 +86,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 return newDict;
             }
+
+            private static IEqualityComparer<K>? GetKeyComparer(IReadOnlyDictionary<K, V>? dictionary) =>
+                dictionary switch {
+                    Dictionary<K, V> { Comparer: var c } => c,
+                    ImmutableDictionary<K, V> { KeyComparer: var c } => c,
+#if NET8_0_OR_GREATER
+                    FrozenDictionary<K, V> { Comparer: var c } => c,
+#endif
+                    _ => null
+                };
 
             private TDictionary CreateDictionary(Dictionary<K, V> dict, Type typeToConvert)
             {

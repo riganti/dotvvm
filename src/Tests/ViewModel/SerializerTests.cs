@@ -19,6 +19,9 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Runtime.Serialization;
 using System.Collections.Immutable;
+#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
@@ -737,6 +740,32 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("Item3", objPopulated.Dictionary["key3"].P1);
         }
 
+
+        [TestMethod]
+        public void SortedDictionaryPopulate_PreservesInstanceAndComparer()
+        {
+            var obj = new TestViewModelWithSortedDictionary {
+                Dictionary = new() {
+                    ["key"] = new() { P1 = "new" }
+                }
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+            var existingValue = new TestViewModelWithBind { P1 = "old" };
+            var obj2 = new TestViewModelWithSortedDictionary {
+                Dictionary = new(StringComparer.OrdinalIgnoreCase) {
+                    ["KEY"] = existingValue
+                }
+            };
+            var originalDictionary = obj2.Dictionary;
+
+            var result = PopulateViewModel(json, obj2);
+
+            Assert.AreSame(originalDictionary, result.Dictionary);
+            Assert.IsTrue(result.Dictionary.ContainsKey("KEY"));
+            Assert.AreSame(existingValue, result.Dictionary["key"]);
+            Assert.AreEqual("new", existingValue.P1);
+        }
+
         [TestMethod]
         public void SupportImmutableArrayCollection()
         {
@@ -875,6 +904,53 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreNotSame(originalInstances.FirstValue, objPopulated.ImmutableDictionary["key3"]);
             Assert.AreEqual("Item3", objPopulated.ImmutableDictionary["key3"].P1);
         }
+
+        [TestMethod]
+        public void ImmutableDictionaryPopulate_PreservesComparer()
+        {
+            var obj = new TestViewModelWithAdvancedCollections {
+                ImmutableDictionary = ImmutableDictionary<string, TestViewModelWithBind>.Empty
+                    .Add("key", new() { P1 = "new" })
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+            var obj2 = new TestViewModelWithAdvancedCollections {
+                ImmutableDictionary = ImmutableDictionary.Create<string, TestViewModelWithBind>(StringComparer.OrdinalIgnoreCase)
+                    .Add("key", new() { P1 = "old" })
+            };
+
+            var result = PopulateViewModel(json, obj2);
+
+            Assert.IsTrue(result.ImmutableDictionary.ContainsKey("KEY"));
+        }
+
+#if NET8_0_OR_GREATER
+        [TestMethod]
+        public void ReadOnlyFrozenDictionaryPopulate_PreservesComparerWhenReplaced()
+        {
+            IReadOnlyDictionary<string, TestViewModelWithBind> dictionary = new Dictionary<string, TestViewModelWithBind> {
+                ["key"] = new() { P1 = "new" }
+            };
+            var json = Serialize(dictionary, out var _, isPostback: true);
+            var existingDictionary = new Dictionary<string, TestViewModelWithBind>(StringComparer.OrdinalIgnoreCase) {
+                ["key"] = new() { P1 = "old" }
+            }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+            var converter = (IDotvvmJsonConverter)JsonOptions.GetConverter(typeof(IReadOnlyDictionary<string, TestViewModelWithBind>));
+            var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
+            reader.Read();
+
+            using var state = CreateState(true, new JsonObject());
+            var result = (IReadOnlyDictionary<string, TestViewModelWithBind>)converter.PopulateUntyped(
+                ref reader,
+                typeof(IReadOnlyDictionary<string, TestViewModelWithBind>),
+                existingDictionary,
+                JsonOptions,
+                state
+            );
+
+            Assert.IsInstanceOfType<Dictionary<string, TestViewModelWithBind>>(result);
+            Assert.IsTrue(result.ContainsKey("KEY"));
+        }
+#endif
 
         [TestMethod]
         public void DoesNotCloneSettableRecord()
@@ -2008,6 +2084,10 @@ namespace DotVVM.Framework.Tests.ViewModel
         public ImmutableDictionary<string, TestViewModelWithBind> ImmutableDictionary { get; set; } = ImmutableDictionary<string, TestViewModelWithBind>.Empty;
     }
 
+    public class TestViewModelWithSortedDictionary
+    {
+        public SortedDictionary<string, TestViewModelWithBind> Dictionary { get; set; } = new();
+    }
     public class DerivedSubclassA : DerivedItemA
     {
         public string SubProperty { get; set; }
