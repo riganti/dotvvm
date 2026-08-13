@@ -168,10 +168,9 @@
     <Delete Files="obj/javascript/.compileJS.lock" />
   </Target>
 
-  <!-- If another inner build is already compiling JS bundles, wait until it finishes -->
-  <!-- so embedded resources are present before this target framework reaches CoreCompile. -->
-  <Target Name="WaitForCompileJS" BeforeTargets="CoreCompile" Condition="Exists('obj/javascript/.compileJS.lock')">
-    <Exec Command="node -e &quot;const fs=require('fs');const lock='obj/javascript/.compileJS.lock';let retries=300;const sleep=ms=>Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,ms);while(fs.existsSync(lock)&amp;&amp;retries--&gt;0){sleep(100);}if(fs.existsSync(lock)){console.error('Timed out waiting for CompileJS lock to be released.');process.exit(1);}&quot;" />
+  <!-- Wait for JS bundle generation to finish before CoreCompile reads embedded resources. -->
+  <Target Name="WaitForCompileJS" BeforeTargets="CoreCompile">
+    <Exec Command="node -e &quot;const fs=require('fs');const lock='obj/javascript/.compileJS.lock';const output='obj/javascript/root-only/dotvvm-root.js';let retries=300;const sleep=ms=>Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,ms);while(retries--&gt;0){if(!fs.existsSync(lock)&amp;&amp;fs.existsSync(output))process.exit(0);sleep(100);}console.error(fs.existsSync(lock)?'Timed out waiting for CompileJS lock to be released.':'Timed out waiting for CompileJS outputs to be generated.');process.exit(1);&quot;" />
   </Target>
 
 </Project>
