@@ -26,9 +26,11 @@ runs:
   - uses: actions/setup-node@v3
     with:
       node-version: 24
-  - run: corepack enable
+  - run: |
+      corepack enable
+      yarn set version stable
     shell: bash
-
+    
   # .NET
   - uses: actions/setup-dotnet@v4
     with:

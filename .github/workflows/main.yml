@@ -141,7 +141,7 @@ jobs:
     #     name: analyzers-tests
     #     title: Analyzer Tests
     #     github-token: ${{ secrets.GITHUB_TOKEN }}
-    #     target-framework: net7.0    
+    #     target-framework: net7.0
     - name: Adapters.WebForms.Tests (net472)
       uses: ./.github/unittest
       if: matrix.os == 'windows-2022'
