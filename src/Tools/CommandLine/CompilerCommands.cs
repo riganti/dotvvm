@@ -95,6 +95,10 @@ namespace DotVVM.CommandLine
                 }
             }
 
+            var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;
+            var assemblyName = $"{project.AssemblyName}.dll";
+            string assemblyPath;
+
             var compilerArgs = new List<string>();
 
             var cliDirectory = Path.GetDirectoryName(typeof(Program).Assembly.Location)!;
@@ -104,6 +108,9 @@ namespace DotVVM.CommandLine
                 executable = FindNetFwCompilerExecutable(project, cliDirectory)
                     ?? throw new Exception($"DotVVM Compiler (for .NET Framework) could not be found in the NuGet package cache. "
                         + "Please note this feature is supported in DotVVM 5.0.0 and above.");
+
+                // .NET Framework: projectDir/bin/assembly.dll
+                assemblyPath = Path.Combine(projectDir, project.OutputPath, assemblyName);
             }
             else
             {
@@ -114,11 +121,10 @@ namespace DotVVM.CommandLine
                 compilerArgs.Add("exec");
                 compilerArgs.Add(compilerDll);
                 executable = "dotnet";
-            }
 
-            var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;
-            var assemblyName = $"{project.AssemblyName}.dll";
-            var assemblyPath = ResolveAssemblyPath(projectDir, project.OutputPath, configuration, framework, assemblyName);
+                // .NET: projectDir/bin/Debug/net8.0/assembly.dll
+                assemblyPath = Path.Combine(projectDir, project.OutputPath, configuration, framework, assemblyName);
+            }
 
             if (noColor)
             {
@@ -147,7 +153,7 @@ namespace DotVVM.CommandLine
             var outputRoot = Path.Combine(projectDir, outputPath);
             var candidates = new[]
             {
-                Path.Combine(outputRoot, configuration, framework, assemblyName),
+                ,
                 Path.Combine(outputRoot, configuration, assemblyName),
                 Path.Combine(outputRoot, framework, assemblyName),
                 Path.Combine(outputRoot, assemblyName)
