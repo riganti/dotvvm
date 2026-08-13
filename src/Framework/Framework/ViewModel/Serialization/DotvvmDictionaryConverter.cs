@@ -102,6 +102,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 // Create the appropriate dictionary type
                 if (dict is TDictionary result)
                     return result;
+                if (typeof(TDictionary) == typeof(SortedDictionary<K, V>))
+                    return (TDictionary)(object)new SortedDictionary<K, V>(dict);
                 if (ImmutableDictionary<K, V>.Empty is TDictionary)
                     return (TDictionary)(object)dict.ToImmutableDictionary();
                 throw new NotSupportedException($"Cannot create instance of {typeToConvert.ToCode()}.");

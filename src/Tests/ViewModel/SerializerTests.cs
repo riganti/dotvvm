@@ -740,6 +740,18 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("Item3", objPopulated.Dictionary["key3"].P1);
         }
 
+        [TestMethod]
+        public void SortedDictionaryDeserialize()
+        {
+            var obj = new SortedDictionary<string, TestViewModelWithBind> {
+                ["key"] = new() { P1 = "value" }
+            };
+            var json = Serialize(obj, out var encryptedValues, isPostback: true);
+
+            var result = Deserialize<SortedDictionary<string, TestViewModelWithBind>>(json, encryptedValues);
+
+            Assert.AreEqual("value", result["key"].P1);
+        }
 
         [TestMethod]
         public void SortedDictionaryPopulate_PreservesInstanceAndComparer()
