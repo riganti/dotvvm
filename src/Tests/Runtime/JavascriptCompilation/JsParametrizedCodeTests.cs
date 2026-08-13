@@ -31,6 +31,26 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
+        public void SymbolicParameters_Global_UnsafeNameIndexer()
+        {
+            var pcode = symbolA.ToExpression().Member("some name").FormatParametrizedScript();
+            var assignment = CodeParameterAssignment.FromIdentifier("global", isGlobalContext: true);
+
+            Assert.AreEqual("global[\"some name\"]", pcode.ToString(o => o == symbolA ? assignment : default));
+            Assert.AreEqual("global[\"some name\"]", pcode.AssignParameters(o => o == symbolA ? assignment : default).ToDefaultString());
+        }
+
+        [TestMethod]
+        public void SymbolicParameters_Global_OptionalIndexer()
+        {
+            var pcode = symbolA.ToExpression().Member("some-name", optional: true).FormatParametrizedScript();
+            var assignment = CodeParameterAssignment.FromIdentifier("global", isGlobalContext: true);
+
+            Assert.AreEqual("global?.[\"some-name\"]", pcode.ToString(o => o == symbolA ? assignment : default));
+            Assert.AreEqual("global?.[\"some-name\"]", pcode.AssignParameters(o => o == symbolA ? assignment : default).ToDefaultString());
+        }
+
+        [TestMethod]
         public void SymbolicParameters_Global_ThroughDefault()
         {
             var globalDefaultSymbol = new CodeSymbolicParameter("global", defaultAssignment: symbolA.ToParametrizedCode());

@@ -192,8 +192,12 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             EmitComment(memberAccessExpression.CommentBefore);
             if (!memberAccessExpression.MemberNameToken.IsValidName())
-                new JsIndexerExpression(memberAccessExpression.Target.Clone(), new JsLiteral(memberAccessExpression.MemberName))
-                .AcceptVisitor(this);
+            {
+                memberAccessExpression.Target.AcceptVisitor(this);
+                Emit(memberAccessExpression.IsOptional ? "?.[" : "[");
+                new JsLiteral(memberAccessExpression.MemberName).AcceptVisitor(this);
+                Emit(']');
+            }
             else
             {
                 memberAccessExpression.Target.AcceptVisitor(this);

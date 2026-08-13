@@ -34,6 +34,12 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
+        public void JsFormatter_OptionalMemberAccessIndexer()
+        {
+            AssertFormatting("a?.[\"some-name\"]", new JsIdentifierExpression("a").Member("some-name", optional: true));
+        }
+
+        [TestMethod]
         public void JsFormatter_Invocation()
         {
             AssertFormatting("a.b(4,5)", new JsIdentifierExpression("a").Member("b").Invoke(new JsLiteral(4), new JsLiteral(5)));

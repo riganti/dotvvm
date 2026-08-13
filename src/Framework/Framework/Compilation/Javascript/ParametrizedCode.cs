@@ -381,7 +381,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static CodeParameterInfo FromExpression(JsSymbolicParameter expression)
         {
-            return new CodeParameterInfo(expression.Symbol, JsParensFixingVisitor.GetParentLevel(expression), expression.Parent is JsMemberAccessExpression, expression.DefaultAssignment);
+            var isSafeMemberAccess = expression.Parent is JsMemberAccessExpression { IsOptional: false } memberAccess &&
+                                     memberAccess.MemberNameToken.IsValidName();
+            return new CodeParameterInfo(expression.Symbol, JsParensFixingVisitor.GetParentLevel(expression), isSafeMemberAccess, expression.DefaultAssignment);
         }
     }
 
