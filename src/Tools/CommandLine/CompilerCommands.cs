@@ -117,9 +117,8 @@ namespace DotVVM.CommandLine
             }
 
             var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;
-            var outputRoot = Path.Combine(projectDir, project.OutputPath);
             var assemblyName = $"{project.AssemblyName}.dll";
-            var assemblyPath = Path.Combine(outputRoot, configuration, framework, assemblyName);
+            var assemblyPath = ResolveAssemblyPath(projectDir, project.OutputPath, configuration, framework, assemblyName);
 
             if (noColor)
             {
@@ -141,6 +140,20 @@ namespace DotVVM.CommandLine
             process.WaitForExit();
 
             return process.ExitCode;
+        }
+
+        private static string ResolveAssemblyPath(string projectDir, string outputPath, string configuration, string framework, string assemblyName)
+        {
+            var outputRoot = Path.Combine(projectDir, outputPath);
+            var candidates = new[]
+            {
+                Path.Combine(outputRoot, configuration, framework, assemblyName),
+                Path.Combine(outputRoot, configuration, assemblyName),
+                Path.Combine(outputRoot, framework, assemblyName),
+                Path.Combine(outputRoot, assemblyName)
+            };
+
+            return candidates.FirstOrDefault(File.Exists) ?? candidates[0];
         }
 
         private static string? FindNetFwCompilerExecutable(DotvvmProject project, string cliDirectory)
