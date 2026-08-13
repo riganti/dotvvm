@@ -60,6 +60,13 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
+        public void JsFormatter_NamedFunctionExpression()
+        {
+            var expr = new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(), new JsIdentifier("f"));
+            AssertFormatting("function f(){}", expr);
+        }
+
+        [TestMethod]
         public void JsFormatter_AssignmentExpression()
         {
             var expr = new JsBinaryExpression(new JsAssignmentExpression(new JsIdentifierExpression("a"), new JsIdentifierExpression("c")), BinaryOperatorType.Equal, new JsIdentifierExpression("b"));

@@ -444,7 +444,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 Emit("async ");
             }
-            EmitOperator("function(", allowCosmeticSpace: false);
+            EmitOperator("function", allowCosmeticSpace: false);
+            if (functionExpression.Identifier is object)
+            {
+                Emit(' ');
+                functionExpression.Identifier.AcceptVisitor(this);
+            }
+            Emit('(');
             var first = true;
             foreach (var item in functionExpression.Parameters)
             {
