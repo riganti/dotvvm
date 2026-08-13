@@ -148,20 +148,6 @@ namespace DotVVM.CommandLine
             return process.ExitCode;
         }
 
-        private static string ResolveAssemblyPath(string projectDir, string outputPath, string configuration, string framework, string assemblyName)
-        {
-            var outputRoot = Path.Combine(projectDir, outputPath);
-            var candidates = new[]
-            {
-                ,
-                Path.Combine(outputRoot, configuration, assemblyName),
-                Path.Combine(outputRoot, framework, assemblyName),
-                Path.Combine(outputRoot, assemblyName)
-            };
-
-            return candidates.FirstOrDefault(File.Exists) ?? candidates[0];
-        }
-
         private static string? FindNetFwCompilerExecutable(DotvvmProject project, string cliDirectory)
         {
             // Look for the compiler in the DotVVM NuGet package (tools/netfw/DotVVM.Compiler.exe)
