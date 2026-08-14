@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--Include DotVVM Views, MasterPages and Controls -->
+    <Content Include="**/*.dothtml;**/*.dotmaster;**/*.dotlayout;**/*.dotcontrol" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="PreserveNewest" />
+
+    <None Remove="dotvvm_serialized_config.json.tmp" />
+
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DotVVM.AspNetCore" Version="5.0.0-preview12-31719805262" />
+  </ItemGroup>
+  <Target Name="CreateWWWRoot" AfterTargets="AfterPublish">
+    <MakeDir Directories="$(PublishDir)wwwroot" Condition="!Exists('$(PublishDir)wwwroot')" />
+  </Target>
+</Project>

@@ -1,0 +1,17 @@
+﻿@viewModel new_app_net472_correct.ViewModels.MasterPageViewModel, new_app_net472_correct
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>new_app_net472_correct</title>
+    <dot:RequiredResource Name="Styles"/>
+</head>
+<body>
+
+ 	
+
+    <dot:ContentPlaceHolder ID="MainContent" />
+
+</body>
+</html>
