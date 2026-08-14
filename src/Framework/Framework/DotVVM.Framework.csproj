@@ -135,19 +135,8 @@
     <UpToDateCheckInput Include="Resources/Scripts/**/*.ts" />
   </ItemGroup>
 
-  <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
-  <!-- The Condition prevents a second parallel inner build (multi-TFM) from running yarn concurrently, -->
-  <!-- which causes EPERM on Windows when both try to write the same yarn cache entry at the same time. -->
-  <!-- The lock file is created at the start and deleted at the end. -->
-  <Target Name="CleanupStaleCompileJSLock" BeforeTargets="CompileJS" Condition="Exists('obj/javascript/.compileJS.lock')">
-    <Exec Command="node -e &quot;const fs=require('fs');const lock='obj/javascript/.compileJS.lock';const staleAfterMs=10*60*1000;try{const age=Date.now()-fs.statSync(lock).mtimeMs;if(age&gt;staleAfterMs){fs.unlinkSync(lock);console.log('Removed stale CompileJS lock file.');}}catch{}&quot;" />
-  </Target>
-
-  <Target Name="CompileJS" Inputs="@(TypescriptFile);package.json;yarn.lock" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild" Condition="!Exists('obj/javascript/.compileJS.lock')">
-
-    <MakeDir Directories="obj/javascript" />
-    <Touch Files="obj/javascript/.compileJS.lock" AlwaysCreate="true" />
-
+  <!-- Run before MSBuild dispatches framework-specific builds, so the shared bundle is generated once. -->
+  <Target Name="CompileJS" Inputs="@(TypescriptFile);package.json;yarn.lock" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds">
     <PropertyGroup>
       <EnvOverrides>NO_COLOR=1;FORCE_COLOR=0;TERM=dumb</EnvOverrides>
     </PropertyGroup>
@@ -164,13 +153,6 @@
     <Exec Command="yarnpkg build-stats" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
 
     <Exec Command="npm run build-stats" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
-
-    <Delete Files="obj/javascript/.compileJS.lock" />
-  </Target>
-
-  <!-- Wait for JS bundle generation to finish before CoreCompile reads embedded resources. -->
-  <Target Name="WaitForCompileJS" BeforeTargets="CoreCompile">
-    <Exec Command="node -e &quot;const fs=require('fs');const lock='obj/javascript/.compileJS.lock';const output='obj/javascript/root-only/dotvvm-root.js';let retries=300;const sleep=ms=>Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,ms);while(retries--&gt;0){if(!fs.existsSync(lock)&amp;&amp;fs.existsSync(output))process.exit(0);sleep(100);}console.error(fs.existsSync(lock)?'Timed out waiting for CompileJS lock to be released.':'Timed out waiting for CompileJS outputs to be generated.');process.exit(1);&quot;" />
   </Target>
 
 </Project>
