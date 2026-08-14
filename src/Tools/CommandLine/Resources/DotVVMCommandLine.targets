@@ -21,12 +21,15 @@
         Required="true" />
       <NuGetPackageFolders ParameterType="System.String"
         Required="false" />
+      <PackagesConfigPath ParameterType="System.String"
+        Required="true" />
     </ParameterGroup>
     <Task>
       <Using Namespace="System.Collections.Generic" />
       <Using Namespace="System.Text" />
       <Using Namespace="System.IO" />
       <Using Namespace="System.Reflection" />
+      <Using Namespace="System.Xml.Linq" />
       <Code Type="Fragment"
         Language="cs">
 <![CDATA[
@@ -48,6 +51,18 @@ var package = PackageReferences
 if (package is object)
 {
   version = package.GetMetadata("Version");
+}
+else if (File.Exists(PackagesConfigPath))
+{
+  var legacyPackage = XDocument.Load(PackagesConfigPath)
+    .Root
+    .Elements("package")
+    .FirstOrDefault(p =>
+      p.Attribute("id")?.Value == "DotVVM");
+  if (legacyPackage is object)
+  {
+    version = legacyPackage.Attribute("version")?.Value ?? version;
+  }
 }
 
 var outputPath = OutputPath.Replace("\\", "\\\\");
@@ -91,6 +106,7 @@ File.WriteAllText(MetadataFilePath, sb.ToString());
       MetadataFilePath="$(MSBuildThisFileDirectory)dotvvm-cli.json"
       References="@(Reference)"
       PackageReferences="@(PackageReference)"
-      NuGetPackageFolders="$(NuGetPackageFolders)" />
+      NuGetPackageFolders="$(NuGetPackageFolders)"
+      PackagesConfigPath="$(MSBuildProjectDirectory)\packages.config" />
   </Target>
 </Project>
