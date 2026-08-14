@@ -1,0 +1,35 @@
+﻿@viewModel new_app_net472_correct.ViewModels.DefaultViewModel, new_app_net472_correct
+@masterPage Views/MasterPage.dotmaster
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <div class="content">
+
+        <img src="/Resources/Images/tree.svg" class="content__background-image content__background-image--left" />
+
+        <a href="https://www.dotvvm.com/" target="_blank">
+            <img src="/Resources/Images/text.svg" class="content__image" />
+        </a>
+        <div class="content__text">
+            <h1>{{value: Title}}</h1>
+
+            <p>Open source MVVM framework for ASP.NET Core and OWIN</p>
+
+            <h3>Helpful Links</h3>
+            <ul class="content__links-list">
+                <li><a href="https://www.dotvvm.com/docs/latest" target="_blank">Docs</a></li>
+                <li><a href="https://academy.dotvvm.com" target="_blank">Academy</a></li>
+                <li><a href="https://www.dotvvm.com/samples" target="_blank">Samples</a></li>
+                <li><a href="https://gitter.im/riganti/dotvvm" target="_blank">Gitter</a></li>
+                <li><a href="https://www.youtube.com/channel/UCQZl8LNoe9kvE5FcjDyHlgQ" target="_blank">Youtube channel</a></li>
+            </ul>
+
+            <h3>Ecosystem</h3>
+            <ul class="content__links-list">
+                <li><a href="https://github.com/riganti/dotvvm" target="_blank">Github repo</a></li>
+                <li><a href="https://www.dotvvm.com/products" target="_blank">Products</a></li>
+            </ul>
+        </div>
+
+        <img src="/Resources/Images/tree.svg" class="content__background-image content__background-image content__background-image--right" />
+    </div>
+</dot:Content>
