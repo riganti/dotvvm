@@ -135,7 +135,7 @@
     <UpToDateCheckInput Include="Resources/Scripts/**/*.ts" />
   </ItemGroup>
 
-  <!-- Run before MSBuild dispatches framework-specific builds, so the shared bundle is generated once. -->
+  <!-- The outer build runs this before dispatching inner builds. -->
   <Target Name="CompileJS" Inputs="@(TypescriptFile);package.json;yarn.lock" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds">
     <PropertyGroup>
       <EnvOverrides>NO_COLOR=1;FORCE_COLOR=0;TERM=dumb</EnvOverrides>
@@ -153,6 +153,11 @@
     <Exec Command="yarnpkg build-stats" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
 
     <Exec Command="npm run build-stats" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+  </Target>
+
+  <!-- Direct framework builds do not dispatch inner builds. Removing TargetFramework gives all callers one coordinated target. -->
+  <Target Name="EnsureCompileJS" BeforeTargets="CoreCompile">
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="CompileJS" RemoveProperties="TargetFramework" />
   </Target>
 
 </Project>
