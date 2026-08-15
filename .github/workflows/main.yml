@@ -161,6 +161,25 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net10.0
 
+  commandline-tests:
+    name: CommandLine tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-2022, macOS-latest]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up
+      uses: ./.github/setup
+      with:
+        sln: src/DotVVM.Crossplatform.slnf
+    - name: CommandLine tests
+      uses: ./.github/clitests
+
   js-tests:
     runs-on: ubuntu-latest
     name: JS unit tests

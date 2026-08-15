@@ -27,7 +27,8 @@ namespace DotVVM.CommandLine
             string rootNamespace,
             ImmutableArray<NuGetFramework> targetFrameworks,
             string packageVersion,
-            string projectFilePath)
+            string projectFilePath,
+            string nuGetPackageFolders)
         {
             AssemblyName = assemblyName;
             OutputPath = outputPath;
@@ -35,6 +36,7 @@ namespace DotVVM.CommandLine
             TargetFrameworks = targetFrameworks;
             PackageVersion = packageVersion;
             ProjectFilePath = projectFilePath;
+            NuGetPackageFolders = nuGetPackageFolders;
         }
 
         public string AssemblyName { get; }
@@ -49,11 +51,14 @@ namespace DotVVM.CommandLine
 
         public string ProjectFilePath { get; }
 
+        public string NuGetPackageFolders { get; }
+
         public static DotvvmProject? FromCsproj(string csprojPath, ILogger? logger = null)
         {
             logger ??= NullLogger.Instance;
 
             var targetsPath = Path.Combine(Path.GetDirectoryName(csprojPath)!, ScratchDirectory, TargetsFilename);
+            Directory.CreateDirectory(Path.GetDirectoryName(targetsPath)!);
             using var embeddedTargets = typeof(DotvvmProject).Assembly
                 .GetManifestResourceStream($"DotVVM.CommandLine.Resources.{TargetsFilename}")!;
             using var reader = new StreamReader(embeddedTargets);
@@ -80,7 +85,6 @@ namespace DotVVM.CommandLine
 
             var metadataPath = Path.Combine(Path.GetDirectoryName(csprojPath)!, ScratchDirectory, MetadataFilename);
             var metadataText = File.ReadAllText(metadataPath);
-            var rawMetadata = JsonSerializer.Deserialize<DotvvmProjectMetadata>(metadataText);
             return FromJson(metadataText);
         }
 
@@ -126,11 +130,12 @@ namespace DotVVM.CommandLine
 
             return new DotvvmProject(
                 raw!.AssemblyName,
-                raw!.OutputPath,
+                raw!.OutputPath!.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar),
                 raw!.RootNamespace,
                 raw!.TargetFrameworks.Select(t => NuGetFramework.Parse(t)).ToImmutableArray(),
                 raw!.PackageVersion,
-                raw!.ProjectFilePath);
+                raw!.ProjectFilePath,
+                raw!.NuGetPackageFolders ?? string.Empty);
         }
 
         public const string ProjectFileExtension = ".csproj";
@@ -170,6 +175,8 @@ namespace DotVVM.CommandLine
             public string? PackageVersion { get; set; }
 
             public string? ProjectFilePath { get; set; }
+
+            public string? NuGetPackageFolders { get; set; }
         }
     }
 }

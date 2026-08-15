@@ -32,6 +32,7 @@
       "Tests\\DotVVM.Framework.Tests.csproj",
       "IntegrationTests\\DotVVM.Framework.IntegrationTests.csproj",
       "Tools\\CommandLine\\DotVVM.CommandLine.csproj",
+      "Tools\\Tests\\CommandLine\\DotVVM.CommandLine.Tests.csproj",
       "Tools\\Compiler\\DotVVM.Compiler.csproj",
       "Tools\\HotReload\\AspNetCore\\DotVVM.HotReload.AspNetCore.csproj",
       "Tools\\HotReload\\Common\\DotVVM.HotReload.csproj",

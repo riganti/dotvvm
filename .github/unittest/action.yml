@@ -14,7 +14,7 @@ inputs:
     description: Human-friendly name of the test project
   target-framework:
     required: false
-    default: net6.0
+    default: net8.0
     description: The target framework moniker used to build and run the test project
   github-token:
     description: GitHub token so that test results can be uploaded

@@ -35,6 +35,11 @@ namespace DotVVM.CommandLine
 
         public static MSBuild? CreateFromVS()
         {
+            if (!OperatingSystem.IsWindows())
+            {
+                return null;
+            }
+
             var dir = Path.GetDirectoryName(typeof(MSBuild).Assembly.Location)!;
             var vswhere = new FileInfo(Path.Combine(dir, "vswhere.exe"));
             if (!vswhere.Exists)
@@ -44,7 +49,7 @@ namespace DotVVM.CommandLine
 
             var startInfo = new ProcessStartInfo
             {
-                ArgumentList = { "-property",  "installationPath" },
+                ArgumentList = { "-latest", "-requires", "Microsoft.Component.MSBuild", "-find", "MSBuild\\**\\Bin\\MSBuild.exe" },
                 RedirectStandardOutput = true,
                 FileName = vswhere.FullName,
                 UseShellExecute = false,
@@ -60,7 +65,13 @@ namespace DotVVM.CommandLine
                 return null;
             }
 
-            var msbuildExe = new FileInfo(Path.Combine(stdout, VSRelativePath));
+            var lines = stdout.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+            if (!lines.Any())
+            {
+                return null;
+            }
+
+            var msbuildExe = new FileInfo(lines[0]);
             if (!msbuildExe.Exists)
             {
                 return null;

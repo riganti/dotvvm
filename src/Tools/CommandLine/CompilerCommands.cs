@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.Diagnostics;
@@ -94,50 +95,42 @@ namespace DotVVM.CommandLine
                 }
             }
 
+            var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;
+            var assemblyName = $"{project.AssemblyName}.dll";
+            string assemblyPath;
+
             var compilerArgs = new List<string>();
 
             var cliDirectory = Path.GetDirectoryName(typeof(Program).Assembly.Location)!;
-            var executable = "dotnet";
+            string executable;
             if (targetFramework.IsDesktop())
             {
-                executable = Path.Combine(cliDirectory, "tools/net472/any/DotVVM.Compiler.exe");
-#if DEBUG
-                if (!File.Exists(executable))
-                {
-                    // When running the CLI from source, use the locally built .NET Framework compiler.
-                    executable = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net472/DotVVM.Compiler.exe");
-                }
-#endif
+                executable = FindNetFwCompilerExecutable(project, cliDirectory)
+                    ?? throw new Exception($"DotVVM Compiler (for .NET Framework) could not be found in the NuGet package cache. "
+                        + "Please note this feature is supported in DotVVM 5.0.0 and above.");
+
+                // .NET Framework: projectDir/bin/assembly.dll
+                assemblyPath = Path.Combine(projectDir, project.OutputPath, assemblyName);
             }
             else
             {
-                var compilerDir = Path.Combine(cliDirectory, "tools/net8.0/any");
-                if (Directory.Exists(compilerDir))
-                {
-                    compilerArgs.Add("exec");
-                    compilerArgs.Add(Path.Combine(compilerDir, "DotVVM.Compiler.dll"));
-                }
-                else
-                {
-                    // when running from source, the compiler is in a different location
-                    compilerDir = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net8.0");
-                    compilerArgs.Add("exec");
-                    compilerArgs.Add(Path.Combine(compilerDir, "DotVVM.Compiler.dll"));
-                }
-            }
+                var compilerDll = FindNetCompilerDll(project, cliDirectory)
+                    ?? throw new Exception($"DotVVM Compiler could not be found in the NuGet package cache. "
+                        + "Please note this feature is supported in DotVVM 5.0.0 and above.");
 
-            var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;
-            var outputDir = Path.Combine(projectDir, project.OutputPath, configuration, framework);
-            while (!Directory.Exists(outputDir))
-            {
-                outputDir = Directory.GetParent(outputDir).NotNull().FullName;
+                compilerArgs.Add("exec");
+                compilerArgs.Add(compilerDll);
+                executable = "dotnet";
+
+                // .NET: projectDir/bin/Debug/net8.0/assembly.dll
+                assemblyPath = Path.Combine(projectDir, project.OutputPath, configuration, framework, assemblyName);
             }
 
             if (noColor)
             {
                 compilerArgs.Add("--no-color");
             }
-            compilerArgs.Add(Path.Combine(outputDir, $"{project.AssemblyName}.dll"));
+            compilerArgs.Add(assemblyPath);
             compilerArgs.Add(projectDir);
 
             var pinfo = new ProcessStartInfo {
@@ -153,6 +146,82 @@ namespace DotVVM.CommandLine
             process.WaitForExit();
 
             return process.ExitCode;
+        }
+
+        private static string? FindNetFwCompilerExecutable(DotvvmProject project, string cliDirectory)
+        {
+            // Look for the compiler in the DotVVM NuGet package (tools/netfw/DotVVM.Compiler.exe)
+            const string compilerRelativePath = "DotVVM.Compiler.exe";
+            foreach (var folder in GetNuGetPackageFolders(project))
+            {
+                var exe = Path.Combine(folder, "dotvvm", project.PackageVersion, "tools", "netfw", compilerRelativePath);
+                if (File.Exists(exe))
+                    return exe;
+            }
+#if DEBUG
+            // When running the CLI from source, use the locally built .NET Framework compiler.
+            // With DOTVVM_ROOT/BaseOutputPath: cliDirectory = .../artifacts/bin/DotVVM.CommandLine/Debug/net8.0/
+            var debugExe = Path.Combine(cliDirectory, "../../../DotVVM.Compiler/Debug/net472/DotVVM.Compiler.exe");
+            if (File.Exists(debugExe))
+                return debugExe;
+            // Local development without BaseOutputPath: cliDirectory = .../src/Tools/CommandLine/bin/Debug/net8.0/
+            var localDebugExe = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net472/DotVVM.Compiler.exe");
+            if (File.Exists(localDebugExe))
+                return localDebugExe;
+#endif
+            return null;
+        }
+
+        private static string? FindNetCompilerDll(DotvvmProject project, string cliDirectory)
+        {
+            // Look for the compiler in the DotVVM NuGet package (tools/net/DotVVM.Compiler.dll)
+            const string compilerRelativePath = "DotVVM.Compiler.dll";
+            foreach (var folder in GetNuGetPackageFolders(project))
+            {
+                var dll = Path.Combine(folder, "dotvvm", project.PackageVersion, "tools", "net", compilerRelativePath);
+                if (File.Exists(dll))
+                    return dll;
+            }
+#if DEBUG
+            // When running the CLI from source, use the locally built .NET compiler.
+            // With DOTVVM_ROOT/BaseOutputPath: cliDirectory = .../artifacts/bin/DotVVM.CommandLine/Debug/net8.0/
+            var debugDll = Path.Combine(cliDirectory, "../../../DotVVM.Compiler/Debug/net8.0/DotVVM.Compiler.dll");
+            if (File.Exists(debugDll))
+                return debugDll;
+            // Local development without BaseOutputPath: cliDirectory = .../src/Tools/CommandLine/bin/Debug/net8.0/
+            var localDebugDll = Path.Combine(cliDirectory, "../../../../Compiler/bin/Debug/net8.0/DotVVM.Compiler.dll");
+            if (File.Exists(localDebugDll))
+                return localDebugDll;
+#endif
+            return null;
+        }
+
+        private static IEnumerable<string> GetNuGetPackageFolders(DotvvmProject project)
+        {
+            // Use the package folders reported by NuGet restore for the user's project
+            if (!string.IsNullOrEmpty(project.NuGetPackageFolders))
+            {
+                foreach (var folder in project.NuGetPackageFolders.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var trimmed = folder.Trim();
+                    if (!string.IsNullOrEmpty(trimmed))
+                        yield return trimmed;
+                }
+            }
+
+            // Fall back to the default NuGet global packages folder
+            var envPackages = Environment.GetEnvironmentVariable("NUGET_PACKAGES");
+            if (!string.IsNullOrEmpty(envPackages))
+            {
+                yield return envPackages;
+            }
+            else
+            {
+                var defaultFolder = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    ".nuget", "packages");
+                yield return defaultFolder;
+            }
         }
     }
 }
