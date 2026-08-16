@@ -400,6 +400,36 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void EmptyGetOnlyCollectionPopulate()
+        {
+            var obj = new TestViewModelWithGetOnlyCollection();
+            obj.Items.Add(new TestViewModelWithBind { P1 = "new" });
+            var json = Serialize(obj, out var _, isPostback: true);
+
+            var obj2 = PopulateViewModel(json, new TestViewModelWithGetOnlyCollection());
+
+            Assert.AreEqual(1, obj2.Items.Count);
+            Assert.AreEqual("new", obj2.Items[0].P1);
+        }
+
+        [TestMethod]
+        public void EmptySettableCollectionPopulate_PreservesInstance()
+        {
+            var obj = new TestViewModelWithCollections {
+                ViewModels = new() { new() { P1 = "new" } }
+            };
+            var json = Serialize(obj, out var _, isPostback: true);
+            var obj2 = new TestViewModelWithCollections();
+            var originalCollection = obj2.ViewModels;
+
+            var result = PopulateViewModel(json, obj2);
+
+            Assert.AreSame(originalCollection, result.ViewModels);
+            Assert.AreEqual(1, result.ViewModels.Count);
+            Assert.AreEqual("new", result.ViewModels[0].P1);
+        }
+
+        [TestMethod]
         public void SupportNestedCollectionPopulate()
         {
             // Clear cache to ensure TestViewModelWithNestedCollections uses the registered DotvvmCollectionConverter
@@ -2059,6 +2089,12 @@ namespace DotVVM.Framework.Tests.ViewModel
     {
         public List<TestViewModelWithBind> ViewModels { get; set; } = new List<TestViewModelWithBind>();
         public List<string> Strings { get; set; } = new List<string>();
+    }
+
+    public class TestViewModelWithGetOnlyCollection
+    {
+        [Bind(Direction.Both)]
+        public List<TestViewModelWithBind> Items { get; } = new();
     }
 
     public class TestViewModelWithNestedCollections
