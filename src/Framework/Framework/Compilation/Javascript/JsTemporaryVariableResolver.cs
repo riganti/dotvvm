@@ -59,6 +59,10 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     usedNames.Add(identifierExpression.Identifier);
                 }
+                else if (n is JsIdentifier identifier)
+                {
+                    usedNames.Add(identifier.Name);
+                }
             }
 
             if (eulerPath is null) return node;

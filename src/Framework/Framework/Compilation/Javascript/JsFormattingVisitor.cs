@@ -192,8 +192,12 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             EmitComment(memberAccessExpression.CommentBefore);
             if (!memberAccessExpression.MemberNameToken.IsValidName())
-                new JsIndexerExpression(memberAccessExpression.Target.Clone(), new JsLiteral(memberAccessExpression.MemberName))
-                .AcceptVisitor(this);
+            {
+                memberAccessExpression.Target.AcceptVisitor(this);
+                Emit(memberAccessExpression.IsOptional ? "?.[" : "[");
+                new JsLiteral(memberAccessExpression.MemberName).AcceptVisitor(this);
+                Emit(']');
+            }
             else
             {
                 memberAccessExpression.Target.AcceptVisitor(this);
@@ -383,7 +387,16 @@ namespace DotVVM.Framework.Compilation.Javascript
             ifStatement.Condition.AcceptVisitor(this);
             Emit(')');
             OptionalSpace();
-            ifStatement.TrueBranch.AcceptVisitor(this);
+            if (ifStatement.FalseBranch is object && ifStatement.TrueBranch is JsIfStatement)
+            {
+                Emit('{');
+                ifStatement.TrueBranch.AcceptVisitor(this);
+                Emit('}');
+            }
+            else
+            {
+                ifStatement.TrueBranch.AcceptVisitor(this);
+            }
             CommitLine();
             if (ifStatement.FalseBranch != null)
             {
@@ -440,7 +453,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 Emit("async ");
             }
-            EmitOperator("function(", allowCosmeticSpace: false);
+            EmitOperator("function", allowCosmeticSpace: false);
+            if (functionExpression.Identifier is object)
+            {
+                Emit(' ');
+                functionExpression.Identifier.AcceptVisitor(this);
+            }
+            Emit('(');
             var first = true;
             foreach (var item in functionExpression.Parameters)
             {

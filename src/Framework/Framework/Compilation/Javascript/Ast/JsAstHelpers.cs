@@ -171,7 +171,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public static JsNode AssignParameters(this JsNode node, Func<CodeSymbolicParameter, JsNode?> parameterAssignment)
         {
-            foreach (var sp in node.Descendants.OfType<JsSymbolicParameter>())
+            foreach (var sp in node.DescendantsAndSelf.OfType<JsSymbolicParameter>())
             {
                 var assignment = parameterAssignment(sp.Symbol);
                 if (assignment is JsSymbolicParameter assignmentS)

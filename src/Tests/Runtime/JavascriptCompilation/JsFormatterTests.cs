@@ -34,6 +34,12 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
+        public void JsFormatter_OptionalMemberAccessIndexer()
+        {
+            AssertFormatting("a?.[\"some-name\"]", new JsIdentifierExpression("a").Member("some-name", optional: true));
+        }
+
+        [TestMethod]
         public void JsFormatter_Invocation()
         {
             AssertFormatting("a.b(4,5)", new JsIdentifierExpression("a").Member("b").Invoke(new JsLiteral(4), new JsLiteral(5)));
@@ -51,6 +57,13 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
             var expr = new JsFunctionExpression(new[] { new JsIdentifier("a") }, new JsBlockStatement(new JsReturnStatement(new JsBinaryExpression(new JsIdentifierExpression("a"), BinaryOperatorType.Plus, new JsLiteral(2)))));
             AssertFormatting("function(a){return a+2;}", expr);
             AssertFormatting("function(a) {\n\treturn a + 2;\n}", expr, niceMode: true);
+        }
+
+        [TestMethod]
+        public void JsFormatter_NamedFunctionExpression()
+        {
+            var expr = new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(), new JsIdentifier("f"));
+            AssertFormatting("function f(){}", expr);
         }
 
         [TestMethod]
@@ -110,6 +123,14 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 new JsObjectProperty("baa", new JsLiteral(null)));
             AssertFormatting("{a:{c:2},baa:null}", expr);
             AssertFormatting("{\n\ta: {c: 2},\n\tbaa: null\n}", expr, niceMode: true);
+        }
+
+        [TestMethod]
+        public void JsFormatter_DanglingElse()
+        {
+            var inner = new JsIfStatement(new JsIdentifierExpression("b"), new JsIdentifierExpression("x").AsStatement());
+            var outer = new JsIfStatement(new JsIdentifierExpression("a"), inner, new JsIdentifierExpression("y").AsStatement());
+            AssertFormatting("if(a){if(b)x;}else y;", outer);
         }
         [TestMethod]
         public void JsFormatter_Await()
