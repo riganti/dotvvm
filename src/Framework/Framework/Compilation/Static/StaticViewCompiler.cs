@@ -21,26 +21,55 @@ namespace DotVVM.Framework.Compilation.Static
     {
         public static ImmutableArray<DotvvmCompilationDiagnostic> CompileAll(
             Assembly dotvvmProjectAssembly,
-            string dotvvmProjectDir)
+            string dotvvmProjectDir,
+            IReadOnlyList<string>? filesToCheck = null)
         {
             var configuration = ConfigurationInitializer.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir);
             var diagnostics = ImmutableArray.CreateBuilder<DotvvmCompilationDiagnostic>();
+            var compiledPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             var markupControls = configuration.Markup.Controls.Select(c => c.Src)
                 .Where(p => !string.IsNullOrWhiteSpace(p))
                 .ToImmutableArray();
             foreach (var markupControl in markupControls)
             {
+                compiledPaths.Add(markupControl!);
                 diagnostics.AddRange(CompileNoThrow(configuration, markupControl!));
             }
 
             var views = configuration.RouteTable.Select(r => r.VirtualPath).WhereNotNull().ToImmutableArray();
             foreach(var view in views)
             {
+                compiledPaths.Add(view);
                 diagnostics.AddRange(CompileNoThrow(configuration, view));
             }
 
-            return diagnostics.Distinct().ToImmutableArray();
+            // Also compile master pages (.dotmaster files) that are not already covered
+            // by markup controls or the route table.
+            if (Directory.Exists(dotvvmProjectDir))
+            {
+                foreach (var masterPageFile in Directory.EnumerateFiles(dotvvmProjectDir, "*.dotmaster", SearchOption.AllDirectories))
+                {
+                    var virtualPath = Path.GetRelativePath(dotvvmProjectDir, masterPageFile)
+                        .Replace('\\', '/');
+                    if (compiledPaths.Add(virtualPath))
+                    {
+                        diagnostics.AddRange(CompileNoThrow(configuration, virtualPath));
+                    }
+                }
+            }
+
+            var allDiagnostics = diagnostics.Distinct().ToImmutableArray();
+
+            if (filesToCheck is { Count: > 0 })
+            {
+                var filterSet = new HashSet<string>(filesToCheck, StringComparer.OrdinalIgnoreCase);
+                return allDiagnostics
+                    .Where(d => d.Location.FileName is not null && filterSet.Contains(d.Location.FileName))
+                    .ToImmutableArray();
+            }
+
+            return allDiagnostics;
         }
 
         private static ImmutableArray<DotvvmCompilationDiagnostic> CompileNoThrow(
