@@ -112,12 +112,16 @@ namespace System.CommandLine
             CommandResult? current = result.CommandResult;
             while (current is object)
             {
-                // Check for --project option first (used by lint command)
+                // Check for --project option first (used by lint command).
+                // Only use it if the user actually supplied a value.
                 var projectOpt = current.Command.Options.FirstOrDefault(o => o.Name == ProjectOpt);
                 if (projectOpt is Option<FileSystemInfo?> typedProjectOpt)
                 {
                     var fsInfo = result.GetValue(typedProjectOpt);
-                    return fsInfo ?? new DirectoryInfo(Environment.CurrentDirectory);
+                    if (fsInfo is not null)
+                        return fsInfo;
+                    // --project was registered but not supplied; default to current directory.
+                    return new DirectoryInfo(Environment.CurrentDirectory);
                 }
 
                 var target = current.Command.Arguments.FirstOrDefault(c => c.Name == TargetArg);

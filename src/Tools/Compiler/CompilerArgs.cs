@@ -66,10 +66,10 @@ namespace DotVVM.Compiler
                     break;
                 }
             }
-            // i now contains the number of parsed OPTIONS; expect exactly 2 positional args next.
+            // i now contains the number of parsed OPTIONS; expect at least 2 positional args next.
             if (args.Length - i < 2)
             {
-                Console.Error.Write($"The executable expects 2 arguments. Got {args.Length - i}.");
+                Console.Error.Write($"The executable expects at least 2 arguments. Got {args.Length - i}.");
                 return false;
             }
 
