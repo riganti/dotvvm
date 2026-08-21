@@ -334,7 +334,7 @@ type DotvvmJsComponentFactory = {
     create(
         element: HTMLElement,
         props: { [key: string]: any },
-        commands: { [key: string]: (args: any[]) => Promise<any> },
+        commands: { [key: string]: (...args: any[]) => Promise<any> },
         templates: { [key: string]: string },
         setProps: (p: { [key: string]: any }) => void
     ): DotvvmJsComponent
