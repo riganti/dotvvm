@@ -115,6 +115,11 @@ function Build-TemplatePackages {
             $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<version\>([^<]+)\</version\>", "<version>" + $version + "</version>")
             [System.IO.File]::WriteAllText($path, $file, [System.Text.Encoding]::UTF8)
 
+            $templateProjectPath = Join-Path (Split-Path $path) "content/EmptyWeb/DotvvmApplication1.csproj"
+            $templateProject = [System.IO.File]::ReadAllText($templateProjectPath, [System.Text.Encoding]::UTF8)
+            $templateProject = [System.Text.RegularExpressions.Regex]::Replace($templateProject, '(?<=<PackageReference Include="DotVVM\.AspNetCore" Version=")[^"]+', $version)
+            [System.IO.File]::WriteAllText($templateProjectPath, $templateProject, [System.Text.Encoding]::UTF8)
+
             nuget pack $path -outputdirectory "$root/artifacts/packages" | Out-Host
         }
         finally {
