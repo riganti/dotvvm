@@ -2,6 +2,19 @@
 import { KnockoutTemplateReactComponent, registerReactControl } from 'dotvvm-jscomponent-react';
 import { LineChart, XAxis, YAxis, Tooltip, CartesianGrid, Line } from 'recharts';
 
+function getJsComponentTestCounters() {
+    return ((window as any).dotvvmJsComponentTestCounters ??= {})
+}
+
+ko.bindingHandlers.jsComponentDisposeProbe = {
+    init(element) {
+        ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
+            const testCounters = getJsComponentTestCounters()
+            testCounters.knockoutTemplateDisposals = (testCounters.knockoutTemplateDisposals ?? 0) + 1
+        })
+    }
+}
+
 // react component
 function RechartComponent(props: any) {
     const seriesNames = ["Line1", "Line2", "Line3"]
@@ -39,11 +52,19 @@ function TemplateSelector(props) {
 const Button = ({ text, click, dataUI }) =>
     <button onClick={e => click()} data-ui={dataUI}>{text}</button>
 
+const Incrementer = ({ i, setProps }) =>
+    <div>
+        React: {i}
+        <button type="button" onClick={() => setProps({ i: i + 1 })}> + </button>
+        <button type="button" onClick={() => setProps({ i: i - 1 })}> - </button>
+    </div>
+
 // DotVVM Context importer 
 export default (context) => ({
     $controls: {
         recharts: registerReactControl(RechartComponent, { context, onMouse() { /* default empty method */ } }),
         TemplateSelector: registerReactControl(TemplateSelector),
-        Button: registerReactControl(Button)
+        Button: registerReactControl(Button),
+        incrementer: registerReactControl(Incrementer)
     }
 })
