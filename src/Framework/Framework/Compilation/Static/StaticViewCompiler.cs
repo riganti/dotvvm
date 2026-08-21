@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
@@ -60,9 +61,18 @@ namespace DotVVM.Framework.Compilation.Static
             if (filesToCheck is { Count: > 0 })
             {
                 var filterSet = new HashSet<string>(filesToCheck, StringComparer.OrdinalIgnoreCase);
-                return allDiagnostics
+                var filtered = allDiagnostics
                     .Where(d => d.Location.FileName is not null && filterSet.Contains(d.Location.FileName))
                     .ToImmutableArray();
+
+                var undiscovered = filesToCheck
+                    .Where(f => !compiledPaths.Contains(f))
+                    .Select(f => new DotvvmCompilationDiagnostic(
+                        $"File '{f}' was not found among the compiled views (routes, markup controls, or referenced master pages). It may not be registered in the DotVVM configuration.",
+                        DiagnosticSeverity.Warning,
+                        new DotvvmCompilationSourceLocation(f, null, null)));
+
+                return filtered.AddRange(undiscovered);
             }
 
             return allDiagnostics;
