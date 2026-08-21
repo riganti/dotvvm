@@ -14,7 +14,7 @@ namespace System.CommandLine
         public const string VerboseAlias = "--verbose";
         public const string DebuggerBreakAlias = "--debugger-break";
         public const string TargetArg = "target";
-        public const string ProjectOpt = "project";
+        public const string ProjectOpt = "--project";
 
         public static ILoggerFactory Factory = new NullLoggerFactory();
 
