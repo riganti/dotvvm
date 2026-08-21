@@ -57,35 +57,59 @@ namespace DotVVM.CommandLine
         {
             logger ??= NullLogger.Instance;
 
-            var targetsPath = Path.Combine(Path.GetDirectoryName(csprojPath)!, ScratchDirectory, TargetsFilename);
-            Directory.CreateDirectory(Path.GetDirectoryName(targetsPath)!);
-            using var embeddedTargets = typeof(DotvvmProject).Assembly
-                .GetManifestResourceStream($"DotVVM.CommandLine.Resources.{TargetsFilename}")!;
-            using var reader = new StreamReader(embeddedTargets);
-            File.WriteAllText(targetsPath, reader.ReadToEnd());
-
-            bool WriteMetadata(MSBuild? msbuild)
-            {
-                return msbuild is object && msbuild.TryInvoke(
-                    project: new FileInfo(csprojPath),
-                    properties: new Dictionary<string, string> {
-                        ["CustomBeforeMicrosoftCommonTargets"] = targetsPath,
-                        ["IsCrossTargetingBuild"] = "false"
-                    },
-                    targets: new[] { WriteDotvvmProjectMetadataTarget },
-                    verbosity: "quiet",
-                    logger: logger);
-            }
-
-            if (!WriteMetadata(MSBuild.CreateFromVS()) && !WriteMetadata(MSBuild.CreateFromSdk()))
-            {
-                logger.LogError("The project metadata could not be obtained.");
-                return null;
-            }
-
             var metadataPath = Path.Combine(Path.GetDirectoryName(csprojPath)!, ScratchDirectory, MetadataFilename);
+
+            // Skip invoking MSBuild if the metadata file is already up-to-date.
+            var metadataFile = new FileInfo(metadataPath);
+            var csprojFile = new FileInfo(csprojPath);
+            bool metadataUpToDate = metadataFile.Exists && metadataFile.LastWriteTimeUtc > csprojFile.LastWriteTimeUtc;
+
+            if (!metadataUpToDate)
+            {
+                var targetsPath = Path.Combine(Path.GetDirectoryName(csprojPath)!, ScratchDirectory, TargetsFilename);
+                Directory.CreateDirectory(Path.GetDirectoryName(targetsPath)!);
+                using var embeddedTargets = typeof(DotvvmProject).Assembly
+                    .GetManifestResourceStream($"DotVVM.CommandLine.Resources.{TargetsFilename}")!;
+                using var reader = new StreamReader(embeddedTargets);
+                File.WriteAllText(targetsPath, reader.ReadToEnd());
+
+                bool WriteMetadata(MSBuild? msbuild)
+                {
+                    return msbuild is object && msbuild.TryInvoke(
+                        project: new FileInfo(csprojPath),
+                        properties: new Dictionary<string, string> {
+                            ["CustomBeforeMicrosoftCommonTargets"] = targetsPath,
+                            ["IsCrossTargetingBuild"] = "false"
+                        },
+                        targets: new[] { WriteDotvvmProjectMetadataTarget },
+                        verbosity: "quiet",
+                        logger: logger);
+                }
+
+                if (!WriteMetadata(MSBuild.CreateFromVS()) && !WriteMetadata(MSBuild.CreateFromSdk()))
+                {
+                    logger.LogError("The project metadata could not be obtained.");
+                    return null;
+                }
+            }
+
             var metadataText = File.ReadAllText(metadataPath);
             return FromJson(metadataText);
+        }
+
+        public static DotvvmProject? FromCsproj(string csprojPath, bool forceRebuildMetadata, ILogger? logger = null)
+        {
+            logger ??= NullLogger.Instance;
+
+            if (forceRebuildMetadata)
+            {
+                // Delete any cached metadata so FromCsproj always rebuilds it.
+                var metadataPath = Path.Combine(Path.GetDirectoryName(csprojPath)!, ScratchDirectory, MetadataFilename);
+                if (File.Exists(metadataPath))
+                    File.Delete(metadataPath);
+            }
+
+            return FromCsproj(csprojPath, logger);
         }
 
         public static DotvvmProject? FromJson(string json, ILogger? logger = null)

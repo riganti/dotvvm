@@ -11,7 +11,7 @@ namespace DotVVM.Compiler
             var executableName = Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[0]);
             writer ??= Console.Error;
             writer.Write(
-$@"Usage: {executableName} [OPTIONS] <ASSEMBLY> <PROJECT_DIR>
+$@"Usage: {executableName} [OPTIONS] <ASSEMBLY> <PROJECT_DIR> [--files <FILE> ...]
 
 Arguments:
   <ASSEMBLY>     Path to a DotVVM project assembly.
@@ -21,6 +21,8 @@ Options:
   -h|-?|--help   Print this help text.
   --list-props   Print a list of DotVVM properties inside the assembly.
   --no-color     Disable ANSI colors in diagnostic output.
+  --files        Paths to specific views to check (virtual paths relative to PROJECT_DIR).
+                 When omitted, all views in the project are checked.
 ");
         }
 

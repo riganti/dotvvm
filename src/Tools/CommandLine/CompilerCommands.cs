@@ -15,10 +15,21 @@ namespace DotVVM.CommandLine
         public static void AddCompilerCommands(this Command command)
         {
             var lintCmd = new Command("lint", "Look for compiler errors in Views and Markup Controls");
-            lintCmd.AddTargetArgument();
+            lintCmd.AddProjectOption();
+            var filesArgument = new Argument<FileInfo[]>("files")
+            {
+                Description = "Paths to specific .dothtml, .dotcontrol, or .dotmaster files to check. "
+                    + "When omitted, all files in the project are checked.",
+                Arity = ArgumentArity.ZeroOrMore
+            };
+            lintCmd.Arguments.Add(filesArgument);
             var noBuildOption = new Option<bool>("--no-build")
             {
                 Description = "Don't build the MSBuild project."
+            };
+            var forceBuildOption = new Option<bool>("--force-build")
+            {
+                Description = "Force regeneration of project metadata even if it is already up-to-date."
             };
             var noColorOption = new Option<bool>("--no-color")
             {
@@ -37,19 +48,37 @@ namespace DotVVM.CommandLine
             {
                 Description = "The target framework used to build the project."
             };
-            lintCmd.AddRange(noBuildOption, noColorOption, verboseBuildOutputOption, configurationOption, frameworkOption);
+            lintCmd.AddRange(noBuildOption, forceBuildOption, noColorOption, verboseBuildOutputOption, configurationOption, frameworkOption);
             lintCmd.SetAction(parseResult =>
             {
-                if (!CommandLineExtensions.TryGetProject(parseResult, out var project, out var logger))
+                var forceBuild = parseResult.GetValue(forceBuildOption);
+                if (!CommandLineExtensions.TryGetProject(parseResult, out var project, out var logger,
+                        forceRebuildMetadata: forceBuild))
                     return 1;
+
+                var filesValues = parseResult.GetValue(filesArgument);
+                string[]? filePaths = null;
+                if (filesValues is { Length: > 0 })
+                {
+                    // Convert absolute paths to virtual paths (relative to project directory)
+                    var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;
+                    filePaths = filesValues
+                        .Select(f => {
+                            var rel = Path.GetRelativePath(projectDir, f.FullName).Replace('\\', '/');
+                            return rel;
+                        })
+                        .ToArray();
+                }
 
                 return HandleLint(
                     project,
                     parseResult.GetValue(noBuildOption),
+                    forceBuild,
                     parseResult.GetValue(noColorOption),
                     parseResult.GetValue(verboseBuildOutputOption),
                     parseResult.GetValue(configurationOption) ?? "Debug",
                     parseResult.GetValue(frameworkOption),
+                    filePaths,
                     logger);
             });
             command.Subcommands.Add(lintCmd);
@@ -58,10 +87,12 @@ namespace DotVVM.CommandLine
         public static int HandleLint(
             DotvvmProject project,
             bool noBuild,
+            bool forceBuild,
             bool noColor,
             bool verboseBuildOutput,
             string configuration,
             string? framework,
+            string[]? filesToCheck,
             ILogger logger)
         {
             framework ??= project.TargetFrameworks.FirstOrDefault()?.GetShortFolderName();
@@ -132,6 +163,11 @@ namespace DotVVM.CommandLine
             }
             compilerArgs.Add(assemblyPath);
             compilerArgs.Add(projectDir);
+            if (filesToCheck is { Length: > 0 })
+            {
+                compilerArgs.Add("--files");
+                compilerArgs.AddRange(filesToCheck);
+            }
 
             var pinfo = new ProcessStartInfo {
                 FileName = executable,

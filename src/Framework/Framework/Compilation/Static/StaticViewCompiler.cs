@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
@@ -21,32 +21,69 @@ namespace DotVVM.Framework.Compilation.Static
     {
         public static ImmutableArray<DotvvmCompilationDiagnostic> CompileAll(
             Assembly dotvvmProjectAssembly,
-            string dotvvmProjectDir)
+            string dotvvmProjectDir,
+            IReadOnlyList<string>? filesToCheck = null)
         {
             var configuration = ConfigurationInitializer.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir);
             var diagnostics = ImmutableArray.CreateBuilder<DotvvmCompilationDiagnostic>();
+            var compiledPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             var markupControls = configuration.Markup.Controls.Select(c => c.Src)
                 .Where(p => !string.IsNullOrWhiteSpace(p))
                 .ToImmutableArray();
             foreach (var markupControl in markupControls)
             {
-                diagnostics.AddRange(CompileNoThrow(configuration, markupControl!));
+                compiledPaths.Add(markupControl!);
+                diagnostics.AddRange(CompileNoThrow(configuration, markupControl!, out _));
             }
 
             var views = configuration.RouteTable.Select(r => r.VirtualPath).WhereNotNull().ToImmutableArray();
+            var discoveredMasterPages = new Queue<string>();
             foreach(var view in views)
             {
-                diagnostics.AddRange(CompileNoThrow(configuration, view));
+                compiledPaths.Add(view);
+                diagnostics.AddRange(CompileNoThrow(configuration, view, out var masterPage));
+                if (masterPage is not null && compiledPaths.Add(masterPage))
+                    discoveredMasterPages.Enqueue(masterPage);
             }
 
-            return diagnostics.Distinct().ToImmutableArray();
+            // Discover master pages transitively (a master page may itself use another master page).
+            while (discoveredMasterPages.Count > 0)
+            {
+                var masterPagePath = discoveredMasterPages.Dequeue();
+                diagnostics.AddRange(CompileNoThrow(configuration, masterPagePath, out var nestedMaster));
+                if (nestedMaster is not null && compiledPaths.Add(nestedMaster))
+                    discoveredMasterPages.Enqueue(nestedMaster);
+            }
+
+            var allDiagnostics = diagnostics.Distinct().ToImmutableArray();
+
+            if (filesToCheck is { Count: > 0 })
+            {
+                var filterSet = new HashSet<string>(filesToCheck, StringComparer.OrdinalIgnoreCase);
+                var filtered = allDiagnostics
+                    .Where(d => d.Location.FileName is not null && filterSet.Contains(d.Location.FileName))
+                    .ToImmutableArray();
+
+                var undiscovered = filesToCheck
+                    .Where(f => !compiledPaths.Contains(f))
+                    .Select(f => new DotvvmCompilationDiagnostic(
+                        $"File '{f}' was not found among the compiled views (routes, markup controls, or referenced master pages). It may not be registered in the DotVVM configuration.",
+                        DiagnosticSeverity.Warning,
+                        new DotvvmCompilationSourceLocation(f, null, null)));
+
+                return filtered.AddRange(undiscovered);
+            }
+
+            return allDiagnostics;
         }
 
         private static ImmutableArray<DotvvmCompilationDiagnostic> CompileNoThrow(
             DotvvmConfiguration configuration,
-            string viewPath)
+            string viewPath,
+            out string? masterPage)
         {
+            masterPage = null;
             var fileLoader = configuration.ServiceProvider.GetRequiredService<IMarkupFileLoader>();
             var file = fileLoader.GetMarkup(configuration, viewPath);
             if (file is null)
@@ -59,10 +96,11 @@ namespace DotVVM.Framework.Compilation.Static
             try
             {
                 var compiler = configuration.ServiceProvider.GetRequiredService<IViewCompiler>();
-                var (_, builderFactory) = compiler.CompileView(
+                var (descriptor, builderFactory) = compiler.CompileView(
                     sourceCode: sourceCode,
                     fileName: viewPath);
                 _ = builderFactory();
+                masterPage = descriptor.MasterPage?.FileName;
                 // TODO: get warnings from compilation tracer
                 return ImmutableArray.Create<DotvvmCompilationDiagnostic>();
             }

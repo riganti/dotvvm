@@ -30,7 +30,7 @@ namespace DotVVM.Compiler
             }
 
             var projectDirPath = args.ProjectDir?.FullName ?? Directory.GetCurrentDirectory();
-            var reports = StaticViewCompiler.CompileAll(assembly, projectDirPath);
+            var reports = StaticViewCompiler.CompileAll(assembly, projectDirPath, args.FilesToCheck.Count > 0 ? args.FilesToCheck : null);
             var logger = new DefaultCompilationReportLogger(useColor: !args.NoColor);
             using var err = Console.OpenStandardError();
             logger.Log(err, reports);

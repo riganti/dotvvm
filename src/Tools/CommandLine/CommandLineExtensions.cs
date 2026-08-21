@@ -14,6 +14,7 @@ namespace System.CommandLine
         public const string VerboseAlias = "--verbose";
         public const string DebuggerBreakAlias = "--debugger-break";
         public const string TargetArg = "target";
+        public const string ProjectOpt = "--project";
 
         public static ILoggerFactory Factory = new NullLoggerFactory();
 
@@ -30,6 +31,12 @@ namespace System.CommandLine
         private static readonly Argument<FileSystemInfo> targetArgument = new Argument<FileSystemInfo>(TargetArg)
         {
             Description = "Path to a DotVVM project",
+            Arity = ArgumentArity.ZeroOrOne
+        };
+
+        internal static readonly Option<FileSystemInfo?> projectOption = new Option<FileSystemInfo?>("--project")
+        {
+            Description = "Path to a DotVVM project file or directory",
             Arity = ArgumentArity.ZeroOrOne
         };
 
@@ -62,12 +69,18 @@ namespace System.CommandLine
             command.Options.Add(debuggerBreakOption);
         }
 
+        public static void AddProjectOption(this Command command)
+        {
+            command.Options.Add(projectOption);
+        }
+
         public static void AddTargetArgument(this Command command)
         {
             command.Arguments.Add(targetArgument);
         }
 
-        public static bool TryGetProject(ParseResult result, out DotvvmProject project, out ILogger logger)
+        public static bool TryGetProject(ParseResult result, out DotvvmProject project, out ILogger logger,
+            bool forceRebuildMetadata = false)
         {
             var logLevel = result.GetValue(verboseOption)
                 ? LogLevel.Debug
@@ -90,7 +103,7 @@ namespace System.CommandLine
                 return false;
             }
 
-            project = DotvvmProject.FromCsproj(csproj.FullName, logger)!;
+            project = DotvvmProject.FromCsproj(csproj.FullName, forceRebuildMetadata, logger)!;
             return project is not null;
         }
 
@@ -99,6 +112,18 @@ namespace System.CommandLine
             CommandResult? current = result.CommandResult;
             while (current is object)
             {
+                // Check for --project option first (used by lint command).
+                // Only use it if the user actually supplied a value.
+                var projectOpt = current.Command.Options.FirstOrDefault(o => o.Name == ProjectOpt);
+                if (projectOpt is Option<FileSystemInfo?> typedProjectOpt)
+                {
+                    var fsInfo = result.GetValue(typedProjectOpt);
+                    if (fsInfo is not null)
+                        return fsInfo;
+                    // --project was registered but not supplied; default to current directory.
+                    return new DirectoryInfo(Environment.CurrentDirectory);
+                }
+
                 var target = current.Command.Arguments.FirstOrDefault(c => c.Name == TargetArg);
                 if (target is object)
                 {
