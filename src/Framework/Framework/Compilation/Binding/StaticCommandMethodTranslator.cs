@@ -75,6 +75,9 @@ namespace DotVVM.Framework.Compilation.Binding
             var argPlans = allArguments.Select((arg, index) => {
                 if (arg.OriginalExpression.GetParameterAnnotation() is BindingParameterAnnotation { ExtensionParameter:  InjectedServiceExtensionParameter service })
                     return new StaticCommandParameterPlan(StaticCommandParameterType.Inject, ResolvedTypeDescriptor.ToSystemType(service.ParameterType));
+                else if (arg.OriginalExpression.Type == typeof(System.Threading.CancellationToken))
+                    // CancellationToken cannot be serialized from the client - always provide from the request context
+                    return new StaticCommandParameterPlan(StaticCommandParameterType.CurrentCancellationToken, null);
                 else if (arg.OriginalExpression is ConstantExpression constant)
                 {
                     if (constant.Value == method.GetParameters()[index - (method.IsStatic ? 0 : 1)].DefaultValue)

@@ -115,6 +115,25 @@ namespace DotVVM.Framework.Tests.Binding
             public static void NotOverloadedMethod(int arg) { }
 
             public static void MethodNotUsableInStaticCommand() { }
+
+            [AllowStaticCommand]
+            public static Task MethodWithCancellationToken(int arg, System.Threading.CancellationToken cancellationToken) => Task.CompletedTask;
+        }
+
+        [TestMethod]
+        public void StaticCommandPlanSerialization_CancellationToken_DeserializedPlanIsIdentical()
+        {
+            var plan = MakeInvocationPlan(() => StaticCommandMethodCollection.MethodWithCancellationToken(0, default),
+                new StaticCommandParameterPlan(StaticCommandParameterType.Constant, 42),
+                new StaticCommandParameterPlan(StaticCommandParameterType.CurrentCancellationToken, null));
+            var json = StaticCommandExecutionPlanSerializer.SerializePlan(plan);
+            var deserializedPlan = Deserialize(json);
+
+            Assert.AreEqual(plan.Method, deserializedPlan.Method);
+            Assert.AreEqual(2, deserializedPlan.Arguments.Length);
+            Assert.AreEqual(StaticCommandParameterType.Constant, deserializedPlan.Arguments[0].Type);
+            Assert.AreEqual(StaticCommandParameterType.CurrentCancellationToken, deserializedPlan.Arguments[1].Type);
+            Assert.IsNull(deserializedPlan.Arguments[1].Arg);
         }
     }
 }

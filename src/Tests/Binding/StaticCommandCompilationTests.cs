@@ -148,6 +148,14 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void StaticCommandCompilation_AsyncMethodWithCancellationToken_CancellationTokenIsNotInClientArgs()
+        {
+            // CancellationToken should be provided by the server from the request context, not sent from the client
+            var result = CompileBinding("StaticCommands.GetLengthAsync(StringProp)", niceMode: false, typeof(TestViewModel));
+            Assert.AreEqual("await dotvvm.staticCommandPostback(\"XXXX\",[options.viewModel.StringProp.state],options)", result);
+        }
+
+        [TestMethod]
         public void StaticCommandCompilation_DateTimeAssignment()
         {
             var result = CompileBinding("DateFrom = DateTo", niceMode: false, typeof(TestViewModel));
@@ -461,6 +469,9 @@ namespace DotVVM.Framework.Tests.Binding
 
         [AllowStaticCommand]
         public static DateTime GetDate() => DateTime.UtcNow;
+
+        [AllowStaticCommand]
+        public static Task<int> GetLengthAsync(string str, System.Threading.CancellationToken cancellationToken = default) => Task.FromResult(str.Length);
     }
 
     public abstract class TestInnerService<TOutput>

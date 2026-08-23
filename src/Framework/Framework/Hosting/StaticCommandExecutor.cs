@@ -80,6 +80,8 @@ namespace DotVVM.Framework.Hosting
 #pragma warning disable CS0618
                         (serviceLoader.GetStaticCommandService((Type)a.Arg!, context), null),
 #pragma warning restore CS0618
+                    StaticCommandParameterType.CurrentCancellationToken =>
+                        (context.RequestAborted, null),
                     StaticCommandParameterType.Invocation =>
                         (await Execute((StaticCommandInvocationPlan)a.Arg!, arguments, argumentValidationPaths, context), null),
                     _ => throw new NotSupportedException("" + a.Type)

@@ -165,6 +165,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 StaticCommandParameterType.Argument => "?",
                 StaticCommandParameterType.Inject => $"service({((Type)Arg!).ToCode(stripNamespace: true)})",
                 StaticCommandParameterType.Invocation => Arg!.ToString()!,
+                StaticCommandParameterType.CurrentCancellationToken => "cancellationToken",
                 _ => "...invalid argument..."
             };
     }
@@ -174,6 +175,7 @@ namespace DotVVM.Framework.Compilation.Binding
         Inject,
         Constant,
         DefaultValue,
-        Invocation
+        Invocation,
+        CurrentCancellationToken
     }
 }
