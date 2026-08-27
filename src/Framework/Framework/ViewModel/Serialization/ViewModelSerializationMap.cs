@@ -543,6 +543,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return property.JsonConverter;
         }
 
+        private static bool ConverterHandlesNull(JsonConverter converter) =>
+            // converter.HandleNull is defined only on JsonConverter<T> :/
+            (bool)typeof(JsonConverter<>)
+                .MakeGenericType(converter.Type.NotNull())
+                .GetProperty(nameof(JsonConverter<object>.HandleNull))!
+                .GetValue(converter)!;
+
         private Expression CallPropertyConverterRead(JsonConverter converter, Type type, Expression reader, Expression jsonOptions, Expression dotvvmState, Expression? existingValue)
         {
             Debug.Assert(reader.Type == typeof(Utf8JsonReader).MakeByRefType() || reader.Type == typeof(Utf8JsonReader), $"{reader.Type} != {typeof(Utf8JsonReader).MakeByRefType()}");
@@ -562,7 +569,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else
             {
                 var read = Call(Constant(converter), "Read", Type.EmptyTypes, reader, Constant(type), jsonOptions);
-                if (read.Type.IsValueType)
+                if (!type.IsAssignableFromNull() || ConverterHandlesNull(converter))
                     return read;
                 else
                     return Condition(
@@ -586,7 +593,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else
             {
-                return Call(Constant(converter), nameof(IDotvvmJsonConverter<object>.Write), Type.EmptyTypes, writer, value, jsonOptions);
+                var write = Call(Constant(converter), nameof(IDotvvmJsonConverter<object>.Write), Type.EmptyTypes, writer, value, jsonOptions);
+
+                if (!value.Type.IsAssignableFromNull() || ConverterHandlesNull(converter))
+                    return write;
+                else
+                    return IfThenElse(
+                        Equal(value, Default(value.Type)),
+                        Call(writer, nameof(Utf8JsonWriter.WriteNullValue), Type.EmptyTypes),
+                        write
+                    );
             }
         }
 
@@ -674,6 +690,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var type = existingValue.Type;
             Debug.Assert(type.UnwrapNullableType() == property.Type.UnwrapNullableType(), $"{type} != {property.Type}, property: {property.PropertyInfo.DeclaringType}.{property.Name}");
 
+            if (GetPropertyConverter(property, type) is {} customConverter)
+            {
+                return CallPropertyConverterRead(customConverter, type, reader, jsonOptions, dotvvmState, property.Populate ? existingValue : null);
+            }
             if (ReflectionUtils.IsNullable(existingValue.Type))
             {
                 return Condition(
@@ -681,10 +701,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     ifTrue: Default(type),
                     ifFalse: Convert(DeserializePropertyValue(property, reader, existingValue.UnwrapNullable(throwOnNull: false), jsonOptions, dotvvmState), type)
                 );
-            }
-            if (GetPropertyConverter(property, type) is {} customConverter)
-            {
-                return CallPropertyConverterRead(customConverter, type, reader, jsonOptions, dotvvmState, property.Populate ? existingValue : null);
             }
 
             if (TryDeserializePrimitive(reader, type) is {} primitive)
@@ -730,6 +746,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Debug.Assert(dotvvmState.Type == typeof(DotvvmSerializationState));
             Debug.Assert(value.Type.UnwrapNullableType() == property.Type.UnwrapNullableType(), $"{value.Type} != {property.Type}");
 
+            if (GetPropertyConverter(property, value.Type) is {} converter)
+            {
+                return CallPropertyConverterWrite(converter, writer, value, jsonOptions, dotvvmState);
+            }
             if (ReflectionUtils.IsNullableType(value.Type))
             {
                 return IfThenElse(
@@ -737,11 +757,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     GetSerializeExpression(property, writer, Property(value, "Value"), jsonOptions, dotvvmState),
                     Call(writer, "WriteNullValue", Type.EmptyTypes)
                 );
-            }
-
-            if (GetPropertyConverter(property, value.Type) is {} converter)
-            {
-                return CallPropertyConverterWrite(converter, writer, value, jsonOptions, dotvvmState);
             }
             if (TrySerializePrimitive(writer, value) is {} primitive)
             {

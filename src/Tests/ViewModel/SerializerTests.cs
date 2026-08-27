@@ -1547,6 +1547,38 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void PropertyJsonConverter_DoesNotReceiveNull()
+        {
+            var (viewModel, json) = SerializeAndDeserialize(new TestViewModelWithNullPropertyJsonConverter());
+
+            Assert.IsNull(viewModel.Value);
+            Assert.IsNull(json["Value"]);
+        }
+
+        [TestMethod]
+        public void PropertyJsonConverter_ReceivesNullWhenSupported()
+        {
+            var json = Serialize(new TestViewModelWithNullHandlingPropertyJsonConverter(), out _);
+            Assert.AreEqual("written null", JsonNode.Parse(json)["Value"].GetValue<string>());
+
+            var viewModel = Deserialize<TestViewModelWithNullHandlingPropertyJsonConverter>("""{"Value":null}""");
+            Assert.AreEqual("read null", viewModel.Value);
+        }
+
+        [TestMethod]
+        public void PropertyJsonConverter_SupportsNullableValueType()
+        {
+            var (viewModel, json) = SerializeAndDeserialize(new TestViewModelWithNullablePropertyJsonConverter { Value = 42 });
+
+            Assert.AreEqual(42, viewModel.Value);
+            Assert.AreEqual("42", json["Value"].GetValue<string>());
+
+            (viewModel, json) = SerializeAndDeserialize(new TestViewModelWithNullablePropertyJsonConverter());
+            Assert.IsNull(viewModel.Value);
+            Assert.IsNull(json["Value"]);
+        }
+
+        [TestMethod]
         public void SupportCustomConverters_DynamicDispatch()
         {
             var obj = new TestViewModelWithCustomConverter() { Property1 = "A", Property2 = "B" };
@@ -2032,6 +2064,54 @@ namespace DotVVM.Framework.Tests.ViewModel
                 writer.WriteEndObject();
             }
         }
+    }
+
+    public class TestViewModelWithNullPropertyJsonConverter
+    {
+        [JsonConverter(typeof(NullRejectingStringJsonConverter))]
+        public string Value { get; set; }
+    }
+
+    public class NullRejectingStringJsonConverter : JsonConverter<string>
+    {
+        public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+            reader.TokenType == JsonTokenType.Null ? throw new InvalidOperationException("Converter received null.") : reader.GetString();
+
+        public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options) =>
+            writer.WriteStringValue(value ?? throw new InvalidOperationException("Converter received null."));
+    }
+
+    public class TestViewModelWithNullHandlingPropertyJsonConverter
+    {
+        [JsonConverter(typeof(NullHandlingStringJsonConverter))]
+        public string Value { get; set; }
+    }
+
+    public class NullHandlingStringJsonConverter : JsonConverter<string>
+    {
+        public override bool HandleNull => true;
+
+        public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+            reader.TokenType == JsonTokenType.Null ? "read null" : reader.GetString();
+
+        public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options) =>
+            writer.WriteStringValue(value ?? "written null");
+    }
+
+    public class TestViewModelWithNullablePropertyJsonConverter
+    {
+        [JsonConverter(typeof(NullableIntJsonConverter))]
+        public int? Value { get; set; }
+    }
+
+    public class NullableIntJsonConverter : JsonConverter<int?>
+    {
+        // HandleNull defaults to false, so we shoudln't get null value in either direction
+        public override int? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+            int.Parse(reader.GetString());
+
+        public override void Write(Utf8JsonWriter writer, int? value, JsonSerializerOptions options) =>
+            writer.WriteStringValue(value.Value.ToString());
     }
 
     [JsonConverter(typeof(TestEnumCustomConverter))]

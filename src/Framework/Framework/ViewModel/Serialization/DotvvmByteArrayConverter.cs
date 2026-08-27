@@ -10,6 +10,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class DotvvmByteArrayConverter : JsonConverter<byte[]>
     {
+        public override bool HandleNull => true;
         public override byte[]? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.Null)
