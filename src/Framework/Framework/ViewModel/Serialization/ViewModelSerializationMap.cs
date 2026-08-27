@@ -225,19 +225,18 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 ));
 
             // get existing values into the local variables
-            if (propertyVars.Count > 0)
-            {
-                // if (value != null)
-                //     prop_X = value.X; ...
+            // if (value != null)
+            //     prop_X = value.X; ...
+            var initVarAssignments = propertyVars
+                    .Where(p => p.Key.PropertyInfo is not PropertyInfo { GetMethod: null })
+                    .Select(p => Assign(p.Value, MemberAccess(value, p.Key)));
+            if (alwaysCallConstructor && !Type.IsValueType)
                 block.Add(IfThen(
-                    Type.IsValueType ? Constant(true) : NotEqual(value, Constant(null)),
-                    Block(
-                        propertyVars
-                            .Where(p => p.Key.PropertyInfo is not PropertyInfo { GetMethod: null })
-                            .Select(p => Assign(p.Value, MemberAccess(value, p.Key)))
-                    )
+                    NotEqual(value, Constant(null)),
+                    Block(initVarAssignments)
                 ));
-            }
+            else
+                block.AddRange(initVarAssignments);
 
             // add current object to encrypted values, this is needed because one property can potentially contain more objects (is a collection)
             block.Add(Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
@@ -362,19 +361,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 block.Add(Assign(value, constructorCall));
             }
 
-            if (propertyVars.Count > 0)
-            {
-                var propertySettingExpressions =
-                    Properties
-                        .Where(p => p is { ConstructorParameter: null, TransferToServer: true, PropertyInfo: PropertyInfo { SetMethod: not null } or FieldInfo { IsInitOnly: false } })
-                        .Select(p => Assign(MemberAccess(value, p), propertyVars[p]))
-                        .ToList();
-
-                if (propertySettingExpressions.Any())
-                {
-                    block.Add(Block(propertySettingExpressions!));
-                }
-            }
+            block.AddRange(
+                Properties
+                    .Where(p => p is { ConstructorParameter: null, TransferToServer: true, PropertyInfo: PropertyInfo { SetMethod: not null } or FieldInfo { IsInitOnly: false } })
+                    .Select(p => Assign(MemberAccess(value, p), propertyVars[p]))
+            );
 
             // return value
             block.Add(value);
@@ -421,7 +412,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             for (int propertyIndex = 0; propertyIndex < Properties.Length; propertyIndex++)
             {
                 var property = Properties[propertyIndex];
-                var endPropertyLabel = Label("end_property_" + property.Name);
+                LabelTarget? endPropertyLabel = null;
 
                 if (property.TransferToClient && property.PropertyInfo is not PropertyInfo { GetMethod: null })
                 {
@@ -438,6 +429,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                             condition = Not(condition);
                         }
 
+                        endPropertyLabel = Label("end_property_" + property.Name);
                         block.Add(IfThen(condition, Goto(endPropertyLabel)));
                     }
 
@@ -481,7 +473,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         // serializer.Serialize(serializer, writer, {property}, (object)value.{property.PropertyInfo.Name});
                         propertyBlock.Add(GetSerializeExpression(property, writer, prop, jsonOptions, dotvvmState));
 
-                        Expression propertyFinally = Default(typeof(void));
+                        Expression? propertyFinally = null;
                         if (checkEV)
                         {
                             if (writeEV)
@@ -503,16 +495,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
                             }
                         }
 
-                        block.Add(
-                            TryFinally(
-                                Block(propertyBlock),
-                                propertyFinally
-                            )
-                        );
+                        if (propertyFinally is null)
+                            block.AddRange(propertyBlock);
+                        else
+                            block.Add(
+                                TryFinally(Block(propertyBlock), propertyFinally)
+                            );
                     }
                 }
 
-                block.Add(Label(endPropertyLabel));
+                if (endPropertyLabel is {})
+                    block.Add(Label(endPropertyLabel));
             }
 
             // compile the expression

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -24,13 +26,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private bool Property(int index, out JsonNode? node)
         {
-            var name = index.ToString();
             if (virtualNests > 0 || json is null)
             {
                 node = null;
                 return false;
             }
 
+            var name = index.ToString();
             return json.TryGetPropertyValue(name, out node);
         }
 
@@ -67,32 +69,34 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else
             {
                 if (json?.Count > 0)
-                    throw SecurityError();
+                    ThrowSecurityError();
             }
             lastPropertyIndex = stack.Pop().prop;
         }
 
         public void Suppress()
         {
-            if (Suppressed) throw SecurityError();
+            if (Suppressed) ThrowSecurityError();
             Suppressed = true;
         }
 
         public void EndSuppress()
         {
-            if (!Suppressed) throw SecurityError();
+            if (!Suppressed) ThrowSecurityError();
             Suppressed = false;
         }
 
         public JsonNode? ReadValue(int property)
         {
-            if (Suppressed) throw SecurityError();
+            if (Suppressed) ThrowSecurityError();
 
-            if (!Property(property, out var prop)) throw SecurityError();
+            if (!Property(property, out var prop)) ThrowSecurityError();
             json!.Remove(property.ToString());
             return prop;
         }
 
-        Exception SecurityError() => new SecurityException("Failed to deserialize viewModel encrypted values");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        [DoesNotReturn]
+        static void ThrowSecurityError() => throw new SecurityException("Failed to deserialize viewModel encrypted values");
     }
 }
