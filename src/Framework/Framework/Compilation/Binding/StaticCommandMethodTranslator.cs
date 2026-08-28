@@ -75,6 +75,13 @@ namespace DotVVM.Framework.Compilation.Binding
             var argPlans = allArguments.Select((arg, index) => {
                 if (arg.OriginalExpression.GetParameterAnnotation() is BindingParameterAnnotation { ExtensionParameter:  InjectedServiceExtensionParameter service })
                     return new StaticCommandParameterPlan(StaticCommandParameterType.Inject, ResolvedTypeDescriptor.ToSystemType(service.ParameterType));
+                else if (arg.OriginalExpression is DefaultExpression)
+                {
+                    if (method.GetParameters()[index - (method.IsStatic ? 0 : 1)].DefaultValue is null)
+                        return new StaticCommandParameterPlan(StaticCommandParameterType.DefaultValue, null);
+                    else
+                        return new StaticCommandParameterPlan(StaticCommandParameterType.Constant, ReflectionUtils.GetDefaultValue(arg.OriginalExpression.Type));
+                }
                 else if (arg.OriginalExpression is ConstantExpression constant)
                 {
                     if (constant.Value == method.GetParameters()[index - (method.IsStatic ? 0 : 1)].DefaultValue)
