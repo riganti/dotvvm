@@ -32,7 +32,7 @@
     <h3> Two way binding: </h3>
 
     <div>
-        <js:incrementer i={value: Counter} html:data-ui="svelte-incrementer" />
+        <js:incrementer i={value: Counter} html:data-ui="jscomponent-counter" />
 
         <div>
             DotVVM: <span data-ui="dotvvm-counter">{{value: Counter}}</span>
@@ -45,9 +45,9 @@
 
     <dot:CheckBox Checked="{value: Condition}" data-ui="template-condition" Text="Condition for template selector" />
 
-    <js:TemplateSelector condition={value: Condition} html:data-ui="template-selector">
+    <js:TemplateSelector IncludeInPage={value: IncludeInPage} condition={value: Condition} html:data-ui="template-selector">
         <template1>
-            <span data-ui="template1">
+            <span data-ui="template1" data-bind="jsComponentDisposeProbe: true">
                 Condition == true (and IncludeInPage = {{value: IncludeInPage}})
             </span>
         </template1>

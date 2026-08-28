@@ -45,9 +45,11 @@ export class KnockoutTemplateReactComponent extends React.Component<KnockoutTemp
     templateName = ko.observable()
     viewModelStateManager?: StateManager<any>
 
-    // TODO: how to dispose the template?
-    // componentWillUnmount() {
-    // }
+    componentWillUnmount() {
+        if (this.wrapRef.current) {
+            ko.cleanNode(this.wrapRef.current)
+        }
+    }
     componentDidMount() {
         this.initializeTemplate()
     }

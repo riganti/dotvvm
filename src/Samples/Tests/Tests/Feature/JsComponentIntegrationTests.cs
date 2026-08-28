@@ -28,6 +28,9 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitUntilDotvvmInited();
 
                 var rechart = browser.First("rechart-control");
+                var javaScript = browser.GetJavaScriptExecutor();
+                Func<long> getKnockoutTemplateDisposeCount = () => (long)javaScript.ExecuteScript(
+                    "return window.dotvvmJsComponentTestCounters?.knockoutTemplateDisposals ?? 0;");
                 List<string> pathsList = null;
                 WaitForExecutor.WaitFor(() => {
                     var paths = browser.FindElements(".recharts-line path", By.CssSelector);
@@ -37,6 +40,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.First("command-removeDOM").Click();
                 browser.FindElements(".recharts-line path", By.CssSelector).ThrowIfDifferentCountThan(0);
+                WaitForExecutor.WaitFor(() => Assert.Equal(1, getKnockoutTemplateDisposeCount()));
 
                 browser.First("command-addDOM").Click();
                 browser.FindElements(".recharts-line path", By.CssSelector).ThrowIfSequenceEmpty();
@@ -55,6 +59,10 @@ namespace DotVVM.Samples.Tests.Feature
                     var pathsList3 = paths.Select(s => s.GetAttribute("d")).Where(s=> !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList();
                     Assert.NotEqual(pathsList, pathsList3);
                 });
+
+                browser.First("command-removeDOM").Click();
+                browser.FindElements(".recharts-line path", By.CssSelector).ThrowIfDifferentCountThan(0);
+                WaitForExecutor.WaitFor(() => Assert.Equal(2, getKnockoutTemplateDisposeCount()));
 
             });
         }
@@ -125,6 +133,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JsComponentIntegration_SvelteComponentIntegration);
                 browser.WaitUntilDotvvmInited();
 
+                var javaScript = browser.GetJavaScriptExecutor();
+                Func<long> getKnockoutTemplateDisposeCount = () => (long)javaScript.ExecuteScript(
+                    "return window.dotvvmJsComponentTestCounters?.knockoutTemplateDisposals ?? 0;");
+
                 // initial paths snapshot
                 List<string> pathsList = null;
                 WaitForExecutor.WaitFor(() => {
@@ -140,6 +152,7 @@ namespace DotVVM.Samples.Tests.Feature
                 // Remove from DOM
                 browser.First("command-removeDOM").Click();
                 browser.FindElements("svg path", By.CssSelector).ThrowIfDifferentCountThan(0);
+                WaitForExecutor.WaitFor(() => Assert.Equal(1, getKnockoutTemplateDisposeCount()));
 
                 // Add back to DOM
                 browser.First("command-addDOM").Click();
@@ -169,47 +182,53 @@ namespace DotVVM.Samples.Tests.Feature
                         .ToList();
                     Assert.NotEqual(pathsList2, pathsList3);
                 });
+
+                browser.First("command-removeDOM").Click();
+                browser.FindElements("svg path", By.CssSelector).ThrowIfDifferentCountThan(0);
+                WaitForExecutor.WaitFor(() => Assert.Equal(2, getKnockoutTemplateDisposeCount()));
             });
         }
 
-        [Fact]
-        public void Feature_JsComponentIntegrationTests_SvelteComponentIntegration_IncrementerTwoWayBinding()
+        [Theory]
+        [InlineData(SamplesRouteUrls.FeatureSamples_JsComponentIntegration_ReactComponentIntegration, "React")]
+        [InlineData(SamplesRouteUrls.FeatureSamples_JsComponentIntegration_SvelteComponentIntegration, "Svelte")]
+        public void Feature_JsComponentIntegrationTests_IncrementerTwoWayBinding(string url, string componentName)
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JsComponentIntegration_SvelteComponentIntegration);
+                browser.NavigateToUrl(url);
                 browser.WaitUntilDotvvmInited();
 
                 var dotvvmCounter = browser.First("dotvvm-counter", SelectByDataUi);
                 AssertUI.TextEquals(dotvvmCounter, "0");
 
-                // Click Svelte incrementer '+' button
+                // Click the JS component incrementer '+' button
                 // Incrementer renders two buttons: first is plus, second is minus
-                var svelteInc = browser.First("svelte-incrementer", SelectByDataUi);
-                var plus = svelteInc.ElementAt("button", 0);
-                var minus = svelteInc.ElementAt("button", 1);
+                var jsIncrementer = browser.First("jscomponent-counter", SelectByDataUi);
+                var plus = jsIncrementer.ElementAt("button", 0);
+                var minus = jsIncrementer.ElementAt("button", 1);
 
                 plus.Click();
                 AssertUI.TextEquals(dotvvmCounter, "1");
-                AssertUI.TextEquals(svelteInc, "Svelte: 1 + -");
+                AssertUI.TextEquals(jsIncrementer, $"{componentName}: 1 + -");
 
                 plus.Click();
                 AssertUI.TextEquals(dotvvmCounter, "2");
-                AssertUI.TextEquals(svelteInc, "Svelte: 2 + -");
+                AssertUI.TextEquals(jsIncrementer, $"{componentName}: 2 + -");
 
                 minus.Click();
                 AssertUI.TextEquals(dotvvmCounter, "1");
-                AssertUI.TextEquals(svelteInc, "Svelte: 1 + -");
+                AssertUI.TextEquals(jsIncrementer, $"{componentName}: 1 + -");
 
-                // Now update via DotVVM buttons and verify Svelte reflects it
+                // Now update via DotVVM buttons and verify the JS component reflects it
                 browser.First("dotvvm-plus", SelectByDataUi).Click();
                 AssertUI.TextEquals(dotvvmCounter, "2");
-                AssertUI.TextEquals(svelteInc, "Svelte: 2 + -");
+                AssertUI.TextEquals(jsIncrementer, $"{componentName}: 2 + -");
 
                 browser.First("dotvvm-minus", SelectByDataUi).Click();
                 AssertUI.TextEquals(dotvvmCounter, "1");
-                AssertUI.TextEquals(svelteInc, "Svelte: 1 + -");
+                AssertUI.TextEquals(jsIncrementer, $"{componentName}: 1 + -");
 
-                // Verify Svelte can continue incrementing from current value
+                // Verify the JS component can continue incrementing from current value
                 plus.Click();
                 AssertUI.TextEquals(dotvvmCounter, "2");
             });

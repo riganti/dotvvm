@@ -5,6 +5,16 @@ import { registerSvelteControl, KnockoutTemplateSvelteComponent } from 'dotvvm-j
 import Incrementer from './Incrementer.svelte'
 import Incrementer2 from './Incrementer2.svelte'
 
+const knockout = (window as any).ko
+knockout.bindingHandlers.jsComponentDisposeProbe = {
+    init(element) {
+        knockout.utils.domNodeDisposal.addDisposeCallback(element, () => {
+            const testCounters = ((window as any).dotvvmJsComponentTestCounters ??= {})
+            testCounters.knockoutTemplateDisposals = (testCounters.knockoutTemplateDisposals ?? 0) + 1
+        })
+    }
+}
+
 // DotVVM Context importer 
 export default (context) => ({
     $controls: {
