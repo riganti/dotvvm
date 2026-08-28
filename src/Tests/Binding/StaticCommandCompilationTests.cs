@@ -13,6 +13,8 @@ using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System.Collections.Immutable;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Testing;
@@ -152,6 +154,23 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("DateFrom = DateTo", niceMode: false, typeof(TestViewModel));
             Assert.AreEqual("{let vm=options.viewModel;vm.DateFrom(dotvvm.serialization.serializeDate(vm.DateTo.state,false));}", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_DefaultStructParameterIsNotSerialized()
+        {
+            var binding = releaseHelper.StaticCommand("StaticCommands.GetValueWithUnserializableDefault()", [ typeof(TestViewModel) ]);
+            var result = BindingTestHelper.GetStaticCommandJavascriptBody(binding);
+            var plan = binding.GetProperty<StaticCommandJsAstProperty>().Expression
+                .DescendantNodesAndSelf()
+                .Select(n => n.Annotation<StaticCommandMethodTranslator.StaticCommandInvocationJsAnnotation>())
+                .OfType<StaticCommandMethodTranslator.StaticCommandInvocationJsAnnotation>()
+                .Single()
+                .Plan;
+
+            Assert.AreEqual("{await dotvvm.staticCommandPostback(\"XXXX\",[],options);}", result);
+            Assert.AreEqual(StaticCommandParameterType.DefaultValue, plan.Arguments.Single().Type);
+            Assert.AreEqual(0, plan.Method.Invoke(null, plan.Arguments.Select(a => a.Arg).ToArray()));
         }
 
         [TestMethod]
@@ -461,6 +480,21 @@ namespace DotVVM.Framework.Tests.Binding
 
         [AllowStaticCommand]
         public static DateTime GetDate() => DateTime.UtcNow;
+
+        [AllowStaticCommand]
+        public static int GetValueWithUnserializableDefault(UnserializableStruct value = default) => value.Value;
+    }
+
+    [JsonConverter(typeof(UnserializableStructJsonConverter))]
+    public struct UnserializableStruct
+    {
+        public int Value { get; set; }
+    }
+
+    public class UnserializableStructJsonConverter : JsonConverter<UnserializableStruct>
+    {
+        public override UnserializableStruct Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotSupportedException();
+        public override void Write(Utf8JsonWriter writer, UnserializableStruct value, JsonSerializerOptions options) => throw new NotSupportedException();
     }
 
     public abstract class TestInnerService<TOutput>

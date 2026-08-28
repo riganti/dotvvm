@@ -420,10 +420,10 @@ namespace DotVVM.Framework.Compilation.Binding
             if (parameter.HasDefaultValue)
             {
                 var value = parameter.DefaultValue;
-                if (value is null && parameter.ParameterType.IsValueType)
+                if (value is null)
                 {
-                    // null with struct type means `default(T)`
-                    value = ReflectionUtils.GetDefaultValue(parameter.ParameterType);
+                    // null with struct type also means `default(T)`
+                    return Expression.Default(parameter.ParameterType);
                 }
                 return Expression.Constant(value, parameter.ParameterType);
             }

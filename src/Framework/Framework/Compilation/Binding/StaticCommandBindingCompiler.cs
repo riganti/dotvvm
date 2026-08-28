@@ -173,6 +173,7 @@ namespace DotVVM.Framework.Compilation.Binding
         Argument,
         Inject,
         Constant,
+        /// Parameter default value (not necessarily default(T))
         DefaultValue,
         Invocation
     }
