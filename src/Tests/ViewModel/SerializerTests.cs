@@ -28,9 +28,9 @@ namespace DotVVM.Framework.Tests.ViewModel
     [TestClass]
     public class FastSerializerTests : SerializerTests
     {
-        static DotvvmConfiguration config;
-        static ViewModelJsonConverter jsonConverter;
-        static JsonSerializerOptions jsonOptions;
+        static readonly DotvvmConfiguration config;
+        static readonly ViewModelJsonConverter jsonConverter;
+        static readonly JsonSerializerOptions jsonOptions;
         static FastSerializerTests()
         {
             config = DotvvmTestHelper.CreateConfiguration();
@@ -51,9 +51,9 @@ namespace DotVVM.Framework.Tests.ViewModel
     [TestClass]
     public class StandardSerializerTests : SerializerTests
     {
-        static DotvvmConfiguration config;
-        static ViewModelJsonConverter jsonConverter;
-        static JsonSerializerOptions jsonOptions;
+        static readonly DotvvmConfiguration config;
+        static readonly ViewModelJsonConverter jsonConverter;
+        static readonly JsonSerializerOptions jsonOptions;
         static StandardSerializerTests()
         {
             config = DotvvmTestHelper.CreateConfiguration();
@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             };
         }
 
-        protected override DotvvmConfiguration Config => DotvvmTestHelper.DefaultConfig;
+        protected override DotvvmConfiguration Config => config;
 
         protected override ViewModelJsonConverter JsonConverter => jsonConverter;
 
@@ -1579,6 +1579,21 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void PropertyJsonConverter_CanBeResetToNull()
+        {
+            Config.GetSerializationMapper()
+                .Map<TestViewModelWithPropertyJsonConverter>(map =>
+                    map.Property("Value").SetJsonConverter(null));
+
+            var json = Serialize(new TestViewModelWithPropertyJsonConverter { Value = 2 }, out _);
+
+            var viewModel = Deserialize<TestViewModelWithPropertyJsonConverter>(json);
+            Assert.AreEqual(2, viewModel.Value);
+
+            Assert.AreEqual("2", JsonNode.Parse(json)["Value"].ToJsonString());
+        }
+
+        [TestMethod]
         public void SupportCustomConverters_DynamicDispatch()
         {
             var obj = new TestViewModelWithCustomConverter() { Property1 = "A", Property2 = "B" };
@@ -2112,6 +2127,21 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         public override void Write(Utf8JsonWriter writer, int? value, JsonSerializerOptions options) =>
             writer.WriteStringValue(value.Value.ToString());
+    }
+
+    class TestViewModelWithPropertyJsonConverter
+    {
+        [JsonConverter(typeof(TestJsonConverter))]
+        public int Value { get; set; }
+
+        class TestJsonConverter : JsonConverter<int>
+        {
+            public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+                throw new Exception("Should not be called");
+
+            public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options) =>
+                throw new Exception("Should not be called");
+        }
     }
 
     [JsonConverter(typeof(TestEnumCustomConverter))]
