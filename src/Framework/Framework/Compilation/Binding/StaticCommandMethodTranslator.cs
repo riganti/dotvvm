@@ -78,6 +78,13 @@ namespace DotVVM.Framework.Compilation.Binding
                 else if (arg.OriginalExpression.Type == typeof(System.Threading.CancellationToken))
                     // CancellationToken cannot be serialized from the client - always provide from the request context
                     return new StaticCommandParameterPlan(StaticCommandParameterType.CurrentCancellationToken, null);
+                else if (arg.OriginalExpression is DefaultExpression)
+                {
+                    if (method.GetParameters()[index - (method.IsStatic ? 0 : 1)].DefaultValue is null)
+                        return new StaticCommandParameterPlan(StaticCommandParameterType.DefaultValue, null);
+                    else
+                        return new StaticCommandParameterPlan(StaticCommandParameterType.Constant, ReflectionUtils.GetDefaultValue(arg.OriginalExpression.Type));
+                }
                 else if (arg.OriginalExpression is ConstantExpression constant)
                 {
                     if (constant.Value == method.GetParameters()[index - (method.IsStatic ? 0 : 1)].DefaultValue)
