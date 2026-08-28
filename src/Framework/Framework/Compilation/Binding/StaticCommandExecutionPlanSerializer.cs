@@ -55,6 +55,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     array.Add(SerializePlan((StaticCommandInvocationPlan)arg.Arg!));
                 }
+                else if (arg.Type == StaticCommandParameterType.CurrentCancellationToken)
+                {
+                    array.Add(null);
+                }
                 else throw new NotSupportedException(arg.Type.ToString());
             }
             return array;
@@ -160,6 +164,8 @@ namespace DotVVM.Framework.Compilation.Binding
                         new StaticCommandParameterPlan(type, methodParameters[i]!.DefaultValue),
                     StaticCommandParameterType.Invocation =>
                         new StaticCommandParameterPlan(type, DeserializePlan(ref json)),
+                    StaticCommandParameterType.CurrentCancellationToken =>
+                        new StaticCommandParameterPlan(type, null),
                     _ => throw new NotSupportedException(type.ToString())
                 };
                 json.AssertRead();

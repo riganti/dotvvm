@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.Javascript;
@@ -246,6 +247,45 @@ namespace DotVVM.Framework.Tests.Binding
         [AllowStaticCommand(StaticCommandValidation.Automatic)]
         internal static void CustomPrimitivesValidation(TestViewModel viewModel, [RegularExpression(@"\d\d7", ErrorMessage = "Vehicle must have lucky number.")] VehicleNumber vehicle)
         {
+        }
+
+        [TestMethod]
+        public async Task CancellationToken_IsInjectedFromContext()
+        {
+            var plan = new StaticCommandInvocationPlan(
+                ((Func<CancellationToken, bool>)MethodWithCancellationToken).Method,
+                [ new StaticCommandParameterPlan(StaticCommandParameterType.CurrentCancellationToken, null) ]
+            );
+            var result = await Invoke(plan);
+            // The method should have been called successfully (not thrown an exception)
+            Assert.IsTrue((bool)result);
+        }
+
+        [TestMethod]
+        public async Task CancellationToken_OptionalParameter_IsInjectedFromContext()
+        {
+            var plan = new StaticCommandInvocationPlan(
+                ((Func<string, CancellationToken, Task<string>>)MethodWithOptionalCancellationToken).Method,
+                new[] {
+                    new StaticCommandParameterPlan(StaticCommandParameterType.Argument, typeof(string)),
+                    new StaticCommandParameterPlan(StaticCommandParameterType.CurrentCancellationToken, null)
+                }
+            );
+            var result = await Invoke(plan, ("hello", "/Input"));
+            Assert.AreEqual("hello", result);
+        }
+
+        [AllowStaticCommand]
+        internal static bool MethodWithCancellationToken(CancellationToken cancellationToken)
+        {
+            return !cancellationToken.IsCancellationRequested;
+        }
+
+        [AllowStaticCommand]
+        internal static async Task<string> MethodWithOptionalCancellationToken(string input, CancellationToken cancellationToken = default)
+        {
+            await Task.Yield();
+            return input;
         }
     }
 }
