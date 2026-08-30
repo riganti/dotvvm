@@ -611,7 +611,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             var firstOrDefaultPred = new GenericMethodCompiler((args, method) =>
                 args[1].Member("find").Invoke(args[2])
-                    .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, objectPath: ImmutableArray.Create("Item")!)));
+                    .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, isObservable: false, objectPath: ImmutableArray.Create("Item")!))
+                    .WithAnnotation(ResultMayBeObservableAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().FirstOrDefault(_ => true), firstOrDefaultPred);
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().First(_ => true), firstOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.FirstOrDefault(default(ImmutableArray<Generic.T>), _ => true), firstOrDefaultPred);
@@ -619,12 +620,14 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             var lastOrDefault = new GenericMethodCompiler((args, method) =>
                 args[1].Member("at").Invoke(new JsLiteral(-1))
-                .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, objectPath: ImmutableArray.Create("Item")!)));
+                .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, isObservable: false, objectPath: ImmutableArray.Create("Item")!))
+                .WithAnnotation(ResultMayBeObservableAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(), lastOrDefault);
             AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>)), lastOrDefault);
             var lastOrDefaultPred = new GenericMethodCompiler((args, method) =>
                 args[1].Member("findLast").Invoke(args[2])
-                    .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, objectPath: ImmutableArray.Create("Item")!)));
+                    .WithAnnotation(new VMPropertyInfoAnnotation(method, targetPath: VMPropertyInfoAnnotation.InstanceMethodTargetPath, isObservable: false, objectPath: ImmutableArray.Create("Item")!))
+                    .WithAnnotation(ResultMayBeObservableAnnotation.Instance));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().LastOrDefault(_ => false), lastOrDefaultPred);
             AddMethodTranslator(() => ImmutableArrayExtensions.LastOrDefault(default(ImmutableArray<Generic.T>), _ => false), lastOrDefaultPred);
 
