@@ -1,0 +1,95 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CollectionKeys.CollectionKeysViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .fade {
+            opacity: 0;
+            transition: opacity ease-in-out 1s;
+
+            &.show {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <dot:InlineScript Dependencies="knockout">
+        function afterRender(nodes) {
+            for (let child of nodes) {
+                if (child.nodeType === Node.ELEMENT_NODE) {
+                    child.classList.add("show");
+                }
+            }
+        }
+        function afterAdd(node) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                node.classList.remove("show");
+                window.requestAnimationFrame(() => {
+                    node.classList.add("show");
+                }, 1);
+            }
+        }
+        function beforeRemove(node) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                node.addEventListener("transitionend", () => {
+                    node.remove();
+                }, { once: true });
+                node.classList.remove("show");
+            } else {
+                node.remove();
+            }
+        }
+
+        function makeAnimatedValueAccessor(valueAccessor) {
+            return () => ({
+                ...valueAccessor(),
+                afterRender,
+                afterAdd,
+                beforeRemove
+            });
+        }
+
+        const originalTemplateHandler = ko.bindingHandlers["template"];
+        ko.bindingHandlers["template"] = {
+            init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                return originalTemplateHandler['init'](element, makeAnimatedValueAccessor(valueAccessor), allBindings, viewModel, bindingContext);
+            },
+            'update': function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                return originalTemplateHandler['update'](element, makeAnimatedValueAccessor(valueAccessor), allBindings, viewModel, bindingContext);
+            }
+        };
+    </dot:InlineScript>
+
+    <div class="container">
+        <h1>Task List</h1>
+
+        <form>
+            <fieldset data-testattribute>
+                <legend>Add Task</legend>
+
+                <p>Title: <dot:TextBox Text={value: NewTaskTitle} /></p>
+                <p><dot:Button Text="Create" Click={command: AddTask()} IsSubmitButton /></p>
+            </fieldset>
+        </form>
+
+        <p>&nbsp;</p>
+
+        <table class="table">
+            <dot:Repeater DataSource={value: Tasks} WrapperTagName="tbody">
+                <tr class="fade">
+                    <td>{{value: Title}}</td>
+                    <td>
+                        <dot:LinkButton Text="done"
+                                        Click={command: _parent.CompleteTask(TaskId)} />
+                    </td>
+                </tr>
+            </dot:Repeater>
+        </table>
+    </div>
+</body>
+</html>
