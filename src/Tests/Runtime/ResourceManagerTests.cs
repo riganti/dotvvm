@@ -101,6 +101,22 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
+        public void ResourceRepository_Deserialization()
+        {
+            var repository = new DotvvmResourceRepository();
+            repository.Register("resource", new NullResource());
+            var settings = VisualStudioHelper.GetSerializerOptions();
+            settings.Converters.Add(new ResourceRepositoryJsonConverter());
+
+            var deserialized = JsonSerializer.Deserialize<DotvvmResourceRepository>(
+                JsonSerializer.Serialize(repository, settings),
+                settings);
+
+            Assert.IsNotNull(deserialized);
+            Assert.IsInstanceOfType(deserialized.FindResource("resource"), typeof(NullResource));
+        }
+
+        [TestMethod]
         [Ignore("DotvvmConfiguration deserialization is not currently implemented")]
         public void ResourceManager_ConfigurationOldDeserialization()
         {

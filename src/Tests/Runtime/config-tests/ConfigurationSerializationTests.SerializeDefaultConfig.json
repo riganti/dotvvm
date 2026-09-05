@@ -366,7 +366,7 @@
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Name": "_dataPager",
             "Order": 0,
             "NestDataContext": false,
@@ -380,7 +380,7 @@
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.HelperNamespace.DataPagerApi+AddParameterDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Name": "_dataPager",
             "Order": 0,
             "NestDataContext": false,
@@ -451,7 +451,7 @@
         "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "PropertyName": "CheckedValue",
             "Order": 0,
             "AllowMissingProperty": false,
@@ -615,7 +615,7 @@
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.ConstantDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.ConstantDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Type": "System.Int32[]",
             "Order": 0,
             "ServerSideOnly": null,
@@ -623,7 +623,7 @@
             "PropertyDependsOn": []
           },
           {
-            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Order": 1,
             "NestDataContext": true,
             "PropertyDependsOn": []
@@ -774,7 +774,7 @@
         "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.GridViewColumn, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "PropertyName": "DataSource",
             "Order": 0,
             "AllowMissingProperty": false,
@@ -784,7 +784,7 @@
             "NestDataContext": true
           },
           {
-            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Order": 1,
             "NestDataContext": true,
             "PropertyDependsOn": []
@@ -797,7 +797,7 @@
         "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "PropertyName": "DataSource",
             "Order": 0,
             "AllowMissingProperty": false,
@@ -807,7 +807,7 @@
             "NestDataContext": true
           },
           {
-            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Order": 1,
             "NestDataContext": true,
             "PropertyDependsOn": []
@@ -842,7 +842,7 @@
         "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "PropertyName": "DataSource",
             "Order": 0,
             "AllowMissingProperty": false,
@@ -852,7 +852,7 @@
             "NestDataContext": true
           },
           {
-            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Order": 1,
             "NestDataContext": true,
             "PropertyDependsOn": []
@@ -893,7 +893,7 @@
       "AllowSorting": {
         "type": "System.Boolean",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         },
         "defaultValue": false,
         "onlyHardcoded": true
@@ -919,14 +919,14 @@
       "FilterTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         },
         "mappingMode": "InnerElement"
       },
       "HeaderCellDecorators": {
         "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         },
         "mappingMode": "InnerElement",
         "onlyHardcoded": true
@@ -934,26 +934,26 @@
       "HeaderCssClass": {
         "type": "System.String",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         }
       },
       "HeaderTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         },
         "mappingMode": "InnerElement"
       },
       "HeaderText": {
         "type": "System.String",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         }
       },
       "IsEditable": {
         "type": "System.Boolean",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         },
         "defaultValue": true,
         "onlyHardcoded": true
@@ -961,7 +961,7 @@
       "SortAscendingHeaderCssClass": {
         "type": "System.String",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         },
         "defaultValue": "sort-asc",
         "onlyHardcoded": true
@@ -969,7 +969,7 @@
       "SortDescendingHeaderCssClass": {
         "type": "System.String",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         },
         "defaultValue": "sort-desc",
         "onlyHardcoded": true
@@ -977,21 +977,21 @@
       "SortExpression": {
         "type": "System.String",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         },
         "onlyHardcoded": true
       },
       "Visible": {
         "type": "System.Boolean",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         },
         "defaultValue": true
       },
       "Width": {
         "type": "System.String",
         "dataContextManipulation": {
-          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute"
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
         },
         "onlyHardcoded": true
       }
@@ -1034,13 +1034,13 @@
         "type": "DotVVM.Framework.Binding.Expressions.IStaticValueBinding`1[[System.Collections.Generic.IEnumerable`1[[System.Object, CoreLibrary]], CoreLibrary]], DotVVM.Framework",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Order": 1,
             "NestDataContext": true,
             "PropertyDependsOn": []
           },
           {
-            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "PropertyName": "DataSource",
             "Order": 0,
             "AllowMissingProperty": false,
@@ -1061,13 +1061,13 @@
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Order": 1,
             "NestDataContext": true,
             "PropertyDependsOn": []
           },
           {
-            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "PropertyName": "DataSource",
             "Order": 0,
             "AllowMissingProperty": false,
@@ -1398,7 +1398,7 @@
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "PropertyName": "DataSource",
             "Order": 0,
             "AllowMissingProperty": false,
@@ -1408,7 +1408,7 @@
             "NestDataContext": true
           },
           {
-            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Order": 1,
             "NestDataContext": true,
             "PropertyDependsOn": []
@@ -1506,7 +1506,7 @@
         "type": "DotVVM.Framework.Binding.Expressions.IValueBinding`1[[System.String, CoreLibrary]], DotVVM.Framework",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "PropertyName": "DataSource",
             "Order": 0,
             "AllowMissingProperty": false,
@@ -1516,7 +1516,7 @@
             "NestDataContext": true
           },
           {
-            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Order": 1,
             "NestDataContext": true,
             "PropertyDependsOn": []
@@ -1528,7 +1528,7 @@
         "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "PropertyName": "DataSource",
             "Order": 0,
             "AllowMissingProperty": false,
@@ -1538,7 +1538,7 @@
             "NestDataContext": true
           },
           {
-            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Order": 1,
             "NestDataContext": true,
             "PropertyDependsOn": []
@@ -1550,7 +1550,7 @@
         "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
         "dataContextChange": [
           {
-            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "PropertyName": "DataSource",
             "Order": 0,
             "AllowMissingProperty": false,
@@ -1560,7 +1560,7 @@
             "NestDataContext": true
           },
           {
-            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute",
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "Order": 1,
             "NestDataContext": true,
             "PropertyDependsOn": []
