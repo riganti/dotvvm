@@ -91,15 +91,20 @@ namespace DotVVM.Framework.Tests.Runtime
                 .GetProperty("LoadingTemplate")
                 .GetProperty("dataContextChange");
 
-            StringAssert.Contains(
-                dataContextChange[0].GetProperty("$type").GetString(),
-                typeof(DataPagerApi.AddParameterDataContextChangeAttribute).Assembly.GetName().Name);
+            Assert.AreEqual(
+                $"{typeof(DataPagerApi.AddParameterDataContextChangeAttribute).FullName}, {typeof(DataContextChangeAttribute).Assembly.GetName().Name}",
+                dataContextChange[0].GetProperty("$type").GetString());
 
             var attributes = JsonSerializer.Deserialize<DataContextChangeAttribute[]>(
                 dataContextChange.GetRawText(),
                 VisualStudioHelper.GetSerializerOptions());
             Assert.HasCount(1, attributes);
             Assert.IsInstanceOfType(attributes[0], typeof(DataPagerApi.AddParameterDataContextChangeAttribute));
+
+            var oldFormatAttributes = JsonSerializer.Deserialize<DataContextChangeAttribute[]>(
+                dataContextChange.GetRawText().Replace($", {typeof(DataContextChangeAttribute).Assembly.GetName().Name}", ""),
+                VisualStudioHelper.GetSerializerOptions());
+            Assert.IsInstanceOfType(oldFormatAttributes[0], typeof(DataPagerApi.AddParameterDataContextChangeAttribute));
         }
 
         private static DotvvmConfiguration CreateTestConfiguration()

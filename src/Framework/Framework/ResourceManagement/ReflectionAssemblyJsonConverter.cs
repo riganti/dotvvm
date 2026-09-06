@@ -122,7 +122,8 @@ namespace DotVVM.Framework.ResourceManagement
         internal static void WriteObjectReflection(Utf8JsonWriter writer, object attribute, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
-            writer.WriteString("$type", attribute.GetType().AssemblyQualifiedName);
+            var attributeType = attribute.GetType();
+            writer.WriteString("$type", $"{attributeType.FullName}, {typeof(DataContextChangeAttribute).Assembly.GetName().Name}");
             var properties = attribute.GetType().GetProperties();
             foreach (var prop in properties)
             {
@@ -150,7 +151,8 @@ namespace DotVVM.Framework.ResourceManagement
                 throw new JsonException("Data context attribute must specify its '$type'.");
 
             var typeName = typeNameElement.GetString()!;
-            var type = ReflectionTypeJsonConverter.ResolveType(typeName)
+            var typeFullName = typeName.Split(',')[0].Trim();
+            var type = typeof(DataContextChangeAttribute).Assembly.GetType(typeFullName, throwOnError: false)
                 ?? throw new JsonException($"Type '{typeName}' could not be resolved.");
             if (!baseType.IsAssignableFrom(type))
                 throw new JsonException($"Type '{typeName}' is not a {baseType.Name}.");
