@@ -117,6 +117,19 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
+        public void EmbeddedResourceLocation_SerializesAssemblyNameUsingExistingPropertyName()
+        {
+            var location = new EmbeddedResourceLocation(
+                typeof(DotvvmConfiguration).Assembly,
+                "DotVVM.Framework.Resources.Scripts.knockout-latest.js");
+
+            using var document = JsonDocument.Parse(JsonSerializer.Serialize(location, VisualStudioHelper.GetSerializerOptions()));
+
+            Assert.AreEqual(typeof(DotvvmConfiguration).Assembly.GetName().ToString(), document.RootElement.GetProperty("Assembly").GetString());
+            Assert.IsFalse(document.RootElement.TryGetProperty("AssemblyName", out _));
+        }
+
+        [TestMethod]
         [Ignore("DotvvmConfiguration deserialization is not currently implemented")]
         public void ResourceManager_ConfigurationOldDeserialization()
         {

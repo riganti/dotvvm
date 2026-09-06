@@ -5,7 +5,6 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using FastExpressionCompiler;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
@@ -18,21 +17,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public override Assembly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType != JsonTokenType.String)
-                throw new JsonException($"Expected an assembly name, but found {reader.TokenType}.");
-
-            var assemblyName = reader.GetString();
-            if (string.IsNullOrWhiteSpace(assemblyName))
-                throw new JsonException("Assembly name cannot be empty.");
-
-            try
-            {
-                return Assembly.Load(new AssemblyName(assemblyName));
-            }
-            catch (Exception ex) when (ex is FileNotFoundException or FileLoadException or BadImageFormatException)
-            {
-                throw new JsonException($"Assembly '{assemblyName}' could not be loaded.", ex);
-            }
+            throw new NotSupportedException("Assembly deserialization is not supported.");
         }
 
         public override void Write(Utf8JsonWriter writer, Assembly value, JsonSerializerOptions options)
