@@ -123,7 +123,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             writer.WriteStartObject();
             var attributeType = attribute.GetType();
-            writer.WriteString("$type", $"{attributeType.FullName}, {typeof(DataContextChangeAttribute).Assembly.GetName().Name}");
+            writer.WriteString("$type", attributeType.FullName);
             var properties = attribute.GetType().GetProperties();
             foreach (var prop in properties)
             {

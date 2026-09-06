@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 .GetProperty("dataContextChange");
 
             Assert.AreEqual(
-                $"{typeof(DataPagerApi.AddParameterDataContextChangeAttribute).FullName}, {typeof(DataContextChangeAttribute).Assembly.GetName().Name}",
+                typeof(DataPagerApi.AddParameterDataContextChangeAttribute).FullName,
                 dataContextChange[0].GetProperty("$type").GetString());
 
             var attributes = JsonSerializer.Deserialize<DataContextChangeAttribute[]>(
@@ -101,10 +101,12 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.HasCount(1, attributes);
             Assert.IsInstanceOfType(attributes[0], typeof(DataPagerApi.AddParameterDataContextChangeAttribute));
 
-            var oldFormatAttributes = JsonSerializer.Deserialize<DataContextChangeAttribute[]>(
-                dataContextChange.GetRawText().Replace($", {typeof(DataContextChangeAttribute).Assembly.GetName().Name}", ""),
+            var qualifiedFormatAttributes = JsonSerializer.Deserialize<DataContextChangeAttribute[]>(
+                dataContextChange.GetRawText().Replace(
+                    typeof(DataPagerApi.AddParameterDataContextChangeAttribute).FullName,
+                    $"{typeof(DataPagerApi.AddParameterDataContextChangeAttribute).FullName}, {typeof(DataContextChangeAttribute).Assembly.GetName().Name}"),
                 VisualStudioHelper.GetSerializerOptions());
-            Assert.IsInstanceOfType(oldFormatAttributes[0], typeof(DataPagerApi.AddParameterDataContextChangeAttribute));
+            Assert.IsInstanceOfType(qualifiedFormatAttributes[0], typeof(DataPagerApi.AddParameterDataContextChangeAttribute));
         }
 
         private static DotvvmConfiguration CreateTestConfiguration()
