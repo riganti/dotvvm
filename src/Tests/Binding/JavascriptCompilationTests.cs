@@ -946,11 +946,11 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableSelectFirstObservableHandling()
         {
             var result = CompileBinding("VmArray.Select(item => item.ChildObject).FirstOrDefault(i => i.SomeString.StartsWith('a')).SomeString == 'abc'", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("VmArray().map((item)=>ko.unwrap(item).ChildObject()).find((i)=>ko.unwrap(i).SomeString().startsWith(\"a\")).SomeString()==\"abc\"", result);
+            Assert.AreEqual("ko.unwrap(VmArray().map((item)=>ko.unwrap(item).ChildObject()).find((i)=>ko.unwrap(i).SomeString().startsWith(\"a\"))).SomeString()==\"abc\"", result);
             //                                                                    ^^^^^        not observable, because .map unwraps it ^^
             // without the select, we'd need observable unwrap after .find
             var withoutSelect = CompileBinding("VmArray.FirstOrDefault(i => i.ChildObject.SomeString.StartsWith('a')).ChildObject.SomeString == 'abc'", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("VmArray().find((i)=>ko.unwrap(i).ChildObject().SomeString().startsWith(\"a\"))().ChildObject().SomeString()==\"abc\"", withoutSelect);
+            Assert.AreEqual("ko.unwrap(VmArray().find((i)=>ko.unwrap(i).ChildObject().SomeString().startsWith(\"a\"))).ChildObject().SomeString()==\"abc\"", withoutSelect);
         }
 
         [TestMethod]
@@ -973,7 +973,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableSelectSliceObservableHandling()
         {
             var result = CompileBinding("VmArray.Select(item => item.ChildObject).Take(4).LastOrDefault().SomeString == 'abc'", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("VmArray().map((item)=>ko.unwrap(item).ChildObject()).slice(0,4).at(-1).SomeString()==\"abc\"", result);
+            Assert.AreEqual("ko.unwrap(VmArray().map((item)=>ko.unwrap(item).ChildObject()).slice(0,4).at(-1)).SomeString()==\"abc\"", result);
             //                                       not observable, because .map unwraps it ^^^^^^^
         }
 
@@ -1097,7 +1097,18 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var withUnwraps = CompileBinding("TestJsTransations.GetTestObjectWithObservables().ObjectArray.FirstOrDefault(o => o.Enum == 'Value1').Int == 12", new[] { new NamespaceImport("System.Linq"), new NamespaceImport(typeof(TestJsTransations).Namespace) }, new[] { typeof(TestViewModel) });
 
-            Assert.AreEqual("testPlainObject.ObjectArray().find((o)=>ko.unwrap(o).Enum()==\"Value1\")().Int()==12", withUnwraps);
+            Assert.AreEqual("ko.unwrap(testPlainObject.ObjectArray().find((o)=>ko.unwrap(o).Enum()==\"Value1\")).Int()==12", withUnwraps);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableFirstOrDefaultInNestedDataContexts()
+        {
+            var result = CompileBinding(
+                "_root.Products.FirstOrDefault(x => x.Category1 == _this.Id && x.Category2 == _parent.Id).Colors",
+                new[] { new NamespaceImport("System.Linq") },
+                new[] { typeof(FirstOrDefaultForumViewModel), typeof(FirstOrDefaultForumCategory), typeof(FirstOrDefaultForumCategory) });
+
+            Assert.AreEqual("ko.unwrap($parents[1].Products().find((x)=>ko.unwrap(x).Category1()==Id()&&ko.unwrap(x).Category2()==$parent.Id())).Colors", result);
         }
 
         [TestMethod]
@@ -1105,7 +1116,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var withoutUnwraps = CompileBinding("TestJsTransations.GetTestPlainObject().ObjectArray.OrderBy(a => a.Enum).LastOrDefault().Int == 12", new[] { new NamespaceImport("System.Linq"), new NamespaceImport(typeof(TestJsTransations).Namespace) }, new[] { typeof(TestViewModel) });
 
-            Assert.AreEqual("dotvvm.translations.array.orderBy(testPlainObject.ObjectArray,(a)=>ko.unwrap(a).Enum(),\"OtpJZLo88uwaSnRS\").at(-1).Int==12", withoutUnwraps);
+            Assert.AreEqual("ko.unwrap(dotvvm.translations.array.orderBy(testPlainObject.ObjectArray,(a)=>ko.unwrap(a).Enum(),\"OtpJZLo88uwaSnRS\").at(-1)).Int==12", withoutUnwraps);
         }
 
         [TestMethod]
@@ -1163,7 +1174,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableLastOrDefaultObservable()
         {
             var result = CompileBinding("LongArray.LastOrDefault()==1", new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("LongArray().at(-1)()==1", result);
+            Assert.AreEqual("ko.unwrap(LongArray().at(-1))==1", result);
         }
 
         [TestMethod]
@@ -1974,6 +1985,23 @@ namespace DotVVM.Framework.Tests.Binding
         public float?[] NullableSingleArray { get; set; } = new float?[] { 1, 2, 3 };
         public double?[] NullableDoubleArray { get; set; } = new double?[] { 1, 2, 3 };
         public TestComparisonType[] ObjectArray { get; set; } = new[] { new TestComparisonType() };
+    }
+
+    public class FirstOrDefaultForumViewModel
+    {
+        public List<FirstOrDefaultForumProduct> Products { get; set; }
+    }
+
+    public class FirstOrDefaultForumCategory
+    {
+        public int Id { get; set; }
+    }
+
+    public class FirstOrDefaultForumProduct
+    {
+        public int Category1 { get; set; }
+        public int Category2 { get; set; }
+        public List<string> Colors { get; set; }
     }
 
     public class TestComparisonType
