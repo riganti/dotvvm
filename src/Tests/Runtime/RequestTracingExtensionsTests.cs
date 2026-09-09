@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void TracingSerialized_StreamFactoryCanBeCalledSynchronously()
         {
             var tracer = new SynchronousStreamReaderTracer();
-            using var stream = new MemoryStream([1, 2, 3]);
+            using var stream = new MemoryStream([1, 2, 3], 0, 3, writable: false, publiclyVisible: true);
 
             new[] { tracer }.TracingSerialized(context: null!, viewModelSize: 3, stream);
 
@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void TracingSerialized_StreamFactoryThrowsWhenInvokedTooLate()
         {
             var tracer = new DeferredInvocationTracer();
-            using var stream = new MemoryStream([1, 2, 3]);
+            using var stream = new MemoryStream([1, 2, 3], 0, 3, writable: false, publiclyVisible: true);
 
             new[] { tracer }.TracingSerialized(context: null!, viewModelSize: 3, stream);
 
