@@ -1,0 +1,11 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.FirstOrDefaultViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html>
+<head><title>FirstOrDefault in a markup control</title></head>
+<body>
+    <dot:TextBox data-ui="key" Text="{value: Key}" />
+    <dot:Button data-ui="clear" Text="Clear" Click="{staticCommand: DostupnaRazeni.Clear()}" />
+    <sample:FirstOrDefaultControl DostupnaRazeni="{value: DostupnaRazeni}" Key="{value: Key}" />
+</body>
+</html>
