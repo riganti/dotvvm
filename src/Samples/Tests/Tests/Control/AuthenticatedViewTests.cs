@@ -8,7 +8,7 @@ using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
-using Riganti.Selenium.DotVVM;
+using static DotVVM.Samples.Tests.UITestUtils;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -21,17 +21,20 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_AuthenticatedView_AuthenticatedViewTest);
 
+                void AssertAuthenticationState(string expectedResult)
+                {
+                    WaitForIgnoringStaleElements(() => {
+                        AssertUI.InnerTextEquals(browser.First(".result"), expectedResult);
+                    });
+                }
+
                 // make sure we are signed out
                 browser.First("input[value='Sign Out']").Click();
-                browser.WaitForPostback();
-
-                AssertUI.InnerTextEquals(browser.First(".result"), "I am not authenticated!");
+                AssertAuthenticationState("I am not authenticated!");
                 browser.First("input[value='Sign In']").Click();
-                browser.WaitForPostback();
-                AssertUI.InnerTextEquals(browser.First(".result"), "I am authenticated!");
+                AssertAuthenticationState("I am authenticated!");
                 browser.First("input[value='Sign Out']").Click();
-                browser.WaitForPostback();
-                AssertUI.InnerTextEquals(browser.First(".result"), "I am not authenticated!");
+                AssertAuthenticationState("I am not authenticated!");
             });
         }
 
