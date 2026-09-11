@@ -54,7 +54,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                                         .ToArray();
 
 
-            var maxNameLen = fieldList.Max(x => x.Name.Length);
+            var maxNameLen = fieldList.Count == 0 ? 0 : fieldList.Max(x => x.Name.Length);
             var nameToEnum = new (TEnum Value, byte[] Name)[maxNameLen + 1][];
             // index enum names by length, then sort them by name
             // the names in enumToName are already deduplicated, each value is represented by the shortest name
@@ -195,7 +195,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     if (typeof(IsFlags) == typeof(False))
                     {
                         Span<byte> name = maxNameLen < 512 ? stackalloc byte[maxNameLen + 1] : new byte[maxNameLen + 1];
-                        var length = reader.CopyString(name);
+                        int length;
+                        try
+                        {
+                            length = reader.CopyString(name);
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            // CopyString doesn't have a TryCopyString overload
+                            throw new JsonException($"Cannot parse {reader.GetString()} as {typeof(TEnum).Name}", ex);
+                        }
                         name = name.Slice(0, length);
                         return FindEnumName(name);
                     }
@@ -208,15 +217,18 @@ namespace DotVVM.Framework.ViewModel.Serialization
                             Span<byte> buffer = valueLength < 512 ? stackalloc byte[valueLength] : (rentedBuffer = ArrayPool<byte>.Shared.Rent(valueLength));
                             var bufferLength = reader.CopyString(buffer);
                             buffer = buffer.Slice(0, bufferLength);
+                            var fullBuffer = buffer;
 
                             ulong result = 0;
                             while (true)
                             {
+                                if (buffer.Length == 0)
+                                    return ThrowInvalidEnumName(fullBuffer);
                                 buffer = buffer.Slice(buffer[0] == ' ' ? 1 : 0);
 
                                 var nextIndex = MemoryExtensions.IndexOf(buffer, (byte)',');
                                 if (nextIndex == 0)
-                                    return ThrowInvalidEnumName(buffer);
+                                    return ThrowInvalidEnumName(fullBuffer);
 
                                 var token = nextIndex < 0 ? buffer : buffer.Slice(0, nextIndex);
 
@@ -243,7 +255,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             TEnum FindEnumName(ReadOnlySpan<byte> name)
             {
-                if (name.Length > maxNameLen)
+                if (name.Length > maxNameLen || name.Length == 0)
                     return ThrowInvalidEnumName(name);
                 var fields = nameToEnum[name.Length];
                 if (fields is null)

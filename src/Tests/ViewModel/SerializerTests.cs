@@ -1329,6 +1329,40 @@ namespace DotVVM.Framework.Tests.ViewModel
 
             Assert.AreEqual(TestViewModelWithEnums.DuplicateNameEnum.B, value);
         }
+
+        [TestMethod]
+        public void TestEmptyEnumSerialization()
+        {
+            var json = JsonSerializer.Serialize((EmptyEnum)0, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+
+            Assert.AreEqual("0", json);
+            Assert.AreEqual("0", JsonSerializer.Serialize((EmptyFlagsEnum)0, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
+        }
+
+        [DataTestMethod]
+        [DataRow("1")]
+        [DataRow("\"\"")]
+        [DataRow("\"Unknown\"")]
+        public void TestEmptyEnumDeserialization_RejectsValues(string json)
+        {
+            var options = DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe;
+
+            Assert.ThrowsException<JsonException>(() => JsonSerializer.Deserialize<EmptyEnum>(json, options));
+            Assert.ThrowsException<JsonException>(() => JsonSerializer.Deserialize<EmptyFlagsEnum>(json, options));
+            Assert.ThrowsException<JsonException>(() => JsonSerializer.Deserialize<EmptyEnum?>(json, options));
+            Assert.ThrowsException<JsonException>(() => JsonSerializer.Deserialize<EmptyFlagsEnum?>(json, options));
+        }
+
+        [TestMethod]
+        public void TestEmptyEnumDeserialization_Null()
+        {
+            var options = DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe;
+
+            Assert.IsNull(JsonSerializer.Deserialize<EmptyEnum?>("null", options));
+            Assert.IsNull(JsonSerializer.Deserialize<EmptyFlagsEnum?>("null", options));
+            Assert.ThrowsException<JsonException>(() => JsonSerializer.Deserialize<EmptyEnum>("null", options));
+            Assert.ThrowsException<JsonException>(() => JsonSerializer.Deserialize<EmptyFlagsEnum>("null", options));
+        }
         enum NumericEnum
         {
             One = 1,
@@ -1341,6 +1375,11 @@ namespace DotVVM.Framework.Tests.ViewModel
             One = 1,
             Two = 2
         }
+
+        enum EmptyEnum { }
+
+        [Flags]
+        enum EmptyFlagsEnum { }
         [TestMethod]
         public void DoesNotTouchIrrelevantGetters()
         {
