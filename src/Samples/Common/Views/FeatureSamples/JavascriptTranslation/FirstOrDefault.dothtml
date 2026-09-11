@@ -1,0 +1,42 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.FirstOrDefaultViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html>
+<head><title>FirstOrDefault in nested repeaters</title></head>
+<body>
+    <!-- Forum topic 377: only diagonal category pairs have a matching product. -->
+    <table border="1" data-ui="products">
+        <thead>
+            <tr>
+                <th></th>
+                <dot:Repeater DataSource="{value: _root.Categories1}" RenderWrapperTag="false">
+                    <th>{{value: Name}}</th>
+                </dot:Repeater>
+            </tr>
+        </thead>
+        <tbody>
+            <dot:Repeater DataSource="{value: _root.Categories2}" RenderWrapperTag="false">
+                <tr>
+                    <th>{{value: Name}}</th>
+                    <dot:Repeater DataSource="{value: _root.Categories1}" RenderWrapperTag="false">
+                        <td>
+                            <dot:Repeater IncludeInPage="{resource: _root.Variant == 'predicate'}"
+                                          DataSource="{value: _root.Products.FirstOrDefault(x => x.Category1 == _this.Id && x.Category2 == _parent.Id).Colors}"
+                                          RenderWrapperTag="false">
+                                <ItemTemplate>{{value: _this}}</ItemTemplate>
+                                <SeparatorTemplate>,</SeparatorTemplate>
+                            </dot:Repeater>
+                            <dot:Repeater IncludeInPage="{resource: _root.Variant == 'where'}"
+                                          DataSource="{value: _root.Products.Where(x => x.Category1 == _this.Id && x.Category2 == _parent.Id).FirstOrDefault().Colors}"
+                                          RenderWrapperTag="false">
+                                <ItemTemplate>{{value: _this}}</ItemTemplate>
+                                <SeparatorTemplate>,</SeparatorTemplate>
+                            </dot:Repeater>
+                        </td>
+                    </dot:Repeater>
+                </tr>
+            </dot:Repeater>
+        </tbody>
+    </table>
+</body>
+</html>

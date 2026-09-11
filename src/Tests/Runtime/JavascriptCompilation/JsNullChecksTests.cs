@@ -11,6 +11,25 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
     public class JsNullChecksTests
     {
         [TestMethod]
+        [DataRow(false, "lookup()?.length")]
+        [DataRow(true, "(lookup==null?null:lookup())?.length")]
+        public void JsNullCheck_ObservableItselfMayBeMissing(bool missingObservable, string expected)
+        {
+            var observable = new JsIdentifierExpression("lookup")
+                .WithAnnotation(ResultIsObservableAnnotation.Instance)
+                .WithAnnotation(MayBeNullAnnotation.Instance)
+                .WithAnnotation(new ViewModelInfoAnnotation(typeof(string)))
+                .WithConditionalAnnotation(missingObservable, ObservableMayBeNullAnnotation.Instance);
+            var expression = new JsParenthesizedExpression(observable.Member("length"));
+
+            expression.AcceptVisitor(new KnockoutObservableHandlingVisitor(allowObservableResult: false));
+            JavascriptNullCheckAdder.AddNullChecks(expression);
+            var result = JsTemporaryVariableResolver.ResolveVariables(expression.Expression.Detach());
+
+            Assert.AreEqual(expected, result.FormatScript());
+        }
+
+        [TestMethod]
         public void JsNullCheck_SimpleMemberAccess()
         {
             var expr =
