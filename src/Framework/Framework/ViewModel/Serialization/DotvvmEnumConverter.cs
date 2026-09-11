@@ -36,8 +36,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var name = field.GetCustomAttribute<EnumMemberAttribute>()?.Value ?? field.Name;
                 var nameUtf8 = StringUtils.Utf8.GetBytes(name);
 
-                if (isFlags && name.IndexOfAny([',', ' ']) >= 0)
-                    throw new NotSupportedException("Flags enum cannot have EnumMemberAttribute with comma or a space.");
+                if (isFlags && (name.IndexOf(',') >= 0 || name[0] == ' ' || name[name.Length - 1] == ' '))
+                    throw new NotSupportedException("Flags enum cannot have EnumMemberAttribute with comma or space at the edges.");
 
                 var value = (TEnum)field.GetValue(null)!;
                 fieldList.Add((value, nameUtf8));
@@ -375,8 +375,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         if (bufferPosition > 0)
                         {   // insert ', '
                             buffer[bufferPosition++] = (byte)',';
-                            if (writer.Options.Indented)
-                                buffer[bufferPosition++] = (byte)' ';
+                            buffer[bufferPosition++] = (byte)' ';
                         }
 
                         flag.Name.CopyTo(buffer.Slice(bufferPosition));
