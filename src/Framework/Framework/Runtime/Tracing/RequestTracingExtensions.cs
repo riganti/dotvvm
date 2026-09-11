@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Runtime.Tracing
 
         public static void TracingSerialized(this IEnumerable<IRequestTracer> requestTracers, IDotvvmRequestContext context, int viewModelSize, MemoryStream stream)
         {
-            bool calledSynchronously = false;
+            bool calledSynchronously = true;
             foreach (var tracer in requestTracers)
             {
                 tracer.ViewModelSerialized(context, viewModelSize, () => {
@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Runtime.Tracing
                     return stream.CloneReadOnly();
                 });
             }
-            calledSynchronously = true;
+            calledSynchronously = false;
         }
 
         public static async Task TracingEndRequest(this IEnumerable<IRequestTracer> requestTracers, IDotvvmRequestContext context)
