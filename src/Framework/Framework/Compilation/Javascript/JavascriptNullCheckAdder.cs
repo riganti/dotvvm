@@ -53,6 +53,14 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     memberAccessExpression.IsOptional = true;
                 }
+                else if (expression is JsIndexerExpression indexerExpression)
+                {
+                    indexerExpression.IsOptional = true;
+                }
+                else if (expression is JsInvocationExpression invocationExpression)
+                {
+                    invocationExpression.IsOptional = true;
+                }
                 // A()[index] -> (A() || []).[index]
                 else if (defaultValue != null &&
                     (expression.HasAnnotation(MayBeNullAnnotation.Instance) || expression.IsRootResultExpression()) &&
