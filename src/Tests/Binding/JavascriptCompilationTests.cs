@@ -842,7 +842,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_DictionaryIndexer_GetObject()
         {
             var result = CompileBinding("StringVmDictionary['test'].Collection[5].StringValue.Length", [typeof(TestViewModel)], typeof(object), nullChecks: true);
-            Assert.AreEqual("(()=>{let a;return ((a=(dotvvm.translations.dictionary.getItem(StringVmDictionary(),\"test\")?.Collection()??[])[5])&&a())?.StringValue()?.length;})()", result);
+            Assert.AreEqual("dotvvm.translations.dictionary.getItem(StringVmDictionary(),\"test\")?.Collection()?.[5]?.()?.StringValue()?.length", result);
         }
 
         [TestMethod]
@@ -1108,21 +1108,21 @@ namespace DotVVM.Framework.Tests.Binding
                 new[] { typeof(FirstOrDefaultForumViewModel), typeof(FirstOrDefaultForumCategory), typeof(FirstOrDefaultForumCategory) },
                 typeof(object), new[] { new NamespaceImport("System.Linq") }, nullChecks: true);
 
-            Assert.AreEqual("(()=>{let a;return ((a=$parents[1].Products()?.find((x)=>ko.unwrap(x).Category1()==Id()&&ko.unwrap(x).Category2()==$parent.Id()))&&a())?.Colors;})()", result);
+            Assert.AreEqual("$parents[1].Products()?.find((x)=>ko.unwrap(x).Category1()==Id()&&ko.unwrap(x).Category2()==$parent.Id())?.()?.Colors", result);
         }
 
         [TestMethod]
-        [DataRow("FirstOrDefault()", "(testPlainObject.ObjectArray()??[])[0]")]
+        [DataRow("FirstOrDefault()", "testPlainObject.ObjectArray()?.[0]")]
         [DataRow("FirstOrDefault(x => x.Int == 42)", "testPlainObject.ObjectArray()?.find((x)=>ko.unwrap(x).Int()==42)")]
-        [DataRow("Where(x => x.Int == 42).FirstOrDefault()", "(testPlainObject.ObjectArray()?.filter((x)=>ko.unwrap(x).Int()==42)??[])[0]")]
+        [DataRow("Where(x => x.Int == 42).FirstOrDefault()", "testPlainObject.ObjectArray()?.filter((x)=>ko.unwrap(x).Int()==42)?.[0]")]
         [DataRow("LastOrDefault()", "testPlainObject.ObjectArray()?.at(-1)")]
         [DataRow("LastOrDefault(x => x.Int == 42)", "testPlainObject.ObjectArray()?.findLast((x)=>ko.unwrap(x).Int()==42)")]
-        [DataRow("ElementAtOrDefault(42)", "(testPlainObject.ObjectArray()??[])[42]")]
-        [DataRow("ToImmutableArray().FirstOrDefault()", "(testPlainObject.ObjectArray()??[])[0]")]
+        [DataRow("ElementAtOrDefault(42)", "testPlainObject.ObjectArray()?.[42]")]
+        [DataRow("ToImmutableArray().FirstOrDefault()", "testPlainObject.ObjectArray()?.[0]")]
         [DataRow("ToImmutableArray().FirstOrDefault(x => x.Int == 42)", "testPlainObject.ObjectArray()?.find((x)=>ko.unwrap(x).Int()==42)")]
         [DataRow("ToImmutableArray().LastOrDefault()", "testPlainObject.ObjectArray()?.at(-1)")]
         [DataRow("ToImmutableArray().LastOrDefault(x => x.Int == 42)", "testPlainObject.ObjectArray()?.findLast((x)=>ko.unwrap(x).Int()==42)")]
-        [DataRow("ToImmutableArray().ElementAtOrDefault(42)", "(testPlainObject.ObjectArray()??[])[42]")]
+        [DataRow("ToImmutableArray().ElementAtOrDefault(42)", "testPlainObject.ObjectArray()?.[42]")]
         public void JsTranslator_EnumerableMissingObservable(string operation, string javascript)
         {
             var result = CompileBinding(
@@ -1131,7 +1131,7 @@ namespace DotVVM.Framework.Tests.Binding
                 new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable"), new NamespaceImport(typeof(TestJsTransations).Namespace) },
                 nullChecks: true);
 
-            Assert.AreEqual($"(()=>{{let a;return ((a={javascript})&&a())?.String;}})()", result);
+            Assert.AreEqual($"{javascript}?.()?.String", result);
         }
 
         [TestMethod]

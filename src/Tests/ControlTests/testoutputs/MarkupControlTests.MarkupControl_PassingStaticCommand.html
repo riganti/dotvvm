@@ -8,10 +8,7 @@ Click: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => {
 	await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwxLG51bGwsIkFRQT0iLG51bGwsbnVsbF0=&quot;, [$context.$parent.int.state], options);
 },$element,[],args,$context))
 }">
-			<input onclick="dotvvm.applyPostbackHandlers(async (options) => {
-	let a;
-	return await((a = options.knockoutContext.$control.Click.state) &amp;&amp; a());
-},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Button with number = 10000000">
+			<input onclick="dotvvm.applyPostbackHandlers(async (options) => await options.knockoutContext.$control.Click.state?.(),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Button with number = 10000000">
 		</div>
 		<!-- /ko -->
 		<div data-bind="foreach: { data: Collection }">
@@ -20,10 +17,7 @@ Click: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => {
 	await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwxLG51bGwsIkFRQT0iLG51bGwsbnVsbF0=&quot;, [$context.$rawData.state], options);
 },$element,[],args,$context))
 }">
-				<input onclick="dotvvm.applyPostbackHandlers(async (options) => {
-	let a;
-	return await((a = options.knockoutContext.$control.Click.state) &amp;&amp; a());
-},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Button with number = 10000000">
+				<input onclick="dotvvm.applyPostbackHandlers(async (options) => await options.knockoutContext.$control.Click.state?.(),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="Button with number = 10000000">
 			</div>
 		</div>
 	</body>

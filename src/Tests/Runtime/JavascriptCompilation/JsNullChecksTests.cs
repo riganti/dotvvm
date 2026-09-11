@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
     {
         [TestMethod]
         [DataRow(false, "lookup()?.length")]
-        [DataRow(true, "(lookup==null?null:lookup())?.length")]
+        [DataRow(true, "lookup?.()?.length")]
         public void JsNullCheck_ObservableItselfMayBeMissing(bool missingObservable, string expected)
         {
             var observable = new JsIdentifierExpression("lookup")
@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Indexer(new JsLiteral(7));
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("((a&&a[5])??[])[7]", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("a?.[5]?.[7]", node.FormatScript(), node.FormatScript(niceMode: true));
         }
 
         [TestMethod]
@@ -110,7 +110,34 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Invoke();
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("(()=>{let b;return (b=a&&a(G))&&b();})()", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("a?.(G)?.()", node.FormatScript(), node.FormatScript(niceMode: true));
+        }
+
+        [TestMethod]
+        public void JsNullCheck_InvocationPreservesReceiver()
+        {
+            var expr = new JsIdentifierExpression("getObject").Invoke()
+                .Member("method").WithAnnotation(MayBeNullAnnotation.Instance)
+                .Invoke(new JsIdentifierExpression("getArgument").Invoke());
+
+            expr = JavascriptNullCheckAdder.AddNullChecks(expr);
+            var node = JsTemporaryVariableResolver.ResolveVariables(expr);
+
+            Assert.AreEqual("getObject().method?.(getArgument())", node.FormatScript());
+        }
+
+        [TestMethod]
+        public void JsNullCheck_IndexerWithSideEffects()
+        {
+            var expr = new JsIdentifierExpression("getArray").Invoke()
+                .WithAnnotation(MayBeNullAnnotation.Instance)
+                .Indexer(new JsIdentifierExpression("getIndex").Invoke())
+                .Member("value");
+
+            expr = JavascriptNullCheckAdder.AddNullChecks(expr);
+            var node = JsTemporaryVariableResolver.ResolveVariables(expr);
+
+            Assert.AreEqual("getArray()?.[getIndex()].value", node.FormatScript());
         }
 
         [TestMethod]

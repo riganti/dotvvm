@@ -24,6 +24,38 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
+        public void JsTree_OptionalIndexerCloningAndFreezing()
+        {
+            var indexer = new JsIndexerExpression(new JsIdentifierExpression("a"), new JsLiteral(0));
+            Assert.IsFalse(indexer.IsOptional);
+            indexer.IsOptional = true;
+            indexer.Freeze();
+            Assert.ThrowsException<Configuration.FreezableUtils.ObjectIsFrozenException>(() => indexer.IsOptional = false);
+
+            var clone = indexer.Clone();
+            Assert.IsTrue(clone.IsOptional);
+            clone.IsOptional = false;
+            Assert.IsTrue(indexer.IsOptional);
+            Assert.AreEqual("a[0]", clone.FormatScript());
+        }
+
+        [TestMethod]
+        public void JsTree_OptionalInvocationCloningAndFreezing()
+        {
+            var invocation = new JsInvocationExpression(new JsIdentifierExpression("a"));
+            Assert.IsFalse(invocation.IsOptional);
+            invocation.IsOptional = true;
+            invocation.Freeze();
+            Assert.ThrowsException<Configuration.FreezableUtils.ObjectIsFrozenException>(() => invocation.IsOptional = false);
+
+            var clone = invocation.Clone();
+            Assert.IsTrue(clone.IsOptional);
+            clone.IsOptional = false;
+            Assert.IsTrue(invocation.IsOptional);
+            Assert.AreEqual("a()", clone.FormatScript());
+        }
+
+        [TestMethod]
         public void TemporaryVariableResolver_DoesNotCollideWithArrowParameter()
         {
             var temporary = new JsTemporaryVariableParameter(allowInlining: false);

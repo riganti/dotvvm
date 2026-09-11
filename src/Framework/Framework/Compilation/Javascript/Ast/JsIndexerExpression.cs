@@ -18,6 +18,14 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             set => SetChildByRole(JsTreeRoles.Argument, value);
         }
 
+        private bool isOptional;
+        /// <summary> If true, `?.[` operator will be used. If false, `[` is used (this is default) </summary>
+        public bool IsOptional
+        {
+            get { return isOptional; }
+            set { ThrowIfFrozen(); isOptional = value; }
+        }
+
         public JsIndexerExpression() { }
 
         public JsIndexerExpression(JsExpression target, JsExpression argument)
