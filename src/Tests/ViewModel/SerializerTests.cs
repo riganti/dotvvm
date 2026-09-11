@@ -1266,12 +1266,12 @@ namespace DotVVM.Framework.Tests.ViewModel
         [DataRow(TestViewModelWithEnums.DuplicateNameEnum.DAndAlsoLonger, "'D'", true)]
         [DataRow((TestViewModelWithEnums.DuplicateNameEnum)3, "3", false)]
         [DataRow(TestViewModelWithEnums.Int32FlagsEnum.ABC, "'a+b+c'", true)]
-        [DataRow(TestViewModelWithEnums.Int32FlagsEnum.A | TestViewModelWithEnums.Int32FlagsEnum.BCD, "'b+c+d,a'", true)]
+        [DataRow(TestViewModelWithEnums.Int32FlagsEnum.A | TestViewModelWithEnums.Int32FlagsEnum.BCD, "'b+c+d, a'", true)]
         [DataRow(TestViewModelWithEnums.Int32FlagsEnum.Everything, "'everything'", true)]
         [DataRow((TestViewModelWithEnums.Int32FlagsEnum)2356543, "2356543", true)] // allowed because Everything = -1 covers its bits (can be changed in future though)
         [DataRow((TestViewModelWithEnums.Int32FlagsEnum)0, "0", true)]
         [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)0, "0", true)]
-        [DataRow(TestViewModelWithEnums.UInt64FlagsEnum.F1 | TestViewModelWithEnums.UInt64FlagsEnum.F2 | TestViewModelWithEnums.UInt64FlagsEnum.F64, "'F64,F2,F1'", true)]
+        [DataRow(TestViewModelWithEnums.UInt64FlagsEnum.F1 | TestViewModelWithEnums.UInt64FlagsEnum.F2 | TestViewModelWithEnums.UInt64FlagsEnum.F64, "'F64, F2, F1'", true)]
         [DataRow(TestViewModelWithEnums.UInt64FlagsEnum.F64, "'F64'", true)]
         [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)12 | TestViewModelWithEnums.UInt64FlagsEnum.F64, "9223372036854775820", false)]
         [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)ulong.MaxValue, "18446744073709551615", false)]
@@ -1363,6 +1363,25 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.ThrowsException<JsonException>(() => JsonSerializer.Deserialize<EmptyEnum>("null", options));
             Assert.ThrowsException<JsonException>(() => JsonSerializer.Deserialize<EmptyFlagsEnum>("null", options));
         }
+
+        [TestMethod]
+        public void TestFlagsEnumSerialization_AllowsSpacesInEnumMember()
+        {
+            var json = JsonSerializer.Serialize(FlagsEnumWithSpace.ReadOnly, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+
+            Assert.AreEqual("\"read only\"", json);
+        }
+
+        [TestMethod]
+        public void TestFlagsEnumSerialization_IsIndependentOfFormatting()
+        {
+            var compactOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) { WriteIndented = false };
+            var indentedOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) { WriteIndented = true };
+            var value = NumericFlagsEnum.One | NumericFlagsEnum.Two;
+
+            Assert.AreEqual(JsonSerializer.Serialize(value, compactOptions), JsonSerializer.Serialize(value, indentedOptions));
+        }
+
         enum NumericEnum
         {
             One = 1,
@@ -1380,6 +1399,14 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         [Flags]
         enum EmptyFlagsEnum { }
+
+        [Flags]
+        enum FlagsEnumWithSpace
+        {
+            [EnumMember(Value = "read only")]
+            ReadOnly = 1
+        }
+
         [TestMethod]
         public void DoesNotTouchIrrelevantGetters()
         {
