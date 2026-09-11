@@ -66,7 +66,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
 
             ulong allowedBitMap = 0;
-            if (isFlags)
+            if (!isFlags)
             {
                 foreach (var field in fieldsDedup)
                 {

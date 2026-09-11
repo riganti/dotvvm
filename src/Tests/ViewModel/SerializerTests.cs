@@ -1268,13 +1268,14 @@ namespace DotVVM.Framework.Tests.ViewModel
         [DataRow(TestViewModelWithEnums.Int32FlagsEnum.ABC, "'a+b+c'", true)]
         [DataRow(TestViewModelWithEnums.Int32FlagsEnum.A | TestViewModelWithEnums.Int32FlagsEnum.BCD, "'b+c+d,a'", true)]
         [DataRow(TestViewModelWithEnums.Int32FlagsEnum.Everything, "'everything'", true)]
-        [DataRow((TestViewModelWithEnums.Int32FlagsEnum)2356543, "2356543", false)]
+        [DataRow((TestViewModelWithEnums.Int32FlagsEnum)2356543, "2356543", true)] // allowed because Everything = -1 covers its bits (can be changed in future though)
         [DataRow((TestViewModelWithEnums.Int32FlagsEnum)0, "0", true)]
         [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)0, "0", true)]
         [DataRow(TestViewModelWithEnums.UInt64FlagsEnum.F1 | TestViewModelWithEnums.UInt64FlagsEnum.F2 | TestViewModelWithEnums.UInt64FlagsEnum.F64, "'F64,F2,F1'", true)]
         [DataRow(TestViewModelWithEnums.UInt64FlagsEnum.F64, "'F64'", true)]
         [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)12 | TestViewModelWithEnums.UInt64FlagsEnum.F64, "9223372036854775820", false)]
         [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)ulong.MaxValue, "18446744073709551615", false)]
+        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)2356543, "2356543", false)]
         [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)0, "0", true)]
         public void TestEnumSerialization(object enumValue, string serializedValue, bool canDeserialize)
         {
@@ -1305,6 +1306,33 @@ namespace DotVVM.Framework.Tests.ViewModel
             }
         }
 
+        [TestMethod]
+        public void TestEnumDeserialization_AcceptsDefinedNumericValue()
+        {
+            var value = JsonSerializer.Deserialize<NumericEnum>("2", DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+
+            Assert.AreEqual(NumericEnum.Two, value);
+        }
+
+        [TestMethod]
+        public void TestFlagsEnumDeserialization_AcceptsCombinationOfDefinedBits()
+        {
+            var value = JsonSerializer.Deserialize<NumericFlagsEnum>("3", DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+
+            Assert.AreEqual(NumericFlagsEnum.One | NumericFlagsEnum.Two, value);
+        }
+        enum NumericEnum
+        {
+            One = 1,
+            Two = 2
+        }
+
+        [Flags]
+        enum NumericFlagsEnum
+        {
+            One = 1,
+            Two = 2
+        }
         [TestMethod]
         public void DoesNotTouchIrrelevantGetters()
         {
