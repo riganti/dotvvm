@@ -842,7 +842,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_DictionaryIndexer_GetObject()
         {
             var result = CompileBinding("StringVmDictionary['test'].Collection[5].StringValue.Length", [typeof(TestViewModel)], typeof(object), nullChecks: true);
-            Assert.AreEqual("(()=>{let a;return ((a=dotvvm.translations.dictionary.getItem(StringVmDictionary(),\"test\")?.Collection())&&a[5]())?.StringValue()?.length;})()", result);
+            Assert.AreEqual("dotvvm.translations.dictionary.getItem(StringVmDictionary(),\"test\")?.Collection()?.[5]?.()?.StringValue()?.length", result);
         }
 
         [TestMethod]
@@ -1098,6 +1098,40 @@ namespace DotVVM.Framework.Tests.Binding
             var withUnwraps = CompileBinding("TestJsTransations.GetTestObjectWithObservables().ObjectArray.FirstOrDefault(o => o.Enum == 'Value1').Int == 12", new[] { new NamespaceImport("System.Linq"), new NamespaceImport(typeof(TestJsTransations).Namespace) }, new[] { typeof(TestViewModel) });
 
             Assert.AreEqual("testPlainObject.ObjectArray().find((o)=>ko.unwrap(o).Enum()==\"Value1\")().Int()==12", withUnwraps);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableFirstOrDefaultInNestedDataContexts()
+        {
+            var result = CompileBinding(
+                "_root.Products.FirstOrDefault(x => x.Category1 == _this.Id && x.Category2 == _parent.Id).Colors",
+                new[] { typeof(FirstOrDefaultForumViewModel), typeof(FirstOrDefaultForumCategory), typeof(FirstOrDefaultForumCategory) },
+                typeof(object), new[] { new NamespaceImport("System.Linq") }, nullChecks: true);
+
+            Assert.AreEqual("$parents[1].Products()?.find((x)=>ko.unwrap(x).Category1()==Id()&&ko.unwrap(x).Category2()==$parent.Id())?.()?.Colors", result);
+        }
+
+        [TestMethod]
+        [DataRow("FirstOrDefault()", "testPlainObject.ObjectArray()?.[0]")]
+        [DataRow("FirstOrDefault(x => x.Int == 42)", "testPlainObject.ObjectArray()?.find((x)=>ko.unwrap(x).Int()==42)")]
+        [DataRow("Where(x => x.Int == 42).FirstOrDefault()", "testPlainObject.ObjectArray()?.filter((x)=>ko.unwrap(x).Int()==42)?.[0]")]
+        [DataRow("LastOrDefault()", "testPlainObject.ObjectArray()?.at(-1)")]
+        [DataRow("LastOrDefault(x => x.Int == 42)", "testPlainObject.ObjectArray()?.findLast((x)=>ko.unwrap(x).Int()==42)")]
+        [DataRow("ElementAtOrDefault(42)", "testPlainObject.ObjectArray()?.[42]")]
+        [DataRow("ToImmutableArray().FirstOrDefault()", "testPlainObject.ObjectArray()?.[0]")]
+        [DataRow("ToImmutableArray().FirstOrDefault(x => x.Int == 42)", "testPlainObject.ObjectArray()?.find((x)=>ko.unwrap(x).Int()==42)")]
+        [DataRow("ToImmutableArray().LastOrDefault()", "testPlainObject.ObjectArray()?.at(-1)")]
+        [DataRow("ToImmutableArray().LastOrDefault(x => x.Int == 42)", "testPlainObject.ObjectArray()?.findLast((x)=>ko.unwrap(x).Int()==42)")]
+        [DataRow("ToImmutableArray().ElementAtOrDefault(42)", "testPlainObject.ObjectArray()?.[42]")]
+        public void JsTranslator_EnumerableMissingObservable(string operation, string javascript)
+        {
+            var result = CompileBinding(
+                $"TestJsTransations.GetTestObjectWithObservables().ObjectArray.{operation}.String",
+                new[] { typeof(TestViewModel) }, typeof(object),
+                new[] { new NamespaceImport("System.Linq"), new NamespaceImport("System.Collections.Immutable"), new NamespaceImport(typeof(TestJsTransations).Namespace) },
+                nullChecks: true);
+
+            Assert.AreEqual($"{javascript}?.()?.String", result);
         }
 
         [TestMethod]
@@ -1974,6 +2008,23 @@ namespace DotVVM.Framework.Tests.Binding
         public float?[] NullableSingleArray { get; set; } = new float?[] { 1, 2, 3 };
         public double?[] NullableDoubleArray { get; set; } = new double?[] { 1, 2, 3 };
         public TestComparisonType[] ObjectArray { get; set; } = new[] { new TestComparisonType() };
+    }
+
+    public class FirstOrDefaultForumViewModel
+    {
+        public List<FirstOrDefaultForumProduct> Products { get; set; }
+    }
+
+    public class FirstOrDefaultForumCategory
+    {
+        public int Id { get; set; }
+    }
+
+    public class FirstOrDefaultForumProduct
+    {
+        public int Category1 { get; set; }
+        public int Category2 { get; set; }
+        public List<string> Colors { get; set; }
     }
 
     public class TestComparisonType

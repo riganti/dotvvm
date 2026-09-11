@@ -1,0 +1,12 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.FirstOrDefaultViewModel, DotVVM.Samples.Common
+@property System.Collections.Generic.List<DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.FirstOrDefaultViewModel.SortInfo> DostupnaRazeni
+@property string Key
+
+<p data-ui="first">{{value: _control.DostupnaRazeni.FirstOrDefault().PopisRazeni}}</p>
+<p data-ui="true">{{value: _control.DostupnaRazeni.FirstOrDefault(f => true).PopisRazeni}}</p>
+<dot:PlaceHolder IncludeInPage="{resource: Variant == 'predicate'}">
+    <p data-ui="lookup">{{value: _control.DostupnaRazeni.FirstOrDefault(f => f.KlicRazeni == _control.Key).PopisRazeni}}</p>
+</dot:PlaceHolder>
+<dot:PlaceHolder IncludeInPage="{resource: Variant == 'where'}">
+    <p data-ui="lookup">{{value: _control.DostupnaRazeni.Where(f => f.KlicRazeni == _control.Key).FirstOrDefault().PopisRazeni}}</p>
+</dot:PlaceHolder>
