@@ -58,10 +58,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var nameToEnum = new (TEnum Value, byte[] Name)[maxNameLen + 1][];
             // index enum names by length, then sort them by name
             // the names in enumToName are already deduplicated, each value is represented by the shortest name
-            foreach (var field in enumToName.GroupBy(x => x.Value.Length))
+            foreach (var field in fieldList.GroupBy(x => x.Name.Length))
             {
-                var array = field.Select(f => (f.Key, f.Value)).ToArray();
-                Array.Sort(array, (a, b) => a.Value.AsSpan().SequenceCompareTo(b.Value.AsSpan()));
+                var array = field.Select(f => (f.Value, f.Name)).ToArray();
+                Array.Sort(array, (a, b) => a.Name.AsSpan().SequenceCompareTo(b.Name.AsSpan()));
                 nameToEnum[field.Key] = array;
             }
 

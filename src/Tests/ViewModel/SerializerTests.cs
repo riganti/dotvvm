@@ -1321,6 +1321,14 @@ namespace DotVVM.Framework.Tests.ViewModel
 
             Assert.AreEqual(NumericFlagsEnum.One | NumericFlagsEnum.Two, value);
         }
+
+        [TestMethod]
+        public void TestEnumDeserialization_AcceptsAlias()
+        {
+            var value = JsonSerializer.Deserialize<TestViewModelWithEnums.DuplicateNameEnum>("\"B\"", DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+
+            Assert.AreEqual(TestViewModelWithEnums.DuplicateNameEnum.B, value);
+        }
         enum NumericEnum
         {
             One = 1,
