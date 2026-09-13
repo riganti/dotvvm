@@ -10,8 +10,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-    <PackageReference Include="Selenium.Support" Version="4.29.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.29.0" />
+    <PackageReference Include="Selenium.Support" Version="4.49.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.49.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(LocalSeleniumUtilsPath)' == ''">
-    <PackageReference Include="Riganti.Selenium.DotVVM" Version="3.0.0-preview19-final" />
-    <PackageReference Include="Riganti.Selenium.AssertApi" Version="3.0.0-preview19-final" />
-    <PackageReference Include="Riganti.Selenium.xUnitIntegration" Version="3.0.0-preview19-final" />
+    <PackageReference Include="Riganti.Selenium.DotVVM" Version="3.0.0-preview20-final" />
+    <PackageReference Include="Riganti.Selenium.AssertApi" Version="3.0.0-preview20-final" />
+    <PackageReference Include="Riganti.Selenium.xUnitIntegration" Version="3.0.0-preview20-final" />
   </ItemGroup>
   <ItemGroup Condition="'$(LocalSeleniumUtilsPath)' != ''">
     <ProjectReference Include="$(LocalSeleniumUtilsPath)\src\Core\Riganti.Selenium.AssertApi\Riganti.Selenium.AssertApi.csproj" />

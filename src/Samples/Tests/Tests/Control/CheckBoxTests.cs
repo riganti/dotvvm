@@ -7,6 +7,7 @@ using Riganti.Selenium.DotVVM;
 using Riganti.Selenium.Validators.Checkers.ElementWrapperCheckers;
 using Xunit;
 using Xunit.Abstractions;
+using static DotVVM.Samples.Tests.UITestUtils;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -260,18 +261,15 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckBoxCollectionUpdates);
 
-                var links = browser.FindElements("a");
-                var selected = browser.Single("ul");
-
                 ValidateState([], []);
 
-                links[0].Click();
+                ClickParent(0);
                 ValidateState([], [false, false]);
 
                 browser.ElementAt("input[type=checkbox]", 0).Click();
                 ValidateState([11], [true, false]);
 
-                links[1].Click();
+                ClickParent(1);
                 ValidateState([11], [false, false, false]);
 
                 browser.ElementAt("input[type=checkbox]", 1).Click();
@@ -280,31 +278,39 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("input[type=checkbox]", 2).Click();
                 ValidateState([11, 22, 23], [false, true, true]);
 
-                links[0].Click();
+                ClickParent(0);
                 ValidateState([11, 22, 23], [true, false]);
 
-                links[1].Click();
+                ClickParent(1);
                 ValidateState([11, 22, 23], [false, true, true]);
 
                 browser.ElementAt("input[type=checkbox]", 1).Click();
                 ValidateState([11, 23], [false, false, true]);
 
-                links[0].Click();
+                ClickParent(0);
                 ValidateState([11, 23], [true, false]);
 
                 browser.ElementAt("input[type=checkbox]", 0).Click();
                 ValidateState([23], [false, false]);
 
-                links[1].Click();
+                ClickParent(1);
                 ValidateState([23], [false, false, true]);
+
+                void ClickParent(int index)
+                {
+                    browser.ElementAt("a", index).Click();
+                    browser.WaitForPostback();
+                }
 
                 void ValidateState(int[] selectedValues, bool[] checkboxStates)
                 {
-                    var selectedValuesInPage = selected.FindElements("li").Select(i => int.Parse(i.GetInnerText())).ToArray();
-                    Assert.Equal(selectedValues.Order(), selectedValuesInPage.Order());
+                    WaitForIgnoringStaleElements(() => {
+                        var selectedValuesInPage = browser.Single("ul").FindElements("li").Select(i => int.Parse(i.GetInnerText())).ToArray();
+                        Assert.Equal(selectedValues.Order(), selectedValuesInPage.Order());
 
-                    var checkboxStatesInPage = browser.FindElements("input[type=checkbox]").Select(c => c.IsSelected()).ToArray();
-                    Assert.Equal(checkboxStates, checkboxStatesInPage);
+                        var checkboxStatesInPage = browser.FindElements("input[type=checkbox]").Select(c => c.IsSelected()).ToArray();
+                        Assert.Equal(checkboxStates, checkboxStatesInPage);
+                    });
                 }
             });
         }

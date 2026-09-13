@@ -6,6 +6,7 @@ using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using static DotVVM.Samples.Tests.UITestUtils;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -80,9 +81,12 @@ namespace DotVVM.Samples.Tests.Control
 
                 // change the DataSource collection on the server and verify that the second item is selected in both ComboBoxes
                 browser.First("input").Click();
+                browser.WaitForPostback();
 
-                AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
-                AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 1));
+                WaitForIgnoringStaleElements(() => {
+                    AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
+                    AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 1));
+                });
             });
         }
 
