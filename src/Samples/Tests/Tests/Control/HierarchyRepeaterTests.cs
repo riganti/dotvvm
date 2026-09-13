@@ -38,16 +38,21 @@ namespace DotVVM.Samples.Tests.Control
                 }
 
                 AssertUI.InnerTextEquals(getNode("HR-Server", 0, 1, 0).Single("input[type=button]"), "0");
-                getNode("HR-Server", 0, 1, 0).Single("input[type=button]").Click(); // body > div:nth-child(1) > div:nth-child(3) > ul:nth-child(1) > li:nth-child(1) > ul:nth-child(3) > li:nth-child(2) > ul:nth-child(3) > li:nth-child(1) > input:nth-child(2)
+                getNode("HR-Server", 0, 1, 0).Single("input[type=button]").Click();
+                browser.WaitForPostback();
                 AssertUI.InnerTextEquals(getNode("HR-Server", 0, 1, 0).Single("input[type=button]"), "1");
                 AssertUI.InnerTextEquals(getNode("HR-Client", 0, 1, 0).Single("input[type=button]"), "1");
 
-                getNode("HR-Client", 0, 0).Single("input[type=button]").Click().Click();
+                getNode("HR-Client", 0, 0).Single("input[type=button]").Click();
+                browser.WaitForPostback();
+                getNode("HR-Client", 0, 0).Single("input[type=button]").Click();
+                browser.WaitForPostback();
                 AssertUI.InnerTextEquals(getNode("HR-Server", 0, 0).Single("input[type=button]"), "2");
                 AssertUI.InnerTextEquals(getNode("HR-Client", 0, 0).Single("input[type=button]"), "2");
 
                 browser.Single("GlobalLabel", SelectByDataUi).ScrollTo().ClearInputByKeyboard().SendKeys("lalala");
                 getNode("HR-Client", 0, 0).ScrollTo().Single("input[type=button]").Click();
+                browser.WaitForPostback();
                 AssertUI.Attribute(getNode("HR-Server", 0, 0).Single("input[type=button]"), "title", "lalala: -- 0");
             });
         }
