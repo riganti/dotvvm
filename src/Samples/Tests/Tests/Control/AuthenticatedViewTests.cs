@@ -23,6 +23,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 void AssertAuthenticationState(string expectedResult)
                 {
+                    browser.FindElements(".result").ThrowIfSequenceEmpty();
                     WaitForIgnoringStaleElements(() => {
                         AssertUI.InnerTextEquals(browser.First(".result"), expectedResult);
                     });
