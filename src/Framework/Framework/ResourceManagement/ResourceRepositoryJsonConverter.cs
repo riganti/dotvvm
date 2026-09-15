@@ -31,27 +31,32 @@ namespace DotVVM.Framework.ResourceManagement
 
         public override DotvvmResourceRepository? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
-            // var jobj = JObject.Load(reader);
-            // var repo = existingValue as DotvvmResourceRepository ?? new DotvvmResourceRepository();
-            // foreach (var prop in jobj)
-            // {
-            //     if (resourceTypeAliases.FirstOrDefault(x => x.name == prop.Key) is var r && r.type != null)
-            //     {
-            //         DeserializeResources((JObject)prop.Value.NotNull(), r.type, serializer, repo);
-            //     }
-            //     else if (CompiledAssemblyCache.Instance!.FindType(prop.Key) is Type resourceType)
-            //     {
-            //         DeserializeResources((JObject)prop.Value.NotNull(), resourceType, serializer, repo);
-            //     }
-            //     else if (UnknownResourceType != null)
-            //     {
-            //         DeserializeResources((JObject)prop.Value.NotNull(), UnknownResourceType, serializer, repo);
-            //     }
-            //     else
-            //         throw new NotSupportedException(string.Format("resource collection name {0} is not supported", prop.Key));
-            // }
-            // return repo;
+            if (reader.TokenType == JsonTokenType.Null)
+                return null;
+            if (reader.TokenType != JsonTokenType.StartObject)
+                throw new JsonException($"Expected a resource repository object, but found {reader.TokenType}.");
+
+            using var document = JsonDocument.ParseValue(ref reader);
+            var repository = new DotvvmResourceRepository();
+            foreach (var resourceGroup in document.RootElement.EnumerateObject())
+            {
+                var resourceType = resourceTypeAliases.FirstOrDefault(x => x.name == resourceGroup.Name).type
+                    ?? ReflectionTypeJsonConverter.ResolveType(resourceGroup.Name)
+                    ?? UnknownResourceType
+                    ?? throw new JsonException($"Resource collection '{resourceGroup.Name}' is not supported.");
+                if (!typeof(IResource).IsAssignableFrom(resourceType))
+                    throw new JsonException($"Resource collection '{resourceGroup.Name}' has an invalid resource type '{resourceType}'.");
+                if (resourceGroup.Value.ValueKind != JsonValueKind.Object)
+                    throw new JsonException($"Resource collection '{resourceGroup.Name}' must be an object.");
+
+                foreach (var resource in resourceGroup.Value.EnumerateObject())
+                {
+                    var value = JsonSerializer.Deserialize(resource.Value.GetRawText(), resourceType, options) as IResource
+                        ?? throw new JsonException($"Resource '{resource.Name}' could not be deserialized as '{resourceType}'.");
+                    repository.Register(resource.Name, value);
+                }
+            }
+            return repository;
         }
 
         // void DeserializeResources(JObject jobj, Type resourceType, JsonSerializer serializer, DotvvmResourceRepository repo)

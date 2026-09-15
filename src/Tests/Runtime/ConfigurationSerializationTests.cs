@@ -15,6 +15,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Encodings.Web;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.HelperNamespace;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -70,6 +72,41 @@ namespace DotVVM.Framework.Tests.Runtime
             c.Runtime.ExplicitAssemblyLoading.Enable();
             c.DefaultCulture = "en-US";
             checkConfig(c, includeProperties: true);
+        }
+
+        [TestMethod]
+        public void DeserializeConfiguration()
+        {
+            var serialized = VisualStudioHelper.SerializeConfig(DotvvmTestHelper.DefaultConfig, includeProperties: true);
+            using var document = JsonDocument.Parse(serialized);
+
+            var configuration = JsonSerializer.Deserialize<DotvvmConfiguration>(
+                document.RootElement.GetProperty("config").GetRawText(),
+                VisualStudioHelper.GetSerializerOptions());
+            Assert.IsNotNull(configuration);
+
+            var dataContextChange = document.RootElement
+                .GetProperty("properties")
+                .GetProperty("DotVVM.Framework.Controls.AppendableDataPager")
+                .GetProperty("LoadingTemplate")
+                .GetProperty("dataContextChange");
+
+            Assert.AreEqual(
+                typeof(DataPagerApi.AddParameterDataContextChangeAttribute).FullName,
+                dataContextChange[0].GetProperty("$type").GetString());
+
+            var attributes = JsonSerializer.Deserialize<DataContextChangeAttribute[]>(
+                dataContextChange.GetRawText(),
+                VisualStudioHelper.GetSerializerOptions());
+            Assert.HasCount(1, attributes);
+            Assert.IsInstanceOfType(attributes[0], typeof(DataPagerApi.AddParameterDataContextChangeAttribute));
+
+            var qualifiedFormatAttributes = JsonSerializer.Deserialize<DataContextChangeAttribute[]>(
+                dataContextChange.GetRawText().Replace(
+                    typeof(DataPagerApi.AddParameterDataContextChangeAttribute).FullName,
+                    $"{typeof(DataPagerApi.AddParameterDataContextChangeAttribute).FullName}, {typeof(DataContextChangeAttribute).Assembly.GetName().Name}"),
+                VisualStudioHelper.GetSerializerOptions());
+            Assert.IsInstanceOfType(qualifiedFormatAttributes[0], typeof(DataPagerApi.AddParameterDataContextChangeAttribute));
         }
 
         private static DotvvmConfiguration CreateTestConfiguration()
