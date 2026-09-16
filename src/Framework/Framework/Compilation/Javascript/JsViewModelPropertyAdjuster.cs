@@ -197,6 +197,12 @@ namespace DotVVM.Framework.Compilation.Javascript
         private ResultIsObservableAnnotation() { }
         public static ResultIsObservableAnnotation Instance = new ResultIsObservableAnnotation();
     }
+    /// <summary> The observable itself may be missing (for example, an array lookup with no match), not just its value. Preserve its null check when unwrapping. </summary>
+    public sealed class ObservableMayBeNullAnnotation
+    {
+        private ObservableMayBeNullAnnotation() { }
+        public static readonly ObservableMayBeNullAnnotation Instance = new ObservableMayBeNullAnnotation();
+    }
     /// <summary> Result is a knockout observable array. </summary>
     public sealed class ResultIsObservableArrayAnnotation
     {

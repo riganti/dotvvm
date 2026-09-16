@@ -38,11 +38,10 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     // may be null is copied to the observable result
                     node.ReplaceWith(_ => KoUnwrap(expression, expression, !node.HasAnnotation(ResultIsObservableAnnotation.Instance)));
-                    node.RemoveAnnotation(MayBeNullAnnotation.Instance);
                 }
-                else
+                if (!node.HasAnnotation(ObservableMayBeNullAnnotation.Instance))
                 {
-                    // may be null means that the value in the observable may be null. Which is not unwrapped, so the annotation is removed.
+                    // Normally only the value may be null. A missing array item also needs a check before invoking the observable.
                     node.RemoveAnnotation(MayBeNullAnnotation.Instance);
                 }
             }

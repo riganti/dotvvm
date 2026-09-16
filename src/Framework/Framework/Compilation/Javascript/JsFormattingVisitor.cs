@@ -216,7 +216,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             EmitComment(invocationExpression.CommentBefore);
             invocationExpression.Target.AcceptVisitor(this);
-            Emit('(');
+            Emit(invocationExpression.IsOptional ? "?.(" : "(");
             int i = 0;
             foreach (var arg in invocationExpression.Arguments)
             {
@@ -266,7 +266,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             EmitComment(indexerExpression.CommentBefore);
             indexerExpression.Target.AcceptVisitor(this);
-            Emit('[');
+            Emit(indexerExpression.IsOptional ? "?.[" : "[");
             indexerExpression.Argument.AcceptVisitor(this);
             Emit(']');
         }

@@ -280,6 +280,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_JavascriptTranslation_DateOnlyTranslations = "FeatureSamples/JavascriptTranslation/DateOnlyTranslations";
         public const string FeatureSamples_JavascriptTranslation_DateTimeTranslations = "FeatureSamples/JavascriptTranslation/DateTimeTranslations";
         public const string FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation = "FeatureSamples/JavascriptTranslation/DictionaryIndexerTranslation";
+        public const string FeatureSamples_JavascriptTranslation_FirstOrDefault = "FeatureSamples/JavascriptTranslation/FirstOrDefault";
+        public const string FeatureSamples_JavascriptTranslation_FirstOrDefaultMarkupControl = "FeatureSamples/JavascriptTranslation/FirstOrDefaultMarkupControl";
         public const string FeatureSamples_JavascriptTranslation_GenericMethodTranslation = "FeatureSamples/JavascriptTranslation/GenericMethodTranslation";
         public const string FeatureSamples_JavascriptTranslation_ListIndexerTranslation = "FeatureSamples/JavascriptTranslation/ListIndexerTranslation";
         public const string FeatureSamples_JavascriptTranslation_ListMethodTranslations = "FeatureSamples/JavascriptTranslation/ListMethodTranslations";
