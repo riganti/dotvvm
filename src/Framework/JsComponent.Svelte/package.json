@@ -2,6 +2,10 @@
     "name": "dotvvm-jscomponent-svelte",
     "version": "5.0.0-experimental01",
     "description": "This package adds helper methods for the registration of Svelte components into DotVVM.",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/riganti/dotvvm.git"
+    },
     "scripts": {
         "dev": "vite dev",
         "build": "npm run prepack",
