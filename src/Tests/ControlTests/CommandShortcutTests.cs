@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using DotVVM.Framework.Testing;
-using DotVVM.Framework.Tests.Binding;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.ControlTests
@@ -13,7 +12,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         [TestMethod]
         public async Task CommandShortcut_RendersDocumentAndTargetedBindings()
         {
-            var result = await cth.RunPage(typeof(BasicTestViewModel), """
+            var result = await cth.RunPage(typeof(TestViewModel), """
                 <div ID="editor">
                     <dot:TextBox Text="{value: Label}" />
                 </div>
@@ -27,10 +26,16 @@ namespace DotVVM.Framework.Tests.ControlTests
                 """);
 
             StringAssert.Contains(result.OutputString, "dotvvm-command-shortcut");
-            StringAssert.Contains(result.OutputString, "key:\"Escape\"");
-            StringAssert.Contains(result.OutputString, "key:\"Enter\"");
-            StringAssert.Contains(result.OutputString, "ctrl:true");
-            StringAssert.Contains(result.OutputString, "targetId:\"editor\"");
+            StringAssert.Contains(result.OutputString, "key: \"Escape\"");
+            StringAssert.Contains(result.OutputString, "key: \"Enter\"");
+            StringAssert.Contains(result.OutputString, "ctrl: true");
+            StringAssert.Contains(result.OutputString, "targetId: \"editor\"");
+        }
+
+        public class TestViewModel
+        {
+            public string Label { get; set; }
+            public int Integer { get; set; }
         }
     }
 }
