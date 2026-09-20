@@ -19,6 +19,8 @@
     </dot:GridView>
 
     <cc:DataPagerInControl DataContext="{value: People}" />
+    
+    <cc:DataPagerInControl2 DataContext="{value: People}" />
 
 </body>
 </html>
