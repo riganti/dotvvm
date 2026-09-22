@@ -851,3 +851,22 @@ test("ko.observableArray - clones pushed dotvvm object taken from elsewhere", ()
 //         expect(arr.state).toEqual(ko.toJS(arr))
 //     })
 // })
+
+
+test("ko.observableArray - synchronizing objects by key", () => {
+    const ref0 = vm.ArrayWithKeys()[0];
+    const ref1 = vm.ArrayWithKeys()[1];
+    const ref2 = vm.ArrayWithKeys()[2];
+
+    s.patchState({
+        ArrayWithKeys: [
+            { Id: 2, SubId: null },
+            { Id: 3, SubId: null }
+        ]
+    });
+    s.doUpdateNow();
+
+    expect(vm.ArrayWithKeys()[0]).toBe(ref2);
+    expect(vm.ArrayWithKeys()[1]).not.toBe(ref0);
+    expect(vm.ArrayWithKeys()[1]).not.toBe(ref1);
+})

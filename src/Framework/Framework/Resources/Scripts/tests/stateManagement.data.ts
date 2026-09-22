@@ -17,7 +17,12 @@ initDotvvm({
             P2: 2,
             P3: 3
         },
-        Inner2: null
+        Inner2: null,
+        ArrayWithKeys: [
+            { $type: "t6", Id: 1, SubId: "a" },
+            { $type: "t6", Id: 1, SubId: "b" },
+            { $type: "t6", Id: 2, SubId: null }
+        ]
     },
     typeMetadata: {
         t1: {
@@ -51,6 +56,9 @@ initDotvvm({
                 DateTime: { type: { type: "nullable", inner: "DateTime" } },
                 Dynamic: {
                     type: { type: "dynamic" }
+                },
+                ArrayWithKeys: {
+                    type: ["t6"]
                 }
             }
         },
@@ -103,6 +111,19 @@ initDotvvm({
             properties: {
                 "B": {
                     type: "String"
+                }
+            }
+        },
+        t6: {
+            type: "object",
+            properties: {
+                "Id": {
+                    type: "Int32",
+                    "isKey": true
+                },
+                "SubId": {
+                    type: "String",
+                    "isKey": true
                 }
             }
         },
