@@ -1,0 +1,6 @@
+﻿@viewModel DotVVM.Framework.Controls.IPageableGridViewDataSet<DotVVM.Framework.Controls.IPagingOptions>, DotVVM.Core
+@noWrapperTag
+
+<dot:DataPager DataSet="{value: _this}"
+               class="pagination">
+</dot:DataPager>
