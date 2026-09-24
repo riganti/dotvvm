@@ -242,8 +242,7 @@ public class GridViewDataSetBindingProvider
         // we are on a server, call the dataSet.RequestRefresh
         var callRequestRefresh = Expression.Call(
             dataSet,
-            nameof(IGridViewDataSet.RequestRefresh),
-            []
+            typeof(IGridViewDataSet).GetMethod(nameof(IGridViewDataSet.RequestRefresh))!
         );
         body.Add(callRequestRefresh);
 
