@@ -73,6 +73,9 @@ export default {
                     && keyboardEvent.ctrlKey === ko.unwrap(props.ctrl)
                     && keyboardEvent.shiftKey === ko.unwrap(props.shift)
                     && keyboardEvent.altKey === ko.unwrap(props.alt)) {
+                    if (target !== document) {
+                        keyboardEvent.stopPropagation();
+                    }
                     keyboardEvent.preventDefault();
                     try {
                         await props.command.call(target);

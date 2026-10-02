@@ -72,3 +72,34 @@ test("disabled shortcut does not invoke command", () => {
     keydown(document, { keyCode: 27 });
     expect(command).not.toHaveBeenCalled();
 });
+
+test("same-scope shortcuts all run and targeted shortcuts do not propagate", () => {
+    document.body.innerHTML = "<div id='scope'><input id='inside'></div><input id='outside'>";
+    const targetCommands = [jest.fn(() => Promise.resolve()), jest.fn(() => Promise.resolve())];
+    const documentCommands = [jest.fn(() => Promise.resolve()), jest.fn(() => Promise.resolve())];
+    const markers = [...targetCommands.map(command => ({ command, targetId: "scope" })), ...documentCommands.map(command => ({ command }))].map(props => {
+        const marker = document.createComment("shortcut");
+        document.body.appendChild(marker);
+        handler.init(marker, () => ({
+            ...props,
+            key: "K",
+            ctrl: false,
+            shift: false,
+            alt: false,
+            enabled: true
+        }));
+        return marker;
+    });
+
+    keydown(document.getElementById("inside")!, { keyCode: 75, bubbles: true });
+    expect(targetCommands[0]).toHaveBeenCalledTimes(1);
+    expect(targetCommands[1]).toHaveBeenCalledTimes(1);
+    expect(documentCommands[0]).not.toHaveBeenCalled();
+    expect(documentCommands[1]).not.toHaveBeenCalled();
+
+    keydown(document.getElementById("outside")!, { keyCode: 75, bubbles: true });
+    expect(documentCommands[0]).toHaveBeenCalledTimes(1);
+    expect(documentCommands[1]).toHaveBeenCalledTimes(1);
+
+    markers.forEach(marker => ko.removeNode(marker));
+});
