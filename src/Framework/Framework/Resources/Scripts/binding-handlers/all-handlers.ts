@@ -9,6 +9,7 @@ import updateProgress from './update-progress'
 import gridviewdataset from './gridviewdataset'
 import namedCommand from './named-command'
 import fileUpload from './file-upload'
+import fileUploadPasteDrop from './file-upload-paste-drop'
 import jsComponents from './js-component'
 import modalDialog from './modal-dialog'
 import appendableDataPager from './appendable-data-pager'
@@ -29,6 +30,7 @@ const allHandlers: KnockoutHandlerDictionary = {
     ...gridviewdataset,
     ...namedCommand,
     ...fileUpload,
+    ...fileUploadPasteDrop,
     ...jsComponents,
     ...modalDialog,
     ...appendableDataPager,
