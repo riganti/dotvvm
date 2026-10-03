@@ -24,6 +24,9 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public T Resource<T>(T value) => value;
 
+        /// <summary>Copies the specified text to the clipboard on the client.</summary>
+        public void SetClipboardText(string value) { }
+
         internal static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)
         {
             methods.AddPropertyTranslator(() => new BindingPageInfo().EvaluatingOnServer,
@@ -32,6 +35,10 @@ namespace DotVVM.Framework.Binding
                 new GenericMethodCompiler(_ => new JsLiteral(true)));
             methods.AddPropertyTranslator(() => new BindingPageInfo().IsPostbackRunning,
                 new GenericMethodCompiler(_ => new JsIdentifierExpression("dotvvm").Member("isPostbackRunning").Invoke()));
+            methods.AddMethodTranslator(() => new BindingPageInfo().SetClipboardText(""),
+                new GenericMethodCompiler(args =>
+                    new JsIdentifierExpression("navigator").Member("clipboard").Member("writeText").Invoke(args[1])
+                        .WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
         }
     }
 }
