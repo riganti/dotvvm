@@ -14,6 +14,10 @@
         <label for="text-to-copy">Text to copy:</label>
         <dot:TextBox ID="text-to-copy" data-ui="text-to-copy" Text="{value: TextToCopy}" />
     </p>
+    <p>
+        <label for="paste-target">Paste copied text here:</label>
+        <input id="paste-target" data-ui="paste-target" />
+    </p>
 
     <dot:Button data-ui="copy" Text="Copy to clipboard"
                 Click="{staticCommand: _page.SetClipboardText(TextToCopy); ClipboardCopied = true}" />

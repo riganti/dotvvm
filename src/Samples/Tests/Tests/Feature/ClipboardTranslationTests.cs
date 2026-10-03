@@ -1,5 +1,6 @@
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,10 +17,15 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SampleRoute);
-                browser.First("text-to-copy", SelectByDataUi).Clear().SendKeys("Selenium clipboard test");
+                var textToCopy = "Selenium clipboard test";
+                browser.First("text-to-copy", SelectByDataUi).Clear().SendKeys(textToCopy);
                 browser.First("copy", SelectByDataUi).Click();
 
                 AssertUI.TextEquals(browser.First("clipboard-status", SelectByDataUi), "Copied");
+                var pasteTarget = browser.First("paste-target", SelectByDataUi);
+                pasteTarget.Click();
+                pasteTarget.SendKeys(Keys.Control + "v");
+                Assert.Equal(textToCopy, pasteTarget.GetAttribute("value"));
             });
         }
 
