@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_BindingPageInfo_SetClipboardText()
         {
             var result = CompileBinding("_page.SetClipboardText(StringProp)", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("{await navigator.clipboard.writeText(options.viewModel.StringProp());}", result);
+            Assert.AreEqual("{await navigator.clipboard.writeText(options.viewModel.StringProp.state);}", result);
         }
 
         [TestMethod]
