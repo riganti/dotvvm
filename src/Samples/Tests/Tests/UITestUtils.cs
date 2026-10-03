@@ -15,16 +15,10 @@ public static class UITestUtils
 
         // The URL and rendered content can stay the same after an authentication redirect.
         browser.WaitFor(() => {
-            try
-            {
-                oldDocument.GetAttribute("id");
-                return false;
-            }
-            catch (StaleElementReferenceException)
-            {
-                return true;
-            }
-        }, timeout: 10000, failureMessage: "The page did not reload after clicking.", ignoreCertainException: false);
+            var newDocument = browser.FirstOrDefault("html")?.WebElement;
+            return newDocument != null && !oldDocument.Equals(newDocument);
+        },
+            timeout: 10000, failureMessage: "The page did not reload after clicking.", ignoreCertainException: false);
         browser.WaitUntilDotvvmInited();
     }
 
