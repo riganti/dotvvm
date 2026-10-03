@@ -56,6 +56,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                 //Postback should run and view should scroll, page should not reload therefore messeges remain.
                 browser.First("a[data-ui='go-to-2-link']").Click();
+                browser.WaitForPostback();
 
                 var message2element = browser.First("span[data-ui='message2']");
                 var message1element = browser.First("span[data-ui='message1']");
@@ -72,6 +73,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                 //basically the same just clicking on link to do postback and scroll back to paragraph1 after
                 browser.First("a[data-ui='go-to-1-link']").Click();
+                browser.WaitForPostback();
                 // message 2 should be scrolled to message 1 should not, both should be blank
 
                 message2element.IsDisplayed();
@@ -126,18 +128,22 @@ namespace DotVVM.Samples.Tests.Complex
 
         public static void CheckIfIsElementInView(this IElementWrapper element)
         {
-            if (!IsElementInView(element))
-            {
-                throw new UnexpectedElementStateException($"Element is not in browser view. {element.ToString()}");
-            }
+            WaitForExecutor.WaitFor(() => {
+                if (!IsElementInView(element))
+                {
+                    throw new UnexpectedElementStateException($"Element is not in browser view. {element.ToString()}");
+                }
+            });
         }
 
         public static void CheckIfIsElementNotInView(this IElementWrapper element)
         {
-            if (IsElementInView(element))
-            {
-                throw new UnexpectedElementStateException($"Element is in browser view. {element.ToString()}");
-            }
+            WaitForExecutor.WaitFor(() => {
+                if (IsElementInView(element))
+                {
+                    throw new UnexpectedElementStateException($"Element is in browser view. {element.ToString()}");
+                }
+            });
         }
 
         public static bool IsElementInView(this IElementWrapper element)
