@@ -53,6 +53,43 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task CommandDataPagerInMarkupControlWithInterfaceDataContext()
+        {
+            var helper = new ControlTestHelper(config: config => {
+                config.Markup.AddMarkupControl("cc", "Pager", "Pager.dotcontrol");
+            });
+            var r = await helper.RunPage(typeof(GridViewModel), """
+                <cc:Pager DataContext={value: Customers} />
+                """,
+                markupFiles: new Dictionary<string, string> {
+                    ["Pager.dotcontrol"] = """
+                        @viewModel DotVVM.Framework.Controls.IPageableGridViewDataSet<DotVVM.Framework.Controls.PagingOptions>, DotVVM.Core
+                        @noWrapperTag
+
+                        <dot:DataPager DataSet={value: _this} />
+                        """
+                }
+            );
+
+            Assert.IsNotNull(r.Html.QuerySelector("ul"));
+            Assert.AreEqual(0, (int)r.ViewModelJson["Customers"]["Items"][0]["Id"]);
+
+            foreach (var (method, pageIndex) in new[] {
+                ("GoToNextPage", 1),
+                ("GoToLastPage", 19),
+                ("GoToPreviousPage", 18),
+                ("GoToFirstPage", 0)
+            })
+            {
+                var command = r.Commands.Single(c => c.command.ToString().Contains($".{method}()"));
+                await r.RunCommand((CommandBindingExpression)command.command, command.control);
+
+                Assert.AreEqual(pageIndex, (int)r.ViewModelJson["Customers"]["PagingOptions"]["PageIndex"], method);
+                Assert.AreEqual(pageIndex * 5, (int)r.ViewModelJson["Customers"]["Items"][0]["Id"], method);
+            }
+        }
+
+        [TestMethod]
         public async Task StaticCommandPager()
         {
             var r = await cth.RunPage(typeof(GridViewModel), """

@@ -242,8 +242,7 @@ public class GridViewDataSetBindingProvider
         // we are on a server, call the dataSet.RequestRefresh
         var callRequestRefresh = Expression.Call(
             dataSet,
-            nameof(IGridViewDataSet.RequestRefresh),
-            []
+            typeof(IGridViewDataSet).GetMethod(nameof(IGridViewDataSet.RequestRefresh))!
         );
         body.Add(callRequestRefresh);
 
@@ -345,7 +344,7 @@ public class GridViewDataSetBindingProvider
         //     throw new ArgumentException($"The type {genericInterface} must be a generic type and must be implemented by the type {dataSetConcreteType} specified in {nameof(dataSetConcreteType)} argument!");
         // }
 
-        var interfaces = dataSetConcreteType.GetInterfaces()
+        var interfaces = dataSetConcreteType.GetInterfaces().Concat([dataSetConcreteType])
             .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericInterface)
             .Distinct()
             .ToList();
