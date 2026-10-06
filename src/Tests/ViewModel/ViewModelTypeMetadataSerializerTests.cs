@@ -130,6 +130,24 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.IsNull(selfResult[typeof(SerializerTests.CustomSelfPolymorphicBase).GetTypeHash()]["properties"]["kind"]);
         }
 
+        [TestMethod]
+        public void ViewModelTypeMetadata_AbstractAndConcretePolymorphicIdentity()
+        {
+            var serializer = new ViewModelTypeMetadataSerializer(mapper);
+            var result = SerializeMetadata(serializer, [
+                typeof(SerializerTests.PolymorphicBase),
+                typeof(SerializerTests.IPolymorphicContract),
+                typeof(SerializerTests.ConcretePolymorphicBase),
+                typeof(SerializerTests.PolymorphicUnregistered)
+            ]);
+            Assert.IsTrue(result[typeof(SerializerTests.PolymorphicBase).GetTypeHash()]["isAbstract"].GetValue<bool>());
+            Assert.IsTrue(result[typeof(SerializerTests.IPolymorphicContract).GetTypeHash()]["isAbstract"].GetValue<bool>());
+            Assert.IsNull(result[typeof(SerializerTests.ConcretePolymorphicBase).GetTypeHash()]["isAbstract"]);
+            Assert.AreEqual(0, result[typeof(SerializerTests.PolymorphicFirst).GetTypeHash()]["derivedTypes"].AsArray().Count);
+            Assert.AreEqual(0, result[typeof(SerializerTests.PolymorphicImplementation).GetTypeHash()]["derivedTypes"].AsArray().Count);
+            Assert.IsNull(result[typeof(SerializerTests.PolymorphicUnregistered).GetTypeHash()]["derivedTypes"]);
+        }
+
         [JsonDerivedType(typeof(RecursivePolymorphicCase))]
         public abstract class RecursivePolymorphicBase { }
         public class RecursivePolymorphicCase : RecursivePolymorphicBase

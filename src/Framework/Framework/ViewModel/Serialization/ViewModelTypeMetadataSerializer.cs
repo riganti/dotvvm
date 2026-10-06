@@ -113,12 +113,18 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 json.WriteString("debugName"u8, map.Type.ToCode(stripNamespace: true));
             }
 
-            if (map.Polymorphism is {} polymorphism)
+            if (map.RequiresTypeIdentity)
             {
-                polymorphism.ValidateMaps(viewModelSerializationMapper);
-                dependentObjectTypes.UnionWith(polymorphism.RegisteredTypes);
+                if (map.Type.IsAbstract || map.Type.IsInterface)
+                    json.WriteBoolean("isAbstract"u8, true);
+                var polymorphism = map.Polymorphism;
+                if (polymorphism is not null)
+                {
+                    polymorphism.ValidateMaps(viewModelSerializationMapper);
+                    dependentObjectTypes.UnionWith(polymorphism.RegisteredTypes);
+                }
                 json.WriteStartArray("derivedTypes"u8);
-                foreach (var derivedType in polymorphism.DerivedTypes.Keys)
+                foreach (var derivedType in polymorphism?.DerivedTypes.Keys ?? Enumerable.Empty<Type>())
                 {
                     dependentObjectTypes.Add(derivedType);
                     json.WriteStringValue(derivedType.GetTypeHash());

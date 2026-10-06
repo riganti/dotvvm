@@ -86,6 +86,8 @@ client-submitted polymorphic objects. With the default discriminator property na
 name can expose a custom discriminator to client code, but that discriminator is ignored on
 deserialization. Attribute-based polymorphism cannot be combined with `AllowDynamicDispatch`;
 unannotated types retain their existing dynamic-dispatch and populate-existing-value behavior.
+System.Text.Json discriminator-ignore and unknown-type fallback options do not relax this
+registered-type contract.
 Client-side subtype changes remain allowed, but incompatible signed or encrypted payloads fail
 server deserialization.
 

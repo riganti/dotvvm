@@ -227,7 +227,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 }
 
                 var polymorphicProperty = propertyMap.JsonConverter is null &&
-                    ViewModelJsonConverter.CanConvertType(propertyType) && JsonPolymorphismInfo.IsPolymorphic(propertyType);
+                    ViewModelJsonConverter.CanConvertType(propertyType) &&
+                    (JsonPolymorphismInfo.IsPolymorphic(propertyType) || JsonPolymorphismInfo.GetRegisteredContracts(propertyType).Any());
                 if (polymorphicProperty)
                 {
                     if (type.GetCustomAttribute<DotvvmSerializationAttribute>()?.AllowsDynamicDispatch(false) == true ||

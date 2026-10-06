@@ -1914,6 +1914,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             foreach (var action in new Action[] {
                 () => Serialize(new PolymorphicDynamicHolder(), out _),
+                () => Serialize(new DirectDerivedDynamicHolder(), out _),
                 () => Serialize<DynamicPolymorphicBase>(new DynamicPolymorphicBase(), out _),
                 () => Serialize<CollidingPolymorphicBase>(new CollidingPolymorphicCase(), out _)
             })
@@ -1975,6 +1976,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var json = Serialize<IPolymorphicContract>(new PolymorphicImplementation { Number = 9 }, out _);
             Assert.AreEqual(9, ((PolymorphicImplementation)Deserialize<IPolymorphicContract>(json)).Number);
+            XAssert.ThrowsAny<Exception>(() => Deserialize<IPolymorphicContract>($"{{\"$type\":\"{typeof(IPolymorphicContract).GetTypeHash()}\"}}"));
         }
 
         [TestMethod]
@@ -2064,6 +2066,11 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             [Bind(AllowDynamicDispatch = true)]
             public PolymorphicBase Value { get; set; }
+        }
+        public class DirectDerivedDynamicHolder
+        {
+            [Bind(AllowDynamicDispatch = true)]
+            public PolymorphicFirst Value { get; set; }
         }
         [DotvvmSerialization(AllowDynamicDispatch = true)]
         [JsonPolymorphic]
