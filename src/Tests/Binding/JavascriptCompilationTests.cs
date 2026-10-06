@@ -1111,6 +1111,65 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("$parents[1].Products()?.find((x)=>ko.unwrap(x).Category1()==Id()&&ko.unwrap(x).Category2()==$parent.Id())?.()?.Colors", result);
         }
 
+        [DataTestMethod]
+        [DataRow(false, false)]
+        [DataRow(false, true)]
+        [DataRow(true, false)]
+        [DataRow(true, true)]
+        public void JsTranslator_EnumerableFirstOrDefaultCustomObservableMap(bool observableArray, bool observableItem)
+        {
+            var itemMap = new JsObjectObservableMap
+            {
+                ContainsObservables = false,
+                PropertyIsObservable = new() { ["Int"] = true, ["String"] = false }
+            };
+            var arrayMap = new JsObjectObservableMap
+            {
+                ContainsObservables = !observableItem,
+                PropertyIsObservable = new() { ["Item"] = observableItem },
+                // The named Item mapping must survive FirstOrDefault instead of using this fallback.
+                DefaultChild = JsObjectObservableMap.Observables,
+                ChildObjects = new() { ["Item"] = itemMap }
+            };
+            var observableMap = new JsObjectObservableMap
+            {
+                ContainsObservables = true,
+                PropertyIsObservable = new() { [nameof(TestArraysViewModel.ObjectArray)] = observableArray },
+                ChildObjects = new() { [nameof(TestArraysViewModel.ObjectArray)] = arrayMap }
+            };
+            var config = DotvvmTestHelper.CreateConfiguration();
+            config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(
+                () => TestJsTransations.GetTestPlainObject(),
+                new GenericMethodCompiler(args => new JsIdentifierExpression("mixedObject")
+                    .WithAnnotation(new ViewModelInfoAnnotation(typeof(TestArraysViewModel), false, null, observableMap))));
+            config.Freeze();
+            var helper = new BindingTestHelper(config);
+            var imports = new[] { new NamespaceImport("System.Linq"), new NamespaceImport(typeof(TestJsTransations).Namespace) };
+
+            foreach (var (operation, selection) in new[]
+            {
+                ("FirstOrDefault()", "[0]"),
+                ("FirstOrDefault(x => x.Int == 42)", "find((x)=>ko.unwrap(x).Int()==42)")
+            })
+            {
+                var array = "mixedObject.ObjectArray" + (observableArray ? "()" : "");
+                var item = array + "?." + selection + (observableItem ? "?.()" : "");
+
+                foreach (var (expression, javascript) in new[]
+                {
+                    ("Int == 42", "Int()==42"),
+                    ("String == \"match\"", "String==\"match\""),
+                    ("Bool == true", "Bool==true")
+                })
+                {
+                    var result = helper.ValueBindingToJs(
+                        $"TestJsTransations.GetTestPlainObject().ObjectArray.{operation}.{expression}",
+                        new[] { typeof(TestViewModel) }, typeof(bool), imports, nullChecks: true, niceMode: false);
+                    Assert.AreEqual(item + "?." + javascript, result, $"{operation}.{expression}");
+                }
+            }
+        }
+
         [TestMethod]
         [DataRow("FirstOrDefault()", "testPlainObject.ObjectArray()?.[0]")]
         [DataRow("FirstOrDefault(x => x.Int == 42)", "testPlainObject.ObjectArray()?.find((x)=>ko.unwrap(x).Int()==42)")]
