@@ -25,26 +25,26 @@ namespace DotVVM.Samples.Tests.Control
                 var value = browser.Single("[data-ui=value1]");
 
                 // ensure the first timer is running
-                Assert.True(EqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(3, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(3, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(6, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(6, int.Parse(value.GetInnerText()), 1);
 
                 // stop the first timer
                 browser.Single("[data-ui=enabled1]").Click();
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(6, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(6, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(6, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(6, int.Parse(value.GetInnerText()), 1);
 
                 // restart the timer
                 browser.Single("[data-ui=enabled1]").Click();
                 var restartValue = int.Parse(value.GetInnerText());
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(restartValue + 3, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(restartValue + 3, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(restartValue + 6, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(restartValue + 6, int.Parse(value.GetInnerText()), 1);
             });
         }
 
@@ -57,25 +57,25 @@ namespace DotVVM.Samples.Tests.Control
                 var value = browser.Single("[data-ui=value2]");
 
                 // ensure the timer is not running
-                Assert.True(EqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1);
 
                 // start the second timer
                 browser.Single("[data-ui=enabled2]").Click();
                 browser.Wait(4000);
-                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(4000);
-                Assert.True(EqualsWithTolerance(4, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(4, int.Parse(value.GetInnerText()), 1);
 
                 // stop the second timer
                 browser.Single("[data-ui=enabled2]").Click();
                 browser.Wait(4000);
-                Assert.True(EqualsWithTolerance(4, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(4, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(4000);
-                Assert.True(EqualsWithTolerance(4, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(4, int.Parse(value.GetInnerText()), 1);
             });
         }
 
@@ -89,11 +89,11 @@ namespace DotVVM.Samples.Tests.Control
                 var value = browser.Single("[data-ui=value3]");
 
                 // ensure the timer is running
-                Assert.True(EqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(1, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(1, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(3000);
-                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1);
             });
         }
 
@@ -106,16 +106,16 @@ namespace DotVVM.Samples.Tests.Control
                 var value = browser.Single(".result");
 
                 // ensure the new command does not start before the old finishes
-                Assert.True(EqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(4000);
 
-                Assert.True(EqualsWithTolerance(1, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(1, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(4000);
 
-                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(4000);
 
-                Assert.True(EqualsWithTolerance(3, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(3, int.Parse(value.GetInnerText()), 1);
             });
         }
 
@@ -129,35 +129,36 @@ namespace DotVVM.Samples.Tests.Control
                 var value = browser.Single(".result");
 
                 // ensure the timer works
-                Assert.True(EqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(0, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(1000);
 
-                Assert.True(EqualsWithTolerance(1, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(1, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(1000);
 
                 // disable the timer
                 browser.Single("disabled", SelectByDataUi).Click();
-                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(2000);
-                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1);
 
                 // remove the timer from DOM
                 browser.Single("remove", SelectByDataUi).Click();
-                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(2000);
-                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1);
 
                 // reenable the timer
                 browser.Single("disabled", SelectByDataUi).Click();
 
                 // make sure it hasn't started
-                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1);
                 browser.Wait(2000);
-                Assert.True(EqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1));
+                AssertEqualsWithTolerance(2, int.Parse(value.GetInnerText()), 1);
             });
         }
 
-        private static bool EqualsWithTolerance(int expected, int actual, int tolerance)
-            => Math.Abs(expected - actual) <= tolerance;
+        private static void AssertEqualsWithTolerance(int expected, int actual, int tolerance)
+            => Assert.True(Math.Abs(expected - actual) <= tolerance,
+                $"Expected timer value {expected} with tolerance {tolerance} (range {expected - tolerance} to {expected + tolerance}), actual {actual}.");
     }
 }
