@@ -83,6 +83,11 @@ namespace DotVVM.Framework.Compilation.Javascript
 
                 case ExpressionType.NewArrayInit:
                     return TranslateNewArrayInit((NewArrayExpression)expression);
+                case ExpressionType.TypeIs:
+                    var typeTest = (TypeBinaryExpression)expression;
+                    return new JsIdentifierExpression("dotvvm").Member("metadata").Member("isType")
+                        .Invoke(Translate(typeTest.Expression), new JsLiteral(typeTest.TypeOperand.GetTypeHash()))
+                        .WithAnnotation(new ViewModelInfoAnnotation(typeof(bool), containsObservables: false));
             }
             if (expression is BinaryExpression)
             {
@@ -426,9 +431,18 @@ namespace DotVVM.Framework.Compilation.Javascript
                     break;
 
                 case ExpressionType.Convert:
-                case ExpressionType.TypeAs:
                     // convert does not make sense in Javascript
                     return TranslateConvert(expression.Operand, operand, expression.Type);
+
+                case ExpressionType.TypeAs:
+                    var operandInfo = operand.Annotation<ViewModelInfoAnnotation>();
+                    return new JsIdentifierExpression("dotvvm").Member("metadata").Member("asType")
+                        .Invoke(operand, new JsLiteral(expression.Type.GetTypeHash()))
+                        .WithAnnotation(new ViewModelInfoAnnotation(expression.Type,
+                            isControl: operandInfo?.IsControl ?? false,
+                            extensionParameter: operandInfo?.ExtensionParameter,
+                            observableMap: operandInfo?.ObservableMap))
+                        .WithAnnotation(MayBeNullAnnotation.Instance);
 
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");

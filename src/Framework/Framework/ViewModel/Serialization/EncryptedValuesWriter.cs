@@ -10,6 +10,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         Utf8JsonWriter writer;
         Stack<int> propertyIndices = new Stack<int>();
+        Stack<string?> objectTypes = new();
         int virtualNests = 0;
         int lastPropertyIndex = -1;
         int suppress = 0;
@@ -31,6 +32,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (suppress > 0) return;
 
             propertyIndices.Push(property);
+            objectTypes.Push(null);
             lastPropertyIndex = -1;
             virtualNests++;
         }
@@ -62,6 +64,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 writer.WriteEndObject();
             }
             lastPropertyIndex = propertyIndices.Pop();
+            objectTypes.Pop();
         }
 
         /// <summary>
@@ -74,6 +77,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (virtualNests <= 0) throw new NotSupportedException("There is no empty (virtual) nest to be cleared.");
             virtualNests--;
             lastPropertyIndex = propertyIndices.Pop();
+            objectTypes.Pop();
         }
 
         private void WritePropertyName(int index)
@@ -86,7 +90,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (virtualNests > 0)
             {
                 bool first = true;
-                foreach (var p in propertyIndices.Take(virtualNests).Reverse())
+                foreach (var (p, type) in propertyIndices.Take(virtualNests).Reverse()
+                    .Zip(objectTypes.Take(virtualNests).Reverse(), (p, type) => (p, type)))
                 {
                     if (first && virtualNests == propertyIndices.Count)
                     {
@@ -99,6 +104,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     first = false;
 
                     writer.WriteStartObject();
+                    if (type is not null)
+                        writer.WriteString("$type", type);
                 }
                 virtualNests = 0;
             }
@@ -106,17 +113,36 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public bool IsVirtualNest() => virtualNests > 0;
 
+        /// <summary> Authenticate the object's layout only if a protected descendant materializes this subtree. </summary>
+        public void SetType(string typeId)
+        {
+            if (suppress > 0) return;
+            objectTypes.Pop();
+            objectTypes.Push(typeId);
+        }
+
         /// <summary>
         /// Write a value to the object.
         /// </summary>
-        public void WriteValue(int propertyIndex, object value)
+        public void WriteValue(int propertyIndex, object? value, Type type, JsonSerializerOptions options)
         {
             if (suppress > 0) return;
 
             EnsureObjectStarted();
             WritePropertyName(propertyIndex);
             lastPropertyIndex = propertyIndex;
-            JsonSerializer.Serialize(writer, value, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+            Suppress();
+            try
+            {
+                JsonSerializer.Serialize(writer, value, type, options);
+            }
+            finally
+            {
+                EndSuppress();
+            }
         }
+
+        public void WriteValue(int propertyIndex, object value) =>
+            WriteValue(propertyIndex, value, value?.GetType() ?? typeof(object), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
     }
 }

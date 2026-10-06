@@ -97,6 +97,8 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitUnary(UnaryExpression node)
         {
+            if (node.NodeType == ExpressionType.TypeAs)
+                return Expression.TypeAs(Visit(node.Operand), node.Type);
             if (node.NodeType == ExpressionType.Convert && node.Method == null)
             {
                 // just make sure it converts to nullable type

@@ -34,6 +34,7 @@ public class DotvvmJsonOptionsProvider : IDotvvmJsonOptionsProvider
         _viewModelOptions = new Lazy<JsonSerializerOptions>(() => {
             var options = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
                 Converters = { _viewModelConverter.Value },
+                TypeInfoResolver = new DotvvmJsonTypeInfoResolver(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe.TypeInfoResolver!),
                 WriteIndented = debug
             };
             options.MakeReadOnly();

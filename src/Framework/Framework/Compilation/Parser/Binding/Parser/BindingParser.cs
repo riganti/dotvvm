@@ -399,7 +399,20 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             while (Peek() is BindingToken operatorToken)
             {
                 var @operator = operatorToken.Type;
-                if (@operator == BindingTokenType.LessThanEqualsOperator || @operator == BindingTokenType.LessThanOperator
+                if (@operator is BindingTokenType.KeywordAs or BindingTokenType.KeywordIs)
+                {
+                    Read();
+                    SkipWhiteSpace();
+                    var typeToken = Peek();
+                    var validType = TryReadTypeReference(out var type, stopAtConditional: true);
+                    if (typeToken?.Type == BindingTokenType.Identifier &&
+                        typeToken.Text.Length > 0 && char.IsDigit(typeToken.Text[0]))
+                        validType = false;
+                    first = CreateNode(new BinaryOperatorBindingParserNode(first,
+                        type ?? new ActualTypeReferenceBindingParserNode(new SimpleNameBindingParserNode("")), @operator),
+                        startIndex, validType ? null : "A type name was expected after 'as' or 'is'.");
+                }
+                else if (@operator == BindingTokenType.LessThanEqualsOperator || @operator == BindingTokenType.LessThanOperator
                     || @operator == BindingTokenType.GreaterThanEqualsOperator || @operator == BindingTokenType.GreaterThanOperator)
                 {
                     Read();
@@ -588,7 +601,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return true;
         }
 
-        private bool TryReadTypeReference([NotNullWhen(returnValue: true)] out TypeReferenceBindingParserNode? typeNode)
+        private bool TryReadTypeReference([NotNullWhen(returnValue: true)] out TypeReferenceBindingParserNode? typeNode, bool stopAtConditional = false)
         {
             typeNode = null;
             var startIndex = CurrentIndex;
@@ -615,6 +628,24 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
                 else if (next.Type == BindingTokenType.QuestionMarkOperator)
                 {
+                    if (stopAtConditional)
+                    {
+                        var restorePoint = SetRestorePoint();
+                        bool conditional;
+                        try
+                        {
+                            Read();
+                            SkipWhiteSpace();
+                            ReadExpression();
+                            conditional = PeekType() == BindingTokenType.ColonOperator;
+                        }
+                        finally
+                        {
+                            Restore(restorePoint);
+                        }
+                        if (conditional)
+                            break;
+                    }
                     // Nullable
                     Read();
 

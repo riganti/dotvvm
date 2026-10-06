@@ -389,6 +389,48 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Serialization_Polymorphism()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl("FeatureSamples/Serialization/Polymorphism");
+                browser.WaitUntilDotvvmInited();
+
+                AssertUI.TextEquals(browser.Single("is-text", SelectByDataUi), "true");
+                AssertUI.TextEquals(browser.Single("safe-text", SelectByDataUi), "first");
+                browser.Single("text", SelectByDataUi).Clear().SendKeys("edited").SendKeys(Keys.Tab);
+                browser.Single("submit", SelectByDataUi).Click();
+                AssertUI.TextEquals(browser.Single("result", SelectByDataUi), "Text: edited; protected: secret");
+
+                browser.Single("text", SelectByDataUi).Clear().SendKeys(Keys.Tab);
+                browser.Single("submit", SelectByDataUi).Click();
+                AssertUI.TextEquals(browser.Single("text-validation", SelectByDataUi), "Text is required.");
+
+                browser.Single("server-number", SelectByDataUi).Click();
+                AssertUI.TextEquals(browser.Single("is-text", SelectByDataUi), "false");
+                AssertUI.TextEquals(browser.Single("is-number", SelectByDataUi), "true");
+                AssertUI.TextEquals(browser.Single("safe-text", SelectByDataUi), "");
+                AssertUI.InnerText(browser.Single("viewmodel-json", SelectByDataUi), json =>
+                    json.Contains("\"$kind\": \"number\"") && !json.Contains("\"text\":"));
+
+                browser.Single("describe", SelectByDataUi).Click();
+                AssertUI.TextEquals(browser.Single("result", SelectByDataUi), "Number: 42");
+
+                browser.Single("client-text", SelectByDataUi).Click();
+                AssertUI.TextEquals(browser.Single("safe-text", SelectByDataUi), "new text");
+                browser.Single("submit", SelectByDataUi).Click();
+                AssertUI.TextEquals(browser.Single("result", SelectByDataUi), "Text: new text; protected: secret");
+
+                browser.Single("client-number", SelectByDataUi).Click();
+                browser.Single("number", SelectByDataUi).Clear().SendKeys("7").SendKeys(Keys.Tab);
+                browser.Single("submit", SelectByDataUi).Click();
+                AssertUI.TextEquals(browser.Single("result", SelectByDataUi), "Number: 7; protected: secret");
+
+                browser.Single("server-text", SelectByDataUi).Click();
+                AssertUI.TextEquals(browser.Single("safe-text", SelectByDataUi), "new text");
+            });
+        }
+
         public SerializationTests(ITestOutputHelper output) : base(output)
         {
         }

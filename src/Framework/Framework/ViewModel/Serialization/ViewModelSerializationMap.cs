@@ -41,6 +41,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public MethodBase? Constructor { get; }
         public ImmutableArray<ViewModelPropertyMap> Properties { get; }
         public string ClientTypeId { get; }
+        public JsonPolymorphismInfo? Polymorphism { get; }
 
 
         /// <summary> Rough structure of Properties when the object was initialized. This is used for hot reload to judge if it can be flushed from the cache. </summary>
@@ -56,6 +57,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.viewModelJsonConverter = configuration.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
             this.expressionCompiler = configuration.ServiceProvider.GetRequiredService<IExpressionToDelegateCompiler>();
             Type = type;
+            Polymorphism = ViewModelJsonConverter.CanConvertType(type) ? JsonPolymorphismInfo.Create(type) : null;
             ClientTypeId = type.GetTypeHash();
             Constructor = constructor;
             Properties = properties.ToImmutableArray();
@@ -240,6 +242,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // add current object to encrypted values, this is needed because one property can potentially contain more objects (is a collection)
             block.Add(Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
+            block.Add(Call(encryptedValuesReader, nameof(EncryptedValuesReader.VerifyType), Type.EmptyTypes, Constant(ClientTypeId)));
 
             var propertiesSwitch = new List<(string fieldName, Expression readExpression)>();
 
@@ -279,11 +282,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                         Assign(
                             propertyVar,
-                            Call(
-                                JsonSerializationCodegenFragments.DeserializeValueStaticMethod.MakeGenericMethod(property.Type),
-                                readerTmp,
-                                Constant(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe)
-                            )
+                            DeserializePropertyValue(property, readerTmp, Default(property.Type), jsonOptions, state)
                         )
                     );
 
@@ -443,12 +442,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     {
                         // encryptedValuesWriter.WriteValue({propertyIndex}, (object)value.{property.PropertyInfo.Name});
                         block.Add(
-                            Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes, Constant(propertyIndex), Convert(prop, typeof(object))));
+                            Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes,
+                                Constant(propertyIndex), Convert(prop, typeof(object)), Constant(property.Type), jsonOptions));
                     }
 
 
-                    if (property.ViewModelProtection == ProtectMode.None ||
-                        property.ViewModelProtection == ProtectMode.SignData)
                     {
                         var propertyBlock = new List<Expression>();
                         var checkEV = CanContainEncryptedValues(property.Type);
@@ -495,12 +493,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
                             }
                         }
 
-                        if (propertyFinally is null)
-                            block.AddRange(propertyBlock);
-                        else
-                            block.Add(
-                                TryFinally(Block(propertyBlock), propertyFinally)
-                            );
+                        Expression serializeProperty = propertyFinally is null
+                            ? Block(propertyBlock)
+                            : TryFinally(Block(propertyBlock), propertyFinally);
+                        if (property.ViewModelProtection == ProtectMode.EncryptData)
+                            serializeProperty = IfThen(
+                                GreaterThan(Property(encryptedValuesWriter, nameof(EncryptedValuesWriter.SuppressedLevel)), Constant(0)),
+                                serializeProperty);
+                        block.Add(serializeProperty);
                     }
                 }
 

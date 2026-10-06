@@ -70,6 +70,23 @@ public class ContactFormViewModel
 * Can run side-by-side with other ASP.NET frameworks (Web Forms, MVC, Razor Pages)
 * **IntelliSense and tooling for Visual Studio [2019](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2019), [2022](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVM-VSExtension2022) and [Code](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.dotvvm-vscode)**
 
+## Polymorphic viewmodels
+
+Declare supported subtypes with `System.Text.Json.Serialization.JsonDerivedTypeAttribute`.
+Bindings support `Item is DerivedType` and `(Item as DerivedType).Property`; failed casts propagate null.
+See the [polymorphism sample](src/Samples/Common/Views/FeatureSamples/Serialization/Polymorphism.dothtml)
+and its [viewmodel](src/Samples/Common/ViewModels/FeatureSamples/Serialization/PolymorphismViewModel.cs)
+for editing derived properties, validation, postbacks, static commands, and protected values.
+
+DotVVM always uses its hashed `$type` to select a registered concrete type when deserializing
+client-submitted polymorphic objects. With the default discriminator property name, specifying
+`JsonDerivedType.TypeDiscriminator` is an error. A nondefault, noncolliding discriminator property
+name can expose a custom discriminator to client code, but that discriminator is ignored on
+deserialization. Attribute-based polymorphism cannot be combined with `AllowDynamicDispatch`;
+unannotated types retain their existing dynamic-dispatch and populate-existing-value behavior.
+Client-side subtype changes remain allowed, but incompatible signed or encrypted payloads fail
+server deserialization.
+
 ## Getting started with DotVVM
 
 Learn the basic principles of DotVVM in our [DotVVM Academy](https://academy.dotvvm.com) tutorials.

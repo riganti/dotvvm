@@ -80,6 +80,19 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Suppressed = true;
         }
 
+        /// <summary> Check the authenticated concrete layout before interpreting numeric property indices. </summary>
+        public void VerifyType(string typeId)
+        {
+            if (Suppressed || virtualNests > 0 || json is null)
+                return;
+            if (json.TryGetPropertyValue("$type", out var storedType))
+            {
+                if (storedType is not JsonValue value || !value.TryGetValue<string>(out var actualType) || actualType != typeId)
+                    ThrowSecurityError();
+                json.Remove("$type");
+            }
+        }
+
         public void EndSuppress()
         {
             if (!Suppressed) ThrowSecurityError();

@@ -8,8 +8,9 @@ import { coerce } from "./metadata/coercer";
 import { patchViewModel } from "./postback/updater";
 import { hackInvokeNotifySubscribers } from "./utils/knockout";
 import { logWarning } from "./utils/logging";
-import {ValidationError} from "./validation/error";
+import { allErrors, ValidationError } from "./validation/error";
 import { errorsSymbol } from "./validation/common";
+import { events as validationEvents } from "./validation/validation";
 
 
 export const currentStateSymbol = Symbol("currentState")
@@ -41,6 +42,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> impleme
     /** The knockout observable containing the root objects, equivalent to `dotvvm.viewModels.root.viewModel` */
     public readonly stateObservable: DeepKnockoutObservable<TViewModel>;
     private _state: DeepReadonly<TViewModel>
+    private readonly type: TypeDefinition | undefined;
     /** Returns the current  */
     public get state() {
         return this._state
@@ -57,6 +59,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> impleme
         public stateUpdateEvent?: DotvvmEvent<DeepReadonly<TViewModel>>
     ) {
         const type = initialState.$type
+        this.type = type;
         this._state = coerce(initialState, type || { type: "dynamic" })
         this.stateObservable = createWrappedObservable(this._state, type, () => this._state, u => this.updateState(u as any))
         this.dispatchUpdate()
@@ -107,11 +110,8 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> impleme
      *  @returns The type-coerced version of the new state. */
     public setState(newState: DeepReadonly<TViewModel>): DeepReadonly<TViewModel> {
         if (compileConstants.debug && newState == null) throw new Error("State can't be null or undefined.")
-        if (newState === this._state) return newState
-
-        const type = newState.$type || this._state.$type
-
-        const coercionResult = coerce(newState, type!, this._state)
+        const coercionResult = coerce(newState, this.type || { type: "dynamic" }, this._state)
+        if (coercionResult === this._state) return coercionResult;
 
         this.dispatchUpdate();
         return this._state = coercionResult
@@ -154,7 +154,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
 
     public [updatePropertySymbol](propName: keyof DeepReadonly<T>, valUpdate: StateUpdate<any>) {
         this[updateSymbol](vm => {
-            if(vm==null)
+            if(vm==null || !areObjectTypesEqual(this[currentStateSymbol], vm))
                 return vm
             const newValue = valUpdate(vm[propName])
             if (vm[propName] === newValue)
@@ -217,6 +217,28 @@ export function isDotvvmObservable(obj: any): obj is DotvvmObservable<any> {
 
 export function isFakeObservableObject(obj: any): obj is FakeObservableObject<any> {
     return obj instanceof FakeObservableObject
+}
+
+export function detachValidationErrors(viewModel: any) {
+    const originalCount = allErrors.length;
+    const visited = new Set<any>();
+    function detach(value: any) {
+        if (!value || visited.has(value)) return;
+        visited.add(value);
+        for (const error of [...(value[errorsSymbol] || [])]) {
+            error.detach();
+        }
+        value = ko.unwrap(value);
+        if (!value || typeof value !== "object") return;
+        const children = isFakeObservableObject(value) ? value[internalPropCache] : value;
+        for (const prop of keys(children)) {
+            detach(children[prop]);
+        }
+    }
+    detach(viewModel);
+    if (allErrors.length !== originalCount) {
+        validationEvents.validationErrorsChanged.trigger({ allErrors });
+    }
 }
 
 /**
@@ -376,6 +398,9 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         const oldContents = obs.peek()
         if (isPrimitive(newVal) || newVal instanceof Date) {
             // primitive value
+            if (oldContents && currentValue && typeof currentValue === "object") {
+                detachValidationErrors(obs);
+            }
             newContents = newVal
         }
         else if (newVal instanceof Array) {
@@ -435,6 +460,9 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         }
         else {
             // create new object and replace
+            if (oldContents && currentValue && !areObjectTypesEqual(currentValue, newVal)) {
+                detachValidationErrors(obs);
+            }
             newContents = createObservableObject(newVal, typeHint, getter, updater)
         }
 
@@ -458,4 +486,3 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
     defineConstantProperty(obs, "updater", updater)
     return obs
 }
-

@@ -1,6 +1,9 @@
 {
 	"r25g-eiQMdpG2G3H": {
 		"type": "object",
+		"baseTypes": [
+			"uaHhpb9Z-aNE8zhf"
+		],
 		"properties": {
 			"ChildFirstRequest": {
 				"type": "uVKobg2xrWnTRyXi",
@@ -47,6 +50,9 @@
 	},
 	"uVKobg2xrWnTRyXi": {
 		"type": "object",
+		"baseTypes": [
+			"uaHhpb9Z-aNE8zhf"
+		],
 		"properties": {
 			"InPathOnly": {
 				"type": "Int32",

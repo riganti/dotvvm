@@ -1,4 +1,5 @@
 ﻿import { getTypeInfo } from "./typeMap";
+export { isType, asType } from "./typeMap";
 
 export function getTypeId(viewModel: object): string | undefined {
     return ko.unwrap((viewModel as any).$type);

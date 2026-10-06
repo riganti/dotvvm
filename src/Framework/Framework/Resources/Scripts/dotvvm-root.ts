@@ -109,7 +109,9 @@ const dotvvmExports = {
     metadata: {
         getTypeId: metadataHelper.getTypeId,
         getTypeMetadata: metadataHelper.getTypeMetadata,
-        getEnumMetadata: metadataHelper.getEnumMetadata
+        getEnumMetadata: metadataHelper.getEnumMetadata,
+        isType: metadataHelper.isType,
+        asType: metadataHelper.asType
     },
     viewModules: {
         registerOne: viewModuleManager.registerViewModule,

@@ -167,6 +167,41 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitBinaryOperator(BinaryOperatorBindingParserNode node)
         {
+            if (node.Operator is BindingTokenType.KeywordAs or BindingTokenType.KeywordIs)
+            {
+                var operand = Visit(node.FirstExpression);
+                Expression target;
+                var onlyTypes = ResolveOnlyTypeName;
+                try
+                {
+                    ResolveOnlyTypeName = true;
+                    target = Visit(node.SecondExpression);
+                }
+                finally
+                {
+                    ResolveOnlyTypeName = onlyTypes;
+                }
+                if (target is not StaticClassIdentifierExpression ||
+                    target.Type == typeof(void) || target.Type.IsPointer || target.Type.IsByRef ||
+                    target.Type.ContainsGenericParameters)
+                    throw new BindingCompilationException("The target of 'as' or 'is' must be a closed type.", node.SecondExpression);
+                if (operand is StaticClassIdentifierExpression or UnknownStaticClassIdentifierExpression or MethodGroupExpression ||
+                    operand.Type == typeof(void))
+                    throw new BindingCompilationException("The operand of 'as' or 'is' must be a value.", node.FirstExpression);
+                if (node.Operator == BindingTokenType.KeywordAs)
+                {
+                    if (target.Type.IsValueType && Nullable.GetUnderlyingType(target.Type) == null)
+                        throw new BindingCompilationException("The target of 'as' must be a reference or nullable type.", node.SecondExpression);
+                    var sourceType = Nullable.GetUnderlyingType(operand.Type) ?? operand.Type;
+                    var targetType = Nullable.GetUnderlyingType(target.Type) ?? target.Type;
+                    if (!sourceType.IsAssignableFrom(targetType) && !targetType.IsAssignableFrom(sourceType) &&
+                        !(sourceType.IsInterface && !targetType.IsSealed) &&
+                        !(targetType.IsInterface && !sourceType.IsSealed))
+                        throw new BindingCompilationException($"Cannot convert {operand.Type} to {target.Type} using 'as'.", node);
+                    return Expression.TypeAs(operand, target.Type);
+                }
+                return Expression.TypeIs(operand, target.Type);
+            }
             ExpressionType eop;
             switch (node.Operator)
             {
