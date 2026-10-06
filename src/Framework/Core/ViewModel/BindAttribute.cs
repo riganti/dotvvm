@@ -26,6 +26,8 @@ namespace DotVVM.Framework.ViewModel
         /// When true, DotVVM serializer will select the JSON converter based on the runtime type, instead of deciding it ahead of time.
         /// This essentially enables serialization of properties defined derived types, but does not enable derive type deserialization, unless an instance of the correct type is prepopulated into the property.
         /// By default, dynamic dispatch is enabled for abstract types (including interfaces and System.Object).
+        /// Types declaring JsonPolymorphic or JsonDerivedType instead use registered subtype dispatch.
+        /// Explicitly enabling AllowDynamicDispatch cannot be combined with registered subtype dispatch.
         /// </summary>
         public bool AllowDynamicDispatch { get => _allowDynamicDispatch ?? false; set => _allowDynamicDispatch = value; }
 

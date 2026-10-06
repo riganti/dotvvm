@@ -42,6 +42,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public ImmutableArray<ViewModelPropertyMap> Properties { get; }
         public string ClientTypeId { get; }
         public JsonPolymorphismInfo? Polymorphism { get; }
+        internal JsonPolymorphismInfo[] RegisteredPolymorphicContracts { get; }
+        internal IReadOnlyDictionary<string, object> PolymorphicDiscriminators { get; }
+        internal bool RequiresTypeIdentity => Polymorphism is not null || RegisteredPolymorphicContracts.Length > 0;
 
 
         /// <summary> Rough structure of Properties when the object was initialized. This is used for hot reload to judge if it can be flushed from the cache. </summary>
@@ -58,11 +61,18 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.expressionCompiler = configuration.ServiceProvider.GetRequiredService<IExpressionToDelegateCompiler>();
             Type = type;
             Polymorphism = ViewModelJsonConverter.CanConvertType(type) ? JsonPolymorphismInfo.Create(type) : null;
+            RegisteredPolymorphicContracts = ViewModelJsonConverter.CanConvertType(type)
+                ? JsonPolymorphismInfo.GetRegisteredContracts(type).ToArray() : [];
+            PolymorphicDiscriminators = JsonPolymorphismInfo.GetDiscriminators(type,
+                Polymorphism is {} ownContract ? RegisteredPolymorphicContracts.Append(ownContract) : RegisteredPolymorphicContracts);
             ClientTypeId = type.GetTypeHash();
             Constructor = constructor;
             Properties = properties.ToImmutableArray();
             OriginalProperties = Properties.Select(p => (p.Name, p.Type, p.BindDirection, p.ViewModelProtection)).ToArray();
             ValidatePropertyMap();
+            if (Properties.Any(p => PolymorphicDiscriminators.ContainsKey(p.Name) ||
+                (RegisteredPolymorphicContracts.Length > 0 && p.Name == "$type")))
+                throw new NotSupportedException($"Polymorphic discriminator collides with a serialized member on {type.ToCode()}.");
         }
 
         public static ViewModelSerializationMap Create(Type type, IEnumerable<ViewModelPropertyMap> properties, MethodBase? constructor, DotvvmConfiguration configuration) =>
@@ -242,7 +252,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // add current object to encrypted values, this is needed because one property can potentially contain more objects (is a collection)
             block.Add(Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
-            block.Add(Call(encryptedValuesReader, nameof(EncryptedValuesReader.VerifyType), Type.EmptyTypes, Constant(ClientTypeId)));
+            if (RequiresTypeIdentity)
+                block.Add(Call(encryptedValuesReader, nameof(EncryptedValuesReader.VerifyType), Type.EmptyTypes, Constant(ClientTypeId)));
 
             var propertiesSwitch = new List<(string fieldName, Expression readExpression)>();
 
@@ -282,7 +293,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                         Assign(
                             propertyVar,
-                            DeserializePropertyValue(property, readerTmp, Default(property.Type), jsonOptions, state)
+                            JsonPolymorphismInfo.ContainsPolymorphism(property.Type)
+                                ? DeserializePropertyValue(property, readerTmp, Default(property.Type), jsonOptions, state)
+                                : Call(JsonSerializationCodegenFragments.DeserializeValueStaticMethod.MakeGenericMethod(property.Type),
+                                    readerTmp, Constant(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe))
                         )
                     );
 

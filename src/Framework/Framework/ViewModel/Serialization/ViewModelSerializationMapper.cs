@@ -296,6 +296,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <returns>true if the cached was cleared successfully, false if the cached could not be cleared for some reason. </returns>
         internal bool ClearCache(Type t)
         {
+            JsonPolymorphismInfo.ClearCache();
             var hash = t.GetTypeHash();
             if (!this.serializationMapCache.TryGetValue(hash, out var cachedItem))
                 return true;

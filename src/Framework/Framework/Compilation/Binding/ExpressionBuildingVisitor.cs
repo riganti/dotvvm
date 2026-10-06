@@ -200,6 +200,8 @@ namespace DotVVM.Framework.Compilation.Binding
                         throw new BindingCompilationException($"Cannot convert {operand.Type} to {target.Type} using 'as'.", node);
                     return Expression.TypeAs(operand, target.Type);
                 }
+                if (Nullable.GetUnderlyingType(target.Type) != null)
+                    throw new BindingCompilationException("The target of 'is' must not be a nullable type. Test against its underlying type instead.", node.SecondExpression);
                 return Expression.TypeIs(operand, target.Type);
             }
             ExpressionType eop;

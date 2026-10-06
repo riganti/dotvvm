@@ -77,6 +77,8 @@ Bindings support `Item is DerivedType` and `(Item as DerivedType).Property`; fai
 See the [polymorphism sample](src/Samples/Common/Views/FeatureSamples/Serialization/Polymorphism.dothtml)
 and its [viewmodel](src/Samples/Common/ViewModels/FeatureSamples/Serialization/PolymorphismViewModel.cs)
 for editing derived properties, validation, postbacks, static commands, and protected values.
+Client-side runtime type checks require serialized object metadata; runtime-dependent checks
+against primitive or collection types must use server-side resource or command bindings.
 
 DotVVM always uses its hashed `$type` to select a registered concrete type when deserializing
 client-submitted polymorphic objects. With the default discriminator property name, specifying

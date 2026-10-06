@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             Assert.AreEqual(true, helper.ExecuteBinding<object>("_this is System.Collections.Generic.List<string>", new object[] { new List<string>() }));
             Assert.AreEqual(42, helper.ExecuteBinding<object>("_this as int?", new object[] { 42 }, DataContextStack.Create(typeof(object))));
-            Assert.AreEqual(41, helper.ExecuteBinding<object>("_this as int? - 1", new object[] { 42 }, DataContextStack.Create(typeof(object))));
+            Assert.AreEqual(41, helper.ExecuteBinding<object>("(_this as int?) - 1", new object[] { 42 }, DataContextStack.Create(typeof(object))));
             Assert.AreEqual(-1, helper.ExecuteBinding<object>("_this is int ? -1 : 1", new object[] { 42 }));
             Assert.AreEqual("yes", helper.ExecuteBinding<object>($"Value is {Derived} ? 'yes' : 'no'",
                 new object[] { new BindingCastModel { Value = new BindingCastDerived() } }));
@@ -57,6 +57,7 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("Value as int")]
         [DataRow("Value as void")]
         [DataRow("Value is void")]
+        [DataRow("Value is int?")]
         [DataRow("Value as Value")]
         [DataRow("Value as string")]
         [DataRow("Value is MissingType")]
@@ -167,6 +168,47 @@ namespace DotVVM.Framework.Tests.Binding
                 helper.ValueBindingToJs($"(Value as {Derived}).Secret", new[] { typeof(BindingCastModel) }));
             Assert.IsTrue(exception.AllInnerExceptions().Any(e => e.Message.Contains("encrypted")));
         }
+
+        [TestMethod]
+        public void TypeOperators_ClientPrimitiveAndCollectionDiagnostics()
+        {
+            Assert.AreEqual("$data!=null", helper.ValueBindingToJs("_this is object",
+                new[] { typeof(object) }, niceMode: false));
+            Assert.AreEqual("$data!=null", helper.ValueBindingToJs("_this is int",
+                new[] { typeof(int) }, niceMode: false));
+            foreach (var expression in new[] { "_this is int", "_this as int?", "_this as string",
+                "_this is System.Collections.Generic.List<string>" })
+            {
+                var exception = Xunit.Assert.ThrowsAny<Exception>(() =>
+                    helper.ValueBindingToJs(expression, new[] { typeof(object) }));
+                Assert.IsTrue(exception.AllInnerExceptions().Any(e =>
+                    e is NotSupportedException && e.Message.Contains("do not carry CLR type metadata")));
+            }
+        }
+
+        [TestMethod]
+        public void TypeOperators_PrimitivePropertiesRemainConsistent()
+        {
+            var model = new BindingPrimitiveModel { StringProp = "text", IntProp = 0, ObjectProp = "boxed" };
+            var contexts = new[] { typeof(BindingPrimitiveModel) };
+            Assert.AreEqual("StringProp()!=null", helper.ValueBindingToJs("StringProp is string", contexts, niceMode: false));
+            Assert.AreEqual("IntProp()!=null", helper.ValueBindingToJs("IntProp is object", contexts, niceMode: false));
+            Assert.AreEqual("NullableIntProp()!=null", helper.ValueBindingToJs("NullableIntProp is System.IComparable", contexts, niceMode: false));
+            Assert.AreEqual(true, helper.ExecuteBinding<object>("StringProp is string", new object[] { model }));
+            Assert.AreEqual(true, helper.ExecuteBinding<object>("IntProp is object", new object[] { model }));
+            Assert.AreEqual("boxed", helper.ExecuteBinding<object>("ObjectProp as string", new object[] { model }));
+            model.ObjectProp = 42;
+            Assert.AreEqual(42, helper.ExecuteBinding<object>("ObjectProp as int?", new object[] { model }));
+            foreach (var expression in new[] { "ObjectProp as string", "ObjectProp as int?", "ObjectProp is string", "ObjectProp is int",
+                "ObjectProp is System.IComparable", "ObjectProp as System.ValueType",
+                "CollectionProp is DotVVM.Framework.Tests.Binding.IBindingCast" })
+            {
+                var exception = Xunit.Assert.ThrowsAny<Exception>(() => helper.ValueBindingToJs(expression, contexts));
+                Assert.IsTrue(exception.AllInnerExceptions().Any(e => e is NotSupportedException));
+            }
+            model.StringProp = null;
+            Assert.AreEqual(false, helper.ExecuteBinding<object>("StringProp is string", new object[] { model }));
+        }
     }
 
     public interface IBindingCast { }
@@ -183,5 +225,13 @@ namespace DotVVM.Framework.Tests.Binding
         public BindingCastBase Value { get; set; }
         public int Calls;
         public BindingCastBase GetValue() { Calls++; return Value; }
+    }
+    public class BindingPrimitiveModel
+    {
+        public string StringProp { get; set; }
+        public int IntProp { get; set; }
+        public int? NullableIntProp { get; set; }
+        public object ObjectProp { get; set; }
+        public IEnumerable<string> CollectionProp { get; set; }
     }
 }

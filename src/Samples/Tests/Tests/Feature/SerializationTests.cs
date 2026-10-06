@@ -411,7 +411,7 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.TextEquals(browser.Single("is-number", SelectByDataUi), "true");
                 AssertUI.TextEquals(browser.Single("safe-text", SelectByDataUi), "");
                 AssertUI.InnerText(browser.Single("viewmodel-json", SelectByDataUi), json =>
-                    json.Contains("\"$kind\": \"number\"") && !json.Contains("\"text\":"));
+                    json.Contains("\"Number\": 42") && json.Contains("\"$kind\": \"number\"") && !json.Contains("\"text\":"));
 
                 browser.Single("describe", SelectByDataUi).Click();
                 AssertUI.TextEquals(browser.Single("result", SelectByDataUi), "Number: 42");

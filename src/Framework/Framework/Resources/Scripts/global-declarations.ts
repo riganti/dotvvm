@@ -257,6 +257,7 @@ type ObjectTypeMetadata = {
     debugName?: string,
     derivedTypes?: string[],
     baseTypes?: string[],
+    isAbstract?: true,
     properties: { [prop: string]: PropertyMetadata }
 }
 

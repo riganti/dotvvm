@@ -12,15 +12,17 @@ const metadata: TypeMap = {
     root: { type: "object", properties: { item: { type: "base" }, items: { type: ["base"] } } },
     base: { type: "object", derivedTypes: ["left", "right"], properties: { shared: { type: "String" } } },
     left: {
-        type: "object", baseTypes: ["base", "interface"], properties: {
+        type: "object", derivedTypes: [], baseTypes: ["base", "interface"], properties: {
             shared: { type: "String" }, left: { type: "Int32" }
         }
     },
     right: {
-        type: "object", baseTypes: ["base", "interface"], properties: {
+        type: "object", derivedTypes: [], baseTypes: ["base", "interface"], properties: {
             shared: { type: "String" }, right: { type: "Int32" }
         }
     },
+    abstract: { type: "object", isAbstract: true, derivedTypes: ["left", "right"], properties: {} },
+    interface: { type: "object", isAbstract: true, derivedTypes: ["left", "right"], properties: {} },
     unrelated: { type: "object", properties: {} },
     legacy: { type: "object", properties: {} },
     narrow: { type: "object", derivedTypes: [], properties: {} }
@@ -51,6 +53,28 @@ test.each(["unrelated", "unknown", "String"])("annotated contracts reject runtim
 
 test.each([0, 1, false, "", [], "value"])("annotated contracts reject non-object value %p", value => {
     expect(tryCoerce(value, "base").isError).toBe(true);
+});
+
+test.each(["abstract", "interface"])("%s contracts require an explicit concrete subtype", type => {
+    expect(tryCoerce({ $type: type }, type).isError).toBe(true);
+    expect(tryCoerce({}, type).isError).toBe(true);
+    expect(tryCoerce({ $type: null }, type).isError).toBe(true);
+    expect(tryCoerce({ $type: "unrelated" }, type).isError).toBe(true);
+    expect(coerce(left, type)).toBe(left);
+    expect(coerce(right, type)).toBe(right);
+    expect(coerce(null, type)).toBeNull();
+    expect(coerce(undefined, type)).toBeNull();
+});
+
+test("directly declared registered leaves enforce their exact contract", () => {
+    expect(coerce(left, "left")).toBe(left);
+    expect(tryCoerce(right, "left").isError).toBe(true);
+    expect(tryCoerce(right, "left", right).isError).toBe(true);
+    const state = new StateManager<any>(left);
+    expect(() => state.setState(right)).toThrow();
+    state.doUpdateNow();
+    expect(state.state).toEqual(left);
+    expect(coerce(right, "legacy")).toBe(right);
 });
 
 test("unannotated and dynamic contracts retain permissive runtime typing", () => {
@@ -191,6 +215,64 @@ test("client switches allow signed and encrypted descendant properties", () => {
     state.doUpdateNow();
     expect(state.state.item.secret).toBe("client");
     expect(serialize((state.stateObservable() as any).item)).toEqual(right);
+});
+
+test.each([
+    ["$kind", "String", "right", "left"],
+    ["kind", "Int32", 2, 1]
+])("declared output-only discriminator %s is preserved without controlling runtime type", (property, type, discriminator, editedDiscriminator) => {
+    const name = property as string;
+    updateTypeInfo({
+        right: {
+            ...metadata.right as ObjectTypeMetadata,
+            properties: {
+                ...(metadata.right as ObjectTypeMetadata).properties,
+                [name]: { type: type as string, post: "no" }
+            }
+        }
+    });
+    const replacement = { ...right, [name]: discriminator };
+    expect(coerce(replacement, "base", left)).toEqual(replacement);
+    const state = new StateManager<any>({ $type: "root", item: left, items: [] });
+    state.patchState({ item: replacement });
+    state.doUpdateNow();
+    const item = (state.stateObservable() as any).item;
+    expect(state.state.item[name]).toBe(discriminator);
+    expect(item()[name]()).toBe(discriminator);
+    item()[name](editedDiscriminator);
+    expect(state.state.item.$type).toBe("right");
+    expect(state.state.item[name]).toBe(editedDiscriminator);
+    expect(isType(item, "right")).toBe(true);
+    expect(isType(item, "left")).toBe(false);
+    expect(serialize(item)).toEqual(right);
+    expect(serialize(item, { serializeAll: true })).toEqual({ ...right, [name]: editedDiscriminator });
+});
+
+test.each([
+    ["$kind", "right", "left"],
+    ["kind", 2, 1]
+])("undeclared custom discriminator %s survives subtype replacement", (property, discriminator, editedDiscriminator) => {
+    const name = property as string;
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+        const replacement = { ...right, [name]: discriminator };
+        expect(coerce(replacement, "base", left)).toEqual(replacement);
+        const state = new StateManager<any>({
+            $type: "root", item: { ...left, [name]: editedDiscriminator }, items: []
+        });
+        state.patchState({ item: replacement });
+        state.doUpdateNow();
+        const item = (state.stateObservable() as any).item;
+        expect(state.state.item[name]).toBe(discriminator);
+        expect(item()[name]()).toBe(discriminator);
+        item()[name](editedDiscriminator);
+        expect(state.state.item.$type).toBe("right");
+        expect(isType(item, "right")).toBe(true);
+        expect(isType(item, "left")).toBe(false);
+        expect(serialize(item)).toEqual({ ...right, [name]: editedDiscriminator });
+    } finally {
+        warn.mockRestore();
+    }
 });
 
 test("runtime helpers use CLR base types, not allowed serialization descendants", () => {

@@ -45,6 +45,6 @@
         Client-side subtype changes are allowed, but a protected payload associated with
         another concrete subtype fails server deserialization.</p>
     <p>{{value: (ProtectedItem as PolymorphicProtectedTextItem).SignedText}}</p>
-    <pre data-ui="viewmodel-json" data-bind="text: JSON.stringify(dotvvm.serialization.serialize($data), null, 2)"></pre>
+    <pre data-ui="viewmodel-json" data-bind="text: JSON.stringify(dotvvm.serialization.serialize($data, { serializeAll: true }), null, 2)"></pre>
 </body>
 </html>

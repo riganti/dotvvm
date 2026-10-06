@@ -119,6 +119,17 @@ namespace DotVVM.Framework.Tests.ViewModel
                 result[typeof(RecursivePolymorphicCase).GetTypeHash()]["properties"]["Child"]["type"].GetValue<string>());
         }
 
+        [TestMethod]
+        public void ViewModelTypeMetadata_CustomDiscriminatorDoesNotAddSyntheticProperties()
+        {
+            var serializer = new ViewModelTypeMetadataSerializer(mapper);
+            var result = SerializeMetadata(serializer, [typeof(SerializerTests.CustomPolymorphicBase)]);
+            var property = result[typeof(SerializerTests.CustomPolymorphicFirst).GetTypeHash()]["properties"]["kind"];
+            Assert.IsNull(property);
+            var selfResult = SerializeMetadata(serializer, [typeof(SerializerTests.CustomSelfPolymorphicBase)]);
+            Assert.IsNull(selfResult[typeof(SerializerTests.CustomSelfPolymorphicBase).GetTypeHash()]["properties"]["kind"]);
+        }
+
         [JsonDerivedType(typeof(RecursivePolymorphicCase))]
         public abstract class RecursivePolymorphicBase { }
         public class RecursivePolymorphicCase : RecursivePolymorphicBase

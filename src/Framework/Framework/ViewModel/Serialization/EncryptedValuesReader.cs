@@ -91,6 +91,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     ThrowSecurityError();
                 json.Remove("$type");
             }
+            else if (json.Count > 0)
+            {
+                ThrowSecurityError();
+            }
         }
 
         public void EndSuppress()

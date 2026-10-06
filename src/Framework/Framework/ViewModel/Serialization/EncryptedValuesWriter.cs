@@ -131,9 +131,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
             EnsureObjectStarted();
             WritePropertyName(propertyIndex);
             lastPropertyIndex = propertyIndex;
+            if (!JsonPolymorphismInfo.ContainsPolymorphism(type))
+            {
+                JsonSerializer.Serialize(writer, value, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+                return;
+            }
             Suppress();
             try
             {
+                if (value is not null && (!ViewModelJsonConverter.CanConvertType(type) || !JsonPolymorphismInfo.IsPolymorphic(type)))
+                    type = value.GetType();
                 JsonSerializer.Serialize(writer, value, type, options);
             }
             finally
@@ -142,7 +149,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        public void WriteValue(int propertyIndex, object value) =>
-            WriteValue(propertyIndex, value, value?.GetType() ?? typeof(object), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+        public void WriteValue(int propertyIndex, object value)
+        {
+            if (suppress > 0) return;
+            EnsureObjectStarted();
+            WritePropertyName(propertyIndex);
+            lastPropertyIndex = propertyIndex;
+            JsonSerializer.Serialize(writer, value, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+        }
     }
 }

@@ -630,6 +630,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 {
                     if (stopAtConditional)
                     {
+                        // A '?' followed by an expression and ':' belongs to a conditional, not the type.
                         var restorePoint = SetRestorePoint();
                         bool conditional;
                         try

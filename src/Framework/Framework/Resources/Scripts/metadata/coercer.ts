@@ -34,6 +34,9 @@ export function tryCoerce(value: any, type: TypeDefinition | null | undefined, o
         if (value != null && expectedInfo?.type === "object" && expectedInfo.derivedTypes !== undefined && (typeof value !== "object" || Array.isArray(value))) {
             return CoerceError.generic(value, type!);
         }
+        if (value != null && expectedInfo?.type === "object" && expectedInfo.derivedTypes !== undefined && expectedInfo.isAbstract && (value.$type == null || value.$type === type)) {
+            return new CoerceError(`An explicit concrete '$type' is required for '${formatTypeName(type!)}'.`);
+        }
         if (value) {
             if (expectedInfo?.type === "object" && expectedInfo.derivedTypes !== undefined && value.$type != null && value.$type !== type) {
                 const actualInfo = getCurrentTypeMap()[value.$type];
