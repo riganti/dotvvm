@@ -30,11 +30,11 @@ namespace DotVVM.Samples.Tests.Control
                 }
 
                 // make sure we are signed out
-                browser.First("input[value='Sign Out']").Click();
+                browser.First("input[value='Sign Out']").ClickAndWaitForPageLoad();
                 AssertAuthenticationState("I am not authenticated!");
-                browser.First("input[value='Sign In']").Click();
+                browser.First("input[value='Sign In']").ClickAndWaitForPageLoad();
                 AssertAuthenticationState("I am authenticated!");
-                browser.First("input[value='Sign Out']").Click();
+                browser.First("input[value='Sign Out']").ClickAndWaitForPageLoad();
                 AssertAuthenticationState("I am not authenticated!");
             });
         }
