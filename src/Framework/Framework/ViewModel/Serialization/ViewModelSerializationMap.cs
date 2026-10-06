@@ -694,6 +694,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private Expression DeserializePropertyValue(ViewModelPropertyMap property, Expression reader, Expression existingValue, Expression jsonOptions, Expression dotvvmState)
         {
+            ValidateDynamicDispatch(property);
             var type = existingValue.Type;
             Debug.Assert(type.UnwrapNullableType() == property.Type.UnwrapNullableType(), $"{type} != {property.Type}, property: {property.PropertyInfo.DeclaringType}.{property.Name}");
 
@@ -749,6 +750,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private Expression GetSerializeExpression(ViewModelPropertyMap property, Expression writer, Expression value, Expression jsonOptions, Expression dotvvmState)
         {
+            ValidateDynamicDispatch(property);
             Debug.Assert(jsonOptions.Type == typeof(JsonSerializerOptions));
             Debug.Assert(dotvvmState.Type == typeof(DotvvmSerializationState));
             Debug.Assert(value.Type.UnwrapNullableType() == property.Type.UnwrapNullableType(), $"{value.Type} != {property.Type}");
@@ -801,6 +803,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
 
             return Call(JsonSerializationCodegenFragments.SerializeValueMethod.MakeGenericMethod(value.Type), writer, jsonOptions, value, Constant(property.AllowDynamicDispatch && !value.Type.IsSealed));
+        }
+
+        private static void ValidateDynamicDispatch(ViewModelPropertyMap property)
+        {
+            if (property.AllowDynamicDispatch && JsonPolymorphismInfo.IsParticipatingType(property.Type))
+                throw new NotSupportedException($"Property '{property.PropertyInfo.DeclaringType?.ToCode()}.{property.Name}' cannot combine registered polymorphism with AllowDynamicDispatch.");
         }
     }
 

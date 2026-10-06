@@ -36,6 +36,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             type.IsDefined(typeof(JsonPolymorphicAttribute), false) ||
             type.IsDefined(typeof(JsonDerivedTypeAttribute), false);
 
+        internal static bool IsParticipatingType(Type type)
+        {
+            if (ReflectionUtils.IsNullable(type))
+                type = ReflectionUtils.UnwrapNullableType(type);
+            return ViewModelJsonConverter.CanConvertType(type) &&
+                (IsPolymorphic(type) || GetRegisteredContracts(type).Any());
+        }
+
         internal static IEnumerable<JsonPolymorphismInfo> GetRegisteredContracts(Type type)
         {
             var ancestors = type.GetInterfaces().AsEnumerable();

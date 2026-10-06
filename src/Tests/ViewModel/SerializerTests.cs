@@ -1922,6 +1922,35 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void Polymorphism_RejectsCustomizedDynamicDispatch()
+        {
+            var holder = new DeclaredDerivedHolder { Value = new PolymorphicFirstExtension { First = 23 } };
+            var json = Serialize(new DeclaredDerivedHolder { Value = new PolymorphicFirst { First = 23 } }, out _);
+            var map = Config.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>().GetMap<DeclaredDerivedHolder>();
+            var property = map.Properties.Single(p => p.Name == "Value");
+            var original = property.AllowDynamicDispatch;
+            try
+            {
+                property.AllowDynamicDispatch = true;
+                map.ResetFunctions();
+                foreach (var action in new Action[] {
+                    () => Serialize(holder, out _),
+                    () => Deserialize<DeclaredDerivedHolder>(json),
+                    () => PopulateViewModel(json, holder)
+                })
+                {
+                    var error = XAssert.ThrowsAny<Exception>(action);
+                    StringAssert.Contains(error.GetBaseException().Message, "cannot combine registered polymorphism with AllowDynamicDispatch");
+                }
+            }
+            finally
+            {
+                property.AllowDynamicDispatch = original;
+                map.ResetFunctions();
+            }
+        }
+
+        [TestMethod]
         public void Polymorphism_AuthenticatesProtectedLayout()
         {
             var json = Serialize(new ProtectedPolymorphicHolder {
@@ -2039,6 +2068,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         [JsonDerivedType(typeof(PolymorphicSecond))]
         public abstract class PolymorphicBase { public string Common { get; set; } }
         public class PolymorphicFirst : PolymorphicBase { public int First { get; set; } }
+        public class PolymorphicFirstExtension : PolymorphicFirst { }
         public class PolymorphicSecond : PolymorphicBase { public string Second { get; set; } }
         public class PolymorphicUnregistered : PolymorphicBase { public int Surprise { get; set; } }
         public class PolymorphicContainers
