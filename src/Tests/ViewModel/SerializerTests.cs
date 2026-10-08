@@ -1251,45 +1251,38 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [DataTestMethod]
-        [DataRow(DateTimeKind.Local, "'Local'", true)]
-        [DataRow(TestViewModelWithEnums.ByteEnum.A, "'A'", true)]
-        [DataRow(TestViewModelWithEnums.ByteEnum.B, "'B'", true)]
-        [DataRow(TestViewModelWithEnums.ByteEnum.C, "'C'", true)]
-        [DataRow((TestViewModelWithEnums.ByteEnum)45, "45", false)]
-        [DataRow(TestViewModelWithEnums.Int16Enum.A, "'A'", true)]
-        [DataRow(TestViewModelWithEnums.Int16Enum.B, "'B'", true)]
-        [DataRow((TestViewModelWithEnums.Int16Enum)(-6), "-6", false)]
-        [DataRow(TestViewModelWithEnums.EnumMemberEnum.A, "'member-a'", true)]
-        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.A, "'A'", true)]
-        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.B, "'A'", true)]
-        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.C, "'C'", true)]
-        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.DAndAlsoLonger, "'D'", true)]
-        [DataRow((TestViewModelWithEnums.DuplicateNameEnum)3, "3", false)]
-        [DataRow(TestViewModelWithEnums.Int32FlagsEnum.ABC, "'a+b+c'", true)]
-        [DataRow(TestViewModelWithEnums.Int32FlagsEnum.A | TestViewModelWithEnums.Int32FlagsEnum.BCD, "'b+c+d, a'", true)]
-        [DataRow(TestViewModelWithEnums.Int32FlagsEnum.Everything, "'everything'", true)]
-        [DataRow((TestViewModelWithEnums.Int32FlagsEnum)2356543, "2356543", true)] // allowed because Everything = -1 covers its bits (can be changed in future though)
-        [DataRow((TestViewModelWithEnums.Int32FlagsEnum)0, "0", true)]
-        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)0, "0", true)]
-        [DataRow(TestViewModelWithEnums.UInt64FlagsEnum.F1 | TestViewModelWithEnums.UInt64FlagsEnum.F2 | TestViewModelWithEnums.UInt64FlagsEnum.F64, "'F64, F2, F1'", true)]
-        [DataRow(TestViewModelWithEnums.UInt64FlagsEnum.F64, "'F64'", true)]
-        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)12 | TestViewModelWithEnums.UInt64FlagsEnum.F64, "9223372036854775820", false)]
-        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)ulong.MaxValue, "18446744073709551615", false)]
-        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)2356543, "2356543", false)]
-        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)0, "0", true)]
-        public void TestEnumSerialization(object enumValue, string serializedValue, bool canDeserialize)
+        [DataRow(DateTimeKind.Local, "'Local'")]
+        [DataRow(TestViewModelWithEnums.ByteEnum.A, "'A'")]
+        [DataRow(TestViewModelWithEnums.ByteEnum.B, "'B'")]
+        [DataRow(TestViewModelWithEnums.ByteEnum.C, "'C'")]
+        [DataRow((TestViewModelWithEnums.ByteEnum)45, "45")]
+        [DataRow(TestViewModelWithEnums.Int16Enum.A, "'A'")]
+        [DataRow(TestViewModelWithEnums.Int16Enum.B, "'B'")]
+        [DataRow((TestViewModelWithEnums.Int16Enum)(-6), "-6")]
+        [DataRow(TestViewModelWithEnums.EnumMemberEnum.A, "'member-a'")]
+        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.A, "'A'")]
+        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.B, "'A'")]
+        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.C, "'C'")]
+        [DataRow(TestViewModelWithEnums.DuplicateNameEnum.DAndAlsoLonger, "'D'")]
+        [DataRow((TestViewModelWithEnums.DuplicateNameEnum)3, "3")]
+        [DataRow(TestViewModelWithEnums.Int32FlagsEnum.ABC, "'a+b+c'")]
+        [DataRow(TestViewModelWithEnums.Int32FlagsEnum.A | TestViewModelWithEnums.Int32FlagsEnum.BCD, "'b+c+d, a'")]
+        [DataRow(TestViewModelWithEnums.Int32FlagsEnum.Everything, "'everything'")]
+        [DataRow((TestViewModelWithEnums.Int32FlagsEnum)2356543, "2356543")] // allowed because Everything = -1 covers its bits (can be changed in future though)
+        [DataRow((TestViewModelWithEnums.Int32FlagsEnum)0, "0")]
+        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)0, "0")]
+        [DataRow(TestViewModelWithEnums.UInt64FlagsEnum.F1 | TestViewModelWithEnums.UInt64FlagsEnum.F2 | TestViewModelWithEnums.UInt64FlagsEnum.F64, "'F64, F2, F1'")]
+        [DataRow(TestViewModelWithEnums.UInt64FlagsEnum.F64, "'F64'")]
+        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)12 | TestViewModelWithEnums.UInt64FlagsEnum.F64, "9223372036854775820")]
+        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)ulong.MaxValue, "18446744073709551615")]
+        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)2356543, "2356543")]
+        [DataRow((TestViewModelWithEnums.UInt64FlagsEnum)0, "0")]
+        public void TestEnumSerialization(object enumValue, string serializedValue)
         {
             var json = JsonSerializer.Serialize(enumValue, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
             Assert.AreEqual(serializedValue.Replace("'", "\""), json);
-            if (canDeserialize)
-            {
-                var deserialized = JsonSerializer.Deserialize(json, enumValue.GetType(), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
-                Assert.AreEqual(enumValue, deserialized);
-            }
-            else
-            {
-                XAssert.ThrowsAny<Exception>(() => JsonSerializer.Deserialize(json, enumValue.GetType(), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
-            }
+            var deserialized = JsonSerializer.Deserialize(json, enumValue.GetType(), DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+            Assert.AreEqual(enumValue, deserialized);
         }
 
         [TestMethod]
@@ -1340,7 +1333,6 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [DataTestMethod]
-        [DataRow("1")]
         [DataRow("\"\"")]
         [DataRow("\"Unknown\"")]
         public void TestEmptyEnumDeserialization_RejectsValues(string json)

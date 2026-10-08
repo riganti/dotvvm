@@ -65,30 +65,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 nameToEnum[field.Key] = array;
             }
 
-            ulong allowedBitMap = 0;
-            if (!isFlags)
-            {
-                foreach (var field in fieldsDedup)
-                {
-                    var bits = ToBits(field.Value);
-                    if (bits <= 64)
-                        allowedBitMap |= 1UL << (int)bits;
-                }
-            }
-            else
-            {
-                foreach (var field in fieldsDedup)
-                    allowedBitMap |= ToBits(field.Value);
-            }
-
             if (isFlags && isSigned)
-                return new InnerConverter<TEnum, True, True>(fieldsDedup, enumToName, nameToEnum, maxNameLen, allowedBitMap);
+                return new InnerConverter<TEnum, True, True>(fieldsDedup, enumToName, nameToEnum, maxNameLen);
             if (isFlags && !isSigned)
-                return new InnerConverter<TEnum, True, False>(fieldsDedup, enumToName, nameToEnum, maxNameLen, allowedBitMap);
+                return new InnerConverter<TEnum, True, False>(fieldsDedup, enumToName, nameToEnum, maxNameLen);
             if (!isFlags && isSigned)
-                return new InnerConverter<TEnum, False, True>(fieldsDedup, enumToName, nameToEnum, maxNameLen, allowedBitMap);
+                return new InnerConverter<TEnum, False, True>(fieldsDedup, enumToName, nameToEnum, maxNameLen);
             if (!isFlags && !isSigned)
-                return new InnerConverter<TEnum, False, False>(fieldsDedup, enumToName, nameToEnum, maxNameLen, allowedBitMap);
+                return new InnerConverter<TEnum, False, False>(fieldsDedup, enumToName, nameToEnum, maxNameLen);
             throw new NotSupportedException();
         }
         
@@ -110,8 +94,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             (TEnum Value, byte[] Name)[] fields, // sorted by value (ulong), descending
             Dictionary<TEnum, byte[]> enumToName,
             (TEnum Value, byte[] Name)[]?[] nameToEnum, // grouped by length, sorted by name
-            int maxNameLen,
-            ulong allowedBitMap // bitmap for first 64 non-flags, or all possible flags combined
+            int maxNameLen
         ) : JsonConverter<TEnum>
             where TEnum : unmanaged, Enum
         {
@@ -171,22 +154,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (reader.TokenType == JsonTokenType.Number)
                 {
                     var number = ReadNumber(ref reader);
-                    if (typeof(IsFlags) == typeof(True))
-                    {
-                        if ((ToBits(number) & ~allowedBitMap) > 0)
-                            ThrowInvalidEnumValue(number);
-                    }
-                    else
-                    {
-                        bool isValid;
-                        if (ToBits(number) <= 64)
-                            isValid = (allowedBitMap & (1UL << (int)ToBits(number))) != 0;
-                        else
-                            isValid = enumToName.ContainsKey(number);
-                        if (!isValid)
-                            ThrowInvalidEnumValue(number);
-                    }
-
                     return number;
                 }
                 else if (reader.TokenType == JsonTokenType.String)
