@@ -161,6 +161,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     // TODO: allow numbers in string?
                     if (typeof(IsFlags) == typeof(False))
                     {
+                        if (!reader.HasValueSequence && !reader.ValueIsEscaped)
+                            return FindEnumName(reader.ValueSpan);
                         Span<byte> name = maxNameLen < 512 ? stackalloc byte[maxNameLen + 1] : new byte[maxNameLen + 1];
                         int length;
                         try
