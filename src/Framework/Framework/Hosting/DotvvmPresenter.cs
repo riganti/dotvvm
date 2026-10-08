@@ -206,16 +206,9 @@ namespace DotVVM.Framework.Hosting
                     {
                         postData = await stream.ReadToMemoryAsync();
                     }
-                    ViewModelSerializer.PopulateViewModel(context, postData);
 
-                    // run OnViewModelDeserialized on action filters
-                    foreach (var filter in viewModelFilters)
-                    {
-                        await filter.OnViewModelDeserializedAsync(context);
-                    }
-                    await requestTracer.TraceEvent(RequestTracingConstants.ViewModelDeserialized, context);
-
-                    // validate CSRF token
+                    context.ReceivedViewModelJson = JsonDocument.Parse(postData);
+                    context.CsrfToken = ExtractCsrfToken(context.ReceivedViewModelJson.RootElement);
                     try
                     {
                         CsrfProtector.VerifyToken(context, context.CsrfToken.NotNull());
@@ -224,6 +217,15 @@ namespace DotVVM.Framework.Hosting
                     {
                         await context.InterruptRequestAsync(HttpStatusCode.BadRequest, exc.Message);
                     }
+
+                    ViewModelSerializer.PopulateViewModel(context, postData);
+
+                    // run OnViewModelDeserialized on action filters
+                    foreach (var filter in viewModelFilters)
+                    {
+                        await filter.OnViewModelDeserializedAsync(context);
+                    }
+                    await requestTracer.TraceEvent(RequestTracingConstants.ViewModelDeserialized, context);
 
                     if (context.ViewModel is IDotvvmViewModel)
                     {
@@ -587,6 +589,12 @@ namespace DotVVM.Framework.Hosting
             }
             else
                 throw new Exception($"Unsupported Content-Encoding {encoding}");
+        }
+
+        private static string? ExtractCsrfToken(JsonElement root)
+        {
+            var viewModel = root.GetPropertyOrNull("viewModelDiff"u8) ?? root.GetProperty("viewModel"u8);
+            return viewModel.GetPropertyOrNull("$csrfToken"u8)?.GetString();
         }
 
         [Obsolete("Use context.RequestType == DotvvmRequestType.StaticCommand")]

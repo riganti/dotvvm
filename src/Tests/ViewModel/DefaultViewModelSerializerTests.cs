@@ -90,6 +90,20 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
+        public void PopulateViewModel_ReusesReceivedJsonDocument()
+        {
+            var postData = StringUtils.Utf8.GetBytes("{\"viewModel\":{\"Property1\":\"value\"}}");
+            using var document = JsonDocument.Parse(postData);
+            context.ReceivedViewModelJson = document;
+            context.ViewModel = new TestViewModel();
+
+            serializer.PopulateViewModel(context, postData);
+
+            Assert.AreSame(document, context.ReceivedViewModelJson);
+            Assert.AreEqual("value", ((TestViewModel)context.ViewModel).Property1);
+        }
+
+        [TestMethod]
         public void Serializer_Valid_ExistingValueNotReplaced()
         {
             var json = SerializeViewModel(new TestViewModel12 { Property = new TestViewModel13 { MyProperty = 56 } });
