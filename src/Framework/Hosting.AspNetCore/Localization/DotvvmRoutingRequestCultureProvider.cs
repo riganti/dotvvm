@@ -23,7 +23,7 @@ public class DotvvmRoutingRequestCultureProvider : IRequestCultureProvider
         EnsureCachedRoutes(httpContext);
 
         // find matching localizable route and extract culture from it
-        var url = DotvvmRoutingMiddleware.GetRouteMatchUrl(httpContext.Request.Path.Value!, httpContext.Request.QueryString.Value!);
+        var url = httpContext.Request.Path.Value?.Trim('/') ?? "";
         foreach (var route in cachedRoutes!)
         {
             if (route.IsPartialMatch(url, out _, out var values, out var matchedCulture))
