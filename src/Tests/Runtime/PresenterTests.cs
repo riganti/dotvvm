@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using CheckTestOutput;
@@ -18,6 +19,7 @@ using DotVVM.Framework.Testing;
 using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -115,6 +117,30 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(9876, ((TestViewModel)context.ViewModel).IntProp);
         }
 
+        [TestMethod]
+        public async Task InvalidCsrfTokenDoesNotPopulateViewModel()
+        {
+            var files = new FakeMarkupFileLoader();
+            var testConfiguration = DotvvmTestHelper.CreateConfiguration(s => {
+                s.AddSingleton<IMarkupFileLoader>(files);
+                s.AddSingleton<ICsrfProtector, RejectingCsrfProtector>();
+            });
+            files.MarkupFiles["Default.dothtml"] = $"@viewModel {typeof(TestViewModel).FullName}";
+            testConfiguration.RouteTable.Add("Default", "", "Default.dothtml", null);
+            testConfiguration.Freeze();
+
+            var testPresenter = testConfiguration.ServiceProvider.GetRequiredService<DotvvmPresenter>();
+            var context = DotvvmTestHelper.CreateContext(testConfiguration, testConfiguration.RouteTable["Default"], DotvvmRequestType.Command);
+            var httpContext = (TestHttpContext)context.HttpContext;
+            httpContext.Request.Headers["Content-Type"] = new [] {"application/json"};
+            httpContext.Request.Method = "POST";
+            httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes("{\"viewModel\":{\"IntProp\":9876,\"$csrfToken\":\"invalid\"}}"));
+
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => testPresenter.ProcessRequest(context));
+
+            Assert.AreEqual(0, ((TestViewModel)context.ViewModel).IntProp);
+        }
+
         Stream Compress(string data)
         {
             var ms = new MemoryStream();
@@ -131,6 +157,13 @@ namespace DotVVM.Framework.Tests.Runtime
         public static int StaticCommand()
         {
             return 123;
+        }
+
+        private sealed class RejectingCsrfProtector : ICsrfProtector
+        {
+            public string GenerateToken(IDotvvmRequestContext context) => "valid";
+
+            public void VerifyToken(IDotvvmRequestContext context, string token) => throw new SecurityException();
         }
     }
 }

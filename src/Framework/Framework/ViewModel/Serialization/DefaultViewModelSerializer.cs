@@ -412,7 +412,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public void PopulateViewModel(IDotvvmRequestContext context, ReadOnlyMemory<byte> serializedPostData)
         {
             // get properties
-            var vmDocument = context.ReceivedViewModelJson = JsonDocument.Parse(serializedPostData);
+            var vmDocument = context.ReceivedViewModelJson ??= JsonDocument.Parse(serializedPostData);
             var root = vmDocument.RootElement;
             JsonElement viewModelElement;
             ReadOnlyMemory<byte>? cachedViewModel = null;
