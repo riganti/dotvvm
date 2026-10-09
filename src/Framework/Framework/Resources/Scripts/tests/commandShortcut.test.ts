@@ -13,20 +13,18 @@ test("document shortcut matches key and modifiers", () => {
     const command = jest.fn(() => Promise.resolve());
     const marker = document.createComment("shortcut");
     document.body.appendChild(marker);
-    handler.init(marker, () => ({
-        command,
-        key: "S",
-        ctrl: true,
-        shift: true,
-        alt: false,
-        enabled: true
-    }));
+    handler.init(marker, () => [{
+        command, key: "S", ctrl: true, shift: true, alt: false, enabled: true
+    }]);
 
     const event = keydown(document, { keyCode: 83, ctrlKey: true, shiftKey: true, cancelable: true });
     expect(command).toHaveBeenCalledTimes(1);
     expect(event.defaultPrevented).toBe(true);
 
     keydown(document, { keyCode: 83, ctrlKey: true });
+    expect(command).toHaveBeenCalledTimes(1);
+
+    keydown(document, { keyCode: 83, ctrlKey: true, shiftKey: true, metaKey: true });
     expect(command).toHaveBeenCalledTimes(1);
 
     ko.removeNode(marker);
@@ -39,15 +37,9 @@ test("targeted shortcut only handles events from the target", () => {
     const command = jest.fn(() => Promise.resolve());
     const marker = document.createComment("shortcut");
     document.body.appendChild(marker);
-    handler.init(marker, () => ({
-        command,
-        key: "Enter",
-        ctrl: true,
-        shift: false,
-        alt: false,
-        enabled: true,
-        targetId: "scope"
-    }));
+    handler.init(document.getElementById("scope")!, () => [{
+        command, key: "Enter", ctrl: true, shift: false, alt: false, enabled: true
+    }]);
 
     keydown(document.getElementById("outside")!, { keyCode: 13, ctrlKey: true, bubbles: true });
     expect(command).not.toHaveBeenCalled();
@@ -60,46 +52,37 @@ test("disabled shortcut does not invoke command", () => {
     const command = jest.fn(() => Promise.resolve());
     const marker = document.createComment("shortcut");
     document.body.appendChild(marker);
-    handler.init(marker, () => ({
-        command,
-        key: "Escape",
-        ctrl: false,
-        shift: false,
-        alt: false,
-        enabled: ko.observable(false)
-    }));
+    handler.init(marker, () => [{
+        command, key: "Escape", ctrl: false, shift: false, alt: false, enabled: ko.observable(false)
+    }]);
 
     keydown(document, { keyCode: 27 });
     expect(command).not.toHaveBeenCalled();
 });
 
-test("same-scope shortcuts all run and targeted shortcuts do not propagate", () => {
+test("same-scope shortcuts all run and targeted shortcuts do not propagate", async () => {
     document.body.innerHTML = "<div id='scope'><input id='inside'></div><input id='outside'>";
     const targetCommands = [jest.fn(() => Promise.resolve()), jest.fn(() => Promise.resolve())];
     const documentCommands = [jest.fn(() => Promise.resolve()), jest.fn(() => Promise.resolve())];
-    const markers = [...targetCommands.map(command => ({ command, targetId: "scope" })), ...documentCommands.map(command => ({ command }))].map(props => {
-        const marker = document.createComment("shortcut");
-        document.body.appendChild(marker);
-        handler.init(marker, () => ({
-            ...props,
-            key: "K",
-            ctrl: false,
-            shift: false,
-            alt: false,
-            enabled: true
-        }));
-        return marker;
+    const marker = document.createComment("shortcut");
+    document.body.appendChild(marker);
+    const props = (command: () => Promise<void>) => ({
+        command, key: "K", ctrl: false, shift: false, alt: false, enabled: true
     });
+    handler.init(document.getElementById("scope")!, () => targetCommands.map(props));
+    handler.init(marker, () => documentCommands.map(props));
 
     keydown(document.getElementById("inside")!, { keyCode: 75, bubbles: true });
+    await Promise.resolve();
     expect(targetCommands[0]).toHaveBeenCalledTimes(1);
     expect(targetCommands[1]).toHaveBeenCalledTimes(1);
     expect(documentCommands[0]).not.toHaveBeenCalled();
     expect(documentCommands[1]).not.toHaveBeenCalled();
 
     keydown(document.getElementById("outside")!, { keyCode: 75, bubbles: true });
+    await Promise.resolve();
     expect(documentCommands[0]).toHaveBeenCalledTimes(1);
     expect(documentCommands[1]).toHaveBeenCalledTimes(1);
 
-    markers.forEach(marker => ko.removeNode(marker));
+    ko.removeNode(marker);
 });

@@ -4,8 +4,7 @@ type CommandShortcutProps = {
     ctrl: boolean | KnockoutObservable<boolean>,
     shift: boolean | KnockoutObservable<boolean>,
     alt: boolean | KnockoutObservable<boolean>,
-    enabled: boolean | KnockoutObservable<boolean>,
-    targetId?: string
+    enabled: boolean | KnockoutObservable<boolean>
 }
 
 ko.virtualElements.allowedBindings["dotvvm-command-shortcut"] = true;
@@ -56,27 +55,26 @@ function getKeyCode(key: string) {
 
 export default {
     "dotvvm-command-shortcut": {
-        init(element: Node, valueAccessor: () => CommandShortcutProps) {
-            const target = valueAccessor().targetId
-                ? document.getElementById(valueAccessor().targetId!)
-                : document;
-
-            if (!target) {
-                throw new Error(`The CommandShortcut target '${valueAccessor().targetId}' was not found.`);
-            }
-
+        init(element: Node, valueAccessor: () => CommandShortcutProps[]) {
+            const target = element.nodeType === Node.ELEMENT_NODE ? element : document;
             const handler = async (event: Event) => {
                 const keyboardEvent = event as KeyboardEvent;
-                const props = valueAccessor();
-                if (ko.unwrap(props.enabled)
+                const matches = valueAccessor().filter(props =>
+                    ko.unwrap(props.enabled)
                     && keyboardEvent.keyCode === getKeyCode(ko.unwrap(props.key))
                     && keyboardEvent.ctrlKey === ko.unwrap(props.ctrl)
                     && keyboardEvent.shiftKey === ko.unwrap(props.shift)
-                    && keyboardEvent.altKey === ko.unwrap(props.alt)) {
-                    if (target !== document) {
-                        keyboardEvent.stopPropagation();
-                    }
-                    keyboardEvent.preventDefault();
+                    && keyboardEvent.altKey === ko.unwrap(props.alt)
+                    && !keyboardEvent.metaKey);
+                if (matches.length === 0) {
+                    return;
+                }
+
+                if (target !== document) {
+                    keyboardEvent.stopPropagation();
+                }
+                keyboardEvent.preventDefault();
+                for (const props of matches) {
                     try {
                         await props.command.call(target);
                     } catch (err) {
