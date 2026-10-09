@@ -52,6 +52,31 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
+        [DataRow(false, "a[b]", "a.b(4,5)", "a.b(4, 5)")]
+        [DataRow(true, "a?.[b]", "a.b?.(4,5)", "a.b?.(4, 5)")]
+        public void JsFormatter_OptionalIndexerAndInvocation(bool optional, string indexerCode, string invocationCode, string niceInvocationCode)
+        {
+            var indexer = new JsIndexerExpression(new JsIdentifierExpression("a"), new JsIdentifierExpression("b")) { IsOptional = optional };
+            var invocation = new JsInvocationExpression(new JsIdentifierExpression("a").Member("b"), new JsLiteral(4), new JsLiteral(5)) { IsOptional = optional };
+
+            AssertFormatting(indexerCode, indexer);
+            AssertFormatting(indexerCode, indexer, niceMode: true);
+            AssertFormatting(invocationCode, invocation);
+            AssertFormatting(niceInvocationCode, invocation, niceMode: true);
+        }
+
+        [TestMethod]
+        public void JsFormatter_OptionalChain()
+        {
+            var indexer = new JsIndexerExpression(
+                new JsIdentifierExpression("getArray").Invoke(),
+                new JsIdentifierExpression("getIndex").Invoke()) { IsOptional = true };
+            var invocation = new JsInvocationExpression(indexer, new JsIdentifierExpression("getArgument").Invoke()) { IsOptional = true };
+
+            AssertFormatting("getArray()?.[getIndex()]?.(getArgument()).value", invocation.Member("value"));
+        }
+
+        [TestMethod]
         public void JsFormatter_FunctionExpression()
         {
             var expr = new JsFunctionExpression(new[] { new JsIdentifier("a") }, new JsBlockStatement(new JsReturnStatement(new JsBinaryExpression(new JsIdentifierExpression("a"), BinaryOperatorType.Plus, new JsLiteral(2)))));
