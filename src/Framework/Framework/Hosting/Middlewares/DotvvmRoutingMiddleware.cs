@@ -16,45 +16,14 @@ namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class DotvvmRoutingMiddleware : IMiddleware
     {
-        private const string GooglebotHashbangEscapedFragment = "_escaped_fragment_=";
-        /// <summary>
-        /// Attempts to recognize request made by Googlebot in its effort to crawl links for AJAX SPAs.
-        /// </summary>
-        /// <param name="queryString">
-        /// The query string of the request to try to match the Googlebot hashbang escaped fragment on.
-        /// </param>
-        /// <param name="url">
-        /// The plain URL string that the hashbang escaped fragment represents.
-        /// </param>
-        /// <returns>
-        /// <code>true</code>, if the URL contains valid Googlebot hashbang escaped fragment; otherwise <code>false</code>.
-        /// </returns>
-        /// <see href="https://developers.google.com/webmasters/ajax-crawling/docs/getting-started"/>
-        private static bool TryParseGooglebotHashbangEscapedFragment(string queryString, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out string url)
-        {
-            // TODO: remove, does not work
-            if (queryString?.StartsWith(GooglebotHashbangEscapedFragment, StringComparison.Ordinal) == true)
-            {
-                url = queryString.Substring(GooglebotHashbangEscapedFragment.Length);
-                return true;
-            }
-
-            url = null!;
-            return false;
-        }
-
         public static string GetRouteMatchUrl(IDotvvmRequestContext context)
         {
-            return GetRouteMatchUrl(context.HttpContext.Request.Path.Value!, context.HttpContext.Request.Url.Query);
+            return context.HttpContext.Request.Path.Value?.Trim('/') ?? "";
         }
 
         public static string GetRouteMatchUrl(string requestPath, string queryString)
         {
-            if (!TryParseGooglebotHashbangEscapedFragment(queryString, out var url))
-            {
-                url = requestPath;
-            }
-            return url?.Trim('/') ?? "";
+            return requestPath?.Trim('/') ?? "";
         }
 
         internal static RouteBase? FindExactMatchRoute(IEnumerable<RouteBase> routes, string matchUrl, out IDictionary<string, object?>? parameters)
