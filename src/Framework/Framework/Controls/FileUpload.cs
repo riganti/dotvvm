@@ -315,7 +315,9 @@ namespace DotVVM.Framework.Controls
                 { "url", KnockoutHelper.MakeStringLiteral(context.TranslateVirtualPath(GetFileUploadHandlerUrl())) },
                 { "token", KnockoutHelper.MakeStringLiteral(GetFileUploadToken(context, control.GetValue(AllowedFileTypesProperty) as string, control.GetValue(MaxFileSizeProperty) as int?)) },
                 { "collection", control, property },
-                { "multiple", control, AllowMultipleFilesProperty }
+                { "multiple", control, AllowMultipleFilesProperty },
+                { "allowedFileTypes", control, AllowedFileTypesProperty },
+                { "maxFileSize", control, MaxFileSizeProperty }
             };
             writer.AddKnockoutDataBind("dotvvm-FileUpload-UploadOnPasteOrDrop", group);
         }
