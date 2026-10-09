@@ -7,7 +7,7 @@ beforeEach(() => jest.clearAllMocks());
 
 function dispatchFiles(eventType: string, files: File[], options: any = {}) {
     const element = document.createElement("textarea");
-    const collection = { patchState: jest.fn() };
+    const collection = options.collection ?? { patchState: jest.fn() };
     bindingHandlers["dotvvm-FileUpload-UploadOnPasteOrDrop"].init(element, () => ({
         collection, url: "/upload", token: "token", multiple: true, ...options
     }));
@@ -25,7 +25,7 @@ describe.each(["paste", "drop"])("%s file validation", eventType => {
         ], { maxFileSize: 1 });
         expect(uploadFiles).not.toHaveBeenCalled();
         expect(collection.patchState).toHaveBeenCalledWith({
-            IsBusy: false, Progress: 0, Error: "Uploaded file is too large."
+            Error: "Uploaded file is too large."
         });
     });
 
@@ -37,7 +37,7 @@ describe.each(["paste", "drop"])("%s file validation", eventType => {
         const collection = dispatchFiles(eventType, [new File(["file"], name, { type })], { allowedFileTypes });
         expect(uploadFiles).not.toHaveBeenCalled();
         expect(collection.patchState).toHaveBeenCalledWith({
-            IsBusy: false, Progress: 0, Error: "Uploaded file type is not allowed."
+            Error: "Uploaded file type is not allowed."
         });
     });
 
@@ -62,5 +62,16 @@ describe.each(["paste", "drop"])("%s file validation", eventType => {
     test("treats a zero size limit as a limit", () => {
         dispatchFiles(eventType, [new File(["file"], "file.txt")], { maxFileSize: 0 });
         expect(uploadFiles).not.toHaveBeenCalled();
+    });
+
+    test("preserves an ongoing upload and existing files when rejecting a file", () => {
+        const state = { IsBusy: true, Progress: 50, Files: [{ FileName: "existing.txt" }], Error: null };
+        const collection = { patchState: jest.fn(patch => Object.assign(state, patch)) };
+        dispatchFiles(eventType, [new File(["file"], "file.md")], { collection, allowedFileTypes: ".txt" });
+        expect(uploadFiles).not.toHaveBeenCalled();
+        expect(state).toEqual({
+            IsBusy: true, Progress: 50, Files: [{ FileName: "existing.txt" }],
+            Error: "Uploaded file type is not allowed."
+        });
     });
 });

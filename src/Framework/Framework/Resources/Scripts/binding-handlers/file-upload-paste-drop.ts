@@ -23,7 +23,7 @@ export default {
                         error = "Uploaded file type is not allowed.";
                     }
                     if (error) {
-                        collectionObservable.patchState({ IsBusy: false, Progress: 0, Error: error });
+                        collectionObservable.patchState({ Error: error });
                         return;
                     }
                 }
