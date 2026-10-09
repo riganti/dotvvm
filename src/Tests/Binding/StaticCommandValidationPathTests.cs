@@ -18,6 +18,9 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.Binding.Properties;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -140,8 +143,63 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
 
+        [TestMethod]
+        public async Task Validation_CompiledBinding_ConstantArgument()
+        {
+            var exception = await Assert.ThrowsExceptionAsync<DotvvmInvalidStaticCommandModelStateException>(() =>
+                InvokeCompiledBinding("s.Save('fixed', Text)", ""));
+
+            Assert.AreEqual("/Text", XAssert.Single(exception.StaticCommandModelState.Errors).PropertyPath);
+        }
+
+        [TestMethod]
+        public async Task Validation_CompiledBinding_InstanceReceiver()
+        {
+            var vm = new ValidationViewModel { Text = "valid" };
+            var result = await InvokeCompiledBinding("_this.Save(Text)", vm, vm.Text);
+
+            Assert.AreEqual("valid", result);
+        }
+
+        async Task<object> InvokeCompiledBinding(string expression, params object[] clientArguments)
+        {
+            var config = DotvvmTestHelper.CreateConfiguration(s => s.AddSingleton<ValidatedService>());
+            var binding = bindingHelper.StaticCommand(expression, new[] { typeof(ValidationViewModel) });
+            var call = binding.GetProperty<StaticCommandJsAstProperty>().Expression.DescendantNodesAndSelf()
+                .OfType<JsInvocationExpression>().Single(i => i.Target.ToString() == "dotvvm.staticCommandPostback");
+            var plan = call.Annotation<StaticCommandMethodTranslator.StaticCommandInvocationJsAnnotation>().Plan;
+            var compiledArguments = (JsArrayExpression)call.Arguments.ElementAt(1);
+            var relativePaths = GetValidationPaths(expression, typeof(ValidationViewModel))
+                .Select(p => JsonSerializer.Deserialize<string>(p)).ToArray();
+
+            Assert.AreEqual(compiledArguments.Children.Count(), clientArguments.Length);
+            var arguments = JsonSerializer.SerializeToElement(clientArguments);
+            Console.WriteLine("Argument plan: " + string.Join(", ", plan.Arguments.Select(a => a.Type)));
+            Console.WriteLine("Client arguments: " + arguments.GetRawText());
+            Console.WriteLine("Compiled validation paths: " + JsonSerializer.Serialize(relativePaths));
+
+            // These bindings use literal paths in the root context. Resolve them as the client does:
+            // null stays null, '.' becomes '/', and 'Text' becomes '/Text'.
+            var absolutePaths = relativePaths.Select(p => p == null ? null : p == "." ? "/" : "/" + p);
+            var context = DotvvmTestHelper.CreateContext(config, requestType: DotvvmRequestType.StaticCommand);
+            return await config.ServiceProvider.GetRequiredService<StaticCommandExecutor>()
+                .Execute(plan, arguments, absolutePaths, context);
+        }
+
+        public class ValidationViewModel
+        {
+            [Required]
+            public string Text { get; set; }
+
+            [AllowStaticCommand(StaticCommandValidation.Automatic)]
+            public string Save([Required] string text) => text;
+        }
+
         public class ValidatedService
         {
+            [AllowStaticCommand(StaticCommandValidation.Automatic)]
+            public string Save(string prefix, [Required] string text) => prefix + text;
+
             [AllowStaticCommand(StaticCommandValidation.Manual)]
             public void Method(object a) { }
 

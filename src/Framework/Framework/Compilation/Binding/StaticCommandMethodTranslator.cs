@@ -40,7 +40,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 return null;
             var attribute = method.GetCustomAttribute<AllowStaticCommandAttribute>().NotNull();
 
-            var (plan, args) = CreateExecutionPlan(context, arguments, method);
+            var (plan, clientArguments) = CreateExecutionPlan(context, arguments, method);
+            var args = clientArguments.Select(a => a.JsExpression()).ToArray();
             var encryptedPlan = EncryptJson(SerializePlan(plan), protector).Apply(Convert.ToBase64String);
 
             var resultTypeAnn = new ViewModelInfoAnnotation(
@@ -52,7 +53,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (attribute.Validation != StaticCommandValidation.None)
             {
-                argumentPaths = arguments.Select(a =>
+                argumentPaths = clientArguments.Select(a =>
                     this.validationPathFormatter.GetValidationPath(a.OriginalExpression, this.dataContext) ?? new JsLiteral(null)).ToArray();
             }
 
@@ -67,10 +68,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 .WithAnnotation(resultTypeAnn);
         }
 
-        private (StaticCommandInvocationPlan plan, JsExpression[] clientArgs) CreateExecutionPlan(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method)
+        private (StaticCommandInvocationPlan plan, LazyTranslatedExpression[] clientArgs) CreateExecutionPlan(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method)
         {
             var allArguments = (context?.OriginalExpression is null ? new LazyTranslatedExpression[0] : new[] { context }).Concat(arguments).ToArray();
-            var clientArgs = new List<JsExpression>();
+            var clientArgs = new List<LazyTranslatedExpression>();
 
             var argPlans = allArguments.Select((arg, index) => {
                 if (arg.OriginalExpression.GetParameterAnnotation() is BindingParameterAnnotation { ExtensionParameter:  InjectedServiceExtensionParameter service })
@@ -94,7 +95,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else
                 {
-                    clientArgs.Add(arg.JsExpression());
+                    clientArgs.Add(arg);
                     return new StaticCommandParameterPlan(StaticCommandParameterType.Argument, arg.OriginalExpression.Type);
                 }
             }).ToArray();
