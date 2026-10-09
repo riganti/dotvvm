@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.CodeAnalysis;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 
@@ -25,7 +26,11 @@ namespace DotVVM.Framework.Binding
         public T Resource<T>(T value) => value;
 
         /// <summary>Copies the specified text to the clipboard on the client.</summary>
-        public void SetClipboardText(string value) { }
+        [UnsupportedCallSite(CallSiteType.ServerSide, "When evaluated on the server, SetClipboardText can only be called on the client.")]
+        public void SetClipboardText(string value)
+        {
+            throw new NotSupportedException("SetClipboardText can only be called on the client.");
+        }
 
         internal static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)
         {
