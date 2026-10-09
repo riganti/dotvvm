@@ -32,6 +32,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         [DataRow("Ctrl++S")]
         [DataRow("Control+S")]
         [DataRow("Ctrl+Unknown")]
+        [DataRow("999")]
         public async Task Key_RejectsInvalidShortcut(string shortcut)
         {
             var exception = await Assert.ThrowsExceptionAsync<DotvvmCompilationException>(() =>

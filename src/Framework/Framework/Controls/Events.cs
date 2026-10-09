@@ -151,7 +151,8 @@ namespace DotVVM.Framework.Controls
             }
 
             var key = parts[^1];
-            if (!Enum.TryParse<ShortcutKeys>(key, ignoreCase: false, out _))
+            if (!Enum.TryParse<ShortcutKeys>(key, ignoreCase: false, out var parsedKey)
+                || !Enum.IsDefined(typeof(ShortcutKeys), parsedKey))
             {
                 return false;
             }
