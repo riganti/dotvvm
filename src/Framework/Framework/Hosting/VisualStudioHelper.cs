@@ -41,7 +41,6 @@ namespace DotVVM.Framework.Hosting
                 WriteIndented = true,
                 Converters = {
                     new ReflectionTypeJsonConverter(),
-                    new ReflectionAssemblyJsonConverter(),
                     new DotvvmTypeDescriptorJsonConverter<ITypeDescriptor>(),
                     new DotvvmPropertyJsonConverter(),
                     new DotvvmEnumConverter(),

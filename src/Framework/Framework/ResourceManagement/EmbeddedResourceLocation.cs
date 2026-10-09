@@ -12,8 +12,13 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public class EmbeddedResourceLocation : LocalResourceLocation, IDebugFileLocalLocation
     {
-        [JsonConverter(typeof(ReflectionAssemblyJsonConverter))]
+        [JsonIgnore]
         public Assembly Assembly { get; }
+
+        [JsonInclude]
+        [JsonPropertyName(nameof(Assembly))]
+        public string AssemblyName { get; internal set; }
+
         public string Name { get; }
         public string DebugName { get; }
         /// <summary>
@@ -30,6 +35,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             this.Name = name;
             this.Assembly = assembly;
+            this.AssemblyName = assembly.GetName().ToString();
 
             if (debugName != null)
             {
