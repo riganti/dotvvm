@@ -220,20 +220,20 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 propertyMap.JsonConverter = GetJsonConverter(property);
                 propertyMap.AllowDynamicDispatch = propertyMap.JsonConverter is null && (propertyType.IsAbstract || propertyType == typeof(object));
 
-                bool disableDotvvmConverter = false;
                 if (type.IsDefined(typeof(DotvvmSerializationAttribute), true))
                 {
                     var typeSerializationAttribute = type.GetCustomAttribute<DotvvmSerializationAttribute>()!;
-                    disableDotvvmConverter = typeSerializationAttribute.DisableDotvvmConverter;
                     propertyMap.AllowDynamicDispatch = typeSerializationAttribute.AllowsDynamicDispatch(propertyMap.AllowDynamicDispatch);
                 }
 
-                if (!disableDotvvmConverter)
+                var polymorphicProperty = propertyMap.JsonConverter is null &&
+                    JsonPolymorphismInfo.IsParticipatingType(propertyType);
+                if (polymorphicProperty)
                 {
-                    if (type.IsDefined(typeof(JsonPolymorphicAttribute)))
-                        throw new NotSupportedException(
-                            $"Can not serialize {type.ToCode()} as [JsonPolymorphic] attribute is currently not supported by DotVVM. " +
-                            "You can use [DotvvmSerialization(DisableDotvvmConverter = true)] to fall back to System.Text.Json default behavior, please note the client-side bindings to such models may not work properly.");
+                    if (type.GetCustomAttribute<DotvvmSerializationAttribute>()?.AllowsDynamicDispatch(false) == true ||
+                        bindAttribute?.AllowsDynamicDispatch(false) == true)
+                        throw new NotSupportedException($"Property '{type.ToCode()}.{property.Name}' cannot combine JsonDerivedType polymorphism with AllowDynamicDispatch.");
+                    propertyMap.AllowDynamicDispatch = false;
                 }
 
                 foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())
@@ -296,6 +296,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <returns>true if the cached was cleared successfully, false if the cached could not be cleared for some reason. </returns>
         internal bool ClearCache(Type t)
         {
+            JsonPolymorphismInfo.ClearCache();
             var hash = t.GetTypeHash();
             if (!this.serializationMapCache.TryGetValue(hash, out var cachedItem))
                 return true;

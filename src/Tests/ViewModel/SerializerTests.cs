@@ -37,8 +37,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             config.Runtime.ExpressionCompiler = DotvvmExpressionCompilerType.FastExpressionCompiler;
 
             jsonConverter = config.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
-            jsonOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
-                Converters = { jsonConverter },
+            jsonOptions = new JsonSerializerOptions(config.ServiceProvider.GetRequiredService<IDotvvmJsonOptionsProvider>().ViewModelJsonOptions) {
                 WriteIndented = true
             };
         }
@@ -60,8 +59,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             config.Runtime.ExpressionCompiler = DotvvmExpressionCompilerType.Standard;
 
             jsonConverter = config.ServiceProvider.GetRequiredService<ViewModelJsonConverter>();
-            jsonOptions = new JsonSerializerOptions(DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe) {
-                Converters = { jsonConverter },
+            jsonOptions = new JsonSerializerOptions(config.ServiceProvider.GetRequiredService<IDotvvmJsonOptionsProvider>().ViewModelJsonOptions) {
                 WriteIndented = true
             };
         }
@@ -230,6 +228,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
             var serialized = Serialize(obj, out var encryptedValues, false);
             Console.WriteLine($"EV: {encryptedValues}");
+            Assert.IsFalse(encryptedValues.ToJsonString().Contains("\"$type\""));
             var deserialized = Deserialize<TestViewModelWithEncryptedRenamedProperty>(serialized, encryptedValues);
 
             Assert.AreEqual("secret", deserialized.Secret.Value);
@@ -1796,14 +1795,406 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
-        public void Error_UsageOfJsonPolymorphic()
+        public void EncryptedValuesWriter_LegacyApiRetainsPlainSerialization()
+        {
+            using var buffer = new MemoryStream();
+            using var json = new Utf8JsonWriter(buffer);
+            var encrypted = new EncryptedValuesWriter(json);
+            encrypted.Nest();
+            encrypted.WriteValue(0, new JsonPolymorphicType.Case2 { CommonProperty = "legacy", Prop2 = 123 });
+            encrypted.End();
+            json.Flush();
+            var result = JsonNode.Parse(buffer.ToArray());
+            Assert.IsFalse(result.AsObject().ContainsKey("$type"));
+            Assert.IsFalse(result["0"].AsObject().ContainsKey("$type"));
+            Assert.AreEqual(123, result["0"]["Prop2"].GetValue<int>());
+        }
+
+        [TestMethod]
+        public void Polymorphism_RoundtripAndPopulate()
+        {
+            var holder = new PolymorphicHolder { Value = new PolymorphicFirst { Common = "base", First = 42 } };
+            var json = Serialize(holder, out var encrypted);
+            Assert.AreEqual(0, encrypted.Count);
+            Assert.AreEqual(typeof(PolymorphicFirst).GetTypeHash(), JsonNode.Parse(json)["Value"]["$type"].GetValue<string>());
+            var restored = Deserialize<PolymorphicHolder>(json, encrypted);
+            Assert.AreEqual(42, ((PolymorphicFirst)restored.Value).First);
+
+            var first = new PolymorphicFirst();
+            var existing = new PolymorphicHolder { Value = first };
+            PopulateViewModel(json, existing);
+            Assert.AreSame(first, existing.Value);
+            Assert.AreEqual(42, first.First);
+
+            var secondJson = Serialize(new PolymorphicHolder { Value = new PolymorphicSecond { Second = "sibling" } }, out _);
+            PopulateViewModel(secondJson, existing);
+            Assert.IsInstanceOfType<PolymorphicSecond>(existing.Value);
+            Assert.AreEqual("sibling", ((PolymorphicSecond)existing.Value).Second);
+
+            PopulateViewModel(json, new PolymorphicHolder());
+            Assert.IsNull(Deserialize<PolymorphicHolder>(Serialize(new PolymorphicHolder(), out _)).Value);
+            Assert.IsNull(PopulateViewModel<PolymorphicBase>("null", first));
+        }
+
+        [TestMethod]
+        public void Polymorphism_CollectionsDictionariesAndRecords()
+        {
+            var holder = new PolymorphicContainers {
+                Items = [new PolymorphicFirst { First = 11 }, null, new PolymorphicSecond { Second = "two" }],
+                Dictionary = new() { ["key"] = new PolymorphicFirst { First = 22 } },
+                Record = new PolymorphicRecordCase("name", 33)
+            };
+            var (restored, _) = SerializeAndDeserialize(holder);
+            Assert.AreEqual(11, ((PolymorphicFirst)restored.Items[0]).First);
+            Assert.IsNull(restored.Items[1]);
+            Assert.AreEqual("two", ((PolymorphicSecond)restored.Items[2]).Second);
+            Assert.AreEqual(22, ((PolymorphicFirst)restored.Dictionary["key"]).First);
+            Assert.AreEqual(new PolymorphicRecordCase("name", 33), restored.Record);
+        }
+
+        [TestMethod]
+        public void Polymorphism_RequiresRegisteredHashedType()
+        {
+            // Even a valid cached map must not expand the explicit contract.
+            Config.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>().GetMap<PolymorphicUnregistered>();
+            foreach (var discriminator in new[] { "", "\"$type\":null,", "\"$type\":1,",
+                "\"$type\":\"unknown\",",
+                $"\"$type\":\"{typeof(PolymorphicUnregistered).GetTypeHash()}\",",
+                $"\"$type\":\"{typeof(PolymorphicBase).GetTypeHash()}\",",
+                $"\"$type\":\"{typeof(PolymorphicFirst).GetTypeHash()}\",\"$type\":\"{typeof(PolymorphicSecond).GetTypeHash()}\"," })
+            {
+                XAssert.ThrowsAny<Exception>(() => Deserialize<PolymorphicHolder>("{\"Value\":{" + discriminator + "\"Common\":\"x\"}}"));
+            }
+            XAssert.ThrowsAny<Exception>(() => Serialize<PolymorphicBase>(new PolymorphicUnregistered(), out _));
+            // A directly declared derived contract cannot be spoofed as a sibling or omit its identity.
+            foreach (var payload in new[] {
+                "{\"First\":1}",
+                $"{{\"$type\":\"{typeof(PolymorphicSecond).GetTypeHash()}\",\"First\":1}}",
+                $"{{\"$type\":\"{typeof(PolymorphicUnregistered).GetTypeHash()}\",\"First\":1}}"
+            })
+            {
+                XAssert.ThrowsAny<Exception>(() => Deserialize<PolymorphicFirst>(payload));
+                XAssert.ThrowsAny<Exception>(() => PopulateViewModel(payload, new PolymorphicFirst()));
+                XAssert.ThrowsAny<Exception>(() => Deserialize<DeclaredDerivedHolder>("{\"Value\":" + payload + "}"));
+            }
+            Assert.AreEqual(12, Deserialize<PolymorphicFirst>(Serialize(new PolymorphicFirst { First = 12 }, out _)).First);
+        }
+
+        [TestMethod]
+        public void Polymorphism_ConcreteBaseAndFlattenedRegistration()
+        {
+            Assert.IsInstanceOfType<ConcretePolymorphicBase>(SerializeAndDeserialize<ConcretePolymorphicBase>(new ConcretePolymorphicBase { Common = "base" }).vm);
+            var (value, _) = SerializeAndDeserialize<ConcretePolymorphicBase>(new ConcretePolymorphicLeaf { Leaf = 5 });
+            Assert.AreEqual(5, ((ConcretePolymorphicLeaf)value).Leaf);
+            Assert.IsInstanceOfType<ConcretePolymorphicLeaf>(
+                Deserialize<ConcretePolymorphicBase>($"{{\"$type\":\"{typeof(ConcretePolymorphicLeaf).GetTypeHash()}\",\"Leaf\":6}}"));
+        }
+
+        [TestMethod]
+        public void Polymorphism_CustomDiscriminatorIsOutputOnly()
+        {
+            var json = Serialize<CustomPolymorphicBase>(new CustomPolymorphicFirst { Number = 7 }, out _);
+            var node = JsonNode.Parse(json).AsObject();
+            Assert.AreEqual("first", node["kind"].GetValue<string>());
+            Assert.AreEqual(typeof(CustomPolymorphicFirst).GetTypeHash(), node["$type"].GetValue<string>());
+            node["kind"] = "not-registered";
+            Assert.AreEqual(7, ((CustomPolymorphicFirst)Deserialize<CustomPolymorphicBase>(node.ToJsonString())).Number);
+            node.Remove("kind");
+            Assert.IsInstanceOfType<CustomPolymorphicFirst>(Deserialize<CustomPolymorphicBase>(node.ToJsonString()));
+            node.Remove("$type");
+            node["kind"] = "first";
+            XAssert.ThrowsAny<Exception>(() => Deserialize<CustomPolymorphicBase>(node.ToJsonString()));
+            var baseJson = JsonNode.Parse(Serialize(new CustomSelfPolymorphicBase(), out _));
+            Assert.AreEqual(0, baseJson["kind"].GetValue<int>());
+            Assert.IsInstanceOfType<CustomSelfPolymorphicBase>(Deserialize<CustomSelfPolymorphicBase>(baseJson.ToJsonString()));
+        }
+
+        [TestMethod]
+        public void Polymorphism_RejectsExplicitDynamicDispatchAndCollisions()
+        {
+            foreach (var action in new Action[] {
+                () => Serialize(new PolymorphicDynamicHolder(), out _),
+                () => Serialize(new DirectDerivedDynamicHolder(), out _),
+                () => Serialize<DynamicPolymorphicBase>(new DynamicPolymorphicBase(), out _),
+                () => Serialize<CollidingPolymorphicBase>(new CollidingPolymorphicCase(), out _)
+            })
+                XAssert.ThrowsAny<Exception>(action);
+        }
+
+        [TestMethod]
+        public void Polymorphism_RejectsCustomizedDynamicDispatch()
+        {
+            var holder = new DeclaredDerivedHolder { Value = new PolymorphicFirstExtension { First = 23 } };
+            var json = Serialize(new DeclaredDerivedHolder { Value = new PolymorphicFirst { First = 23 } }, out _);
+            var map = Config.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>().GetMap<DeclaredDerivedHolder>();
+            var property = map.Properties.Single(p => p.Name == "Value");
+            var original = property.AllowDynamicDispatch;
+            try
+            {
+                property.AllowDynamicDispatch = true;
+                map.ResetFunctions();
+                foreach (var action in new Action[] {
+                    () => Serialize(holder, out _),
+                    () => Deserialize<DeclaredDerivedHolder>(json),
+                    () => PopulateViewModel(json, holder)
+                })
+                {
+                    var error = XAssert.ThrowsAny<Exception>(action);
+                    StringAssert.Contains(error.GetBaseException().Message, "cannot combine registered polymorphism with AllowDynamicDispatch");
+                }
+            }
+            finally
+            {
+                property.AllowDynamicDispatch = original;
+                map.ResetFunctions();
+            }
+        }
+
+        [TestMethod]
+        public void Polymorphism_AuthenticatesProtectedLayout()
+        {
+            var json = Serialize(new ProtectedPolymorphicHolder {
+                Value = new ProtectedPolymorphicFirst { Secret = "first secret", Public = "public" }
+            }, out var encrypted);
+            Assert.IsTrue(encrypted.Count > 0);
+            var restored = Deserialize<ProtectedPolymorphicHolder>(json, (JsonObject)encrypted.DeepClone());
+            Assert.AreEqual("first secret", ((ProtectedPolymorphicFirst)restored.Value).Secret);
+            var missingIdentity = (JsonObject)encrypted.DeepClone();
+            RemoveIdentities(missingIdentity);
+            var missingIdentityException = XAssert.ThrowsAny<Exception>(() => Deserialize<ProtectedPolymorphicHolder>(json, missingIdentity));
+            Assert.IsInstanceOfType<System.Security.SecurityException>(missingIdentityException.GetBaseException());
+            var node = JsonNode.Parse(json).AsObject();
+            node["Value"]["$type"] = typeof(ProtectedPolymorphicSecond).GetTypeHash();
+            var ex = XAssert.ThrowsAny<Exception>(() => Deserialize<ProtectedPolymorphicHolder>(node.ToJsonString(), (JsonObject)encrypted.DeepClone()));
+            Assert.IsInstanceOfType<System.Security.SecurityException>(ex.GetBaseException());
+            // A protected descendant also authenticates all enclosing polymorphic layouts.
+            var nestedJson = Serialize(new ProtectedPolymorphicHolder {
+                Value = new ProtectedPolymorphicNested { Child = new ProtectedChild { Secret = "nested" } }
+            }, out var nestedEncrypted);
+            var nestedNode = JsonNode.Parse(nestedJson);
+            nestedNode["Value"]["$type"] = typeof(ProtectedPolymorphicSecond).GetTypeHash();
+            var nestedEx = XAssert.ThrowsAny<Exception>(() => Deserialize<ProtectedPolymorphicHolder>(nestedNode.ToJsonString(), nestedEncrypted));
+            Assert.IsInstanceOfType<System.Security.SecurityException>(nestedEx.GetBaseException());
+
+            static void RemoveIdentities(JsonObject value)
+            {
+                value.Remove("$type");
+                foreach (var child in value.Select(p => p.Value).OfType<JsonObject>())
+                    RemoveIdentities(child);
+            }
+        }
+
+        [TestMethod]
+        public void Polymorphism_ProtectedWholeValues()
+        {
+            var holder = new WholeProtectedPolymorphicHolder {
+                Signed = new ProtectedPolymorphicFirst { Secret = "signed", Public = "shown" },
+                Encrypted = new ProtectedPolymorphicNested { Child = new ProtectedChild { Secret = "encrypted" } }
+            };
+            var json = Serialize(holder, out var encrypted);
+            var node = JsonNode.Parse(json);
+            Assert.IsNull(node["Encrypted"]);
+            node["Signed"]["$type"] = typeof(ProtectedPolymorphicSecond).GetTypeHash();
+            var restored = Deserialize<WholeProtectedPolymorphicHolder>(node.ToJsonString(), encrypted);
+            Assert.AreEqual("signed", ((ProtectedPolymorphicFirst)restored.Signed).Secret);
+            Assert.AreEqual("encrypted", ((ProtectedPolymorphicNested)restored.Encrypted).Child.Secret);
+        }
+
+        [TestMethod]
+        public void Polymorphism_InterfaceContract()
+        {
+            var json = Serialize<IPolymorphicContract>(new PolymorphicImplementation { Number = 9 }, out _);
+            Assert.AreEqual(9, ((PolymorphicImplementation)Deserialize<IPolymorphicContract>(json)).Number);
+            XAssert.ThrowsAny<Exception>(() => Deserialize<IPolymorphicContract>($"{{\"$type\":\"{typeof(IPolymorphicContract).GetTypeHash()}\"}}"));
+        }
+
+        [TestMethod]
+        public void Polymorphism_TransitiveCustomDiscriminators()
+        {
+            var json = Serialize<NestedCustomPolymorphicBase>(new NestedCustomPolymorphicLeaf { Number = 15 }, out _);
+            var node = JsonNode.Parse(json);
+            Assert.AreEqual(2, node["$kind"].GetValue<int>());
+            Assert.AreEqual(typeof(NestedCustomPolymorphicLeaf).GetTypeHash(), node["$type"].GetValue<string>());
+            Assert.AreEqual(15, ((NestedCustomPolymorphicLeaf)Deserialize<NestedCustomPolymorphicBase>(json)).Number);
+            Assert.AreEqual(15, ((NestedCustomPolymorphicLeaf)Deserialize<NestedCustomPolymorphicIntermediate>(json)).Number);
+            node["$kind"] = "ignored";
+            Assert.IsInstanceOfType<NestedCustomPolymorphicLeaf>(Deserialize<NestedCustomPolymorphicBase>(node.ToJsonString()));
+            var error = XAssert.ThrowsAny<Exception>(() => Serialize<MismatchedCustomPolymorphicBase>(new MismatchedCustomPolymorphicLeaf(), out _));
+            StringAssert.Contains(error.GetBaseException().Message, "must use the same TypeDiscriminatorPropertyName");
+        }
+
+        [TestMethod]
+        public void Polymorphism_RejectsIncompatibleRegisteredConverters()
+        {
+            foreach (var action in new Action[] {
+                () => Serialize<DisabledRegisteredBase>(new DisabledRegisteredCase(), out _),
+                () => Deserialize<DisabledRegisteredBase>($"{{\"$type\":\"{typeof(DisabledRegisteredCase).GetTypeHash()}\"}}"),
+                () => Serialize<ConvertedRegisteredBase>(new ConvertedRegisteredCase(), out _),
+                () => Deserialize<ConvertedRegisteredBase>($"{{\"$type\":\"{typeof(ConvertedRegisteredCase).GetTypeHash()}\"}}")
+            })
+            {
+                var error = XAssert.ThrowsAny<Exception>(action);
+                StringAssert.Contains(error.GetBaseException().Message, "must use the DotVVM converter");
+            }
+            // Opt-out converters remain usable outside the annotated base contract.
+            Assert.IsFalse(JsonNode.Parse(Serialize(new DisabledRegisteredCase(), out _)).AsObject().ContainsKey("$type"));
+            Assert.IsTrue(JsonNode.Parse(Serialize(new ConvertedRegisteredCase(), out _))["custom"].GetValue<bool>());
+        }
+
+        [TestMethod]
+        public void Polymorphism_Directions()
+        {
+            var holder = new DirectionPolymorphicHolder {
+                ServerOnly = new PolymorphicFirst { First = 1 },
+                FirstRequest = new PolymorphicFirst { First = 2 },
+                ClientOnly = new PolymorphicSecond { Second = "posted" }
+            };
+            var json = Serialize(holder, out _);
+            var node = JsonNode.Parse(json);
+            Assert.AreEqual(typeof(PolymorphicSecond).GetTypeHash(), node["ClientOnly"]["$type"].GetValue<string>());
+            node["ServerOnly"]["$type"] = "unregistered";
+            node["ClientOnly"] = JsonNode.Parse(Serialize<PolymorphicBase>(holder.ClientOnly, out _));
+            var restored = PopulateViewModel(node.ToJsonString(), holder);
+            Assert.AreEqual(1, ((PolymorphicFirst)restored.ServerOnly).First);
+            Assert.AreEqual("posted", ((PolymorphicSecond)restored.ClientOnly).Second);
+            var postbackNode = JsonNode.Parse(Serialize(holder, out _, true));
+            Assert.IsNull(postbackNode["FirstRequest"]);
+            Assert.IsNull(postbackNode["ClientOnly"]);
+        }
+
+        public class PolymorphicHolder { public PolymorphicBase Value { get; set; } }
+        public class DeclaredDerivedHolder { public PolymorphicFirst Value { get; set; } }
+        [JsonDerivedType(typeof(PolymorphicFirst))]
+        [JsonDerivedType(typeof(PolymorphicSecond))]
+        public abstract class PolymorphicBase { public string Common { get; set; } }
+        public class PolymorphicFirst : PolymorphicBase { public int First { get; set; } }
+        public class PolymorphicFirstExtension : PolymorphicFirst { }
+        public class PolymorphicSecond : PolymorphicBase { public string Second { get; set; } }
+        public class PolymorphicUnregistered : PolymorphicBase { public int Surprise { get; set; } }
+        public class PolymorphicContainers
+        {
+            public List<PolymorphicBase> Items { get; set; }
+            public Dictionary<string, PolymorphicBase> Dictionary { get; set; }
+            public PolymorphicRecord Record { get; set; }
+        }
+        [JsonDerivedType(typeof(PolymorphicRecordCase))]
+        public abstract record PolymorphicRecord(string Name);
+        public record PolymorphicRecordCase(string Name, int Number) : PolymorphicRecord(Name);
+        [JsonDerivedType(typeof(ConcretePolymorphicIntermediate))]
+        public class ConcretePolymorphicBase { public string Common { get; set; } }
+        [JsonDerivedType(typeof(ConcretePolymorphicLeaf))]
+        public abstract class ConcretePolymorphicIntermediate : ConcretePolymorphicBase { }
+        public class ConcretePolymorphicLeaf : ConcretePolymorphicIntermediate { public int Leaf { get; set; } }
+        [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+        [JsonDerivedType(typeof(CustomPolymorphicFirst), "first")]
+        public abstract class CustomPolymorphicBase { }
+        public class CustomPolymorphicFirst : CustomPolymorphicBase { public int Number { get; set; } }
+        [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+        [JsonDerivedType(typeof(CustomSelfPolymorphicBase), 0)]
+        public class CustomSelfPolymorphicBase { }
+        public class PolymorphicDynamicHolder
+        {
+            [Bind(AllowDynamicDispatch = true)]
+            public PolymorphicBase Value { get; set; }
+        }
+        public class DirectDerivedDynamicHolder
+        {
+            [Bind(AllowDynamicDispatch = true)]
+            public PolymorphicFirst Value { get; set; }
+        }
+        [DotvvmSerialization(AllowDynamicDispatch = true)]
+        [JsonPolymorphic]
+        public class DynamicPolymorphicBase { }
+        [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+        [JsonDerivedType(typeof(CollidingPolymorphicCase), 1)]
+        public class CollidingPolymorphicBase { }
+        public class CollidingPolymorphicCase : CollidingPolymorphicBase
+        {
+            [Bind(Name = "kind")]
+            public int Number { get; set; }
+        }
+        public class ProtectedPolymorphicHolder { public ProtectedPolymorphicBase Value { get; set; } }
+        [JsonDerivedType(typeof(ProtectedPolymorphicFirst))]
+        [JsonDerivedType(typeof(ProtectedPolymorphicSecond))]
+        [JsonDerivedType(typeof(ProtectedPolymorphicNested))]
+        public abstract class ProtectedPolymorphicBase { }
+        public class ProtectedPolymorphicFirst : ProtectedPolymorphicBase
+        {
+            public string Public { get; set; }
+            [Protect(ProtectMode.SignData)]
+            public string Secret { get; set; }
+        }
+        public class ProtectedPolymorphicSecond : ProtectedPolymorphicBase
+        {
+            [Protect(ProtectMode.SignData)]
+            public string Secret { get; set; }
+            public string ZPublic { get; set; }
+        }
+        public class ProtectedPolymorphicNested : ProtectedPolymorphicBase { public ProtectedChild Child { get; set; } }
+        public class ProtectedChild { [Protect(ProtectMode.SignData)] public string Secret { get; set; } }
+        public class WholeProtectedPolymorphicHolder
+        {
+            [Protect(ProtectMode.SignData)]
+            public ProtectedPolymorphicBase Signed { get; set; }
+            [Protect(ProtectMode.EncryptData)]
+            public ProtectedPolymorphicBase Encrypted { get; set; }
+        }
+        [JsonDerivedType(typeof(PolymorphicImplementation))]
+        public interface IPolymorphicContract { }
+        public class PolymorphicImplementation : IPolymorphicContract { public int Number { get; set; } }
+        [JsonPolymorphic(TypeDiscriminatorPropertyName = "$kind")]
+        [JsonDerivedType(typeof(NestedCustomPolymorphicIntermediate), 1)]
+        public abstract class NestedCustomPolymorphicBase { }
+        [JsonPolymorphic(TypeDiscriminatorPropertyName = "$kind")]
+        [JsonDerivedType(typeof(NestedCustomPolymorphicLeaf), 2)]
+        public abstract class NestedCustomPolymorphicIntermediate : NestedCustomPolymorphicBase { }
+        public class NestedCustomPolymorphicLeaf : NestedCustomPolymorphicIntermediate { public int Number { get; set; } }
+        [JsonPolymorphic(TypeDiscriminatorPropertyName = "$kind")]
+        [JsonDerivedType(typeof(MismatchedCustomPolymorphicIntermediate), 1)]
+        public abstract class MismatchedCustomPolymorphicBase { }
+        [JsonPolymorphic(TypeDiscriminatorPropertyName = "$otherKind")]
+        [JsonDerivedType(typeof(MismatchedCustomPolymorphicLeaf), 2)]
+        public abstract class MismatchedCustomPolymorphicIntermediate : MismatchedCustomPolymorphicBase { }
+        public class MismatchedCustomPolymorphicLeaf : MismatchedCustomPolymorphicIntermediate { }
+        [JsonDerivedType(typeof(DisabledRegisteredCase))]
+        public abstract class DisabledRegisteredBase { }
+        [DotvvmSerialization(DisableDotvvmConverter = true)]
+        public class DisabledRegisteredCase : DisabledRegisteredBase { public int Number { get; set; } }
+        [JsonDerivedType(typeof(ConvertedRegisteredCase))]
+        public abstract class ConvertedRegisteredBase { }
+        [JsonConverter(typeof(ConvertedRegisteredCaseConverter))]
+        public class ConvertedRegisteredCase : ConvertedRegisteredBase { }
+        public class ConvertedRegisteredCaseConverter : JsonConverter<ConvertedRegisteredCase>
+        {
+            public override ConvertedRegisteredCase Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                reader.Skip();
+                return new ConvertedRegisteredCase();
+            }
+            public override void Write(Utf8JsonWriter writer, ConvertedRegisteredCase value, JsonSerializerOptions options)
+            {
+                writer.WriteStartObject();
+                writer.WriteBoolean("custom", true);
+                writer.WriteEndObject();
+            }
+        }
+        public class DirectionPolymorphicHolder
+        {
+            [Bind(Direction.ServerToClient)]
+            public PolymorphicBase ServerOnly { get; set; }
+            [Bind(Direction.ServerToClientFirstRequest)]
+            public PolymorphicBase FirstRequest { get; set; }
+            [Bind(Direction.ClientToServer)]
+            public PolymorphicBase ClientOnly { get; set; }
+        }
+
+        [TestMethod]
+        public void Error_CustomDiscriminatorWithDefaultName()
         {
             var obj = new TestViewModelWithJsonPolymorphic { MyProperty = new JsonPolymorphicType.Case2 { CommonProperty = "A", Prop2 = 123 } };
             var ex = XAssert.ThrowsAny<Exception>(() => SerializeAndDeserialize(obj));
 
-            Assert.AreEqual(
-                "Can not serialize DotVVM.Framework.Tests.ViewModel.JsonPolymorphicType as [JsonPolymorphic] attribute is currently not supported by DotVVM. You can use [DotvvmSerialization(DisableDotvvmConverter = true)] to fall back to System.Text.Json default behavior, please note the client-side bindings to such models may not work properly.",
-                ex.GetBaseException().Message);
+            StringAssert.Contains(ex.GetBaseException().Message, "require a nondefault TypeDiscriminatorPropertyName");
         }
     }
 
