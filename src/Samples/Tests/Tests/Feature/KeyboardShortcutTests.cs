@@ -14,6 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_KeyboardShortcuts_KeyboardShortcuts))]
         public void Feature_KeyboardShortcuts_DocumentAndEnabled()
         {
             RunInAllBrowsers(browser => {
