@@ -11,31 +11,38 @@ export default {
         init: (element: HTMLElement, valueAccessor: () => TimerProps) => {
             const prop = valueAccessor();
             let timer: number | null = null;
+            let enabled = false
+            let commandRunning = false
 
             const observable = ko.isObservable(prop.enabled) ? prop.enabled : ko.pureComputed(() => ko.unwrap(valueAccessor().enabled));
             const subscription = observable.subscribe(newValue => createOrDestroyTimer(newValue));
             createOrDestroyTimer(ko.unwrap(prop.enabled));
 
-            function createOrDestroyTimer(enabled: boolean) {
-                if (enabled) {
-                    if (timer) {
-                        window.clearTimeout(timer);
-                    }
+            function createOrDestroyTimer(newEnabled: boolean) {
+                enabled = newEnabled
+                if (timer != null) {
+                    window.clearTimeout(timer)
+                    timer = null
+                }
 
-                    const callback = async () => {
-                        try {
-                            await prop.command.bind(element)();
-                        } catch (err) {
-                            dotvvm.log.logError("postback", err);
-                        }
-                        timer = window.setTimeout(callback, prop.interval);
-                    };
+                // if commandRunning: it will schedule next run by itself
+                if (enabled && !commandRunning) {
                     timer = window.setTimeout(callback, prop.interval);
-
-                } else if (timer) {
-                    window.clearTimeout(timer);
                 }
             };
+
+            async function callback() {
+                timer = null
+                commandRunning = true
+                try {
+                    await prop.command.bind(element)();
+                } catch (err) {
+                    dotvvm.log.logError("postback", err);
+                } finally {
+                    commandRunning = false
+                    createOrDestroyTimer(enabled)
+                }
+            }
 
             ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
                 subscription.dispose();
