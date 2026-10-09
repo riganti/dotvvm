@@ -13,6 +13,8 @@
 
     <dot:TextBox Type="MultiLine" Text="{value: Text}"
                  FileUpload.UploadOnPasteOrDrop="{value: Files}"
+                 FileUpload.AllowedFileTypes=".txt"
+                 FileUpload.MaxFileSize="1"
                  FileUpload.UploadCompleted="{command: OnUploadCompleted()}"/>
 
     <dot:Repeater DataSource="{value: Files.Files}" WrapperTagName="ul">
@@ -27,5 +29,4 @@
 
 </body>
 </html>
-
 
