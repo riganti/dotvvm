@@ -111,6 +111,24 @@ test("runtime type changes revalidate shared values against the new property con
     expect(result.isError).toBe(true);
 });
 
+test("runtime type changes coerce same-named properties using the new property contract", () => {
+    updateTypeInfo({
+        left: {
+            ...metadata.left as ObjectTypeMetadata,
+            properties: { shared: { type: "Int32" } }
+        },
+        right: {
+            ...metadata.right as ObjectTypeMetadata,
+            properties: { shared: { type: "String" } }
+        }
+    });
+    const previous = coerce({ $type: "left", shared: 12 }, "base");
+    const result = tryCoerce({ $type: "right", shared: 34 }, "base", previous);
+    expect(result.isError).toBeFalsy();
+    expect(result.value).toEqual({ $type: "right", shared: "34" });
+    expect(tryCoerce({ $type: "right", shared: {} }, "base", previous).isError).toBe(true);
+});
+
 test("subtype changes replace shapes in patches and diffs, including arrays", () => {
     expect(patchViewModel(left, right)).toEqual(right);
     expect(diffViewModel(left, right)).toEqual(right);
