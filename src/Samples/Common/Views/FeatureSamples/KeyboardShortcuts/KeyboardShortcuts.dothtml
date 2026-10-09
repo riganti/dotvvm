@@ -1,0 +1,67 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.KeyboardShortcuts.KeyboardShortcutsViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Keyboard shortcuts</title>
+</head>
+<body>
+    <dot:Events Key-Ctrl+S="{command: HandleDocumentShortcut()}"
+                Key-Escape="{command: HandleDocumentShortcut()}"
+                Events.KeyEnabled-Ctrl+S="{value: DocumentShortcutEnabled}" />
+
+    <h1>Keyboard shortcuts</h1>
+
+    <section>
+        <h2>Document-wide shortcut</h2>
+        <p>Press Ctrl+S anywhere on the page.</p>
+        <dot:CheckBox data-ui="document-enabled"
+                      Text="Enabled"
+                      Checked="{value: DocumentShortcutEnabled}" />
+        <span data-ui="document-count">{{value: DocumentShortcutCount}}</span>
+    </section>
+
+    <section>
+        <h2>Form shortcut</h2>
+        <p>Press Ctrl+Enter in the text area to submit the draft.</p>
+        <dot:TextBox data-ui="draft"
+                     Type="MultiLine"
+                     Text="{value: Draft}"
+                     UpdateTextOnInput="true"
+                     Events.Key-Ctrl+Enter="{command: SubmitDraft()}" />
+        <span data-ui="submission-count">{{value: SubmissionCount}}</span>
+        <span data-ui="submitted-text">{{value: SubmittedText}}</span>
+    </section>
+
+    <section>
+        <h2>Scoped and nested modal shortcuts</h2>
+        <dot:Button data-ui="open-outer"
+                    Text="Open outer dialog"
+                    Click="{command: OuterDialogOpen = true}" />
+
+        <dot:ModalDialog data-ui="outer-dialog"
+                         Open="{value: OuterDialogOpen}"
+                         Events.Key-Escape="{command: HandleOuterDialogShortcut()}">
+            <p>Escape is handled by the outer dialog instead of the document.</p>
+            <span data-ui="outer-count">{{value: OuterDialogShortcutCount}}</span>
+            <dot:Button data-ui="open-inner"
+                        Text="Open nested dialog"
+                        Click="{command: InnerDialogOpen = true}" />
+            <dot:Button data-ui="close-outer"
+                        Text="Close"
+                        Click="{command: OuterDialogOpen = false}" />
+
+            <dot:ModalDialog data-ui="inner-dialog"
+                             Open="{value: InnerDialogOpen}"
+                             Events.Key-Escape="{command: HandleInnerDialogShortcut()}">
+                <p>Escape is handled only by the innermost dialog.</p>
+                <span data-ui="inner-count">{{value: InnerDialogShortcutCount}}</span>
+                <dot:Button data-ui="close-inner"
+                            Text="Close"
+                            Click="{command: InnerDialogOpen = false}" />
+            </dot:ModalDialog>
+        </dot:ModalDialog>
+    </section>
+</body>
+</html>
