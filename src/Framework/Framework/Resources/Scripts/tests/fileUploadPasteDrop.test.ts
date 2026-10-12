@@ -9,7 +9,7 @@ function dispatchFiles(eventType: string, files: File[], options: any = {}) {
     const element = document.createElement("textarea");
     const collection = options.collection ?? { patchState: jest.fn() };
     bindingHandlers["dotvvm-FileUpload-UploadOnPasteOrDrop"].init(element, () => ({
-        collection, url: "/upload", token: "token", multiple: true, ...options
+        collection, url: "/upload", token: "token", multiple: true, chunkSize: 5 * 1024 * 1024, ...options
     }));
     const event = new Event(eventType, { cancelable: true });
     Object.defineProperty(event, eventType === "paste" ? "clipboardData" : "dataTransfer", { value: { files } });
@@ -50,7 +50,7 @@ describe.each(["paste", "drop"])("%s file validation", eventType => {
     ])("allows files matching %s at the size limit", (allowedFileTypes, name, type) => {
         const files = [new File([new Uint8Array(1024 * 1024)], name, { type })];
         const collection = dispatchFiles(eventType, files, { allowedFileTypes, maxFileSize: 1 });
-        expect(uploadFiles).toHaveBeenCalledWith(collection, "token", true, "/upload", files, expect.any(Function));
+        expect(uploadFiles).toHaveBeenCalledWith(collection, "token", true, "/upload", files, expect.any(Function), 5 * 1024 * 1024);
         expect(collection.patchState).not.toHaveBeenCalled();
     });
 

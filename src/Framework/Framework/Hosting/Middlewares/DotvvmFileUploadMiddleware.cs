@@ -169,6 +169,14 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         private async Task SaveFiles(IDotvvmRequestContext context, Group boundary, List<UploadedFile> uploadedFiles, FileUploadToken token)
         {
+            if (context.HttpContext.Request.Headers["X-DotVVM-UploadChunk"] == "true")
+            {
+                await SaveChunk(context, boundary.Value, uploadedFiles, token);
+                return;
+            }
+            if (token.FileId != null || token.NextPosition != 0)
+                await context.RejectRequest("A continuation token requires a chunk upload.");
+
             // parse the stream
             var multiPartReader = new MultipartReader(boundary.Value, context.HttpContext.Request.Body);
             while (await multiPartReader.ReadNextSectionAsync() is MultipartSection section)
@@ -179,6 +187,82 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 {
                     uploadedFiles.Add(result);
                 }
+            }
+        }
+
+        private async Task SaveChunk(IDotvvmRequestContext context, string boundary, List<UploadedFile> uploadedFiles, FileUploadToken token)
+        {
+            if (fileStorage is not IChunkedUploadedFileStorage)
+                await context.RejectRequest("The file storage does not support chunk uploads.");
+            var storage = (IChunkedUploadedFileStorage)fileStorage;
+            var chunkSize = context.Configuration.Runtime.FileUploadChunkSizeBytes;
+            var finalHeader = context.HttpContext.Request.Headers["X-DotVVM-UploadFinalChunk"];
+            if (chunkSize <= 0 || (finalHeader != "true" && finalHeader != "false"))
+                await context.RejectRequest("Invalid chunk upload headers.");
+            var isFinal = finalHeader == "true";
+            if (token.NextPosition < 0 || (token.FileId == null ? token.NextPosition != 0 : token.NextPosition <= 0))
+                await context.RejectRequest("Invalid upload continuation.");
+
+            var reader = new MultipartReader(boundary, context.HttpContext.Request.Body);
+            var section = await reader.ReadNextSectionAsync();
+            if (section == null)
+                await context.RejectRequest("A chunk upload must contain exactly one file.");
+            var fileNameGroup = Regex.Match(section!.ContentDisposition ?? "", @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Groups["fileName"];
+            if (!fileNameGroup.Success)
+                await context.RejectRequest("A chunk upload must contain a file.");
+            var fileName = fileNameGroup.Value;
+            var mimeType = section.ContentType ?? "";
+            if (token.FileId != null && (token.FileName != fileName || token.MimeType != mimeType))
+                await context.RejectRequest("Upload continuation metadata does not match.");
+
+            var remaining = token.MaxFileSize is {} maxSize && maxSize >= 0
+                ? maxSize - token.NextPosition
+                : long.MaxValue;
+            if (remaining < 0)
+                await context.RejectRequest("Max file size exceeded", statusCode: 413);
+            using var buffer = new MemoryStream();
+            try
+            {
+                await LimitLengthStream.LimitLength(section.Body, Math.Min(chunkSize, remaining), "Upload chunk size limit").CopyToAsync(buffer);
+            }
+            catch (LimitLengthStream.LimitExceededException)
+            {
+                await context.RejectRequest("Upload chunk or max file size exceeded", statusCode: 413);
+                throw;
+            }
+            // Validate the entire multipart envelope before changing the stored file.
+            if (await reader.ReadNextSectionAsync() != null)
+                await context.RejectRequest("A chunk upload must contain exactly one file.");
+            if (buffer.Length == 0 && (!isFinal || token.FileId != null))
+                await context.RejectRequest("An upload continuation or nonfinal chunk must not be empty.");
+
+            buffer.Position = 0;
+            var position = checked(token.NextPosition + buffer.Length);
+            var fileId = token.FileId;
+            if (fileId is {} existingId)
+                await storage.AppendFileAsync(existingId, token.NextPosition, buffer);
+            else
+                fileId = await storage.StoreFileAsync(buffer);
+            if (isFinal)
+            {
+                DotvvmMetrics.UploadedFileSize.Record(position);
+                uploadedFiles.Add(new UploadedFile {
+                    FileId = fileId.Value,
+                    FileName = fileName,
+                    FileSize = new FileSize { Bytes = position },
+                    IsFileTypeAllowed = IsFileTypeAllowed(fileName, mimeType, token),
+                    IsMaxSizeExceeded = false
+                });
+            }
+            else
+            {
+                token.FileId = fileId;
+                token.NextPosition = position;
+                token.FileName = fileName;
+                token.MimeType = mimeType;
+                var json = JsonSerializer.SerializeToUtf8Bytes(token, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe);
+                context.HttpContext.Response.Headers["X-DotVVM-UploadToken"] = Convert.ToBase64String(
+                    viewModelProtector.Protect(json, "FileUpload", ProtectionHelpers.GetUserIdentity(context)));
             }
         }
 

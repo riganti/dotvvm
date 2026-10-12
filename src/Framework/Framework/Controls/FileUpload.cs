@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using DotVVM.Core.Storage;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
@@ -271,7 +272,7 @@ namespace DotVVM.Framework.Controls
             var url = context.TranslateVirtualPath(GetFileUploadHandlerUrl());
             var token = GetFileUploadToken(context, AllowedFileTypes, MaxFileSize);
 
-            writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonSerializer.Serialize(new { url = url, token = token }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
+            writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonSerializer.Serialize(new { url = url, token = token, chunkSize = GetChunkSize(context) }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
             writer.RenderSelfClosingTag("input");
         }
 
@@ -297,6 +298,11 @@ namespace DotVVM.Framework.Controls
             return "~/" + HostingConstants.FileUploadHandlerMatchUrl;
         }
 
+        private static int GetChunkSize(IDotvvmRequestContext context) =>
+            context.Services.GetService<IUploadedFileStorage>() is IChunkedUploadedFileStorage
+                ? context.Configuration.Runtime.FileUploadChunkSizeBytes
+                : 0;
+
         /// <summary>
         /// Gets or sets the UploadedFilesCollection to which files will be uploaded when pasted or dropped on a control (typically TextBox).
         /// This is an attached property.
@@ -314,6 +320,7 @@ namespace DotVVM.Framework.Controls
             {
                 { "url", KnockoutHelper.MakeStringLiteral(context.TranslateVirtualPath(GetFileUploadHandlerUrl())) },
                 { "token", KnockoutHelper.MakeStringLiteral(GetFileUploadToken(context, control.GetValue(AllowedFileTypesProperty) as string, control.GetValue(MaxFileSizeProperty) as int?)) },
+                { "chunkSize", GetChunkSize(context).ToString(System.Globalization.CultureInfo.InvariantCulture) },
                 { "collection", control, property },
                 { "multiple", control, AllowMultipleFilesProperty },
                 { "allowedFileTypes", control, AllowedFileTypesProperty },

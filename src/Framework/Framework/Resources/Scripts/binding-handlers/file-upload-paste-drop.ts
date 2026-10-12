@@ -31,7 +31,7 @@ export default {
                     if (element.hasAttribute("data-dotvvm-upload-completed")) {
                         new Function(element.getAttribute("data-dotvvm-upload-completed")!).call(element);
                     }
-                });
+                }, options.chunkSize);
             }
 
             // Handle paste events
