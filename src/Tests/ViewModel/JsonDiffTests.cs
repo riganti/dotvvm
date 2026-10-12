@@ -37,6 +37,33 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("""{"ahoj":42}""", diff.ToJsonString());
         }
 
+        [DataTestMethod]
+        [DataRow("""{"item":{"$type":"A","Common":1,"OnlyA":2}}""", """{"item":{"$type":"B","Common":1,"OnlyB":3}}""")]
+        [DataRow("""{"items":[{"$type":"A","Common":1,"OnlyA":2}]}""", """{"items":[{"$type":"B","Common":1,"OnlyB":3}]}""")]
+        [DataRow("""{"$type":"A","Common":1,"OnlyA":2}""", """{"Common":1,"OnlyB":3,"$type":"B"}""")]
+        [DataRow("""{"item":{"Common":1,"Old":2}}""", """{"item":{"$type":"B","Common":1}}""")]
+        public void JsonDiff_SubtypeChangeReplacesObject(string sourceJson, string targetJson)
+        {
+            var source = JsonNode.Parse(sourceJson)!.AsObject();
+            var target = JsonNode.Parse(targetJson)!.AsObject();
+            ValidateDiff(source, target);
+            var diff = Utf8JsonDiff(source, target);
+            JsonUtils.Patch(source, diff);
+            Assert.IsTrue(JsonNode.DeepEquals(source, target));
+        }
+
+        [TestMethod]
+        public void JsonDiff_SameSubtypeRemainsIncremental()
+        {
+            var source = JsonNode.Parse("""{"item":{"$type":"A","Common":1,"OnlyA":2}}""")!.AsObject();
+            var target = JsonNode.Parse("""{"item":{"$type":"A","Common":1,"OnlyA":3}}""")!.AsObject();
+            ValidateDiff(source, target);
+            var diff = Utf8JsonDiff(source, target);
+            Assert.AreEqual("""{"item":{"OnlyA":3}}""", diff.ToJsonString());
+            JsonUtils.Patch(source, diff);
+            Assert.IsTrue(JsonNode.DeepEquals(source, target));
+        }
+
         [TestMethod]
         [Ignore("DotvvmConfiguration deserialization is not currently implemented")]
         public void JsonDiff_Configuration_AddingResources()

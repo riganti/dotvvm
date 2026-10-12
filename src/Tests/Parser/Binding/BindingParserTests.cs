@@ -12,6 +12,42 @@ namespace DotVVM.Framework.Tests.Parser.Binding
     {
         private readonly BindingParserNodeFactory bindingParserNodeFactory = new BindingParserNodeFactory();
 
+        [DataTestMethod]
+        [DataRow("value as Namespace.Type<string>", BindingTokenType.KeywordAs)]
+        [DataRow("value is Namespace.Type<string>", BindingTokenType.KeywordIs)]
+        public void BindingParser_TypeOperators(string expression, BindingTokenType token)
+        {
+            var node = (BinaryOperatorBindingParserNode)bindingParserNodeFactory.Parse(expression);
+            Assert.AreEqual(token, node.Operator);
+            Assert.IsInstanceOfType(node.SecondExpression, typeof(TypeReferenceBindingParserNode));
+            Assert.AreEqual(expression, node.ToDisplayString());
+            Assert.AreEqual(2, node.EnumerateChildNodes().Count());
+        }
+
+        [TestMethod]
+        public void BindingParser_TypeOperatorsPrecedenceAndEscaping()
+        {
+            var node = (BinaryOperatorBindingParserNode)bindingParserNodeFactory.Parse("a + b is object == true && c");
+            Assert.AreEqual(BindingTokenType.AndAlsoOperator, node.Operator);
+            var equality = (BinaryOperatorBindingParserNode)node.FirstExpression;
+            Assert.AreEqual(BindingTokenType.EqualsEqualsOperator, equality.Operator);
+            var typeTest = (BinaryOperatorBindingParserNode)equality.FirstExpression;
+            Assert.AreEqual(BindingTokenType.KeywordIs, typeTest.Operator);
+            Assert.AreEqual(BindingTokenType.AddOperator, ((BinaryOperatorBindingParserNode)typeTest.FirstExpression).Operator);
+            Assert.AreEqual("@as.@is", bindingParserNodeFactory.Parse("@as.@is").ToDisplayString());
+            Assert.IsInstanceOfType(bindingParserNodeFactory.Parse("a is object ? true : false"), typeof(ConditionalExpressionBindingParserNode));
+        }
+
+        [DataTestMethod]
+        [DataRow("a as")]
+        [DataRow("a is")]
+        [DataRow("a as Type<")]
+        [DataRow("a is 42")]
+        public void BindingParser_TypeOperatorsMissingType(string expression)
+        {
+            Assert.IsTrue(bindingParserNodeFactory.Parse(expression).EnumerateNodes().Any(n => n.NodeErrors.Any()));
+        }
+
         [TestMethod]
         public void BindingParser_TrueLiteral_Valid()
         {

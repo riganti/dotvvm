@@ -246,6 +246,13 @@ public ref struct JsonDiffWriter
     {
         target.AssertToken(JsonTokenType.StartObject);
 
+        if (HasTypeChanged(source))
+        {
+            WriteoutLazyStack();
+            CopyValue();
+            return true;
+        }
+
         target.AssertRead();
 
         bool objectStarted;
@@ -331,6 +338,25 @@ public ref struct JsonDiffWriter
             writer.WriteEndObject();
 
         return objectStarted;
+    }
+
+    bool HasTypeChanged(in JsonElement source)
+    {
+        var probe = target;
+        while (probe.Read() && probe.TokenType != JsonTokenType.EndObject)
+        {
+            probe.AssertToken(JsonTokenType.PropertyName);
+            var isType = probe.ValueTextEquals("$type"u8);
+            probe.AssertRead();
+            if (isType && probe.TokenType == JsonTokenType.String)
+            {
+                return !source.TryGetProperty("$type"u8, out var sourceType) ||
+                       sourceType.ValueKind != JsonValueKind.String ||
+                       !sourceType.ValueEquals(probe.GetString());
+            }
+            probe.Skip();
+        }
+        return false;
     }
 
     bool DiffArray(in JsonElement source)

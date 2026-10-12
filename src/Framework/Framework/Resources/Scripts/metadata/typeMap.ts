@@ -45,6 +45,19 @@ export function getCurrentTypeMap() {
     return types;
 }
 
+export function isType(value: any, typeId: string): boolean {
+    const runtimeType = ko.unwrap(ko.unwrap(value)?.$type);
+    if (typeof runtimeType !== "string") {
+        return false;
+    }
+    const metadata = types[runtimeType];
+    return runtimeType === typeId || metadata?.type === "object" && metadata.baseTypes?.includes(typeId) === true;
+}
+
+export function asType(value: any, typeId: string): any {
+    return isType(value, typeId) ? ko.unwrap(value) : null;
+}
+
 export function updateTypeInfo(newTypes: TypeMap | undefined) {
     types = { ...types, ...newTypes };
 }

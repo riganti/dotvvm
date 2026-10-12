@@ -89,6 +89,73 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void ViewModelTypeMetadata_PolymorphicDependenciesAndKnownBase()
+        {
+            var serializer = new ViewModelTypeMetadataSerializer(mapper);
+            var baseType = typeof(SerializerTests.ConcretePolymorphicBase);
+            var intermediate = typeof(SerializerTests.ConcretePolymorphicIntermediate);
+            var leaf = typeof(SerializerTests.ConcretePolymorphicLeaf);
+            var result = SerializeMetadata(serializer, [baseType]);
+            Assert.IsNotNull(result[baseType.GetTypeHash()]);
+            Assert.IsNotNull(result[intermediate.GetTypeHash()]);
+            Assert.IsNotNull(result[leaf.GetTypeHash()]);
+            CollectionAssert.AreEquivalent(new[] { leaf.GetTypeHash() },
+                result[baseType.GetTypeHash()]["derivedTypes"].AsArray().Select(n => n.GetValue<string>()).ToArray());
+            var ancestry = result[leaf.GetTypeHash()]["baseTypes"].AsArray().Select(n => n.GetValue<string>()).ToArray();
+            CollectionAssert.Contains(ancestry, baseType.GetTypeHash());
+            CollectionAssert.Contains(ancestry, intermediate.GetTypeHash());
+            var filtered = SerializeMetadata(serializer, [baseType], new HashSet<string> { baseType.GetTypeHash() });
+            Assert.IsNull(filtered[baseType.GetTypeHash()]);
+            Assert.IsNotNull(filtered[leaf.GetTypeHash()]);
+        }
+
+        [TestMethod]
+        public void ViewModelTypeMetadata_PolymorphicRecursiveGraph()
+        {
+            var serializer = new ViewModelTypeMetadataSerializer(mapper);
+            var result = SerializeMetadata(serializer, [typeof(RecursivePolymorphicBase)]);
+            Assert.IsNotNull(result[typeof(RecursivePolymorphicCase).GetTypeHash()]);
+            Assert.AreEqual(typeof(RecursivePolymorphicBase).GetTypeHash(),
+                result[typeof(RecursivePolymorphicCase).GetTypeHash()]["properties"]["Child"]["type"].GetValue<string>());
+        }
+
+        [TestMethod]
+        public void ViewModelTypeMetadata_CustomDiscriminatorDoesNotAddSyntheticProperties()
+        {
+            var serializer = new ViewModelTypeMetadataSerializer(mapper);
+            var result = SerializeMetadata(serializer, [typeof(SerializerTests.CustomPolymorphicBase)]);
+            var property = result[typeof(SerializerTests.CustomPolymorphicFirst).GetTypeHash()]["properties"]["kind"];
+            Assert.IsNull(property);
+            var selfResult = SerializeMetadata(serializer, [typeof(SerializerTests.CustomSelfPolymorphicBase)]);
+            Assert.IsNull(selfResult[typeof(SerializerTests.CustomSelfPolymorphicBase).GetTypeHash()]["properties"]["kind"]);
+        }
+
+        [TestMethod]
+        public void ViewModelTypeMetadata_AbstractAndConcretePolymorphicIdentity()
+        {
+            var serializer = new ViewModelTypeMetadataSerializer(mapper);
+            var result = SerializeMetadata(serializer, [
+                typeof(SerializerTests.PolymorphicBase),
+                typeof(SerializerTests.IPolymorphicContract),
+                typeof(SerializerTests.ConcretePolymorphicBase),
+                typeof(SerializerTests.PolymorphicUnregistered)
+            ]);
+            Assert.IsTrue(result[typeof(SerializerTests.PolymorphicBase).GetTypeHash()]["isAbstract"].GetValue<bool>());
+            Assert.IsTrue(result[typeof(SerializerTests.IPolymorphicContract).GetTypeHash()]["isAbstract"].GetValue<bool>());
+            Assert.IsNull(result[typeof(SerializerTests.ConcretePolymorphicBase).GetTypeHash()]["isAbstract"]);
+            Assert.AreEqual(0, result[typeof(SerializerTests.PolymorphicFirst).GetTypeHash()]["derivedTypes"].AsArray().Count);
+            Assert.AreEqual(0, result[typeof(SerializerTests.PolymorphicImplementation).GetTypeHash()]["derivedTypes"].AsArray().Count);
+            Assert.IsNull(result[typeof(SerializerTests.PolymorphicUnregistered).GetTypeHash()]["derivedTypes"]);
+        }
+
+        [JsonDerivedType(typeof(RecursivePolymorphicCase))]
+        public abstract class RecursivePolymorphicBase { }
+        public class RecursivePolymorphicCase : RecursivePolymorphicBase
+        {
+            public RecursivePolymorphicBase Child { get; set; }
+        }
+
+        [TestMethod]
         public void ViewModelTypeMetadata_ValidationRules()
         {
             CultureUtils.RunWithCulture("en-US", () => {

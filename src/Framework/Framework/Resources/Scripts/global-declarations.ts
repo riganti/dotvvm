@@ -255,6 +255,9 @@ type DynamicTypeMetadata = {
 type ObjectTypeMetadata = {
     type: "object",
     debugName?: string,
+    derivedTypes?: string[],
+    baseTypes?: string[],
+    isAbstract?: boolean,
     properties: { [prop: string]: PropertyMetadata }
 }
 

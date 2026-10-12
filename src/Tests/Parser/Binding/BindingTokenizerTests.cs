@@ -12,6 +12,15 @@ namespace DotVVM.Framework.Tests.Parser.Binding
     [TestClass]
     public class BindingTokenizerTests
     {
+        [TestMethod]
+        public void BindingTokenizer_TypeOperatorsAndEscapedKeywords()
+        {
+            CollectionAssert.AreEqual(new[] {
+                BindingTokenType.KeywordAs, BindingTokenType.KeywordIs,
+                BindingTokenType.EscapedIdentifier, BindingTokenType.EscapedIdentifier,
+                BindingTokenType.Identifier, BindingTokenType.Identifier
+            }, Tokenize("as is @as @is aside island").Where(t => t.Type != BindingTokenType.WhiteSpace).Select(t => t.Type).ToArray());
+        }
 
         [TestMethod]
         public void BindingTokenizer_EmptyExpression_Valid()
