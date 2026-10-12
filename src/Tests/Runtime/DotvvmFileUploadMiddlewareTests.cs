@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Security;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Utils;
 using Microsoft.AspNet.WebUtilities;
@@ -133,6 +135,16 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
+        public async Task ChunkUpload_NegativeMaxSizePreservesLegacyUnlimitedSemantics()
+        {
+            var token = new FileUploadToken { MaxFileSize = -1 };
+            var legacy = await StoreFile(DotvvmTestHelper.CreateContext(), await CreateMultipartSection([1, 2, 3]), new TestUploadedFileStorage(), token);
+            var chunks = await SaveChunk(CreateChunkContext([1, 2, 3], true), new TestChunkStorage(), token);
+            Assert.AreEqual(3L, legacy.FileSize.Bytes);
+            Assert.AreEqual(3L, chunks[0].FileSize.Bytes);
+        }
+
+        [TestMethod]
         public async Task LegacyUpload_RejectsContinuationToken()
         {
             var storage = new TestChunkStorage();
@@ -193,6 +205,100 @@ namespace DotVVM.Framework.Tests.Runtime
             public string Text { get; set; } = "";
         }
 
+#if DotNetCore
+        [TestMethod]
+        public async Task Handle_ProtectedContinuationCompletesWithStaticCommandResult()
+        {
+            var storage = new TestChunkStorage();
+            var config = CreateProtectedUploadConfiguration(storage);
+            var first = CreateHandleContext(config, [1, 2], false, "alice");
+            first.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = FileUpload.GetFileUploadToken(first, ".txt", 1);
+            var middleware = DotvvmFileUploadMiddleware.TryCreate(first.Services)!;
+            Assert.IsTrue(await middleware.Handle(first));
+            using (var json = ReadResponseJson(first))
+                Assert.AreEqual(0, json.RootElement.GetProperty("result").GetArrayLength());
+            var continuation = first.HttpContext.Response.Headers["X-DotVVM-UploadToken"];
+            Assert.IsFalse(string.IsNullOrEmpty(continuation));
+
+            var final = CreateHandleContext(config, [3], true, "alice");
+            final.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = continuation;
+            Assert.IsTrue(await middleware.Handle(final));
+            using var finalJson = ReadResponseJson(final);
+            var result = finalJson.RootElement.GetProperty("result");
+            Assert.AreEqual(1, result.GetArrayLength());
+            Assert.AreEqual(storage.Id, result[0].GetProperty("FileId").GetGuid());
+            Assert.AreEqual(3L, result[0].GetProperty("FileSize").GetProperty("Bytes").GetInt64());
+            Assert.IsTrue(string.IsNullOrEmpty(final.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, storage.StoredBytes);
+
+            var replay = CreateHandleContext(config, [4], true, "alice");
+            replay.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = continuation;
+            Assert.IsTrue(await middleware.Handle(replay));
+            StringAssert.StartsWith(replay.HttpContext.Response.ContentType, "text/plain");
+            Assert.IsTrue(string.IsNullOrEmpty(replay.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, storage.StoredBytes);
+        }
+
+        [TestMethod]
+        public async Task Handle_ContinuationRejectsDifferentIdentityAndTamperingWithoutStorageMutation()
+        {
+            var storage = new TestChunkStorage();
+            var config = CreateProtectedUploadConfiguration(storage);
+            var first = CreateHandleContext(config, [1], false, "alice");
+            first.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = FileUpload.GetFileUploadToken(first, null, 1);
+            var middleware = DotvvmFileUploadMiddleware.TryCreate(first.Services)!;
+            await middleware.Handle(first);
+            var continuation = first.HttpContext.Response.Headers["X-DotVVM-UploadToken"]!;
+
+            var differentUser = CreateHandleContext(config, [2], true, "bob");
+            differentUser.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = continuation;
+            Assert.IsTrue(await middleware.Handle(differentUser));
+            StringAssert.StartsWith(differentUser.HttpContext.Response.ContentType, "text/plain");
+            Assert.AreEqual(1, storage.StoredBytes.Length);
+            Assert.IsTrue(string.IsNullOrEmpty(differentUser.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+
+            var bytes = Convert.FromBase64String(continuation);
+            bytes[bytes.Length - 1] ^= 1;
+            var tampered = CreateHandleContext(config, [2], true, "alice");
+            tampered.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = Convert.ToBase64String(bytes);
+            Assert.IsTrue(await middleware.Handle(tampered));
+            StringAssert.StartsWith(tampered.HttpContext.Response.ContentType, "text/plain");
+            Assert.AreEqual(1, storage.StoredBytes.Length);
+            Assert.IsTrue(string.IsNullOrEmpty(tampered.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+
+            var valid = CreateHandleContext(config, [2], true, "alice");
+            valid.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = continuation;
+            await middleware.Handle(valid);
+            using var result = ReadResponseJson(valid);
+            Assert.AreEqual(1, result.RootElement.GetProperty("result").GetArrayLength());
+            CollectionAssert.AreEqual(new byte[] { 1, 2 }, storage.StoredBytes);
+        }
+
+        private static DotvvmConfiguration CreateProtectedUploadConfiguration(IUploadedFileStorage storage) =>
+            DotvvmTestHelper.CreateConfiguration(s => {
+                s.AddSingleton(storage);
+                s.AddSingleton<IViewModelProtector>(new DefaultViewModelProtector(new Microsoft.AspNetCore.DataProtection.EphemeralDataProtectionProvider()));
+            });
+
+        private static IDotvvmRequestContext CreateHandleContext(DotvvmConfiguration config, byte[] bytes, bool final, string user)
+        {
+            var context = CreateChunkContext(bytes, final, configuration: config);
+            var http = (TestHttpContext)context.HttpContext;
+            http.User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, user) }, "Test"));
+            http.Request.Method = "POST";
+            http.Request.Path = "/" + HostingConstants.FileUploadHandlerMatchUrl;
+            http.Request.ContentType = "multipart/form-data; boundary=dotvvm-test-boundary";
+            context.HttpContext.Request.Headers["X-DotVVM-CsrfToken"] = "Not a CSRF token.";
+            return context;
+        }
+
+        private static JsonDocument ReadResponseJson(IDotvvmRequestContext context)
+        {
+            context.HttpContext.Response.Body.Position = 0;
+            return JsonDocument.Parse(context.HttpContext.Response.Body);
+        }
+#endif
+
         private static DotvvmFileUploadMiddleware CreateMiddleware(IUploadedFileStorage storage) =>
             new(null!, storage, null!, null!, new DotvvmTestHelper.FakeProtector());
 
@@ -204,9 +310,9 @@ namespace DotVVM.Framework.Tests.Runtime
             return result;
         }
 
-        private static IDotvvmRequestContext CreateChunkContext(byte[] bytes, bool final, int chunkSize = 5 * 1024 * 1024, bool extraSection = false)
+        private static IDotvvmRequestContext CreateChunkContext(byte[] bytes, bool final, int chunkSize = 5 * 1024 * 1024, bool extraSection = false, DotvvmConfiguration configuration = null)
         {
-            var config = DotvvmTestHelper.CreateConfiguration();
+            var config = configuration ?? DotvvmTestHelper.CreateConfiguration();
             config.Runtime.FileUploadChunkSizeBytes = chunkSize;
             var context = DotvvmTestHelper.CreateContext(config);
             context.HttpContext.Request.Headers["X-DotVVM-UploadChunk"] = "true";
@@ -237,8 +343,8 @@ namespace DotVVM.Framework.Tests.Runtime
             }
             public async Task AppendFileAsync(Guid id, long expectedPosition, Stream stream)
             {
-                Assert.AreEqual(Id, id);
-                Assert.AreEqual(StoredBytes.LongLength, expectedPosition);
+                if (id != Id || StoredBytes.LongLength != expectedPosition)
+                    throw new InvalidOperationException("Invalid upload continuation position.");
                 using var buffer = new MemoryStream();
                 buffer.Write(StoredBytes, 0, StoredBytes.Length);
                 await stream.CopyToAsync(buffer);
