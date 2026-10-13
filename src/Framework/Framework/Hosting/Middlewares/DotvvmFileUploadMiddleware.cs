@@ -197,10 +197,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 await context.RejectRequest("The file storage does not support chunk uploads.");
             var storage = (IChunkedUploadedFileStorage)fileStorage;
             var chunkSize = context.Configuration.Runtime.FileUploadChunkSizeBytes;
-            var finalHeader = context.HttpContext.Request.Headers["X-DotVVM-UploadFinalChunk"];
-            if (chunkSize <= 0 || (finalHeader != "true" && finalHeader != "false"))
+            if (chunkSize <= 0)
                 await context.RejectRequest("Invalid chunk upload headers.");
-            var isFinal = finalHeader == "true";
             if (token.NextPosition < 0 || (token.FileId == null ? token.NextPosition != 0 : token.NextPosition <= 0))
                 await context.RejectRequest("Invalid upload continuation.");
 
@@ -251,13 +249,12 @@ namespace DotVVM.Framework.Hosting.Middlewares
             // Validate the entire multipart envelope before changing the stored file.
             if (await reader.ReadNextSectionAsync() != null)
                 await context.RejectRequest("A chunk upload must contain exactly one file.");
+            var position = checked(token.NextPosition + buffer.Length);
+            var isFinal = position == total;
             if (buffer.Length == 0 && (!isFinal || token.FileId != null))
                 await context.RejectRequest("An upload continuation or nonfinal chunk must not be empty.");
 
             buffer.Position = 0;
-            var position = checked(token.NextPosition + buffer.Length);
-            if (isFinal != (position == total))
-                await context.RejectRequest("The final chunk flag must match the declared file size.");
             var fileId = token.FileId;
             if (fileId is {} existingId)
                 await storage.AppendFileAsync(existingId, token.NextPosition, buffer);

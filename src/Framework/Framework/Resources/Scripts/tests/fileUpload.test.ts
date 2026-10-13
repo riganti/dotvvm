@@ -54,7 +54,7 @@ test("sends sequential chunks with fresh tokens, filename and MIME type", async 
     const { promise, state, completed, collection } = upload([new File(["abcde"], "file.txt", { type: "text/plain" })]);
     await promise;
     expect(requests.map(r => r.headers["X-DotVVM-UploadToken"])).toEqual(["initial", "second", "third"]);
-    expect(requests.map(r => r.headers["X-DotVVM-UploadFinalChunk"])).toEqual(["false", "false", "true"]);
+    expect(requests.every(r => !("X-DotVVM-UploadFinalChunk" in r.headers))).toBe(true);
     expect(requests.map(r => r.headers["X-DotVVM-UploadFileSize"])).toEqual(["5", undefined, undefined]);
     expect(requests.map(r => (r.formData.get("upload") as File).size)).toEqual([2, 2, 1]);
     for (const request of requests) {
@@ -74,7 +74,7 @@ test("starts each file with the initial token and finishes exact-size and empty 
     const { promise, state, completed } = upload([new File(["ab"], "first"), new File([], "empty")], 2, false);
     await promise;
     expect(requests.map(r => r.headers["X-DotVVM-UploadToken"])).toEqual(["initial", "initial"]);
-    expect(requests.map(r => r.headers["X-DotVVM-UploadFinalChunk"])).toEqual(["true", "true"]);
+    expect(requests.every(r => !("X-DotVVM-UploadFinalChunk" in r.headers))).toBe(true);
     expect(requests.map(r => r.headers["X-DotVVM-UploadFileSize"])).toEqual(["2", "0"]);
     expect(requests.map(r => (r.formData.get("upload") as File).size)).toEqual([2, 0]);
     expect(state.Files).toEqual([{ FileName: "first" }, { FileName: "empty" }]);

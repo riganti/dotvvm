@@ -27,7 +27,7 @@ export async function uploadFiles(viewModel: DotvvmObservable<DotvvmFileUploadCo
                     const final = end === file.size;
                     const formData = new FormData();
                     formData.append("upload", file.slice(position, end, file.type), file.name);
-                    const response = await send(formData, token, end - position, final, position === 0 ? file.size : undefined);
+                    const response = await send(formData, token, end - position, true, position === 0 ? file.size : undefined);
                     if (final) {
                         if (response.files.length !== 1) throw new Error("FileUpload result is empty!");
                         uploadedFiles.push(...response.files);
@@ -55,16 +55,15 @@ export async function uploadFiles(viewModel: DotvvmObservable<DotvvmFileUploadCo
         onCompleted();
         reportProgress(false, 100);
 
-        function send(formData: FormData, token: string, size: number, final?: boolean, fileSize?: number): Promise<{ files: DotvvmFileUploadData[], token: string | null }> {
+        function send(formData: FormData, token: string, size: number, chunk = false, fileSize?: number): Promise<{ files: DotvvmFileUploadData[], token: string | null }> {
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 xhr.open("POST", url, true);
                 xhr.setRequestHeader("X-DotVVM-AsyncUpload", "true");
                 xhr.setRequestHeader("X-DotVVM-UploadToken", token);
                 xhr.setRequestHeader("X-DotVVM-CsrfToken", csrfToken);
-                if (final !== undefined) {
+                if (chunk) {
                     xhr.setRequestHeader("X-DotVVM-UploadChunk", "true");
-                    xhr.setRequestHeader("X-DotVVM-UploadFinalChunk", String(final));
                 }
                 if (fileSize !== undefined) {
                     xhr.setRequestHeader("X-DotVVM-UploadFileSize", String(fileSize));
