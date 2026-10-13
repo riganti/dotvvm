@@ -55,6 +55,7 @@ test("sends sequential chunks with fresh tokens, filename and MIME type", async 
     await promise;
     expect(requests.map(r => r.headers["X-DotVVM-UploadToken"])).toEqual(["initial", "second", "third"]);
     expect(requests.map(r => r.headers["X-DotVVM-UploadFinalChunk"])).toEqual(["false", "false", "true"]);
+    expect(requests.map(r => r.headers["X-DotVVM-UploadFileSize"])).toEqual(["5", undefined, undefined]);
     expect(requests.map(r => (r.formData.get("upload") as File).size)).toEqual([2, 2, 1]);
     for (const request of requests) {
         expect(request.headers["X-DotVVM-UploadChunk"]).toBe("true");
@@ -74,6 +75,7 @@ test("starts each file with the initial token and finishes exact-size and empty 
     await promise;
     expect(requests.map(r => r.headers["X-DotVVM-UploadToken"])).toEqual(["initial", "initial"]);
     expect(requests.map(r => r.headers["X-DotVVM-UploadFinalChunk"])).toEqual(["true", "true"]);
+    expect(requests.map(r => r.headers["X-DotVVM-UploadFileSize"])).toEqual(["2", "0"]);
     expect(requests.map(r => (r.formData.get("upload") as File).size)).toEqual([2, 0]);
     expect(state.Files).toEqual([{ FileName: "first" }, { FileName: "empty" }]);
     expect(completed).toHaveBeenCalledTimes(1);
@@ -100,6 +102,7 @@ test("falls back to whole-file multipart uploads when chunking is disabled", asy
     await promise;
     expect(requests).toHaveLength(1);
     expect(requests[0].headers["X-DotVVM-UploadChunk"]).toBeUndefined();
+    expect(requests[0].headers["X-DotVVM-UploadFileSize"]).toBeUndefined();
     expect(requests[0].formData.getAll("upload[]")).toHaveLength(2);
     expect(completed).toHaveBeenCalledTimes(1);
 });

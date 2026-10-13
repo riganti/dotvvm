@@ -8,6 +8,8 @@ namespace DotVVM.Framework.Controls
         public string? AllowedFileTypes { get; set; }
         public long? MaxFileSize { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public long? TotalFileSize { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Guid? FileId { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public long NextPosition { get; set; }

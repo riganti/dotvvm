@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -203,6 +204,23 @@ namespace DotVVM.Framework.Hosting.Middlewares
             if (token.NextPosition < 0 || (token.FileId == null ? token.NextPosition != 0 : token.NextPosition <= 0))
                 await context.RejectRequest("Invalid upload continuation.");
 
+            var totalHeader = context.HttpContext.Request.Headers["X-DotVVM-UploadFileSize"];
+            if (token.FileId == null)
+            {
+                if (string.IsNullOrEmpty(totalHeader) || totalHeader.Any(c => c < '0' || c > '9') ||
+                    !long.TryParse(totalHeader, NumberStyles.None, CultureInfo.InvariantCulture, out var totalSize))
+                    await context.RejectRequest("Invalid X-DotVVM-UploadFileSize.");
+                else
+                    token.TotalFileSize = totalSize;
+            }
+            else if (!string.IsNullOrEmpty(totalHeader) || token.TotalFileSize == null ||
+                token.TotalFileSize < 0 || token.NextPosition >= token.TotalFileSize)
+                await context.RejectRequest("Invalid upload continuation.");
+
+            var total = token.TotalFileSize!.Value;
+            if (token.MaxFileSize is {} declaredMax && declaredMax >= 0 && total > declaredMax)
+                await context.RejectRequest("Max file size exceeded", statusCode: 413);
+
             var reader = new MultipartReader(boundary, context.HttpContext.Request.Body);
             var section = await reader.ReadNextSectionAsync();
             if (section == null)
@@ -223,7 +241,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             using var buffer = new MemoryStream();
             try
             {
-                await LimitLengthStream.LimitLength(section.Body, Math.Min(chunkSize, remaining), "Upload chunk size limit").CopyToAsync(buffer);
+                await LimitLengthStream.LimitLength(section.Body, Math.Min(chunkSize, Math.Min(total - token.NextPosition, remaining)), "Upload chunk size limit").CopyToAsync(buffer);
             }
             catch (LimitLengthStream.LimitExceededException)
             {
@@ -238,6 +256,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
             buffer.Position = 0;
             var position = checked(token.NextPosition + buffer.Length);
+            if (isFinal != (position == total))
+                await context.RejectRequest("The final chunk flag must match the declared file size.");
             var fileId = token.FileId;
             if (fileId is {} existingId)
                 await storage.AppendFileAsync(existingId, token.NextPosition, buffer);
