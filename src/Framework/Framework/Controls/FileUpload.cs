@@ -82,6 +82,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary>
         /// Gets or sets the maximum size of files in megabytes (MB). The size is not limited by default.
+        /// A nonnegative value is required when chunked uploads are enabled.
         /// When file exceeding the limit is uploaded, the <see cref="UploadedFilesCollection.Error" /> property is set to "Uploaded file is too large."
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
@@ -278,9 +279,13 @@ namespace DotVVM.Framework.Controls
 
         /// <summary>
         /// Returns a token that is used to authorize the file upload request. The token contains information about allowed file types and maximum file size, and is protected to prevent tampering.
+        /// A nonnegative maximum file size is required when chunked uploads are enabled.
         /// </summary>
         public static string GetFileUploadToken(IDotvvmRequestContext context, string? allowedFileTypes, int? maxFileSize)
         {
+            if (GetChunkSize(context) > 0 && (maxFileSize == null || maxFileSize < 0))
+                throw new ArgumentException("MaxFileSize must be specified and nonnegative when chunked uploads are enabled.", nameof(maxFileSize));
+
             var tokenData = new FileUploadToken {
                 AllowedFileTypes = allowedFileTypes,
                 MaxFileSize = (long?)maxFileSize * 1024 * 1024

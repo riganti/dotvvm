@@ -199,6 +199,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
             var chunkSize = context.Configuration.Runtime.FileUploadChunkSizeBytes;
             if (chunkSize <= 0)
                 await context.RejectRequest("Invalid chunk upload headers.");
+            if (token.MaxFileSize == null || token.MaxFileSize < 0)
+                await context.RejectRequest("MaxFileSize must be specified and nonnegative for chunked uploads.");
             if (token.NextPosition < 0 || (token.FileId == null ? token.NextPosition != 0 : token.NextPosition <= 0))
                 await context.RejectRequest("Invalid upload continuation.");
 
