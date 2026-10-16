@@ -9,7 +9,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Storage
 {
-    public class FileSystemUploadedFileStorage : IUploadedFileStorage, IDisposable
+    public class FileSystemUploadedFileStorage : IChunkedUploadedFileStorage, IDisposable
     {
         public string TempDirectory { get; private set; }
 
@@ -59,11 +59,49 @@ namespace DotVVM.Framework.Storage
         {
             var id = SecureGuidGenerator.GenerateGuid();
             EnsureDirectory();
-            using (var fs = new FileStream(GetFileName(id), FileMode.OpenOrCreate, FileAccess.Write))
+            using (var fs = new FileStream(GetFileName(id), FileMode.CreateNew, FileAccess.Write, FileShare.None))
             {
-                await stream.CopyToAsync(fs);
+                try
+                {
+                    await stream.CopyToAsync(fs);
+                    await fs.FlushAsync();
+                }
+                catch
+                {
+                    fs.SetLength(0);
+                    fs.Dispose();
+                    await DeleteFileAsync(id);
+                    throw;
+                }
             }
             return id;
+        }
+
+        public async Task AppendFileAsync(Guid fileId, long expectedPosition, Stream stream)
+        {
+            if (expectedPosition <= 0)
+                throw new ArgumentOutOfRangeException(nameof(expectedPosition));
+            using (var fs = new FileStream(GetFileName(fileId), FileMode.Open, FileAccess.Write, FileShare.None))
+            {
+                if (fs.Length != expectedPosition)
+                    throw new InvalidOperationException("Invalid upload continuation position.");
+                fs.Position = expectedPosition;
+                try
+                {
+                    await stream.CopyToAsync(fs);
+                    if (fs.Position == expectedPosition)
+                        throw new InvalidOperationException("Upload continuation must not be empty.");
+                    await fs.FlushAsync();
+                }
+                catch
+                {
+                    // Poison the position before releasing the exclusive lock, even if deletion fails.
+                    fs.SetLength(0);
+                    fs.Dispose();
+                    await DeleteFileAsync(fileId);
+                    throw;
+                }
+            }
         }
 
         /// <summary>
