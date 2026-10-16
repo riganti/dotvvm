@@ -35,24 +35,24 @@ namespace DotVVM.Framework.Configuration
         public long MaxPostbackSizeBytes { get; set; } = 1024 * 1024 * 128; // 128 MB
 
         /// <summary>
-        /// Maximum file upload chunk size in bytes. Defaults to zero (whole-file uploads).
-        /// Set a positive size to enable chunking; each upload must specify a nonnegative MaxFileSize.
-        /// A size of 3 MiB leaves headroom for multipart overhead below the System.Web
+        /// Maximum file upload chunk size in megabytes (MB). Defaults to null (whole-file uploads).
+        /// Set a positive size to enable chunking; each upload must specify a positive MaxFileSize.
+        /// A size of 3 MB leaves headroom for multipart overhead below the System.Web
         /// httpRuntime maxRequestLength default of 4096 KB.
         /// </summary>
-        [JsonPropertyName("fileUploadChunkSizeBytes")]
-        public int FileUploadChunkSizeBytes
+        [JsonPropertyName("fileUploadChunkSize")]
+        public int? FileUploadChunkSize
         {
-            get => fileUploadChunkSizeBytes;
+            get => fileUploadChunkSize;
             set
             {
                 ThrowIfFrozen();
-                if (value < 0)
+                if (value <= 0)
                     throw new ArgumentOutOfRangeException(nameof(value));
-                fileUploadChunkSizeBytes = value;
+                fileUploadChunkSize = value;
             }
         }
-        private int fileUploadChunkSizeBytes = 0;
+        private int? fileUploadChunkSize;
 
         /// <summary> Whether DotVVM resources requests must have the correct version hash to be served, or any hash will be accepted by the server and possibly an unexpected resource version will be returned. </summary>
         /// <remarks>
