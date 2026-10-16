@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.CodeAnalysis;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 
@@ -24,6 +25,13 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public T Resource<T>(T value) => value;
 
+        /// <summary>Copies the specified text to the clipboard on the client.</summary>
+        [UnsupportedCallSite(CallSiteType.ServerSide, "When evaluated on the server, SetClipboardText can only be called on the client.")]
+        public void SetClipboardText(string value)
+        {
+            throw new NotSupportedException("SetClipboardText can only be called on the client.");
+        }
+
         internal static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)
         {
             methods.AddPropertyTranslator(() => new BindingPageInfo().EvaluatingOnServer,
@@ -32,6 +40,10 @@ namespace DotVVM.Framework.Binding
                 new GenericMethodCompiler(_ => new JsLiteral(true)));
             methods.AddPropertyTranslator(() => new BindingPageInfo().IsPostbackRunning,
                 new GenericMethodCompiler(_ => new JsIdentifierExpression("dotvvm").Member("isPostbackRunning").Invoke()));
+            methods.AddMethodTranslator(() => new BindingPageInfo().SetClipboardText(""),
+                new GenericMethodCompiler(args =>
+                    new JsIdentifierExpression("navigator").Member("clipboard").Member("writeText").Invoke(args[1])
+                        .WithAnnotation(new ResultIsPromiseAnnotation(e => e))));
         }
     }
 }
