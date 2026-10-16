@@ -6,6 +6,8 @@ using OpenQA.Selenium;
 using Riganti.Selenium.AssertApi;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.Core.Configuration;
+using Riganti.Selenium.xUnitIntegration;
 using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Base
@@ -21,6 +23,9 @@ namespace DotVVM.Samples.Tests.Base
         public AppSeleniumTest(ITestOutputHelper output) : base(output)
         {
         }
+
+        protected override TestSuiteRunner CreateNewTestSuiteRunner(SeleniumTestsConfiguration configuration, TestContextProvider provider)
+            => new SeleniumTestSuiteRunner(configuration, provider);
 
         public By SelectByDataUi(string selector)
             => SelectBy.CssSelector($"[data-ui='{selector}']");
