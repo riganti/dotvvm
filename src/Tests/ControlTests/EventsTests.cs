@@ -56,9 +56,24 @@ namespace DotVVM.Framework.Tests.ControlTests
             StringAssert.Contains(exception.Message, "can only be used together with Key-Ctrl+Enter");
         }
 
+        [TestMethod]
+        public async Task KeyEnabled_PrefersExactSeparatorVariant()
+        {
+            var result = await cth.RunPage(typeof(TestViewModel), """
+                <div Events.Key-Ctrl+S="{command: Save()}"
+                     Events.KeyEnabled-Ctrl+S="{value: Enabled}"
+                     Events.Key-Ctrl-S="{command: Save()}"
+                     Events.KeyEnabled-Ctrl-S="{value: OtherEnabled}" />
+                """);
+
+            StringAssert.Contains(result.OutputString, "enabled: Enabled");
+            StringAssert.Contains(result.OutputString, "enabled: OtherEnabled");
+        }
+
         public class TestViewModel
         {
             public bool Enabled { get; set; }
+            public bool OtherEnabled { get; set; }
             public void Save() { }
         }
     }

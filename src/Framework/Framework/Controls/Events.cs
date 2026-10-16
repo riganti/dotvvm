@@ -76,11 +76,14 @@ namespace DotVVM.Framework.Controls
             binding.AddValue("alt", shortcut.Alt);
             binding.AddValue("shift", shortcut.Shift);
 
-            var enabledProperty = control.Properties.Keys
+            var enabledProperties = control.Properties.Keys
                 .OfType<GroupedDotvvmProperty>()
-                .FirstOrDefault(p =>
-                    p.PropertyGroup == KeyEnabledGroupDescriptor
-                    && TryParseShortcut(p.GroupMemberName, out var enabledShortcut)
+                .Where(p => p.PropertyGroup == KeyEnabledGroupDescriptor)
+                .ToArray();
+            var enabledProperty = enabledProperties
+                .FirstOrDefault(p => p.GroupMemberName == property.GroupMemberName)
+                ?? enabledProperties.FirstOrDefault(p =>
+                    TryParseShortcut(p.GroupMemberName, out var enabledShortcut)
                     && enabledShortcut == shortcut);
             if (enabledProperty is not null)
             {
