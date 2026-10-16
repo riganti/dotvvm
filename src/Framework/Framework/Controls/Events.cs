@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Controls
         private static bool TryParseShortcut(string value, out KeyboardShortcut shortcut)
         {
             shortcut = default;
-            var parts = value.Split('+');
+            var parts = value.Split('+', '-');
             if (parts.Length is < 1 or > 4 || parts.Any(string.IsNullOrEmpty))
             {
                 return false;

@@ -16,8 +16,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             var result = await cth.RunPage(typeof(TestViewModel), """
                 <dot:Events Key-Ctrl+S="{command: Save()}"
                             Events.KeyEnabled-Ctrl+S="{value: Enabled}" />
-                <div Events.Key-Shift+Alt+Enter="{command: Save()}"
-                     Events.KeyEnabled-Shift+Alt+Enter="{value: Enabled}" />
+                <div Events.Key-Shift-Alt-Enter="{command: Save()}"
+                     Events.KeyEnabled-Shift-Alt-Enter="{value: Enabled}" />
                 """);
 
             StringAssert.Contains(result.OutputString, "<!-- ko dotvvm-command-shortcut:");
@@ -30,6 +30,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         [DataRow("Ctrl+Ctrl+S")]
         [DataRow("Ctrl+S+Alt")]
         [DataRow("Ctrl++S")]
+        [DataRow("Ctrl--S")]
         [DataRow("Control+S")]
         [DataRow("Ctrl+Unknown")]
         [DataRow("999")]
