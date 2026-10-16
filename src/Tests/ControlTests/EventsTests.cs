@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:Events Key-Ctrl+S="{command: Save()}"
                             Events.KeyEnabled-Ctrl+S="{value: Enabled}" />
                 <div Events.Key-Shift-Alt-Enter="{command: Save()}"
-                     Events.KeyEnabled-Shift+Alt+Enter="{value: Enabled}" />
+                     Events.KeyEnabled-Shift-Alt-Enter="{value: Enabled}" />
                 """);
 
             StringAssert.Contains(result.OutputString, "<!-- ko dotvvm-command-shortcut:");
@@ -49,31 +49,16 @@ namespace DotVVM.Framework.Tests.ControlTests
         {
             var exception = await Assert.ThrowsExceptionAsync<DotvvmCompilationException>(() =>
                 cth.RunPage(typeof(TestViewModel), """
-                    <div Events.Key-Ctrl+S="{command: Save()}"
-                         Events.KeyEnabled-Ctrl+Enter="{value: Enabled}" />
+                    <div Events.Key-Ctrl-S="{command: Save()}"
+                         Events.KeyEnabled-Ctrl+S="{value: Enabled}" />
                     """));
 
-            StringAssert.Contains(exception.Message, "can only be used together with Key-Ctrl+Enter");
-        }
-
-        [TestMethod]
-        public async Task KeyEnabled_PrefersExactSeparatorVariant()
-        {
-            var result = await cth.RunPage(typeof(TestViewModel), """
-                <div Events.Key-Ctrl+S="{command: Save()}"
-                     Events.KeyEnabled-Ctrl+S="{value: Enabled}"
-                     Events.Key-Ctrl-S="{command: Save()}"
-                     Events.KeyEnabled-Ctrl-S="{value: OtherEnabled}" />
-                """);
-
-            StringAssert.Contains(result.OutputString, "enabled: Enabled");
-            StringAssert.Contains(result.OutputString, "enabled: OtherEnabled");
+            StringAssert.Contains(exception.Message, "can only be used together with Key-Ctrl+S");
         }
 
         public class TestViewModel
         {
             public bool Enabled { get; set; }
-            public bool OtherEnabled { get; set; }
             public void Save() { }
         }
     }
