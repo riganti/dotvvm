@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:Events Key-Ctrl+S="{command: Save()}"
                             Events.KeyEnabled-Ctrl+S="{value: Enabled}" />
                 <div Events.Key-Shift-Alt-Enter="{command: Save()}"
-                     Events.KeyEnabled-Shift-Alt-Enter="{value: Enabled}" />
+                     Events.KeyEnabled-Shift+Alt+Enter="{value: Enabled}" />
                 """);
 
             StringAssert.Contains(result.OutputString, "<!-- ko dotvvm-command-shortcut:");

@@ -76,8 +76,13 @@ namespace DotVVM.Framework.Controls
             binding.AddValue("alt", shortcut.Alt);
             binding.AddValue("shift", shortcut.Shift);
 
-            var enabledProperty = KeyEnabledGroupDescriptor.GetDotvvmProperty(property.GroupMemberName);
-            if (control.IsPropertySet(enabledProperty, inherit: false))
+            var enabledProperty = control.Properties.Keys
+                .OfType<GroupedDotvvmProperty>()
+                .FirstOrDefault(p =>
+                    p.PropertyGroup == KeyEnabledGroupDescriptor
+                    && TryParseShortcut(p.GroupMemberName, out var enabledShortcut)
+                    && enabledShortcut == shortcut);
+            if (enabledProperty is not null)
             {
                 binding.Add("enabled", control, enabledProperty);
             }
@@ -104,9 +109,14 @@ namespace DotVVM.Framework.Controls
             var shortcuts = control.Properties
                 .Where(p => p.Key is GroupedDotvvmProperty property && property.PropertyGroup == KeyGroupDescriptor)
                 .ToArray();
-            var shortcutNames = shortcuts
+            var parsedShortcuts = shortcuts
                 .Select(p => ((GroupedDotvvmProperty)p.Key).GroupMemberName)
-                .ToHashSet(StringComparer.Ordinal);
+                .Where(name => TryParseShortcut(name, out _))
+                .Select(name => {
+                    TryParseShortcut(name, out var shortcut);
+                    return shortcut;
+                })
+                .ToHashSet();
 
             foreach (var shortcut in shortcuts)
             {
@@ -123,7 +133,8 @@ namespace DotVVM.Framework.Controls
                 .Where(p => p.Key is GroupedDotvvmProperty property && property.PropertyGroup == KeyEnabledGroupDescriptor))
             {
                 var property = (GroupedDotvvmProperty)enabled.Key;
-                if (!shortcutNames.Contains(property.GroupMemberName))
+                if (!TryParseShortcut(property.GroupMemberName, out var enabledShortcut)
+                    || !parsedShortcuts.Contains(enabledShortcut))
                 {
                     yield return new ControlUsageError(
                         $"{property.Name} can only be used together with Key-{property.GroupMemberName}.",
