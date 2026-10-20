@@ -74,6 +74,17 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [DataTestMethod]
+        [DataRow(typeof(TestViewModel2[]), "_this[_parent.IntProp]", "\"\" + $parent.IntProp.state")]
+        [DataRow(typeof(System.Collections.Generic.List<TestViewModel2>), "_this[_parent.IntProp]", "\"\" + $parent.IntProp.state")]
+        [DataRow(typeof(TestViewModel2[]), "_this[_parent.IntProp].SomeString", "\"\" + $parent.IntProp.state + \"/SomeString\"")]
+        [DataRow(typeof(TestViewModel2[]), "_this[0]", "\"0\"")]
+        public void IndexInCollectionDataContext(Type contextType, string expression, string expected)
+        {
+            var p = GetValidationPaths($"s.Method({expression})", typeof(TestViewModel), contextType);
+            Assert.AreEqual(expected, p.Single());
+        }
+
+        [DataTestMethod]
         [DataRow("Name", "\"Name\"")]
         [DataRow("RenamedProperty", "\"renamed\"")]
         [DataRow("Child.Name", "\"Child/Name\"")]
