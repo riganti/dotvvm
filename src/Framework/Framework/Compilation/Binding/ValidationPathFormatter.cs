@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (IsNull(targetPath))
                         return targetPath;
 
-                    var typeMap = mapper.GetMap(m.Member.DeclaringType!);
+                    var typeMap = mapper.GetMap(m.Expression.Type);
                     var property = typeMap.Properties.FirstOrDefault(p => p.PropertyInfo == m.Member);
 
                     if (property is null)
