@@ -73,6 +73,29 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("\"VmArray/\" + $par.IntProp.state + \"/MyProperty\"", p.Single());
         }
 
+        [DataTestMethod]
+        [DataRow("Name", "\"Name\"")]
+        [DataRow("RenamedProperty", "\"renamed\"")]
+        [DataRow("Child.Name", "\"Child/Name\"")]
+        [DataRow("Child.RenamedProperty", "\"Child/renamed\"")]
+        public void InheritedProperty(string expression, string expected)
+        {
+            var p = GetValidationPaths($"s.Method({expression})", typeof(DerivedViewModel));
+            Assert.AreEqual(expected, p.Single());
+        }
+
+        [DataTestMethod]
+        [DataRow(typeof(IDerivedViewModel), "Name", "\"Name\"")]
+        [DataRow(typeof(IDerivedViewModel), "RenamedProperty", "\"renamed\"")] // unlikely to be renamed on interface, but at least there's a workaround...
+        [DataRow(typeof(IGridViewDataSet<TestViewModel2>), "_this", "\".\"")]
+        [DataRow(typeof(IGridViewDataSet<TestViewModel2>), "_this.Items", "\"Items\"")]
+        [DataRow(typeof(IGridViewDataSet<TestViewModel2>), "_this.Items[0].SomeString", "\"Items/0/SomeString\"")]
+        public void InterfaceTypedDataSet(Type contextType, string expression, string expected)
+        {
+            var p = GetValidationPaths($"s.Method({expression})", contextType);
+            Assert.AreEqual(expected, p.Single());
+        }
+
         [TestMethod]
         public void ListIndex()
         {
@@ -236,6 +259,36 @@ namespace DotVVM.Framework.Tests.Binding
         {
             [Bind(Name = "x")]
             public string MyProperty { get; set; }
+        }
+
+        public interface IBaseViewModel
+        {
+            string Name { get; set; }
+
+            [Bind(Name = "renamed")]
+            string RenamedProperty { get; set; }
+        }
+
+        public interface IDerivedViewModel : IBaseViewModel
+        {
+        }
+
+        public class InterfaceDataSetViewModel
+        {
+            public IGridViewDataSet<TestViewModel2> DataSet { get; set; }
+        }
+
+        public class BaseViewModel : IBaseViewModel
+        {
+            public string Name { get; set; }
+
+            [Bind(Name = "renamed")]
+            public string RenamedProperty { get; set; }
+        }
+
+        public class DerivedViewModel : BaseViewModel
+        {
+            public DerivedViewModel Child { get; set; }
         }
     }
 }
