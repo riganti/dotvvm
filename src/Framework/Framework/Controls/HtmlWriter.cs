@@ -339,15 +339,19 @@ namespace DotVVM.Framework.Controls
         /// Throws an exception if the specified string can't be a valid html name.
         /// The point is not to validate according to specification, but to make XSS attacks
         /// impossible - it disables html control characters, but won't throw on digit at the start of the name.
-        private void AssertIsValidHtmlName(string name)
+        private static void AssertIsValidHtmlName(string name)
         {
             if (name.Length == 0) throw new ArgumentException("HTML name length can't be zero.");
+
+            // forbidden characters which switch HTML parser out of "attribute name state":
+            // https://html.spec.whatwg.org/multipage/parsing.html#attribute-name-state
+            // all are less than 64 :))
+            const ulong forbidden = ((1UL << 33) - 1) |
+                (1UL << '=') | (1UL << '"') | (1UL << '\'') | (1UL << '<') | (1UL << '>') | (1UL << '/') | (1UL << '&');
             foreach (var ch in name)
             {
-                if (ch == '=' || ch == '"' || ch == '\'' || ch == '<' || ch == '>' || ch == '/' || ch == '&')
+                if (ch < 64 && ((forbidden >> ch) & 1UL) != 0)
                     throw new ArgumentException("HTML control characters are not enabled in names.");
-                if (char.IsWhiteSpace(ch))
-                    throw new ArgumentException("Whitespace is not allowed in HTML name.");
             }
         }
 
