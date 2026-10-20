@@ -33,6 +33,7 @@
 
     <div>
         <js:incrementer i={value: Counter} html:data-ui="jscomponent-counter" />
+        <js:incrementer i={value: Counter} useSetProps={resource: true} html:data-ui="jscomponent-counter-setprops" />
 
         <div>
             DotVVM: <span data-ui="dotvvm-counter">{{value: Counter}}</span>
