@@ -86,6 +86,7 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("_this.VmArray[0]", "\"VmArray/0\"")]
         [DataRow("_this.VmArray[2].MyProperty", "\"VmArray/2/MyProperty\"")]
         [DataRow("_this.VmArray[0].ChildObject.SomeString", "\"VmArray/0/ChildObject/SomeString\"")]
+        [DataRow("StringProp = _this.VmArray[2].MyProperty", "\"VmArray/2/MyProperty\"")]
         public void ComplexExpressions(string expression, string expected)
         {
             var p = GetValidationPaths($"s.Method({expression})", typeof(TestViewModel));
