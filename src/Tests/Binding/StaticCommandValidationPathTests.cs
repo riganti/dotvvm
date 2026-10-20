@@ -83,7 +83,10 @@ namespace DotVVM.Framework.Tests.Binding
         [DataTestMethod]
         [DataRow("_this.VmArray[_this.IntProp].ChildObject.SomeString", "\"VmArray/\" + $par.IntProp.state + \"/ChildObject/SomeString\"")]
         [DataRow("_this.VmArray[_this.IntProp].Collection[_this.IntProp].StringValue", "\"VmArray/\" + $par.IntProp.state + \"/Collection/\" + $par.IntProp.state + \"/StringValue\"")]
-        public void NestedPropertyAfterDynamicIndex(string expression, string expected)
+        [DataRow("_this.VmArray[0]", "\"VmArray/0\"")]
+        [DataRow("_this.VmArray[2].MyProperty", "\"VmArray/2/MyProperty\"")]
+        [DataRow("_this.VmArray[0].ChildObject.SomeString", "\"VmArray/0/ChildObject/SomeString\"")]
+        public void ComplexExpressions(string expression, string expected)
         {
             var p = GetValidationPaths($"s.Method({expression})", typeof(TestViewModel));
             Assert.AreEqual(expected, p.Single());
@@ -140,6 +143,15 @@ namespace DotVVM.Framework.Tests.Binding
         public void ConditionalPropertyIgnoresEdgecase()
         {
             var p = GetValidationPaths("s.Method(StringProp != 'aaa' ? StringProp : 'bb')", typeof(TestViewModel));
+            Assert.AreEqual("\"StringProp\"", p.Single());
+        }
+
+        [DataTestMethod]
+        [DataRow("'bb'")]
+        [DataRow("s.OtherMethod()")]
+        public void ConditionalPropertyWithUnmappedTrueBranch(string trueExpression)
+        {
+            var p = GetValidationPaths($"s.Method(StringProp != 'aaa' ? {trueExpression} : StringProp)", typeof(TestViewModel));
             Assert.AreEqual("\"StringProp\"", p.Single());
         }
 

@@ -125,9 +125,9 @@ namespace DotVVM.Framework.Compilation.Binding
                 else if (expr is MethodCallExpression { Method.Name: nameof(Enums.ToEnumString) } toEnumStringMethodCall && toEnumStringMethodCall.Method.DeclaringType == typeof(Enums))
                     expr = toEnumStringMethodCall.Object ?? toEnumStringMethodCall.Arguments.First();
                 // unwrap binary operation with a constant
-                else if (expr is BinaryExpression { Right.NodeType: ExpressionType.Constant } binaryLeft)
+                else if (expr is BinaryExpression { NodeType: not ExpressionType.ArrayIndex, Right.NodeType: ExpressionType.Constant } binaryLeft)
                     expr = binaryLeft.Left;
-                else if (expr is BinaryExpression { Left.NodeType: ExpressionType.Constant } binaryRight)
+                else if (expr is BinaryExpression { NodeType: not ExpressionType.ArrayIndex, Left.NodeType: ExpressionType.Constant } binaryRight)
                     expr = binaryRight.Right;
                 else
                     return expr;
