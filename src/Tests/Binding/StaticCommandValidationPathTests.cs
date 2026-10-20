@@ -81,6 +81,15 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [DataTestMethod]
+        [DataRow("_this.VmArray[_this.IntProp].ChildObject.SomeString", "\"VmArray/\" + $par.IntProp.state + \"/ChildObject/SomeString\"")]
+        [DataRow("_this.VmArray[_this.IntProp].Collection[_this.IntProp].StringValue", "\"VmArray/\" + $par.IntProp.state + \"/Collection/\" + $par.IntProp.state + \"/StringValue\"")]
+        public void NestedPropertyAfterDynamicIndex(string expression, string expected)
+        {
+            var p = GetValidationPaths($"s.Method({expression})", typeof(TestViewModel));
+            Assert.AreEqual(expected, p.Single());
+        }
+
+        [DataTestMethod]
         [DataRow("_this", "\".\"")]
         [DataRow("_parent", "\"..\"")]
         [DataRow("_root", "\"../..\"")]
