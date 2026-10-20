@@ -65,7 +65,12 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (IsNull(targetPath))
                         return targetPath;
 
-                    var typeMap = mapper.GetMap(m.Expression.Type);
+                    // Nullable wrappers, primitives and collections do not serialize their CLR properties as child members.
+                    var targetType = m.Expression.Type;
+                    if (targetType.IsNullable() || ReflectionUtils.IsPrimitiveType(targetType) || ReflectionUtils.IsEnumerable(targetType))
+                        return targetPath;
+
+                    var typeMap = mapper.GetMap(targetType);
                     var property = typeMap.Properties.FirstOrDefault(p => p.PropertyInfo == m.Member);
 
                     if (property is null)
