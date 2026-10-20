@@ -129,6 +129,29 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void ViewModelValidator_WithValidationTarget_ArrayElement_NullEntries()
+        {
+            var testViewModel = new TestViewModel()
+            {
+                Children = [
+                    null,
+                    new TestViewModel2() { Code = "123" },
+                    null
+                ]
+            };
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var modelState = new ModelState() { ValidationTarget = testViewModel.Children[1] };
+
+            modelState.ErrorsInternal.AddRange(validator.ValidateViewModel(modelState.ValidationTarget));
+            expander.Expand(modelState, testViewModel);
+
+            var error = XAssert.Single(modelState.Errors);
+            Assert.AreEqual("/Children/1/Id", error.PropertyPath);
+            Assert.IsTrue(error.IsResolved);
+        }
+
+        [TestMethod]
         public void ViewModelValidator_Child_CustomValidationAttribute()
         {
             var testViewModel = new TestViewModel4() { Child = new TestViewModel4Child() { IsChecked = true } };
