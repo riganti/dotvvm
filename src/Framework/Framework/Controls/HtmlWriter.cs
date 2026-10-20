@@ -353,6 +353,8 @@ namespace DotVVM.Framework.Controls
 
         public void WriteHtmlAttribute(string attributeName, string? attributeValue)
         {
+            AssertIsValidHtmlName(attributeName);
+
             // See for context: https://html.spec.whatwg.org/#attributes-2
             writer.Write(" ");
             writer.Write(attributeName);
