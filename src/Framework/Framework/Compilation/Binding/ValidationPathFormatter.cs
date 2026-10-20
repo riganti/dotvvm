@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (right is JsLiteral { Value: not null } rightLiteral)
                 return AppendPaths(left, rightLiteral.Value.ToString()!);
             else if (left is JsLiteral { Value: "." })
-                return right;
+                return new JsBinaryExpression(new JsLiteral(""), BinaryOperatorType.Plus, right);
             else
                 return new JsBinaryExpression(StringAppend(left, "/"), BinaryOperatorType.Plus, right);
         }
