@@ -77,8 +77,10 @@ namespace DotVVM.Framework.Compilation.Binding
                     var truePath = GetValidationPath(conditional.IfTrue, dataContext, baseFormatter);
                     var falsePath = GetValidationPath(conditional.IfFalse, dataContext, baseFormatter);
 
-                    if (IsNull(truePath) || IsNull(falsePath))
-                        return truePath ?? falsePath;
+                    if (IsNull(truePath))
+                        return falsePath;
+                    if (IsNull(falsePath))
+                        return truePath;
 
                     if (truePath is JsLiteral { Value: var trueValue } && falsePath is JsLiteral { Value: var falseValue } && object.Equals(trueValue, falseValue))
                         return truePath;
@@ -150,7 +152,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (left is JsLiteral l && l.Value is string s)
                 return new JsLiteral(s + right);
             else if (left is JsBinaryExpression { OperatorString: "+", Right: JsLiteral { Value: string str2 } } binary)
-                return new JsBinaryExpression(left, BinaryOperatorType.Plus, new JsLiteral(str2 + right));
+                return new JsBinaryExpression(binary.Left.Detach(), BinaryOperatorType.Plus, new JsLiteral(str2 + right));
             else
                 return new JsBinaryExpression(left, BinaryOperatorType.Plus, new JsLiteral(right));
         }
