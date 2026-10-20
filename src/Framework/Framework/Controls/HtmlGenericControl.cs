@@ -259,7 +259,7 @@ namespace DotVVM.Framework.Controls
 
             if (false.Equals(KnockoutHelper.TryEvaluateValueBinding(this, v)))
             {
-                writer.AddAttribute("style", "display:none");
+                writer.AddAttribute("style", "display:none", append: true, ";");
             }
         }
 
