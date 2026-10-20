@@ -120,6 +120,8 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("_this.VmArray[0]", "\"VmArray/0\"")]
         [DataRow("_this.VmArray[2].MyProperty", "\"VmArray/2/MyProperty\"")]
         [DataRow("_this.VmArray[0].ChildObject.SomeString", "\"VmArray/0/ChildObject/SomeString\"")]
+        [DataRow("_this.VmArray[0].SomeString.Length", "\"VmArray/0/SomeString\"")]
+        [DataRow("_this.StringList[_this.IntProp].Length", "\"StringList/\" + $par.IntProp.state")]
         [DataRow("StringProp = _this.VmArray[2].MyProperty", "\"VmArray/2/MyProperty\"")]
         public void ComplexExpressions(string expression, string expected)
         {
@@ -146,9 +148,27 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("_this.IntProp", "\"IntProp\"")] // this will use BoxingUtils.Box
         [DataRow("_this.IntProp + 1", "\"IntProp\"")]
         [DataRow("'padding: ' + _this.StringProp", "\"StringProp\"")]
+        [DataRow("NullableIntProp.Value", "\"NullableIntProp\"")]
+        [DataRow("NullableIntProp.HasValue", "\"NullableIntProp\"")]
+        [DataRow("StringProp.Length", "\"StringProp\"")]
+        [DataRow("StringList.Count", "\"StringList\"")]
+        [DataRow("DateTime.Year", "\"DateTime\"")]
         public void UnwrapsPointlessExpressions(string expr, string expected)
         {
             var p = GetValidationPaths($"s.Method({expr})", typeof(TestViewModel));
+            Assert.AreEqual(expected, p.Single());
+        }
+
+        [DataTestMethod]
+        [DataRow(typeof(int?), "_this.Value", "\".\"")]
+        [DataRow(typeof(string), "_this.Length", "\".\"")]
+        [DataRow(typeof(System.Collections.Generic.List<string>), "_this.Count", "\".\"")]
+        [DataRow(typeof(ViewModelWithClrPropertyNames?), "_this.Value.Value", "\"Value\"")]
+        [DataRow(typeof(ViewModelWithClrPropertyNames?), "_this.Value.Length", "\"Length\"")]
+        [DataRow(typeof(ViewModelWithClrPropertyNames), "_this.Count", "\"Count\"")]
+        public void ClrPropertiesInDataContext(Type contextType, string expression, string expected)
+        {
+            var p = GetValidationPaths($"s.Method({expression})", contextType);
             Assert.AreEqual(expected, p.Single());
         }
 
@@ -270,6 +290,13 @@ namespace DotVVM.Framework.Tests.Binding
         {
             [Bind(Name = "x")]
             public string MyProperty { get; set; }
+        }
+
+        public struct ViewModelWithClrPropertyNames
+        {
+            public string Value { get; set; }
+            public int Length { get; set; }
+            public int Count { get; set; }
         }
 
         public interface IBaseViewModel
