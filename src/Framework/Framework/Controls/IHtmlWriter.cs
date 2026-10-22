@@ -83,6 +83,7 @@ namespace DotVVM.Framework.Controls
         /// Writes the specified HTML attribute and value (e.g. href="myUrl"). 
         /// This method is typically used from <see cref="IHtmlAttributeTransformer"/> implementations.
         /// </summary>
+        /// <exception cref="ArgumentException">The attribute name is empty or contains characters forbidden in HTML names.</exception>
         void WriteHtmlAttribute(string attributeName, string? attributeValue);
 
         /// <summary>

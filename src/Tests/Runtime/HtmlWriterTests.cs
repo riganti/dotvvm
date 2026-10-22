@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using AngleSharp.Html.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Testing;
@@ -19,6 +20,87 @@ namespace DotVVM.Framework.Tests.Runtime
                 Configuration = DotvvmTestHelper.DefaultConfig
             }));
             return text.ToString();
+        }
+
+        void AssertInvalidHtmlName(string name)
+        {
+            var text = WriteHtml(a => {
+                Assert.ThrowsException<ArgumentException>(() => a.RenderBeginTag(name));
+                Assert.ThrowsException<ArgumentException>(() => a.RenderSelfClosingTag(name));
+                Assert.ThrowsException<ArgumentException>(() => a.WriteHtmlAttribute(name, "value"));
+                Assert.ThrowsException<ArgumentException>(() => a.WriteHtmlAttribute(name, ""));
+                Assert.ThrowsException<ArgumentException>(() => a.WriteHtmlAttribute(name, null));
+            });
+            Assert.AreEqual("", text, "An invalid name must be rejected before any part of it is written.");
+        }
+
+        [TestMethod]
+        public void HtmlNames_RejectEmptyNames()
+        {
+            AssertInvalidHtmlName("");
+        }
+
+        // https://html.spec.whatwg.org/multipage/parsing.html#attribute-name-state
+        // https://html.spec.whatwg.org/multipage/parsing.html#tag-name-state
+        [DataTestMethod]
+        [DataRow('\0')]
+        [DataRow('\t')]
+        [DataRow('\n')]
+        [DataRow('\f')]
+        [DataRow('\r')]
+        [DataRow(' ')]
+        [DataRow('/')]
+        [DataRow('>')]
+        [DataRow('=')]
+        [DataRow('"')]
+        [DataRow('\'')]
+        [DataRow('<')]
+        [DataRow('&')]
+        public void HtmlNames_RejectSyntaxCharacters(char character)
+        {
+            AssertInvalidHtmlName(character + "name");
+            AssertInvalidHtmlName("na" + character + "me");
+            AssertInvalidHtmlName("name" + character);
+        }
+
+        [DataTestMethod]
+        [DataRow("title><img src=x onerror=alert(1)>")]
+        [DataRow("title onmouseover=alert(1)")]
+        [DataRow("title/onmouseover=alert(1)")]
+        [DataRow("title=ignored onmouseover=alert(1)")]
+        [DataRow("title\r\nonmouseover=alert(1)")]
+        public void HtmlAttributes_RejectNameInjectionInAllMergePaths(string name)
+        {
+            AssertInvalidHtmlName("data-" + name);
+        }
+
+        [DataTestMethod]
+        [DataRow(":viewBox")]
+        [DataRow("data+name")]
+        [DataRow("aria-label")]
+        [DataRow("xmlns:xlink")]
+        [DataRow("name_0.test@[]`")]
+        [DataRow("0name")]
+        [DataRow("žluťoučký")]
+        public void HtmlNames_Valid(string name)
+        {
+            var tag = WriteHtml(a => {
+                a.RenderBeginTag(name);
+                a.RenderEndTag();
+                a.RenderSelfClosingTag(name);
+            });
+            Assert.AreEqual($"<{name}></{name}><{name} />", tag);
+
+            var attribute = WriteHtml(a => {
+                a.AddAttribute(name, "value");
+                a.RenderBeginTag("div");
+                a.RenderEndTag();
+            });
+            Assert.AreEqual($"<div {name}=value></div>", attribute);
+
+            var element = new HtmlParser().ParseDocument(attribute).Body.FirstElementChild;
+            Assert.AreEqual(1, element.Attributes.Length);
+            Assert.AreEqual("value", element.GetAttribute(name));
         }
 
         [TestMethod]
