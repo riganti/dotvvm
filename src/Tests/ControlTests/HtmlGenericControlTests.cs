@@ -121,6 +121,15 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.AreEqual("""<div style=display:none data-bind="visible: Integer() == 99"></div>""", str);
         }
 
+        [TestMethod]
+        public void VisibleFalse_PreservesCssStyles()
+        {
+            var control = new HtmlGenericControl("div") { Visible = false };
+            control.CssStyles.Add("width", "123px");
+
+            Assert.AreEqual("""<div style="width:123px;display:none"></div>""", RenderToString(control));
+        }
+
         [DataTestMethod]
         [DataRow(RenderMode.Client)]
         [DataRow(RenderMode.Server)]
