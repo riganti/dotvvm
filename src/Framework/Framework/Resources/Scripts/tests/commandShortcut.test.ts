@@ -1,6 +1,14 @@
 import commandShortcut from "../binding-handlers/command-shortcut";
+import { logWarning } from "../utils/logging";
+
+jest.mock("../utils/logging", () => ({
+    logWarning: jest.fn()
+}));
 
 const handler = commandShortcut["dotvvm-command-shortcut"];
+const warningMock = jest.mocked(logWarning);
+
+beforeEach(() => warningMock.mockClear());
 
 function keydown(target: Document | HTMLElement, options: KeyboardEventInit & { keyCode: number }) {
     const event = new KeyboardEvent("keydown", options);
@@ -20,6 +28,7 @@ test("document shortcut matches key and modifiers", () => {
     const event = keydown(document, { keyCode: 83, ctrlKey: true, shiftKey: true, cancelable: true });
     expect(command).toHaveBeenCalledTimes(1);
     expect(event.defaultPrevented).toBe(true);
+    expect(logWarning).not.toHaveBeenCalled();
 
     keydown(document, { keyCode: 83, ctrlKey: true });
     expect(command).toHaveBeenCalledTimes(1);
@@ -74,6 +83,7 @@ test("same-scope shortcuts all run and targeted shortcuts do not propagate", asy
 
     keydown(document.getElementById("inside")!, { keyCode: 75, bubbles: true });
     await Promise.resolve();
+    expect(logWarning).toHaveBeenCalledWith("events", "Keyboard shortcut matched 2 handlers. Invoking all of them.");
     expect(targetCommands[0]).toHaveBeenCalledTimes(1);
     expect(targetCommands[1]).toHaveBeenCalledTimes(1);
     expect(documentCommands[0]).not.toHaveBeenCalled();
@@ -81,6 +91,7 @@ test("same-scope shortcuts all run and targeted shortcuts do not propagate", asy
 
     keydown(document.getElementById("outside")!, { keyCode: 75, bubbles: true });
     await Promise.resolve();
+    expect(logWarning).toHaveBeenCalledTimes(2);
     expect(documentCommands[0]).toHaveBeenCalledTimes(1);
     expect(documentCommands[1]).toHaveBeenCalledTimes(1);
 

@@ -1,3 +1,5 @@
+import { logWarning } from "../utils/logging";
+
 type CommandShortcutProps = {
     command: () => Promise<unknown>,
     key: string | KnockoutObservable<string>,
@@ -68,6 +70,9 @@ export default {
                     && !keyboardEvent.metaKey);
                 if (matches.length === 0) {
                     return;
+                }
+                if (matches.length > 1) {
+                    logWarning("events", `Keyboard shortcut matched ${matches.length} handlers. Invoking all of them.`);
                 }
 
                 if (target !== document) {
