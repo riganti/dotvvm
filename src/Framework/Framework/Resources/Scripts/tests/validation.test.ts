@@ -340,6 +340,162 @@ describe("DotVVM.Validation - view model validation", () => {
     })
 })
 
+describe("DotVVM.Validation - stale errors after value changes (issue #438)", () => {
+    const s = getStateManager() as StateManager<any>
+
+    afterEach(() => validation.removeErrors("/"))
+
+    test.each(["correct the field", "replace Detail"])("clear errors when we %s without another validation postback", change => {
+        validation.removeErrors("/")
+        dotvvm.updateState(x => ({ ...x, Dynamic: { Detail: { $type: "tValidated", RegexValidated: "abcde" } } }))
+        s.doUpdateNow()
+        runClientSideValidation(s.stateObservable, {} as any)
+
+        const originalField = s.stateObservable().Dynamic().Detail().RegexValidated
+        expect(getErrors(originalField)).toHaveLength(1)
+        expect(validation.errors[0].propertyPath).toBe("/Dynamic/Detail/RegexValidated")
+        expect(validation.errors[0].errorMessage).toBe("Must have even length")
+
+        if (change === "correct the field") {
+            originalField("abcd")
+        } else {
+            dotvvm.updateState(x => ({ ...x, Dynamic: { Detail: { $type: "tValidated", RegexValidated: "abcd" } } }))
+        }
+        s.doUpdateNow()
+        ko.tasks.runEarly()
+
+        const currentField = s.stateObservable().Dynamic().Detail().RegexValidated
+        expect(currentField()).toBe("abcd")
+        // The current value satisfies the rule. Old errors must not keep the field invalid.
+        expect(getErrors(currentField)).toHaveLength(0)
+        expect(validation.errors).toHaveLength(0)
+    })
+
+    test("clear only the changed property's errors and release its subscription", () => {
+        validation.removeErrors("/")
+        const name = ko.observable("old")
+        const other = ko.observable("unchanged")
+        validation.addErrors([
+            { propertyPath: "/Name", errorMessage: "First error" },
+            { propertyPath: "/Name", errorMessage: "Second error" },
+            { propertyPath: "/Other", errorMessage: "Other error" }
+        ], { root: ko.observable({ Name: name, Other: other }) })
+        const changed = jest.fn()
+        validation.events.validationErrorsChanged.subscribe(changed)
+        try {
+            name("old")
+            name.valueHasMutated!()
+            ko.tasks.runEarly()
+            expect(getErrors(name)).toHaveLength(2)
+            expect(changed).not.toHaveBeenCalled()
+
+            name("new")
+            ko.tasks.runEarly()
+            expect(name()).toBe("new")
+            expect(getErrors(name)).toHaveLength(0)
+            expect(getErrors(other)).toHaveLength(1)
+            expect(validation.errors.map(e => e.errorMessage)).toEqual(["Other error"])
+            expect(changed).toHaveBeenCalledTimes(1)
+            expect(name.getSubscriptionsCount()).toBe(0)
+
+            validation.addErrors([{ propertyPath: "/Name", errorMessage: "New error" }], { root: ko.observable({ Name: name }) })
+            validation.removeErrors("/Name")
+            expect(name.getSubscriptionsCount()).toBe(0)
+        } finally {
+            validation.events.validationErrorsChanged.unsubscribe(changed)
+        }
+    })
+
+    test.each(["remove Detail", "replace Detail type", "replace observable", "remove array item"])("discard child errors when we %s", change => {
+        validation.removeErrors("/")
+        const invalid = () => ({ $type: "tValidated", RegexValidated: "abcde" })
+        dotvvm.updateState(x => ({ ...x, Dynamic: { Detail: invalid(), Other: invalid(), Items: [invalid()] } }))
+        s.doUpdateNow()
+        runClientSideValidation(s.stateObservable, {} as any)
+        const vm = s.stateObservable().Dynamic()
+        const removedField = change === "remove array item" ? vm.Items()[0]().RegexValidated : vm.Detail().RegexValidated
+        const unchangedField = vm.Other().RegexValidated
+        expect(validation.errors).toHaveLength(3)
+
+        if (change === "replace observable") {
+            vm.Detail({ $type: "tValidated", RegexValidated: "abcd" })
+        } else {
+            const patch = change === "remove Detail" ? { Detail: null }
+                : change === "replace Detail type" ? { Detail: { $type: "t2", Id: 1 } }
+                : { Items: [] }
+            s.patchState({ Dynamic: patch })
+        }
+        s.doUpdateNow()
+        ko.tasks.runEarly()
+        expect(getErrors(removedField)).toHaveLength(0)
+        expect(getErrors(unchangedField)).toHaveLength(1)
+        expect(validation.errors).toHaveLength(2)
+    })
+
+    test.each(["scalar", "array"])("keep a fresh %s error during deferred state synchronization", kind => {
+        validation.removeErrors("/")
+        s.patchState({ Dynamic: { Name: "old", Items: ["old"] } })
+        s.doUpdateNow()
+        const vm = s.stateObservable().Dynamic()
+        const field = kind === "scalar" ? vm.Name : vm.Items
+        const path = kind === "scalar" ? "/Dynamic/Name" : "/Dynamic/Items"
+        validation.addErrors([{ propertyPath: path, errorMessage: "Old error" }])
+        if (kind === "scalar") field("new")
+        else field.push("new")
+
+        validation.addErrors([{ propertyPath: path, errorMessage: "New value failed server validation" }])
+        s.doUpdateNow()
+        ko.tasks.runEarly()
+        expect(getErrors(field).map(e => e.errorMessage)).toEqual(["New value failed server validation"])
+        expect(validation.errors).toHaveLength(1)
+
+        s.doUpdateNow()
+        ko.tasks.runEarly()
+        expect(getErrors(field)).toHaveLength(1)
+    })
+
+    test("clear errors for an old KO value validated while a newer state patch is pending", () => {
+        validation.removeErrors("/")
+        dotvvm.updateState(x => ({ ...x, Dynamic: { Detail: { $type: "tValidated", RegexValidated: "abcde" } } }))
+        s.doUpdateNow()
+        const field = s.stateObservable().Dynamic().Detail().RegexValidated
+        s.patchState({ Dynamic: { Detail: { RegexValidated: "abcd" } } })
+        expect(field()).toBe("abcde")
+        runClientSideValidation(s.stateObservable, {} as any)
+        expect(getErrors(field)).toHaveLength(1)
+
+        s.doUpdateNow()
+        ko.tasks.runEarly()
+        expect(field()).toBe("abcd")
+        expect(getErrors(field)).toHaveLength(0)
+        expect(validation.errors).toHaveLength(0)
+    })
+
+    test("refresh validator text, styling, and error count after a value change", () => {
+        validation.removeErrors("/")
+        const name = ko.observable("old")
+        const root = ko.observable({ Name: name })
+        const div = document.createElement("div")
+        div.innerHTML = `<span class="message" data-bind="'dotvvm-validation': Name, 'dotvvm-validationOptions': { showErrorMessageText: true, invalidCssClass: 'invalid' }"></span>
+            <span class="count" data-bind="'dotvvm-validationErrorsCount': { target: Name, includeErrorsFromChildren: false, includeErrorsFromTarget: true, hideWhenValid: false }"></span>`
+        ko.applyBindings(root, div)
+        try {
+            validation.addErrors([{ propertyPath: "/Name", errorMessage: "Old value is invalid" }], { root })
+            expect(div.querySelector(".message")!.textContent).toBe("Old value is invalid")
+            expect(div.querySelector(".message")!.classList.contains("invalid")).toBe(true)
+            expect((div.querySelector(".count") as HTMLElement).innerText).toBe("1")
+
+            name("new")
+            ko.tasks.runEarly()
+            expect(div.querySelector(".message")!.textContent).toBe("")
+            expect(div.querySelector(".message")!.classList.contains("invalid")).toBe(false)
+            expect((div.querySelector(".count") as HTMLElement).innerText).toBe("0")
+        } finally {
+            ko.cleanNode(div)
+        }
+    })
+})
+
 function SetupComplexObservableViewmodelWithErrorsOnProp1AndProp21() {
     validation.removeErrors("/");
     const vm = createComplexObservableViewmodel();
