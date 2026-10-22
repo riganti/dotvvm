@@ -37,6 +37,21 @@ const keyCodes: Record<string, number> = {
     Divide: 111
 };
 
+const matchedHandlerCounts = new WeakMap<KeyboardEvent, number>();
+
+function recordMatchedHandlers(event: KeyboardEvent, count: number) {
+    const previousCount = matchedHandlerCounts.get(event) ?? 0;
+    matchedHandlerCounts.set(event, previousCount + count);
+    if (previousCount === 0) {
+        queueMicrotask(() => {
+            const totalCount = matchedHandlerCounts.get(event) ?? 0;
+            if (totalCount > 1) {
+                logWarning("events", `Keyboard shortcut matched ${totalCount} handlers. Invoking all of them.`);
+            }
+        });
+    }
+}
+
 function getKeyCode(key: string) {
     if (keyCodes[key] !== undefined) {
         return keyCodes[key];
@@ -71,9 +86,7 @@ export default {
                 if (matches.length === 0) {
                     return;
                 }
-                if (matches.length > 1) {
-                    logWarning("events", `Keyboard shortcut matched ${matches.length} handlers. Invoking all of them.`);
-                }
+                recordMatchedHandlers(keyboardEvent, matches.length);
 
                 if (target !== document) {
                     keyboardEvent.stopPropagation();

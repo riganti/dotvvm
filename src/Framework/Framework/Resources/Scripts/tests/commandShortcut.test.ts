@@ -79,7 +79,10 @@ test("same-scope shortcuts all run and targeted shortcuts do not propagate", asy
         command, key: "K", ctrl: false, shift: false, alt: false, enabled: true
     });
     handler.init(document.getElementById("scope")!, () => targetCommands.map(props));
-    handler.init(marker, () => documentCommands.map(props));
+    handler.init(marker, () => [props(documentCommands[0])]);
+    const secondMarker = document.createComment("shortcut");
+    document.body.appendChild(secondMarker);
+    handler.init(secondMarker, () => [props(documentCommands[1])]);
 
     keydown(document.getElementById("inside")!, { keyCode: 75, bubbles: true });
     await Promise.resolve();
@@ -96,4 +99,5 @@ test("same-scope shortcuts all run and targeted shortcuts do not propagate", asy
     expect(documentCommands[1]).toHaveBeenCalledTimes(1);
 
     ko.removeNode(marker);
+    ko.removeNode(secondMarker);
 });
