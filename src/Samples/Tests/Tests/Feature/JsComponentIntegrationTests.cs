@@ -190,9 +190,10 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Theory]
-        [InlineData(SamplesRouteUrls.FeatureSamples_JsComponentIntegration_ReactComponentIntegration, "React")]
-        [InlineData(SamplesRouteUrls.FeatureSamples_JsComponentIntegration_SvelteComponentIntegration, "Svelte")]
-        public void Feature_JsComponentIntegrationTests_IncrementerTwoWayBinding(string url, string componentName)
+        [InlineData(SamplesRouteUrls.FeatureSamples_JsComponentIntegration_ReactComponentIntegration, "React", "jscomponent-counter")]
+        [InlineData(SamplesRouteUrls.FeatureSamples_JsComponentIntegration_SvelteComponentIntegration, "Svelte", "jscomponent-counter")]
+        [InlineData(SamplesRouteUrls.FeatureSamples_JsComponentIntegration_SvelteComponentIntegration, "Svelte", "jscomponent-counter-setprops")]
+        public void Feature_JsComponentIntegrationTests_IncrementerTwoWayBinding(string url, string componentName, string counterSelector)
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(url);
@@ -203,7 +204,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // Click the JS component incrementer '+' button
                 // Incrementer renders two buttons: first is plus, second is minus
-                var jsIncrementer = browser.First("jscomponent-counter", SelectByDataUi);
+                var jsIncrementer = browser.First(counterSelector, SelectByDataUi);
                 var plus = jsIncrementer.ElementAt("button", 0);
                 var minus = jsIncrementer.ElementAt("button", 1);
 
@@ -231,6 +232,7 @@ namespace DotVVM.Samples.Tests.Feature
                 // Verify the JS component can continue incrementing from current value
                 plus.Click();
                 AssertUI.TextEquals(dotvvmCounter, "2");
+                AssertUI.TextEquals(jsIncrementer, $"{componentName}: 2 + -");
             });
         }
     }

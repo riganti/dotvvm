@@ -35,7 +35,7 @@ export const registerSvelteControl = <T extends Record<string, any>>(
     SvelteControl: Component<T>,
     defaultProps: Partial<T> = {}
 ) => ({
-    create: (elm: HTMLElement, props: any, commands: any, templates: any, setProps: (props: any) => void) => {
+    create: (elm: HTMLElement, props: any, commands: any, templates: any, setPropsRaw: (props: any) => void) => {
         const events: Record<string, any> = {}
         for (const cmd of Object.keys(commands)) {
             if (cmd.startsWith('on')) {
@@ -51,11 +51,16 @@ export const registerSvelteControl = <T extends Record<string, any>>(
 
         // Create Svelte 5 component instance
         const propsState = $state({ setProps, ...defaultProps, ...commands, ...templates, ...props })
+        function setProps(updatedProps: any) {
+            setPropsRaw(updatedProps)
+            Object.assign(propsState, updatedProps)
+        }
+
         const componentProps = new Proxy(propsState, {
             set(target, name, newValue) {
                 const success = Reflect.set(target, name, newValue)
                 if (success && name in props) {
-                    setProps({ [name]: newValue })
+                    setPropsRaw({ [name]: newValue })
                 }
                 return success
             }
