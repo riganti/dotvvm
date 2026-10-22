@@ -1,7 +1,6 @@
 import * as evaluator from "../utils/evaluator"
 import { validators } from './validators'
-import { allErrors, detachAllErrors, ValidationError, getErrors } from "./error"
-import { DotvvmEvent } from '../events'
+import { allErrors, detachAllErrors, ValidationError, getErrors, validationErrorsChanged } from "./error"
 import * as spaEvents from '../spa/events'
 import { postbackHandlers } from "../postback/handlers"
 import { DotvvmValidationContext, errorsSymbol } from "./common"
@@ -30,12 +29,6 @@ type ValidationErrorsCountBinding = {
     hideWhenValid?: boolean,
     formatErrorsCount?: (count: number) => string
 }
-
-type DotvvmValidationErrorsChangedEventArgs = Partial<PostbackOptions> & {
-    readonly allErrors: ValidationError[]
-}
-
-const validationErrorsChanged = new DotvvmEvent<DotvvmValidationErrorsChangedEventArgs>("dotvvm.validation.events.validationErrorsChanged");
 
 export const events = {
     validationErrorsChanged

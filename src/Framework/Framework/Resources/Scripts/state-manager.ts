@@ -8,7 +8,7 @@ import { coerce } from "./metadata/coercer";
 import { patchViewModel } from "./postback/updater";
 import { hackInvokeNotifySubscribers } from "./utils/knockout";
 import { logWarning } from "./utils/logging";
-import {ValidationError} from "./validation/error";
+import {ValidationError, detachErrors} from "./validation/error";
 import { errorsSymbol } from "./validation/common";
 
 
@@ -374,6 +374,11 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
     function notifyCore(newVal: any, currentValue: any, observableWasSetFromOutside: boolean): { newContents: any } | undefined {
         let newContents
         const oldContents = obs.peek()
+        if (!Object.is(newVal, currentValue)) {
+            // A retained object wrapper may update only its children and never
+            // notify its own subscribers. Clear its own stale errors as well.
+            detachErrors(obs)
+        }
         if (isPrimitive(newVal) || newVal instanceof Date) {
             // primitive value
             newContents = newVal
@@ -391,6 +396,11 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                 const t: KnockoutObservableArray<any> = obs as any
                 // take at most newVal.length from the old value
                 newContents = oldContents instanceof Array ? oldContents.slice(0, newVal.length) : []
+                if (oldContents instanceof Array) {
+                    for (const removedItem of oldContents.slice(newVal.length)) {
+                        detachErrors(removedItem, true)
+                    }
+                }
                 // then append (potential) new values into the array
                 for (let index = 0; index < newVal.length; index++) {
                     if (isDotvvmObservable(newContents[index])) {
@@ -436,6 +446,13 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         else {
             // create new object and replace
             newContents = createObservableObject(newVal, typeHint, getter, updater)
+        }
+
+        // Replaced wrappers will no longer notify their old descendants.
+        // Retained same-type objects returned above keep unrelated field errors.
+        if (oldContents && typeof oldContents === "object" &&
+            (!(oldContents instanceof Array) || !(newVal instanceof Array))) {
+            detachErrors(oldContents, true)
         }
 
         // return a result indicating that the observable needs to be set
