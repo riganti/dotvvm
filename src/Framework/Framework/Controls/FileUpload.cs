@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using DotVVM.Core.Storage;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
@@ -81,13 +82,19 @@ namespace DotVVM.Framework.Controls
 
         /// <summary>
         /// Gets or sets the maximum size of files in megabytes (MB). The size is not limited by default.
+        /// When specified, the value must be at least 1. A value is required when chunked uploads are enabled.
         /// When file exceeding the limit is uploaded, the <see cref="UploadedFilesCollection.Error" /> property is set to "Uploaded file is too large."
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public int? MaxFileSize
         {
             get { return GetValue(MaxFileSizeProperty) as int?; }
-            set { SetValue(MaxFileSizeProperty, value); }
+            set
+            {
+                if (value <= 0)
+                    throw new ArgumentOutOfRangeException(nameof(value), "MaxFileSize must be at least 1 MB.");
+                SetValue(MaxFileSizeProperty, value);
+            }
         }
 
         [AttachedProperty(typeof(int?))]
@@ -271,15 +278,21 @@ namespace DotVVM.Framework.Controls
             var url = context.TranslateVirtualPath(GetFileUploadHandlerUrl());
             var token = GetFileUploadToken(context, AllowedFileTypes, MaxFileSize);
 
-            writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonSerializer.Serialize(new { url = url, token = token }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
+            writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonSerializer.Serialize(new { url = url, token = token, chunkSize = GetChunkSize(context) }, DefaultSerializerSettingsProvider.Instance.SettingsHtmlUnsafe));
             writer.RenderSelfClosingTag("input");
         }
 
         /// <summary>
         /// Returns a token that is used to authorize the file upload request. The token contains information about allowed file types and maximum file size, and is protected to prevent tampering.
+        /// When specified, the maximum file size must be at least 1 MB. It is required when chunked uploads are enabled.
         /// </summary>
         public static string GetFileUploadToken(IDotvvmRequestContext context, string? allowedFileTypes, int? maxFileSize)
         {
+            if (maxFileSize <= 0)
+                throw new ArgumentOutOfRangeException(nameof(maxFileSize), "MaxFileSize must be at least 1 MB.");
+            if (GetChunkSize(context) > 0 && maxFileSize == null)
+                throw new ArgumentException("MaxFileSize must be specified when chunked uploads are enabled.", nameof(maxFileSize));
+
             var tokenData = new FileUploadToken {
                 AllowedFileTypes = allowedFileTypes,
                 MaxFileSize = (long?)maxFileSize * 1024 * 1024
@@ -296,6 +309,11 @@ namespace DotVVM.Framework.Controls
         {
             return "~/" + HostingConstants.FileUploadHandlerMatchUrl;
         }
+
+        private static long GetChunkSize(IDotvvmRequestContext context) =>
+            context.Services.GetService<IUploadedFileStorage>() is IChunkedUploadedFileStorage
+                ? (long?)context.Configuration.Runtime.FileUploadChunkSize * 1024 * 1024 ?? 0
+                : 0;
 
         /// <summary>
         /// Gets or sets the UploadedFilesCollection to which files will be uploaded when pasted or dropped on a control (typically TextBox).
@@ -314,6 +332,7 @@ namespace DotVVM.Framework.Controls
             {
                 { "url", KnockoutHelper.MakeStringLiteral(context.TranslateVirtualPath(GetFileUploadHandlerUrl())) },
                 { "token", KnockoutHelper.MakeStringLiteral(GetFileUploadToken(context, control.GetValue(AllowedFileTypesProperty) as string, control.GetValue(MaxFileSizeProperty) as int?)) },
+                { "chunkSize", GetChunkSize(context).ToString(System.Globalization.CultureInfo.InvariantCulture) },
                 { "collection", control, property },
                 { "multiple", control, AllowMultipleFilesProperty },
                 { "allowedFileTypes", control, AllowedFileTypesProperty },

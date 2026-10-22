@@ -13,7 +13,7 @@ export default {
                         new Function(element.parentElement!.getAttribute("data-dotvvm-upload-completed")!).call(element);
                     }
                     element.value = "";
-                });
+                }, args.chunkSize);
             });
         }
     }

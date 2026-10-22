@@ -1,15 +1,22 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using DotVVM.Core.Storage;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Security;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Utils;
 using Microsoft.AspNet.WebUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Runtime
@@ -57,6 +64,733 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(0, storage.StoredBytes.Length);
         }
 
+        [TestMethod]
+        public async Task ChunkUpload_WithoutFinalHeaderRetainsMetadataAndCumulativeSizeAcrossChunks()
+        {
+            var storage = new TestChunkStorage();
+            var token = new FileUploadToken { MaxFileSize = 5, AllowedFileTypes = ".txt" };
+            var firstContext = CreateChunkContext([1, 2], totalSize: 5);
+            var firstResults = await SaveChunk(firstContext, storage, token);
+            Assert.AreEqual(0, firstResults.Count);
+            var protectedToken = firstContext.HttpContext.Response.Headers["X-DotVVM-UploadToken"];
+            Assert.IsFalse(string.IsNullOrEmpty(protectedToken));
+            var unprotected = new DotvvmTestHelper.FakeProtector().Unprotect(Convert.FromBase64String(protectedToken!), "FileUpload", "");
+            var continuation = JsonSerializer.Deserialize<FileUploadToken>(unprotected)!;
+            Assert.AreEqual(storage.Id, continuation.FileId);
+            Assert.AreEqual(2L, continuation.NextPosition);
+            Assert.AreEqual(5L, continuation.MaxFileSize);
+            Assert.AreEqual(5L, continuation.TotalFileSize);
+            Assert.AreEqual(".txt", continuation.AllowedFileTypes);
+            Assert.AreEqual("test.txt", continuation.FileName);
+            Assert.AreEqual("text/plain", continuation.MimeType);
+
+            var finalContext = CreateChunkContext([3, 4, 5]);
+            var finalResults = await SaveChunk(finalContext, storage, continuation);
+            Assert.AreEqual(1, finalResults.Count);
+            Assert.AreEqual(storage.Id, finalResults[0].FileId);
+            Assert.AreEqual(5L, finalResults[0].FileSize.Bytes);
+            Assert.IsTrue(finalResults[0].IsFileTypeAllowed);
+            Assert.IsTrue(string.IsNullOrEmpty(finalContext.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4, 5 }, storage.StoredBytes);
+        }
+
+        [TestMethod]
+        public async Task ChunkUpload_CumulativeAndChunkLimitsRejectBeforeStorageMutation()
+        {
+            var storage = new TestChunkStorage();
+            await SaveChunk(CreateChunkContext([1, 2], totalSize: 4), storage, new FileUploadToken { MaxFileSize = 4 });
+            var token = new FileUploadToken { FileId = storage.Id, NextPosition = 2, TotalFileSize = 4, MaxFileSize = 4, FileName = "test.txt", MimeType = "text/plain" };
+            var context = CreateChunkContext([3, 4, 5]);
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => SaveChunk(context, storage, token));
+            Assert.AreEqual(413, context.HttpContext.Response.StatusCode);
+            Assert.AreEqual(2, storage.StoredBytes.Length);
+
+            var chunkContext = CreateChunkContext(new byte[1024 * 1024 + 1], chunkSize: 1, totalSize: 1024 * 1024 + 1);
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => SaveChunk(chunkContext, storage, new FileUploadToken { MaxFileSize = 2 * 1024 * 1024 }));
+            Assert.AreEqual(413, chunkContext.HttpContext.Response.StatusCode);
+            Assert.AreEqual(2, storage.StoredBytes.Length);
+        }
+
+        [TestMethod]
+        public async Task ChunkUpload_RejectsChangedMetadataEmptyContinuationAndExtraSections()
+        {
+            var storage = new TestChunkStorage();
+            await SaveChunk(CreateChunkContext([1], totalSize: 2), storage, new FileUploadToken { MaxFileSize = 10 });
+            var token = new FileUploadToken { FileId = storage.Id, NextPosition = 1, TotalFileSize = 2, MaxFileSize = 10, FileName = "other.txt", MimeType = "text/plain" };
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => SaveChunk(CreateChunkContext([2]), storage, token));
+            token.FileName = "test.txt";
+            token.MimeType = "application/octet-stream";
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => SaveChunk(CreateChunkContext([2]), storage, token));
+            token.MimeType = "text/plain";
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => SaveChunk(CreateChunkContext([]), storage, token));
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => SaveChunk(CreateChunkContext([], totalSize: 1), storage, new FileUploadToken { MaxFileSize = 10 }));
+            var extra = CreateChunkContext([2], extraSection: true);
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => SaveChunk(extra, storage, token));
+            Assert.IsTrue(string.IsNullOrEmpty(extra.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+            Assert.AreEqual(1, storage.StoredBytes.Length);
+        }
+
+        [TestMethod]
+        public async Task ChunkUpload_ZeroTotalWithoutFinalHeaderCompletesAndDisallowedTypeIsReported()
+        {
+            var storage = new TestChunkStorage();
+            var context = CreateChunkContext([], totalSize: 0);
+            var results = await SaveChunk(context, storage, new FileUploadToken { MaxFileSize = 1, AllowedFileTypes = "image/*" });
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(0L, results[0].FileSize.Bytes);
+            Assert.IsFalse(results[0].IsFileTypeAllowed);
+            Assert.AreEqual(1, storage.StoreCalls);
+            Assert.IsTrue(string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+        }
+
+        [TestMethod]
+        public async Task ChunkUpload_DisabledChunkSizeRejectsBeforeReadingOrStorage()
+        {
+            var storage = new TestChunkStorage();
+            var context = CreateChunkContext([1], chunkSize: null, totalSize: 1);
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() =>
+                SaveChunk(context, storage, new FileUploadToken { MaxFileSize = 10 }));
+            Assert.AreEqual(0L, context.HttpContext.Request.Body.Position);
+            Assert.AreEqual(0, storage.StoreCalls);
+            Assert.IsTrue(string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+        }
+
+        [DataTestMethod]
+        [DataRow(null)]
+        [DataRow(-1L)]
+        public async Task LegacyUpload_MissingOrNegativeMaxSizePreservesUnlimitedSemantics(long? maxFileSize)
+        {
+            var token = new FileUploadToken { MaxFileSize = maxFileSize };
+            var legacy = await StoreFile(DotvvmTestHelper.CreateContext(), await CreateMultipartSection([1, 2, 3]), new TestUploadedFileStorage(), token);
+            Assert.AreEqual(3L, legacy.FileSize.Bytes);
+        }
+
+        [DataTestMethod]
+        [DataRow("form-data; name=upload; filename=test.txt", "test.txt")]
+        [DataRow("form-data; name=\"upload\"; filename=\"semi;colon.txt\"", "semi;colon.txt")]
+        [DataRow("FORM-DATA; name=upload; FILENAME=\"quote\\\"and\\\\slash.txt\"", "quote\"and\\slash.txt")]
+        [DataRow("form-data; name=upload; filename*=UTF-8''caf%C3%A9.txt", "café.txt")]
+        [DataRow("form-data; name=upload; filename=\"fallback.txt\"; filename*=UTF-8''caf%C3%A9%3Bquoted%22.txt", "café;quoted\".txt")]
+        public async Task Upload_ContentDispositionPreservesFilenameInChunkAndLegacyRequests(string disposition, string expected)
+        {
+            var legacy = await StoreFile(
+                DotvvmTestHelper.CreateContext(), await CreateMultipartSection([1], disposition),
+                new TestUploadedFileStorage(), new FileUploadToken { MaxFileSize = 10 });
+            Assert.AreEqual(expected, legacy.FileName);
+
+            var token = new FileUploadToken { MaxFileSize = 10 };
+            var storage = new TestChunkStorage();
+            var context = CreateChunkContext([1], totalSize: 2, contentDisposition: disposition);
+            await SaveChunk(context, storage, token);
+            Assert.AreEqual(expected, token.FileName);
+            var continuation = JsonSerializer.Deserialize<FileUploadToken>(
+                new DotvvmTestHelper.FakeProtector().Unprotect(
+                    Convert.FromBase64String(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]!), "FileUpload", ""))!;
+            Assert.AreEqual(expected, continuation.FileName);
+
+            var result = await SaveChunk(CreateChunkContext([2], contentDisposition: disposition), storage, continuation);
+            Assert.AreEqual(expected, result[0].FileName);
+            CollectionAssert.AreEqual(new byte[] { 1, 2 }, storage.StoredBytes);
+        }
+
+        [DataTestMethod]
+        [DataRow("form-data; name=upload; filename=\"unterminated.txt")]
+        [DataRow("form-data; name=upload; filename=\"test.txt\" garbage")]
+        [DataRow("attachment; name=upload; filename=test.txt")]
+        [DataRow("form-data; name=upload")]
+        public async Task Upload_MalformedOrNonFileContentDispositionRejectsChunksAndDoesNotMisparseLegacyFilename(string disposition)
+        {
+            var storage = new TestChunkStorage();
+            var context = CreateChunkContext([1], totalSize: 1, contentDisposition: disposition);
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() =>
+                SaveChunk(context, storage, new FileUploadToken { MaxFileSize = 10 }));
+            Assert.AreEqual(0, storage.StoreCalls);
+            Assert.IsTrue(string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+
+            var legacy = await StoreFile(
+                DotvvmTestHelper.CreateContext(), await CreateMultipartSection([1], disposition),
+                new TestUploadedFileStorage(), new FileUploadToken { MaxFileSize = 10 });
+            Assert.AreEqual("", legacy.FileName);
+        }
+
+        [DataTestMethod]
+        [DataRow(null, false, false)]
+        [DataRow(0L, false, false)]
+        [DataRow(-1L, false, false)]
+        [DataRow(null, true, false)]
+        [DataRow(0L, true, false)]
+        [DataRow(-1L, true, false)]
+        [DataRow(null, false, true)]
+        [DataRow(0L, false, true)]
+        [DataRow(-1L, false, true)]
+        [DataRow(null, true, true)]
+        [DataRow(0L, true, true)]
+        [DataRow(-1L, true, true)]
+        public async Task ChunkUpload_MissingOrNonpositiveMaxRejectsBeforeParsingReadingOrMutation(long? maxFileSize, bool continuation, bool malformedTotal)
+        {
+            var storage = new TestChunkStorage();
+            if (continuation)
+                await SaveChunk(CreateChunkContext([1], totalSize: 2), storage, new FileUploadToken { MaxFileSize = 10 });
+            var token = new FileUploadToken {
+                MaxFileSize = maxFileSize,
+                FileId = continuation ? storage.Id : null,
+                NextPosition = continuation ? 1 : 0,
+                TotalFileSize = continuation ? 2 : null,
+                FileName = continuation ? "test.txt" : null,
+                MimeType = continuation ? "text/plain" : null
+            };
+            var context = CreateChunkContext([2], totalSize: continuation ? null : 2);
+            if (malformedTotal)
+                context.HttpContext.Request.Headers["X-DotVVM-UploadFileSize"] = "invalid";
+
+            var exception = await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => SaveChunk(context, storage, token));
+
+            StringAssert.Contains(exception.Message, "MaxFileSize");
+            Assert.AreEqual(403, context.HttpContext.Response.StatusCode);
+            Assert.AreEqual(0L, context.HttpContext.Request.Body.Position);
+            Assert.AreEqual(continuation ? 1 : 0, storage.StoreCalls);
+            CollectionAssert.AreEqual(continuation ? new byte[] { 1 } : Array.Empty<byte>(), storage.StoredBytes);
+            Assert.AreEqual(continuation ? 1L : 0L, token.NextPosition);
+            Assert.AreEqual(continuation ? storage.Id : (Guid?)null, token.FileId);
+            Assert.AreEqual(continuation ? 2L : (long?)null, token.TotalFileSize);
+            Assert.IsTrue(string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+        }
+
+        [TestMethod]
+        public async Task ChunkUpload_DefaultConfigurationRejectsCraftedRequestBeforeReadingOrStorage()
+        {
+            var context = CreateChunkContext([1], chunkSize: null, totalSize: 1);
+            var storage = new TestChunkStorage();
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() =>
+                SaveChunk(context, storage, new FileUploadToken { MaxFileSize = 10 }));
+            Assert.AreEqual(0L, context.HttpContext.Request.Body.Position);
+            Assert.AreEqual(0, storage.StoreCalls);
+            Assert.IsTrue(string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+        }
+
+        [DataTestMethod]
+        [DataRow(null)]
+        [DataRow("")]
+        [DataRow("-1")]
+        [DataRow("+1")]
+        [DataRow(" 1")]
+        [DataRow("1 ")]
+        [DataRow("1.0")]
+        [DataRow("1e0")]
+        [DataRow("1,0")]
+        [DataRow("١")]
+        [DataRow("9223372036854775808")]
+        public async Task ChunkUpload_RejectsMissingOrMalformedInitialTotal(string total)
+        {
+            var context = CreateChunkContext([1]);
+            context.HttpContext.Request.Headers["X-DotVVM-UploadFileSize"] = total;
+            var storage = new TestChunkStorage();
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => SaveChunk(context, storage, new FileUploadToken { MaxFileSize = 10 }));
+            Assert.AreEqual(0, storage.StoreCalls);
+            Assert.IsTrue(string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+        }
+
+        [DataTestMethod]
+        [DataRow("1", true)]
+        [DataRow("01", true)]
+        [DataRow("9223372036854775807", false)]
+        public async Task ChunkUpload_AcceptsInvariantNonnegativeLongTotal(string total, bool expectedFinal)
+        {
+            var context = CreateChunkContext([1]);
+            context.HttpContext.Request.Headers["X-DotVVM-UploadFileSize"] = total;
+            var token = new FileUploadToken { MaxFileSize = total == "9223372036854775807" ? long.MaxValue : 10 };
+            var results = await SaveChunk(context, new TestChunkStorage(), token);
+            Assert.AreEqual(long.Parse(total, CultureInfo.InvariantCulture), token.TotalFileSize);
+            Assert.AreEqual(expectedFinal ? 1 : 0, results.Count);
+            Assert.AreEqual(expectedFinal, string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+        }
+
+        [TestMethod]
+        public void UploadToken_OmitsNullTotalFromInitialRendering()
+        {
+            var json = JsonSerializer.Serialize(new FileUploadToken());
+            Assert.IsFalse(json.Contains(nameof(FileUploadToken.TotalFileSize)));
+        }
+
+        [DataTestMethod]
+        [DataRow(4L, 5L)]
+        public async Task ChunkUpload_DeclaredTotalExceedingMaxRejectsBeforeReadingOrStorage(long maxFileSize, long total)
+        {
+            var context = CreateChunkContext([1], totalSize: total);
+            var storage = new TestChunkStorage();
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() =>
+                SaveChunk(context, storage, new FileUploadToken { MaxFileSize = maxFileSize }));
+            Assert.AreEqual(413, context.HttpContext.Response.StatusCode);
+            Assert.AreEqual(0L, context.HttpContext.Request.Body.Position);
+            Assert.AreEqual(0, storage.StoreCalls);
+            Assert.IsTrue(string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+        }
+
+        [DataTestMethod]
+        [DataRow(true, 2L, 1, false)]
+        [DataRow(true, 1L, 1, true)]
+        [DataRow(true, 0L, 0, true)]
+        [DataRow(false, 3L, 1, false)]
+        [DataRow(false, 2L, 1, true)]
+        public async Task ChunkUpload_DerivesIntermediateAndFinalResultsFromTotal(bool initial, long total, int length, bool expectedFinal)
+        {
+            var storage = new TestChunkStorage();
+            var token = new FileUploadToken { MaxFileSize = 10 };
+            if (!initial)
+                await SaveChunk(CreateChunkContext([1], totalSize: total), storage, token);
+            var context = CreateChunkContext(new byte[length], totalSize: initial ? total : null);
+            var results = await SaveChunk(context, storage, token);
+            Assert.AreEqual(expectedFinal ? 1 : 0, results.Count);
+            Assert.AreEqual(expectedFinal, string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+            Assert.AreEqual(1, storage.StoreCalls);
+            Assert.AreEqual((initial ? 0 : 1) + length, storage.StoredBytes.Length);
+            if (expectedFinal)
+                Assert.AreEqual(total, results[0].FileSize.Bytes);
+            else
+                Assert.AreEqual((initial ? 0L : 1L) + length, token.NextPosition);
+        }
+
+        [DataTestMethod]
+        [DataRow(true, 0L, 1)]
+        [DataRow(true, 1L, 2)]
+        [DataRow(false, 2L, 2)]
+        public async Task ChunkUpload_ExtensionsNeverMutateStorage(bool initial, long total, int length)
+        {
+            var storage = new TestChunkStorage();
+            var token = new FileUploadToken { MaxFileSize = 10 };
+            if (!initial)
+                await SaveChunk(CreateChunkContext([1], totalSize: total), storage, token);
+            var context = CreateChunkContext(new byte[length], totalSize: initial ? total : null);
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => SaveChunk(context, storage, token));
+            Assert.AreEqual(413, context.HttpContext.Response.StatusCode);
+            Assert.AreEqual(initial ? 0 : 1, storage.StoreCalls);
+            CollectionAssert.AreEqual(initial ? Array.Empty<byte>() : new byte[] { 1 }, storage.StoredBytes);
+            Assert.IsTrue(string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+            Assert.AreEqual(initial ? 0L : 1L, token.NextPosition);
+        }
+
+        [DataTestMethod]
+        [DataRow(null, 1L, null)]
+        [DataRow(-1L, 1L, null)]
+        [DataRow(0L, 1L, null)]
+        [DataRow(0L, 0L, null)]
+        [DataRow(1L, 1L, null)]
+        [DataRow(1L, 2L, null)]
+        [DataRow(2L, 1L, "2")]
+        [DataRow(2L, 1L, "100")]
+        public async Task ChunkUpload_RejectsMissingInvalidCompletedOrOverriddenProtectedTotal(long? total, long position, string overrideTotal)
+        {
+            var storage = new TestChunkStorage();
+            await SaveChunk(CreateChunkContext([1], totalSize: 2), storage, new FileUploadToken { MaxFileSize = 10 });
+            var token = new FileUploadToken {
+                FileId = storage.Id, NextPosition = position, TotalFileSize = total, MaxFileSize = 10,
+                FileName = "test.txt", MimeType = "text/plain"
+            };
+            var context = CreateChunkContext([2]);
+            context.HttpContext.Request.Headers["X-DotVVM-UploadFileSize"] = overrideTotal;
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => SaveChunk(context, storage, token));
+            CollectionAssert.AreEqual(new byte[] { 1 }, storage.StoredBytes);
+            Assert.AreEqual(1, storage.StoreCalls);
+            Assert.IsTrue(string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+        }
+
+        [TestMethod]
+        public async Task LegacyUpload_RejectsContinuationToken()
+        {
+            var storage = new TestChunkStorage();
+            var context = CreateChunkContext([1]);
+            context.HttpContext.Request.Headers["X-DotVVM-UploadChunk"] = "";
+            var middleware = CreateMiddleware(storage);
+            var method = typeof(DotvvmFileUploadMiddleware).GetMethod("SaveFiles", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var boundary = System.Text.RegularExpressions.Regex.Match("dotvvm-test-boundary", "(.*)").Groups[1];
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(async () =>
+                await (Task)method.Invoke(middleware, new object[] { context, boundary, new List<UploadedFile>(), new FileUploadToken { FileId = storage.Id, NextPosition = 1 } })!);
+            Assert.AreEqual(0, storage.StoredBytes.Length);
+        }
+
+        [TestMethod]
+        public void ChunkConfiguration_DefaultValidationAndFreezing()
+        {
+            var configuration = new DotvvmRuntimeConfiguration();
+            Assert.IsNull(configuration.FileUploadChunkSize);
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => configuration.FileUploadChunkSize = -1);
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => configuration.FileUploadChunkSize = 0);
+            configuration.FileUploadChunkSize = 1;
+            Assert.AreEqual(1, configuration.FileUploadChunkSize);
+            configuration.FileUploadChunkSize = null;
+            configuration.Freeze();
+            Assert.ThrowsException<FreezableUtils.ObjectIsFrozenException>(() => configuration.FileUploadChunkSize = 1);
+            Assert.ThrowsException<FreezableUtils.ObjectIsFrozenException>(() => configuration.FileUploadChunkSize = null);
+        }
+
+        [TestMethod]
+        public void ChunkConfiguration_SerializesApplicationSetting()
+        {
+            var config = DotvvmTestHelper.CreateConfiguration();
+            config.Runtime.FileUploadChunkSize = 3;
+            using var json = JsonDocument.Parse(VisualStudioHelper.SerializeConfig(config, false));
+            var runtime = json.RootElement.GetProperty("config").GetProperty("runtime");
+            Assert.AreEqual(3, runtime.GetProperty("fileUploadChunkSize").GetInt32());
+            Assert.IsFalse(runtime.TryGetProperty("fileUploadChunkSizeBytes", out _));
+        }
+
+        [DataTestMethod]
+        [DataRow(true, null, 0L)]
+        [DataRow(true, 3, 3145728L)]
+        [DataRow(true, 1, 1048576L)]
+        [DataRow(true, int.MaxValue, 2251799812636672L)]
+        [DataRow(false, 3, 0L)]
+        public async Task ChunkRendering_BothBindingsAdvertiseSupportedChunkSize(bool supported, int? configured, long expected)
+        {
+            var helper = new ControlTestHelper(
+                config: c => {
+                    if (configured is {} size)
+                        c.Runtime.FileUploadChunkSize = size;
+                },
+                services: s => s.Services.AddSingleton<IUploadedFileStorage>(
+                    supported ? new TestChunkStorage() : new TestUploadedFileStorage()));
+            var page = await helper.RunPage(typeof(ChunkUploadViewModel), """
+                <dot:FileUpload UploadedFiles={value: Files} MaxFileSize=10 />
+                <dot:TextBox Text={value: Text} FileUpload.UploadOnPasteOrDrop={value: Files} FileUpload.MaxFileSize=10 />
+                """);
+            var upload = page.Html.QuerySelector("input[type=file]")!.GetAttribute("data-bind")!;
+            var paste = page.Html.QuerySelector("input[type=text]")!.GetAttribute("data-bind")!;
+            StringAssert.Contains(upload, "\"chunkSize\":" + expected);
+            StringAssert.Contains(paste, "chunkSize: " + expected);
+        }
+
+        [DataTestMethod]
+        [DataRow(false, null)]
+        [DataRow(false, 0)]
+        [DataRow(false, -1)]
+        [DataRow(true, null)]
+        [DataRow(true, 0)]
+        [DataRow(true, -1)]
+        public async Task ChunkRendering_RequiresFiniteMaximumForEachControl(bool paste, int? maxFileSize)
+        {
+            var helper = new ControlTestHelper(
+                config: c => c.Runtime.FileUploadChunkSize = 1,
+                services: s => s.Services.AddSingleton<IUploadedFileStorage>(new TestChunkStorage()));
+            var markup = UploadMarkup(paste, maxFileSize);
+            var exception = await Assert.ThrowsExceptionAsync<DotvvmControlException>(() =>
+                helper.RunPage(typeof(ChunkUploadViewModel), markup));
+            var cause = exception.GetBaseException();
+            Assert.IsInstanceOfType<ArgumentException>(cause);
+            Assert.AreEqual("maxFileSize", ((ArgumentException)cause).ParamName);
+        }
+
+        [DataTestMethod]
+        [DataRow(null)]
+        [DataRow(0)]
+        [DataRow(-1)]
+        public void ChunkToken_RequiresFiniteMaximum(int? maxFileSize)
+        {
+            var config = DotvvmTestHelper.CreateConfiguration(s =>
+                s.AddSingleton<IUploadedFileStorage>(new TestChunkStorage()));
+            config.Runtime.FileUploadChunkSize = 1;
+            var context = DotvvmTestHelper.CreateContext(config);
+            var exception = maxFileSize == null
+                ? Assert.ThrowsException<ArgumentException>(() => FileUpload.GetFileUploadToken(context, null, maxFileSize))
+                : Assert.ThrowsException<ArgumentOutOfRangeException>(() => FileUpload.GetFileUploadToken(context, null, maxFileSize));
+            Assert.AreEqual("maxFileSize", exception.ParamName);
+        }
+
+        [DataTestMethod]
+        [DataRow(true, null, 0)]
+        [DataRow(true, null, -1)]
+        [DataRow(false, null, 0)]
+        [DataRow(false, null, -1)]
+        [DataRow(false, 1, 0)]
+        [DataRow(false, 1, -1)]
+        public void LegacyToken_RejectsNonpositiveMaximum(bool supported, int? configured, int maxFileSize)
+        {
+            var config = DotvvmTestHelper.CreateConfiguration(s =>
+                s.AddSingleton<IUploadedFileStorage>(supported ? new TestChunkStorage() : new TestUploadedFileStorage()));
+            config.Runtime.FileUploadChunkSize = configured;
+            var exception = Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+                FileUpload.GetFileUploadToken(DotvvmTestHelper.CreateContext(config), null, maxFileSize));
+            Assert.AreEqual("maxFileSize", exception.ParamName);
+        }
+
+        [DataTestMethod]
+        [DataRow(false, true, null, 0)]
+        [DataRow(false, true, null, -1)]
+        [DataRow(true, true, null, 0)]
+        [DataRow(true, true, null, -1)]
+        [DataRow(false, false, 1, 0)]
+        [DataRow(false, false, 1, -1)]
+        [DataRow(true, false, 1, 0)]
+        [DataRow(true, false, 1, -1)]
+        public async Task LegacyRendering_RejectsNonpositiveMaximum(bool paste, bool supported, int? configured, int maxFileSize)
+        {
+            var helper = new ControlTestHelper(
+                config: c => c.Runtime.FileUploadChunkSize = configured,
+                services: s => s.Services.AddSingleton<IUploadedFileStorage>(
+                    supported ? new TestChunkStorage() : new TestUploadedFileStorage()));
+            var exception = await Assert.ThrowsExceptionAsync<DotvvmControlException>(() =>
+                helper.RunPage(typeof(ChunkUploadViewModel), UploadMarkup(paste, maxFileSize)));
+            Assert.IsInstanceOfType<ArgumentException>(exception.GetBaseException());
+        }
+
+        [DataTestMethod]
+        [DataRow(0)]
+        [DataRow(-1)]
+        public void MaxFileSize_RejectsNonpositiveClrValues(int maxFileSize)
+        {
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new FileUpload { MaxFileSize = maxFileSize });
+        }
+
+        [TestMethod]
+        public void ChunkToken_ProtectsMaximumMegabytesWithoutOverflow()
+        {
+            var config = DotvvmTestHelper.CreateConfiguration(s =>
+                s.AddSingleton<IUploadedFileStorage>(new TestChunkStorage()));
+            config.Runtime.FileUploadChunkSize = int.MaxValue;
+            var context = DotvvmTestHelper.CreateContext(config);
+            var protectedToken = FileUpload.GetFileUploadToken(context, null, int.MaxValue);
+            var token = JsonSerializer.Deserialize<FileUploadToken>(
+                new DotvvmTestHelper.FakeProtector().Unprotect(Convert.FromBase64String(protectedToken), "FileUpload", ""))!;
+            Assert.AreEqual(2251799812636672L, token.MaxFileSize);
+        }
+
+        [TestMethod]
+        public async Task ChunkUpload_MaximumChunkMegabytesDoesNotOverflow()
+        {
+            var results = await SaveChunk(
+                CreateChunkContext([1], chunkSize: int.MaxValue, totalSize: 1),
+                new TestChunkStorage(), new FileUploadToken { MaxFileSize = long.MaxValue });
+            Assert.AreEqual(1L, results[0].FileSize.Bytes);
+        }
+
+        [DataTestMethod]
+        [DataRow(false, 1)]
+        [DataRow(true, 1)]
+        public async Task ChunkRendering_AcceptsFiniteMaximumForEachControl(bool paste, int maxFileSize)
+        {
+            var helper = new ControlTestHelper(
+                config: c => c.Runtime.FileUploadChunkSize = 1,
+                services: s => s.Services.AddSingleton<IUploadedFileStorage>(new TestChunkStorage()));
+            var page = await helper.RunPage(typeof(ChunkUploadViewModel), UploadMarkup(paste, maxFileSize));
+            var binding = page.Html.QuerySelector(paste ? "input[type=text]" : "input[type=file]")!.GetAttribute("data-bind")!;
+            StringAssert.Contains(binding, paste ? "chunkSize: 1048576" : "\"chunkSize\":1048576");
+        }
+
+        [DataTestMethod]
+        [DataRow(true, null)]
+        [DataRow(false, null)]
+        [DataRow(false, 1)]
+        public async Task ChunkRendering_DisabledOrUnsupportedStorageRetainsUnlimitedMaximum(bool supported, int? configured)
+        {
+            var helper = new ControlTestHelper(
+                config: c => {
+                    if (configured is {} size)
+                        c.Runtime.FileUploadChunkSize = size;
+                },
+                services: s => s.Services.AddSingleton<IUploadedFileStorage>(
+                    supported ? new TestChunkStorage() : new TestUploadedFileStorage()));
+            var page = await helper.RunPage(typeof(ChunkUploadViewModel),
+                UploadMarkup(false, null) + UploadMarkup(true, null));
+            StringAssert.Contains(page.Html.QuerySelector("input[type=file]")!.GetAttribute("data-bind")!, "\"chunkSize\":0");
+            StringAssert.Contains(page.Html.QuerySelector("input[type=text]")!.GetAttribute("data-bind")!, "chunkSize: 0");
+        }
+
+        private static string UploadMarkup(bool paste, int? maxFileSize)
+        {
+            var maximum = maxFileSize is {} max ? max.ToString(CultureInfo.InvariantCulture) : null;
+            return paste
+                ? $"<dot:TextBox Text={{value: Text}} FileUpload.UploadOnPasteOrDrop={{value: Files}} {(maximum == null ? "" : "FileUpload.MaxFileSize=" + maximum)} />"
+                : $"<dot:FileUpload UploadedFiles={{value: Files}} {(maximum == null ? "" : "MaxFileSize=" + maximum)} />";
+        }
+
+        public class ChunkUploadViewModel
+        {
+            public UploadedFilesCollection Files { get; set; } = new UploadedFilesCollection();
+            public string Text { get; set; } = "";
+        }
+
+#if DotNetCore
+        [TestMethod]
+        public async Task Handle_ProtectedContinuationCompletesWithStaticCommandResult()
+        {
+            var storage = new TestChunkStorage();
+            var config = CreateProtectedUploadConfiguration(storage);
+            var first = CreateHandleContext(config, [1, 2], "alice", totalSize: 3);
+            first.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = FileUpload.GetFileUploadToken(first, ".txt", 1);
+            var middleware = DotvvmFileUploadMiddleware.TryCreate(first.Services)!;
+            Assert.IsTrue(await middleware.Handle(first));
+            using (var json = ReadResponseJson(first))
+                Assert.AreEqual(0, json.RootElement.GetProperty("result").GetArrayLength());
+            var continuation = first.HttpContext.Response.Headers["X-DotVVM-UploadToken"];
+            Assert.IsFalse(string.IsNullOrEmpty(continuation));
+            var protectedMetadata = JsonSerializer.Deserialize<FileUploadToken>(
+                first.Services.GetRequiredService<IViewModelProtector>().Unprotect(
+                    Convert.FromBase64String(continuation!), "FileUpload", ProtectionHelpers.GetUserIdentity(first)))!;
+            Assert.AreEqual(3L, protectedMetadata.TotalFileSize);
+            Assert.AreEqual(2L, protectedMetadata.NextPosition);
+
+            var extendedFinal = CreateHandleContext(config, [3, 4], "alice");
+            extendedFinal.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = continuation;
+            await Assert.ThrowsExceptionAsync<DotvvmInterruptRequestExecutionException>(() => middleware.Handle(extendedFinal));
+            Assert.AreEqual(413, extendedFinal.HttpContext.Response.StatusCode);
+            CollectionAssert.AreEqual(new byte[] { 1, 2 }, storage.StoredBytes);
+            Assert.IsTrue(string.IsNullOrEmpty(extendedFinal.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+
+            var final = CreateHandleContext(config, [3], "alice");
+            final.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = continuation;
+            Assert.IsTrue(await middleware.Handle(final));
+            using var finalJson = ReadResponseJson(final);
+            var result = finalJson.RootElement.GetProperty("result");
+            Assert.AreEqual(1, result.GetArrayLength());
+            Assert.AreEqual(storage.Id, result[0].GetProperty("FileId").GetGuid());
+            Assert.AreEqual(3L, result[0].GetProperty("FileSize").GetProperty("Bytes").GetInt64());
+            Assert.IsTrue(string.IsNullOrEmpty(final.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, storage.StoredBytes);
+
+            var replay = CreateHandleContext(config, [4], "alice");
+            replay.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = continuation;
+            Assert.IsTrue(await middleware.Handle(replay));
+            StringAssert.StartsWith(replay.HttpContext.Response.ContentType, "text/plain");
+            Assert.IsTrue(string.IsNullOrEmpty(replay.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, storage.StoredBytes);
+        }
+
+        [TestMethod]
+        public async Task Handle_ZeroTotalWithoutFinalHeaderCompletesWithStaticCommandResult()
+        {
+            var storage = new TestChunkStorage();
+            var config = CreateProtectedUploadConfiguration(storage);
+            var context = CreateHandleContext(config, [], "alice", totalSize: 0);
+            context.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = FileUpload.GetFileUploadToken(context, ".txt", 1);
+            var middleware = DotvvmFileUploadMiddleware.TryCreate(context.Services)!;
+
+            Assert.IsTrue(await middleware.Handle(context));
+            using var json = ReadResponseJson(context);
+            var result = json.RootElement.GetProperty("result");
+            Assert.AreEqual(1, result.GetArrayLength());
+            Assert.AreEqual(storage.Id, result[0].GetProperty("FileId").GetGuid());
+            Assert.AreEqual(0L, result[0].GetProperty("FileSize").GetProperty("Bytes").GetInt64());
+            Assert.AreEqual(1, storage.StoreCalls);
+            Assert.IsTrue(string.IsNullOrEmpty(context.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+        }
+
+        [TestMethod]
+        public async Task Handle_ContinuationRejectsDifferentIdentityAndTamperingWithoutStorageMutation()
+        {
+            var storage = new TestChunkStorage();
+            var config = CreateProtectedUploadConfiguration(storage);
+            var first = CreateHandleContext(config, [1], "alice", totalSize: 2);
+            first.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = FileUpload.GetFileUploadToken(first, null, 1);
+            var middleware = DotvvmFileUploadMiddleware.TryCreate(first.Services)!;
+            await middleware.Handle(first);
+            var continuation = first.HttpContext.Response.Headers["X-DotVVM-UploadToken"]!;
+
+            var differentUser = CreateHandleContext(config, [2], "bob");
+            differentUser.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = continuation;
+            Assert.IsTrue(await middleware.Handle(differentUser));
+            StringAssert.StartsWith(differentUser.HttpContext.Response.ContentType, "text/plain");
+            Assert.AreEqual(1, storage.StoredBytes.Length);
+            Assert.IsTrue(string.IsNullOrEmpty(differentUser.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+
+            var bytes = Convert.FromBase64String(continuation);
+            bytes[bytes.Length - 1] ^= 1;
+            var tampered = CreateHandleContext(config, [2], "alice");
+            tampered.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = Convert.ToBase64String(bytes);
+            Assert.IsTrue(await middleware.Handle(tampered));
+            StringAssert.StartsWith(tampered.HttpContext.Response.ContentType, "text/plain");
+            Assert.AreEqual(1, storage.StoredBytes.Length);
+            Assert.IsTrue(string.IsNullOrEmpty(tampered.HttpContext.Response.Headers["X-DotVVM-UploadToken"]));
+
+            var valid = CreateHandleContext(config, [2], "alice");
+            valid.HttpContext.Request.Headers["X-DotVVM-UploadToken"] = continuation;
+            await middleware.Handle(valid);
+            using var result = ReadResponseJson(valid);
+            Assert.AreEqual(1, result.RootElement.GetProperty("result").GetArrayLength());
+            CollectionAssert.AreEqual(new byte[] { 1, 2 }, storage.StoredBytes);
+        }
+
+        private static DotvvmConfiguration CreateProtectedUploadConfiguration(IUploadedFileStorage storage) =>
+            DotvvmTestHelper.CreateConfiguration(s => {
+                s.AddSingleton(storage);
+                s.AddSingleton<IViewModelProtector>(new DefaultViewModelProtector(new Microsoft.AspNetCore.DataProtection.EphemeralDataProtectionProvider()));
+            });
+
+        private static IDotvvmRequestContext CreateHandleContext(DotvvmConfiguration config, byte[] bytes, string user, long? totalSize = null)
+        {
+            var context = CreateChunkContext(bytes, configuration: config, totalSize: totalSize);
+            var http = (TestHttpContext)context.HttpContext;
+            http.User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, user) }, "Test"));
+            http.Request.Method = "POST";
+            http.Request.Path = "/" + HostingConstants.FileUploadHandlerMatchUrl;
+            http.Request.ContentType = "multipart/form-data; boundary=dotvvm-test-boundary";
+            context.HttpContext.Request.Headers["X-DotVVM-CsrfToken"] = "Not a CSRF token.";
+            return context;
+        }
+
+        private static JsonDocument ReadResponseJson(IDotvvmRequestContext context)
+        {
+            context.HttpContext.Response.Body.Position = 0;
+            return JsonDocument.Parse(context.HttpContext.Response.Body);
+        }
+#endif
+
+        private static DotvvmFileUploadMiddleware CreateMiddleware(IUploadedFileStorage storage) =>
+            new(null!, storage, null!, null!, new DotvvmTestHelper.FakeProtector());
+
+        private static async Task<List<UploadedFile>> SaveChunk(IDotvvmRequestContext context, IUploadedFileStorage storage, FileUploadToken token)
+        {
+            var result = new List<UploadedFile>();
+            var method = typeof(DotvvmFileUploadMiddleware).GetMethod("SaveChunk", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            await (Task)method.Invoke(CreateMiddleware(storage), new object[] { context, "dotvvm-test-boundary", result, token })!;
+            return result;
+        }
+
+        private static IDotvvmRequestContext CreateChunkContext(byte[] bytes, int? chunkSize = 3, bool extraSection = false, DotvvmConfiguration configuration = null, long? totalSize = null, string contentDisposition = "form-data; name=\"upload\"; filename=\"test.txt\"")
+        {
+            var config = configuration ?? DotvvmTestHelper.CreateConfiguration();
+            config.Runtime.FileUploadChunkSize = chunkSize;
+            var context = DotvvmTestHelper.CreateContext(config);
+            context.HttpContext.Request.Headers["X-DotVVM-UploadChunk"] = "true";
+            if (totalSize is {} total)
+                context.HttpContext.Request.Headers["X-DotVVM-UploadFileSize"] = total.ToString(CultureInfo.InvariantCulture);
+            using var body = new MemoryStream();
+            WriteAscii(body, "--dotvvm-test-boundary\r\nContent-Disposition: " + contentDisposition + "\r\nContent-Type: text/plain\r\n\r\n");
+            body.Write(bytes, 0, bytes.Length);
+            if (extraSection)
+                WriteAscii(body, "\r\n--dotvvm-test-boundary\r\nContent-Disposition: form-data; name=\"extra\"\r\n\r\nextra");
+            WriteAscii(body, "\r\n--dotvvm-test-boundary--\r\n");
+            var requestBody = context.HttpContext.Request.Body;
+            body.Position = 0;
+            body.CopyTo(requestBody);
+            requestBody.Position = 0;
+            return context;
+        }
+
+        private sealed class TestChunkStorage : IChunkedUploadedFileStorage
+        {
+            public Guid Id { get; } = Guid.NewGuid();
+            public byte[] StoredBytes { get; private set; } = [];
+            public int StoreCalls { get; private set; }
+            public async Task<Guid> StoreFileAsync(Stream stream)
+            {
+                StoreCalls++;
+                using var buffer = new MemoryStream();
+                await stream.CopyToAsync(buffer);
+                StoredBytes = buffer.ToArray();
+                return Id;
+            }
+            public async Task AppendFileAsync(Guid id, long expectedPosition, Stream stream)
+            {
+                if (id != Id || StoredBytes.LongLength != expectedPosition)
+                    throw new InvalidOperationException("Invalid upload continuation position.");
+                using var buffer = new MemoryStream();
+                buffer.Write(StoredBytes, 0, StoredBytes.Length);
+                await stream.CopyToAsync(buffer);
+                StoredBytes = buffer.ToArray();
+            }
+            public Task DeleteFileAsync(Guid id) => Task.CompletedTask;
+            public Task<Stream> GetFileAsync(Guid id) => Task.FromResult<Stream>(new MemoryStream(StoredBytes));
+        }
+
         private static Task<UploadedFile> StoreFile(IDotvvmRequestContext context, MultipartSection section, IUploadedFileStorage fileStorage, FileUploadToken token)
         {
             var middleware = new DotvvmFileUploadMiddleware(
@@ -69,13 +803,13 @@ namespace DotVVM.Framework.Tests.Runtime
             return (Task<UploadedFile>)method.Invoke(middleware, new object[] { context, section, fileStorage, token })!;
         }
 
-        private static async Task<MultipartSection> CreateMultipartSection(byte[] fileBytes)
+        private static async Task<MultipartSection> CreateMultipartSection(byte[] fileBytes, string contentDisposition = "form-data; name=\"upload\"; filename=\"test.txt\"")
         {
             const string boundary = "dotvvm-test-boundary";
             byte[] body = [
                 ..StringUtils.Utf8.GetBytes(
                     $"--{boundary}\r\n" +
-                    "Content-Disposition: form-data; name=\"upload\"; filename=\"test.txt\"\r\n" +
+                    "Content-Disposition: " + contentDisposition + "\r\n" +
                     "Content-Type: text/plain\r\n" +
                     "\r\n"
                 ),
