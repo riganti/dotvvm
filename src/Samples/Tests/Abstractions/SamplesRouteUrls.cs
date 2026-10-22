@@ -20,5 +20,6 @@
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi = "ControlSamples/SpaContentPlaceHolder_HistoryApi";
 
         public const string FeatureSamples_StaticAssets_StaticAssets = "FeatureSamples/StaticAssets/StaticAssets";
+        public const string FeatureSamples_KeyboardShortcuts_KeyboardShortcuts = "FeatureSamples/KeyboardShortcuts/KeyboardShortcuts";
     }
 }
