@@ -151,21 +151,25 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public static IPropertyDescriptor? ResolvePropertyGroup(string name, bool caseSensitive, MappingMode requiredMode = default)
         {
+            var match = FindPropertyGroupMatches(name, caseSensitive, requiredMode).FirstOrDefault();
+            return match.group?.GetDotvvmProperty(match.concreteName);
+        }
+
+        /// <summary> Finds all property groups matching the attached property name (OwnerTypeName.PrefixMemberName). Each group is returned at most once, with the member name which remains after removing its prefix. </summary>
+        internal static IEnumerable<(DotvvmPropertyGroup group, string concreteName)> FindPropertyGroupMatches(string name, bool caseSensitive, MappingMode requiredMode = default)
+        {
             var nameParts = name.Split('.');
-            var groups = FindAttachedPropertyCandidates(nameParts[0])
-                .SelectMany(g => g.Prefixes.Select(p => new { Group = g, Prefix = p }));
+            var comparison = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
-            var group = groups
-                .FirstOrDefault(g =>
-                    nameParts[1].StartsWith(g.Prefix, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase) &&
-                    g.Group.MarkupOptions.MappingMode.HasFlag(requiredMode));
-            if (group != null)
+            foreach (var group in FindAttachedPropertyCandidates(nameParts[0]))
             {
-                var concreteName = nameParts[1].Substring(group.Prefix.Length);
-                return group.Group.GetDotvvmProperty(concreteName);
-            }
+                if (!group.MarkupOptions.MappingMode.HasFlag(requiredMode))
+                    continue;
 
-            return null;
+                var prefix = group.Prefixes.FirstOrDefault(p => nameParts[1].StartsWith(p, comparison));
+                if (prefix != null)
+                    yield return (group, nameParts[1].Substring(prefix.Length));
+            }
         }
 
         public static IEnumerable<DotvvmPropertyGroup> GetPropertyGroups(Type controlType)
