@@ -344,14 +344,36 @@ namespace DotVVM.Framework.Compilation.ControlTree
         protected override IPropertyDescriptor? FindGlobalPropertyOrGroup(string name, MappingMode requiredMode)
         {
             // try to find property
-            var property = DotvvmProperty.ResolveProperty(name, caseSensitive: false);
-            if (property != null)
+            var properties = DotvvmProperty.AllProperties
+                .Where(p => p.FullName.Equals(name, StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+            if (properties.Length > 0)
             {
-                return property;
+                EnsureSingleOwner(name, properties.Select(p => p.DeclaringType));
+                return properties.Last();
             }
 
             // try to find property group
-            return DotvvmPropertyGroup.ResolvePropertyGroup(name, caseSensitive: false, requiredMode);
+            var groups = DotvvmPropertyGroup.FindPropertyGroupMatches(name, caseSensitive: false, requiredMode).ToArray();
+            if (groups.Length > 0)
+            {
+                EnsureSingleOwner(name, groups.Select(g => g.group.DeclaringType));
+                return groups[0].group.GetDotvvmProperty(groups[0].concreteName);
+            }
+
+            return null;
+        }
+
+        /// <summary> Attached properties are referenced by the owner type name only, so two owner types with the same name can't be told apart in the markup. </summary>
+        private static void EnsureSingleOwner(string name, IEnumerable<Type> owners)
+        {
+            var distinctOwners = owners.Distinct().Select(t => t.FullName).OrderBy(n => n).ToArray();
+            if (distinctOwners.Length > 1)
+            {
+                throw new DotvvmCompilationException(
+                    $"The attached property '{name}' is ambiguous, it is declared by multiple types: {string.Join(", ", distinctOwners)}. " +
+                    "DotVVM resolves attached properties by the owner type name only. Set the property directly on the control or make sure that only one of the owner types is used.");
+            }
         }
     }
 }
