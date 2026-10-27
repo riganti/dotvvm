@@ -668,6 +668,11 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ToList(), new GenericMethodCompiler(args => args[1]));
             AddMethodTranslator(() => Enumerable.Empty<Generic.T>().ToHashSet(), new GenericMethodCompiler(args => args[1]));
             AddMethodTranslator(() => Enumerable.AsEnumerable(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1]));
+            AddMethodTranslator(() => Enumerable.Empty<Generic.T>().Cast<object>(), new GenericMethodCompiler(
+                args => args[1], check: (method, _, arguments) =>
+                    method.GetGenericArguments()[0] == typeof(object) &&
+                    arguments[0].Type != typeof(string) &&
+                    !(arguments[0] is UnaryExpression { NodeType: ExpressionType.Convert, Operand.Type: var operandType } && operandType == typeof(string))));
 
             AddMethodTranslator(() => ImmutableArray.ToImmutableArray(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1]));
             AddMethodTranslator(() => ImmutableList.ToImmutableList(Enumerable.Empty<Generic.T>()), new GenericMethodCompiler(args => args[1]));
