@@ -71,6 +71,22 @@ namespace DotVVM.Framework.Tests.Binding
             return JavascriptTranslator.FormatKnockoutScript(jsExpression);
         }
 
+        [TestMethod]
+        public void JsTranslator_EnumerableCastToObject()
+        {
+            var result = CompileBinding("Int32Array.Cast<object>()", new[] { new NamespaceImport("System.Linq") }, typeof(TestArraysViewModel));
+            Assert.AreEqual("Int32Array", result);
+        }
+
+        [TestMethod]
+        [DataRow("Int32Array.Cast<string>()")]
+        [DataRow("'abc'.Cast<object>()")]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void JsTranslator_EnumerableCastUnsupported(string expression)
+        {
+            CompileBinding(expression, new[] { new NamespaceImport("System.Linq") }, typeof(TestArraysViewModel));
+        }
+
         [DataTestMethod]
         [DataRow("_this == 'Local'", "$data==\"Local\"")]
         [DataRow("'Local' == _this", "\"Local\"==$data")]

@@ -86,6 +86,31 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        [DataRow("Server")]
+        [DataRow("Client")]
+        public async Task ValueTypeEnumerableDataSource(string renderMode)
+        {
+            var r = await cth.RunPage(typeof(ValueTypeEnumerableViewModel), $@"
+                <cc:ObjectEnumerableRepeater DataSource={{value: Dates}} Text={{value: _this.ToString(""yyyy-MM-dd"")}} RenderSettings.Mode={renderMode} />
+                <cc:ObjectEnumerableRepeater DataSource={{value: EmptyDates}} Text={{value: _this.ToString()}} RenderSettings.Mode={renderMode} />
+                <cc:ObjectEnumerableRepeater DataSource={{value: NullDates}} Text={{value: _this.ToString()}} RenderSettings.Mode={renderMode} />
+            ", fileName: $"ValueTypeEnumerableDataSource_{renderMode}.dothtml");
+
+            if (renderMode == "Server")
+            {
+                CollectionAssert.AreEqual(
+                    new[] { "2024-01-02", "2024-03-04" },
+                    r.Html.QuerySelectorAll("li").Select(li => li.TextContent).ToArray());
+            }
+            else
+            {
+                CollectionAssert.AreEqual(
+                    new[] { "foreach: { data: Dates }", "foreach: { data: EmptyDates }", "foreach: { data: NullDates }" },
+                    r.Html.QuerySelectorAll("ul").Select(ul => ul.GetAttribute("data-bind")).ToArray());
+            }
+        }
+
+        [TestMethod]
         public async Task WrappedRepeaterControlWithGeneratedIds()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
@@ -461,6 +486,33 @@ namespace DotVVM.Framework.Tests.ControlTests
             .SetProperty(Repeater.DataSourceProperty, dataSource)
             .SetCapability(html)
             .AddCssClass(additionalCssClass);
+        }
+    }
+
+    public class ValueTypeEnumerableViewModel
+    {
+        public List<DateOnly> Dates { get; set; } = new List<DateOnly> {
+            new DateOnly(2024, 1, 2), new DateOnly(2024, 3, 4)
+        };
+        public List<DateOnly> EmptyDates { get; set; } = new List<DateOnly>();
+        public List<DateOnly> NullDates { get; set; }
+    }
+
+    public class ObjectEnumerableRepeater : CompositeControl
+    {
+        public static DotvvmControl GetContents(
+            IValueBinding<IEnumerable<object>> dataSource,
+            [ControlPropertyBindingDataContextChange("DataSource")]
+            [CollectionElementDataContextChange(1)]
+            IValueBinding<string> text)
+        {
+            return new Repeater {
+                RenderAsNamedTemplate = false,
+                WrapperTagName = "ul",
+                ItemTemplate = new DelegateTemplate(_ => new HtmlGenericControl("li") {
+                    Children = { new Literal(text) }
+                })
+            }.SetProperty(r => r.DataSource, dataSource);
         }
     }
 
