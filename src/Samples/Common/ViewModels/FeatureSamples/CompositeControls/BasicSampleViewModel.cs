@@ -14,6 +14,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CompositeControls
             new SampleItem { EditableNumber = 12, Title = "Second Number" },
         };
         public bool Visible { get; set; }
+        public List<DateOnly> Dates { get; set; } = new List<DateOnly> {
+            new DateOnly(2024, 1, 2),
+            new DateOnly(2024, 3, 4)
+        };
     }
 
     public class SampleItem
@@ -22,4 +26,3 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CompositeControls
         public string Title { get; set; }
     }
 }
-
