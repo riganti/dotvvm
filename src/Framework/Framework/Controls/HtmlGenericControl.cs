@@ -539,7 +539,7 @@ namespace DotVVM.Framework.Controls
                         var koExpression = binding.UnwrappedKnockoutExpression;
                         hasBinding = true;
                         if (needsSeparator)
-                            sb.Append($"{separatorLiteral}+");
+                            sb.Append(separatorLiteral).Append('+');
 
                         var needsParens = koExpression.OperatorPrecedence.NeedsParens(parentPrecedence: OperatorPrecedence.Addition);
 
@@ -559,8 +559,11 @@ namespace DotVVM.Framework.Controls
                         if (needsSeparator)
                             value = separator + value;
                         if (!isLast)
+                        {
                             // prefer to join the separator with a constant value to avoid unnecessary string concatenation in the generated code
                             value = value + separator;
+                            needsSeparator = false;
+                        }
 
                         sb.Append(KnockoutHelper.MakeStringLiteral(value));
                     }

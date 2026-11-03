@@ -15,6 +15,7 @@ using System.Collections;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Hosting;
+using AngleSharp.Html.Parser;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -154,6 +155,37 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             var str = RenderToString(control);
             Assert.AreEqual("""<div style=width:123 data-bind="style: { width: Integer }"></div>""", str);
+        }
+
+        [DataTestMethod]
+        [DataRow("binding;middle;binding", "String()+\";middle;\"+String()")]
+        [DataRow("binding;middle;tail;binding", "String()+\";middle;\"+\"tail;\"+String()")]
+        [DataRow("binding;middle;tail", "String()+\";middle;\"+\"tail\"")]
+        [DataRow("prefix;binding;middle;binding", "\"prefix;\"+String()+\";middle;\"+String()")]
+        [DataRow("binding;binding;middle;binding", "String()+\";\"+String()+\";middle;\"+String()")]
+        [DataRow("prefix;binding", "\"prefix;\"+String()")]
+        public void AttributeList_MixedBindingsAndConstants_SingleSeparators(string values, string expectedExpression)
+        {
+            var binding = bindingService.Cache.CreateValueBinding<string>("String", defaultDataContext);
+            var items = values.Split(';');
+            HtmlGenericControl.AttributeList list = null;
+            for (var i = items.Length - 1; i >= 0; i--)
+            {
+                list = new HtmlGenericControl.AttributeList(items[i] == "binding" ? binding : items[i], list);
+            }
+
+            foreach (var (attributeName, separator) in new[] { ("class", " "), ("data-test", ";") })
+            {
+                var control = new HtmlGenericControl("div").SetAttribute(attributeName, list);
+                var element = new HtmlParser().ParseDocument(RenderToString(control)).Body.FirstElementChild;
+                var expression = expectedExpression.Replace(";", separator);
+                var expectedDataBind = attributeName == "class"
+                    ? "class: " + expression
+                    : "attr: { \"data-test\": " + expression + " }";
+
+                Assert.AreEqual(values.Replace("binding", "some-string").Replace(";", separator), element.GetAttribute(attributeName));
+                Assert.AreEqual(expectedDataBind, element.GetAttribute("data-bind"));
+            }
         }
 
         [TestMethod]
