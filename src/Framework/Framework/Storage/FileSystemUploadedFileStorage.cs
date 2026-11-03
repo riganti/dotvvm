@@ -84,9 +84,9 @@ namespace DotVVM.Framework.Storage
         /// Appends a chunk while exclusively locking the file's position check and write.
         /// </summary>
         /// <remarks>
-        /// Shared storage must support cross-client byte-range locks (for example,
-        /// SMB or NFS with server-coordinated locking enabled). Local-only or disabled network locks
-        /// are not supported. Lock acquisition errors are propagated without modifying the file.
+        /// Shared storage must support cross-client byte-range locks (for example, SMB or NFS with
+        /// server-coordinated locking and close-to-open consistency enabled). Local-only or disabled
+        /// network locks are not supported. Lock acquisition errors do not modify the uploaded data.
         /// </remarks>
         public async Task AppendFileAsync(Guid fileId, long expectedPosition, Stream stream)
         {
@@ -98,31 +98,37 @@ namespace DotVVM.Framework.Storage
                 throw new IOException("Another upload chunk is being appended to this file.");
             try
             {
+                var fileName = GetFileName(fileId);
+                if (!File.Exists(fileName))
+                    throw new FileNotFoundException("The uploaded file does not exist.", fileName);
                 // Do not combine an exclusive share lock with a record lock: they can conflict on NFS.
-                using (var fs = new FileStream(GetFileName(fileId), FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
                 // Use a separate inode so closing a GetFileAsync reader cannot release a Unix record lock.
-                using (var appendLock = new FileStream(GetFileName(fileId) + ".lock", FileMode.OpenOrCreate,
+                using (var appendLock = new FileStream(fileName + ".lock", FileMode.OpenOrCreate,
                     FileAccess.Write, FileShare.ReadWrite | FileShare.Delete))
                 {
-                    // Fail closed if locking is unsupported. Disposal releases the lock after flushing.
+                    // Fail closed if locking is unsupported. Open and close data while locked
+                    // so NFS close-to-open consistency also covers its length check and writeback.
                     appendLock.Lock(0, 1);
-                    if (fs.Length != expectedPosition)
-                        throw new InvalidOperationException("Invalid upload continuation position.");
-                    fs.Position = expectedPosition;
-                    try
+                    using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
                     {
-                        await stream.CopyToAsync(fs);
-                        if (fs.Position == expectedPosition)
-                            throw new InvalidOperationException("Upload continuation must not be empty.");
-                        await fs.FlushAsync();
-                    }
-                    catch
-                    {
-                        // Poison the position before releasing the exclusive lock, even if deletion fails.
-                        fs.SetLength(0);
-                        fs.Dispose();
-                        await DeleteFileAsync(fileId);
-                        throw;
+                        if (fs.Length != expectedPosition)
+                            throw new InvalidOperationException("Invalid upload continuation position.");
+                        fs.Position = expectedPosition;
+                        try
+                        {
+                            await stream.CopyToAsync(fs);
+                            if (fs.Position == expectedPosition)
+                                throw new InvalidOperationException("Upload continuation must not be empty.");
+                            await fs.FlushAsync();
+                        }
+                        catch
+                        {
+                            // Poison the position before releasing the exclusive lock, even if deletion fails.
+                            fs.SetLength(0);
+                            fs.Dispose();
+                            await DeleteFileAsync(fileId);
+                            throw;
+                        }
                     }
                 }
             }

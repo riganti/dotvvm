@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -47,15 +48,15 @@ namespace DotVVM.Framework.Tests.Runtime
             var id = await storage.StoreFileAsync(new MemoryStream([1]));
             var blocked = new BlockingStream();
             var append = storage.AppendFileAsync(id, 1, blocked);
-            await blocked.Entered.Task;
             try
             {
+                await AwaitWithTimeout(blocked.Entered.Task);
                 await Assert.ThrowsExceptionAsync<IOException>(() => storage.AppendFileAsync(id, 1, new MemoryStream([3])));
             }
             finally
             {
                 blocked.Release.TrySetResult(true);
-                await append;
+                await AwaitWithTimeout(append);
             }
             using var file = await storage.GetFileAsync(id);
             Assert.AreEqual(2L, file.Length);
@@ -162,6 +163,158 @@ namespace DotVVM.Framework.Tests.Runtime
             }
         }
 
+#if DotNetCore
+        [TestMethod]
+        public async Task Append_ByteRangeLockRejectsOtherProcessesEvenAfterReaderCloses()
+        {
+            var id = await storage.StoreFileAsync(new MemoryStream([1]));
+            var blocked = new BlockingStream();
+            var append = storage.AppendFileAsync(id, 1, blocked);
+            try
+            {
+                await AwaitWithTimeout(blocked.Entered.Task);
+                // Closing a reader of the data inode must not release the append lock on Unix.
+                using (var reader = new FileStream(
+                    Directory.GetFiles(directory).Single(path => path.EndsWith(".tmp", StringComparison.Ordinal)),
+                    FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    Assert.AreEqual(1, reader.ReadByte());
+                }
+                await Task.WhenAll(
+                    RunLockWorker(id, "first"),
+                    RunLockWorker(id, "second"));
+            }
+            finally
+            {
+                blocked.Release.TrySetResult(true);
+                await AwaitWithTimeout(append);
+            }
+            using var file = await storage.GetFileAsync(id);
+            using var bytes = new MemoryStream();
+            await file.CopyToAsync(bytes);
+            CollectionAssert.AreEqual(new byte[] { 1, 2 }, bytes.ToArray());
+        }
+
+        [TestMethod]
+        public async Task Append_CrossProcessWorker()
+        {
+            var sharedDirectory = Environment.GetEnvironmentVariable("DOTVVM_CHUNK_LOCK_DIRECTORY");
+            if (string.IsNullOrEmpty(sharedDirectory))
+                return;
+            var id = Guid.Parse(Environment.GetEnvironmentVariable("DOTVVM_CHUNK_LOCK_ID"));
+            var start = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var attempts = Enumerable.Range(0, 32).Select(writer => Task.Run(async () =>
+            {
+                using var other = new FileSystemUploadedFileStorage(sharedDirectory, TimeSpan.FromHours(1));
+                using var source = new MemoryStream(CreatePayload(0, 1, writer));
+                await start.Task;
+                await Assert.ThrowsExceptionAsync<IOException>(() => other.AppendFileAsync(id, 1, source));
+            })).ToArray();
+            start.TrySetResult(true);
+            await AwaitWithTimeout(Task.WhenAll(attempts));
+            File.WriteAllText(Environment.GetEnvironmentVariable("DOTVVM_CHUNK_LOCK_WITNESS"), "completed");
+        }
+
+        private async Task RunLockWorker(Guid id, string name)
+        {
+            var witness = Path.Combine(directory, name + ".completed");
+            var start = new ProcessStartInfo("dotnet")
+            {
+                Arguments = $"vstest \"{typeof(ChunkedUploadedFileStorageTests).Assembly.Location}\" --Tests:{nameof(Append_CrossProcessWorker)} --logger:console;verbosity=minimal",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+            start.EnvironmentVariables["DOTVVM_CHUNK_LOCK_DIRECTORY"] = directory;
+            start.EnvironmentVariables["DOTVVM_CHUNK_LOCK_ID"] = id.ToString();
+            start.EnvironmentVariables["DOTVVM_CHUNK_LOCK_WITNESS"] = witness;
+            using var child = new Process { StartInfo = start };
+            Assert.IsTrue(child.Start(), "Could not start the cross-process lock worker.");
+            var output = child.StandardOutput.ReadToEndAsync();
+            var error = child.StandardError.ReadToEndAsync();
+            try
+            {
+                await AwaitWithTimeout(child.WaitForExitAsync());
+                await AwaitWithTimeout(Task.WhenAll(output, error));
+                Assert.AreEqual(0, child.ExitCode, await output + Environment.NewLine + await error);
+                Assert.IsTrue(File.Exists(witness), "The selected child worker did not complete.");
+            }
+            finally
+            {
+                if (!child.HasExited)
+                {
+                    child.Kill(entireProcessTree: true);
+                    await AwaitWithTimeout(child.WaitForExitAsync());
+                }
+                File.Delete(witness);
+            }
+        }
+#endif
+
+        [TestMethod]
+        public async Task DeleteFile_RemovesDataAndSidecar()
+        {
+            var id = await storage.StoreFileAsync(new MemoryStream([1]));
+            await storage.AppendFileAsync(id, 1, new MemoryStream([2]));
+            Assert.AreEqual(2, Directory.GetFiles(directory).Length);
+            await storage.DeleteFileAsync(id);
+            Assert.AreEqual(0, Directory.GetFiles(directory).Length);
+        }
+
+        [TestMethod]
+        public async Task DeleteOldFiles_RemovesDataAndSidecar()
+        {
+            var id = await storage.StoreFileAsync(new MemoryStream([1]));
+            await storage.AppendFileAsync(id, 1, new MemoryStream([2]));
+            Assert.AreEqual(2, Directory.GetFiles(directory).Length);
+            storage.DeleteOldFiles(DateTime.Now.AddMinutes(1));
+            Assert.AreEqual(0, Directory.GetFiles(directory).Length);
+        }
+
+        [TestMethod]
+        public async Task DeleteOldFiles_RemovesOrphanSidecar()
+        {
+            var id = await storage.StoreFileAsync(new MemoryStream([1]));
+            await storage.AppendFileAsync(id, 1, new MemoryStream([2]));
+            var dataFile = Directory.GetFiles(directory).Single(path => !path.EndsWith(".lock", StringComparison.Ordinal));
+            File.Delete(dataFile);
+            storage.DeleteOldFiles(DateTime.Now.AddMinutes(1));
+            Assert.AreEqual(0, Directory.GetFiles(directory).Length);
+        }
+
+        [TestMethod]
+        public async Task DeleteOldFiles_PreservesOlderSidecarWhileDataExists()
+        {
+            var dataFile = Path.Combine(directory, $"dotvvm-uploaded-file-{Guid.NewGuid()}.tmp");
+            var lockFile = dataFile + ".lock";
+            File.WriteAllBytes(lockFile, new byte[0]);
+            var cutoff = File.GetCreationTime(lockFile).AddTicks(1);
+            // Only the sidecar should qualify for deletion, including on coarse-resolution filesystems.
+            for (var attempt = 0; attempt < 120; attempt++)
+            {
+                File.WriteAllBytes(dataFile, new byte[] { 1 });
+                if (File.GetCreationTime(dataFile) >= cutoff)
+                    break;
+                File.Delete(dataFile);
+                await Task.Delay(25);
+            }
+            Assert.IsTrue(File.Exists(dataFile), "Could not create data newer than its sidecar.");
+            storage.DeleteOldFiles(cutoff);
+            Assert.IsTrue(File.Exists(dataFile));
+            Assert.IsTrue(File.Exists(lockFile), "Cleanup must not unlink a live file's lock.");
+        }
+
+        [TestMethod]
+        public async Task Append_MissingFileDoesNotCreateSidecar()
+        {
+            var id = Guid.NewGuid();
+            await Assert.ThrowsExceptionAsync<FileNotFoundException>(() =>
+                storage.AppendFileAsync(id, 1, new MemoryStream([2])));
+            await Assert.ThrowsExceptionAsync<FileNotFoundException>(() =>
+                storage.AppendFileAsync(id, 1, new MemoryStream([2])));
+            Assert.AreEqual(0, Directory.GetFiles(directory).Length);
+        }
+
         [DataTestMethod]
         [DataRow(0L)]
         [DataRow(-1L)]
@@ -181,18 +334,19 @@ namespace DotVVM.Framework.Tests.Runtime
             var id = await storage.StoreFileAsync(new MemoryStream([1]));
             var blocked = new BlockingStream { FailAfterWrite = true };
             var append = storage.AppendFileAsync(id, 1, blocked);
-            await blocked.Entered.Task;
             try
             {
+                await AwaitWithTimeout(blocked.Entered.Task);
                 await Assert.ThrowsExceptionAsync<IOException>(() => storage.AppendFileAsync(id, 1, new MemoryStream([3])));
             }
             finally
             {
                 blocked.Release.TrySetResult(true);
-                await Assert.ThrowsExceptionAsync<IOException>(() => append);
+                await Assert.ThrowsExceptionAsync<IOException>(() => AwaitWithTimeout(append));
             }
             await Assert.ThrowsExceptionAsync<FileNotFoundException>(() => storage.GetFileAsync(id));
             await Assert.ThrowsExceptionAsync<FileNotFoundException>(() => storage.AppendFileAsync(id, 1, new MemoryStream([3])));
+            Assert.AreEqual(0, Directory.GetFiles(directory).Length);
         }
 
         [TestMethod]
@@ -202,6 +356,7 @@ namespace DotVVM.Framework.Tests.Runtime
             await Assert.ThrowsExceptionAsync<IOException>(() => storage.AppendFileAsync(id, 1, new FailingStream()));
             await Assert.ThrowsExceptionAsync<FileNotFoundException>(() => storage.GetFileAsync(id));
             await Assert.ThrowsExceptionAsync<FileNotFoundException>(() => storage.AppendFileAsync(id, 1, new MemoryStream([3])));
+            Assert.AreEqual(0, Directory.GetFiles(directory).Length);
         }
 
         [TestMethod]
@@ -217,6 +372,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var id = await storage.StoreFileAsync(new MemoryStream([1]));
             await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => storage.AppendFileAsync(id, 1, new MemoryStream()));
             await Assert.ThrowsExceptionAsync<FileNotFoundException>(() => storage.GetFileAsync(id));
+            Assert.AreEqual(0, Directory.GetFiles(directory).Length);
         }
 
         private sealed class FailingStream : MemoryStream
