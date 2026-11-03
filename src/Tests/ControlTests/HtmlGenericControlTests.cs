@@ -222,6 +222,42 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.AreEqual("""<div style=width:123 data-bind="style: { width: Integer }"></div>""", str);
         }
 
+        [TestMethod]
+        public void NumericCssStyles_UseInvariantCulture()
+        {
+            DotvvmTestHelper.RunInCulture(new CultureInfo("cs-CZ"), () => {
+                var control = new HtmlGenericControl("div");
+                control.CssStyles.Add("opacity", 0.5m);
+                control.CssStyles.Add("flex-grow", 1.5d);
+                control.CssStyles.Add("line-height", 1.25f);
+
+                Assert.AreEqual("""<div style="opacity:0.5;flex-grow:1.5;line-height:1.25"></div>""", RenderToString(control));
+            });
+        }
+
+        [TestMethod]
+        public void NumericCssStyleBindings_UseInvariantCulture()
+        {
+            DotvvmTestHelper.RunInCulture(new CultureInfo("cs-CZ"), () => {
+                var control = new HtmlGenericControl("div");
+                control.CssStyles.Add("opacity", bindingService.Cache.CreateValueBinding<double>("0.5", defaultDataContext));
+                control.CssStyles.Add("flex-grow", bindingService.Cache.CreateResourceBinding<decimal>("1.25m", defaultDataContext));
+
+                Assert.AreEqual("""<div style="opacity:0.5;flex-grow:1.25" data-bind="style: { opacity: 0.5 }"></div>""", RenderToString(control));
+            });
+        }
+
+        [TestMethod]
+        public void NumericCssStyleValueBinding_DoesNotLocalizeJavascript()
+        {
+            DotvvmTestHelper.RunInCulture(new CultureInfo("cs-CZ"), () => {
+                var control = new HtmlGenericControl("div");
+                control.CssStyles.Add("opacity", bindingService.Cache.CreateValueBinding<decimal>("Integer * 0.001m", defaultDataContext));
+
+                Assert.AreEqual("""<div style=opacity:0.123 data-bind="style: { opacity: Integer() * 0.001 }"></div>""", RenderToString(control));
+            });
+        }
+
         [DataTestMethod]
         [DataRow("binding;middle;binding", "String()+\";middle;\"+String()")]
         [DataRow("binding;middle;tail;binding", "String()+\";middle;\"+\"tail;\"+String()")]

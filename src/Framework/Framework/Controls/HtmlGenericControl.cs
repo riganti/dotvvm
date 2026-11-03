@@ -330,7 +330,7 @@ namespace DotVVM.Framework.Controls
                     cssStylesBindingGroup.Add(style, this, binding);
                 }
 
-                var value = KnockoutHelper.TryEvaluateValueBinding(this, rawValue)?.ToString();
+                var value = Convert.ToString(KnockoutHelper.TryEvaluateValueBinding(this, rawValue), CultureInfo.InvariantCulture);
                 if (!string.IsNullOrEmpty(value))
                 {
                     writer.AddStyleAttribute(style, value!);
