@@ -477,7 +477,10 @@ namespace DotVVM.Framework.Controls
         {
             if (r.InnerText != null || Children.Count != 1)
                 return;
-            if (Children[0] is not Literal { RendersHtmlTag: false, FormatString: null or "" } literal)
+            if (Children[0] is not Literal { RendersHtmlTag: false, FormatString: null or "" } literal ||
+                literal.properties.Contains(IncludeInPageProperty) ||
+                literal.properties.Contains(DataContextProperty) ||
+                literal.properties.Contains(RenderSettings.ModeProperty))
                 return;
 
             var textBinding = literal.GetValueRaw(Literal.TextProperty) as IValueBinding;

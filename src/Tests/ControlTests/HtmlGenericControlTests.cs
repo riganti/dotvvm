@@ -131,6 +131,71 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.AreEqual("""<div style="width:123px;display:none"></div>""", RenderToString(control));
         }
 
+        [TestMethod]
+        public void LiteralAsInnerText_WithoutChildSettings()
+        {
+            var literal = new Literal(bindingService.Cache.CreateValueBinding<string>("String", defaultDataContext));
+            var control = new HtmlGenericControl("div") { Children = { literal } };
+
+            Assert.AreEqual("""<div data-bind="text: String"></div>""", RenderToString(control));
+        }
+
+        [TestMethod]
+        public void LiteralAsInnerText_PreservesIncludeInPageConstant()
+        {
+            var literal = new Literal(bindingService.Cache.CreateValueBinding<string>("String", defaultDataContext)) {
+                IncludeInPage = false
+            };
+            var control = new HtmlGenericControl("div") { Children = { literal } };
+
+            Assert.AreEqual("<div></div>", RenderToString(control));
+        }
+
+        [TestMethod]
+        public void LiteralAsInnerText_PreservesIncludeInPageResourceBinding()
+        {
+            var literal = new Literal(bindingService.Cache.CreateValueBinding<string>("String", defaultDataContext));
+            literal.SetBinding(DotvvmControl.IncludeInPageProperty,
+                bindingService.Cache.CreateResourceBinding<bool>("Boolean", defaultDataContext));
+            var control = new HtmlGenericControl("div") { Children = { literal } };
+
+            Assert.AreEqual("<div></div>", RenderToString(control));
+        }
+
+        [TestMethod]
+        public void LiteralAsInnerText_PreservesIncludeInPageValueBinding()
+        {
+            var literal = new Literal(bindingService.Cache.CreateValueBinding<string>("String", defaultDataContext));
+            literal.SetBinding(DotvvmControl.IncludeInPageProperty,
+                bindingService.Cache.CreateValueBinding<bool>("!Boolean", defaultDataContext));
+            var control = new HtmlGenericControl("div") { Children = { literal } };
+
+            Assert.AreEqual("<div><!-- ko if: !Boolean() --><!-- ko text: String --><!-- /ko --><!-- /ko --></div>", RenderToString(control));
+        }
+
+        [TestMethod]
+        public void LiteralAsInnerText_PreservesDataContextBinding()
+        {
+            var childDataContext = DataContextStack.Create(typeof(string), defaultDataContext);
+            var literal = new Literal(bindingService.Cache.CreateValueBinding<string>("_this", childDataContext));
+            literal.SetBinding(DotvvmBindableObject.DataContextProperty,
+                bindingService.Cache.CreateValueBinding<string>("String", defaultDataContext));
+            var control = new HtmlGenericControl("div") { Children = { literal } };
+            control.SetValue(RenderSettings.ModeProperty, RenderMode.Server);
+
+            Assert.AreEqual("<div><!-- ko with: String --><!-- ko text: $rawData -->some-string<!-- /ko --><!-- /ko --></div>", RenderToString(control));
+        }
+
+        [TestMethod]
+        public void LiteralAsInnerText_PreservesChildRenderMode()
+        {
+            var literal = new Literal(bindingService.Cache.CreateValueBinding<string>("String", defaultDataContext));
+            literal.SetValue(RenderSettings.ModeProperty, RenderMode.Server);
+            var control = new HtmlGenericControl("div") { Children = { literal } };
+
+            Assert.AreEqual("<div><!-- ko text: String -->some-string<!-- /ko --></div>", RenderToString(control));
+        }
+
         [DataTestMethod]
         [DataRow(RenderMode.Client)]
         [DataRow(RenderMode.Server)]
