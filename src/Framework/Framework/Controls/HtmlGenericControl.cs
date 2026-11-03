@@ -230,6 +230,11 @@ namespace DotVVM.Framework.Controls
             {
                 // the control renders no html tag and therefore if it has any attributes it should throw an exception
                 EnsureNoAttributesSet(in r);
+                if (r.InnerText != null)
+                {
+                    Children.Clear();
+                    Children.Add(new Literal { RenderSpanElement = false }.SetProperty(Literal.TextProperty, r.InnerText));
+                }
             }
             else
             {

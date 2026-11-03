@@ -132,6 +132,27 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public void TaglessControl_RendersTextCapability()
+        {
+            var control = new HtmlGenericControl(null, new TextOrContentCapability("text"));
+
+            Assert.AreEqual("text", RenderToString(control));
+        }
+
+        [DataTestMethod]
+        [DataRow(RenderMode.Client, "<!-- ko text: String --><!-- /ko -->")]
+        [DataRow(RenderMode.Server, "<!-- ko text: String -->some-string<!-- /ko -->")]
+        public void TaglessControl_RendersInnerTextBinding(RenderMode renderMode, string expectedHtml)
+        {
+            var control = new HtmlGenericControl(null);
+            control.SetBinding(HtmlGenericControl.InnerTextProperty,
+                bindingService.Cache.CreateValueBinding<string>("String", defaultDataContext));
+            control.SetValue(RenderSettings.ModeProperty, renderMode);
+
+            Assert.AreEqual(expectedHtml, RenderToString(control));
+        }
+
+        [TestMethod]
         public void LiteralAsInnerText_WithoutChildSettings()
         {
             var literal = new Literal(bindingService.Cache.CreateValueBinding<string>("String", defaultDataContext));
@@ -261,13 +282,13 @@ namespace DotVVM.Framework.Tests.ControlTests
                 """);
 
             Assert.AreEqual("""
-                            
-                            
+
+
                             <head></head>
                             <body>
                             <div class="from-capability from-attributes"></div>
-                            
-                            
+
+
                             </body>
                             """.Replace("\r\n", "\n"), r.OutputString.Replace("\r\n", "\n"));
         }
@@ -280,13 +301,13 @@ namespace DotVVM.Framework.Tests.ControlTests
                 """);
 
             Assert.AreEqual("""
-                            
-                            
+
+
                             <head></head>
                             <body>
                             <div class="static-class some-string" data-bind='class: "static-class " + (String() ?? "")'></div>
-                            
-                            
+
+
                             </body>
                             """.Replace("\r\n", "\n"), r.OutputString.Replace("\r\n", "\n"));
         }
@@ -299,13 +320,13 @@ namespace DotVVM.Framework.Tests.ControlTests
                 """);
 
             Assert.AreEqual("""
-                            
-                            
+
+
                             <head></head>
                             <body>
                             <div class="some-string some-string" data-bind='class: (String() ?? "") + " " + (String() ?? "")'></div>
-                            
-                            
+
+
                             </body>
                             """.Replace("\r\n", "\n"), r.OutputString.Replace("\r\n", "\n"));
         }
