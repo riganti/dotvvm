@@ -113,9 +113,13 @@ namespace DotVVM.Framework.ViewModel.Validation
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
                 {
-                    var innerErrorsCount = Expand(item, $"{pathPrefix}/{index++}", context);
-                    context.FoundErrors[item] = innerErrorsCount;
-                    errorsCount += innerErrorsCount;
+                    if (item is {})
+                    {
+                        var innerErrorsCount = Expand(item, $"{pathPrefix}/{index}", context);
+                        context.FoundErrors[item] = innerErrorsCount;
+                        errorsCount += innerErrorsCount;
+                    }
+                    index++;
                 }
 
                 context.FoundErrors[viewModel] = errorsCount;
