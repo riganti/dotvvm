@@ -8,25 +8,23 @@ import * as evaluator from '../utils/evaluator'
 import { removeErrors } from '../validation/validation';
 import { handleIncludedReturnedFiles } from './includedFiles';
 
-export function resolveRelativeValidationPaths(paths: string[] | null | undefined, context: KnockoutBindingContext | undefined) {
-    return paths?.map(p => {
-        if (p == null || p.startsWith("/")) {
-            return p
-        }
-        while (context && /^\.\.(\/|$)/.test(p)) {
-            context = context.$parentContext;
-            p = p.substring(2);
-            p = p.startsWith('/') ? p.substring(1) : ''
-        }
-        if (context == null) {
-            return null
-        }
-        const absolutePath = evaluator.findPathToChildObservable(getViewModel(), evaluator.unwrapComputedProperty(context.$rawData), "")
+export function resolveRelativeValidationPaths(p: string, context: KnockoutBindingContext | undefined) {
+    if (p == null || p.startsWith("/")) {
+        return p
+    }
+    while (context && /^\.\.(\/|$)/.test(p)) {
+        context = context.$parentContext;
+        p = p.substring(2);
+        p = p.startsWith('/') ? p.substring(1) : ''
+    }
+    if (context == null) {
+        return null
+    }
+    const absolutePath = evaluator.findPathToChildObservable(getViewModel(), evaluator.unwrapComputedProperty(context.$rawData), "")
 
-        // trim trailing `/` or `/.`, but leave it when path == `/`
-        return absolutePath == null ? null :
-            (absolutePath + "/" + p).replace(/\/\.?$/, "") || "/"
-    })
+    // trim trailing `/` or `/.`, but leave it when path == `/`
+    return absolutePath == null ? null :
+        (absolutePath + "/" + p).replace(/\/\.?$/, "") || "/"
 }
 
 export async function staticCommandPostback(command: string, args: any[], options: PostbackOptions, paths: string[] | null | undefined): Promise<any> {
@@ -35,13 +33,13 @@ export async function staticCommandPostback(command: string, args: any[], option
     let response: http.WrappedResponse<DotvvmStaticCommandResponse>;
 
     try {
-        const absolutePaths = resolveRelativeValidationPaths(paths, options.knockoutContext)
+        const absolutePaths = paths?.map(p => resolveRelativeValidationPaths(p, options.knockoutContext))
 
         await http.retryOnInvalidCsrfToken(async () => {
             const csrfToken = await http.getCsrfToken(options.abortSignal);
-            data = { 
-                args: args.map(a => serialize(a)), 
-                command, 
+            data = {
+                args: args.map(a => serialize(a)),
+                command,
                 argumentPaths: absolutePaths,
                 $csrfToken: csrfToken,
                 knownTypeMetadata: getKnownTypes()
@@ -87,28 +85,28 @@ export async function staticCommandPostback(command: string, args: any[], option
 
         updateTypeInfo(response.result.typeMetadata);
 
-        events.staticCommandMethodInvoked.trigger({ 
-            ...options, 
+        events.staticCommandMethodInvoked.trigger({
+            ...options,
             methodId: command,
             methodArgs: args,
             serverResponseObject: response.result,
-            result: (response as any).result.result, 
+            result: (response as any).result.result,
             response: (response as any).response
         });
         handleIncludedReturnedFiles(response.result);
 
         return response.result.result;
-        
+
     } catch (err: any) {
-        events.staticCommandMethodFailed.trigger({ 
-            ...options, 
+        events.staticCommandMethodFailed.trigger({
+            ...options,
             methodId: command,
             methodArgs: args,
             error: err,
-            result: (err.reason as any)?.responseObject, 
-            response: (err.reason as any)?.response 
+            result: (err.reason as any)?.responseObject,
+            response: (err.reason as any)?.response
         })
-        
+
         throw err;
     }
 }
