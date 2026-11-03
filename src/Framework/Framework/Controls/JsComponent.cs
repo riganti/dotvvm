@@ -149,7 +149,7 @@ namespace DotVVM.Framework.Controls
                 binding.Add("view", ViewModuleHelpers.GetViewIdJsExpression(viewModule, this));
 
             writer.AddKnockoutDataBind("dotvvm-js-component", binding);
-            var htmlElement = new HtmlGenericControl(WrapperTagName, this.HtmlCapability);
+            var htmlElement = new HtmlGenericControl(WrapperTagName, this.HtmlCapability) { Parent = this };
             htmlElement.Render(writer, context);
         }
 
