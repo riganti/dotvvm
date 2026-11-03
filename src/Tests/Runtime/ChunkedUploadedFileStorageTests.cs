@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Storage;
@@ -60,6 +61,105 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(2L, file.Length);
             Assert.AreEqual(1, file.ReadByte());
             Assert.AreEqual(2, file.ReadByte());
+        }
+
+        [TestMethod]
+        public async Task Append_ConcurrentTokenUseAcrossStorageInstancesHasExactlyOneWinner()
+        {
+            const int writerCount = 32;
+            var writers = Enumerable.Range(0, writerCount)
+                .Select(_ => new FileSystemUploadedFileStorage(directory, TimeSpan.FromHours(1)))
+                .ToArray();
+            try
+            {
+                for (var round = 0; round < 20; round++)
+                {
+                    var expected = CreatePayload(round, 0, writerCount);
+                    var id = await storage.StoreFileAsync(new MemoryStream(expected));
+                    for (var chunk = 1; chunk <= 3; chunk++)
+                    {
+                        var position = expected.LongLength;
+                        var start = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                        var release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                        var allAttempted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                        var remaining = writerCount;
+                        var payloads = Enumerable.Range(0, writerCount)
+                            .Select(writer => CreatePayload(round, chunk, writer)).ToArray();
+                        var attempts = Enumerable.Range(0, writerCount).Select(writer => Task.Run(async () =>
+                        {
+                            var reported = 0;
+                            void ReportAttempt()
+                            {
+                                if (Interlocked.Exchange(ref reported, 1) == 0 &&
+                                    Interlocked.Decrement(ref remaining) == 0)
+                                    allAttempted.TrySetResult(true);
+                            }
+                            await start.Task;
+                            try
+                            {
+                                using var source = new ContendingStream(payloads[writer], ReportAttempt, release.Task);
+                                await writers[writer].AppendFileAsync(id, position, source);
+                                return (Exception)null;
+                            }
+                            catch (Exception exception)
+                            {
+                                return exception;
+                            }
+                            finally
+                            {
+                                ReportAttempt();
+                            }
+                        })).ToArray();
+                        var finished = Task.WhenAll(attempts);
+                        try
+                        {
+                            start.TrySetResult(true);
+                            // Keep every accepted writer before its first byte until every contender
+                            // has either acquired the file or been rejected. Position checks alone
+                            // cannot serialize writers in this window.
+                            await AwaitWithTimeout(allAttempted.Task);
+                        }
+                        finally
+                        {
+                            start.TrySetResult(true);
+                            release.TrySetResult(true);
+                            await AwaitWithTimeout(finished);
+                        }
+
+                        var results = await finished;
+                        var context = $"Round {round}, chunk {chunk}";
+                        Assert.AreEqual(1, results.Count(result => result == null), context);
+                        for (var writer = 0; writer < writerCount; writer++)
+                        {
+                            Assert.IsTrue(results[writer] == null ||
+                                results[writer] is IOException ||
+                                results[writer] is InvalidOperationException,
+                                $"{context}, writer {writer}: {results[writer]}");
+                        }
+                        var winner = Array.FindIndex(results, result => result == null);
+                        var previous = expected;
+                        expected = previous.Concat(payloads[winner]).ToArray();
+                        await Assert.ThrowsExceptionAsync<InvalidOperationException>(() =>
+                            writers[(winner + 1) % writerCount].AppendFileAsync(id, position, new MemoryStream(payloads[winner])));
+                        using (var file = await storage.GetFileAsync(id))
+                        using (var actual = new MemoryStream())
+                        {
+                            await file.CopyToAsync(actual);
+                            var bytes = actual.ToArray();
+                            Assert.AreEqual(expected.LongLength, file.Length, context);
+                            CollectionAssert.AreEqual(previous, bytes.Take(previous.Length).ToArray(), context + ": prefix");
+                            CollectionAssert.AreEqual(payloads[winner], bytes.Skip(previous.Length).ToArray(), context + ": winning chunk");
+                            CollectionAssert.AreEqual(expected, bytes, context);
+                        }
+                    }
+                    await storage.DeleteFileAsync(id);
+                }
+            }
+            finally
+            {
+                foreach (var writer in writers)
+                    writer.Dispose();
+            }
         }
 
         [DataTestMethod]
@@ -125,6 +225,51 @@ namespace DotVVM.Framework.Tests.Runtime
             {
                 await destination.WriteAsync(new byte[] { 2 }, 0, 1, cancellationToken);
                 throw new IOException("Simulated interrupted upload.");
+            }
+        }
+
+        private static byte[] CreatePayload(int round, int chunk, int writer)
+        {
+            var bytes = new byte[8192 + writer * 37 + chunk * 101];
+            for (var i = 0; i < bytes.Length; i++)
+                bytes[i] = (byte)(round * 17 + chunk * 31 + writer * 43 + i * 13);
+            Buffer.BlockCopy(BitConverter.GetBytes(round), 0, bytes, 0, 4);
+            Buffer.BlockCopy(BitConverter.GetBytes(chunk), 0, bytes, 4, 4);
+            Buffer.BlockCopy(BitConverter.GetBytes(writer), 0, bytes, 8, 4);
+            return bytes;
+        }
+
+        private static async Task AwaitWithTimeout(Task task)
+        {
+            using var timeout = new CancellationTokenSource();
+            var delay = Task.Delay(TimeSpan.FromSeconds(30), timeout.Token);
+            Assert.AreSame(task, await Task.WhenAny(task, delay), "Concurrent upload attempts timed out.");
+            timeout.Cancel();
+            await task;
+        }
+
+        private sealed class ContendingStream : MemoryStream
+        {
+            private readonly byte[] payload;
+            private readonly Action reportAttempt;
+            private readonly Task release;
+
+            public ContendingStream(byte[] payload, Action reportAttempt, Task release)
+            {
+                this.payload = payload;
+                this.reportAttempt = reportAttempt;
+                this.release = release;
+            }
+
+            public override async Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+            {
+                reportAttempt();
+                await AwaitWithTimeout(release);
+                for (var offset = 0; offset < payload.Length; offset += 1024)
+                {
+                    await Task.Yield();
+                    await destination.WriteAsync(payload, offset, Math.Min(1024, payload.Length - offset), cancellationToken);
+                }
             }
         }
 

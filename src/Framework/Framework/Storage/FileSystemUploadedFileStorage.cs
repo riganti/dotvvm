@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace DotVVM.Framework.Storage
 {
     public class FileSystemUploadedFileStorage : IChunkedUploadedFileStorage, IDisposable
     {
+        private static readonly ConcurrentDictionary<Guid, byte> activeAppends = new ConcurrentDictionary<Guid, byte>();
+
         public string TempDirectory { get; private set; }
 
         public TimeSpan AutoDeleteInterval { get; private set; }
@@ -77,30 +80,55 @@ namespace DotVVM.Framework.Storage
             return id;
         }
 
+        /// <summary>
+        /// Appends a chunk while exclusively locking the file's position check and write.
+        /// </summary>
+        /// <remarks>
+        /// Shared storage must support cross-client byte-range locks (for example,
+        /// SMB or NFS with server-coordinated locking enabled). Local-only or disabled network locks
+        /// are not supported. Lock acquisition errors are propagated without modifying the file.
+        /// </remarks>
         public async Task AppendFileAsync(Guid fileId, long expectedPosition, Stream stream)
         {
             if (expectedPosition <= 0)
                 throw new ArgumentOutOfRangeException(nameof(expectedPosition));
-            using (var fs = new FileStream(GetFileName(fileId), FileMode.Open, FileAccess.Write, FileShare.None))
+            // Unix record locks are process-associated. Reject local contenders before opening
+            // another handle, whose disposal could otherwise release the active writer's lock.
+            if (!activeAppends.TryAdd(fileId, 0))
+                throw new IOException("Another upload chunk is being appended to this file.");
+            try
             {
-                if (fs.Length != expectedPosition)
-                    throw new InvalidOperationException("Invalid upload continuation position.");
-                fs.Position = expectedPosition;
-                try
+                // Do not combine an exclusive share lock with a record lock: they can conflict on NFS.
+                using (var fs = new FileStream(GetFileName(fileId), FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+                // Use a separate inode so closing a GetFileAsync reader cannot release a Unix record lock.
+                using (var appendLock = new FileStream(GetFileName(fileId) + ".lock", FileMode.OpenOrCreate,
+                    FileAccess.Write, FileShare.ReadWrite | FileShare.Delete))
                 {
-                    await stream.CopyToAsync(fs);
-                    if (fs.Position == expectedPosition)
-                        throw new InvalidOperationException("Upload continuation must not be empty.");
-                    await fs.FlushAsync();
+                    // Fail closed if locking is unsupported. Disposal releases the lock after flushing.
+                    appendLock.Lock(0, 1);
+                    if (fs.Length != expectedPosition)
+                        throw new InvalidOperationException("Invalid upload continuation position.");
+                    fs.Position = expectedPosition;
+                    try
+                    {
+                        await stream.CopyToAsync(fs);
+                        if (fs.Position == expectedPosition)
+                            throw new InvalidOperationException("Upload continuation must not be empty.");
+                        await fs.FlushAsync();
+                    }
+                    catch
+                    {
+                        // Poison the position before releasing the exclusive lock, even if deletion fails.
+                        fs.SetLength(0);
+                        fs.Dispose();
+                        await DeleteFileAsync(fileId);
+                        throw;
+                    }
                 }
-                catch
-                {
-                    // Poison the position before releasing the exclusive lock, even if deletion fails.
-                    fs.SetLength(0);
-                    fs.Dispose();
-                    await DeleteFileAsync(fileId);
-                    throw;
-                }
+            }
+            finally
+            {
+                activeAppends.TryRemove(fileId, out _);
             }
         }
 
@@ -112,6 +140,7 @@ namespace DotVVM.Framework.Storage
             try
             {
                 File.Delete(GetFileName(fileId));
+                File.Delete(GetFileName(fileId) + ".lock");
             }
             catch (IOException)
             {
@@ -151,7 +180,12 @@ namespace DotVVM.Framework.Storage
             {
                 try
                 {
+                    // Never unlink the lock for an existing file: another writer could recreate it.
+                    if (file.EndsWith(".lock", StringComparison.OrdinalIgnoreCase) && File.Exists(file.Substring(0, file.Length - 5)))
+                        continue;
                     File.Delete(file);
+                    if (!file.EndsWith(".lock", StringComparison.OrdinalIgnoreCase))
+                        File.Delete(file + ".lock");
                 }
                 catch (IOException)
                 {
