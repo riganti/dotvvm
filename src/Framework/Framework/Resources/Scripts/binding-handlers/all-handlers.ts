@@ -13,6 +13,7 @@ import jsComponents from './js-component'
 import modalDialog from './modal-dialog'
 import appendableDataPager from './appendable-data-pager'
 import timer from './timer'
+import commandShortcut from './command-shortcut'
 
 type KnockoutHandlerDictionary = {
     [name: string]: KnockoutBindingHandler
@@ -32,7 +33,8 @@ const allHandlers: KnockoutHandlerDictionary = {
     ...jsComponents,
     ...modalDialog,
     ...appendableDataPager,
-    ...timer
+    ...timer,
+    ...commandShortcut
 }
 
 export default allHandlers

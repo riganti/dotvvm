@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             // ...would be nice if C# did this optimization automatically, but it doesn't
             const int shift = '('; // 40
             Debug.Assert(shift - '_' < 64);
-            const ulong magicBitMask = (1L << ':' - shift | 1L << '_' - shift | 1L << '-' - shift | 1L << '.' - shift | 1L << '[' - shift | 1L << ']' - shift | 1L << '(' - shift | 1L << ')' - shift);
+            const ulong magicBitMask = (1L << ':' - shift | 1L << '_' - shift | 1L << '-' - shift | 1L << '.' - shift | 1L << '+' - shift | 1L << '[' - shift | 1L << ']' - shift | 1L << '(' - shift | 1L << ')' - shift);
             uint c = (uint)ch - shift;
             return c < 63 & 0 != ((1UL << (int)c) & magicBitMask);
         }
