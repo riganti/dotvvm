@@ -1,4 +1,3 @@
-import { wrapObservable } from '../utils/knockout';
 import { updateTypeInfo } from '../metadata/typeMap';
 import { getCsrfToken } from "../postback/http";
 
@@ -8,61 +7,97 @@ export function showUploadDialog(sender: HTMLElement) {
     fileUpload!.click();
 }
 
-export async function uploadFiles(viewModel: DotvvmObservable<DotvvmFileUploadCollection>, uploadToken: string, allowMultiple: boolean, url: string, files: FileList, onCompleted: () => void) {
+export async function uploadFiles(viewModel: DotvvmObservable<DotvvmFileUploadCollection>, uploadToken: string, allowMultiple: boolean, url: string, files: FileList, onCompleted: () => void, chunkSize = 0) {
+    if (!files.length || viewModel.state.IsBusy) return;
+    reportProgress(true, 0);
     try {
-        var xhr = XMLHttpRequest ? new XMLHttpRequest() : new ((window as any)["ActiveXObject"])("Microsoft.XMLHTTP");
-        xhr.open("POST", url, true);
-        xhr.setRequestHeader("X-DotVVM-AsyncUpload", "true");
-        xhr.setRequestHeader("X-DotVVM-UploadToken", uploadToken);
-        xhr.setRequestHeader("X-DotVVM-CsrfToken", await getCsrfToken(undefined));
-        xhr.upload.onprogress = function (e: ProgressEvent) {
-            if (e.lengthComputable) {
-                reportProgress(true, Math.round(e.loaded * 100 / e.total));
-            }
-        };
-        xhr.onerror = function () {
-            reportProgress(false, 0, "Upload failed.");
-        };
-        xhr.onload = function () {
-            if (xhr.status == 200) {
-                const result = JSON.parse(xhr.responseText) as DotvvmStaticCommandResponse<DotvvmFileUploadData[]>;
-
-                if ("typeMetadata" in result) {
-                    updateTypeInfo(result.typeMetadata);
-                }
-                if (!("result" in result)) {
-                    throw new Error("FileUpload result is empty!");
-                }
-
-                // if multiple files are allowed, we append to the collection
-                // if it's not, we replace the collection with the one new file
-                const newFiles = allowMultiple ? [...viewModel.state.Files as any, ...result.result] : result.result;
-                reportProgress(true, 100, newFiles);
-
-                // call the handler
-                onCompleted();
-
-                reportProgress(false, 100);
-            }
-            else if (xhr.status == 413) {
-                reportProgress(false, 0, "Uploaded file is too large.")
-            } else {
-                reportProgress(false, 100, "Upload failed.");
-            }
-        };
-
-        var formData = new FormData();
-        if (files.length > 1) {
-            for (var i = 0; i < files.length; i++) {
-                formData.append("upload[]", files[i]);
-            }
-        } else if (files.length > 0) {
-            formData.append("upload", files[0]);
+        if (!Number.isSafeInteger(chunkSize) || chunkSize < 0) {
+            throw new Error("Invalid upload chunk size.");
         }
-        xhr.send(formData);
+        const csrfToken = await getCsrfToken(undefined);
+        const totalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
+        const uploadedFiles: DotvvmFileUploadData[] = [];
+        let completedSize = 0;
+        if (chunkSize > 0) {
+            for (const file of Array.from(files)) {
+                let token = uploadToken;
+                let position = 0;
+                do {
+                    const end = Math.min(position + chunkSize, file.size);
+                    const final = end === file.size;
+                    const formData = new FormData();
+                    formData.append("upload", file.slice(position, end, file.type), file.name);
+                    const response = await send(formData, token, end - position, true, position === 0 ? file.size : undefined);
+                    if (final) {
+                        if (response.files.length !== 1) throw new Error("FileUpload result is empty!");
+                        uploadedFiles.push(...response.files);
+                    } else {
+                        if (!response.token || response.files.length) throw new Error("Invalid upload continuation.");
+                        token = response.token;
+                    }
+                    completedSize += end - position;
+                    position = end;
+                    if (final) break;
+                } while (position < file.size);
+            }
+        } else {
+            const formData = new FormData();
+            for (const file of Array.from(files)) {
+                formData.append(files.length > 1 ? "upload[]" : "upload", file);
+            }
+            uploadedFiles.push(...(await send(formData, uploadToken, totalSize)).files);
+        }
+
+        // if multiple files are allowed, we append to the collection
+        // if it's not, we replace the collection with the one new file
+        const newFiles = allowMultiple ? [...viewModel.state.Files as any, ...uploadedFiles] : uploadedFiles;
+        reportProgress(true, 100, newFiles);
+        onCompleted();
+        reportProgress(false, 100);
+
+        function send(formData: FormData, token: string, size: number, chunk = false, fileSize?: number): Promise<{ files: DotvvmFileUploadData[], token: string | null }> {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", url, true);
+                xhr.setRequestHeader("X-DotVVM-AsyncUpload", "true");
+                xhr.setRequestHeader("X-DotVVM-UploadToken", token);
+                xhr.setRequestHeader("X-DotVVM-CsrfToken", csrfToken);
+                if (chunk) {
+                    xhr.setRequestHeader("X-DotVVM-UploadChunk", "true");
+                }
+                if (fileSize !== undefined) {
+                    xhr.setRequestHeader("X-DotVVM-UploadFileSize", String(fileSize));
+                }
+                xhr.upload.onprogress = (e: ProgressEvent) => {
+                    if (e.lengthComputable && totalSize > 0 && e.total > 0) {
+                        reportProgress(true, Math.min(99, Math.round((completedSize + size * e.loaded / e.total) * 100 / totalSize)));
+                    }
+                };
+                xhr.onerror = xhr.onabort = () => reject(new Error("Upload failed."));
+                xhr.onload = () => {
+                    if (xhr.status !== 200) {
+                        reject(new Error(xhr.status === 413 ? "Uploaded file is too large." : "Upload failed."));
+                        return;
+                    }
+                    try {
+                        const result = JSON.parse(xhr.responseText) as DotvvmStaticCommandResponse<DotvvmFileUploadData[]>;
+                        if ("typeMetadata" in result) {
+                            updateTypeInfo(result.typeMetadata);
+                        }
+                        if (!("result" in result) || !Array.isArray(result.result)) {
+                            throw new Error("FileUpload result is empty!");
+                        }
+                        resolve({ files: result.result, token: xhr.getResponseHeader("X-DotVVM-UploadToken") });
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+                xhr.send(formData);
+            });
+        };
     } catch (e) {
         console.log("File upload error", e);
-        reportProgress(false, 0, "Upload failed.");
+        reportProgress(false, 0, e instanceof Error && e.message === "Uploaded file is too large." ? e.message : "Upload failed.");
     }
 
     function reportProgress(isBusy: boolean, progress: number, filesOrError?: DotvvmFileUploadData[] | string): void {
