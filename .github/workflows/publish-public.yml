@@ -5,7 +5,7 @@ on:
     inputs:
       nuget-user:
         type: string
-        default: "rigantisoftware"
+        default: "hercegtomas"
         description: NuGet.org username associated with the trusted publishing policy
         required: true
       include:
