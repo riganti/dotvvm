@@ -31,12 +31,19 @@ jobs:
   copy-nuget-packages:
     runs-on: windows-latest
     timeout-minutes: 10
+    environment: public
     steps:
       - uses: actions/checkout@v3
 
       - uses: nuget/setup-nuget@v1
         with:
           nuget-version: "6.x"
+
+      - name: Log in to NuGet.org
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ github.repository_owner }}
 
       - name: Add internal NuGet feed
         run: >
@@ -48,10 +55,12 @@ jobs:
         shell: pwsh
 
       - name: Publish to NuGet.org
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: >
           ./ci/scripts/Copy-NuGetPackages.ps1 `
             -root "${{ github.workspace }}" `
-            -nuGetOrgApiKey "${{ secrets.NUGET_ORG_API_KEY }}" `
+            -nuGetOrgApiKey "$env:NUGET_API_KEY" `
             -include '${{ inputs.include }}' `
             -exclude '${{ inputs.exclude }}' `
             -version '${{ inputs.version }}' `
