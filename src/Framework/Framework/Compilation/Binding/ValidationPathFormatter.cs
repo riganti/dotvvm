@@ -65,7 +65,12 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (IsNull(targetPath))
                         return targetPath;
 
-                    var typeMap = mapper.GetMap(m.Member.DeclaringType!);
+                    // Nullable wrappers, primitives and collections do not serialize their CLR properties as child members.
+                    var targetType = m.Expression.Type;
+                    if (targetType.IsNullable() || ReflectionUtils.IsPrimitiveType(targetType) || ReflectionUtils.IsEnumerable(targetType))
+                        return targetPath;
+
+                    var typeMap = mapper.GetMap(targetType);
                     var property = typeMap.Properties.FirstOrDefault(p => p.PropertyInfo == m.Member);
 
                     if (property is null)
@@ -77,8 +82,10 @@ namespace DotVVM.Framework.Compilation.Binding
                     var truePath = GetValidationPath(conditional.IfTrue, dataContext, baseFormatter);
                     var falsePath = GetValidationPath(conditional.IfFalse, dataContext, baseFormatter);
 
-                    if (IsNull(truePath) || IsNull(falsePath))
-                        return truePath ?? falsePath;
+                    if (IsNull(truePath))
+                        return falsePath;
+                    if (IsNull(falsePath))
+                        return truePath;
 
                     if (truePath is JsLiteral { Value: var trueValue } && falsePath is JsLiteral { Value: var falseValue } && object.Equals(trueValue, falseValue))
                         return truePath;
@@ -133,7 +140,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (right is JsLiteral { Value: not null } rightLiteral)
                 return AppendPaths(left, rightLiteral.Value.ToString()!);
             else if (left is JsLiteral { Value: "." })
-                return right;
+                return new JsBinaryExpression(new JsLiteral(""), BinaryOperatorType.Plus, right);
             else
                 return new JsBinaryExpression(StringAppend(left, "/"), BinaryOperatorType.Plus, right);
         }
@@ -150,7 +157,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (left is JsLiteral l && l.Value is string s)
                 return new JsLiteral(s + right);
             else if (left is JsBinaryExpression { OperatorString: "+", Right: JsLiteral { Value: string str2 } } binary)
-                return new JsBinaryExpression(left, BinaryOperatorType.Plus, new JsLiteral(str2 + right));
+                return new JsBinaryExpression(binary.Left.Detach(), BinaryOperatorType.Plus, new JsLiteral(str2 + right));
             else
                 return new JsBinaryExpression(left, BinaryOperatorType.Plus, new JsLiteral(right));
         }

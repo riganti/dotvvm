@@ -73,11 +73,60 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("\"VmArray/\" + $par.IntProp.state + \"/MyProperty\"", p.Single());
         }
 
+        [DataTestMethod]
+        [DataRow(typeof(TestViewModel2[]), "_this[_parent.IntProp]", "\"\" + $parent.IntProp.state")]
+        [DataRow(typeof(System.Collections.Generic.List<TestViewModel2>), "_this[_parent.IntProp]", "\"\" + $parent.IntProp.state")]
+        [DataRow(typeof(TestViewModel2[]), "_this[_parent.IntProp].SomeString", "\"\" + $parent.IntProp.state + \"/SomeString\"")]
+        [DataRow(typeof(TestViewModel2[]), "_this[0]", "\"0\"")]
+        public void IndexInCollectionDataContext(Type contextType, string expression, string expected)
+        {
+            var p = GetValidationPaths($"s.Method({expression})", typeof(TestViewModel), contextType);
+            Assert.AreEqual(expected, p.Single());
+        }
+
+        [DataTestMethod]
+        [DataRow("Name", "\"Name\"")]
+        [DataRow("RenamedProperty", "\"renamed\"")]
+        [DataRow("Child.Name", "\"Child/Name\"")]
+        [DataRow("Child.RenamedProperty", "\"Child/renamed\"")]
+        public void InheritedProperty(string expression, string expected)
+        {
+            var p = GetValidationPaths($"s.Method({expression})", typeof(DerivedViewModel));
+            Assert.AreEqual(expected, p.Single());
+        }
+
+        [DataTestMethod]
+        [DataRow(typeof(IDerivedViewModel), "Name", "\"Name\"")]
+        [DataRow(typeof(IDerivedViewModel), "RenamedProperty", "\"renamed\"")] // unlikely to be renamed on interface, but at least there's a workaround...
+        [DataRow(typeof(IGridViewDataSet<TestViewModel2>), "_this", "\".\"")]
+        [DataRow(typeof(IGridViewDataSet<TestViewModel2>), "_this.Items", "\"Items\"")]
+        [DataRow(typeof(IGridViewDataSet<TestViewModel2>), "_this.Items[0].SomeString", "\"Items/0/SomeString\"")]
+        public void InterfaceTypedDataSet(Type contextType, string expression, string expected)
+        {
+            var p = GetValidationPaths($"s.Method({expression})", contextType);
+            Assert.AreEqual(expected, p.Single());
+        }
+
         [TestMethod]
         public void ListIndex()
         {
             var p = GetValidationPaths("s.Method(_this.StringList[_this.IntProp])", typeof(TestViewModel));
             Assert.AreEqual("\"StringList/\" + $par.IntProp.state", p.Single());
+        }
+
+        [DataTestMethod]
+        [DataRow("_this.VmArray[_this.IntProp].ChildObject.SomeString", "\"VmArray/\" + $par.IntProp.state + \"/ChildObject/SomeString\"")]
+        [DataRow("_this.VmArray[_this.IntProp].Collection[_this.IntProp].StringValue", "\"VmArray/\" + $par.IntProp.state + \"/Collection/\" + $par.IntProp.state + \"/StringValue\"")]
+        [DataRow("_this.VmArray[0]", "\"VmArray/0\"")]
+        [DataRow("_this.VmArray[2].MyProperty", "\"VmArray/2/MyProperty\"")]
+        [DataRow("_this.VmArray[0].ChildObject.SomeString", "\"VmArray/0/ChildObject/SomeString\"")]
+        [DataRow("_this.VmArray[0].SomeString.Length", "\"VmArray/0/SomeString\"")]
+        [DataRow("_this.StringList[_this.IntProp].Length", "\"StringList/\" + $par.IntProp.state")]
+        [DataRow("StringProp = _this.VmArray[2].MyProperty", "\"VmArray/2/MyProperty\"")]
+        public void ComplexExpressions(string expression, string expected)
+        {
+            var p = GetValidationPaths($"s.Method({expression})", typeof(TestViewModel));
+            Assert.AreEqual(expected, p.Single());
         }
 
         [DataTestMethod]
@@ -99,9 +148,27 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("_this.IntProp", "\"IntProp\"")] // this will use BoxingUtils.Box
         [DataRow("_this.IntProp + 1", "\"IntProp\"")]
         [DataRow("'padding: ' + _this.StringProp", "\"StringProp\"")]
+        [DataRow("NullableIntProp.Value", "\"NullableIntProp\"")]
+        [DataRow("NullableIntProp.HasValue", "\"NullableIntProp\"")]
+        [DataRow("StringProp.Length", "\"StringProp\"")]
+        [DataRow("StringList.Count", "\"StringList\"")]
+        [DataRow("DateTime.Year", "\"DateTime\"")]
         public void UnwrapsPointlessExpressions(string expr, string expected)
         {
             var p = GetValidationPaths($"s.Method({expr})", typeof(TestViewModel));
+            Assert.AreEqual(expected, p.Single());
+        }
+
+        [DataTestMethod]
+        [DataRow(typeof(int?), "_this.Value", "\".\"")]
+        [DataRow(typeof(string), "_this.Length", "\".\"")]
+        [DataRow(typeof(System.Collections.Generic.List<string>), "_this.Count", "\".\"")]
+        [DataRow(typeof(ViewModelWithClrPropertyNames?), "_this.Value.Value", "\"Value\"")]
+        [DataRow(typeof(ViewModelWithClrPropertyNames?), "_this.Value.Length", "\"Length\"")]
+        [DataRow(typeof(ViewModelWithClrPropertyNames), "_this.Count", "\"Count\"")]
+        public void ClrPropertiesInDataContext(Type contextType, string expression, string expected)
+        {
+            var p = GetValidationPaths($"s.Method({expression})", contextType);
             Assert.AreEqual(expected, p.Single());
         }
 
@@ -131,6 +198,15 @@ namespace DotVVM.Framework.Tests.Binding
         public void ConditionalPropertyIgnoresEdgecase()
         {
             var p = GetValidationPaths("s.Method(StringProp != 'aaa' ? StringProp : 'bb')", typeof(TestViewModel));
+            Assert.AreEqual("\"StringProp\"", p.Single());
+        }
+
+        [DataTestMethod]
+        [DataRow("'bb'")]
+        [DataRow("s.OtherMethod()")]
+        public void ConditionalPropertyWithUnmappedTrueBranch(string trueExpression)
+        {
+            var p = GetValidationPaths($"s.Method(StringProp != 'aaa' ? {trueExpression} : StringProp)", typeof(TestViewModel));
             Assert.AreEqual("\"StringProp\"", p.Single());
         }
 
@@ -214,6 +290,43 @@ namespace DotVVM.Framework.Tests.Binding
         {
             [Bind(Name = "x")]
             public string MyProperty { get; set; }
+        }
+
+        public struct ViewModelWithClrPropertyNames
+        {
+            public string Value { get; set; }
+            public int Length { get; set; }
+            public int Count { get; set; }
+        }
+
+        public interface IBaseViewModel
+        {
+            string Name { get; set; }
+
+            [Bind(Name = "renamed")]
+            string RenamedProperty { get; set; }
+        }
+
+        public interface IDerivedViewModel : IBaseViewModel
+        {
+        }
+
+        public class InterfaceDataSetViewModel
+        {
+            public IGridViewDataSet<TestViewModel2> DataSet { get; set; }
+        }
+
+        public class BaseViewModel : IBaseViewModel
+        {
+            public string Name { get; set; }
+
+            [Bind(Name = "renamed")]
+            public string RenamedProperty { get; set; }
+        }
+
+        public class DerivedViewModel : BaseViewModel
+        {
+            public DerivedViewModel Child { get; set; }
         }
     }
 }
