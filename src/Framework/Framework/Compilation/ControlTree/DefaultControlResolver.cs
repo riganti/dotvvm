@@ -351,7 +351,53 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
 
             // try to find property group
-            return DotvvmPropertyGroup.ResolvePropertyGroup(name, caseSensitive: false, requiredMode);
+            var group = DotvvmPropertyGroup.ResolvePropertyGroup(name, caseSensitive: false, requiredMode);
+            if (group != null)
+            {
+                return group;
+            }
+
+            // the owner type may be written with its namespace (Namespace.OwnerType.Property)
+            return FindPropertyOrGroupByOwnerFullName(name, requiredMode);
+        }
+
+        /// <summary>
+        /// Finds the property or property group member by the full name of the owner type (Namespace.OwnerType.Property).
+        /// Only used when the name is not found by the short owner type name, so the short names resolve as they always did.
+        /// </summary>
+        private static IPropertyDescriptor? FindPropertyOrGroupByOwnerFullName(string name, MappingMode requiredMode)
+        {
+            // The member name of a property group can contain dots too, so try every dot, starting with the longest owner name.
+            // The owner name has to contain a dot, otherwise it is a short name.
+            for (var dot = name.LastIndexOf('.'); dot > 0; dot = name.LastIndexOf('.', dot - 1))
+            {
+                var ownerName = name.Substring(0, dot);
+                if (ownerName.IndexOf('.') < 0)
+                    break;
+                var memberName = name.Substring(dot + 1);
+
+                var property = DotvvmProperty.AllProperties.LastOrDefault(p =>
+                    string.Equals(p.DeclaringType.FullName, ownerName, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(p.Name, memberName, StringComparison.OrdinalIgnoreCase));
+                if (property != null)
+                {
+                    return property;
+                }
+
+                // the longest matching prefix wins
+                var group = DotvvmPropertyGroup.AllGroups
+                    .Where(g => string.Equals(g.DeclaringType.FullName, ownerName, StringComparison.OrdinalIgnoreCase) &&
+                                g.MarkupOptions.MappingMode.HasFlag(requiredMode))
+                    .SelectMany(g => g.Prefixes.Select(p => new { Group = g, Prefix = p }))
+                    .Where(g => memberName.StartsWith(g.Prefix, StringComparison.OrdinalIgnoreCase))
+                    .OrderByDescending(g => g.Prefix.Length)
+                    .FirstOrDefault();
+                if (group != null)
+                {
+                    return group.Group.GetDotvvmProperty(memberName.Substring(group.Prefix.Length));
+                }
+            }
+            return null;
         }
     }
 }

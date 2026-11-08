@@ -30,36 +30,52 @@ namespace DotVVM.Framework.Compilation
 
         private static void CheckName(ResolvedPropertySetter setter, string markupName, DothtmlNode nameNode, MappingMode mode)
         {
-            // only names with the owner type are looked up among all properties
-            if (!markupName.Contains("."))
+            // Only the names starting with the short name of the owner type can be ambiguous.
+            // When the owner is written with its namespace, it is exactly one type.
+            if (!markupName.StartsWith(setter.Property.DeclaringType.Name + ".", StringComparison.OrdinalIgnoreCase))
                 return;
 
-            var owners = FindOwners(markupName, mode).Select(t => t.FullName).OrderBy(n => n).ToArray();
+            var owners = FindOwners(setter, markupName, mode).Select(t => t.FullName).OrderBy(n => n).ToArray();
             if (owners.Length > 1)
             {
+                var memberPart = markupName.Substring(markupName.IndexOf('.'));
                 nameNode.AddWarning(
                     $"The attached property '{markupName}' is ambiguous, it is declared by multiple types: {string.Join(", ", owners)}. " +
-                    $"DotVVM uses the one declared by {setter.Property.DeclaringType.FullName}, which depends on the order in which the types were registered. " +
-                    "Use unique names for the owner types to avoid the conflict.");
+                    $"DotVVM uses the one declared by {setter.Property.DeclaringType.FullName}. " +
+                    $"To select the owner explicitly, use its full name ({string.Join(" or ", owners.Select(o => "'" + o + memberPart + "'"))}), " +
+                    "or use unique names for the owner types to avoid the conflict.");
             }
         }
 
-        /// <summary> Finds the types declaring a property or property group which the markup name can refer to. It follows the lookup in <see cref="DefaultControlResolver" />, where properties take precedence over property groups. </summary>
-        private static Type[] FindOwners(string markupName, MappingMode mode)
+        /// <summary> Finds the types declaring a property or property group member with the same name as the one the markup name was resolved to. </summary>
+        private static Type[] FindOwners(ResolvedPropertySetter setter, string markupName, MappingMode mode)
         {
-            var properties = DotvvmProperty.AllProperties
+            if (setter.Property is GroupedDotvvmProperty member)
+            {
+                // The markup name is the owner type, the prefix of the group and the name of the group member.
+                // Groups declare the same name only when their prefix is the same: a group with a longer or shorter
+                // prefix is a different name, even though the markup name also starts with that prefix.
+                var nameParts = markupName.Split('.');
+                var candidates = DotvvmPropertyGroup.FindAttachedPropertyCandidates(nameParts[0]).ToArray();
+                var prefixLength = nameParts[1].Length - member.GroupMemberName.Length;
+                if (prefixLength < 0 || !candidates.Contains(member.PropertyGroup))
+                {
+                    // not an attached property group, the dot is just a part of the attribute name (for example data-foo.bar)
+                    return Array.Empty<Type>();
+                }
+
+                var usedPrefix = nameParts[1].Substring(0, prefixLength);
+                return candidates
+                    .Where(g => g.MarkupOptions.MappingMode.HasFlag(mode) &&
+                                g.Prefixes.Any(p => p.Equals(usedPrefix, StringComparison.OrdinalIgnoreCase)))
+                    .Select(g => g.DeclaringType)
+                    .Distinct()
+                    .ToArray();
+            }
+
+            return DotvvmProperty.AllProperties
                 .Where(p => p.FullName.Equals(markupName, StringComparison.OrdinalIgnoreCase))
                 .Select(p => p.DeclaringType)
-                .Distinct()
-                .ToArray();
-            if (properties.Length > 0)
-                return properties;
-
-            var nameParts = markupName.Split('.');
-            return DotvvmPropertyGroup.FindAttachedPropertyCandidates(nameParts[0])
-                .Where(g => g.MarkupOptions.MappingMode.HasFlag(mode) &&
-                            g.Prefixes.Any(p => nameParts[1].StartsWith(p, StringComparison.OrdinalIgnoreCase)))
-                .Select(g => g.DeclaringType)
                 .Distinct()
                 .ToArray();
         }
