@@ -28,15 +28,14 @@ on:
         default: false
         description: Run the pipeline but don't actually publish anything.
 
-permissions:
-  id-token: write  # Required for OIDC
-  contents: read
-
 jobs:
   copy-nuget-packages:
     runs-on: windows-latest
     timeout-minutes: 10
     environment: public
+    permissions:
+      contents: read
+      id-token: write # Required for NuGet trusted publishing.
     steps:
       - uses: actions/checkout@v3
 
@@ -78,6 +77,9 @@ jobs:
   copy-npm-packages:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write # Required for npm trusted publishing.
     steps:
       - uses: actions/checkout@v3
 

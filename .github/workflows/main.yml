@@ -9,6 +9,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   DOTVVM_ROOT: ${{ github.workspace }}
   DOTNET_NOLOGO: 1
@@ -90,6 +93,9 @@ jobs:
     name: .NET unit tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    permissions:
+      contents: read
+      checks: write # Required by .github/test-report.
     strategy:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
@@ -208,6 +214,9 @@ jobs:
     name: UI tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 50
+    permissions:
+      contents: read
+      checks: write # Required by .github/test-report.
     strategy:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
