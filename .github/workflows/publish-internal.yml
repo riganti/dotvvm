@@ -36,6 +36,8 @@ on:
         description: The signature to be used to sign the packages.
         required: false
 
+cache-mode: none
+
 permissions:
   contents: read
 
