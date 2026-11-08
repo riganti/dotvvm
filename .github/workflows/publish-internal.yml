@@ -42,24 +42,29 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - id: set-version
+        env:
+          RELEASE_TYPE: ${{ inputs.release-type }}
+          VERSION_CORE: ${{ inputs.version-core }}
+          PRERELEASE_VERSION: ${{ inputs.prerelease-version }}
+          PRERELEASE_SUFFIX: ${{ inputs.prerelease-suffix }}
         run: >
-          if [[ "${{ inputs.release-type }}" == 'InternalPreview' ]]; then
-            VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-${{ github.run_id }}";
-          elif [[ "${{ inputs.release-type }}" == 'PublicPreview' ]]; then
-            VERSION="${{ inputs.version-core}}-${{ inputs.prerelease-version }}-final";
-          elif [[ "${{ inputs.release-type }}" == 'Stable' ]]; then
-            VERSION="${{ inputs.version-core}}";
+          if [[ "$RELEASE_TYPE" == 'InternalPreview' ]]; then
+            VERSION="${VERSION_CORE}-${PRERELEASE_VERSION}-${GITHUB_RUN_ID}";
+          elif [[ "$RELEASE_TYPE" == 'PublicPreview' ]]; then
+            VERSION="${VERSION_CORE}-${PRERELEASE_VERSION}-final";
+          elif [[ "$RELEASE_TYPE" == 'Stable' ]]; then
+            VERSION="$VERSION_CORE";
           else
-            echo "Unknown release type '${{ inputs.release-type }}'.";
+            echo "Unknown release type '$RELEASE_TYPE'.";
             exit 1;
           fi;
 
-          if [[ ( "${{ inputs.release-type }}" == 'InternalPreview' || "${{ inputs.release-type }}" == 'PublicPreview' ) && -n "${{ inputs.prerelease-suffix }}" ]]; then
-            VERSION="${VERSION}-${{ inputs.prerelease-suffix }}";
+          if [[ ( "$RELEASE_TYPE" == 'InternalPreview' || "$RELEASE_TYPE" == 'PublicPreview' ) && -n "$PRERELEASE_SUFFIX" ]]; then
+            VERSION="${VERSION}-${PRERELEASE_SUFFIX}";
           fi;
 
           echo "$VERSION";
-          echo "version=$VERSION" >> $GITHUB_OUTPUT;
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT";
     outputs:
       version: ${{ steps.set-version.outputs.version }}
 
@@ -81,9 +86,11 @@ jobs:
 
     - name: Publish NuGet packages (.NET Foundation)
       if: ${{ inputs.signature-type == 'DotNetFoundation' }}
+      env:
+        VERSION: ${{ needs.read-input.outputs.version }}
       run: ./ci/scripts/Publish-NuGetPackages.ps1 `
           -root "${{ github.workspace }}" `
-          -version "${{ needs.read-input.outputs.version }}" `
+          -version "$env:VERSION" `
           -signatureType "DotNetFoundation" `
           -dnfUrl "${{ secrets.SIGN_DNF_KEYVAULT_URL }}" `
           -dnfClientId "${{ secrets.SIGN_DNF_CLIENT_ID }}" `
@@ -93,9 +100,11 @@ jobs:
 
     - name: Publish NuGet packages (Riganti)
       if: ${{ inputs.signature-type == 'Riganti' }}
+      env:
+        VERSION: ${{ needs.read-input.outputs.version }}
       run: ./ci/scripts/Publish-NuGetPackages.ps1 `
           -root "${{ github.workspace }}" `
-          -version "${{ needs.read-input.outputs.version }}" `
+          -version "$env:VERSION" `
           -signatureType "Riganti" `
           -rigantiUrl "${{ secrets.SIGN_RIGANTI_KEYVAULT_URL }}" `
           -rigantiClientId "${{ secrets.SIGN_RIGANTI_CLIENT_ID }}" `
@@ -122,24 +131,30 @@ jobs:
       working-directory: src/Framework/Framework
 
     - name: Compose dotvvm-types
+      env:
+        VERSION: ${{ needs.read-input.outputs.version }}
       run: >
         mkdir types;
         cp "${{ github.workspace }}/src/Framework/Framework/obj/typescript-types/dotvvm.d.ts" types/index.d.ts;
-        npm version "${{ needs.read-input.outputs.version }}" --no-git-tag-version;
+        npm version "$env:VERSION" --no-git-tag-version;
         cat "${{ github.workspace }}/ci/scripts/npm/dotvvm-types/package.json";
       working-directory: ci/scripts/npm/dotvvm-types
 
     - name: Build JsComponent.React
+      env:
+        VERSION: ${{ needs.read-input.outputs.version }}
       run: |
         npm ci
-        npm version "${{ needs.read-input.outputs.version }}" --no-git-tag-version
+        npm version "$env:VERSION" --no-git-tag-version
         npm pack
       working-directory: src/Framework/JsComponent.React
 
     - name: Build JsComponent.Svelte
+      env:
+        VERSION: ${{ needs.read-input.outputs.version }}
       run: |
         npm ci
-        npm version "${{ needs.read-input.outputs.version }}" --no-git-tag-version
+        npm version "$env:VERSION" --no-git-tag-version
         npm pack
       working-directory: src/Framework/JsComponent.Svelte
 

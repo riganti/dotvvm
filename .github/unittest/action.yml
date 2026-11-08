@@ -25,35 +25,49 @@ runs:
   steps:
   # build the project separately first to get compilation errors as `dotnet test` fails silently for some reason
   - run: dotnet build
-      "${{ inputs.project }}"
-      --framework "${{ inputs.target-framework }}"
+      "$PROJECT"
+      --framework "$TARGET_FRAMEWORK"
       --configuration Debug
       -p:WarningLevel=0
     shell: bash
+    env:
+      PROJECT: ${{ inputs.project }}
+      TARGET_FRAMEWORK: ${{ inputs.target-framework }}
   - run: dotnet build
-      "${{ inputs.project }}"
-      --framework "${{ inputs.target-framework }}"
+      "$PROJECT"
+      --framework "$TARGET_FRAMEWORK"
       --configuration Release
       -p:WarningLevel=0
     shell: bash
+    env:
+      PROJECT: ${{ inputs.project }}
+      TARGET_FRAMEWORK: ${{ inputs.target-framework }}
   - run: dotnet test
-      "${{ inputs.project }}"
-      --framework "${{ inputs.target-framework }}"
+      "$PROJECT"
+      --framework "$TARGET_FRAMEWORK"
       --no-restore
       --logger "GitHubActions;report-warnings=true"
-      --logger "trx;LogFileName=${{ github.workspace }}/artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.target-framework }}-Debug.trx"
+      --logger "trx;LogFileName=${GITHUB_WORKSPACE}/artifacts/test/unit-test-results-${TEST_NAME}-${TARGET_FRAMEWORK}-Debug.trx"
       --configuration Debug
       -p:WarningLevel=0
     shell: bash
+    env:
+      PROJECT: ${{ inputs.project }}
+      TARGET_FRAMEWORK: ${{ inputs.target-framework }}
+      TEST_NAME: ${{ inputs.name }}
   - run: dotnet test
-      "${{ inputs.project }}"
-      --framework "${{ inputs.target-framework }}"
+      "$PROJECT"
+      --framework "$TARGET_FRAMEWORK"
       --no-restore
       --logger "GitHubActions;report-warnings=true"
-      --logger "trx;LogFileName=${{ github.workspace }}/artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.target-framework }}-Release.trx"
+      --logger "trx;LogFileName=${GITHUB_WORKSPACE}/artifacts/test/unit-test-results-${TEST_NAME}-${TARGET_FRAMEWORK}-Release.trx"
       --configuration Release
       -p:WarningLevel=0
     shell: bash
+    env:
+      PROJECT: ${{ inputs.project }}
+      TARGET_FRAMEWORK: ${{ inputs.target-framework }}
+      TEST_NAME: ${{ inputs.name }}
   - uses: ./.github/test-report
     with:
       trx-path: artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.target-framework }}-Debug.trx

@@ -25,10 +25,15 @@ runs:
       with:
         name: ${{ inputs.report-name }}
         path: ${{ inputs.trx-path }}
-    - run: Write-Host "::add-mask::${{ inputs.github-token }}" ;
+    - run: Write-Host "::add-mask::$env:GITHUB_TOKEN" ;
         ./.github/test-report/test-report.ps1
-          -TrxPath "${{ inputs.trx-path }}"
-          -ReportName "${{ inputs.report-name }}"
-          -ReportTitle "${{ inputs.report-title }}"
-          -GithubToken "${{ inputs.github-token }}"
+          -TrxPath "$env:TRX_PATH"
+          -ReportName "$env:REPORT_NAME"
+          -ReportTitle "$env:REPORT_TITLE"
+          -GithubToken "$env:GITHUB_TOKEN"
       shell: pwsh
+      env:
+        TRX_PATH: ${{ inputs.trx-path }}
+        REPORT_NAME: ${{ inputs.report-name }}
+        REPORT_TITLE: ${{ inputs.report-title }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
