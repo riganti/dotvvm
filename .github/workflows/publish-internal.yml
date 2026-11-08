@@ -85,7 +85,7 @@ jobs:
         persist-credentials: false
 
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
 
     - name: Add internal NuGet feed
       run: ./ci/scripts/Add-InternalNuGetFeed.ps1 `
@@ -130,10 +130,10 @@ jobs:
         persist-credentials: false
 
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
 
     - name: Build Framework
-      uses: ./.github/pack
+      uses: $/.github/pack
       with:
         project: src/Framework/Framework
 

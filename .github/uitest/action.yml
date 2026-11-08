@@ -68,7 +68,7 @@ runs:
       GITHUB_TOKEN: ${{ inputs.github-token }}
 
   # publish the result to github
-  - uses: ./.github/test-report
+  - uses: $/.github/test-report
     with:
       trx-path: artifacts/test/ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx
       report-name: ${{ inputs.browser }}-tests-${{ runner.os }}-${{ inputs.runtime-environment }}-${{ inputs.samples-config }}

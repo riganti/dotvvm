@@ -32,7 +32,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
       with:
         sln: src/DotVVM.Crossplatform.slnf
 
@@ -89,7 +89,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
     - name: MSBuild build
       run: msbuild src/DotVVM.sln -v:m -t:Clean,Build -p:Configuration=Release -p:WarningLevel=0
 
@@ -109,11 +109,11 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
       with:
         sln: src/DotVVM.Crossplatform.slnf
     - name: Tests (net8.0)
-      uses: ./.github/unittest
+      uses: $/.github/unittest
       with:
         project: src/Tests
         name: framework-tests
@@ -121,7 +121,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net8.0
     # - name: Tests (net7.0)
-    #   uses: ./.github/unittest
+    #   uses: $/.github/unittest
     #   with:
     #     project: src/Tests
     #     name: framework-tests
@@ -129,7 +129,7 @@ jobs:
     #     github-token: ${{ secrets.GITHUB_TOKEN }}
     #     target-framework: net7.0
     - name: Tests (net472)
-      uses: ./.github/unittest
+      uses: $/.github/unittest
       if: ${{ (matrix.os == 'windows-2022') && (success() || failure()) }}
       with:
         project: src/Tests
@@ -138,7 +138,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net472
     - name: Analyzers.Tests (net8.0)
-      uses: ./.github/unittest
+      uses: $/.github/unittest
       if: ${{ success() || failure() }}
       with:
         project: src/Analyzers/Analyzers.Tests
@@ -147,7 +147,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net8.0
     # - name: Analyzers.Tests (net7.0)
-    #   uses: ./.github/unittest
+    #   uses: $/.github/unittest
     #   with:
     #     project: src/Analyzers/Analyzers.Tests
     #     name: analyzers-tests
@@ -155,7 +155,7 @@ jobs:
     #     github-token: ${{ secrets.GITHUB_TOKEN }}
     #     target-framework: net7.0
     - name: Adapters.WebForms.Tests (net472)
-      uses: ./.github/unittest
+      uses: $/.github/unittest
       if: matrix.os == 'windows-2022'
       with:
         project: src/Adapters/Tests/WebForms
@@ -164,7 +164,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net472
     - name: Integration Tests (net10.0)
-      uses: ./.github/unittest
+      uses: $/.github/unittest
       if: ${{ matrix.os == 'ubuntu-latest' && (success() || failure()) }}
       with:
         project: src/IntegrationTests
@@ -188,11 +188,11 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
       with:
         sln: src/DotVVM.Crossplatform.slnf
     - name: CommandLine tests
-      uses: ./.github/clitests
+      uses: $/.github/clitests
 
   js-tests:
     runs-on: ubuntu-latest
@@ -266,11 +266,11 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
       with:
         sln: ${{ env.SLN }}
     - name: Run UI tests
-      uses: ./.github/uitest
+      uses: $/.github/uitest
       with:
         browser: ${{ matrix.browser }}
         github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -68,11 +68,11 @@ jobs:
       with:
         persist-credentials: false
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
       with:
         sln: ${{ env.SLN }}
     - name: Run UI tests
-      uses: ./.github/uitest
+      uses: $/.github/uitest
       with:
         browser: ${{ inputs.browser }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
