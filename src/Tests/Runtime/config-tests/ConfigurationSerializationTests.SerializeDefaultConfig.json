@@ -715,12 +715,14 @@
     "DotVVM.Framework.Controls.FileUpload": {
       "AllowedFileTypes": {
         "type": "System.String",
-        "onlyHardcoded": true
+        "onlyHardcoded": true,
+        "isAttached": true
       },
       "AllowMultipleFiles": {
         "type": "System.Boolean",
         "defaultValue": true,
-        "onlyHardcoded": true
+        "onlyHardcoded": true,
+        "isAttached": true
       },
       "Capture": {
         "type": "System.String",
@@ -728,7 +730,8 @@
       },
       "MaxFileSize": {
         "type": "System.Nullable`1[[System.Int32, CoreLibrary]]",
-        "onlyHardcoded": true
+        "onlyHardcoded": true,
+        "isAttached": true
       },
       "NumberOfFilesIndicatorText": {
         "type": "System.String",
@@ -748,7 +751,8 @@
       "UploadCompleted": {
         "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework",
         "onlyBindings": true,
-        "isCommand": true
+        "isCommand": true,
+        "isAttached": true
       },
       "UploadedFiles": {
         "type": "DotVVM.Framework.Controls.UploadedFilesCollection, DotVVM.Framework",
@@ -759,6 +763,12 @@
         "type": "System.String",
         "isValueInherited": true,
         "defaultValue": "Error occurred."
+      },
+      "UploadOnPasteOrDrop": {
+        "type": "DotVVM.Framework.Controls.UploadedFilesCollection, DotVVM.Framework",
+        "onlyBindings": true,
+        "isActive": true,
+        "isAttached": true
       }
     },
     "DotVVM.Framework.Controls.FormControls": {

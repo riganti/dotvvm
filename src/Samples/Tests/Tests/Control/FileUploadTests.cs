@@ -159,9 +159,111 @@ namespace DotVVM.Samples.Tests.Control
             return tempFile;
         }
 
-        //TODO: FileUpload with UploadCompleted command
+        [Fact]
+        public void Control_FileUpload_PasteDrop_InitialState()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_PasteDrop);
 
-        // TODO: RenderSettings.Mode="Server"
+                // Verify initial state
+                var textBox = browser.Single("textarea");
+                AssertUI.IsDisplayed(textBox);
+
+                // Verify files count is 0
+                var filesCountParagraph = browser.FindElements("p").Last();
+                AssertUI.TextEquals(filesCountParagraph, "Number of uploaded files: 0");
+
+                // Verify the repeater is empty initially
+                var items = browser.FindElements("ul li");
+                items.ThrowIfDifferentCountThan(0);
+
+                // Verify error is empty
+                var errorParagraph = browser.ElementAt("p", 0);
+                AssertUI.TextEquals(errorParagraph, "Error:");
+
+                // Verify busy is not visible
+                var busyElements = browser.FindElements("p").Where(p => p.GetText().Contains("busy"));
+                Assert.Empty(busyElements);
+            });
+        }
+
+        [Theory]
+        [InlineData("paste", "large.txt", 1024 * 1024 + 1, "Uploaded file is too large.")]
+        [InlineData("drop", "large.txt", 1024 * 1024 + 1, "Uploaded file is too large.")]
+        [InlineData("paste", "file.md", 1, "Uploaded file type is not allowed.")]
+        [InlineData("drop", "file.md", 1, "Uploaded file type is not allowed.")]
+        public void Control_FileUpload_PasteDrop_InvalidFile(string eventType, string fileName, int size, string error)
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_PasteDrop);
+                browser.GetJavaScriptExecutor().ExecuteScript(@"
+                    const originalSend = XMLHttpRequest.prototype.send;
+                    window.uploadRequests = 0;
+                    XMLHttpRequest.prototype.send = function(body) {
+                        if (body instanceof FormData) window.uploadRequests++;
+                        return originalSend.apply(this, arguments);
+                    };
+                    const transfer = new DataTransfer();
+                    transfer.items.add(new File([new Uint8Array(arguments[2])], arguments[1], { type: 'text/plain' }));
+                    const event = arguments[0] === 'paste'
+                        ? new ClipboardEvent('paste', { clipboardData: transfer, bubbles: true, cancelable: true })
+                        : new DragEvent('drop', { dataTransfer: transfer, bubbles: true, cancelable: true });
+                    if (arguments[0] === 'paste') Object.defineProperty(event, 'clipboardData', { value: transfer });
+                    document.querySelector('textarea').dispatchEvent(event);
+                ", eventType, fileName, size);
+
+                AssertUI.TextEquals(browser.ElementAt("p", 0), "Error: " + error);
+                AssertUI.TextEquals(browser.FindElements("p").Last(), "Number of uploaded files: 0");
+                browser.FindElements("ul li").ThrowIfDifferentCountThan(0);
+                Assert.Equal(0L, browser.GetJavaScriptExecutor().ExecuteScript("return window.uploadRequests;"));
+            });
+        }
+
+        [Theory]
+        [InlineData("paste")]
+        [InlineData("drop")]
+        public void Control_FileUpload_PasteDrop_AllowedFile(string eventType)
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_PasteDrop);
+                browser.GetJavaScriptExecutor().ExecuteScript(@"
+                    const transfer = new DataTransfer();
+                    transfer.items.add(new File(['file contents'], 'file.txt', { type: 'text/plain' }));
+                    const event = arguments[0] === 'paste'
+                        ? new ClipboardEvent('paste', { clipboardData: transfer, bubbles: true, cancelable: true })
+                        : new DragEvent('drop', { dataTransfer: transfer, bubbles: true, cancelable: true });
+                    if (arguments[0] === 'paste') Object.defineProperty(event, 'clipboardData', { value: transfer });
+                    document.querySelector('textarea').dispatchEvent(event);
+                ", eventType);
+
+                AssertUI.TextEquals(browser.FindElements("p").Last(), "Number of uploaded files: 1");
+                AssertUI.TextEquals(browser.ElementAt("p", 0), "Error:");
+                browser.FindElements("ul li").ThrowIfDifferentCountThan(1);
+                Assert.Contains("file.txt", browser.Single("ul li").GetText());
+            });
+        }
+
+        [Fact]
+        public void Control_FileUpload_PasteDrop_TextBoxHasBinding()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_PasteDrop);
+
+                var textBox = browser.Single("textarea");
+
+                // Verify the textarea has the dotvvm-FileUpload-UploadOnPasteOrDrop binding
+                var bindingAttribute = textBox.GetAttribute("data-bind");
+                Assert.Contains("dotvvm-FileUpload-UploadOnPasteOrDrop", bindingAttribute);
+
+                // Verify the textarea has upload completed handler
+                var uploadCompletedAttribute = textBox.GetAttribute("data-dotvvm-upload-completed");
+                Assert.NotNull(uploadCompletedAttribute);
+            });
+        }
 
     }
 }

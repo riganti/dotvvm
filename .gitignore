@@ -225,3 +225,4 @@ sample.db
 /ci/scripts/npm/dotvvm-types/index.d.ts
 
 signconfig.json
+/src/Samples/Common/Temp/Upload

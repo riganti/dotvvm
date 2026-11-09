@@ -1,55 +1,20 @@
-import { getCsrfToken } from "../postback/http";
+import { uploadFiles } from '../controls/fileUpload';
 
 export default {
     "dotvvm-FileUpload": {
         init: function (element: HTMLInputElement, valueAccessor: () => any, allBindings?: any, viewModel?: any, bindingContext?: KnockoutBindingContext) {
-
             var args = ko.unwrap(valueAccessor());
 
-            function reportProgress(isBusy: boolean, percent: number, resultOrError: string | DotvvmStaticCommandResponse<DotvvmFileUploadData[]>) {
-                dotvvm.fileUpload.reportProgress(<HTMLInputElement> element, isBusy, percent, resultOrError);
-            }
-
-            element.addEventListener("change", async function() {
+            element.addEventListener("change", function() {
                 if (!element.files || !element.files.length) return;
 
-                try {
-                    var xhr = XMLHttpRequest ? new XMLHttpRequest() : new ((window as any)["ActiveXObject"])("Microsoft.XMLHTTP");
-                    xhr.open("POST", args.url, true);
-                    xhr.setRequestHeader("X-DotVVM-AsyncUpload", "true");
-                    xhr.setRequestHeader("X-DotVVM-UploadToken", args.token);
-                    xhr.setRequestHeader("X-DotVVM-CsrfToken", await getCsrfToken(undefined));
-                    xhr.upload.onprogress = function (e: ProgressEvent) {
-                        if (e.lengthComputable) {
-                            reportProgress(true, Math.round(e.loaded * 100 / e.total), '');
-                        }
-                    };
-                    xhr.onload = function () {
-                        if (xhr.status == 200) {
-                            reportProgress(false, 100, JSON.parse(xhr.responseText));
-                            element.value = "";
-                        } else if (xhr.status == 413) {
-                            reportProgress(false, 0, "Uploaded file is too large.")
-                        } else {
-                            reportProgress(false, 0, "Upload failed.");
-                        }
-                    };
-
-                    var formData = new FormData();
-                    if (element.files.length > 1) {
-                        for (var i = 0; i < element.files.length; i++) {
-                            formData.append("upload[]", element.files[i]);
-                        }
-                    } else if (element.files.length > 0) {
-                        formData.append("upload", element.files[0]);
+                uploadFiles(ko.contextFor(element).$rawData, args.token, element.multiple, args.url, element.files, () => {
+                    if (element.parentElement!.hasAttribute("data-dotvvm-upload-completed")) {
+                        new Function(element.parentElement!.getAttribute("data-dotvvm-upload-completed")!).call(element);
                     }
-                    xhr.send(formData);
-                } catch(e) {
-                    console.log("File upload error", e)
-                    reportProgress(false, 0, "Upload failed.")
-                }
+                    element.value = "";
+                });
             });
-
         }
     }
 }
