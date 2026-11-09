@@ -25,7 +25,11 @@
 
     <dot:CheckBox Checked="{value: Visible}" Text="Visible" />
 
+    <cc:CompositeControlSample DataSource="{value: Dates}"
+                               TitleBinding="{value: _this.ToString("yyyy-MM-dd")}"
+                               NumberBinding="{value: _this.Day}"
+                               data-ui="dates" />
+
 </body>
 </html>
-
 

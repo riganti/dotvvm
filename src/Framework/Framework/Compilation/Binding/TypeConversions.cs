@@ -105,6 +105,16 @@ namespace DotVVM.Framework.Compilation.Binding
             return null;
         }
 
+        public static Expression? EnumerableConversion(Expression src, Type destType)
+        {
+            if (destType == typeof(IEnumerable<object>) && src.Type != typeof(string) && typeof(System.Collections.IEnumerable).IsAssignableFrom(src.Type))
+            {
+                var enumerable = Expression.Convert(src, typeof(System.Collections.IEnumerable));
+                return Expression.Call(typeof(Enumerable), nameof(Enumerable.Cast), new[] { typeof(object) }, enumerable);
+            }
+            return null;
+        }
+
         //TODO: Refactor ImplicitConversion usages to EnsureImplicitConversion where applicable to take advantage of nullability 
         public static Expression EnsureImplicitConversion(Expression src, Type destType, bool allowToString = false)
             => ImplicitConversion(src, destType, throwException: true, allowToString: allowToString)!;
@@ -125,6 +135,7 @@ namespace DotVVM.Framework.Compilation.Binding
                   NullLiteralConversion(src, destType) ??
                   BoxingConversion(src, destType) ??
                   ReferenceConversion(src, destType) ??
+                  EnumerableConversion(src, destType) ??
                   TaskConversion(src, destType);
             if (allowToString && destType == typeof(string) && result == null)
             {
