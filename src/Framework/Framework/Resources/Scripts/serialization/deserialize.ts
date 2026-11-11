@@ -2,7 +2,7 @@ import { serializeDate } from './date'
 import { isObservableArray, wrapObservableObjectOrArray } from '../utils/knockout'
 import { isPrimitive, keys } from '../utils/objects'
 import { getObjectTypeInfo, getTypeProperties } from '../metadata/typeMap';
-import { notifySymbol, unmapKnockoutObservables } from '../state-manager';
+import { detachValidationErrors, notifySymbol, unmapKnockoutObservables } from '../state-manager';
 
 export function deserialize(viewModel: any, target?: any, deserializeAll: boolean = false): any {
     if (ko.isObservable(viewModel)) {
@@ -90,6 +90,10 @@ export function deserializeObject(viewModel: any, target: any, deserializeAll: b
     let unwrappedTarget = ko.unwrap(target);
 
     let typeId = ko.unwrap(viewModel["$type"]);
+    if (typeId && unwrappedTarget && ko.unwrap(unwrappedTarget["$type"]) && typeId !== ko.unwrap(unwrappedTarget["$type"])) {
+        detachValidationErrors(target);
+        unwrappedTarget = {};
+    }
     if (!typeId && unwrappedTarget)  {
         typeId = ko.unwrap(unwrappedTarget["$type"]);
     }

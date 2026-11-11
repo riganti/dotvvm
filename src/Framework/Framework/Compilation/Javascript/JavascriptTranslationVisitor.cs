@@ -83,6 +83,14 @@ namespace DotVVM.Framework.Compilation.Javascript
 
                 case ExpressionType.NewArrayInit:
                     return TranslateNewArrayInit((NewArrayExpression)expression);
+                case ExpressionType.TypeIs:
+                    var typeTest = (TypeBinaryExpression)expression;
+                    if (typeTest.TypeOperand.IsAssignableFrom(Nullable.GetUnderlyingType(typeTest.Expression.Type) ?? typeTest.Expression.Type))
+                        return Translate(typeTest.Expression).Binary(BinaryOperatorType.NotEqual, new JsLiteral(null));
+                    EnsureRuntimeTypeMetadata(typeTest.Expression.Type, typeTest.TypeOperand);
+                    return new JsIdentifierExpression("dotvvm").Member("metadata").Member("isType")
+                        .Invoke(Translate(typeTest.Expression), new JsLiteral(typeTest.TypeOperand.GetTypeHash()))
+                        .WithAnnotation(new ViewModelInfoAnnotation(typeof(bool), containsObservables: false));
             }
             if (expression is BinaryExpression)
             {
@@ -426,14 +434,38 @@ namespace DotVVM.Framework.Compilation.Javascript
                     break;
 
                 case ExpressionType.Convert:
-                case ExpressionType.TypeAs:
                     // convert does not make sense in Javascript
                     return TranslateConvert(expression.Operand, operand, expression.Type);
+
+                case ExpressionType.TypeAs:
+                    if (expression.Type.IsAssignableFrom(Nullable.GetUnderlyingType(expression.Operand.Type) ?? expression.Operand.Type))
+                        return operand;
+                    EnsureRuntimeTypeMetadata(expression.Operand.Type, expression.Type);
+                    var operandInfo = operand.Annotation<ViewModelInfoAnnotation>();
+                    return new JsIdentifierExpression("dotvvm").Member("metadata").Member("asType")
+                        .Invoke(operand, new JsLiteral(expression.Type.GetTypeHash()))
+                        .WithAnnotation(new ViewModelInfoAnnotation(expression.Type,
+                            isControl: operandInfo?.IsControl ?? false,
+                            extensionParameter: operandInfo?.ExtensionParameter,
+                            observableMap: operandInfo?.ObservableMap))
+                        .WithAnnotation(MayBeNullAnnotation.Instance);
 
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }
             return new JsUnaryExpression(op, operand);
+        }
+
+        private static void EnsureRuntimeTypeMetadata(Type source, Type target)
+        {
+            var scalarTypes = ReflectionUtils.GetNumericTypes().Concat(new[] {
+                typeof(string), typeof(char), typeof(bool), typeof(DateTime), typeof(DateTimeOffset),
+                typeof(TimeSpan), typeof(DateOnly), typeof(TimeOnly), typeof(Guid), typeof(Enum)
+            });
+            if (ReflectionUtils.IsPrimitiveType(source) || ReflectionUtils.IsCollection(source) ||
+                ReflectionUtils.IsPrimitiveType(target) || ReflectionUtils.IsCollection(target) ||
+                scalarTypes.Any(target.IsAssignableFrom))
+                throw new NotSupportedException($"Runtime type checks from {source} to {target} cannot be translated to JavaScript because primitive and collection values do not carry CLR type metadata. Use a resource or command binding.");
         }
 
         public JsExpression TranslateConvert(Expression originalOperand, JsExpression operand, Type target)

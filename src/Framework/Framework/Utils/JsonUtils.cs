@@ -16,6 +16,8 @@ namespace DotVVM.Framework.Utils
         public static JsonObject Diff(JsonObject source, JsonObject target, bool nullOnRemoved = false, Func<(string TypeId, string Property), bool?>? includePropertyOverride = null)
         {
             var typeId = target["$type"]?.GetValue<string>();
+            if (typeId != null && !JsonNode.DeepEquals(source["$type"], target["$type"]))
+                source = new JsonObject();
 
             var diff = new JsonObject();
             foreach (var item in target)
@@ -145,6 +147,10 @@ namespace DotVVM.Framework.Utils
 
         public static void Patch(JsonObject target, JsonObject diff, bool removeOnNull = false)
         {
+            if (diff["$type"] is JsonValue type && type.TryGetValue<string>(out _) &&
+                !JsonNode.DeepEquals(target["$type"], type))
+                target.Clear();
+
             foreach (var prop in diff)
             {
                 var val = target[prop.Key];

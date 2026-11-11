@@ -81,6 +81,9 @@ export function patchViewModel(source: any, patch: any): any {
         return patch;
     }
     else if (typeof source == "object" && typeof patch == "object" && source && patch) {
+        if ("$type" in patch && source.$type !== patch.$type) {
+            return patch;
+        }
         source = {...source}
         for (const p of keys(patch)) {
             source[p] = patchViewModel(source[p], patch[p]);
@@ -106,6 +109,9 @@ export function diffViewModel(source: any, modified: any): any {
         return modified;
     }
     else if (typeof source == "object" && typeof modified == "object" && source && modified) {
+        if (source.$type !== modified.$type) {
+            return modified;
+        }
         let result: any = diffEqual;
         for (const p in modified) {
             const propertyDiff = diffViewModel(source[p], modified[p]);

@@ -1,0 +1,50 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization.PolymorphismViewModel, DotVVM.Samples.Common
+@import DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Polymorphic viewmodels</title>
+</head>
+<body>
+    <h1>Polymorphic viewmodels</h1>
+    <p>JsonDerivedType declares the allowed subtypes. Bindings can test a type with
+        <code>is</code> and safely access its properties with <code>as</code>.
+        Failed casts propagate null.</p>
+    <p>DotVVM uses its hashed <code>$type</code> to deserialize these objects.
+        The custom <code>$kind</code> discriminator shown below is output-only.
+        With the default discriminator name, do not specify a JsonDerivedType discriminator.
+        Attribute-based polymorphism cannot be combined with AllowDynamicDispatch;
+        unannotated types retain their previous behavior.</p>
+
+    <p data-ui="is-text">{{value: Item is PolymorphicTextItem}}</p>
+    <p data-ui="is-number">{{value: Item is PolymorphicNumberItem}}</p>
+    <p data-ui="safe-text">{{value: (Item as PolymorphicTextItem).Text}}</p>
+    <p>{{value: Item.Description}}</p>
+
+    <div IncludeInPage="{value: Item is PolymorphicTextItem}">
+        <dot:TextBox Text="{value: (Item as PolymorphicTextItem).Text}" data-ui="text" />
+        <dot:Validator Value="{value: (Item as PolymorphicTextItem).Text}" ShowErrorMessageText="true" data-ui="text-validation" />
+    </div>
+    <div IncludeInPage="{value: Item is PolymorphicNumberItem}">
+        <dot:TextBox Text="{value: (Item as PolymorphicNumberItem).Number}" data-ui="number" />
+        <dot:Validator Value="{value: (Item as PolymorphicNumberItem).Number}" ShowErrorMessageText="true" />
+    </div>
+
+    <dot:Button Text="Text (postback)" Click="{command: ChangeToText()}" Validation.Enabled="false" data-ui="server-text" />
+    <dot:Button Text="Number (postback)" Click="{command: ChangeToNumber()}" Validation.Enabled="false" data-ui="server-number" />
+    <dot:Button Text="Text (static command)" Click="{staticCommand: Item = ViewModel.CreateText()}" data-ui="client-text" />
+    <dot:Button Text="Number (static command)" Click="{staticCommand: Item = ViewModel.CreateNumber()}" data-ui="client-number" />
+    <dot:Button Text="Submit" Click="{command: TestCommand()}" Validation.Target="{value: Item}" data-ui="submit" />
+    <dot:Button Text="Describe (static command)" Click="{staticCommand: Result = ViewModel.Describe(Item)}" data-ui="describe" />
+    <p data-ui="result">{{value: Result}}</p>
+
+    <h2>Protected polymorphic object</h2>
+    <p>The secret is encrypted and not available to client bindings; the text is signed.
+        Client-side subtype changes are allowed, but a protected payload associated with
+        another concrete subtype fails server deserialization.</p>
+    <p>{{value: (ProtectedItem as PolymorphicProtectedTextItem).SignedText}}</p>
+    <pre data-ui="viewmodel-json" data-bind="text: JSON.stringify(dotvvm.serialization.serialize($data, { serializeAll: true }), null, 2)"></pre>
+</body>
+</html>

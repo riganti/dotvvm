@@ -42,26 +42,26 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var visitedTypes = new HashSet<Type>();
             foreach (var map in usedSerializationMaps)
             {
-                visitedTypes.Add(map.Type);
-                if (ignoredTypes?.Contains(map.ClientTypeId) != true)
+                if (visitedTypes.Add(map.Type))
                     queue.Enqueue(map);
             }
             if (queue.Count == 0)
                 return;
 
-            json.WriteStartObject(propertyName);
+            var started = false;
 
             while (queue.Count > 0)
             {
                 var map = queue.Dequeue();
                 var typeId = map.ClientTypeId;
 
-                if (ignoredTypes is {} && ignoredTypes.Contains(typeId))
-                    continue;
-
-                json.WritePropertyName(typeId);
                 var metadata = GetObjectTypeMetadataCached(map);
-                json.WriteRawValue(metadata.MetadataJson, skipInputValidation: true);
+                if (ignoredTypes?.Contains(typeId) != true)
+                {
+                    if (!started) { json.WriteStartObject(propertyName); started = true; }
+                    json.WritePropertyName(typeId);
+                    json.WriteRawValue(metadata.MetadataJson, skipInputValidation: true);
+                }
 
                 dependentEnumTypes.UnionWith(metadata.DependentEnumTypes);
 
@@ -80,11 +80,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var typeId = GetEnumTypeName(type);
                 if (ignoredTypes?.Contains(typeId) != true)
                 {
+                    if (!started) { json.WriteStartObject(propertyName); started = true; }
                     json.WritePropertyName(typeId);
                     json.WriteRawValue(GetEnumTypeMetadataCached(type), skipInputValidation: true);
                 }
             }
-            json.WriteEndObject();
+            if (started) json.WriteEndObject();
         }
 
         private byte[] GetEnumTypeMetadataCached(Type type)
@@ -110,6 +111,36 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (debug)
             {
                 json.WriteString("debugName"u8, map.Type.ToCode(stripNamespace: true));
+            }
+
+            if (map.RequiresTypeIdentity)
+            {
+                if (map.Type.IsAbstract || map.Type.IsInterface)
+                    json.WriteBoolean("isAbstract"u8, true);
+                var polymorphism = map.Polymorphism;
+                if (polymorphism is not null)
+                {
+                    polymorphism.ValidateMaps(viewModelSerializationMapper);
+                    dependentObjectTypes.UnionWith(polymorphism.RegisteredTypes);
+                }
+                json.WriteStartArray("derivedTypes"u8);
+                foreach (var derivedType in polymorphism?.DerivedTypes.Keys ?? Enumerable.Empty<Type>())
+                {
+                    dependentObjectTypes.Add(derivedType);
+                    json.WriteStringValue(derivedType.GetTypeHash());
+                }
+                json.WriteEndArray();
+            }
+            var baseTypes = map.Type.GetInterfaces().AsEnumerable();
+            for (var baseType = map.Type.BaseType; baseType is not null; baseType = baseType.BaseType)
+                baseTypes = baseTypes.Append(baseType);
+            var baseTypeArray = baseTypes.ToArray();
+            if (baseTypeArray.Length > 0)
+            {
+                json.WriteStartArray("baseTypes"u8);
+                foreach (var baseType in baseTypeArray)
+                    json.WriteStringValue(baseType.GetTypeHash());
+                json.WriteEndArray();
             }
 
             json.WriteStartObject("properties"u8);

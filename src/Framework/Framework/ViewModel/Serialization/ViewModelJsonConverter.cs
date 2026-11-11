@@ -57,6 +57,34 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             ViewModelSerializationMap<T> SerializationMap { get; } = factory.viewModelSerializationMapper.GetMap<T>();
 
+            Type? ResolvePolymorphicType(ref Utf8JsonReader reader, JsonSerializerOptions options)
+            {
+                var polymorphism = SerializationMap.Polymorphism;
+                if (polymorphism is null && SerializationMap.RegisteredPolymorphicContracts.Length == 0)
+                    return null;
+                polymorphism?.ValidateMaps(factory.viewModelSerializationMapper, options);
+                var probe = reader;
+                if (probe.TokenType == JsonTokenType.None) probe.Read();
+                using var document = JsonDocument.ParseValue(ref probe);
+                if (document.RootElement.ValueKind != JsonValueKind.Object)
+                    throw new JsonException("A polymorphic viewmodel must be an object.");
+                string? typeId = null;
+                foreach (var property in document.RootElement.EnumerateObject())
+                {
+                    if (property.Name != "$type") continue;
+                    if (typeId is not null || property.Value.ValueKind != JsonValueKind.String)
+                        throw new JsonException("A polymorphic viewmodel must have exactly one string $type.");
+                    typeId = property.Value.GetString();
+                }
+                if (typeId is null)
+                    throw new JsonException("A polymorphic viewmodel requires a hashed $type.");
+                if (polymorphism is not null)
+                    return polymorphism.ResolveType(typeId);
+                if (typeId != SerializationMap.ClientTypeId)
+                    throw new JsonException($"The $type does not match the declared registered subtype {typeof(T).ToCode()}.");
+                return typeof(T);
+            }
+
             public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
                 this.Read(ref reader, typeToConvert, options, DotvvmSerializationState.Current!);
             public T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, DotvvmSerializationState state)
@@ -66,11 +94,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (typeof(T) != typeToConvert)
                     throw new ArgumentException("typeToConvert must be the same as T", nameof(typeToConvert));
 
+                if (reader.TokenType == JsonTokenType.None) reader.Read();
                 if (reader.TokenType == JsonTokenType.Null)
                 {
                     Debug.Assert(!typeof(T).IsValueType);
                     return default!;
                 }
+
+                if (ResolvePolymorphicType(ref reader, options) is {} actualType && actualType != typeof(T))
+                    return options.GetConverter(actualType) is IDotvvmJsonConverter converter
+                        ? (T)converter.ReadUntyped(ref reader, actualType, options, state)!
+                        : (T)JsonSerializer.Deserialize(ref reader, actualType, options)!;
 
                 ReadObjectStart(ref reader);
                 var evSuppressed = state.EVReader!.Suppressed;
@@ -119,6 +153,25 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     writer.WriteNullValue();
                     return;
                 }
+                if (SerializationMap.Polymorphism is null && SerializationMap.RegisteredPolymorphicContracts.Length > 0 && value.GetType() != typeof(T))
+                    throw new JsonException($"The runtime type does not match the declared registered subtype {typeof(T).ToCode()}.");
+                if (SerializationMap.Polymorphism is {} polymorphism)
+                {
+                    polymorphism.ValidateMaps(factory.viewModelSerializationMapper, options);
+                    var actualType = polymorphism.ResolveType(value.GetType().GetTypeHash());
+                    // The declared contract is needed even when only a derived instance occurs.
+                    state.UsedSerializationMaps.Add(SerializationMap);
+                    if (actualType != typeof(T))
+                    {
+                        if (wrapObject) writer.WriteStartObject();
+                        if (options.GetConverter(actualType) is IDotvvmJsonConverter converter)
+                            converter.WriteUntyped(writer, value, options, state, requireTypeField: true, wrapObject: false);
+                        else
+                            throw new NotSupportedException($"Registered subtype {actualType.ToCode()} must use the DotVVM converter when serialized through a polymorphic contract.");
+                        if (wrapObject) writer.WriteEndObject();
+                        return;
+                    }
+                }
                 var evSuppressLevel = state.EVWriter!.SuppressedLevel;
                 try
                 {
@@ -131,7 +184,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     {
                         writer.WriteStartObject();
                     }
+                    foreach (var discriminator in SerializationMap.PolymorphicDiscriminators)
+                        WriteCustomDiscriminator(writer, discriminator.Key, discriminator.Value);
                     state.EVWriter.Nest();
+                    if (SerializationMap.RequiresTypeIdentity)
+                        state.EVWriter.SetType(SerializationMap.ClientTypeId);
 
                     SerializationMap.WriterFactory.Invoke(writer, value, options, requireTypeField, state.EVWriter, state);
 
@@ -139,6 +196,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     {
                         writer.WriteEndObject();
                     }
+
                     state.EVWriter.End();
                 }
                 finally
@@ -152,6 +210,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 }
             }
 
+            static void WriteCustomDiscriminator(Utf8JsonWriter writer, string name, object discriminator)
+            {
+                writer.WritePropertyName(name);
+                if (discriminator is string text) writer.WriteStringValue(text);
+                else if (discriminator is int number) writer.WriteNumberValue(number);
+                else throw new NotSupportedException("A polymorphic discriminator must be a string or an integer.");
+            }
+
             /// <summary>
             /// Populates the specified JObject.
             /// </summary>
@@ -162,10 +228,24 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (state is null)
                     throw new ArgumentNullException(nameof(state), "DotvvmSerializationState must be created before calling the ViewModelJsonConverter.");
 
+                if (reader.TokenType == JsonTokenType.None) reader.Read();
                 if (reader.TokenType == JsonTokenType.Null)
                 {
                     Debug.Assert(!typeof(T).IsValueType);
                     return default!;
+                }
+                if (ResolvePolymorphicType(ref reader, options) is {} actualType)
+                {
+                    if (actualType != typeof(T))
+                    {
+                        if (options.GetConverter(actualType) is IDotvvmJsonConverter converter)
+                            return value is not null && value.GetType() == actualType
+                                ? (T)converter.PopulateUntyped(ref reader, actualType, value, options, state)!
+                                : (T)converter.ReadUntyped(ref reader, actualType, options, state)!;
+                        return (T)JsonSerializer.Deserialize(ref reader, actualType, options)!;
+                    }
+                    if (value is not null && value.GetType() != actualType)
+                        value = default!;
                 }
                 ReadObjectStart(ref reader);
                 var evSuppressed = state.EVReader!.Suppressed;

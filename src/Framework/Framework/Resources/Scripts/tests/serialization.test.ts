@@ -6,6 +6,9 @@ import { tryCoerce } from '../metadata/coercer';
 import { createComplexObservableSubViewmodel, createComplexObservableViewmodel, ObservableHierarchy, ObservableSubHierarchy, ObservableSubSubHierarchy } from "./observableHierarchies"
 
 jest.mock("../metadata/typeMap", () => ({
+    getCurrentTypeMap() {
+        return testTypeMap;
+    },
     getTypeInfo(typeId: string) {
         return testTypeMap[typeId];
     },
@@ -182,7 +185,8 @@ describe("DotVVM.Serialization - deserialize", () => {
 
         const result = assertNotObservable(deserialize(viewmodel, target))
 
-        assertObservableArray(target.Prop)
+        expect(result).not.toBe(target)
+        expect(target.Prop()).toBe("a")
 
         const subArray = assertObservableArray(result.Prop)
         const element = assertObservable(subArray[0])
