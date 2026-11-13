@@ -31,6 +31,14 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         persist-credentials: false
+    - name: Check github actions with zizmor
+      if: matrix.configuration == 'Release'
+      uses: zizmorcore/zizmor-action@45d7276c9ca790aabd705e31ca99c6185c3e76dd # v0.8.1
+      with:
+        inputs: .github
+        advanced-security: false  # just fail pipeline
+        annotations: true
+        min-severity: low
     - name: Set up
       uses: $/.github/setup
       with:
