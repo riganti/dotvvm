@@ -28,25 +28,28 @@ on:
         default: false
         description: Run the pipeline but don't actually publish anything.
 
-permissions:
-  id-token: write  # Required for OIDC
-  contents: read
+cache-mode: none
 
 jobs:
   copy-nuget-packages:
     runs-on: windows-latest
     timeout-minutes: 10
     environment: public
+    permissions:
+      contents: read
+      id-token: write # Required for NuGet trusted publishing.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: nuget/setup-nuget@v1
+      - uses: nuget/setup-nuget@fd55a6f3b34392fa83fde1454582407d8c714123 # v4.0
         with:
           nuget-version: "6.x"
 
       - name: Log in to NuGet.org
         id: nuget-login
-        uses: NuGet/login@v1
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
         with:
           user: ${{ inputs.nuget-user }}
 
@@ -62,29 +65,35 @@ jobs:
       - name: Publish to NuGet.org
         env:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+          INCLUDE: ${{ inputs.include }}
+          EXCLUDE: ${{ inputs.exclude }}
+          VERSION: ${{ inputs.version }}
         run: >
           ./ci/scripts/Copy-NuGetPackages.ps1 `
             -root "${{ github.workspace }}" `
             -nuGetOrgApiKey "$env:NUGET_API_KEY" `
-            -include '${{ inputs.include }}' `
-            -exclude '${{ inputs.exclude }}' `
-            -version '${{ inputs.version }}' `
+            -include "$env:INCLUDE" `
+            -exclude "$env:EXCLUDE" `
+            -version "$env:VERSION" `
             -dryRun ${{ inputs.dry-run && '$true' || '$false' }}
         shell: pwsh
 
   copy-npm-packages:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write # Required for npm trusted publishing.
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
+          persist-credentials: false
 
-      - name: Upgrade npm
-        run: npm install -g npm@latest
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26'
+          package-manager-cache: false
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Set internal npm registry
         run: |
@@ -117,17 +126,19 @@ jobs:
 
           Write-Output "Publishing packages: $selectedPackages"
 
+          $packageTarballs = @()
           if ($selectedPackages.Count -gt 0) {
             $packageSpecs = @($selectedPackages | ForEach-Object {
               if ([string]::IsNullOrWhiteSpace($env:VERSION)) { $_ } else { "$_@$env:VERSION" }
             })
-            npm install @packageSpecs
+            # Download release tarballs without installing dependencies or running package scripts.
+            $packageTarballs = @(npm pack @packageSpecs --ignore-scripts --silent)
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
 
           $env:NODE_AUTH_TOKEN = ""
-          foreach ($package in $selectedPackages) {
-            npm publish --verbose "./node_modules/$package" `
+          foreach ($tarball in $packageTarballs) {
+            npm publish --verbose "./$tarball" `
                 --registry https://registry.npmjs.org `
                 --ignore-scripts `
                 ${{ inputs.dry-run && '--dry-run' || '' }} --tag latest

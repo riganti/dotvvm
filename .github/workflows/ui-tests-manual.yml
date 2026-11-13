@@ -50,21 +50,29 @@ on:
         description: The timeout in minutes
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   ui-tests:
     name: UI tests
     runs-on: ${{ inputs.os }}
     timeout-minutes: ${{ inputs.timeout }}
+    permissions:
+      contents: read
+      checks: write # Required by .github/test-report.
     env:
       SLN: "${{ inputs.os == 'windows-2022' && 'src/DotVVM.sln' || 'src/DotVVM.Crossplatform.slnf' }}"
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
       with:
         sln: ${{ env.SLN }}
     - name: Run UI tests
-      uses: ./.github/uitest
+      uses: $/.github/uitest
       with:
         browser: ${{ inputs.browser }}
         github-token: ${{ secrets.GITHUB_TOKEN }}

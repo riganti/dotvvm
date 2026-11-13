@@ -34,12 +34,15 @@ runs:
   - if: ${{ runner.os != 'Windows' }}
     name: uitest.sh
     run: bash ./.github/uitest/uitest.sh
-      --samples-profile "seleniumconfig.aspnetcorelatest.${{ inputs.browser }}.json"
-      --trx-name "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
-      --config "${{ inputs.build-configuration }}"
-      --environment "${{ inputs.runtime-environment }}"
+      --samples-profile "seleniumconfig.aspnetcorelatest.${BROWSER}.json"
+      --trx-name "ui-test-results-${BROWSER}-${RUNNER_OS}.trx"
+      --config "$BUILD_CONFIGURATION"
+      --environment "$RUNTIME_ENVIRONMENT"
     shell: bash
     env:
+      BROWSER: ${{ inputs.browser }}
+      BUILD_CONFIGURATION: ${{ inputs.build-configuration }}
+      RUNTIME_ENVIRONMENT: ${{ inputs.runtime-environment }}
       DOTVVM_SAMPLES_CONFIG_PROFILE: ${{ inputs.samples-config }}
       DOTVVM_TEST_PATH_BASE: ${{ inputs.path-base }}
       GITHUB_TOKEN: ${{ inputs.github-token }}
@@ -53,17 +56,19 @@ runs:
   - if: ${{ runner.os == 'Windows' }}
     name: uitest.ps1
     run: .\.github\uitest\uitest.ps1
-      -SamplesProfile "seleniumconfig.owin.${{ inputs.browser }}.json"
-      -TrxName "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
-      -Config "${{ inputs.build-configuration }}"
+      -SamplesProfile "seleniumconfig.owin.$env:BROWSER.json"
+      -TrxName "ui-test-results-$env:BROWSER-$env:RUNNER_OS.trx"
+      -Config "$env:BUILD_CONFIGURATION"
     shell: pwsh
     env:
+      BROWSER: ${{ inputs.browser }}
+      BUILD_CONFIGURATION: ${{ inputs.build-configuration }}
       DOTVVM_SAMPLES_CONFIG_PROFILE: ${{ inputs.samples-config }}
       DOTVVM_TEST_PATH_BASE: ${{ inputs.path-base }}
       GITHUB_TOKEN: ${{ inputs.github-token }}
 
   # publish the result to github
-  - uses: ./.github/test-report
+  - uses: $/.github/test-report
     with:
       trx-path: artifacts/test/ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx
       report-name: ${{ inputs.browser }}-tests-${{ runner.os }}-${{ inputs.runtime-environment }}-${{ inputs.samples-config }}

@@ -9,6 +9,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   DOTVVM_ROOT: ${{ github.workspace }}
   DOTNET_NOLOGO: 1
@@ -25,9 +28,19 @@ jobs:
         configuration: [Release, Debug]
     timeout-minutes: 20
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - name: Check github actions with zizmor
+      if: matrix.configuration == 'Release'
+      uses: zizmorcore/zizmor-action@45d7276c9ca790aabd705e31ca99c6185c3e76dd # v0.8.1
+      with:
+        inputs: .github
+        advanced-security: false  # just fail pipeline
+        annotations: true
+        min-severity: low
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
       with:
         sln: src/DotVVM.Crossplatform.slnf
 
@@ -80,9 +93,11 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 20
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
     - name: MSBuild build
       run: msbuild src/DotVVM.sln -v:m -t:Clean,Build -p:Configuration=Release -p:WarningLevel=0
 
@@ -90,18 +105,23 @@ jobs:
     name: .NET unit tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    permissions:
+      contents: read
+      checks: write # Required by .github/test-report.
     strategy:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
         os: [ubuntu-latest, windows-2022, macOS-latest]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
       with:
         sln: src/DotVVM.Crossplatform.slnf
     - name: Tests (net8.0)
-      uses: ./.github/unittest
+      uses: $/.github/unittest
       with:
         project: src/Tests
         name: framework-tests
@@ -109,7 +129,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net8.0
     # - name: Tests (net7.0)
-    #   uses: ./.github/unittest
+    #   uses: $/.github/unittest
     #   with:
     #     project: src/Tests
     #     name: framework-tests
@@ -117,7 +137,7 @@ jobs:
     #     github-token: ${{ secrets.GITHUB_TOKEN }}
     #     target-framework: net7.0
     - name: Tests (net472)
-      uses: ./.github/unittest
+      uses: $/.github/unittest
       if: ${{ (matrix.os == 'windows-2022') && (success() || failure()) }}
       with:
         project: src/Tests
@@ -126,7 +146,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net472
     - name: Analyzers.Tests (net8.0)
-      uses: ./.github/unittest
+      uses: $/.github/unittest
       if: ${{ success() || failure() }}
       with:
         project: src/Analyzers/Analyzers.Tests
@@ -135,7 +155,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net8.0
     # - name: Analyzers.Tests (net7.0)
-    #   uses: ./.github/unittest
+    #   uses: $/.github/unittest
     #   with:
     #     project: src/Analyzers/Analyzers.Tests
     #     name: analyzers-tests
@@ -143,7 +163,7 @@ jobs:
     #     github-token: ${{ secrets.GITHUB_TOKEN }}
     #     target-framework: net7.0
     - name: Adapters.WebForms.Tests (net472)
-      uses: ./.github/unittest
+      uses: $/.github/unittest
       if: matrix.os == 'windows-2022'
       with:
         project: src/Adapters/Tests/WebForms
@@ -152,7 +172,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         target-framework: net472
     - name: Integration Tests (net10.0)
-      uses: ./.github/unittest
+      uses: $/.github/unittest
       if: ${{ matrix.os == 'ubuntu-latest' && (success() || failure()) }}
       with:
         project: src/IntegrationTests
@@ -172,23 +192,27 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-2022, macOS-latest]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
       with:
         sln: src/DotVVM.Crossplatform.slnf
     - name: CommandLine tests
-      uses: ./.github/clitests
+      uses: $/.github/clitests
 
   js-tests:
     runs-on: ubuntu-latest
     name: JS unit tests
     timeout-minutes: 20
     steps:
-    - uses: actions/checkout@v3
-    # Node.js
-    - uses: actions/setup-node@v2
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
+        persist-credentials: false
+    # Node.js
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with: # zizmor: ignore[cache-poisoning] -- This job only runs tests and does not publish packages.
         node-version: 24
     - run: |
         corepack enable
@@ -208,6 +232,9 @@ jobs:
     name: UI tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 50
+    permissions:
+      contents: read
+      checks: write # Required by .github/test-report.
     strategy:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
@@ -243,13 +270,15 @@ jobs:
     env:
       SLN: "${{ matrix.os == 'windows-2022' && 'src/DotVVM.sln' || 'src/DotVVM.Crossplatform.slnf' }}"
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - name: Set up
-      uses: ./.github/setup
+      uses: $/.github/setup
       with:
         sln: ${{ env.SLN }}
     - name: Run UI tests
-      uses: ./.github/uitest
+      uses: $/.github/uitest
       with:
         browser: ${{ matrix.browser }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
