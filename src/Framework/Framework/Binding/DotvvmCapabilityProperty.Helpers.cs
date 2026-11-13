@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Binding
             {
                 if (c.IsPropertySet(p))
                 {
-                    var x = c.GetValue(p);
+                    var x = c.GetValueRaw(p);
                     // we want to return ValueOrBinding(null) -- "property set to null"
                     // but if that isn't possible, it's better to return null ("property missing") than crash
                     if (x is null && default(T) != null)
@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Binding
             }
             public static ValueOrBinding<T> GetValueOrBindingSlow<T>(DotvvmBindableObject c, DotvvmProperty p)
             {
-                return ValueOrBinding<T>.FromBoxedValue(c.GetValue(p));
+                return ValueOrBinding<T>.FromBoxedValue(c.GetValueRaw(p));
             }
             public static void SetOptionalValueOrBinding<T>(DotvvmBindableObject c, DotvvmProperty p, ValueOrBinding<T>? val)
             {
