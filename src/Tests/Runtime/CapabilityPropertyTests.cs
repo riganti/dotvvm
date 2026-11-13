@@ -241,6 +241,36 @@ namespace DotVVM.Framework.Tests.Runtime
         [DataRow(typeof(TestControl6))]
         [DataRow(typeof(TestControlFallbackProps))]
         [DataRow(typeof(TestControlInheritedProps))]
+        public void BitMoreComplexCapability_PreservesBindingsOfInheritedProperty(Type controlType)
+        {
+            var bindingService = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<BindingCompilationService>();
+            var context = DataContextStack.Create(typeof(string));
+            var binding = bindingService.Cache.CreateValueBinding<int?>("1", context);
+            var optionalBinding = bindingService.Cache.CreateValueBinding<int>("2", context);
+            var parent = (HtmlGenericControl)Activator.CreateInstance(controlType);
+            var control = (HtmlGenericControl)Activator.CreateInstance(controlType);
+            parent.Children.Add(control);
+
+            var source = controlType == typeof(TestControlInheritedProps) ? parent : control;
+            var propertyName = controlType == typeof(TestControlFallbackProps) ? "ValueOrBinding2" : "ValueOrBinding";
+            var optionalPropertyName = controlType == typeof(TestControlFallbackProps) ? "ValueOrBindingNullable2" : "ValueOrBindingNullable";
+            source.SetProperty(propertyName, binding);
+            source.SetProperty(optionalPropertyName, optionalBinding);
+
+            var capability = control.GetCapability<BitMoreComplexCapability>();
+            Assert.AreSame(binding, capability.ValueOrBinding.GetBinding());
+            Assert.AreSame(optionalBinding, capability.ValueOrBindingNullable?.GetBinding());
+
+            var target = (HtmlGenericControl)Activator.CreateInstance(controlType);
+            target.SetValue(DotvvmCapabilityProperty.Find(controlType, typeof(BitMoreComplexCapability)), capability);
+            Assert.AreSame(binding, target.GetBinding(target.GetDotvvmProperty("ValueOrBinding")));
+            Assert.AreSame(optionalBinding, target.GetBinding(target.GetDotvvmProperty(optionalPropertyName)));
+        }
+
+        [DataTestMethod]
+        [DataRow(typeof(TestControl6))]
+        [DataRow(typeof(TestControlFallbackProps))]
+        [DataRow(typeof(TestControlInheritedProps))]
         public void BitMoreComplexCapability_SetDefaultValue(Type controlType)
         {
             var control1 = (DotvvmBindableObject)Activator.CreateInstance(controlType);
@@ -430,6 +460,11 @@ namespace DotVVM.Framework.Tests.Runtime
             }
             public static readonly DotvvmProperty NullableProperty =
                 DotvvmProperty.Register<int?, TestControlInheritedProps>(nameof(Nullable), isValueInherited: true);
+
+            public static readonly DotvvmProperty ValueOrBindingProperty =
+                DotvvmProperty.Register<int?, TestControlInheritedProps>("ValueOrBinding", isValueInherited: true);
+            public static readonly DotvvmProperty ValueOrBindingNullableProperty =
+                DotvvmProperty.Register<int, TestControlInheritedProps>("ValueOrBindingNullable", isValueInherited: true);
 
             public static readonly DotvvmCapabilityProperty BitMoreComplexCapabilityProperty =
                 DotvvmCapabilityProperty.RegisterCapability<BitMoreComplexCapability, TestControlInheritedProps>();
